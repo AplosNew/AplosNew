@@ -485,4 +485,27 @@ function bonusDisbursementController(commonMessage, $scope, $rootScope, baseServ
                 ShowResult(response.data.Message, 'failure');
             });
     };
+    $scope.BonusUnDisbursementSummaryReportExcel = function () {
+        $scope.summaryfileName = "Bonus UnDisbursement Summary.xlsx"
+        var parameters = {
+            'fromDate': $scope.disbursementAdvice.FromDate, 'toDate': $scope.disbursementAdvice.ToDate, 'salaryProcessId': $scope.salaryProcessId, 'isActive': $scope.isActive,
+            'isSeperated': $scope.isSeperated, 'isMaternity': $scope.isMaternity, 'paymentMode': $scope.disbursementAdvice.PaymentMode
+        };
+        $http({
+            method: "POST",
+            dataType: 'JSON',
+            url: 'Accounts/SalaryDisbursement/GetEmployeeBonusUnDisbursementSummary',
+            data: parameters
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.summaryfileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+    };
 }

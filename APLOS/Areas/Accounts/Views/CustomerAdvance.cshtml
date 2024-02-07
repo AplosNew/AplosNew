@@ -131,7 +131,7 @@
         <div class="form-group" id="div_qty">
             <label class="col-sm-4 control-label">Amount<sup>*</sup></label>
             <div class="col-sm-5 show-message" style="padding-right:0px;">
-                <input ng-disabled="advance.JournalId ||advance.PaymentSource=='MultiBank'" tabindex="11" ng-model="advance.Amount" type="text" n-decimals="2" class="form-control text-right">
+                <input ng-disabled="advance.JournalId" @*||advance.PaymentSource=='MultiBank'*@ tabindex="11" ng-model="advance.Amount" type="text" n-decimals="2" class="form-control text-right">
             </div>
             <div class="col-sm-3 show-message" style="padding-left:0px;">
                 <div class="select-style">
@@ -270,7 +270,7 @@
                             <input type="text" n-decimals="2" ng-disabled="x.BankCurrencyId==voucher.CurrencyId" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="BankAmount" autocomplete="off" ng-model="x.BankAmount" ng-keyup="calbankCurrecyAmount(x)">
                         </td>
                         <td>
-                            <input type="text" n-decimals="2" ng-disabled="x.BankCurrencyId!=voucher.CurrencyId" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="BaseDrAmount" autocomplete="off" ng-model="x.BaseDrAmount" ng-keyup="calBaseAmount()">
+                            <input type="text" n-decimals="2"  title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="BaseDrAmount" autocomplete="off" ng-model="x.BaseDrAmount" ng-keyup="calBaseAmount()">
                         </td>
                         <td class="text-right">
                             <button ng-click="removeBankRow($index,x)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove">
@@ -507,7 +507,7 @@
                     <td class="text-right">
                         <ul class="list-inline action-list">
                             <li ng-show="x.IsPoste || x.IsPark"><a ng-click="confirmPost(x.Id,x.AdvanceGroupNo);" href="" class="btn btn-action tooltip-here">Post</a></li>
-                            <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
+                            <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId,x.AdvanceGroupNo);" href="" class="btn btn-action tooltip-here">Delete</a></li>
                             <li><a class="btn btn-action" href="Accounts/Advance/ReportCustomerAdvance?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}&advanceGroupNo={{x.AdvanceGroupNo}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
                             <li><a class="btn btn-action" href="Accounts/Advance/ReportCustomerAdvance?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}&advanceGroupNo={{x.AdvanceGroupNo}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
                         </ul>
@@ -555,7 +555,7 @@
 @Html.Partial("~/Areas/Accounts/Views/Loan/_LoanListPopUp.cshtml")
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceId,advanceGroupNo)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmUnPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="unPost(advanceId)"></confirm-archive-generic>
-<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(advanceId,voucherId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(advanceId,voucherId,advanceGroupNo)"></confirm-archive-generic>
 
 <div class="modal fade site-modal in" id="multibankPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">

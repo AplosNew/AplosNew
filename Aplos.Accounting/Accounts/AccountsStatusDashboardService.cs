@@ -41,7 +41,7 @@ namespace Library.Accounting.Accounts
             var searchDateODue = "";
             if (fromDate != "" && toDate != "")
             {
-               
+
                 searchDate = "AND ( convert(Date,IV.PostingDate) Between '" + fromDate + @"' and '" + toDate + @"')";
                 searchDateODue = "AND ( convert(Date,I.PostingDate) Between '" + fromDate + @"' and '" + toDate + @"')";
             }
@@ -654,7 +654,7 @@ namespace Library.Accounting.Accounts
 
                 worksheet.Range[ROW, startCol, ROW, COL].BorderAround(ExcelLineStyle.Hair);
                 worksheet.Range[ROW, startCol, ROW, COL].BorderInside(ExcelLineStyle.Hair);
-                
+
                 DataTable dt = new DataTable("DD");
                 foreach (string item in MasterLCList[0].Keys)
                 {
@@ -679,7 +679,7 @@ namespace Library.Accounting.Accounts
                     dt.Rows.Add(dr);
                 }
 
-               
+
 
                 if (dt.Rows.Count == 0)
                 {
@@ -712,7 +712,7 @@ namespace Library.Accounting.Accounts
 
                     worksheet[ROW, colBooksSetOff].Number = clsStaticInfo.dbl(dt.Rows[i]["BooksSetOff"].ToString());
                     worksheet[ROW, colBooksSetOff].NumberFormat = "#,##0.00;(#,##0.00)";
-                    
+
                     worksheet[ROW, colBooksDiscount].Number = clsStaticInfo.dbl(dt.Rows[i]["BooksDiscountAmount"].ToString());
                     worksheet[ROW, colBooksDiscount].NumberFormat = "#,##0.00;(#,##0.00)";
                     worksheet[ROW, colTaxAmount].Number = clsStaticInfo.dbl(dt.Rows[i]["TaxAmount"].ToString());
@@ -732,7 +732,7 @@ namespace Library.Accounting.Accounts
                     worksheet[ROW, colBooksBalance].Number = clsStaticInfo.dbl(dt.Rows[i]["BooksBalance"].ToString());
                     worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                    
+
 
                     worksheet[ROW, colODueMoreThan30].Number = clsStaticInfo.dbl(dt.Rows[i]["OverDueMoreThan30"].ToString());
                     worksheet[ROW, colODueMoreThan30].NumberFormat = "#,##0.00;(#,##0.00)";
@@ -765,7 +765,7 @@ namespace Library.Accounting.Accounts
 
                 worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
                 worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
-                
+
                 worksheet[ROW, colAdvance - 1].Text = "Total";
                 worksheet[ROW, colAdvance - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
@@ -849,7 +849,7 @@ namespace Library.Accounting.Accounts
                 #region Sheet2 WriteOff Pending Posting
                 IWorksheet sheet2 = workbook.Worksheets[1];
                 sheet2.Name = "WriteOff Pending Posting";
-                
+
                 #region columns
                 int ROW2 = 1, COL2 = 1;
                 int startRow2 = ROW2;
@@ -956,7 +956,7 @@ namespace Library.Accounting.Accounts
         }
 
         //Detail Or Aging Report
-        public string GetPartyPaymentStatusAgingReport(Dictionary<string, string> parameters, string fromDate, string toDate, string CompanyGroupId, string CompanyId, string PlantId,  string SheetName) 
+        public string GetPartyPaymentStatusAgingReport(Dictionary<string, string> parameters, string fromDate, string toDate, string CompanyGroupId, string CompanyId, string PlantId, string SheetName)
         {
             clsReport objRpt = null;
             clsReport objRptSR = null;
@@ -977,7 +977,7 @@ namespace Library.Accounting.Accounts
                 DataTable data;
 
                 // ExcelEngine excelEngine = null;
-                
+
                 workbook.Version = ExcelVersion.Excel2013;
                 var sheet1 = workbook.Worksheets[0];
 
@@ -1025,7 +1025,7 @@ namespace Library.Accounting.Accounts
                 sheet1.Range[xlsRow - 1, 1].CellStyle.Font.Bold = true;
 
 
-                
+
                 sheet1[xlsRow, xlsCol].Text = "Party Nature";
                 int colPartyNature = xlsCol;
                 sheet1[xlsRow, xlsCol].ColumnWidth = 12;
@@ -1048,6 +1048,11 @@ namespace Library.Accounting.Accounts
 
                 sheet1[xlsRow, xlsCol].Text = "Responsible Person";
                 int colResponsiblePerson = xlsCol;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 12;
+                xlsCol++;
+
+                sheet1[xlsRow, xlsCol].Text = "Entity";
+                int colEntity = xlsCol;
                 sheet1[xlsRow, xlsCol].ColumnWidth = 12;
                 xlsCol++;
 
@@ -1205,9 +1210,10 @@ namespace Library.Accounting.Accounts
                         sheet1.Range[xlsRow, colPartyCategory].Text = dtRCMPayable.Rows[i]["PartyCategory"].ToString();
                         sheet1.Range[xlsRow, colPartySubCategory].Text = dtRCMPayable.Rows[i]["PartySubCategory"].ToString();
                         sheet1.Range[xlsRow, colResponsiblePerson].Text = dtRCMPayable.Rows[i]["ResponsiblePerson"].ToString();
+                        sheet1.Range[xlsRow, colEntity].Text = dtRCMPayable.Rows[i]["Entity"].ToString();
                         sheet1.Range[xlsRow, colPartyId].Text = dtRCMPayable.Rows[i]["PartyId"].ToString();
                         sheet1.Range[xlsRow, iPartyName].Text = dtRCMPayable.Rows[i]["PartyName"].ToString();
-                        
+
                         sheet1.Range[xlsRow, iPartyPlantName].Text = dtRCMPayable.Rows[i]["PartyPlantName"].ToString();
                         sheet1.Range[xlsRow, iCurrencyCode].Text = dtRCMPayable.Rows[i]["CurrencyCode"].ToString();
                         sheet1.Range[xlsRow, iBaseOnDueDate].Text = dtRCMPayable.Rows[i]["BaseOnDueDate"].ToString();
@@ -1492,7 +1498,7 @@ namespace Library.Accounting.Accounts
         private DataTable GetVendorPayableAgingDetailData(string CompanyGroupId, string CompanyId, string PlantId, Dictionary<string, string> parameters, string taxyearId, string fromDate, string toDate) //string plantName, string fromDate, string toDate,
         {
             string vendorIdLoop = "''";
-           
+
 
             for (int i = parameters.Count - 1; i >= 0; i--)
             {
@@ -1520,7 +1526,7 @@ namespace Library.Accounting.Accounts
             string strSql = "";
             strSql = @"select x.* from (
 
-                        SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+                        SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,EN.UserName Entity,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
 										,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
 										, replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate,iv.DocDate  SortDocDate
 										, C.Code CurrencyCode
@@ -1607,7 +1613,7 @@ namespace Library.Accounting.Accounts
 										--GROUP BY IV.PartyId, PP.UserName,P.UserName
 
 								   UNION ALL
-                                    SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+                                    SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,EN.UserName Entity,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
 										,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
 										,replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate ,iv.DocDate  SortDocDate
 										,C.Code CurrencyCode
@@ -1663,7 +1669,7 @@ namespace Library.Accounting.Accounts
 										LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
 										LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
 										 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
-										WHERE WV.IsPark=0 AND ( convert(Date,WV.PostingDate) <= '" + toDate+ @"' ) and  isnull(iw.PaymentSource,'') not in('Tax') and  isnull(iw.SourceType,'') not in('DebitNoteSetOff')
+										WHERE WV.IsPark=0 AND ( convert(Date,WV.PostingDate) <= '" + toDate + @"' ) and  isnull(iw.PaymentSource,'') not in('Tax') and  isnull(iw.SourceType,'') not in('DebitNoteSetOff')
 										GROUP BY iwd.InvoiceDetailId,iw.PartyId--,iw.PartyPlantId
 										)AS IwV ON IwV.InvoiceDetailId=IVD.Id AND VD.PartyId=IwV.PartyId
                                                  LEFT JOIN (SELECT wd.InvoiceDetailId,sum(VDC.DrAmount) TaxAmount  FROM TRN.InvoiceWriteOffDetail wd 
@@ -1690,7 +1696,7 @@ namespace Library.Accounting.Accounts
                                         AND ISNULL(ISNULL(VDC.CrAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0)>0
 
                                         UNION ALL
-				                        SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+				                        SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,EN.UserName Entity,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
 										                        ,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
 										                        ,replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate ,iv.DocDate  SortDocDate
 										                        ,C.Code CurrencyCode,0 BaseNoOfDays, REPLACE(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') AS BaseOnDueDate, REPLACE(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') AS ActualDueDate
@@ -2185,7 +2191,7 @@ namespace Library.Accounting.Accounts
 
         }
 
-      // donught PopUp data
+        // donught PopUp data
         public List<Dictionary<string, object>> GetPartyAgingDueData(string companyGroupId, string companyId, string plantId, string overDueDetailAmount)
         {
             var sql = @"SELECT count(X.NoOfInvoice) NoOfInvoice,convert(bit,0) AS isSelected,X.PartyId,X.PartyPlantId,X.PartyCode,X.PartyName,X.PartyPlantName,SUM(X.Gross) Gross ,SUM(X.SetOff) SetOff,SUM(X.Balance) Balance
@@ -2367,12 +2373,12 @@ namespace Library.Accounting.Accounts
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='"+companyId+@"'
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
 
-                WHERE "+setOffDetailAgingType+@" and  IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
-                AND IV.CompanyGroupId='"+companyGroupId+"' AND IV.CompanyId='"+companyId+"'  AND IV.PlantId='"+plantId+@"'
-                 AND IV.PartyId in('"+partyId+@"')
+                WHERE " + setOffDetailAgingType + @" and  IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
+                AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "'  AND IV.PlantId='" + plantId + @"'
+                 AND IV.PartyId in('" + partyId + @"')
 
                 UNION ALL
                 SELECT  ISNULL(IVD.Amount,0) AS Gross,0 DebitNoteAmount, 	isnull( DIWD.DiscountAmount,0)as TranDiscountAmount	,ISNULL( IWD.TaxAmount,0 )TaxAmount
@@ -2409,13 +2415,13 @@ namespace Library.Accounting.Accounts
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='"+companyId+ @"'
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                
                 WHERE " + setOffDetailAgingType + @" and IV.Archive = 0 AND IV.IsWrittenOff = 0 AND IVD.IsWrittenOff = 0 AND V.IsPark = 0 AND IVD.IsBlock = 0 AND IV.SourceType in ('InventoryPayable')
-                AND IV.CompanyGroupId = '" + companyGroupId+"' AND IV.CompanyId = '"+companyId+"' AND IV.PlantId = '"+plantId+@"'
+                AND IV.CompanyGroupId = '" + companyGroupId + "' AND IV.CompanyId = '" + companyId + "' AND IV.PlantId = '" + plantId + @"'
                 AND IR.PurchaseDocumentAcceptanceId IS NULL
-                AND IV.PartyId in('"+partyId+@"')
+                AND IV.PartyId in('" + partyId + @"')
 
                 UNION ALL
                 SELECT ISNULL(IVD.Amount,0) AS Gross,0 DebitNoteAmount, isnull( DIWD.DiscountAmount,0)as TranDiscountAmount	,ISNULL( IWD.TaxAmount,0 )TaxAmount
@@ -2457,12 +2463,12 @@ namespace Library.Accounting.Accounts
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='"+companyId+ @"'
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                
                 WHERE " + setOffDetailAgingType + @" and  IV.Archive = 0 AND IV.IsWrittenOff = 0 AND IVD.IsWrittenOff = 0 AND V.IsPark = 0  AND IV.SourceType in ('CreditNote','VendorPayment')
-                AND IV.CompanyGroupId = '"+companyGroupId+"' AND IV.CompanyId = '"+companyId+"' AND IV.PlantId = '"+partyId+@"'
-                AND IV.PartyId in('"+partyId+@"')
+                AND IV.CompanyGroupId = '" + companyGroupId + "' AND IV.CompanyId = '" + companyId + "' AND IV.PlantId = '" + partyId + @"'
+                AND IV.PartyId in('" + partyId + @"')
                 )x
 
 ";
@@ -2849,7 +2855,7 @@ namespace Library.Accounting.Accounts
         //SetOff Detail
         public List<Dictionary<string, object>> GetpartyPaymentSetOffDetailList(string companyGroupId, string companyId, string plantId, string setOffPaymentDetailAgingType, string partyId)
         {
-             var sql = @" SELECT Isnull(IV.Id,'') InvoiceId, isnull( IV.DocRefNo,'') InvoiceNo, isnull( v.VoucherNo,0)VoucherNo, isnull(v.SourceType,'')SourceType,  isnull(v.Id,'')VoucherId
+            var sql = @" SELECT Isnull(IV.Id,'') InvoiceId, isnull( IV.DocRefNo,'') InvoiceNo, isnull( v.VoucherNo,0)VoucherNo, isnull(v.SourceType,'')SourceType,  isnull(v.Id,'')VoucherId
               ,replace(convert(varchar(11),v.PostingDate,106), '', '-') PostingDate, isnull( s.Amount,0) PaymentAmount
 	            ,isnull(CDH.CheckLotNo,'')CheckLotNo ,ISNULL( CDH.CheckNo,0)CheckNo
 	            , replace(convert(varchar(11),CDH.CheckDate,106), '', '-') CheckDate, ISNULL( BM.AccountTitle,'')AccountTitle,ISNULL( w.PaymentSource,'')PaymentSource
@@ -2887,8 +2893,8 @@ namespace Library.Accounting.Accounts
                 WHERE " + setOffPaymentDetailAgingType + @"
 				and  IV.Archive=0  AND V.IsPark=0 AND IVD.IsBlock=0 
 				AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
-                AND IV.CompanyGroupId='"+companyGroupId+"' AND IV.CompanyId='"+companyId+"'  AND IV.PlantId='"+plantId+@"'
-                 AND w.PartyId in ('"+partyId+ @"') and IV.IsWrittenOff=0
+                AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "'  AND IV.PlantId='" + plantId + @"'
+                 AND w.PartyId in ('" + partyId + @"') and IV.IsWrittenOff=0
 				  and ISNULL(w.PaymentSource,'') not in ('Discount','Tax')
 
                 UNION ALL
@@ -2923,9 +2929,9 @@ namespace Library.Accounting.Accounts
 							FROM TRN.CheckLotDetailHistory C group by C.VoucherDetailId) CDH ON CDH.VoucherDetailId=VD.Id
                
                 WHERE " + setOffPaymentDetailAgingType + @" and IV.Archive = 0  AND V.IsPark = 0 AND IVD.IsBlock = 0 AND IV.SourceType in ('InventoryPayable')
-                AND IV.CompanyGroupId = '"+companyGroupId+"' AND IV.CompanyId = '"+companyId+"' AND IV.PlantId = '"+plantId+@"'
+                AND IV.CompanyGroupId = '" + companyGroupId + "' AND IV.CompanyId = '" + companyId + "' AND IV.PlantId = '" + plantId + @"'
                 AND IR.PurchaseDocumentAcceptanceId IS NULL
-                AND IV.PartyId in('"+partyId+ @"') and ISNULL(w.PaymentSource,'') not in ('Discount','Tax') and IV.IsWrittenOff=0
+                AND IV.PartyId in('" + partyId + @"') and ISNULL(w.PaymentSource,'') not in ('Discount','Tax') and IV.IsWrittenOff=0
 
                 UNION ALL
                 SELECT  Isnull(IV.Id,'') InvoiceId, isnull( IV.DocRefNo,'') InvoiceNo, isnull( v.VoucherNo,0)VoucherNo, isnull(v.SourceType,'')SourceType,  isnull(v.Id,'')VoucherId
@@ -2961,10 +2967,10 @@ namespace Library.Accounting.Accounts
 
 							FROM TRN.CheckLotDetailHistory C group by C.VoucherDetailId) CDH ON CDH.VoucherDetailId=VD.Id
 
-                WHERE " + setOffPaymentDetailAgingType+@" and  IV.Archive = 0  AND V.IsPark = 0  AND IV.SourceType in ('CreditNote','VendorPayment')
-                AND IV.CompanyGroupId = '"+companyGroupId+"' AND IV.CompanyId = '"+companyId+"' AND IV.PlantId = '"+plantId+@"'
-                AND IV.PartyId in('"+partyId+@"') and ISNULL(w.PaymentSource,'') not in ('Discount','Tax') and IV.IsWrittenOff=0";
-             return _sqlRepository.GetDataCollection(sql);
+                WHERE " + setOffPaymentDetailAgingType + @" and  IV.Archive = 0  AND V.IsPark = 0  AND IV.SourceType in ('CreditNote','VendorPayment')
+                AND IV.CompanyGroupId = '" + companyGroupId + "' AND IV.CompanyId = '" + companyId + "' AND IV.PlantId = '" + plantId + @"'
+                AND IV.PartyId in('" + partyId + @"') and ISNULL(w.PaymentSource,'') not in ('Discount','Tax') and IV.IsWrittenOff=0";
+            return _sqlRepository.GetDataCollection(sql);
 
         }
         //Vendor Payable aging No of invoice detail popUp data
@@ -3029,13 +3035,13 @@ namespace Library.Accounting.Accounts
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId+@"'
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
 
-                WHERE "+ vendorPayableInvoiceDetailAgingType + @" and IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
-                AND IV.CompanyGroupId='"+companyGroupId+"' AND IV.CompanyId='"+companyId+"'  AND IV.PlantId='"+plantId+@"'
+                WHERE " + vendorPayableInvoiceDetailAgingType + @" and IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
+                AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "'  AND IV.PlantId='" + plantId + @"'
                 --GROUP BY IV.PartyId, IV.PartyPlantId, PP.UserName,P.UserName
-                 AND IV.PartyId in('"+partyId+ @"')
+                 AND IV.PartyId in('" + partyId + @"')
 
                 UNION ALL
                 SELECT isnull( IV.PartyId,'')PartyId, IV.PartyPlantId,p.Code PartyCode, isnull( P.UserName ,'')PartyName, PP.UserName AS PartyPlantName
@@ -3091,13 +3097,13 @@ namespace Library.Accounting.Accounts
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN[SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId= VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType= 'CompanyCurrency' AND CPC.CompanyId= '" + companyId+ @"'
+                WHERE CPC.ParallelCurrencyType= 'CompanyCurrency' AND CPC.CompanyId= '" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId = VD.Id
 
                 WHERE " + vendorPayableInvoiceDetailAgingType + @" and IV.Archive = 0 AND IV.IsWrittenOff = 0 AND IVD.IsWrittenOff = 0 AND V.IsPark = 0 AND IVD.IsBlock = 0 AND IV.SourceType in ('InventoryPayable')
-                AND IV.CompanyGroupId = '" + companyGroupId+"' AND IV.CompanyId = '"+companyId+"' AND IV.PlantId = '"+plantId+@"'
+                AND IV.CompanyGroupId = '" + companyGroupId + "' AND IV.CompanyId = '" + companyId + "' AND IV.PlantId = '" + plantId + @"'
                 AND IR.PurchaseDocumentAcceptanceId IS NULL
-                AND IV.PartyId in('"+partyId+ @"')
+                AND IV.PartyId in('" + partyId + @"')
 
                 UNION ALL
                 SELECT isnull( IV.PartyId,'')PartyId, IV.PartyPlantId,p.Code PartyCode, isnull( P.UserName ,'')PartyName, PP.UserName AS PartyPlantName
@@ -3157,12 +3163,12 @@ namespace Library.Accounting.Accounts
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN[SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId= VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType= 'CompanyCurrency' AND CPC.CompanyId= '" + companyId+ @"'
+                WHERE CPC.ParallelCurrencyType= 'CompanyCurrency' AND CPC.CompanyId= '" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId = VD.Id
 
                 WHERE " + vendorPayableInvoiceDetailAgingType + @" and IV.Archive = 0 AND IV.IsWrittenOff = 0 AND IVD.IsWrittenOff = 0 AND V.IsPark = 0  AND IV.SourceType in ('CreditNote','VendorPayment')
-                AND IV.CompanyGroupId = '" + companyGroupId+"' AND IV.CompanyId = '"+companyId+"' AND IV.PlantId = '"+plantId+@"'
-                AND IV.PartyId in('"+partyId+@"')
+                AND IV.CompanyGroupId = '" + companyGroupId + "' AND IV.CompanyId = '" + companyId + "' AND IV.PlantId = '" + plantId + @"'
+                AND IV.PartyId in('" + partyId + @"')
                 order by isnull( P.UserName ,'')";
             return _sqlRepository.GetDataCollection(sql);
 
@@ -3226,7 +3232,7 @@ namespace Library.Accounting.Accounts
                 WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
 
-                WHERE " + setOffDetailAgingType + @" and IV.Id='"+invoiceId+@"' and   IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
+                WHERE " + setOffDetailAgingType + @" and IV.Id='" + invoiceId + @"' and   IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
                 AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "'  AND IV.PlantId='" + plantId + @"'
                  AND IV.PartyId in('" + partyId + @"')
 
@@ -3362,7 +3368,7 @@ namespace Library.Accounting.Accounts
 							FROM TRN.CheckLotDetailHistory C group by C.VoucherDetailId) CDH ON CDH.VoucherDetailId=VD.Id
 
                 WHERE " + setOffPaymentDetailAgingType + @"
-				and IV.Id = '"+invoiceId+@"' and  IV.Archive=0  AND V.IsPark=0 AND IVD.IsBlock=0 
+				and IV.Id = '" + invoiceId + @"' and  IV.Archive=0  AND V.IsPark=0 AND IVD.IsBlock=0 
 				AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
                 AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "'  AND IV.PlantId='" + plantId + @"'
                  AND w.PartyId in ('" + partyId + @"') and IV.IsWrittenOff=0
@@ -3448,7 +3454,7 @@ namespace Library.Accounting.Accounts
         #endregion Vendor Tab
 
         #region Customer Tab
-        public List<Dictionary<string, object>> GetFinancialDashboardCustomerReceiptMasterListData(string companyGroupId, string companyId, string plantId,string fromDate, string toDate)
+        public List<Dictionary<string, object>> GetFinancialDashboardCustomerReceiptMasterListData(string companyGroupId, string companyId, string plantId, string fromDate, string toDate)
         {
             var searchDate = "";
             var searchDateODue = "";
@@ -3625,7 +3631,7 @@ namespace Library.Accounting.Accounts
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-30 
 							and I.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice','InventorySales') 
-                            and  I.CompanyGroupId='" + companyGroupId+"'   AND I.CompanyId='"+companyId+"' AND I.PlantId='"+plantId+ @"' " + searchDateODue + @" and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OM30 ON OM30.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan15 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-30
@@ -3770,7 +3776,7 @@ namespace Library.Accounting.Accounts
         public GridModel GetCustomerListForConfirmation(GridParameter parameters, string companyGroupId, string companyId, string plantId, string FromDate, string ToDate, string PaymentStatus)
         {
             var status = "";
-            if(PaymentStatus== "Pending")
+            if (PaymentStatus == "Pending")
             {
                 status = "AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0";
             }
@@ -4082,7 +4088,7 @@ namespace Library.Accounting.Accounts
 
         }
 
-        public IWorkbook GetFinancialDashboardCustomerReceiptSummaryReport(List<Dictionary<string, object>> masterCustomerReceiptSummaryList, string companyGroupId, string companyId, string plantId,string fromDate, string toDate)
+        public IWorkbook GetFinancialDashboardCustomerReceiptSummaryReport(List<Dictionary<string, object>> masterCustomerReceiptSummaryList, string companyGroupId, string companyId, string plantId, string fromDate, string toDate)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
@@ -4096,7 +4102,7 @@ namespace Library.Accounting.Accounts
                 int COL = 1; int ROW = 6;
 
                 int startCol = COL;
-                
+
                 worksheet[ROW, COL].Text = "Party Nature";
                 int colPartyNature = COL;
                 worksheet[ROW, COL].ColumnWidth = 12;
@@ -4259,7 +4265,7 @@ namespace Library.Accounting.Accounts
 
                 worksheet.Range[ROW, startCol, ROW, COL].BorderAround(ExcelLineStyle.Hair);
                 worksheet.Range[ROW, startCol, ROW, COL].BorderInside(ExcelLineStyle.Hair);
-                
+
                 DataTable dsData = new DataTable("DD");
                 foreach (string item in masterCustomerReceiptSummaryList[0].Keys)
                 {
@@ -4289,7 +4295,7 @@ namespace Library.Accounting.Accounts
                 {
                     throw new Exception("No Data Found");
                 }
-              
+
                 ROW++;
                 int StartDataRow = ROW;
 
@@ -4304,14 +4310,14 @@ namespace Library.Accounting.Accounts
                     worksheet[ROW, colResponsiblePerson].Text = dsData.Rows[i]["ResponsiblePerson"].ToString();
                     worksheet[ROW, colPartyId].Text = dsData.Rows[i]["PartyId"].ToString();
                     worksheet[ROW, colPartyName].Text = dsData.Rows[i]["PartyName"].ToString();
-                    
+
                     worksheet[ROW, colBooksGross].Number = clsStaticInfo.dbl(dsData.Rows[i]["BooksGrossSales"].ToString());
                     worksheet[ROW, colBooksGross].NumberFormat = "#,##0.00;(#,##0.00)";
 
                     worksheet[ROW, colBooksSetOff].Number = clsStaticInfo.dbl(dsData.Rows[i]["BooksReceipts"].ToString());
                     worksheet[ROW, colBooksSetOff].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                    
+
                     worksheet[ROW, colBooksBalance].Number = clsStaticInfo.dbl(dsData.Rows[i]["BooksBalance"].ToString());
                     worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
 
@@ -4366,7 +4372,7 @@ namespace Library.Accounting.Accounts
 
                 worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
                 worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
-                
+
                 worksheet[ROW, colBooksGross - 1].Text = "Total";
                 worksheet[ROW, colBooksGross - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
@@ -4504,7 +4510,7 @@ namespace Library.Accounting.Accounts
 
         }
 
-        public string GetCustomerReceiptTaxYearId(string companyId) 
+        public string GetCustomerReceiptTaxYearId(string companyId)
         {
             try
             {
@@ -4537,7 +4543,7 @@ namespace Library.Accounting.Accounts
             }
         }
 
-        private DataTable GetCustomerReceiptAging(string CompanyGroupId, string CompanyId, string PlantId, string masterCustomerReceiptAgingList, string taxyearId, string fromDate, string toDate) 
+        private DataTable GetCustomerReceiptAging(string CompanyGroupId, string CompanyId, string PlantId, string masterCustomerReceiptAgingList, string taxyearId, string fromDate, string toDate)
         {
             var searchDate = "";
             var searchDateODue = "";
@@ -4556,7 +4562,7 @@ namespace Library.Accounting.Accounts
             string strSql = "";
             strSql = @"select x.* from (
 
-                    SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+                    SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,EN.UserName Entity,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
 										,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
 										, replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate,iv.DocDate  SortDocDate, C.Code CurrencyCode,IV.BaseNoOfDays
 										, REPLACE(CONVERT(VARCHAR(11), IV.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate
@@ -4624,7 +4630,7 @@ namespace Library.Accounting.Accounts
                                         AND IV.PartyId in(" + masterCustomerReceiptAgingList + @")
 
 								    UNION ALL
-                                    SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+                                    SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,EN.UserName Entity,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
 										,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
 										,replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate ,iv.DocDate  SortDocDate,C.Code CurrencyCode
 										,'' BaseNoOfDays, '' BaseOnDueDate, REPLACE(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') AS ActualDueDate
@@ -4696,7 +4702,7 @@ namespace Library.Accounting.Accounts
             return _sqlRepository.GetDataTable(strSql);
 
         }
-        public IWorkbook GetFinancialDashboardCustomerReceiptAgingReport(ExcelEngine excelEngine, string masterCustomerReceiptAgingList, string CompanyGroupId, string CompanyId, string PlantId, string name, string fromDate, string toDate) 
+        public IWorkbook GetFinancialDashboardCustomerReceiptAgingReport(ExcelEngine excelEngine, string masterCustomerReceiptAgingList, string CompanyGroupId, string CompanyId, string PlantId, string name, string fromDate, string toDate)
         {
             clsReport objRpt = null;
             clsReport objRptSR = null;
@@ -4756,8 +4762,6 @@ namespace Library.Accounting.Accounts
                 sheet1.Range[xlsRow - 1, 1].RowHeight = 20;
                 sheet1.Range[xlsRow - 1, 1].CellStyle.Font.Bold = true;
 
-
-                
                 sheet1[xlsRow, xlsCol].Text = "Party Nature";
                 int colPartyNature = xlsCol;
                 sheet1[xlsRow, xlsCol].ColumnWidth = 12;
@@ -4780,6 +4784,11 @@ namespace Library.Accounting.Accounts
 
                 sheet1[xlsRow, xlsCol].Text = "Responsible Person";
                 int colResponsiblePerson = xlsCol;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 12;
+                xlsCol++;
+
+                sheet1[xlsRow, xlsCol].Text = "Entity";
+                int colEntity = xlsCol;
                 sheet1[xlsRow, xlsCol].ColumnWidth = 12;
                 xlsCol++;
 
@@ -4818,7 +4827,7 @@ namespace Library.Accounting.Accounts
 
                 xlsCol++;
                 int iInvoiceNo = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Doc Ref"; 
+                sheet1.Range[xlsRow, xlsCol].Text = "Doc Ref";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
 
                 xlsCol++;
@@ -4929,9 +4938,10 @@ namespace Library.Accounting.Accounts
                         sheet1.Range[xlsRow, colPartyCategory].Text = dtRCMPayable.Rows[i]["PartyCategory"].ToString();
                         sheet1.Range[xlsRow, colPartySubCategory].Text = dtRCMPayable.Rows[i]["PartySubCategory"].ToString();
                         sheet1.Range[xlsRow, colResponsiblePerson].Text = dtRCMPayable.Rows[i]["ResponsiblePerson"].ToString();
+                        sheet1.Range[xlsRow, colEntity].Text = dtRCMPayable.Rows[i]["Entity"].ToString();
                         sheet1.Range[xlsRow, colPartyId].Text = dtRCMPayable.Rows[i]["PartyId"].ToString();
                         sheet1.Range[xlsRow, iPartyName].Text = dtRCMPayable.Rows[i]["PartyName"].ToString();
-                        
+
                         sheet1.Range[xlsRow, iPartyPlantName].Text = dtRCMPayable.Rows[i]["PartyPlantName"].ToString();
                         sheet1.Range[xlsRow, iCurrencyCode].Text = dtRCMPayable.Rows[i]["CurrencyCode"].ToString();
                         sheet1.Range[xlsRow, iActualDueDate].Text = dtRCMPayable.Rows[i]["ActualDueDate"].ToString();
@@ -5685,7 +5695,7 @@ namespace Library.Accounting.Accounts
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='"+companyId+@"'
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
                 WHERE " + overDueDaysSlot + @" and  IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice')
@@ -5743,11 +5753,11 @@ namespace Library.Accounting.Accounts
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId+@"'
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
-                WHERE "+overDueDaysSlot+@" and IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventorySales')
-                 AND IV.CompanyGroupId='"+companyGroupId+"' AND IV.CompanyId='"+companyId+"' AND IV.PlantId='"+plantId+@"'
+                WHERE " + overDueDaysSlot + @" and IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventorySales')
+                 AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
                 AND IR.PurchaseDocumentAcceptanceId IS NULL
                -- and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<='DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-30'
 
@@ -5812,12 +5822,12 @@ namespace Library.Accounting.Accounts
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='"+companyId+@"'
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
 
-                WHERE "+crDueDaysSetOffDetail+@" and  IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice')
+                WHERE " + crDueDaysSetOffDetail + @" and  IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice')
                  AND IV.CompanyGroupId = '" + companyGroupId + "' AND IV.CompanyId = '" + companyId + "' AND IV.PlantId = '" + plantId + @"'
-                 AND IV.PartyId in('" + partyId+@"')
+                 AND IV.PartyId in('" + partyId + @"')
 
                 UNION ALL
                 SELECT  ISNULL(IVD.Amount,0) AS Gross,0 DebitNoteAmount, 	isnull( DIWD.DiscountAmount,0)as TranDiscountAmount	,ISNULL( IWD.TaxAmount,0 )TaxAmount
@@ -5854,10 +5864,10 @@ namespace Library.Accounting.Accounts
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='"+companyId+@"'
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                
-                WHERE "+crDueDaysSetOffDetail+@" and IV.Archive = 0 AND IV.IsWrittenOff = 0 AND IVD.IsWrittenOff = 0 AND V.IsPark = 0 AND IVD.IsBlock = 0 AND IV.SourceType in ('InventorySales')
+                WHERE " + crDueDaysSetOffDetail + @" and IV.Archive = 0 AND IV.IsWrittenOff = 0 AND IVD.IsWrittenOff = 0 AND V.IsPark = 0 AND IVD.IsBlock = 0 AND IV.SourceType in ('InventorySales')
                  AND IV.CompanyGroupId = '" + companyGroupId + "' AND IV.CompanyId = '" + companyId + "' AND IV.PlantId = '" + plantId + @"'
              --   AND IR.PurchaseDocumentAcceptanceId IS NULL
                 AND IV.PartyId in('" + partyId + @"')
@@ -5903,12 +5913,12 @@ namespace Library.Accounting.Accounts
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId+@"'
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                
-                WHERE "+crDueDaysSetOffDetail+@" and  IV.Archive = 0 AND IV.IsWrittenOff = 0 AND IVD.IsWrittenOff = 0 AND V.IsPark = 0  AND IV.SourceType in ('CreditNote','CustomerReceipt')
-                AND IV.CompanyGroupId = '"+companyGroupId+"' AND IV.CompanyId = '"+companyId+"' AND IV.PlantId = '"+plantId+@"'
-                AND IV.PartyId in('"+partyId+@"')
+                WHERE " + crDueDaysSetOffDetail + @" and  IV.Archive = 0 AND IV.IsWrittenOff = 0 AND IVD.IsWrittenOff = 0 AND V.IsPark = 0  AND IV.SourceType in ('CreditNote','CustomerReceipt')
+                AND IV.CompanyGroupId = '" + companyGroupId + "' AND IV.CompanyId = '" + companyId + "' AND IV.PlantId = '" + plantId + @"'
+                AND IV.PartyId in('" + partyId + @"')
                 )x";
             return _sqlRepository.GetDataCollection(sql);
 
@@ -5954,8 +5964,8 @@ namespace Library.Accounting.Accounts
                 WHERE DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-30
 				and  IV.Archive=0  AND V.IsPark=0 AND IVD.IsBlock=0 
 				AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice')
-                AND IV.CompanyGroupId='"+companyGroupId+"' AND IV.CompanyId='"+companyId+"'  AND IV.PlantId='"+plantId+@"'
-                 AND w.PartyId in ('"+partyId+ @"') and IV.IsWrittenOff=0
+                AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "'  AND IV.PlantId='" + plantId + @"'
+                 AND w.PartyId in ('" + partyId + @"') and IV.IsWrittenOff=0
 				  and ISNULL(w.PaymentSource,'') not in ('Discount','Tax')
 
                 UNION ALL
@@ -5988,10 +5998,10 @@ namespace Library.Accounting.Accounts
 
 							FROM TRN.CheckLotDetailHistory C group by C.VoucherDetailId) CDH ON CDH.VoucherDetailId=VD.Id
                
-                WHERE "+crPaymentDetailDueDays+@" and IV.Archive = 0  AND V.IsPark = 0 AND IVD.IsBlock = 0 AND IV.SourceType in ('InventorySales')
+                WHERE " + crPaymentDetailDueDays + @" and IV.Archive = 0  AND V.IsPark = 0 AND IVD.IsBlock = 0 AND IV.SourceType in ('InventorySales')
                  AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "'  AND IV.PlantId='" + plantId + @"'
               --  AND IR.PurchaseDocumentAcceptanceId IS NULL
-                AND IV.PartyId in('"+partyId+@"') and ISNULL(w.PaymentSource,'') not in ('Discount','Tax') and IV.IsWrittenOff=0
+                AND IV.PartyId in('" + partyId + @"') and ISNULL(w.PaymentSource,'') not in ('Discount','Tax') and IV.IsWrittenOff=0
 
                 UNION ALL
                 SELECT  Isnull(IV.Id,'') InvoiceId, isnull( IV.DocRefNo,'') InvoiceNo, isnull( v.VoucherNo,0)VoucherNo, isnull(v.SourceType,'')SourceType,  isnull(v.Id,'')VoucherId
@@ -6027,9 +6037,9 @@ namespace Library.Accounting.Accounts
 
 							FROM TRN.CheckLotDetailHistory C group by C.VoucherDetailId) CDH ON CDH.VoucherDetailId=VD.Id
 
-                WHERE "+crPaymentDetailDueDays+@" and  IV.Archive = 0  AND V.IsPark = 0  AND IV.SourceType in ('CreditNote','CustomerReceipt')
+                WHERE " + crPaymentDetailDueDays + @" and  IV.Archive = 0  AND V.IsPark = 0  AND IV.SourceType in ('CreditNote','CustomerReceipt')
                  AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "'  AND IV.PlantId='" + plantId + @"'
-                AND IV.PartyId in('"+partyId+@"') and ISNULL(w.PaymentSource,'') not in ('Discount','Tax') and IV.IsWrittenOff=0";
+                AND IV.PartyId in('" + partyId + @"') and ISNULL(w.PaymentSource,'') not in ('Discount','Tax') and IV.IsWrittenOff=0";
             return _sqlRepository.GetDataCollection(sql);
 
         }
@@ -6096,13 +6106,13 @@ namespace Library.Accounting.Accounts
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='"+companyId+@"'
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
 
-                WHERE "+crAgingInvoiceDetailDueDaya+@" and IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice')
+                WHERE " + crAgingInvoiceDetailDueDaya + @" and IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice')
                 AND IV.CompanyGroupId = '" + companyGroupId + "' AND IV.CompanyId = '" + companyId + "' AND IV.PlantId = '" + plantId + @"'
                 --GROUP BY IV.PartyId, IV.PartyPlantId, PP.UserName,P.UserName
-                 AND IV.PartyId in('" + partyId+@"')
+                 AND IV.PartyId in('" + partyId + @"')
 
                 UNION ALL
                 SELECT isnull( IV.PartyId,'')PartyId, IV.PartyPlantId,p.Code PartyCode, isnull( P.UserName ,'')PartyName, PP.UserName AS PartyPlantName
@@ -6159,13 +6169,13 @@ namespace Library.Accounting.Accounts
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN[SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId= VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType= 'CompanyCurrency' AND CPC.CompanyId= '"+companyId+@"'
+                WHERE CPC.ParallelCurrencyType= 'CompanyCurrency' AND CPC.CompanyId= '" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId = VD.Id
 
-                WHERE "+crAgingInvoiceDetailDueDaya+@" and IV.Archive = 0 AND IV.IsWrittenOff = 0 AND IVD.IsWrittenOff = 0 AND V.IsPark = 0 AND IVD.IsBlock = 0 AND IV.SourceType in ('InventorySales')
+                WHERE " + crAgingInvoiceDetailDueDaya + @" and IV.Archive = 0 AND IV.IsWrittenOff = 0 AND IVD.IsWrittenOff = 0 AND V.IsPark = 0 AND IVD.IsBlock = 0 AND IV.SourceType in ('InventorySales')
                AND IV.CompanyGroupId = '" + companyGroupId + "' AND IV.CompanyId = '" + companyId + "' AND IV.PlantId = '" + plantId + @"'
               --  AND IR.PurchaseDocumentAcceptanceId IS NULL
-                AND IV.PartyId in('"+partyId+@"')
+                AND IV.PartyId in('" + partyId + @"')
 
                 UNION ALL
                 SELECT isnull( IV.PartyId,'')PartyId, IV.PartyPlantId,p.Code PartyCode, isnull( P.UserName ,'')PartyName, PP.UserName AS PartyPlantName
@@ -6225,12 +6235,12 @@ namespace Library.Accounting.Accounts
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN[SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId= VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType= 'CompanyCurrency' AND CPC.CompanyId= '"+companyId+@"'
+                WHERE CPC.ParallelCurrencyType= 'CompanyCurrency' AND CPC.CompanyId= '" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId = VD.Id
 
-                WHERE "+crAgingInvoiceDetailDueDaya+@" and IV.Archive = 0 AND IV.IsWrittenOff = 0 AND IVD.IsWrittenOff = 0 AND V.IsPark = 0  AND IV.SourceType in ('CreditNote','CustomerReceipt')
-                AND IV.CompanyGroupId = '" + companyGroupId+"' AND IV.CompanyId = '"+companyId+"' AND IV.PlantId = '"+plantId+@"'
-                AND IV.PartyId in('"+partyId+@"')
+                WHERE " + crAgingInvoiceDetailDueDaya + @" and IV.Archive = 0 AND IV.IsWrittenOff = 0 AND IVD.IsWrittenOff = 0 AND V.IsPark = 0  AND IV.SourceType in ('CreditNote','CustomerReceipt')
+                AND IV.CompanyGroupId = '" + companyGroupId + "' AND IV.CompanyId = '" + companyId + "' AND IV.PlantId = '" + plantId + @"'
+                AND IV.PartyId in('" + partyId + @"')
                 order by isnull( P.UserName ,'')";
             return _sqlRepository.GetDataCollection(sql);
 
@@ -6295,12 +6305,12 @@ namespace Library.Accounting.Accounts
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='"+companyId+@"'
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
 
-                WHERE "+crDueDaysInvoiceSetOffDetail+@" and  IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice')
+                WHERE " + crDueDaysInvoiceSetOffDetail + @" and  IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice')
                  AND IV.CompanyGroupId = '" + companyGroupId + "' AND IV.CompanyId = '" + companyId + "' AND IV.PlantId = '" + plantId + @"'
-                 AND IV.PartyId in('" + partyId+@"')
+                 AND IV.PartyId in('" + partyId + @"')
 
                 UNION ALL
                 SELECT isnull( iv.Id,'')InvoiceId ,isnull( iv.DocRefNo,'') InvoiceNo ,  ISNULL(IVD.Amount,0) AS Gross,0 DebitNoteAmount, 	isnull( DIWD.DiscountAmount,0)as TranDiscountAmount	,ISNULL( IWD.TaxAmount,0 )TaxAmount
@@ -6341,10 +6351,10 @@ namespace Library.Accounting.Accounts
                 WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='C20171'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                
-                WHERE "+crDueDaysInvoiceSetOffDetail+@"  and IV.Archive = 0 AND IV.IsWrittenOff = 0 AND IVD.IsWrittenOff = 0 AND V.IsPark = 0 AND IVD.IsBlock = 0 AND IV.SourceType in ('InventorySales')
+                WHERE " + crDueDaysInvoiceSetOffDetail + @"  and IV.Archive = 0 AND IV.IsWrittenOff = 0 AND IVD.IsWrittenOff = 0 AND V.IsPark = 0 AND IVD.IsBlock = 0 AND IV.SourceType in ('InventorySales')
                  AND IV.CompanyGroupId = '" + companyGroupId + "' AND IV.CompanyId = '" + companyId + "' AND IV.PlantId = '" + plantId + @"'
               --  AND IR.PurchaseDocumentAcceptanceId IS NULL
-                AND IV.PartyId in('" + partyId+@"')
+                AND IV.PartyId in('" + partyId + @"')
 
                 UNION ALL
                 SELECT isnull( iv.Id,'')InvoiceId ,isnull( iv.DocRefNo,'') InvoiceNo , ISNULL(IVD.Amount,0) AS Gross,0 DebitNoteAmount, isnull( DIWD.DiscountAmount,0)as TranDiscountAmount	,ISNULL( IWD.TaxAmount,0 )TaxAmount
@@ -6386,12 +6396,12 @@ namespace Library.Accounting.Accounts
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='"+companyId+@"'
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                
-                WHERE "+crDueDaysInvoiceSetOffDetail+@" and  IV.Archive = 0 AND IV.IsWrittenOff = 0 AND IVD.IsWrittenOff = 0 AND V.IsPark = 0  AND IV.SourceType in ('CreditNote','CustomerReceipt')
-                AND IV.CompanyGroupId = '"+companyGroupId+"' AND IV.CompanyId = '"+companyId+"' AND IV.PlantId = '"+plantId+@"'
-                AND IV.PartyId in('"+partyId+@"')
+                WHERE " + crDueDaysInvoiceSetOffDetail + @" and  IV.Archive = 0 AND IV.IsWrittenOff = 0 AND IVD.IsWrittenOff = 0 AND V.IsPark = 0  AND IV.SourceType in ('CreditNote','CustomerReceipt')
+                AND IV.CompanyGroupId = '" + companyGroupId + "' AND IV.CompanyId = '" + companyId + "' AND IV.PlantId = '" + plantId + @"'
+                AND IV.PartyId in('" + partyId + @"')
                 )x";
             return _sqlRepository.GetDataCollection(sql);
 
@@ -6594,8 +6604,8 @@ namespace Library.Accounting.Accounts
                     LEFT JOIN TRN.InventoryReceive IR ON IR.VoucherId=V.Id
                     LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
 
-                    WHERE VD.BankMasterId<>'' AND XVD.BankMasterId IS NULL AND VD.CrAmount>0 AND V.CompanyGroupId='"+companyGroupId+"' AND V.CompanyId='"+companyId+"' AND V.PlantId='"+plantId+@"' 
-                    AND V.PostingDate BETWEEN '"+fromDate+"' AND '"+toDate+@"'
+                    WHERE VD.BankMasterId<>'' AND XVD.BankMasterId IS NULL AND VD.CrAmount>0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"' 
+                    AND V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"'
 			        --and DATEDIFF(DAY, GETDATE(),V.VoucherDate) >-10
                 
 
@@ -6660,8 +6670,8 @@ namespace Library.Accounting.Accounts
                     LEFT JOIN TRN.VoucherDetail XVD ON XVD.VoucherId=V.Id AND XVD.CashMasterId<>'' AND XVD.DrAmount>0
                     LEFT JOIN TRN.InventoryReceive IR ON IR.VoucherId=V.Id
                     LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
-                    WHERE VD.CashMasterId<>'' AND XVD.CashMasterId IS NULL AND VD.CrAmount>0 AND V.CompanyGroupId='"+companyGroupId+"' AND V.CompanyId='"+companyId+"' AND V.PlantId='"+plantId+@"' 
-                    AND V.PostingDate BETWEEN '"+fromDate+"' AND '"+toDate+@"'
+                    WHERE VD.CashMasterId<>'' AND XVD.CashMasterId IS NULL AND VD.CrAmount>0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"' 
+                    AND V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"'
 
 			        --and DATEDIFF(DAY, GETDATE(),V.VoucherDate) >-10 
 
@@ -7140,7 +7150,7 @@ x.ParticularName
 				LEFT JOIN (SELECT DISTINCT CDH.VoucherDetailId,max(CDH.CheckDate) CheckDate,max(CLD.CheckNumber) CheckNo  
 				FROM TRN.CheckLotDetailHistory CDH left join TRN.CheckLotDetail CLD ON CLD.Id=CDH.CheckLotDetailId group by CDH.VoucherDetailId) CDH ON CDH.VoucherDetailId=VD.Id
 
-				WHERE VD.BankMasterId<>'' AND XVD.BankMasterId IS NULL AND VD.CrAmount>0  AND V.CompanyGroupId='"+companyGroupId+"' AND V.CompanyId='"+companyId+"' AND V.PlantId='"+plantId+@"' 
+				WHERE VD.BankMasterId<>'' AND XVD.BankMasterId IS NULL AND VD.CrAmount>0  AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"' 
                   --AND V.PostingDate BETWEEN '16-Aug-2021' AND '26-Aug-2021'
 
                  AND V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"'
@@ -7219,9 +7229,9 @@ x.ParticularName
 				FROM TRN.CheckLotDetailHistory CDH left join TRN.CheckLotDetail CLD ON CLD.Id=CDH.CheckLotDetailId group by CDH.VoucherDetailId) CDH ON CDH.VoucherDetailId=VD.Id
 
 
-                WHERE VD.CashMasterId<>'' AND XVD.CashMasterId IS NULL AND VD.CrAmount>0  AND V.CompanyGroupId='" + companyGroupId+"' AND V.CompanyId='"+companyId+"' AND V.PlantId='"+plantId+@"'  
+                WHERE VD.CashMasterId<>'' AND XVD.CashMasterId IS NULL AND VD.CrAmount>0  AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"'  
 
-                AND V.PostingDate BETWEEN '"+fromDate+"' AND '"+toDate+@"'
+                AND V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"'
 			  --  and DATEDIFF(DAY, GETDATE(),V.VoucherDate) >-10 
 			     )x";
             sql += temp;
@@ -7626,7 +7636,7 @@ x.ParticularName
 
                 //worksheet[ROW, colDueDate].DateTime = Convert.ToDateTime(dtAutoMailReportList.Rows[i]["ActualDueDate"].ToString());
                 //worksheet[ROW, colDueDate].NumberFormat = "dd-MMM-yyyy";
-                
+
 
                 worksheet[ROW, colVoucherDate].DateTime = Convert.ToDateTime(dtAutoMailReportList.Rows[i]["EntryDate"].ToString());
                 worksheet[ROW, colVoucherDate].NumberFormat = "dd-MMM-yyyy";
@@ -7999,7 +8009,7 @@ x.ParticularName
         }
         public List<Dictionary<string, object>> GetFixedArticalListData(string companyGroupId, string companyId, string plantId, string materialMasterId)
         {
-                 var sql = @"
+            var sql = @"
 
                             --mma gride data--------
 
@@ -8809,148 +8819,148 @@ union ALL
 
         }
 
-    //    private string MaterialMasterType(/*string MaterialTypeId, string materialMasterId, string materialGroupMasterId, string materialCategoryId, string materialSubCategoryId, string materialGroup1Id*/)
-    //    {
+        //    private string MaterialMasterType(/*string MaterialTypeId, string materialMasterId, string materialGroupMasterId, string materialCategoryId, string materialSubCategoryId, string materialGroup1Id*/)
+        //    {
 
-    //        return @" 
-	     		 
-	   //  		select X.* from (
-    //            SELECT T.Id MaterialTypeId,ISNULL(T.UserName,'') MaterialType,ISNULL (MGM.Id,'') MaterialGroupMasterId
-				//,ISNULL (MGM.UserName,'') MaterialGroupMaster
-    //            , M.Id MaterialMasterId,ISNULL (M.Code,'')Code,ISNULL(M.ShortName,'')ShortName
-				//,ISNULL( M.UserName,'' ) MaterialMaster
-    //            ,MC.Id MaterialCategoryId,ISNULL( MC.UserName,'') MaterialCategory,SC.Id MaterialSubCategoryId
-				//,isnull(SC.UserName,'') MaterialSubCategory
-    //            ,MG.Id [MaterialGroup1Id],Isnull (MG.UserName,'' )MaterialGroup1
-				//,uom.Id BaseUOMId,Isnull (uom.UserName,'') BaseUOM
-    //             ,IsAsset =case when M.IsAsset =1 then 'Yes' else  'No'  end
-				// , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
+        //        return @" 
 
-				// ,ISNULL(FA.FACount,0) FACount
-    //            , ISNULL(FA.FABaseAmount,0)FABaseAmount
-				//  , isnull(FA.SubAssetAmount,0)SubAssetAmount
-				//  ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0)  TotalBaseAmount
-				// , ISNULL(FA.ADBaseAmount,0) ADBaseAmount
-				// ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0) - ISNULL(FA.ADBaseAmount,0)  NetFixedAssetsAmount
-    //            ,isnull (S.UserName,'') Skill
+        //  		select X.* from (
+        //            SELECT T.Id MaterialTypeId,ISNULL(T.UserName,'') MaterialType,ISNULL (MGM.Id,'') MaterialGroupMasterId
+        //,ISNULL (MGM.UserName,'') MaterialGroupMaster
+        //            , M.Id MaterialMasterId,ISNULL (M.Code,'')Code,ISNULL(M.ShortName,'')ShortName
+        //,ISNULL( M.UserName,'' ) MaterialMaster
+        //            ,MC.Id MaterialCategoryId,ISNULL( MC.UserName,'') MaterialCategory,SC.Id MaterialSubCategoryId
+        //,isnull(SC.UserName,'') MaterialSubCategory
+        //            ,MG.Id [MaterialGroup1Id],Isnull (MG.UserName,'' )MaterialGroup1
+        //,uom.Id BaseUOMId,Isnull (uom.UserName,'') BaseUOM
+        //             ,IsAsset =case when M.IsAsset =1 then 'Yes' else  'No'  end
+        // , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
 
-    //            ,Process= ISNULL(STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
-				//			 where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+        // ,ISNULL(FA.FACount,0) FACount
+        //            , ISNULL(FA.FABaseAmount,0)FABaseAmount
+        //  , isnull(FA.SubAssetAmount,0)SubAssetAmount
+        //  ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0)  TotalBaseAmount
+        // , ISNULL(FA.ADBaseAmount,0) ADBaseAmount
+        // ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0) - ISNULL(FA.ADBaseAmount,0)  NetFixedAssetsAmount
+        //            ,isnull (S.UserName,'') Skill
 
-    //            ,M.BudgetMasterId,ISNULL (fam.UserName,'') AssetMaster
-				//    ,gl.UserName GL,b.UserName Budget, a.UserName Activity
-    //            FROM MST.MaterialMaster M
-    //            LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
-    //            LEFT JOIN [HKP].[MaterialType] T ON T.Id=MGM.MaterialTypeId
-    //            LEFT JOIN [HKP].[MaterialCategory] MC ON MC.Id=M.MaterialCategoryId
-    //            LEFT JOIN [HKP].[MaterialSubCategory] SC ON SC.Id=M.MaterialSubCategoryId
-    //            LEFT JOIN HKP.MaterialGroup1 MG ON MG.Id=MGM.MaterialGroup1Id
-    //            LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id=M.BaseUOMId
-		  //      left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId=M.BudgetMasterId
-				//left join mst.FixedAssetMaster fam on fam.Id= FAMBT.FixedAssetMasterId
-				//left JOIN [HKP].[Skill] S ON S.Id=M.SkillId
+        //            ,Process= ISNULL(STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
+        //			 where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 
-				//  left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
-			 //                      left join HKP.GLGeneralInfo gl on gl.Id=bm.GLGeneralInfoId
-				//                    left join HKP.Budget b on b.Id=bm.BudgetId
-				//                    left join HKP.Activity a on a.Id=M.ActivityId
+        //            ,M.BudgetMasterId,ISNULL (fam.UserName,'') AssetMaster
+        //    ,gl.UserName GL,b.UserName Budget, a.UserName Activity
+        //            FROM MST.MaterialMaster M
+        //            LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
+        //            LEFT JOIN [HKP].[MaterialType] T ON T.Id=MGM.MaterialTypeId
+        //            LEFT JOIN [HKP].[MaterialCategory] MC ON MC.Id=M.MaterialCategoryId
+        //            LEFT JOIN [HKP].[MaterialSubCategory] SC ON SC.Id=M.MaterialSubCategoryId
+        //            LEFT JOIN HKP.MaterialGroup1 MG ON MG.Id=MGM.MaterialGroup1Id
+        //            LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id=M.BaseUOMId
+        //      left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId=M.BudgetMasterId
+        //left join mst.FixedAssetMaster fam on fam.Id= FAMBT.FixedAssetMasterId
+        //left JOIN [HKP].[Skill] S ON S.Id=M.SkillId
 
-
-				//LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
-    //            LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
-    //            WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
-
-    //        	LEFT JOIN (SELECT COUNT(FAR.FixedAssetMasterId) FACount
-    //          	,SUM(isnull( FAR.FABaseAmount,0) )FABaseAmount
-				//,sum(isnull(sar.SubAssetAmount,0) )SubAssetAmount
-				//,SUM(isnull( FAR.ADBaseAmount,0)) ADBaseAmount
-				//,FAR.MaterialMasterId
-			 //   FROM TRN.FixedAssetRegister FAR
-
-				//left join(select sum(Amount*CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
-				//group by FixedAssetRegisterId
-				//) sar on sar.FixedAssetRegisterId=FAR.Id
-                
-				//where DisposedVoucherId IS NULL
-    //            GROUP BY FAR.MaterialMasterId, FAR.DisposedVoucherId
-				//)FA ON FA.MaterialMasterId=M.Id
+        //  left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
+        //                      left join HKP.GLGeneralInfo gl on gl.Id=bm.GLGeneralInfoId
+        //                    left join HKP.Budget b on b.Id=bm.BudgetId
+        //                    left join HKP.Activity a on a.Id=M.ActivityId
 
 
-    //            WHERE (M.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
-    //            LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
-    //            WHERE BP.BusinessProcessName ='MachineDefinition') Or M.IsAsset=1)  
-    //            --ORDER BY M.UserName
+        //LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+        //            LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+        //            WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
+
+        //        	LEFT JOIN (SELECT COUNT(FAR.FixedAssetMasterId) FACount
+        //          	,SUM(isnull( FAR.FABaseAmount,0) )FABaseAmount
+        //,sum(isnull(sar.SubAssetAmount,0) )SubAssetAmount
+        //,SUM(isnull( FAR.ADBaseAmount,0)) ADBaseAmount
+        //,FAR.MaterialMasterId
+        //   FROM TRN.FixedAssetRegister FAR
+
+        //left join(select sum(Amount*CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
+        //group by FixedAssetRegisterId
+        //) sar on sar.FixedAssetRegisterId=FAR.Id
+
+        //where DisposedVoucherId IS NULL
+        //            GROUP BY FAR.MaterialMasterId, FAR.DisposedVoucherId
+        //)FA ON FA.MaterialMasterId=M.Id
 
 
-
-				//union ALL
-				//SELECT T.Id MaterialTypeId,ISNULL(T.UserName,'') MaterialType,ISNULL (MGM.Id,'') MaterialGroupMasterId
-				//,ISNULL (MGM.UserName,'') MaterialGroupMaster
-    //            , M.Id MaterialMasterId,ISNULL (M.Code,'')Code
-				//,ISNULL(M.ShortName,'')ShortName ,ISNULL( M.UserName,'' ) MaterialMaster
-    //            ,MC.Id MaterialCategoryId,ISNULL( MC.UserName,'') MaterialCategory,SC.Id MaterialSubCategoryId
-				//,isnull(SC.UserName,'') MaterialSubCategory
-    //            ,MG.Id [MaterialGroup1Id],Isnull (MG.UserName,'' )MaterialGroup1
-				//,uom.Id BaseUOMId,Isnull (uom.UserName,'') BaseUOM
-    //             ,IsAsset =case when M.IsAsset =1 then 'Yes' else  'No'  end
-				// , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
-
-				// ,Count(ISNULL(FAR.Id,0)) FACount
-    //            , SUM(ISNULL(FAR.FABaseAmount,0))FABaseAmount
-				//  , SUM(isnull(SAR.SubAssetAmount,0))SubAssetAmount
-				//  ,SUM(ISNULL(FAR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0))  TotalBaseAmount
-				// , SUM(ISNULL(FAR.ADBaseAmount,0)) ADBaseAmount
-				// ,SUM(ISNULL(FAR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0))  NetFixedAssetsAmount
-    //            ,isnull (S.UserName,'') Skill
-
-    //            ,Process= ISNULL(STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
-    //            where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
-
-    //            ,M.BudgetMasterId,ISNULL (fam.UserName,'') AssetMaster
-				//	    ,gl.UserName GL,b.UserName Budget, a.UserName Activity
-    //            FROM  TRN.FixedAssetRegister FAR
-
-				//left join(select sum(Amount*CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
-				//group by FixedAssetRegisterId
-				//) sar on sar.FixedAssetRegisterId=FAR.Id
-				
-				//left join MST.MaterialMaster M ON FAR.MaterialMasterId=M.Id
-    //            LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
-    //            LEFT JOIN [HKP].[MaterialType] T ON T.Id=MGM.MaterialTypeId
-    //            LEFT JOIN [HKP].[MaterialCategory] MC ON MC.Id=M.MaterialCategoryId
-    //            LEFT JOIN [HKP].[MaterialSubCategory] SC ON SC.Id=M.MaterialSubCategoryId
-    //            LEFT JOIN HKP.MaterialGroup1 MG ON MG.Id=MGM.MaterialGroup1Id
-    //            LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id=M.BaseUOMId
-		  //      left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId=M.BudgetMasterId
-				//left join mst.FixedAssetMaster fam on fam.Id= FAMBT.FixedAssetMasterId
-				//left JOIN [HKP].[Skill] S ON S.Id=M.SkillId
-
-				//  left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
-			 //                      left join HKP.GLGeneralInfo gl on gl.Id=bm.GLGeneralInfoId
-				//                    left join HKP.Budget b on b.Id=bm.BudgetId
-				//                    left join HKP.Activity a on a.Id=M.ActivityId
-
-
-				//LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
-    //            LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
-    //            WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
+        //            WHERE (M.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+        //            LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+        //            WHERE BP.BusinessProcessName ='MachineDefinition') Or M.IsAsset=1)  
+        //            --ORDER BY M.UserName
 
 
 
-    //            WHERE  M.IsAsset=0 
-				//group by
-				//T.Id ,T.UserName,MGM.Id,MGM.UserName
-    //            , M.Id,M.Code,M.ShortName, M.UserName
-    //            ,MC.Id,MC.UserName,SC.Id,SC.UserName
-    //            ,MG.Id,MG.UserName
-				//,uom.Id,uom.UserName
-    //             ,M.IsAsset
-				// ,MBP.BusinessProcessName ,S.UserName,M.BudgetMasterId,fam.UserName
-				// 	    ,gl.UserName ,b.UserName , a.UserName 
-				// ) x
-    //            ORDER BY x.MaterialMaster";
+        //union ALL
+        //SELECT T.Id MaterialTypeId,ISNULL(T.UserName,'') MaterialType,ISNULL (MGM.Id,'') MaterialGroupMasterId
+        //,ISNULL (MGM.UserName,'') MaterialGroupMaster
+        //            , M.Id MaterialMasterId,ISNULL (M.Code,'')Code
+        //,ISNULL(M.ShortName,'')ShortName ,ISNULL( M.UserName,'' ) MaterialMaster
+        //            ,MC.Id MaterialCategoryId,ISNULL( MC.UserName,'') MaterialCategory,SC.Id MaterialSubCategoryId
+        //,isnull(SC.UserName,'') MaterialSubCategory
+        //            ,MG.Id [MaterialGroup1Id],Isnull (MG.UserName,'' )MaterialGroup1
+        //,uom.Id BaseUOMId,Isnull (uom.UserName,'') BaseUOM
+        //             ,IsAsset =case when M.IsAsset =1 then 'Yes' else  'No'  end
+        // , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
 
-    //    }
+        // ,Count(ISNULL(FAR.Id,0)) FACount
+        //            , SUM(ISNULL(FAR.FABaseAmount,0))FABaseAmount
+        //  , SUM(isnull(SAR.SubAssetAmount,0))SubAssetAmount
+        //  ,SUM(ISNULL(FAR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0))  TotalBaseAmount
+        // , SUM(ISNULL(FAR.ADBaseAmount,0)) ADBaseAmount
+        // ,SUM(ISNULL(FAR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0))  NetFixedAssetsAmount
+        //            ,isnull (S.UserName,'') Skill
+
+        //            ,Process= ISNULL(STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
+        //            where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+
+        //            ,M.BudgetMasterId,ISNULL (fam.UserName,'') AssetMaster
+        //	    ,gl.UserName GL,b.UserName Budget, a.UserName Activity
+        //            FROM  TRN.FixedAssetRegister FAR
+
+        //left join(select sum(Amount*CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
+        //group by FixedAssetRegisterId
+        //) sar on sar.FixedAssetRegisterId=FAR.Id
+
+        //left join MST.MaterialMaster M ON FAR.MaterialMasterId=M.Id
+        //            LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
+        //            LEFT JOIN [HKP].[MaterialType] T ON T.Id=MGM.MaterialTypeId
+        //            LEFT JOIN [HKP].[MaterialCategory] MC ON MC.Id=M.MaterialCategoryId
+        //            LEFT JOIN [HKP].[MaterialSubCategory] SC ON SC.Id=M.MaterialSubCategoryId
+        //            LEFT JOIN HKP.MaterialGroup1 MG ON MG.Id=MGM.MaterialGroup1Id
+        //            LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id=M.BaseUOMId
+        //      left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId=M.BudgetMasterId
+        //left join mst.FixedAssetMaster fam on fam.Id= FAMBT.FixedAssetMasterId
+        //left JOIN [HKP].[Skill] S ON S.Id=M.SkillId
+
+        //  left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
+        //                      left join HKP.GLGeneralInfo gl on gl.Id=bm.GLGeneralInfoId
+        //                    left join HKP.Budget b on b.Id=bm.BudgetId
+        //                    left join HKP.Activity a on a.Id=M.ActivityId
+
+
+        //LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+        //            LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+        //            WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
+
+
+
+        //            WHERE  M.IsAsset=0 
+        //group by
+        //T.Id ,T.UserName,MGM.Id,MGM.UserName
+        //            , M.Id,M.Code,M.ShortName, M.UserName
+        //            ,MC.Id,MC.UserName,SC.Id,SC.UserName
+        //            ,MG.Id,MG.UserName
+        //,uom.Id,uom.UserName
+        //             ,M.IsAsset
+        // ,MBP.BusinessProcessName ,S.UserName,M.BudgetMasterId,fam.UserName
+        // 	    ,gl.UserName ,b.UserName , a.UserName 
+        // ) x
+        //            ORDER BY x.MaterialMaster";
+
+        //    }
 
         //public void MaterialMasterReport2( /*string MaterialTypeId, string materialMasterId, string materialGroupMasterId, string materialCategoryId, string materialSubCategoryId, string materialGroup1Id*/)
         //{
@@ -9481,12 +9491,12 @@ union ALL
                  ,gl.UserName ,b.UserName , a.UserName
 				 ) x
 
-				where x.IsAsset in (" + isAsset+") and x.Machine in ("+ machine + @")
+				where x.IsAsset in (" + isAsset + ") and x.Machine in (" + machine + @")
 				and ISNULL( X.CompanyGroupId,'') = '" + CompanyGroupId + "'and ISNULL( X.CompanyId,'') = '" + CompanyId + "' AND ISNULL( X.PlantId,'') = '" + PlantId + @"'
                 and X.MaterialMasterId in (" + materialMasterId + ") and X.MaterialTypeId  in (" + materialTypeId + ") and x.AssetMasterId  in (" + assetMasterId + ") and x.MaterialGroup1Id  in (" + materialGroup1Id + @")
-                and x.BaseUOMId  in (" + baseUOMId + ")  and x.SkillId in ("+skillId+@")
-                and x.FACount in ("+fACount+@") 
-                and x.ProcessId in ("+process+@")
+                and x.BaseUOMId  in (" + baseUOMId + ")  and x.SkillId in (" + skillId + @")
+                and x.FACount in (" + fACount + @") 
+                and x.ProcessId in (" + process + @")
                 ORDER BY x.MaterialMaster";
 
         }
@@ -9521,7 +9531,7 @@ union ALL
                 //    }
 
                 string sql = "";
-                sql = MaterialMasterTypeFiltering( CompanyGroupId,  CompanyId,  PlantId, materialMasterId,  materialTypeId,  assetMasterId,  materialGroup1Id,  baseUOMId,  isAsset, machine, process,  skillId,  fACount);
+                sql = MaterialMasterTypeFiltering(CompanyGroupId, CompanyId, PlantId, materialMasterId, materialTypeId, assetMasterId, materialGroup1Id, baseUOMId, isAsset, machine, process, skillId, fACount);
                 DataTable dtMaterialMaster = _sqlRepository.GetDataTable(sql);
 
                 ExcelEngine excelEngine = new ExcelEngine();
@@ -10224,9 +10234,9 @@ union ALL
             string fileName = "";
             try
             {
-               
+
                 string sql = "";
-                sql = MaterialMasterArtical( companyGroupId,  companyId,  plantId,  materialMasterId,  materialTypeId,  assetMasterId,  materialGroup1Id,  baseUOMId,  isAsset,  isMachine,  process,  skillId,  fACount);
+                sql = MaterialMasterArtical(companyGroupId, companyId, plantId, materialMasterId, materialTypeId, assetMasterId, materialGroup1Id, baseUOMId, isAsset, isMachine, process, skillId, fACount);
 
 
                 DataTable dtMaterialMaster = _sqlRepository.GetDataTable(sql);
@@ -10267,7 +10277,7 @@ union ALL
                 int colArticleName = COL;
                 COL++;
 
-                
+
                 sheet[ROW, COL].Text = "Machine Allowance";
                 sheet[ROW, COL].ColumnWidth = 20;
                 int colMachineAllowance = COL;
@@ -10375,7 +10385,7 @@ union ALL
 
                 //}
 
-      
+
 
                 sheet[ROW, COL].Text = "GL";
                 sheet[ROW, COL].ColumnWidth = 20;
@@ -10407,8 +10417,8 @@ union ALL
 
                     sheet[ROW, colSlNo].Number = (i + 1);
 
-                   // sheet[ROW, colMaterialType].Text = dtMaterialMaster.Rows[i]["MaterialType"].ToString();
-                   // sheet[ROW, colMaterialGroup].Text = dtMaterialMaster.Rows[i]["MaterialGroupMaster"].ToString();
+                    // sheet[ROW, colMaterialType].Text = dtMaterialMaster.Rows[i]["MaterialType"].ToString();
+                    // sheet[ROW, colMaterialGroup].Text = dtMaterialMaster.Rows[i]["MaterialGroupMaster"].ToString();
                     sheet[ROW, colCode].Text = dtMaterialMaster.Rows[i]["Code"].ToString();
 
                     sheet[ROW, colArticleName].Text = dtMaterialMaster.Rows[i]["Article"].ToString();
@@ -10420,7 +10430,7 @@ union ALL
                     sheet[ROW, colMachine].Text = dtMaterialMaster.Rows[i]["Machine"].ToString();
                     sheet[ROW, colIsAsset].Text = dtMaterialMaster.Rows[i]["IsAsset"].ToString();
                     sheet[ROW, colProcess].Text = dtMaterialMaster.Rows[i]["Process"].ToString();
-                    
+
 
                     sheet[ROW, colFABaseAmount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["FABaseAmount"].ToString());
                     sheet[ROW, colFABaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
@@ -10442,8 +10452,8 @@ union ALL
 
                     sheet[ROW, colSkill].Text = dtMaterialMaster.Rows[i]["Skill"].ToString();
                     //sheet[ROW, colProcess].Text = dtMaterialMaster.Rows[i]["Process"].ToString();
-                                
-                                 sheet[ROW, colGLName].Text = dtMaterialMaster.Rows[i]["GL"].ToString();
+
+                    sheet[ROW, colGLName].Text = dtMaterialMaster.Rows[i]["GL"].ToString();
                     //sheet[ROW, colBudgetRefNo].Text = dtMaterialMaster.Rows[i]["BudgetRefNo"].ToString();
                     sheet[ROW, colBudgetName].Text = dtMaterialMaster.Rows[i]["Budget"].ToString();
                     //sheet[ROW, colActivityCode].Text = dtMaterialMaster.Rows[i]["ActivityCode"].ToString();
@@ -10537,10 +10547,10 @@ union ALL
         //public void MaterialMasterArticalReport(string companyGroupId, string companyId, string plantId, string materialMasterId, string materialTypeId, string assetMasterId, string materialGroup1Id, string baseUOMId, string isAsset, string isMachine, string process, string skillId, string fACount)
         //{
 
-           
+
         //    try
         //    {
-               
+
 
         //        string sql = "";
         //        sql = MaterialMasterArtical(companyGroupId, companyId, plantId, materialMasterId, materialTypeId, assetMasterId, materialGroup1Id, baseUOMId, isAsset, isMachine, process, skillId, fACount);
@@ -10881,7 +10891,7 @@ union ALL
 						from  trn.SubFixedAssetRegister group by FixedAssetRegisterId) sar on sar.FixedAssetRegisterId=FAR.Id
 				left join HKP.Party P on p.Id =FAR.VendorId
 				left join mst.FixedAssetMaster FAM ON FAR.FixedAssetMasterId = FAM.Id
-                where MMA.materialMasterId='" + materialMasterId+"' and MMA.Id='"+materialMasterArticleId+@"' ";
+                where MMA.materialMasterId='" + materialMasterId + "' and MMA.Id='" + materialMasterArticleId + @"' ";
             return _sqlRepository.GetDataCollection(sql);
 
         }
@@ -11043,12 +11053,12 @@ union ALL
 							   -- and	X.DisposedVoucherId IS NULL
                                 and isnull(X.DisposedVoucherId,'')= ''
                                 --AND FR.Id NOT IN(' ')
-								and X.IsAsset in (" + isAsset + ") and X.Machine in("+isMachine+@") 
+								and X.IsAsset in (" + isAsset + ") and X.Machine in(" + isMachine + @") 
 								and X.MaterialMasterId in (" + materialMasterId + ") and X.MaterialTypeId  in (" + materialTypeId + @") 
 								and X.FixedAssetMasterId  in (" + assetMasterId + ") and X.MaterialGroup1Id  in (" + materialGroup1Id + @")
 								and X.BaseUOMId  in (" + baseUOMId + ")  and X.SkillId in (" + skillId + @")
 								--and X.FixedAssetRegisterId in (" + fACount + @") 
-								and x.ProcessId in ("+process+@")";
+								and x.ProcessId in (" + process + @")";
 
         }
 
@@ -11058,9 +11068,9 @@ union ALL
             string fileName = "";
             try
             {
-               
+
                 string sql = "";
-                sql = FixedAssetRegister( CompanyGroupId,  CompanyId,  PlantId,  materialMasterId,  materialTypeId,  assetMasterId,  materialGroup1Id,  baseUOMId,  isAsset,  isMachine,  process,  skillId,  fACount);
+                sql = FixedAssetRegister(CompanyGroupId, CompanyId, PlantId, materialMasterId, materialTypeId, assetMasterId, materialGroup1Id, baseUOMId, isAsset, isMachine, process, skillId, fACount);
 
                 DataTable dtFixedAssetRegister = _sqlRepository.GetDataTable(sql);
 
@@ -11119,7 +11129,7 @@ union ALL
                 sheet[ROW, COL].ColumnWidth = 25;
                 int colVendor = COL;
                 COL++;
-                
+
                 sheet[ROW, COL].Text = "Tran Currency";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colTranCurrency = COL;
@@ -11186,7 +11196,7 @@ union ALL
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colSerialNo = COL;
                 COL++;
-                
+
                 sheet[ROW, COL].Text = "Voucher No";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int colVoucherNo = COL;
@@ -11251,7 +11261,7 @@ union ALL
                     sheet[ROW, colPurchasePrice].NumberFormat = clsStaticInfo.NumberFormat(2);
                     sheet[ROW, colBaseCurrency].Text = dtFixedAssetRegister.Rows[i]["BaseCurrency"].ToString();
                     sheet[ROW, colTranCurrency].Text = dtFixedAssetRegister.Rows[i]["TranCurrency"].ToString();
-                    
+
                     sheet[ROW, colFABaseAmount].Number = clsStaticInfo.dbl(dtFixedAssetRegister.Rows[i]["FABaseAmount"].ToString());
                     sheet[ROW, colFABaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
                     sheet[ROW, colADBaseAmount].Number = clsStaticInfo.dbl(dtFixedAssetRegister.Rows[i]["ADBaseAmount"].ToString());
@@ -11268,20 +11278,20 @@ union ALL
                     sheet[ROW, colCapitalizationDate].NumberFormat = "dd-MMM-yyyy";
                     //sheet[ROW, colFACount].Number = clsStaticInfo.dbl(dtFixedAssetRegister.Rows[i]["FACount"].ToString());
                     //sheet[ROW, colFACount].NumberFormat = clsStaticInfo.NumberFormat(2);
-                    
+
                     sheet[ROW, colOpeningBalance].Text = dtFixedAssetRegister.Rows[i]["OpeningBalance"].ToString();
                     sheet[ROW, colAssetNo].Text = dtFixedAssetRegister.Rows[i]["AssetNo"].ToString();
                     sheet[ROW, colVoucherNo].Text = dtFixedAssetRegister.Rows[i]["VoucherNo"].ToString();
                     sheet[ROW, colRFId].Text = dtFixedAssetRegister.Rows[i]["RFId"].ToString();
                     sheet[ROW, colSerialNo].Text = dtFixedAssetRegister.Rows[i]["SerialNo"].ToString();
-                    
+
 
                     sheet[ROW, colGLName].Text = dtFixedAssetRegister.Rows[i]["GLName"].ToString();
                     sheet[ROW, colBudgetName].Text = dtFixedAssetRegister.Rows[i]["BudgetName"].ToString();
                     sheet[ROW, colActivityName].Text = dtFixedAssetRegister.Rows[i]["ActivityName"].ToString();
                     sheet[ROW, colInvoiceNo].Text = dtFixedAssetRegister.Rows[i]["InvoiceNo"].ToString();
                     sheet[ROW, colLCNumber].Text = dtFixedAssetRegister.Rows[i]["LCNumber"].ToString();
-                    
+
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -11351,9 +11361,9 @@ union ALL
         #region  Cash Tab
         public List<Dictionary<string, object>> GetMasterCashListData(string companyGroupId, string companyId, string plantId/*, string fromDate */, string toDate)
         {
-            var sql = @"DECLARE @companyGroupId VARCHAR(10)='"+companyGroupId+@"'
-                        DECLARE @companyId VARCHAR(10)='"+companyId+@"';
-                        DECLARE @plantId VARCHAR(10)='"+plantId+@"';
+            var sql = @"DECLARE @companyGroupId VARCHAR(10)='" + companyGroupId + @"'
+                        DECLARE @companyId VARCHAR(10)='" + companyId + @"';
+                        DECLARE @plantId VARCHAR(10)='" + plantId + @"';
                         --DECLARE @cashMasterId VARCHAR(10)='1';
                         SELECT CM.UserName Cash,CM.Id,C.Code CashCurrency
                           ,SUM(ISNULL(GLTD.DrAmount,0)) DrAmount 
@@ -11376,7 +11386,7 @@ union ALL
                         ) AS CC ON CC.VoucherId=VD.VoucherId AND CC.VoucherDetailId=VD.Id
                         WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId --AND VD.CashMasterId=@cashMasterId 
 						AND V.SourceType!='OpeningBalance'
-						 AND V.PostingDate <= '"+toDate+@"' and vd.CashMasterId<>''
+						 AND V.PostingDate <= '" + toDate + @"' and vd.CashMasterId<>''
 						 GROUP BY CM.UserName ,CM.Id,c.Code
                         UNION ALL
                         SELECT CM.UserName Cash,CM.Id,C.Code CashCurrency,
@@ -11399,7 +11409,7 @@ union ALL
                         ) AS CC ON CC.VoucherId=VD.VoucherId AND CC.VoucherDetailId=VD.Id
                         WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId --AND VD.CashMasterId=@cashMasterId 
 						AND V.SourceType='OpeningBalance'
-						 AND V.PostingDate > '"+toDate+@"' and vd.CashMasterId<>''
+						 AND V.PostingDate > '" + toDate + @"' and vd.CashMasterId<>''
 						 GROUP BY CM.UserName ,CM.Id,c.Code
                        -- ORDER BY V.PostingDate ASC";
             return _sqlRepository.GetDataCollection(sql);
@@ -11464,7 +11474,7 @@ union ALL
                         ) AS CC ON CC.VoucherId=VD.VoucherId AND CC.VoucherDetailId=VD.Id
                         WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId --AND VD.CashMasterId=@cashMasterId 
 						AND V.SourceType='OpeningBalance'
-						 AND V.PostingDate > '" + toDate+@"' and vd.BankMasterId<>''
+						 AND V.PostingDate > '" + toDate + @"' and vd.BankMasterId<>''
 						 and BM.AccountType='HouseBank'
 						 GROUP BY BM.AccountTitle ,BM.Id,c.Code,B.UserName,BB.UserName,BM.AccountNumber
                        -- ORDER BY V.PostingDate ASC";
@@ -11548,10 +11558,10 @@ union ALL
 										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
 										FROM [TRN].[VoucherDetailCurrency] AS VDC
 										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId+@"'
+										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
 									) AS CC ON CC.VoucherDetailId=VD.Id
-                                    WHERE I.Archive=0 AND I.IsPark=0  AND I.OpeningBalanceId IS NULL AND I.TransactionType='"+transactionType+@"'
-                                    AND I.CompanyGroupId='"+companyGroupId+@"' AND I.CompanyId='"+companyId+ @"'
+                                    WHERE I.Archive=0 AND I.IsPark=0  AND I.OpeningBalanceId IS NULL AND I.TransactionType='" + transactionType + @"'
+                                    AND I.CompanyGroupId='" + companyGroupId + @"' AND I.CompanyId='" + companyId + @"'
 
 
                                     union 
@@ -11626,17 +11636,17 @@ union ALL
 										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
 										FROM [TRN].[VoucherDetailCurrency] AS VDC
 										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId+@"'
+										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
 									) AS CC ON CC.VoucherDetailId=VD.Id
-                                    WHERE I.Archive=0 AND I.IsPark=0  AND I.OpeningBalanceId<>'' AND I.VoucherId<>'' AND  I.TransactionType='"+transactionType+@"'
-                                    AND I.CompanyGroupId='"+companyGroupId+"' AND I.CompanyId='"+companyId+@"'";
+                                    WHERE I.Archive=0 AND I.IsPark=0  AND I.OpeningBalanceId<>'' AND I.VoucherId<>'' AND  I.TransactionType='" + transactionType + @"'
+                                    AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + @"'";
             return _sqlRepository.GetDataCollection(sql);
 
         }
 
 
 
-        public List<Dictionary<string, object>> GetLoanTakenSetOffPopUpData(string companyGroupId, string companyId, string plantId,  string financingId)
+        public List<Dictionary<string, object>> GetLoanTakenSetOffPopUpData(string companyGroupId, string companyId, string plantId, string financingId)
         {
             var sql = @"SELECT ISNULL( F.Id,'') AS FinancingId, isnull( F.DocRefNo,'' )LoanNo, isnull(  p.UserName,'') Party
                                       ,[AccountNumber]=isnull( CASE  WHEN F.OtherBankMasterId<>'' THEN OBKM.AccountNumber  ELSE ''	END,'')
@@ -11667,9 +11677,9 @@ union ALL
 							            LEFT JOIN [MST].BankMaster AS BKM ON BKM.Id=F.BankMasterId
 										LEFT JOIN [MST].BankMaster AS OBKM ON OBKM.Id=F.OtherBankMasterId
 										LEFT JOIN HKP.Bank OBK ON OBK.Id=OBKM.BankId
-                                   WHERE FW.FinancingId='" + financingId+@"'
+                                   WHERE FW.FinancingId='" + financingId + @"'
                                  AND F.CompanyGroupId='" + companyGroupId + @"' AND F.CompanyId='" + companyId + @"'";
-                    return _sqlRepository.GetDataCollection(sql);
+            return _sqlRepository.GetDataCollection(sql);
 
         }
 
@@ -11706,8 +11716,8 @@ union ALL
 					                    LEFT JOIN [MST].BankMaster AS BKM ON BKM.Id=F.BankMasterId
 										LEFT JOIN [MST].BankMaster AS OBKM ON OBKM.Id=F.OtherBankMasterId
 										LEFT JOIN HKP.Bank OBK ON OBK.Id=OBKM.BankId
-                                   WHERE FST.FinancingId='" + financingId+ @"' and FST.SourceType='LoanInterestPayable' 
-                                 AND F.CompanyGroupId='" + companyGroupId+"' AND F.CompanyId='"+companyId+@"'";
+                                   WHERE FST.FinancingId='" + financingId + @"' and FST.SourceType='LoanInterestPayable' 
+                                 AND F.CompanyGroupId='" + companyGroupId + "' AND F.CompanyId='" + companyId + @"'";
             return _sqlRepository.GetDataCollection(sql);
 
         }
@@ -11746,8 +11756,8 @@ union ALL
 				                        LEFT JOIN [MST].BankMaster AS BKM ON BKM.Id=F.BankMasterId
 										LEFT JOIN [MST].BankMaster AS OBKM ON OBKM.Id=F.OtherBankMasterId
 										LEFT JOIN HKP.Bank OBK ON OBK.Id=OBKM.BankId
-                                   WHERE FST.FinancingId='" + financingId+@"' and FST.SourceType='OtherExpensesPayable' 
-                                 AND F.CompanyGroupId='"+companyGroupId+@"' AND F.CompanyId='"+companyId+@"' ";
+                                   WHERE FST.FinancingId='" + financingId + @"' and FST.SourceType='OtherExpensesPayable' 
+                                 AND F.CompanyGroupId='" + companyGroupId + @"' AND F.CompanyId='" + companyId + @"' ";
             return _sqlRepository.GetDataCollection(sql);
 
         }
@@ -11782,9 +11792,9 @@ union ALL
                    
 										LEFT JOIN HKP.FinancingType FY ON FY.Id=F.FinancingTypeId
 				
-                                   WHERE FST.FinancingId='"+financingId+@"' and FST.SourceType='AdditionalLoanPayable' 
+                                   WHERE FST.FinancingId='" + financingId + @"' and FST.SourceType='AdditionalLoanPayable' 
 									 AND F.CompanyGroupId='" + companyGroupId + @"' AND F.CompanyId='" + companyId + @"'";
-                     return _sqlRepository.GetDataCollection(sql);
+            return _sqlRepository.GetDataCollection(sql);
 
         }
 
@@ -12259,7 +12269,7 @@ union ALL
                         item["CR"] = 0.00;
                     }
                 }
-               
+
 
 
             }
@@ -12437,8 +12447,8 @@ union ALL
             return dictrialalance;
         }
 
-       
-        public List<Dictionary<string, object>> getLedgerAllLevelDRPoPUpListData(string companyGroupId, string companyId, string plantId, string particulars, string gLInfoId, string budgetMasterId, string activityId, string toDate )
+
+        public List<Dictionary<string, object>> getLedgerAllLevelDRPoPUpListData(string companyGroupId, string companyId, string plantId, string particulars, string gLInfoId, string budgetMasterId, string activityId, string toDate)
         {
             try
             {
@@ -12693,11 +12703,11 @@ union ALL
                 throw ex;
             }
 
-   
+
 
         }
-        
-        public List<Dictionary<string, object>> GetBankMasterLedgerHeading(string companyGroupId, string companyId, string plantId, string particulars,string gLInfoId, string budgetMasterId, string activityId, string bankMasterId, string toDate)
+
+        public List<Dictionary<string, object>> GetBankMasterLedgerHeading(string companyGroupId, string companyId, string plantId, string particulars, string gLInfoId, string budgetMasterId, string activityId, string bankMasterId, string toDate)
         {
 
             var sql = @"SELECT BM.Id, BM.AccountTitle, BM.AccountNumber, BM.CurrencyId, C.Code AS CurrencyCode, B.UserName AS BankName, BB.UserName AS BankBranchName, GLGI.AccountCode AS GLGeneralInfoCode
@@ -12714,7 +12724,7 @@ union ALL
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public List<Dictionary<string, object>> GetCashMasterLedgerHeading(string companyGroupId, string companyId, string plantId, string particulars,string gLInfoId, string budgetMasterId, string activityId,  string cashMasterId, string toDate)
+        public List<Dictionary<string, object>> GetCashMasterLedgerHeading(string companyGroupId, string companyId, string plantId, string particulars, string gLInfoId, string budgetMasterId, string activityId, string cashMasterId, string toDate)
         {
 
             var sql = @"SELECT CM.Id, CM.UserName AS CashName, CM.CurrencyId, C.Code AS CurrencyCode, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, BGM.RefNo
@@ -12729,7 +12739,7 @@ union ALL
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public List<Dictionary<string, object>> GetPartyLedgerHeading(string companyGroupId, string companyId, string plantId,string particulars, string gLInfoId, string budgetMasterId, string activityId, string partyId, string partyPlantId, string toDate)
+        public List<Dictionary<string, object>> GetPartyLedgerHeading(string companyGroupId, string companyId, string plantId, string particulars, string gLInfoId, string budgetMasterId, string activityId, string partyId, string partyPlantId, string toDate)
         {
 
             var sql = @"SELECT P.Id AS PartyId, P.Code AS PartyCode, P.UserName AS PartyName, CP.CurrencyId, C.Code AS CurrencyCode, PAG.UserName AS PartyAccountGroupName
@@ -12742,7 +12752,7 @@ union ALL
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public List<Dictionary<string, object>> GetGeneralLedgerAllLevelDRHeading( string particulars,string companyGroupId, string companyId, string plantId, string gLInfoId, string budgetMasterId, string activityId, string toDate)
+        public List<Dictionary<string, object>> GetGeneralLedgerAllLevelDRHeading(string particulars, string companyGroupId, string companyId, string plantId, string gLInfoId, string budgetMasterId, string activityId, string toDate)
         {
 
             var sql = @"SELECT AG.AccountTypeId AS AccountTypeName, AG.UserName AS AccountGroupName, GLGI.RefNo, bm.GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode
@@ -12763,7 +12773,7 @@ union ALL
         }
 
 
-        public List<Dictionary<string, object>> GetPartyLedgerAllLevelPoPUpListData(string companyGroupId, string companyId, string plantId, string particulars, string gLInfoId, string budgetMasterId, string activityId,string partyId, string partyPlantId, string toDate)
+        public List<Dictionary<string, object>> GetPartyLedgerAllLevelPoPUpListData(string companyGroupId, string companyId, string plantId, string particulars, string gLInfoId, string budgetMasterId, string activityId, string partyId, string partyPlantId, string toDate)
         {
             try
             {
@@ -13121,7 +13131,7 @@ union ALL
                             AND VD.BudgetMasterId='" + budgetMasterId + @"'  
                             AND VD.ActivityId='" + activityId + @"'  
                             AND VD.GLGeneralInfoId='" + gLInfoId + @"'
-                             and VD.CashMasterId='"+cashMasterId+@"'
+                             and VD.CashMasterId='" + cashMasterId + @"'
                             --AND V.SourceType!='OpeningBalance' 
 							--and A.Id=''
 							--And v.PostingDate <= '01-Dec-2020'
@@ -13393,7 +13403,7 @@ union ALL
                             AND VD.BudgetMasterId='" + budgetMasterId + @"'  
                             AND VD.ActivityId='" + activityId + @"'  
                             AND VD.GLGeneralInfoId='" + gLInfoId + @"'
-                             and VD.BankMasterId ='"+bankMasterId+@"'
+                             and VD.BankMasterId ='" + bankMasterId + @"'
                             --AND V.SourceType!='OpeningBalance' 
 							--and A.Id=''
 							--And v.PostingDate <= '01-Dec-2020'
@@ -13577,18 +13587,18 @@ union ALL
 
         }
 
-        
+
         public List<Dictionary<string, object>> GetAccountGroupPoPUpListData(string companyGroupId, string companyId, string plantId, string accountGroupId, string accountGroupName, string toDate)
         {
 
             List<Dictionary<string, object>> dictrialalance = new List<Dictionary<string, object>>();
-    
 
-          
+
+
 
             //else
             //{
-                var sql = @"SELECT * FROM (SELECT  distinct	GL.Id AS AccountCodeId,
+            var sql = @"SELECT * FROM (SELECT  distinct	GL.Id AS AccountCodeId,
 		                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
 		                   sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative
                          , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative ,
@@ -13604,28 +13614,28 @@ union ALL
                             LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
                             LEFT JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
                             where v.PostingDate <= '" + toDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"' 
-                            and ag.Id='"+accountGroupId+"' and ag.UserName='"+accountGroupName+@"'
+                            and ag.Id='" + accountGroupId + "' and ag.UserName='" + accountGroupName + @"'
                             and  v.IsPark=0
                             group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,VD.GLGeneralInfoId,GL.UserName, GL.AccountCode, AG.UserName
                             , ACT.BalanceType,ACT.Id,v.PostingDate) ttd 
                             WHERE ISNULL(DRcumulative,0.00) <> 0.00 OR ISNULL(CRcumulative,0) <> 0.00
                             ORDER BY  ttd.MainHead,ttd.AccountGroupName ,ttd.GL";
-                dictrialalance = _sqlRepository.GetDataCollection(sql);
+            dictrialalance = _sqlRepository.GetDataCollection(sql);
 
-                foreach (var item in dictrialalance)
+            foreach (var item in dictrialalance)
+            {
+                if (clsStaticInfo.dbl(item["DRcumulative"].ToString()) < 0)
                 {
-                    if (clsStaticInfo.dbl(item["DRcumulative"].ToString()) < 0)
-                    {
-                        item["CRcumulative"] = clsStaticInfo.dbl(item["DRcumulative"]) * -1;
-                        item["DRcumulative"] = 0.00;
-                    }
-                    if (clsStaticInfo.dbl(item["CRcumulative"].ToString()) < 0)
-                    {
-                        item["DRcumulative"] = clsStaticInfo.dbl(item["CRcumulative"]) * -1;
-                        item["CRcumulative"] = 0.00;
-                    }
+                    item["CRcumulative"] = clsStaticInfo.dbl(item["DRcumulative"]) * -1;
+                    item["DRcumulative"] = 0.00;
                 }
-           // }
+                if (clsStaticInfo.dbl(item["CRcumulative"].ToString()) < 0)
+                {
+                    item["DRcumulative"] = clsStaticInfo.dbl(item["CRcumulative"]) * -1;
+                    item["CRcumulative"] = 0.00;
+                }
+            }
+            // }
 
 
             return dictrialalance;
@@ -14123,8 +14133,8 @@ union ALL
             string ShiftIds_WC = "";
             try
             {
-       
-         
+
+
 
                 obs = new clsStaticInfo();
                 strSql = @"SELECT * FROM( SELECT distinct GL.Id AS AccountCodeId,
@@ -14372,7 +14382,7 @@ union ALL
         }
 
 
-        public string GetTrialBLAccountGroupWiseDetailReport(string companyGroupId, string companyId, string plantId, string accountGroupList, string toDate, string SheetName,string reportName)
+        public string GetTrialBLAccountGroupWiseDetailReport(string companyGroupId, string companyId, string plantId, string accountGroupList, string toDate, string SheetName, string reportName)
         {
             try
             {
@@ -14432,175 +14442,175 @@ union ALL
                 //Dictionary<string, List<DataRow>> dicEmpMonthAttdnSummary = HRMS.GetMontlyAttdnSummary(companyGroupId, plantId, workDate);
                 //for (int dsi = 0; dsi < dayStatus.Count; dsi++)
                 //{
-                    var daylyAttdnEmpInfo = GetTrialBLAccountGroupDetailData(companyGroupId, companyId, plantId, accountGroupList, toDate);
-
-
-                
-                   //  HRMS.GetEntityPosition(companyGroupId, out DataSet dsEntityPosition);
-
-                    //var dvEntity = new DataView(dsEntityPosition.Tables[0])
-                    //{
-                    //    RowFilter = "RType = 'Entity'",
-                    //    Sort = "eSequence"
-                    //};
-                    //dtEntity = dvEntity.ToTable(true, "UserName");
-
-                    //var dvPosition = new DataView(dsEntityPosition.Tables[0])
-                    //{
-                    //    RowFilter = "RType = 'Position'",
-                    //    Sort = "pSequence"
-                    //};
-                    //dtPosition = dvPosition.ToTable(true, "UserName");
-
-                    //var dvBC = new DataView(daylyAttdnEmpInfo);
-
-                    sheet1 = workbook.Worksheets[0];
-
-                   // string xx = dayStatus[dsi].Replace("\"", "").Trim();
-                    // reportName = "";
+                var daylyAttdnEmpInfo = GetTrialBLAccountGroupDetailData(companyGroupId, companyId, plantId, accountGroupList, toDate);
 
 
 
-                    xlsRow = 5;
-                    #region variable
-                    var cBalanceType = 0; var cMainHead = 0; var cAccoutnGroupId = 0; var cAccountGroupName = 0; var cGLGeneralInfoId = 0; var cGL = 0;
-                    var cGLGeneralInfoCode = 0; var cBudgetMasterId = 0; var cBudgetId = 0;
-                    var cBudget = 0; var cActivityId = 0; var cActivity = 0;
-                    var cParticulars = 0;
+                //  HRMS.GetEntityPosition(companyGroupId, out DataSet dsEntityPosition);
 
-                    var cBooksDebit = 0; var cBooksCredit = 0;
-                    var cFixedAssetMasterId = 0;
-                    //var cDepertment = 0; var cEntity = 0;
-                    var cSl = 0;
-                    var endXlsCol = 0;
-                    var colNum = 0;
-                    //var cYesterdayDaystatus = 0;
-                    //var cYesterdayOverStayHour = 0;
-                    //var cRemarks = 0;
-                    #endregion variable
-                    //xlsRow++;
-                    xlsCol = 1;
+                //var dvEntity = new DataView(dsEntityPosition.Tables[0])
+                //{
+                //    RowFilter = "RType = 'Entity'",
+                //    Sort = "eSequence"
+                //};
+                //dtEntity = dvEntity.ToTable(true, "UserName");
 
-                    #region Header
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sl. No.", 2); cSl = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Balance Type", 15); cBalanceType = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Main Head", 15); cMainHead = xlsCol; xlsCol++;
+                //var dvPosition = new DataView(dsEntityPosition.Tables[0])
+                //{
+                //    RowFilter = "RType = 'Position'",
+                //    Sort = "pSequence"
+                //};
+                //dtPosition = dvPosition.ToTable(true, "UserName");
 
-                    //if (WithFatherName == true)
-                    //{
-                    //    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Father Name", 15); cDOB = xlsCol; xlsCol++;
-                    //}
+                //var dvBC = new DataView(daylyAttdnEmpInfo);
 
-                    //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Account Group Id", 15); cAccoutnGroupId = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Account Group Name", 25); cAccountGroupName = xlsCol; xlsCol++;
-                    //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GL General Info Id", 15); cGLGeneralInfoId = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GLGeneralInfoCode", 15); cGLGeneralInfoCode = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GL", 35); cGL = xlsCol; xlsCol++;
+                sheet1 = workbook.Worksheets[0];
 
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetMasterId", 15); cBudgetMasterId = xlsCol; xlsCol++;
+                // string xx = dayStatus[dsi].Replace("\"", "").Trim();
+                // reportName = "";
 
-                    //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetId", 15); cBudgetId = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Budget", 45); cBudget = xlsCol; xlsCol++;
 
-                    //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ActivityId", 15); cActivityId = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Activity", 50); cActivity = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Details", 60); cParticulars = xlsCol++; 
 
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FixedAsset MasterId", 15); cFixedAssetMasterId = xlsCol; xlsCol++;
+                xlsRow = 5;
+                #region variable
+                var cBalanceType = 0; var cMainHead = 0; var cAccoutnGroupId = 0; var cAccountGroupName = 0; var cGLGeneralInfoId = 0; var cGL = 0;
+                var cGLGeneralInfoCode = 0; var cBudgetMasterId = 0; var cBudgetId = 0;
+                var cBudget = 0; var cActivityId = 0; var cActivity = 0;
+                var cParticulars = 0;
 
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Books Debit", 20); cBooksDebit = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Books Credit", 20); cBooksCredit = xlsCol; 
+                var cBooksDebit = 0; var cBooksCredit = 0;
+                var cFixedAssetMasterId = 0;
+                //var cDepertment = 0; var cEntity = 0;
+                var cSl = 0;
+                var endXlsCol = 0;
+                var colNum = 0;
+                //var cYesterdayDaystatus = 0;
+                //var cYesterdayOverStayHour = 0;
+                //var cRemarks = 0;
+                #endregion variable
+                //xlsRow++;
+                xlsCol = 1;
+
+                #region Header
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sl. No.", 2); cSl = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Balance Type", 15); cBalanceType = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Main Head", 15); cMainHead = xlsCol; xlsCol++;
+
+                //if (WithFatherName == true)
+                //{
+                //    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Father Name", 15); cDOB = xlsCol; xlsCol++;
+                //}
+
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Account Group Id", 15); cAccoutnGroupId = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Account Group Name", 25); cAccountGroupName = xlsCol; xlsCol++;
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GL General Info Id", 15); cGLGeneralInfoId = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GLGeneralInfoCode", 15); cGLGeneralInfoCode = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GL", 35); cGL = xlsCol; xlsCol++;
+
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetMasterId", 15); cBudgetMasterId = xlsCol; xlsCol++;
+
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetId", 15); cBudgetId = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Budget", 45); cBudget = xlsCol; xlsCol++;
+
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ActivityId", 15); cActivityId = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Activity", 50); cActivity = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Details", 60); cParticulars = xlsCol++;
+
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FixedAsset MasterId", 15); cFixedAssetMasterId = xlsCol; xlsCol++;
+
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Books Debit", 20); cBooksDebit = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Books Credit", 20); cBooksCredit = xlsCol;
 
                 #endregion Header
 
 
 
                 if (daylyAttdnEmpInfo.Rows.Count > 0)
+                {
+
+                    var fPanRow = xlsRow + 1;//Freeze pan starting rows
+                    xlsCol--;
+                    endXlsCol = xlsCol;
+                    xlsRow++;
+                    var slCount = 0;
+
+
+                    for (int i = 0; i < daylyAttdnEmpInfo.Rows.Count; i++)
                     {
+                        slCount++;
+                        #region Loop
 
-                        var fPanRow = xlsRow + 1;//Freeze pan starting rows
-                        xlsCol--;
-                        endXlsCol = xlsCol;
-                        xlsRow++;
-                        var slCount = 0;
+                        //if (dayStatus[dsi] == "Absent" || dayStatus[dsi] == "Late")
+                        //{
+                        //    if (dicEmpMonthAttdnSummary.ContainsKey(daylyAttdnEmpInfo.Rows[i]["SystemId"].ToString()))
+                        //    {
+                        //        List<DataRow> drTotalAbsentOrLate = dicEmpMonthAttdnSummary[daylyAttdnEmpInfo.Rows[i]["SystemId"].ToString()];
 
+                        //        if (dayStatus[dsi] == "Absent")
+                        //        {
+                        //            oRU.SetText(ref sheet1, xlsRow, cTotalAbsentORLate, Convert.ToInt32(clsStaticInfo.dbl(drTotalAbsentOrLate[0]["TotalAbsent"].ToString())));
 
-                        for (int i = 0; i < daylyAttdnEmpInfo.Rows.Count; i++)
-                        {
-                            slCount++;
-                            #region Loop
+                        //        }
+                        //        if (dayStatus[dsi] == "Late")
+                        //        {
+                        //            oRU.SetText(ref sheet1, xlsRow, cTotalAbsentORLate, Convert.ToInt32(clsStaticInfo.dbl(drTotalAbsentOrLate[0]["TotalLate"].ToString())));
 
-                            //if (dayStatus[dsi] == "Absent" || dayStatus[dsi] == "Late")
-                            //{
-                            //    if (dicEmpMonthAttdnSummary.ContainsKey(daylyAttdnEmpInfo.Rows[i]["SystemId"].ToString()))
-                            //    {
-                            //        List<DataRow> drTotalAbsentOrLate = dicEmpMonthAttdnSummary[daylyAttdnEmpInfo.Rows[i]["SystemId"].ToString()];
+                        //        }
+                        //    }
 
-                            //        if (dayStatus[dsi] == "Absent")
-                            //        {
-                            //            oRU.SetText(ref sheet1, xlsRow, cTotalAbsentORLate, Convert.ToInt32(clsStaticInfo.dbl(drTotalAbsentOrLate[0]["TotalAbsent"].ToString())));
-
-                            //        }
-                            //        if (dayStatus[dsi] == "Late")
-                            //        {
-                            //            oRU.SetText(ref sheet1, xlsRow, cTotalAbsentORLate, Convert.ToInt32(clsStaticInfo.dbl(drTotalAbsentOrLate[0]["TotalLate"].ToString())));
-
-                            //        }
-                            //    }
-
-                            //}
+                        //}
 
 
-                            oRU.SetText(ref sheet1, xlsRow, cSl, slCount.ToString());
-                            oRU.SetText(ref sheet1, xlsRow, cMainHead, daylyAttdnEmpInfo.Rows[i]["MainHead"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cSl, slCount.ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cMainHead, daylyAttdnEmpInfo.Rows[i]["MainHead"].ToString());
 
 
-                            oRU.SetText(ref sheet1, xlsRow, cBalanceType, daylyAttdnEmpInfo.Rows[i]["BalanceType"].ToString());
-                            //oRU.SetText(ref sheet1, xlsRow, cAccoutnGroupId, daylyAttdnEmpInfo.Rows[i]["AccoutnGroupId"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cBalanceType, daylyAttdnEmpInfo.Rows[i]["BalanceType"].ToString());
+                        //oRU.SetText(ref sheet1, xlsRow, cAccoutnGroupId, daylyAttdnEmpInfo.Rows[i]["AccoutnGroupId"].ToString());
 
-                            //if (WithFatherName == true)
-                            //{
-                            //    oRU.SetText(ref sheet1, xlsRow, cDOB, daylyAttdnEmpInfo.Rows[i]["FatherName"].ToString());
-                            //}
+                        //if (WithFatherName == true)
+                        //{
+                        //    oRU.SetText(ref sheet1, xlsRow, cDOB, daylyAttdnEmpInfo.Rows[i]["FatherName"].ToString());
+                        //}
 
-                            oRU.SetText(ref sheet1, xlsRow, cAccountGroupName, daylyAttdnEmpInfo.Rows[i]["AccountGroupName"].ToString());
-                            //oRU.SetText(ref sheet1, xlsRow, cGLGeneralInfoId, daylyAttdnEmpInfo.Rows[i]["GLGeneralInfoId"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cAccountGroupName, daylyAttdnEmpInfo.Rows[i]["AccountGroupName"].ToString());
+                        //oRU.SetText(ref sheet1, xlsRow, cGLGeneralInfoId, daylyAttdnEmpInfo.Rows[i]["GLGeneralInfoId"].ToString());
 
-                            //oRU.SetText(ref sheet1, xlsRow, cEmpLocation, daylyAttdnEmpInfo.Rows[i]["EmployeeLocation"].ToString());
+                        //oRU.SetText(ref sheet1, xlsRow, cEmpLocation, daylyAttdnEmpInfo.Rows[i]["EmployeeLocation"].ToString());
 
-                            //if (dayStatus[dsi] == "Leave")
-                            //{
-                            //    oRU.SetText(ref sheet1, xlsRow, cLeaveType, daylyAttdnEmpInfo.Rows[i]["LeaveType"].ToString());
-                            //}
-                            //if (dayStatus[dsi] == "Work Off")
-                            //{
-                            //    if (!string.IsNullOrEmpty(daylyAttdnEmpInfo.Rows[i]["DayStatus"].ToString()))
-                            //    {
-                            //        oRU.SetText(ref sheet1, xlsRow, cDayStatus, daylyAttdnEmpInfo.Rows[i]["DayStatus"].ToString());
-                            //    }
-                            //}
+                        //if (dayStatus[dsi] == "Leave")
+                        //{
+                        //    oRU.SetText(ref sheet1, xlsRow, cLeaveType, daylyAttdnEmpInfo.Rows[i]["LeaveType"].ToString());
+                        //}
+                        //if (dayStatus[dsi] == "Work Off")
+                        //{
+                        //    if (!string.IsNullOrEmpty(daylyAttdnEmpInfo.Rows[i]["DayStatus"].ToString()))
+                        //    {
+                        //        oRU.SetText(ref sheet1, xlsRow, cDayStatus, daylyAttdnEmpInfo.Rows[i]["DayStatus"].ToString());
+                        //    }
+                        //}
 
-                            oRU.SetText(ref sheet1, xlsRow, cGL, daylyAttdnEmpInfo.Rows[i]["GL"].ToString());
-                            oRU.SetText(ref sheet1, xlsRow, cGLGeneralInfoCode, daylyAttdnEmpInfo.Rows[i]["GLGeneralInfoCode"].ToString());
-                        
+                        oRU.SetText(ref sheet1, xlsRow, cGL, daylyAttdnEmpInfo.Rows[i]["GL"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cGLGeneralInfoCode, daylyAttdnEmpInfo.Rows[i]["GLGeneralInfoCode"].ToString());
 
-                            oRU.SetText(ref sheet1, xlsRow, cBudgetMasterId, daylyAttdnEmpInfo.Rows[i]["BudgetMasterId"].ToString());
-                           // oRU.SetText(ref sheet1, xlsRow, cBudgetId, daylyAttdnEmpInfo.Rows[i]["BudgetId"].ToString());
-                            oRU.SetText(ref sheet1, xlsRow, cBudget, daylyAttdnEmpInfo.Rows[i]["Budget"].ToString());
-                            oRU.SetText(ref sheet1, xlsRow, cActivity, daylyAttdnEmpInfo.Rows[i]["Activity"].ToString());
-                           // oRU.SetText(ref sheet1, xlsRow, cActivityId, daylyAttdnEmpInfo.Rows[i]["ActivityId"].ToString());
 
-                            oRU.SetText(ref sheet1, xlsRow, cParticulars, daylyAttdnEmpInfo.Rows[i]["Particulars"].ToString());
-                            oRU.SetText(ref sheet1, xlsRow, cFixedAssetMasterId, daylyAttdnEmpInfo.Rows[i]["FixedAssetMasterId"].ToString());
-                           // oRU.SetText(ref sheet1, xlsRow, cBooksDebit, daylyAttdnEmpInfo.Rows[i]["DRcumulative"].ToString());
-                          //oRU.SetText(ref sheet1, xlsRow, cBooksDebit, daylyAttdnEmpInfo.NumberFormat = "#,##0.00;(#,##0.00)");
+                        oRU.SetText(ref sheet1, xlsRow, cBudgetMasterId, daylyAttdnEmpInfo.Rows[i]["BudgetMasterId"].ToString());
+                        // oRU.SetText(ref sheet1, xlsRow, cBudgetId, daylyAttdnEmpInfo.Rows[i]["BudgetId"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cBudget, daylyAttdnEmpInfo.Rows[i]["Budget"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cActivity, daylyAttdnEmpInfo.Rows[i]["Activity"].ToString());
+                        // oRU.SetText(ref sheet1, xlsRow, cActivityId, daylyAttdnEmpInfo.Rows[i]["ActivityId"].ToString());
 
-                          sheet1[xlsRow, cBooksDebit].Number = clsStaticInfo.dbl(daylyAttdnEmpInfo.Rows[i]["DRcumulative"].ToString());
-                           sheet1[xlsRow, cBooksDebit].NumberFormat = clsStaticInfo.NumberFormat(2);
+                        oRU.SetText(ref sheet1, xlsRow, cParticulars, daylyAttdnEmpInfo.Rows[i]["Particulars"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cFixedAssetMasterId, daylyAttdnEmpInfo.Rows[i]["FixedAssetMasterId"].ToString());
+                        // oRU.SetText(ref sheet1, xlsRow, cBooksDebit, daylyAttdnEmpInfo.Rows[i]["DRcumulative"].ToString());
+                        //oRU.SetText(ref sheet1, xlsRow, cBooksDebit, daylyAttdnEmpInfo.NumberFormat = "#,##0.00;(#,##0.00)");
 
-                            //oRU.SetText(ref sheet1, xlsRow, cBooksCredit, daylyAttdnEmpInfo.Rows[i]["CRcumulative"].ToString());
-                            sheet1[xlsRow, cBooksCredit].Number = clsStaticInfo.dbl(daylyAttdnEmpInfo.Rows[i]["CRcumulative"].ToString());
-                            sheet1[xlsRow, cBooksCredit].NumberFormat = clsStaticInfo.NumberFormat(2);
+                        sheet1[xlsRow, cBooksDebit].Number = clsStaticInfo.dbl(daylyAttdnEmpInfo.Rows[i]["DRcumulative"].ToString());
+                        sheet1[xlsRow, cBooksDebit].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                        //oRU.SetText(ref sheet1, xlsRow, cBooksCredit, daylyAttdnEmpInfo.Rows[i]["CRcumulative"].ToString());
+                        sheet1[xlsRow, cBooksCredit].Number = clsStaticInfo.dbl(daylyAttdnEmpInfo.Rows[i]["CRcumulative"].ToString());
+                        sheet1[xlsRow, cBooksCredit].NumberFormat = clsStaticInfo.NumberFormat(2);
                         // oRU.SetText(ref sheet1, xlsRow, cBooksCredit, daylyAttdnEmpInfo.NumberFormat = "#,##0.00;(#,##0.00)");
 
                         //oRU.SetText[xlsRow, cParticulars].Number = clsStaticInfo.dbl(daylyAttdnEmpInfo.Rows[i]["DRcumulative"].ToString());
@@ -14623,26 +14633,26 @@ union ALL
 
                         #endregion Loop
                         xlsRow++;
-                        }
+                    }
 
-                        oRU.SetHeaderText(ref sheet1, 4, 1 , reportName +  " Report", ExcelHAlign.HAlignCenter);
-                        //oRU.SetHeaderText(ref sheet1, 4, 1, xx + " Report", ExcelHAlign.HAlignCenter);
-                        sheet1.Range[4, 1, 4, endXlsCol].Merge();
+                    oRU.SetHeaderText(ref sheet1, 4, 1, reportName + " Report", ExcelHAlign.HAlignCenter);
+                    //oRU.SetHeaderText(ref sheet1, 4, 1, xx + " Report", ExcelHAlign.HAlignCenter);
+                    sheet1.Range[4, 1, 4, endXlsCol].Merge();
 
-                        //var attdnHeader = SheetHeader + " On " + workDate;
-                        //if (!string.IsNullOrEmpty(plantId))
-                        //    oRU.PlantHeader(ref sheet1, endXlsCol, attdnHeader, plantId);
-                        //else
-                        //    oRU.MainCompanyGroupHeader(ref sheet1, endXlsCol, attdnHeader, companyGroupId);
+                    //var attdnHeader = SheetHeader + " On " + workDate;
+                    //if (!string.IsNullOrEmpty(plantId))
+                    //    oRU.PlantHeader(ref sheet1, endXlsCol, attdnHeader, plantId);
+                    //else
+                    //    oRU.MainCompanyGroupHeader(ref sheet1, endXlsCol, attdnHeader, companyGroupId);
 
-                        #region UsedRange Alignment
-                        sheet1.UsedRange.WrapText = true;
-                        sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
-                        sheet1.UsedRange["A" + fPanRow].FreezePanes();
-                        #endregion UsedRange Alignment
+                    #region UsedRange Alignment
+                    sheet1.UsedRange.WrapText = true;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    sheet1.UsedRange["A" + fPanRow].FreezePanes();
+                    #endregion UsedRange Alignment
 
-                        oRU.PageSetupAuto(ref sheet1, 5, ExcelPageOrientation.Landscape, "TS");
-                         sheet1.Name = reportName;
+                    oRU.PageSetupAuto(ref sheet1, 5, ExcelPageOrientation.Landscape, "TS");
+                    sheet1.Name = reportName;
 
                 }
 
@@ -14679,24 +14689,24 @@ union ALL
                 IWorksheet sheet1 = null;
                 ReportUtility oRU = null;
 
-   
+
 
                 var xlsRow = 1;
                 var xlsCol = 1;
-    
+
 
                 #endregion Variable
                 //objRpt = new clsReport();
                 oRU = new ReportUtility();
 
-                
+
 
 
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create();
 
-                
+
                 var daylyAttdnEmpInfo = GetTrialBLAccountGroupActivityData(companyGroupId, companyId, plantId, accountGroupList, toDate);
 
 
@@ -14718,11 +14728,11 @@ union ALL
 
                 var cBooksDebit = 0; var cBooksCredit = 0;
                 var cFixedAssetMasterId = 0;
-               
+
                 var cSl = 0;
                 var endXlsCol = 0;
                 var colNum = 0;
-                
+
                 #endregion variable
                 //xlsRow++;
                 xlsCol = 1;
@@ -14732,7 +14742,7 @@ union ALL
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Balance Type", 15); cBalanceType = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Main Head", 15); cMainHead = xlsCol; xlsCol++;
 
-                
+
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Account Group Name", 25); cAccountGroupName = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GLGeneralInfoCode", 15); cGLGeneralInfoCode = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GL", 35); cGL = xlsCol; xlsCol++;
@@ -14775,12 +14785,12 @@ union ALL
 
 
                         oRU.SetText(ref sheet1, xlsRow, cBalanceType, daylyAttdnEmpInfo.Rows[i]["BalanceType"].ToString());
-                        
+
 
                         oRU.SetText(ref sheet1, xlsRow, cAccountGroupName, daylyAttdnEmpInfo.Rows[i]["AccountGroupName"].ToString());
                         //oRU.SetText(ref sheet1, xlsRow, cGLGeneralInfoId, daylyAttdnEmpInfo.Rows[i]["GLGeneralInfoId"].ToString());
 
-                       
+
 
                         oRU.SetText(ref sheet1, xlsRow, cGL, daylyAttdnEmpInfo.Rows[i]["GL"].ToString());
                         oRU.SetText(ref sheet1, xlsRow, cGLGeneralInfoCode, daylyAttdnEmpInfo.Rows[i]["GLGeneralInfoCode"].ToString());
@@ -14802,7 +14812,7 @@ union ALL
                         sheet1[xlsRow, cBooksCredit].Number = clsStaticInfo.dbl(daylyAttdnEmpInfo.Rows[i]["CRcumulative"].ToString());
                         sheet1[xlsRow, cBooksCredit].NumberFormat = clsStaticInfo.NumberFormat(2);
 
-                       
+
                         #endregion Loop
                         xlsRow++;
                     }
@@ -14810,7 +14820,7 @@ union ALL
                     oRU.SetHeaderText(ref sheet1, 4, 1, reportName + " Report", ExcelHAlign.HAlignCenter);
                     sheet1.Range[4, 1, 4, endXlsCol].Merge();
 
-                    
+
                     #region UsedRange Alignment
                     sheet1.UsedRange.WrapText = true;
                     sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
@@ -14864,7 +14874,7 @@ union ALL
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create();
 
-         
+
                 var daylyAttdnEmpInfo = GetTrialBLAccountGroupBudgetData(companyGroupId, companyId, plantId, accountGroupList, toDate);
 
                 sheet1 = workbook.Worksheets[0];
@@ -14882,7 +14892,7 @@ union ALL
                 var cSl = 0;
                 var endXlsCol = 0;
                 var colNum = 0;
-         
+
                 #endregion variable
                 //xlsRow++;
                 xlsCol = 1;
@@ -14892,7 +14902,7 @@ union ALL
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Balance Type", 15); cBalanceType = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Main Head", 15); cMainHead = xlsCol; xlsCol++;
 
-         
+
 
                 //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Account Group Id", 15); cAccoutnGroupId = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Account Group Name", 25); cAccountGroupName = xlsCol; xlsCol++;
@@ -14940,7 +14950,7 @@ union ALL
                         oRU.SetText(ref sheet1, xlsRow, cBalanceType, daylyAttdnEmpInfo.Rows[i]["BalanceType"].ToString());
                         //oRU.SetText(ref sheet1, xlsRow, cAccoutnGroupId, daylyAttdnEmpInfo.Rows[i]["AccoutnGroupId"].ToString());
 
-               
+
                         oRU.SetText(ref sheet1, xlsRow, cAccountGroupName, daylyAttdnEmpInfo.Rows[i]["AccountGroupName"].ToString());
                         //oRU.SetText(ref sheet1, xlsRow, cGLGeneralInfoId, daylyAttdnEmpInfo.Rows[i]["GLGeneralInfoId"].ToString());
 
@@ -15022,7 +15032,7 @@ union ALL
 
                 var xlsRow = 1;
                 var xlsCol = 1;
-              
+
                 #endregion Variable
                 //objRpt = new clsReport();
                 oRU = new ReportUtility();
@@ -15030,7 +15040,7 @@ union ALL
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create();
 
-    
+
                 var daylyAttdnEmpInfo = GetTrialBLAccountGroupGLData(companyGroupId, companyId, plantId, accountGroupList, toDate);
 
 
@@ -15045,13 +15055,13 @@ union ALL
 
                 var cBooksDebit = 0; var cBooksCredit = 0;
                 var cFixedAssetMasterId = 0;
-          
+
                 var cSl = 0;
                 var endXlsCol = 0;
                 var colNum = 0;
-     
+
                 #endregion variable
-          
+
                 xlsCol = 1;
 
                 #region Header
@@ -15066,13 +15076,13 @@ union ALL
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GLGeneralInfoCode", 15); cGLGeneralInfoCode = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GL", 35); cGL = xlsCol; xlsCol++;
 
-               //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetMasterId", 15); cBudgetMasterId = xlsCol; xlsCol++;
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetMasterId", 15); cBudgetMasterId = xlsCol; xlsCol++;
 
                 //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetId", 15); cBudgetId = xlsCol; xlsCol++;
                 //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Budget", 45); cBudget = xlsCol; xlsCol++;
 
                 //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ActivityId", 15); cActivityId = xlsCol; xlsCol++;
-               //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Activity", 50); cActivity = xlsCol; xlsCol++;
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Activity", 50); cActivity = xlsCol; xlsCol++;
                 //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Details", 60); cParticulars = xlsCol++;
 
                 //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FixedAsset MasterId", 15); cFixedAssetMasterId = xlsCol; xlsCol++;
@@ -15276,7 +15286,7 @@ union ALL
                     LEFT JOIN SCS.Currency C ON C.Id=S.CurrencyId
                     where S.VoucherId<>'' and IV.IsWrittenOff=0 AND IV.SourceType in ('SalesInvoice') and iv.IsPark=0
                     --and v.VoucherNo='SCI-20-21-00001'
-                    AND IV.PlantId='" + plantId+@"'
+                    AND IV.PlantId='" + plantId + @"'
 
                     group by IV.DocRefNo,V.VoucherNo,v.PostingDate,IV.DocDate ,S.SourceType,IV.ActualDueDate,S.MatureDate,PP.UserName,C.Code
                     ,iv.CompanyCurrencyRate
@@ -15484,8 +15494,8 @@ union ALL
                     WHERE V.SourceType='CustomerInvoice' 
 					and	IV.IsWrittenOff=0 
 					--AND IV.SourceType in ('SalesInvoice')
-                    AND IV.PlantId = '"+plantId+@"'";
-              
+                    AND IV.PlantId = '" + plantId + @"'";
+
             return _sqlRepository.GetDataCollection(sql);
 
         }
@@ -15542,11 +15552,11 @@ union ALL
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId+@"'
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
-                AND IV.CompanyGroupId='"+companyGroupId+"' AND IV.CompanyId='"+companyId+"'  AND IV.PlantId='"+plantId+ @"'
+                AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "'  AND IV.PlantId='" + plantId + @"'
                  --AND IV.PartyId in('202179')
 
                 UNION ALL
@@ -15596,11 +15606,11 @@ union ALL
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN[SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId= VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType= 'CompanyCurrency' AND CPC.CompanyId= '" + companyId+@"'
+                WHERE CPC.ParallelCurrencyType= 'CompanyCurrency' AND CPC.CompanyId= '" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId = VD.Id
 
                 WHERE IV.Archive = 0 AND IV.IsWrittenOff = 0 AND IVD.IsWrittenOff = 0 AND V.IsPark = 0 AND IVD.IsBlock = 0 AND IV.SourceType in ('InventoryPayable')
-                AND IV.CompanyGroupId='"+companyGroupId+"' AND IV.CompanyId='"+companyId+"'  AND IV.PlantId='"+plantId+ @"'
+                AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "'  AND IV.PlantId='" + plantId + @"'
                 AND IR.PurchaseDocumentAcceptanceId IS NULL
                 --AND IV.PartyId in('202179')
                 UNION ALL
@@ -15651,11 +15661,11 @@ union ALL
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN[SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId= VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType= 'CompanyCurrency' AND CPC.CompanyId= '" + companyId+@"'
+                WHERE CPC.ParallelCurrencyType= 'CompanyCurrency' AND CPC.CompanyId= '" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId = VD.Id
 
                 WHERE IV.Archive = 0 AND IV.IsWrittenOff = 0 AND IVD.IsWrittenOff = 0 AND V.IsPark = 0  AND IV.SourceType in ('DebitNote','VendorPayment')
-                AND IV.CompanyGroupId='"+companyGroupId+"' AND IV.CompanyId='"+companyId+"'  AND IV.PlantId='"+plantId+@"'
+                AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "'  AND IV.PlantId='" + plantId + @"'
                 --AND IV.PartyId in('202179')
                 order by isnull(  P.UserName,'') ";
             return _sqlRepository.GetDataCollection(sql);
@@ -15665,221 +15675,6 @@ union ALL
 
         #region Material Management
         public IEnumerable<object> GetGRNPostingList(string companyGroupId, string companyId, string plantId, string grnAndAccpType, string dateType, string fromDate, string toDate, bool isOrderSpecific, bool isNonOrderSpecific)
-        {
-            try
-            {
-                //string strkey = "1=1";
-                //if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                //    strkey = column + " like '%" + value + "%'";
-                string grnAccpType = " ";
-                string orderSpecific = " ";
-                string dateFilter = " ";
-
-                //if (grnAndAccpType == "GRNPosted")
-                //{
-                //    grnAccpType = "and PO.OrderSpecific=1";
-                //}
-
-                 if (isOrderSpecific == true && isNonOrderSpecific == true)
-                {
-                    orderSpecific = "";
-                }
-
-               else if (isOrderSpecific == true)
-                {
-                    orderSpecific = "WHERE ISNULL( X.ContractNo,'')<>'' ";
-                }
-                else if (isNonOrderSpecific == true)
-                {
-                    orderSpecific = "WHERE ISNULL(X.ContractNo,'') ='' ";
-                }
-        
-                else
-                {
-                    orderSpecific = " ";
-                }
-
-                if (dateType == "PostingDate")
-                {
-                    dateFilter = " AND CONVERT(DATE,V.PostingDate) BETWEEN '" + fromDate + "' AND '" + toDate + @"' ";
-                }
-                else
-                {
-                    dateFilter = " AND CONVERT(DATE,V.VoucherDate) BETWEEN '" + fromDate + "' AND '" + toDate + @"' ";
-
-                }
-
-                
-
-                var sql = @"DECLARE @companyGroupId VARCHAR(10)='" + companyGroupId + @"', @companyId VARCHAR(10)= '" + companyId + @"' ,@plantId VARCHAR(10)='" + plantId + @"';
-                                -- select top 100 * from (
-						SELECT X.* , OderSpecific=case when x.ContractNo<>'' then 'YES' else 'NO' end  
-						
-						
-						FROM (
-						SELECT IR.Id,IR.Id GRNNo, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
-			                        , CP.UserName AS PartyAccountGroupName
-			                        , IR.EmployeeId, EI.EmployeeCode, EI.EmployeeName
-                                    , Particular=CASE WHEN IR.EmployeeId<>'' THEN EI.EmployeeName WHEN IR.PartyId<>'' THEN P.UserName  ELSE P.UserName END
-	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-	                                , REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
-	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
-	                                , IR.FixedAssetOrInventory, IR.PODepended, IR.AlongwithInvoice, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
-	                                , IR.InvoicingPartyPlantId, IR.InvoicingPartyPlantId PartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-	                                , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM
-                                    , IRD.TransactionAmount, IRD.BaseAmount
-		                            ,(IRD.TransactionAmount * ToCurrencyRate) BooksAmount
-
-                                    , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName
-									, CP.TaxApplicable, IR.IsTaxApplicable
-                                    , COUNT(*) OVER () AS TotalRows
-									,GRNType=CASE WHEN IR.EmployeeId <> '' Then 'Employee' else 'Vendor' END
-									,IR.GateEntryNo,IR.POId,IR.ToCurrencyRate,IR.NoteForAccounts Narration
-									,VoucherNo = CASE WHEN IR.EmployeeId <>'' THEN VE.VoucherNo ELSE V.VoucherNo END
-                                 	, REPLACE(CONVERT(CHAR(11), v.VoucherDate, 106),' ','-') AS VoucherDate
-
-									,VoucherTypeId = CASE WHEN IR.EmployeeId <>'' THEN VE.VoucherTypeId ELSE V.VoucherTypeId END
-									,PostingDate= CASE WHEN IR.EmployeeId <>'' THEN REPLACE(CONVERT(CHAR(11), VE.PostingDate, 106),' ','-') ELSE REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') END
-                                    ,MS.UserName MaterialStorageName, IR.IsFOC, ISNULL(ADT.TaxAmount,0) TDSTax, ADT.VoucherId TDSTaxVoucherId, ADT.Id AdditionalTaxId
-                                    ,IsTDSTaxPost=CASE WHEN ADT.VoucherId<>'' THEN 'Posted' WHEN  ADT.InventoryReceiveId IS NULL THEN '' ELSE 'Parked' end
-									,VT.VoucherNo TDSVoucherNo
-
-                    ,PONo= isnull( STUFF((select distinct ','+xpomap.POId 
-                    from  dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-                    LEFT JOIN trn.PurchaseDocAcceptancePOMap xpomap on xpomap.PurchaseDocAcceptanceId=xp.Id
-					LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
-					LEFT JOIN TRN.InventoryReceive XGRN ON XGRN.Id=xgrnmap.GRNId
-                    where XGRN.Id=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
-
-
-				    ,PurchaseLC= isnull( STUFF((select distinct ','+XVD.LCRef from
-                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-                    LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
-					LEFT JOIN TRN.InventoryReceive XGRN ON XGRN.Id=xgrnmap.GRNId
-                    where XGRN.Id=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
- 
-                    ,OpeningBank= STUFF((select distinct ','+xbm.AccountTitle 
-                    from dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-                    left join MST.BankMaster xbm on xbm.Id=XVD.OpeningBankMasterId
-					LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
-					LEFT JOIN TRN.InventoryReceive XGRN ON XGRN.Id=xgrnmap.GRNId
-                    where XGRN.Id=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-
-                    ,BenificiaryBank= STUFF((select distinct ','+XVD.BenificiaryBank 
-                    from dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-					LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
-					LEFT JOIN TRN.InventoryReceive XGRN ON XGRN.Id=xgrnmap.GRNId
-                    where XGRN.Id=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-						,ISNULL( PLC.PLCAmount,0)PLCAmount
-
-                    ,LCOpeningDate= STUFF((select distinct ','+REPLACE(CONVERT(CHAR(11), XVD.LCDate, 106),' ','-') from
-                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-					 LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
-					LEFT JOIN TRN.InventoryReceive XGRN ON XGRN.Id=xgrnmap.GRNId
-                    where XGRN.Id=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-                    ,PINo= STUFF((select distinct ','+XVD.PINo from
-                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-					 LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
-					LEFT JOIN TRN.InventoryReceive XGRN ON XGRN.Id=xgrnmap.GRNId
-                    where XGRN.Id=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-
-                    ,ContractNo= isnull( STUFF((select distinct ','+ISNULL(XC.ContractNo,'') from
-                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-					LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
-					LEFT JOIN TRN.InventoryReceive XGRN ON XGRN.Id=xgrnmap.GRNId
-                    LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
-                    where XGRN.Id=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
-
-                    ,Customer= isnull( STUFF((select distinct ','+XCU.UserName from
-                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-                    LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
-                    join HKP.Party XCU ON XCU.Id=XC.CustomerId
-					LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
-					LEFT JOIN TRN.InventoryReceive XGRN ON XGRN.Id=xgrnmap.GRNId
-                    where XGRN.Id=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
-
-                    ,MasterLCNo= isnull( STUFF((select distinct ','+XC.MasterLCId from
-                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-                    LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
-					LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
-					LEFT JOIN TRN.InventoryReceive XGRN ON XGRN.Id=xgrnmap.GRNId
-                    where XGRN.Id=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
-
-                    ,UDNo= isnull( STUFF((select distinct ','+XC.UDNo from
-                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-                    LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
-					LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
-					LEFT JOIN TRN.InventoryReceive XGRN ON XGRN.Id=xgrnmap.GRNId
-                    where XGRN.Id=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
-
-
-
-						FROM [TRN].[InventoryReceive] AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-                        LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
-			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
-                        LEFT JOIN [EmployeeInformation] AS EI ON IR.EmployeeId=EI.SystemId
-                        JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-                        LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
-                        LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
-                        LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
-                        LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
-                        LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
-                        LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
-                        LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
-                        LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.MaterialTranAmount) AS TransactionAmount, SUM(A.TotalMaterialTranAmount) AS BaseAmount FROM [TRN].[InventoryReceiveDetail] AS A
-		                            JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId=@plantId GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
-                        LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id
-		                            WHERE B.PlantId=@plantId GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
-                        LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
-                        --LEFT JOIN TRN.GRNAcceptanceMap IGD ON IGD.GRNId=IR.Id
-                       -- LEFT JOIN TRN.Invoice IV ON IV.Id=IGD.InvoiceId
-						LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
-						LEFT JOIN TRN.EmployeePayable EP ON EP.InventoryReceiveId=IR.Id
-						LEFT JOIN TRN.Voucher VE ON VE.Id=EP.VoucherId
-                        LEFT JOIN HKP.MaterialStorage MS ON MS.Id=IR.MaterialStorageId
-                        LEFT JOIN TRN.AdditionalTax ADT ON ADT.InventoryReceiveId=IR.Id
-						LEFT JOIN TRN.Voucher VT ON VT.Id=ADT.VoucherId
-
-
-					LEFT JOIN (select XGRN.Id,sum(XVD.Amount) PLCAmount from dbo.PurchaseLC XVD
-					Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-					LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
-					LEFT JOIN TRN.InventoryReceive XGRN ON XGRN.Id=xgrnmap.GRNId
-					group by XGRN.Id
-					) PLC ON PLC.Id=IR.Id
-					 
-
-                        WHERE IR.CompanyGroupId=@companyGroupId and IR.CompanyId=@companyId  and IR.PlantId=@plantId AND IR.[Status]='Posting'
-                        AND IR.IsPaymentHold=0 AND IR.PlantId=@plantId AND IR.FixedAssetOrInventory='Inventory' AND IR.OpeningBalanceId IS NULL
-
-				
-						 " + dateFilter + @"
-						--and v.PostingDate between '' and ''
-						--and v.AddedDate between '' and ''
-
-						)X
- 
-                           "+ orderSpecific + @"
-						--WHERE ISNULL( X.ContractNo,'')<>'' 
-						--WHERE ISNULL(X.ContractNo,'') =''
-
-
-                        order by X.PostingDate DESC";
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message, ex,
-                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-            }
-        }
-
-        public IEnumerable<object> GetAcceptancePostingList(string companyGroupId, string companyId, string plantId, string grnAndAccpType, string dateType, string fromDate, string toDate, bool isOrderSpecific, bool isNonOrderSpecific)
         {
             try
             {
@@ -15924,149 +15719,9 @@ union ALL
 
                 }
 
-                var sql = @"
-
-                    Select X.* ,OrderSpecific =case when x.ContractNo<>'' then 'YES' else 'No' end  from (
-                      SELECT ISNULL( PDA.Id,'')Id
-                    ,ISNULL( PDA.AcceptanceNo,'')AcceptanceNo
-                     ,REPLACE(CONVERT(CHAR(11), PDA.AcceptanceDate, 106),' ','-') AS AcceptanceDate
-                    ,V.VoucherNo
-                    ,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') PostingDate
-                    ,REPLACE(CONVERT(CHAR(11), V.VoucherDate, 106),' ','-') VoucherDate
-
-                    ,P.UserName PartyName
-                    , PP.UserName PartyPlantName
-                    ,CurrencyCode= STUFF((select distinct ','+XC.Code
-
-                    from dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-                    LEFT JOIN SCS.Currency XC ON XC.Id=XVD.CurrencyId
-                    where PDA.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-                    ,ISNULL(PDAD.MaterialTranAmount,0) TranAmount
-                    ,ISNULL(PDAD.TotalMaterialTranAmount,0) TotalMaterialTranAmount
-                    ,ISNULL(I.WrittenOffAmount,0) SetOff
-                    ,ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0) Balance
-                    ,PurchaseLCNo= STUFF((select distinct ','+XVD.LCRef 
-
-                    from dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-                    where PDA.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-                    ,LCOpeningDate= STUFF((select distinct ','+REPLACE(CONVERT(CHAR(11), XVD.LCDate, 106),' ','-') from
-                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-                    where PDA.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                    ,PINo= STUFF((select distinct ','+XVD.PINo from
-                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-                    where PDA.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                    ,LCAmount
-
-                    ,OpeningBank= STUFF((select distinct ','+xbm.AccountTitle 
-
-                    from dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-                    left join MST.BankMaster xbm on xbm.Id=XVD.OpeningBankMasterId
-                    where PDA.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-                    ,BenificiaryBank= STUFF((select distinct ','+XVD.BenificiaryBank 
-
-                    from dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-                    where PDA.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-                    ,PONo= isnull( STUFF((select distinct ','+xpomap.POId 
-
-                    from  dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-                    LEFT JOIN trn.PurchaseDocAcceptancePOMap xpomap on xpomap.PurchaseDocAcceptanceId=xp.Id
-                    where PDA.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
-
-                    ,GRNNo= isnull( STUFF((select distinct ','+xgrnmap.GRNId from
-                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-                    LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
-                    where PDA.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
-
-                    ,ContractNo= isnull( STUFF((select distinct ','+XC.ContractNo from
-                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-                    LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
-                    where PDA.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
-
-                    ,Customer= isnull( STUFF((select distinct ','+XCU.UserName from
-                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-                    LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
-                    join HKP.Party XCU ON XCU.Id=XC.CustomerId
-                    where PDA.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
-
-                    ,MasterLCNo= isnull( STUFF((select distinct ','+XC.MasterLCId from
-                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-                    LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
-                    where PDA.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
-
-                    ,UDNo= isnull( STUFF((select distinct ','+XC.UDNo from
-                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-                    LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
-                    where PDA.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 
 
-                    FROM TRN.PurchasedocAcceptance AS PDA
-                    LEFT JOIN (SELECT PurchaseDocAcceptanceId,SUM(MaterialTranAmount) MaterialTranAmount
-                    ,SUM(TotalMaterialTranAmount) TotalMaterialTranAmount,SUM(ChargesTranAmount) ChargesTranAmount
-                    ,SUM(ChargesTaxTranAmount) ChargesTaxTranAmount
-                    FROM TRN.PurchasedocAcceptanceDetail GROUP BY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.id
-                    LEFT JOIN (select Id,sum(Amount) LCAmount from dbo.PurchaseLC group by Id) PLC ON PLC.Id=PDA.PurchaseLCId
-                    LEFT JOIN HKP.Party P ON P.Id=PDA.PartyId
-                    LEFT JOIN HKP.PartyPlant PP ON PP.Id=PDA.PartyPlantId
-                    LEFT JOIN TRN.Voucher V ON V.Id=PDA.VoucherId
-                    LEFT JOIN TRN.Invoice I ON I.PurchaseDocAcceptanceId=PDA.Id
-                                                    WHERE PDA.VoucherId <>''  " + dateFilter+ @"
-							                        --and v.PostedDate Between '' and ''
-							                        --and V.VoucherDate between '' and ''
-				                            )X
-                                       " + orderSpecific + @"
-						            --WHERE ISNULL( X.ContractNo,'')<>'' 
-						            --WHERE ISNULL(X.ContractNo,'') =''
-                                                                ";
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message, ex,
-                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-            }
-        }
-
-        private string GRNPostedReportData(string companyGroupId, string companyId, string plantId, string grnAndAccpType, string dateType, string fromDate, string toDate, bool isOrderSpecific, bool isNonOrderSpecific)
-        {
-            string grnAccpType = " ";
-            string orderSpecific = " ";
-            string dateFilter = " ";
-
-            if (isOrderSpecific == true && isNonOrderSpecific == true)
-            {
-                orderSpecific = "";
-            }
-
-            else if (isOrderSpecific == true)
-            {
-                orderSpecific = "WHERE ISNULL( X.ContractNo,'')<>'' ";
-            }
-            else if (isNonOrderSpecific == true)
-            {
-                orderSpecific = "WHERE ISNULL(X.ContractNo,'') ='' ";
-            }
-
-            else
-            {
-                orderSpecific = " ";
-            }
-
-            if (dateType == "PostingDate")
-            {
-                dateFilter = " AND CONVERT(DATE,V.PostingDate) BETWEEN '" + fromDate + "' AND '" + toDate + @"' ";
-            }
-            else
-            {
-                dateFilter = " AND CONVERT(DATE,V.VoucherDate) BETWEEN '" + fromDate + "' AND '" + toDate + @"' ";
-
-            }
-
-            return  @"DECLARE @companyGroupId VARCHAR(10)='" + companyGroupId + @"', @companyId VARCHAR(10)= '" + companyId + @"' ,@plantId VARCHAR(10)='" + plantId + @"';
+                var sql = @"DECLARE @companyGroupId VARCHAR(10)='" + companyGroupId + @"', @companyId VARCHAR(10)= '" + companyId + @"' ,@plantId VARCHAR(10)='" + plantId + @"';
                                 -- select top 100 * from (
 						SELECT X.* , OderSpecific=case when x.ContractNo<>'' then 'YES' else 'NO' end  
 						
@@ -16223,7 +15878,362 @@ union ALL
 						--WHERE ISNULL(X.ContractNo,'') =''
 
 
-                        order by X.PostingDate DESC"; 
+                        order by X.PostingDate DESC";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
+        public IEnumerable<object> GetAcceptancePostingList(string companyGroupId, string companyId, string plantId, string grnAndAccpType, string dateType, string fromDate, string toDate, bool isOrderSpecific, bool isNonOrderSpecific)
+        {
+            try
+            {
+                //string strkey = "1=1";
+                //if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                //    strkey = column + " like '%" + value + "%'";
+                string grnAccpType = " ";
+                string orderSpecific = " ";
+                string dateFilter = " ";
+
+                //if (grnAndAccpType == "GRNPosted")
+                //{
+                //    grnAccpType = "and PO.OrderSpecific=1";
+                //}
+
+                if (isOrderSpecific == true && isNonOrderSpecific == true)
+                {
+                    orderSpecific = "";
+                }
+
+                else if (isOrderSpecific == true)
+                {
+                    orderSpecific = "WHERE ISNULL( X.ContractNo,'')<>'' ";
+                }
+                else if (isNonOrderSpecific == true)
+                {
+                    orderSpecific = "WHERE ISNULL(X.ContractNo,'') ='' ";
+                }
+
+                else
+                {
+                    orderSpecific = " ";
+                }
+
+                if (dateType == "PostingDate")
+                {
+                    dateFilter = " AND CONVERT(DATE,V.PostingDate) BETWEEN '" + fromDate + "' AND '" + toDate + @"' ";
+                }
+                else
+                {
+                    dateFilter = " AND CONVERT(DATE,V.VoucherDate) BETWEEN '" + fromDate + "' AND '" + toDate + @"' ";
+
+                }
+
+                var sql = @"
+
+                    Select X.* ,OrderSpecific =case when x.ContractNo<>'' then 'YES' else 'No' end  from (
+                      SELECT ISNULL( PDA.Id,'')Id
+                    ,ISNULL( PDA.AcceptanceNo,'')AcceptanceNo
+                     ,REPLACE(CONVERT(CHAR(11), PDA.AcceptanceDate, 106),' ','-') AS AcceptanceDate
+                    ,V.VoucherNo
+                    ,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') PostingDate
+                    ,REPLACE(CONVERT(CHAR(11), V.VoucherDate, 106),' ','-') VoucherDate
+
+                    ,P.UserName PartyName
+                    , PP.UserName PartyPlantName
+                    ,CurrencyCode= STUFF((select distinct ','+XC.Code
+
+                    from dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+                    LEFT JOIN SCS.Currency XC ON XC.Id=XVD.CurrencyId
+                    where PDA.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+                    ,ISNULL(PDAD.MaterialTranAmount,0) TranAmount
+                    ,ISNULL(PDAD.TotalMaterialTranAmount,0) TotalMaterialTranAmount
+                    ,ISNULL(I.WrittenOffAmount,0) SetOff
+                    ,ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0) Balance
+                    ,PurchaseLCNo= STUFF((select distinct ','+XVD.LCRef 
+
+                    from dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+                    where PDA.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+                    ,LCOpeningDate= STUFF((select distinct ','+REPLACE(CONVERT(CHAR(11), XVD.LCDate, 106),' ','-') from
+                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+                    where PDA.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    ,PINo= STUFF((select distinct ','+XVD.PINo from
+                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+                    where PDA.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    ,LCAmount
+
+                    ,OpeningBank= STUFF((select distinct ','+xbm.AccountTitle 
+
+                    from dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+                    left join MST.BankMaster xbm on xbm.Id=XVD.OpeningBankMasterId
+                    where PDA.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+                    ,BenificiaryBank= STUFF((select distinct ','+XVD.BenificiaryBank 
+
+                    from dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+                    where PDA.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+                    ,PONo= isnull( STUFF((select distinct ','+xpomap.POId 
+
+                    from  dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+                    LEFT JOIN trn.PurchaseDocAcceptancePOMap xpomap on xpomap.PurchaseDocAcceptanceId=xp.Id
+                    where PDA.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+
+                    ,GRNNo= isnull( STUFF((select distinct ','+xgrnmap.GRNId from
+                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+                    LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
+                    where PDA.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+
+                    ,ContractNo= isnull( STUFF((select distinct ','+XC.ContractNo from
+                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+                    LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
+                    where PDA.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+
+                    ,Customer= isnull( STUFF((select distinct ','+XCU.UserName from
+                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+                    LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
+                    join HKP.Party XCU ON XCU.Id=XC.CustomerId
+                    where PDA.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+
+                    ,MasterLCNo= isnull( STUFF((select distinct ','+XC.MasterLCId from
+                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+                    LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
+                    where PDA.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+
+                    ,UDNo= isnull( STUFF((select distinct ','+XC.UDNo from
+                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+                    LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
+                    where PDA.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+
+
+                    FROM TRN.PurchasedocAcceptance AS PDA
+                    LEFT JOIN (SELECT PurchaseDocAcceptanceId,SUM(MaterialTranAmount) MaterialTranAmount
+                    ,SUM(TotalMaterialTranAmount) TotalMaterialTranAmount,SUM(ChargesTranAmount) ChargesTranAmount
+                    ,SUM(ChargesTaxTranAmount) ChargesTaxTranAmount
+                    FROM TRN.PurchasedocAcceptanceDetail GROUP BY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.id
+                    LEFT JOIN (select Id,sum(Amount) LCAmount from dbo.PurchaseLC group by Id) PLC ON PLC.Id=PDA.PurchaseLCId
+                    LEFT JOIN HKP.Party P ON P.Id=PDA.PartyId
+                    LEFT JOIN HKP.PartyPlant PP ON PP.Id=PDA.PartyPlantId
+                    LEFT JOIN TRN.Voucher V ON V.Id=PDA.VoucherId
+                    LEFT JOIN TRN.Invoice I ON I.PurchaseDocAcceptanceId=PDA.Id
+                                                    WHERE PDA.VoucherId <>''  " + dateFilter + @"
+							                        --and v.PostedDate Between '' and ''
+							                        --and V.VoucherDate between '' and ''
+				                            )X
+                                       " + orderSpecific + @"
+						            --WHERE ISNULL( X.ContractNo,'')<>'' 
+						            --WHERE ISNULL(X.ContractNo,'') =''
+                                                                ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
+        private string GRNPostedReportData(string companyGroupId, string companyId, string plantId, string grnAndAccpType, string dateType, string fromDate, string toDate, bool isOrderSpecific, bool isNonOrderSpecific)
+        {
+            string grnAccpType = " ";
+            string orderSpecific = " ";
+            string dateFilter = " ";
+
+            if (isOrderSpecific == true && isNonOrderSpecific == true)
+            {
+                orderSpecific = "";
+            }
+
+            else if (isOrderSpecific == true)
+            {
+                orderSpecific = "WHERE ISNULL( X.ContractNo,'')<>'' ";
+            }
+            else if (isNonOrderSpecific == true)
+            {
+                orderSpecific = "WHERE ISNULL(X.ContractNo,'') ='' ";
+            }
+
+            else
+            {
+                orderSpecific = " ";
+            }
+
+            if (dateType == "PostingDate")
+            {
+                dateFilter = " AND CONVERT(DATE,V.PostingDate) BETWEEN '" + fromDate + "' AND '" + toDate + @"' ";
+            }
+            else
+            {
+                dateFilter = " AND CONVERT(DATE,V.VoucherDate) BETWEEN '" + fromDate + "' AND '" + toDate + @"' ";
+
+            }
+
+            return @"DECLARE @companyGroupId VARCHAR(10)='" + companyGroupId + @"', @companyId VARCHAR(10)= '" + companyId + @"' ,@plantId VARCHAR(10)='" + plantId + @"';
+                                -- select top 100 * from (
+						SELECT X.* , OderSpecific=case when x.ContractNo<>'' then 'YES' else 'NO' end  
+						
+						
+						FROM (
+						SELECT IR.Id,IR.Id GRNNo, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+			                        , CP.UserName AS PartyAccountGroupName
+			                        , IR.EmployeeId, EI.EmployeeCode, EI.EmployeeName
+                                    , Particular=CASE WHEN IR.EmployeeId<>'' THEN EI.EmployeeName WHEN IR.PartyId<>'' THEN P.UserName  ELSE P.UserName END
+	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+	                                , REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+	                                , IR.FixedAssetOrInventory, IR.PODepended, IR.AlongwithInvoice, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
+	                                , IR.InvoicingPartyPlantId, IR.InvoicingPartyPlantId PartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+	                                , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM
+                                    , IRD.TransactionAmount, IRD.BaseAmount
+		                            ,(IRD.TransactionAmount * ToCurrencyRate) BooksAmount
+
+                                    , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName
+									, CP.TaxApplicable, IR.IsTaxApplicable
+                                    , COUNT(*) OVER () AS TotalRows
+									,GRNType=CASE WHEN IR.EmployeeId <> '' Then 'Employee' else 'Vendor' END
+									,IR.GateEntryNo,IR.POId,IR.ToCurrencyRate,IR.NoteForAccounts Narration
+									,VoucherNo = CASE WHEN IR.EmployeeId <>'' THEN VE.VoucherNo ELSE V.VoucherNo END
+                                 	, REPLACE(CONVERT(CHAR(11), v.VoucherDate, 106),' ','-') AS VoucherDate
+
+									,VoucherTypeId = CASE WHEN IR.EmployeeId <>'' THEN VE.VoucherTypeId ELSE V.VoucherTypeId END
+									,PostingDate= CASE WHEN IR.EmployeeId <>'' THEN REPLACE(CONVERT(CHAR(11), VE.PostingDate, 106),' ','-') ELSE REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') END
+                                    ,MS.UserName MaterialStorageName, IR.IsFOC, ISNULL(ADT.TaxAmount,0) TDSTax, ADT.VoucherId TDSTaxVoucherId, ADT.Id AdditionalTaxId
+                                    ,IsTDSTaxPost=CASE WHEN ADT.VoucherId<>'' THEN 'Posted' WHEN  ADT.InventoryReceiveId IS NULL THEN '' ELSE 'Parked' end
+									,VT.VoucherNo TDSVoucherNo
+
+                    ,PONo= isnull( STUFF((select distinct ','+xpomap.POId 
+                    from  dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+                    LEFT JOIN trn.PurchaseDocAcceptancePOMap xpomap on xpomap.PurchaseDocAcceptanceId=xp.Id
+					LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
+					LEFT JOIN TRN.InventoryReceive XGRN ON XGRN.Id=xgrnmap.GRNId
+                    where XGRN.Id=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+
+
+				    ,PurchaseLC= isnull( STUFF((select distinct ','+XVD.LCRef from
+                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+                    LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
+					LEFT JOIN TRN.InventoryReceive XGRN ON XGRN.Id=xgrnmap.GRNId
+                    where XGRN.Id=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+ 
+                    ,OpeningBank= STUFF((select distinct ','+xbm.AccountTitle 
+                    from dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+                    left join MST.BankMaster xbm on xbm.Id=XVD.OpeningBankMasterId
+					LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
+					LEFT JOIN TRN.InventoryReceive XGRN ON XGRN.Id=xgrnmap.GRNId
+                    where XGRN.Id=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+
+                    ,BenificiaryBank= STUFF((select distinct ','+XVD.BenificiaryBank 
+                    from dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+					LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
+					LEFT JOIN TRN.InventoryReceive XGRN ON XGRN.Id=xgrnmap.GRNId
+                    where XGRN.Id=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+						,ISNULL( PLC.PLCAmount,0)PLCAmount
+
+                    ,LCOpeningDate= STUFF((select distinct ','+REPLACE(CONVERT(CHAR(11), XVD.LCDate, 106),' ','-') from
+                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+					 LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
+					LEFT JOIN TRN.InventoryReceive XGRN ON XGRN.Id=xgrnmap.GRNId
+                    where XGRN.Id=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+                    ,PINo= STUFF((select distinct ','+XVD.PINo from
+                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+					 LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
+					LEFT JOIN TRN.InventoryReceive XGRN ON XGRN.Id=xgrnmap.GRNId
+                    where XGRN.Id=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+
+                    ,ContractNo= isnull( STUFF((select distinct ','+ISNULL(XC.ContractNo,'') from
+                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+					LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
+					LEFT JOIN TRN.InventoryReceive XGRN ON XGRN.Id=xgrnmap.GRNId
+                    LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
+                    where XGRN.Id=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+
+                    ,Customer= isnull( STUFF((select distinct ','+XCU.UserName from
+                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+                    LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
+                    join HKP.Party XCU ON XCU.Id=XC.CustomerId
+					LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
+					LEFT JOIN TRN.InventoryReceive XGRN ON XGRN.Id=xgrnmap.GRNId
+                    where XGRN.Id=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+
+                    ,MasterLCNo= isnull( STUFF((select distinct ','+XC.MasterLCId from
+                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+                    LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
+					LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
+					LEFT JOIN TRN.InventoryReceive XGRN ON XGRN.Id=xgrnmap.GRNId
+                    where XGRN.Id=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+
+                    ,UDNo= isnull( STUFF((select distinct ','+XC.UDNo from
+                    dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+                    LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
+					LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
+					LEFT JOIN TRN.InventoryReceive XGRN ON XGRN.Id=xgrnmap.GRNId
+                    where XGRN.Id=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+
+
+
+						FROM [TRN].[InventoryReceive] AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                        LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                        LEFT JOIN [EmployeeInformation] AS EI ON IR.EmployeeId=EI.SystemId
+                        JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+                        LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+                        LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+                        LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.MaterialTranAmount) AS TransactionAmount, SUM(A.TotalMaterialTranAmount) AS BaseAmount FROM [TRN].[InventoryReceiveDetail] AS A
+		                            JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId=@plantId GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
+                        LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id
+		                            WHERE B.PlantId=@plantId GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+                        --LEFT JOIN TRN.GRNAcceptanceMap IGD ON IGD.GRNId=IR.Id
+                       -- LEFT JOIN TRN.Invoice IV ON IV.Id=IGD.InvoiceId
+						LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
+						LEFT JOIN TRN.EmployeePayable EP ON EP.InventoryReceiveId=IR.Id
+						LEFT JOIN TRN.Voucher VE ON VE.Id=EP.VoucherId
+                        LEFT JOIN HKP.MaterialStorage MS ON MS.Id=IR.MaterialStorageId
+                        LEFT JOIN TRN.AdditionalTax ADT ON ADT.InventoryReceiveId=IR.Id
+						LEFT JOIN TRN.Voucher VT ON VT.Id=ADT.VoucherId
+
+
+					LEFT JOIN (select XGRN.Id,sum(XVD.Amount) PLCAmount from dbo.PurchaseLC XVD
+					Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+					LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
+					LEFT JOIN TRN.InventoryReceive XGRN ON XGRN.Id=xgrnmap.GRNId
+					group by XGRN.Id
+					) PLC ON PLC.Id=IR.Id
+					 
+
+                        WHERE IR.CompanyGroupId=@companyGroupId and IR.CompanyId=@companyId  and IR.PlantId=@plantId AND IR.[Status]='Posting'
+                        AND IR.IsPaymentHold=0 AND IR.PlantId=@plantId AND IR.FixedAssetOrInventory='Inventory' AND IR.OpeningBalanceId IS NULL
+
+				
+						 " + dateFilter + @"
+						--and v.PostingDate between '' and ''
+						--and v.AddedDate between '' and ''
+
+						)X
+ 
+                           " + orderSpecific + @"
+						--WHERE ISNULL( X.ContractNo,'')<>'' 
+						--WHERE ISNULL(X.ContractNo,'') =''
+
+
+                        order by X.PostingDate DESC";
 
         }
 
@@ -16257,7 +16267,7 @@ union ALL
                 //    }
 
                 string sql = "";
-                sql = GRNPostedReportData( companyGroupId,  companyId,  plantId,  grnAndAccpType,  dateType,  fromDate,  toDate,  isOrderSpecific,  isNonOrderSpecific);
+                sql = GRNPostedReportData(companyGroupId, companyId, plantId, grnAndAccpType, dateType, fromDate, toDate, isOrderSpecific, isNonOrderSpecific);
 
                 DataTable dtMaterialMaster = _sqlRepository.GetDataTable(sql);
 
@@ -16297,7 +16307,7 @@ union ALL
                 int colGRNNo = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "GRN Date"; 
+                sheet[ROW, COL].Text = "GRN Date";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int colGRNDate = COL;
                 COL++;
@@ -16305,7 +16315,7 @@ union ALL
                 sheet[ROW, COL].Text = "Voucher No";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int colVoucherNo = COL;
-           
+
                 COL++;
                 sheet[ROW, COL].Text = "Posting Date";
                 sheet[ROW, COL].ColumnWidth = 15;
@@ -16386,7 +16396,7 @@ union ALL
 
                 //}
 
-       
+
                 sheet[ROW, COL].Text = "Contract No";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int colContractNo = COL;
@@ -16400,12 +16410,12 @@ union ALL
                 sheet[ROW, COL].Text = "Master LC No";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int colMasterLCNo = COL;
-                 COL++;
+                COL++;
 
                 sheet[ROW, COL].Text = "UD No";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int colUDNo = COL;
-            
+
 
 
                 int endCol = COL;
@@ -16424,7 +16434,7 @@ union ALL
                     sheet[ROW, colGRNType].Text = dtMaterialMaster.Rows[i]["GRNType"].ToString();
                     sheet[ROW, colParticular].Text = dtMaterialMaster.Rows[i]["Particular"].ToString();
                     sheet[ROW, colPostingDate].Text = dtMaterialMaster.Rows[i]["PostingDate"].ToString();
-                    
+
                     sheet[ROW, colVoucherDate].Text = dtMaterialMaster.Rows[i]["VoucherDate"].ToString();
 
                     sheet[ROW, colVoucherNo].Text = dtMaterialMaster.Rows[i]["VoucherNo"].ToString();
@@ -16438,7 +16448,7 @@ union ALL
                     sheet[ROW, colPONo].Text = dtMaterialMaster.Rows[i]["PONo"].ToString();
                     sheet[ROW, colOrderSpecific].Text = dtMaterialMaster.Rows[i]["OderSpecific"].ToString();
 
-    
+
                     sheet[ROW, colPurchaseLC].Text = dtMaterialMaster.Rows[i]["PurchaseLC"].ToString();
                     sheet[ROW, colOpeningBank].Text = dtMaterialMaster.Rows[i]["OpeningBank"].ToString();
                     sheet[ROW, colPLCAmount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["PLCAmount"].ToString());
@@ -16448,7 +16458,7 @@ union ALL
                     sheet[ROW, colCustomer].Text = dtMaterialMaster.Rows[i]["Customer"].ToString();
                     sheet[ROW, colMasterLCNo].Text = dtMaterialMaster.Rows[i]["MasterLCNo"].ToString();
                     sheet[ROW, colUDNo].Text = dtMaterialMaster.Rows[i]["UDNo"].ToString();
-                    
+
 
                     //if (MaterialTypeId == null && Article == true)
                     //{
@@ -16775,7 +16785,7 @@ union ALL
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 ROW++;
 
-                int StartRow = ROW; 
+                int StartRow = ROW;
                 for (int i = 0; i < dtAcceptancePosted.Rows.Count; i++)
                 {
                     sheet[ROW, colSlNo].Number = (i + 1);
@@ -16813,13 +16823,13 @@ union ALL
                     sheet[ROW, colPONo].Text = dtAcceptancePosted.Rows[i]["PONo"].ToString();
                     sheet[ROW, colOrderSpecific].Text = dtAcceptancePosted.Rows[i]["OrderSpecific"].ToString();
 
-                    
+
                     sheet[ROW, colGRNNo].Text = dtAcceptancePosted.Rows[i]["GRNNo"].ToString();
                     sheet[ROW, colContractNo].Text = dtAcceptancePosted.Rows[i]["ContractNo"].ToString();
                     sheet[ROW, colCustomer].Text = dtAcceptancePosted.Rows[i]["Customer"].ToString();
                     sheet[ROW, colMasterLCNo].Text = dtAcceptancePosted.Rows[i]["MasterLCNo"].ToString();
                     sheet[ROW, colUDNo].Text = dtAcceptancePosted.Rows[i]["UDNo"].ToString();
-                    
+
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -16874,7 +16884,7 @@ union ALL
 
         #region Acceptance Liability Maturity 
 
-        public IEnumerable<object> GetAcceptanceLiabilityMaturityList(string companyGroupId, string companyId, string plantId, string toDate )
+        public IEnumerable<object> GetAcceptanceLiabilityMaturityList(string companyGroupId, string companyId, string plantId, string toDate)
 
         {
             try
@@ -17098,12 +17108,12 @@ union ALL
 
         public void GetAcceptanceLiabilityMaturityReport(string CompanyGroupId, string CompanyId, string PlantId, string toDate)
         {
-            
+
             try
             {
-                
+
                 string sql = "";
-                sql = AcceptanceLiabilityMaturityData(CompanyGroupId, CompanyId, PlantId,toDate);
+                sql = AcceptanceLiabilityMaturityData(CompanyGroupId, CompanyId, PlantId, toDate);
 
                 DataTable dtAcceptLiabilityMaturity = _sqlRepository.GetDataTable(sql);
 
@@ -17191,7 +17201,7 @@ union ALL
                 int colAcceptanceAmount = COL;
                 COL++;
 
-          
+
                 sheet[ROW, COL].Text = "Set-Off";
                 sheet[ROW, COL].ColumnWidth = 15;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -17288,7 +17298,7 @@ union ALL
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colUDNo = COL;
 
-                
+
 
                 int endCol = COL;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
@@ -17320,22 +17330,22 @@ union ALL
 
                     sheet[ROW, colActualDueDate].DateTime = Convert.ToDateTime(dtAcceptLiabilityMaturity.Rows[i]["ActualDueDate"].ToString());
                     sheet[ROW, colActualDueDate].NumberFormat = "dd-MMM-yyyy";
-                   // sheet[ROW, colRFId].Text = dtAcceptLiabilityMaturity.Rows[i]["NoOfDays"].ToString();
+                    // sheet[ROW, colRFId].Text = dtAcceptLiabilityMaturity.Rows[i]["NoOfDays"].ToString();
                     sheet[ROW, colNoOfDays].Number = clsStaticInfo.dbl(dtAcceptLiabilityMaturity.Rows[i]["NoOfDays"].ToString());
 
-                    
+
                     sheet[ROW, colCurrencyCode].Text = dtAcceptLiabilityMaturity.Rows[i]["CurrencyCode"].ToString();
                     sheet[ROW, colAcceptanceAmount].Number = clsStaticInfo.dbl(dtAcceptLiabilityMaturity.Rows[i]["AcceptanceAmount"].ToString());
                     sheet[ROW, colAcceptanceAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
                     sheet[ROW, colSetOff].Number = clsStaticInfo.dbl(dtAcceptLiabilityMaturity.Rows[i]["SetOff"].ToString());
                     sheet[ROW, colSetOff].NumberFormat = clsStaticInfo.NumberFormat(2);
-                    
+
                     sheet[ROW, colBalance].Number = clsStaticInfo.dbl(dtAcceptLiabilityMaturity.Rows[i]["Balance"].ToString());
                     sheet[ROW, colBalance].NumberFormat = clsStaticInfo.NumberFormat(2);
                     sheet[ROW, colLoanAmount].Number = clsStaticInfo.dbl(dtAcceptLiabilityMaturity.Rows[i]["Amount"].ToString());
                     sheet[ROW, colLoanAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
                     sheet[ROW, colLoanNo].Text = dtAcceptLiabilityMaturity.Rows[i]["LoanNo"].ToString();
-                    
+
                     // sheet[ROW, colLoanDate].DateTime = Convert.ToDateTime(dtAcceptLiabilityMaturity.Rows[i]["LoanDate"].ToString());
                     //sheet[ROW, colLoanDate].NumberFormat = "dd-MMM-yyyy";
                     sheet[ROW, colLoanDate].Text = dtAcceptLiabilityMaturity.Rows[i]["LoanDate"].ToString();
@@ -17355,7 +17365,7 @@ union ALL
                     sheet[ROW, colMasterLCNo].Text = dtAcceptLiabilityMaturity.Rows[i]["MasterLCNo"].ToString();
                     sheet[ROW, colUDNo].Text = dtAcceptLiabilityMaturity.Rows[i]["UDNo"].ToString();
 
-               
+
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 
@@ -17788,7 +17798,7 @@ UNION ALL
 
         }
 
-        public IWorkbook GetAcceptanceLiabilityWithAdvanceSummaryReport(ExcelEngine excelEngine, string toDate,  string companyGroupId, string companyId, string plantId)
+        public IWorkbook GetAcceptanceLiabilityWithAdvanceSummaryReport(ExcelEngine excelEngine, string toDate, string companyGroupId, string companyId, string plantId)
         {
             excelEngine = new ExcelEngine();
             //Instantiate the Excel application object
@@ -17913,7 +17923,7 @@ UNION ALL
                 string sql = @"
 
                          --select * from TRN.Advance where SourceType='VendorAdvance' and PartyId='2021242'
-                         DECLARE @plantCountryId varchar(10)= (SELECT CountryId FROM ORG.Plant p join MST.AddressMaster m on m.Id=p.AddressMasterId WHERE p.Id='"+plantId+@"')
+                         DECLARE @plantCountryId varchar(10)= (SELECT CountryId FROM ORG.Plant p join MST.AddressMaster m on m.Id=p.AddressMasterId WHERE p.Id='" + plantId + @"')
                         SELECT count(X.NoOfInvoice) NoOfInvoice,convert(bit,0) AS isSelected,X.PartyId,X.PartyPlantId,X.PartyCode,X.PartyName,X.PartyPlantName
                         --,x.CurrencyCode
                             ,x.PartyCountry
@@ -17994,7 +18004,7 @@ UNION ALL
 
                         --********vendor Advance***********
                         LEFT JOIN (SELECT A.PartyId,sum(A.Amount-A.WrittenOffAmount*CompanyCurrencyRate) AdvanceAmount FROM TRN.Advance A
-                        where A.PlantId='"+plantId+@"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
+                        where A.PlantId='" + plantId + @"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
                         group by A.PartyId
                         ) Ad ON Ad.PartyId=IV.PartyId
 
@@ -18008,12 +18018,12 @@ UNION ALL
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='"+companyId+@"'
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 --AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
-               AND IV.CompanyGroupId='"+companyGroupId+"'    AND IV.CompanyId='"+companyId+"' AND IV.PlantId='"+plantId+@"'
-                and IV.PostingDate <= '"+toDate+@"'
+               AND IV.CompanyGroupId='" + companyGroupId + "'    AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                and IV.PostingDate <= '" + toDate + @"'
 		       and IV.PurchaseDocAcceptanceId <>''
 
 
@@ -18067,7 +18077,7 @@ UNION ALL
 
                         --********vendor Advance***********
                         LEFT JOIN (SELECT A.PartyId,sum(A.Amount*CompanyCurrencyRate) AdvanceAmount FROM TRN.Advance A
-                        where A.PlantId='"+plantId+@"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
+                        where A.PlantId='" + plantId + @"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
                         group by A.PartyId
                         ) Ad ON Ad.PartyId=IV.PartyId
 
@@ -18085,9 +18095,9 @@ UNION ALL
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0  --AND IV.SourceType in ('InventoryPayable')
-                 AND IV.CompanyGroupId='"+companyGroupId+@"'  
-                AND IV.CompanyId='"+companyId+"' AND IV.PlantId='"+plantId+@"'
-                    and IV.PostingDate <= '"+toDate+@"'
+                 AND IV.CompanyGroupId='" + companyGroupId + @"'  
+                AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                    and IV.PostingDate <= '" + toDate + @"'
                 AND IR.PurchaseDocumentAcceptanceId <>''
 		      -- and IV.PurchaseDocAcceptanceId IS NULL
 
@@ -18131,7 +18141,7 @@ UNION ALL
 
                         --********vendor Advance***********
                         LEFT JOIN (SELECT A.PartyId,sum(A.Amount * CompanyCurrencyRate) AdvanceAmount FROM TRN.Advance A
-                        where A.PlantId='"+plantId+@"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
+                        where A.PlantId='" + plantId + @"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
                         group by A.PartyId
                         ) Ad ON Ad.PartyId=IV.PartyId
 
@@ -18148,15 +18158,15 @@ UNION ALL
                 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0  --AND IV.SourceType in ('VendorPayment','CreditNote')
             
-                AND IV.CompanyGroupId='"+companyGroupId+"'   AND IV.CompanyId='"+companyId+"' AND IV.PlantId='"+plantId+@"'
-                and IV.PostingDate <= '"+toDate+@"'
+                AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                and IV.PostingDate <= '" + toDate + @"'
 
                         )
                         X
                 						 
 						 --CHANGE********vendor Advance***********
                         LEFT JOIN (SELECT A.PartyId,sum(A.Amount-A.WrittenOffAmount * CompanyCurrencyRate) Advance FROM TRN.Advance A
-                        where A.PlantId='"+plantId+@"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
+                        where A.PlantId='" + plantId + @"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
                         group by A.PartyId
                         ) Ad ON Ad.PartyId=X.PartyId
 
@@ -18189,7 +18199,7 @@ UNION ALL
 
                     worksheet[ROW, colPartyName].Text = dsData.Tables[0].Rows[i]["PartyName"].ToString();
 
-                   // worksheet[ROW, colPartyCountry].Text = dsData.Tables[0].Rows[i]["PartyCountry"].ToString();
+                    // worksheet[ROW, colPartyCountry].Text = dsData.Tables[0].Rows[i]["PartyCountry"].ToString();
 
                     worksheet[ROW, colPartyPlantName].Text = dsData.Tables[0].Rows[i]["PartyPlantName"].ToString();
                     //worksheet[ROW, colCurrencyCode].Text = dsData.Tables[0].Rows[i]["CurrencyCode"].ToString();
@@ -18372,7 +18382,7 @@ UNION ALL
                 worksheet[ROW, COL].ColumnWidth = 15;
                 // COL++;
 
-            
+
 
                 int endCol = COL;
 
@@ -18904,7 +18914,7 @@ UNION ALL
                 worksheet[ROW, colBooksBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
 
-      
+
                 worksheet.Range[ROW, colBooksGross - 1, ROW, COL].CellStyle.Font.Bold = true;
                 // worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
                 //worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -19464,7 +19474,7 @@ UNION ALL
 
         }
 
-   
+
         //Summary Report
         public IWorkbook GetOthersLiabilityWithAdvanceSummaryReport(ExcelEngine excelEngine, string toDate, bool isWithAdvance, string companyGroupId, string companyId, string plantId)
         {
@@ -19967,7 +19977,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 						 
 						 --CHANGE********vendor Advance***********
                         LEFT JOIN (SELECT A.PartyId,sum(A.Amount-A.WrittenOffAmount) Advance FROM TRN.Advance A
-                        where A.PlantId='"+plantId+@"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
+                        where A.PlantId='" + plantId + @"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
                         group by A.PartyId
                         ) Ad ON Ad.PartyId=X.PartyId
 
@@ -20262,7 +20272,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colBooksBalance = COL;
                 worksheet[ROW, COL].ColumnWidth = 15;
-               // COL++;
+                // COL++;
 
                 //worksheet[ROW, COL].Text = "Actual Balance";
                 //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -20916,7 +20926,7 @@ group by Id) O60 ON O60.Id=IV.Id
 
         }
         //Aging Detail Report
-        private DataTable GetOthersLiabilityWithAdvanceDetailData(string CompanyGroupId, string CompanyId, string PlantId,string taxyearId,string toDate, bool isWithAdvance) 
+        private DataTable GetOthersLiabilityWithAdvanceDetailData(string CompanyGroupId, string CompanyId, string PlantId, string taxyearId, string toDate, bool isWithAdvance)
         {
             string strSql = "";
             strSql = @"select x.* from (
@@ -21069,7 +21079,7 @@ group by Id) O60 ON O60.Id=IV.Id
             return _sqlRepository.GetDataTable(strSql);
 
         }
-        private DataTable GetOthersLiabilityDetailData(string CompanyGroupId, string CompanyId, string PlantId, string taxyearId,string toDate) 
+        private DataTable GetOthersLiabilityDetailData(string CompanyGroupId, string CompanyId, string PlantId, string taxyearId, string toDate)
         {
             string strSql = "";
             strSql = @"select x.* from (
@@ -21294,7 +21304,7 @@ group by Id) O60 ON O60.Id=IV.Id
 
                 DataTable dtRCMPayable = null;
                 string taxyearId = GetTaxYearId(CompanyId);
-                dtRCMPayable = GetOthersLiabilityWithAdvanceDetailData(CompanyGroupId, CompanyId, PlantId, taxyearId,toDate,iswithAdvance);
+                dtRCMPayable = GetOthersLiabilityWithAdvanceDetailData(CompanyGroupId, CompanyId, PlantId, taxyearId, toDate, iswithAdvance);
                 if (dtRCMPayable.Rows.Count == 0)
                 {
                     throw new Exception("No Data Found....");
@@ -21343,16 +21353,16 @@ group by Id) O60 ON O60.Id=IV.Id
                 int colVoucherNo = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Voucher No";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-          
+
 
                 xlsCol++;
                 int iInvoiceNo = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Doc Ref"; 
+                sheet1.Range[xlsRow, xlsCol].Text = "Doc Ref";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
 
                 xlsCol++;
                 int iDocDate = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Doc Date"; 
+                sheet1.Range[xlsRow, xlsCol].Text = "Doc Date";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
 
                 xlsCol++;
@@ -21367,11 +21377,11 @@ group by Id) O60 ON O60.Id=IV.Id
                 xlsCol++;
 
 
-      
+
                 int iActualDueDate = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Actual Due Date";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-            
+
 
                 xlsCol++;
                 sheet1[xlsRow, xlsCol].Text = "Due Days";
@@ -21384,7 +21394,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 sheet1.Range[xlsRow, xlsCol].Text = "Currency";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10;
 
-            
+
                 xlsCol++;
                 int iGross = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Gross";
@@ -21770,7 +21780,7 @@ group by Id) O60 ON O60.Id=IV.Id
 
                 DataTable dtRCMPayable = null;
                 string taxyearId = GetTaxYearId(CompanyId);
-                dtRCMPayable = GetOthersLiabilityDetailData(CompanyGroupId, CompanyId, PlantId, taxyearId,toDate);
+                dtRCMPayable = GetOthersLiabilityDetailData(CompanyGroupId, CompanyId, PlantId, taxyearId, toDate);
                 if (dtRCMPayable.Rows.Count == 0)
                 {
                     throw new Exception("No Data Found....");
@@ -21823,12 +21833,12 @@ group by Id) O60 ON O60.Id=IV.Id
 
                 xlsCol++;
                 int iInvoiceNo = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Doc Ref"; 
+                sheet1.Range[xlsRow, xlsCol].Text = "Doc Ref";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
 
                 xlsCol++;
                 int iDocDate = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Doc Date"; 
+                sheet1.Range[xlsRow, xlsCol].Text = "Doc Date";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
 
                 xlsCol++;
@@ -22324,7 +22334,7 @@ group by Id) O60 ON O60.Id=IV.Id
                                         where x.Balance>0
 										order by x.SortDocDate asc";
                 return _sqlRepository.GetDataCollection(sql);
-                
+
             }
             catch (Exception ex)
             {
@@ -22604,9 +22614,382 @@ group by Id) O60 ON O60.Id=IV.Id
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        #endregion
 
-        #endregion 
+        #region  Receipt from Customer
+        public IEnumerable<object> GetReceiptFromCustomerList(string fromDate, string toDate)
+        {
+            try
+            {
+                var sql = @"select  P.Code CustomerCode,P.UserName Customer ,V.VoucherNo ReceivedVoucherNo,format(IWO.PostingDate,'dd-MMM-yyyy') ReceivedPostingDate
+												,C.Code Currency
+												,I.Amount InvoiceAmount,S.InvoiceNo
+												,IWOD.Amount Received
+												,Balance=I.Amount- SUM(IWOD.Amount)   over (partition by I.Id),isnull(SR.SalesReturn,0) CreditNote
+												,VI.VoucherNo InvoiceVoucherNo,format(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate,VI.DocRefNo InvoiceDocRefNo
+												,PaymentSource=case when IWO.PaymentSource<>'' then IWO.PaymentSource when awd.AccountTitle<>'' then 'Advance' else NULL end
+												,[BankDetail]=case when bm.AccountTitle<>'' then bm.AccountTitle else awd.AccountTitle end
+												,[CashDetail]=Cm.UserName
+						                      
+						                        from TRN.InvoiceWriteOffDetail IWOD
+						                        left join TRN.InvoiceWriteOff IWO on IWO.Id=IWOD.InvoiceWriteOffId
+						                        left join TRN.Voucher V on V.Id=IWO.VoucherId
+												left join trn.AdvanceWriteOff awo on awo.VoucherId=v.Id
+												left join (SELECT awd.AdvanceId,awd.AdvanceWriteOffId,bmawo.AccountTitle FROM TRN.AdvanceWriteOffDetail awd 
+														join trn.Advance a on a.Id=awd.AdvanceId
+														left join mst.BankMaster bmawo ON bmawo.Id=a.BankMasterId) awd on awd.AdvanceWriteOffId=awo.Id
+						                        left JOIN TRN.InvoiceDetail IND on IND.Id=IWOD.InvoiceDetailId 
+						                        left join TRN.Invoice I on I.Id=IWOD.InvoiceId
+						                        left join TRN.Voucher VI on VI.Id=I.VoucherId
+						                        left join SCS.Currency C on C.Id=I.CurrencyId
+												left join mst.BankMaster bm ON bm.Id=IWO.BankMasterId
+												left join mst.CashMaster cm ON cm.Id=IWO.CashMasterId
+												left join (select sum(iwd.Amount) SalesReturn,iwd.InvoiceId from TRN.InvoiceWriteOffDetail iwd 
+															join trn.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+															where iw.sourceType in ('CreditNoteSetOff') and iw.PartyType = 'Customer' group by iwd.InvoiceId)SR ON SR.InvoiceId=I.Id
+						                         LEFT JOIN TRN.Sales S on S.VoucherId=I.VoucherId
+												 LEFT JOIN (SELECT SalesId,SUM(TransactionAmount) TaxableAmount from TRN.SalesMaterial SM GROUP BY SalesId) SM ON SM.SalesId=S.Id
+						                        LEFT JOIN HKP.Party P on I.PartyId=P.Id
+                                                where  IWO.PartyType = 'Customer' 
+												and I.WrittenOffAmount>0  and  IWO.SourceType in ('CustomerReceipt','CustomerAdvanceWriteOff','CustomerBanksReceipt')
+												and IWO.PostingDate  Between '" + fromDate + "' AND '" + toDate + @"'
+												 group by IWO.SourceType,P.Code ,P.UserName ,V.VoucherNo , IWO.PostingDate  ,C.Code,I.Amount ,IWOD.Amount,I.Id ,I.Amount ,VI.VoucherNo
+												 , S.InvoiceDate ,VI.DocRefNo,S.InvoiceNo,bm.AccountTitle,Cm.UserName,IWO.PaymentSource,awd.AccountTitle,SR.SalesReturn
+												 order by IWO.PostingDate ,i.Id desc,V.VoucherNo desc";
 
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        public string ReceiptFromCustomerxlsx(List<Dictionary<string, object>> data, string ReportHeader, string reportFileName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "ReceiptFromCustomerReport";
+                sheet = workbook.Worksheets[0];
+                int ROW = 5; int COL = 1;
+
+                #region columns
+                sheet[ROW, COL].Text = "Customer Code";
+                sheet[ROW, COL].ColumnWidth = 11;
+                int ColCustomerCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Customer";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int ColCustomer = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Received Voucher No";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColReceivedVoucherNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Received Posting Date";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColReceivedPostingDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Currency";
+                sheet[ROW, COL].ColumnWidth = 8;
+                int ColCurrency = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Invoice Amount";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColInvoiceAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Invoice No";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColInvoiceNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Received Amount";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColReceived = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Balance";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColBalance = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Credit Note";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColCreditNote = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Invoice Voucher No";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColInvoiceVoucherNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Invoice Date";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColInvoiceDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Invoice Doc RefNo";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColInvoiceDocRefNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Payment Source";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColPaymentSource = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Bank Detail";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColBankDetail = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Cash Detail";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColCashDetail = COL;
+
+                #endregion columns
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                ROW++;
+
+                int startRow = ROW;
+                for (int i = 0; i < data.Count; i++)
+                {
+                    sheet[ROW, ColCustomerCode].Text = data[i]["CustomerCode"].ToString();
+                    sheet[ROW, ColCustomer].Text = data[i]["Customer"].ToString();
+                    sheet[ROW, ColReceivedVoucherNo].Text = data[i]["ReceivedVoucherNo"].ToString();
+                    sheet[ROW, ColReceivedPostingDate].Text = data[i]["ReceivedPostingDate"].ToString();
+                    sheet[ROW, ColCurrency].Text = data[i]["Currency"].ToString();
+                    sheet[ROW, ColInvoiceAmount].Number = clsStaticInfo.dbl(data[i]["InvoiceAmount"].ToString());
+                    sheet[ROW, ColInvoiceAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColInvoiceNo].Text = data[i]["InvoiceNo"].ToString();
+                    sheet[ROW, ColReceived].Number = clsStaticInfo.dbl(data[i]["Received"].ToString());
+                    sheet[ROW, ColReceived].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(data[i]["Balance"].ToString());
+                    sheet[ROW, ColBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColCreditNote].Number = clsStaticInfo.dbl(data[i]["CreditNote"].ToString());
+                    sheet[ROW, ColCreditNote].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColInvoiceVoucherNo].Text = data[i]["InvoiceVoucherNo"].ToString();
+                    sheet[ROW, ColInvoiceDate].Text = data[i]["InvoiceDate"].ToString();
+                    sheet[ROW, ColInvoiceDocRefNo].Text = data[i]["InvoiceDocRefNo"].ToString();
+                    sheet[ROW, ColPaymentSource].Text = data[i]["PaymentSource"].ToString();
+                    sheet[ROW, ColBankDetail].Text = data[i]["BankDetail"].ToString();
+                    if (data[i]["CashDetail"]!= null) 
+                    {
+                        sheet[ROW, ColCashDetail].Text = data[i]["CashDetail"].ToString(); 
+                    }
+                    else
+                    {
+                        sheet[ROW, ColCashDetail].Text = null;
+                    }
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+                }
+
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Receipt From Customer Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion  Receipt from Customer
+        
+        #region Employee tab report
+        public string EmployeeSummaryWiseReport(List<Dictionary<string, object>> data, string ReportHeader, string reportFileName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Employee Payable Summary Report";
+                sheet = workbook.Worksheets[0];
+                int ROW = 5; int COL = 1;
+
+                #region columns
+                sheet[ROW, COL].Text = "Employee Code";
+                sheet[ROW, COL].ColumnWidth = 11;
+                int ColEmployeeCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Employee Name";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int ColEmployeeName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Currency Code";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColCurrencyCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Gross";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColGross = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Set Off";
+                sheet[ROW, COL].ColumnWidth = 8;
+                int ColSetOff = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Balance";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColBalance = COL;
+                COL++;
+
+
+                sheet[ROW, COL].Text = "Advance";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColAdvance = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Net Balance";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColNetBalance = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Ledger Balance Amount";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColLedgerBalanceAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Write Off Pending Post";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColWriteOffPendingPost = COL;
+                
+                #endregion columns
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                ROW++;
+
+                int startRow = ROW;
+                for (int i = 0; i < data.Count; i++)
+                {
+                    sheet[ROW, ColEmployeeCode].Text = data[i]["EmployeeCode"].ToString();
+                    sheet[ROW, ColEmployeeName].Text = data[i]["EmployeeName"].ToString();
+                    sheet[ROW, ColCurrencyCode].Text = data[i]["CurrencyCode"].ToString();
+                    sheet[ROW, ColGross].Number = clsStaticInfo.dbl(data[i]["Gross"].ToString());
+                    sheet[ROW, ColGross].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColSetOff].Number = clsStaticInfo.dbl(data[i]["SetOff"].ToString());
+                    sheet[ROW, ColSetOff].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(data[i]["Balance"].ToString());
+                    sheet[ROW, ColBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColAdvance].Number = clsStaticInfo.dbl(data[i]["Advance"].ToString());
+                    sheet[ROW, ColAdvance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColNetBalance].Number = clsStaticInfo.dbl(data[i]["NetBalance"].ToString());
+                    sheet[ROW, ColNetBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColLedgerBalanceAmount].Number = clsStaticInfo.dbl(data[i]["LedgerBalanceAmount"].ToString());
+                    sheet[ROW, ColLedgerBalanceAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColWriteOffPendingPost].Number = clsStaticInfo.dbl(data[i]["WriteOffPendingPost"].ToString());
+                    sheet[ROW, ColWriteOffPendingPost].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+                }
+
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Employee Payable Summary Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion Employee tab report
         #region invoice with out GRN
         public IEnumerable<object> GetGRNWithOutInvoiceDataList(string companyGroupId, string companyId, string plantId, string toDate)
 
@@ -22881,7 +23264,7 @@ group by Id) O60 ON O60.Id=IV.Id
             //Get the first worksheet in the workbook into IWorksheet
             IWorksheet worksheet = workbook.Worksheets[0];
             DataTable dtGatenntryRegisterList = GetReceiptPaymentStatusDataSql();
-           
+
             var filePath = "";
 
             if (dtGatenntryRegisterList.Rows.Count == 0)
@@ -23001,7 +23384,7 @@ group by Id) O60 ON O60.Id=IV.Id
             // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            
+
             worksheet[ROW, COL].Text = "CD Amount";
             int colCDAmount = COL;
             worksheet[ROW, COL].ColumnWidth = 12;
@@ -23034,7 +23417,7 @@ group by Id) O60 ON O60.Id=IV.Id
                     //worksheet.Range[margeRow, colCustomer, ROW, colCustomer].Merge();
                     worksheet[ROW, colMasterOrderNo].Text = dtGatenntryRegisterList.Rows[i]["MasterOrderNo"].ToString();
                     worksheet[ROW, colMasterOrderDate].Text = dtGatenntryRegisterList.Rows[i]["MasterOrderDate"].ToString();
-                    
+
                     worksheet[ROW, colMaturityDate].Text = dtGatenntryRegisterList.Rows[i]["MaturityDate"].ToString();
                     worksheet[ROW, colCurrency].Text = dtGatenntryRegisterList.Rows[i]["Currency"].ToString();
 
@@ -23043,15 +23426,15 @@ group by Id) O60 ON O60.Id=IV.Id
 
                     worksheet[ROW, colInvoiceAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["Amount"].ToString());
                     worksheet[ROW, colInvoiceAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
-                   
 
-                
+
+
                     worksheet[ROW, colBalancePaymentAgainstInvoice].Text = dtGatenntryRegisterList.Rows[i]["BalancePaymentAgainstInvoice"].ToString();
                     worksheet[ROW, colBalancePaymentAgainstInvoice].NumberFormat = clsStaticInfo.NumberFormat(2);
 
                     worksheet[ROW, colCommissionAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["CommissionAmount"].ToString());
                     worksheet[ROW, colCommissionAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
-                    
+
                     worksheet[ROW, colBalanceAmountAfterAdjustCommission].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["BalanceAmountAfterAdjustCommission"].ToString());
                     worksheet[ROW, colBalanceAmountAfterAdjustCommission].NumberFormat = clsStaticInfo.NumberFormat(2);
 
@@ -23070,16 +23453,16 @@ group by Id) O60 ON O60.Id=IV.Id
                 worksheet[ROW, colReceiveAgainstInvoice].Text = dtGatenntryRegisterList.Rows[i]["ReceiveAgainstInvoice"].ToString();
                 worksheet[ROW, colReceiveAgainstInvoice].NumberFormat = clsStaticInfo.NumberFormat(2);
                 worksheet[ROW, colDelayDay].Text = dtGatenntryRegisterList.Rows[i]["DelayDay"].ToString();
-                
+
                 worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                 worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 
-               
+
             }
 
             worksheet.UsedRange.WrapText = true;
-                worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                worksheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+            worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            worksheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
 
             //worksheet["A" + StartRow.ToString()].FreezePanes();
 
@@ -23094,26 +23477,26 @@ group by Id) O60 ON O60.Id=IV.Id
 
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                ReportUtility reportUtility = new ReportUtility();
-                reportUtility.PlantHeader(ref worksheet, endCol, "Receipt Payment Status Report", identity.PlantId);
-                reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
-                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                worksheet.Range[1, 1, 5, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                //worksheet.Range[6, 1, 7, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                worksheet.Range[6, 1, 7, endCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.PlantHeader(ref worksheet, endCol, "Receipt Payment Status Report", identity.PlantId);
+            reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            worksheet.Range[1, 1, 5, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            //worksheet.Range[6, 1, 7, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            worksheet.Range[6, 1, 7, endCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
 
-                // return workbook;
+            // return workbook;
 
-                
-                var SheetName = "ReceiptPaymentStatus";
-                //return workbook;
-                workbook.Version = ExcelVersion.Excel97to2003;
-                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
-                workbook.SaveAs(filePath);
-                workbook.Close();
-                excelEngine.Dispose();
-                return filePath;
+
+            var SheetName = "ReceiptPaymentStatus";
+            //return workbook;
+            workbook.Version = ExcelVersion.Excel97to2003;
+            filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+            workbook.SaveAs(filePath);
+            workbook.Close();
+            excelEngine.Dispose();
+            return filePath;
         }
         public DataTable GetReceiptPaymentStatusDataSql()
         {
@@ -23204,7 +23587,95 @@ group by Id) O60 ON O60.Id=IV.Id
 												,I.ActualDueDate,IWO.PostingDate ,IWOD.Amount ,MOC.CommissionAmount,MOCD.CDAmount";
             return _sqlRepository.GetDataTable(sql);
         }
-
+        
+        public List<Dictionary<string, object>> GetEmployeeListData(string companyGroupId, string companyId, string plantId, string fromDate, string toDate)
+        { 
+            var sql = @" SELECT count(X.EmployeeId) NoOfEmployeePayable,convert(bit,0) AS isSelected,X.EmployeeId,X.EmployeeCode,X.EmployeeName,x.CurrencyCode
+				,SUM(X.Gross) Gross 
+				,SUM(X.SetOff) SetOff
+				,SUM(X.Balance) Balance
+				,ISNULL((SELECT ISNULL((SUM(AD.Amount)-SUM(ISNULL(AD.WrittenOffAmount ,0))-SUM(ISNULL(SAVW.SalaryWrittenOffAmount,0))),0) AS Advance
+					FROM  TRN.Advance A
+					INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
+					INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdvanceDetailId=AD.Id
+				    INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCA ON VDCA.VoucherDetailId=VDA.Id
+                    LEFT JOIN (select SUM(VDCW.CrAmount)AdvanceWriteOffBooksAmount,AdvanceId from [TRN].[AdvanceWriteOffDetail] AWD
+										INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.AdvanceWriteOffDetailId=AWD.Id
+										INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+										LEFT JOIN [TRN].[AdvanceWriteOff] AW ON AW.Id=AWD.AdvanceWriteOffId WHERE AW.IsPark=0 AND AW.Archive=0 GROUP BY AdvanceId)AW ON AW.AdvanceId=A.Id
+                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
+				LEFT JOIN [HKP].[EmployeeTransactionType] AS ETT ON ETT.Id=A.EmployeeTransactionTypeId
+								LEFT JOIN (SELECT SUM(ARS.InstallmentAmount)SalaryWrittenOffAmount,ADV.Id AdvanceId
+                                    FROM  [TRN].EmployeeAdvanceDeduction EAD 
+                                    LEFT JOIN dbo.AdvanceReqSchedule  ARS ON EAD.AdvanceReqScheduleId=ARS.Id
+                                    INNER JOIN [TRN].EmployeeSalaryAdvance ESA ON ESA.Id=ARS.EmployeeSalaryAdvanceId
+                                    INNER JOIN [TRN].[Advance] ADV ON ADV.VoucherId=ESA.VoucherId
+                                    LEFT JOIN DBO.SalaryLock SL ON SL.YearNo=ARS.YearNo AND SL.MonthNo=ARS.MonthNo AND SL.EmpSystemId=ESA.EmployeeId AND SL.PayableVoucherId IS NULL
+									GROUP BY ADV.Id) SAVW ON SAVW.AdvanceId=AD.AdvanceId
+                WHERE A.Archive=0  AND V.IsPark=0 AND V.SourceType in ('EmployeeAdvance','InterTransaction')
+               AND A.CompanyGroupId='" + companyGroupId + "' AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + @"' AND A.EmployeeId=X.EmployeeId
+			   AND ( convert(Date,V.PostingDate) <= '" + toDate + @"' )
+                AND ISNULL(A.Amount,0)-ISNULL(A.WrittenOffAmount,0)>0 GROUP BY A.EmployeeId ),0) Advance 
+				,SUM(X.Balance) - ISNULL((SELECT ISNULL((SUM(AD.Amount)-SUM(ISNULL(AD.WrittenOffAmount ,0))-SUM(ISNULL(SAVW.SalaryWrittenOffAmount,0))),0) 
+					FROM  TRN.Advance A
+					INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
+					INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdvanceDetailId=AD.Id
+				    INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCA ON VDCA.VoucherDetailId=VDA.Id
+                    LEFT JOIN (select SUM(VDCW.CrAmount)AdvanceWriteOffBooksAmount,AdvanceId from [TRN].[AdvanceWriteOffDetail] AWD
+										INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.AdvanceWriteOffDetailId=AWD.Id
+										INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+										LEFT JOIN [TRN].[AdvanceWriteOff] AW ON AW.Id=AWD.AdvanceWriteOffId WHERE AW.IsPark=0 AND AW.Archive=0 GROUP BY AdvanceId)AW ON AW.AdvanceId=A.Id
+                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
+				LEFT JOIN [HKP].[EmployeeTransactionType] AS ETT ON ETT.Id=A.EmployeeTransactionTypeId
+								LEFT JOIN (SELECT SUM(ARS.InstallmentAmount)SalaryWrittenOffAmount,ADV.Id AdvanceId
+                                    FROM  [TRN].EmployeeAdvanceDeduction EAD 
+                                    LEFT JOIN dbo.AdvanceReqSchedule  ARS ON EAD.AdvanceReqScheduleId=ARS.Id
+                                    INNER JOIN [TRN].EmployeeSalaryAdvance ESA ON ESA.Id=ARS.EmployeeSalaryAdvanceId
+                                    INNER JOIN [TRN].[Advance] ADV ON ADV.VoucherId=ESA.VoucherId
+                                    LEFT JOIN DBO.SalaryLock SL ON SL.YearNo=ARS.YearNo AND SL.MonthNo=ARS.MonthNo AND SL.EmpSystemId=ESA.EmployeeId AND SL.PayableVoucherId IS NULL
+									GROUP BY ADV.Id) SAVW ON SAVW.AdvanceId=AD.AdvanceId
+                WHERE A.Archive=0  AND V.IsPark=0 AND V.SourceType in ('EmployeeAdvance','InterTransaction')
+               AND A.CompanyGroupId='" + companyGroupId + "' AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + @"' AND A.EmployeeId=X.EmployeeId
+			   AND ( convert(Date,V.PostingDate) <= '" + toDate + @"' )
+                AND ISNULL(A.Amount,0)-ISNULL(A.WrittenOffAmount,0)>0 GROUP BY A.EmployeeId ),0) NetBalance 
+                ,ISNULL((SELECT  round(SUM(ISNULL(CC.CompanyCurrencyCrAmount, 0)) - SUM(ISNULL(CC.CompanyCurrencyDrAmount, 0)),2) AS LedgerBalanceAmount
+                    FROM [TRN].[VoucherDetail] AS VD
+                    LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                    LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                    FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                    WHERE CPC.ParallelCurrencyType='CompanyCurrency' 
+                    ) AS CC ON CC.VoucherDetailId=VD.Id
+                    WHERE V.Archive=0 AND V.IsPark=0 AND V.PlantId='" + plantId + @"' AND convert(Date,V.PostingDate) <= '" + toDate + @"' AND VD.EmployeeId=X.EmployeeId 
+					GROUP BY VD.EmployeeId),0) LedgerBalanceAmount
+                ,CASE WHEN (SELECT COUNT(V.Id)NoOfPendingPostWriteOff
+                    FROM [TRN].[VoucherDetail] AS VD
+		            LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+		            WHERE  V.IsPark=1 AND V.PlantId='" + plantId + @"' AND VD.EmployeeId=X.EmployeeId
+		            AND V.SourceType in ('EmployeePayment')
+		            AND  convert(Date,V.PostingDate) <= '" + toDate + @"' 
+		            GROUP BY VD.EmployeeId)>0 THEN 'Yes' ELSE '' END WriteOffPendingPost
+                FROM (
+				SELECT  EP.EmployeeId, EI.EmployeeCode, EI.EmployeeName,DS.UserName Designation,DP.UserName Department,c.Code CurrencyCode, EPD.NetAmount AS Gross,
+                EPD.WrittenOffAmount AS SetOff, EPD.NetAmount-EPD.WrittenOffAmount AS Balance
+                FROM [TRN].[EmployeePayableDetail] AS EPD
+                LEFT JOIN [TRN].[EmployeePayable] AS EP ON EPD.EmployeePayableId=EP.Id
+                LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.EmployeePayableDetailId=EPD.Id
+                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                LEFT JOIN [SCS].[Currency] AS C ON C.Id=EP.CurrencyId
+                LEFT JOIN [ORG].[Entity] AS E ON E.Id=VD.EntityId
+                LEFT JOIN HKP.EmployeeTransactionType ET ON ET.Id=EP.EmployeeTransactionTypeId
+				LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=EP.EmployeeId
+				LEFT JOIN ORG.Department DP ON DP.Id=EI.DepartmentId
+				LEFT JOIN HKP.Designation DS ON DS.Id=EI.GivenDesignationId
+                WHERE EP.Archive=0 AND EP.IsPark=0 AND EP.IsWrittenOff=0 AND EPD.IsWrittenOff=0 AND EPD.IsBlock=0 AND EP.SourceType IN ('EmployeePayable','SalaryPayable','VendorInvoice','InventoryPayable')
+                AND EP.CompanyGroupId='" + companyGroupId + "' AND EP.CompanyId='" + companyId + "' AND EP.PlantId='" + plantId + @"' AND ISNULL(EP.EmployeeId,'')<>'' AND (EPD.NetAmount-EPD.WrittenOffAmount)>0 
+				AND  convert(Date,V.PostingDate) <='" + toDate + @"'
+				)X
+                GROUP BY EmployeeId,EmployeeCode,EmployeeName,CurrencyCode
+                order by x.EmployeeName";
+            return _sqlRepository.GetDataCollection(sql); 
+        }
         #endregion 
 
     }

@@ -8,7 +8,6 @@ using Library.Data.Sql;
 using Library.Model.Enums;
 using Library.Model.SalesManagements;
 using Library.OrderManagement.Sales;
-using Library.Service.Core;
 using Library.Service.Currencies;
 using Library.Service.Extension;
 using Library.Service.Materials;
@@ -32,13 +31,8 @@ using Library.Service.Extension.Accounts;
 using Library.Model.Parties;
 using Library.Model.Invoices;
 using Library.Model.Vouchers;
-using Library.Service.EmployeeServices;
 using Library.Service.Helpers;
-using System.Drawing;
-using Syncfusion.Pdf;
-using Syncfusion.ExcelToPdfConverter;
 using Library.Model.Accounts;
-using Library.Service.Systems;
 //using OTSBD;
 
 namespace Aplos.Areas.SalesManagements.Controllers
@@ -301,7 +295,6 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 }
             }
             _salesService.SalesInvoicePost(sales, salesJVDetail, salesDetailList, salesServiceDetailList);
-
             return Json(new { Message = AplosMessage.Posted });
         }
 
@@ -328,10 +321,8 @@ namespace Aplos.Areas.SalesManagements.Controllers
             {
                 case ReportFormat.Pdf:
                     return RenderReportAsPdf(workbook, reportFileName);
-
                 case ReportFormat.Excel:
                     return RenderReportAsExcel(workbook, reportFileName);
-
                 default:
                     return View();
             }
@@ -875,11 +866,11 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
         }
         [Authorize, HttpGet]
-        public JsonResult GetSalesReturnJournal(string salesReturnId, string customerId)
+        public JsonResult GetSalesReturnJournal(string salesReturnId, string customerId,string taxApplicable)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
-            return Json(accountsSalesService.GetSalesReturnJournalData(identity.CompanyId, identity.PlantId, salesReturnId, customerId), JsonRequestBehavior.AllowGet);
+            return Json(accountsSalesService.GetSalesReturnJournalData(identity.CompanyId, identity.PlantId, salesReturnId, customerId, taxApplicable), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
@@ -1186,7 +1177,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                                 GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                                 BudgetMasterId = voucherDetailVM.BudgetMasterId,
                                 ActivityId = voucherDetailVM.ActivityId,
-                                AType = "Cr",
+                                AType = "Dr",
                                 AddedBy = invoiceTax.AddedBy,
                                 AddedDate = invoiceTax.AddedDate,
                                 AddedFromIP = invoiceTax.AddedFromIP
@@ -1203,7 +1194,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                             BudgetMasterId = voucherDetailVM.BudgetMasterId,
                             ActivityId = voucherDetailVM.ActivityId,
-                            TrnNature = TransactionNature.Purchases.ToString(),
+                            TrnNature = TransactionNature.Sales.ToString(),
                             CrAmount = voucherDetailVM.Amount
                         };
                         totalAmountCr += voucherDetailDrTax.CrAmount;
@@ -1227,6 +1218,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             Archive = false,
                             VoucherDetailId = voucherDetailDrTax.Id,//voucherDetailDrId,
                             VoucherId = voucher.Id,
+                            AdjustmentNoteId = adjustmentNote.Id,
                             TaxYearId = voucher.TaxYearId,
                             TaxYearPeriodId = voucher.TaxYearPeriodId,
                             TaxCategoryId = voucherDetailVM.TaxCategoryId,
@@ -1247,7 +1239,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                             BudgetMasterId = voucherDetailVM.BudgetMasterId,
                             ActivityId = voucherDetailVM.ActivityId,
-                            AType = "Dr",
+                            AType = "Cr",
                             AddedBy = invoiceTax.AddedBy,
                             AddedDate = invoiceTax.AddedDate,
                             AddedFromIP = invoiceTax.AddedFromIP
@@ -1301,7 +1293,6 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             AddedFromIP = voucher.AddedFromIP
                         };
                         _accountsCommonService.InsertAddtionalTaxDetail(tdsTax, tdsTaxDetail, ref _adTaxDetailCrData);
-
 
                     }
                 }

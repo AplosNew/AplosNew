@@ -1878,14 +1878,14 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                     ShowResult('Please select Material Storage Location', 'failure', 'detailPopUp');
                     return false;
                 }
-                if (baseService.isUndefinedOrNull($scope.detailModel.MaterialType)) {
-                    ShowResult('Please select Input Material Category', 'failure', 'detailPopUp');
-                    return false;
-                }
-                if (baseService.isUndefinedOrNull($scope.detailModel.FinalOutputCategory)) {
-                    ShowResult('Please select OutPut Material Category', 'failure', 'detailPopUp');
-                    return false;
-                }
+                //if (baseService.isUndefinedOrNull($scope.detailModel.MaterialType)) {
+                //    ShowResult('Please select Input Material Category', 'failure', 'detailPopUp');
+                //    return false;
+                //}
+                //if (baseService.isUndefinedOrNull($scope.detailModel.FinalOutputCategory)) {
+                //    ShowResult('Please select OutPut Material Category', 'failure', 'detailPopUp');
+                //    return false;
+                //}
                 if (baseService.isUndefinedOrNull($scope.detailModel.MaterialSpecification)) {
                     ShowResult('Please select Material Specification', 'failure', 'detailPopUp');
                     return false;
@@ -1898,24 +1898,24 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                     ShowResult('Please select Quantity', 'failure', 'detailPopUp');
                     return false;
                 }
-                if (baseService.isUndefinedOrNull($scope.detailModel.OrderSpecific)) {
-                    ShowResult('Please select Order Specific', 'failure', 'detailPopUp');
-                    return false;
-                }
-                if (baseService.isUndefinedOrNull($scope.detailModel.RequiredCapacity)) {
-                    ShowResult('Please select Required Capacity', 'failure', 'detailPopUp');
-                    return false;
-                }
+                //if (baseService.isUndefinedOrNull($scope.detailModel.OrderSpecific)) {
+                //    ShowResult('Please select Order Specific', 'failure', 'detailPopUp');
+                //    return false;
+                //}
+                //if (baseService.isUndefinedOrNull($scope.detailModel.RequiredCapacity)) {
+                //    ShowResult('Please select Required Capacity', 'failure', 'detailPopUp');
+                //    return false;
+                //}
                 if ($scope.productNew.POType == "OSTransformationPO") {
                     if (baseService.isUndefinedOrNull($scope.detailModel.ByProductApplicable)) {
                         ShowResult('Please select ByProduct Applicable', 'failure', 'detailPopUp');
                         return false;
                     }
                 }
-                if (baseService.isUndefinedOrNull($scope.detailModel.RateApplyId)) {
-                    ShowResult('Please select Rate Apply', 'failure', 'detailPopUp');
-                    return false;
-                }
+                //if (baseService.isUndefinedOrNull($scope.detailModel.RateApplyId)) {
+                //    ShowResult('Please select Rate Apply', 'failure', 'detailPopUp');
+                //    return false;
+                //}
                 if (baseService.isUndefinedOrNull($scope.detailModel.CurrencyId)) {
                     ShowResult('Please select Currency', 'failure', 'detailPopUp');
                     return false;
@@ -1924,18 +1924,18 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                     ShowResult('Please select Rate Per Unit', 'failure', 'detailPopUp');
                     return false;
                 }
-                if (baseService.isUndefinedOrNull($scope.detailModel.Rejection)) {
-                    ShowResult('Please select Rejection', 'failure', 'detailPopUp');
-                    return false;
-                }
-                if (baseService.isUndefinedOrNull($scope.detailModel.ValueLoss)) {
-                    ShowResult('Please select ValueLoss', 'failure', 'detailPopUp');
-                    return false;
-                }
-                if (baseService.isUndefinedOrNull($scope.detailModel.Tolerance)) {
-                    ShowResult('enter the Tolerance', 'failure', 'detailPopUp');
-                    return false;
-                }
+                //if (baseService.isUndefinedOrNull($scope.detailModel.Rejection)) {
+                //    ShowResult('Please select Rejection', 'failure', 'detailPopUp');
+                //    return false;
+                //}
+                //if (baseService.isUndefinedOrNull($scope.detailModel.ValueLoss)) {
+                //    ShowResult('Please select ValueLoss', 'failure', 'detailPopUp');
+                //    return false;
+                //}
+                //if (baseService.isUndefinedOrNull($scope.detailModel.Tolerance)) {
+                //    ShowResult('enter the Tolerance', 'failure', 'detailPopUp');
+                //    return false;
+                //}
                 if (baseService.isUndefinedOrNull($scope.detailModel.ServiceId)) {
                     ShowResult('Please select Service', 'failure', 'detailPopUp');
                     return false;
@@ -4230,34 +4230,5 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         angular.element(document.querySelector("#DelMaterialInputChildBOQ")).modal("show");
     }
 
-    $scope.materialArticleList = [];
-    $scope.InputMaterialArticlelistData = {};
-    $scope.getProductionMaterialMasterWithArticle = function (data) {
-            var articleIds = "";
-        if ( $scope.selectedProductionOrder.length > 0) {
-            articleIds = "IN(";
-            articleIds += Array.prototype.map.call(selectedProductionOrder, function (item) { return "'" + item.ArticleId + "'"; }).join(",") + ")";
-        }
-        //for (var i = 0; i < $scope.selectedProductionOrder.length; i++) {
-
-        //}
-        
-        $http({
-            method: 'POST',
-            url: 'Materials/MaterialMasterArticle/GetMaterialMasterWithArticlePopUpData?type=' + $scope.materialType ,
-            data: { column: $scope.searchByMaterial, value: $scope.search },
-            dataType: 'JSON',
-        }).then(function successCallback(response) {
-            $scope.materialArticleList = response.data;
-        });
-        $scope.InputMaterialArticlelistData = data;
-        angular.element(document.querySelector('#materialarticleNewPopUp')).modal('show');
-
-    };
-    $scope.getMaterialMasterWithArticleBySearch = function () {
-        $scope.getMaterialMasterWithArticle($scope.InputMaterialArticlelistData);
-    }
-    $scope.closeMaterialMasterWithArticle = function () {
-        angular.element(document.querySelector('#materialarticleNewPopUp')).modal('show');
-    }
+ 
 }

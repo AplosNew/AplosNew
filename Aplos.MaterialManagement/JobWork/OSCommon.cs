@@ -6914,7 +6914,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
         public IEnumerable<object> GetProductionOredrList(string entityid, string processid, string column, string value)
         {
-            string sql = @"select * from (SELECT Flag=CAST(0 AS BIT), so.Customer,so.Article,so.StyleNo, so.OwnStyleNo, so.Product,
+            string sql = @"select * from (SELECT Flag=CAST(0 AS BIT), so.Customer,so.Article,so.ArticleId,so.StyleNo, so.OwnStyleNo, so.Product,
                             PO.Id POId,s.UserName AS POStatus,so.SONo,SO.SOQuantity SOQty,ISNULL(PO.Qty,0) AS POQuantity, So.LineItemId,SO.SOStatus
                             FROM [TRN].[ProductionOrder] AS PO  JOIN TRN.ProductionOrderProcessSet POP ON POP.ProductionOrderId=PO.Id                          
                             LEFT OUTER  JOIN (select pod.ProductionOrderId, sum(so.Qty) AS SOQuantity,
@@ -6961,6 +6961,12 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
 		                                                    left outer join mst.MaterialMasterarticle mm on mm.id=XMOI.ArticleId
 			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                                    ,ArticleId=STUFF((select distinct ', '+mm.Id from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join mst.MaterialMasterarticle mm on mm.id=XMOI.ArticleId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 													,Product=STUFF((select distinct ', '+Pm.UserName from 
 		                                                    trn.SalesOrder XSO 
 		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
@@ -6979,7 +6985,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
         }
         public IEnumerable<object> GetProductionOredrMapList(string entityid, string processid, string osPOId)
         {
-            string sql = @"select * from (SELECT Flag=CAST(0 AS BIT), so.Customer,so.Article,so.StyleNo, so.OwnStyleNo, so.Product,
+            string sql = @"select * from (SELECT Flag=CAST(0 AS BIT), so.Customer,so.Article,so.ArticleId,so.StyleNo, so.OwnStyleNo, so.Product,
                             PO.Id POId,s.UserName AS POStatus,so.SONo,SO.SOQuantity SOQty,ISNULL(PO.Qty,0) AS POQuantity, So.LineItemId,SO.SOStatus
                             FROM [TRN].[ProductionOrder] AS PO  
                             JOIN TRN.ProductionOrderProcessSet POP ON POP.ProductionOrderId=PO.Id  
@@ -7023,6 +7029,12 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 													
                                                      ,Article=STUFF((select distinct ', '+mm.StandardName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join mst.MaterialMasterarticle mm on mm.id=XMOI.ArticleId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                                    ,ArticleId=STUFF((select distinct ', '+mm.Id from 
 		                                                    trn.SalesOrder XSO 
 		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId

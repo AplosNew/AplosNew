@@ -82,6 +82,7 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
         , IsPaymentTermChangeable: null
         , Summery: null
         , Details: null
+        , TaxApplicable:false
     };
     $scope.IssueType = 'Revenue';
     $scope.productNew = Object.assign({}, $scope.product);
@@ -162,12 +163,13 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
         $scope.product.ToCurrencyRate = data.data.ToCurrencyRate;
         $scope.product.CompanyCurrencyRate = data.data.ToCurrencyRate;
         $scope.product.CurrencyId = data.data.CurrencyId;
+        $scope.product.TaxApplicable = data.data.TaxApplicable;
         $scope.product.PostingDate = $filter("dateFiltering")(data.data.SalesReturnDate);
         $scope.product.InvoicingPartyPlantId = data.data.InvoicingPartyPlantId;
         $scope.productNew = Object.assign({}, $scope.product);
         $scope.getvocherTypeSalesReturn();
         getSalesReturnDetailList();
-        getSalesReturnJV($scope.product.SalesReturnId, data.data.CustomerId);
+        getSalesReturnJV($scope.product.SalesReturnId, data.data.CustomerId, $scope.product.TaxApplicable);
         getSalesReturnDetailGLData($scope.product.SalesReturnId);
         $scope.Action = 'Save';
         $scope.closeSalesReturnPopUp();
@@ -220,8 +222,8 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
     $scope.salesReceiveDetailList = [];
     $scope.salesReturnJVList = [];
     $scope.newList = [];
-    function getSalesReturnJV(salesReturnId, customerId) {
-        $http.get('SalesManagements/Sales/GetSalesReturnJournal?salesReturnId=' + salesReturnId + '&customerId=' + customerId)
+    function getSalesReturnJV(salesReturnId, customerId, taxApplicable) {
+        $http.get('SalesManagements/Sales/GetSalesReturnJournal?salesReturnId=' + salesReturnId + '&customerId=' + customerId + '&taxApplicable=' + taxApplicable)
             .then(function (response) {
                 $scope.salesReceiveDetailList = [];
                 $scope.salesReturnJVList = [];

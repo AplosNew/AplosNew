@@ -2910,6 +2910,7 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
 						SELECT FAM.*,
                         FAC.UserName 'FixedAssetCategory',
                         FASC.UserName 'FixedAssetSubCategory'
+                        ,FADR.description DepreciationRules
 						,CASE WHEN ( select TOP 1 AD.FiscalYearId from [TRN].[AssetDepreciation] AD 
 							INNER JOIN [TRN].[AssetDepreciationDetail] ADDS ON ADDS.AssetDepreciationId=AD.Id   where AD.FiscalYearId='" + fiscalYearId + @"'	AND ADDS.FixedAssetMasterId=FAM.Id)>0 
 					    THEN 'Processed upto '+ CAST(( select TOP 1 AD.ProcessDate from [TRN].[AssetDepreciation] AD 
@@ -2925,6 +2926,8 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
                         FROM  MST.[FixedAssetMaster]  FAM
                         LEFT OUTER JOIN  HKP.[FixedAssetCategory]  FAC ON FAM.FixedAssetCategoryId=FAC.Id
                         LEFT OUTER JOIN  HKP.[FixedAssetSubCategory]  FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
+                        LEFT JOIN MST.CompanyFixedAssetDepreciationRule CFADR  ON  CFADR.FixedAssetMasterId = FAM.Id 
+						LEFT JOIN [MST].[FixedAssetDepreciationRule] FADR  ON  FADR.Id = CFADR.DepreciationRuleId
                      WHERE FAM.CompanyGroupId='" + companyGroupId + @"' 
 					 AND FAM.Id IN(select FAI.FixedAssetMasterId from [TRN].[AssetRegisterChild] ARC
 									LEFT JOIN [TRN].[CapitalizationMaster] CM  ON  CM.Id = ARC.CapitalizationMasterId

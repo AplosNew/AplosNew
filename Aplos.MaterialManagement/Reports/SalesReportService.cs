@@ -1877,7 +1877,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
             range.ApplyCharacterFormat(FontBold);
             range.ApplyCharacterFormat(DFontSize);
             int colTermsAndCondition = COL; COL++;
-            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 290;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 280;
 
             #endregion column headers
             double totalValue = 0;
@@ -4852,7 +4852,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
 								SUM(NetWeight)NetWeight,SUM(GWeight)GWeight FROM ItemScanChild 
 								group by SalesId ,SalesMaterialId, LotNo) SCNS on  SCNS.SalesMaterialId=IRDS.Id
 								WHERE IRDS.SalesId = IR.Id)
-,CurrentDate = format(GETDATE(),'dd-MM-yyyy')
+,CurrentDate = format(PSI.ShipmentDate,'dd-MM-yyyy')
 ,LCDateNew=Stuff((
                     SELECT distinct',' + FORMAT(LC.LCDate, 'yyMMdd')
                     FROM dbo.MasterLC LC 

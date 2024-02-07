@@ -2016,14 +2016,13 @@ namespace Library.Service.Advances
                             ToCurrencyId = companyCurrencyId,
                             ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                             ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetail.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                            CrAmount = null != bankChargeDetailVMList && bankChargeDetailVMList.Count() > 0? Math.Round((voucherVM.CompanyCurrencyRate * item.Amount), 2, MidpointRounding.AwayFromZero)+ chargesBooksAmount
-                                        : Math.Round((voucherVM.CompanyCurrencyRate * voucherDetail.CrAmount), 2, MidpointRounding.AwayFromZero),
+                            CrAmount = null != bankChargeDetailVMList && bankChargeDetailVMList.Count() > 0? Math.Round((item.BaseDrAmount), 2, MidpointRounding.AwayFromZero)+ chargesBooksAmount
+                                        : Math.Round((item.BaseDrAmount), 2, MidpointRounding.AwayFromZero),
                         });
 
                         totalAmountCr += voucherDetail.CrAmount;
-                        totalCurrencyAmountCr += Math.Round((voucherVM.CompanyCurrencyRate * voucherDetail.CrAmount), 2, MidpointRounding.AwayFromZero);
-                        totalAmountDr += voucherDetail.DrAmount;
-                        totalCurrencyAmountDr += Math.Round((voucherVM.CompanyCurrencyRate * voucherDetail.DrAmount), 2, MidpointRounding.AwayFromZero);
+                        totalCurrencyAmountCr += Math.Round((item.BaseDrAmount + chargesBooksAmount), 2, MidpointRounding.AwayFromZero);
+                        
                     }
 
                     if (item.SourceType == "Loan")
@@ -2337,17 +2336,17 @@ namespace Library.Service.Advances
                             ToCurrencyId = companyCurrencyId,
                             ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                             ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(bankVoucherDetail.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                            DrAmount = bankVoucherDetail.DrAmount * voucherVM.CompanyCurrencyRate
+                            DrAmount = item.BaseDrAmount
                         });
 
-                        totalCurrencyAmountDr += Math.Round((bankVoucherDetail.DrAmount * voucherVM.CompanyCurrencyRate), 2, MidpointRounding.AwayFromZero);
+                        totalCurrencyAmountDr += Math.Round((item.BaseDrAmount), 2, MidpointRounding.AwayFromZero);
                         // INSRT INTO GLTransactionDetail
                         _voucherService.InsertGLTransactionDetail(bankVoucherDetail, new GLTransactionDetail
                         {
                             SourceType = advance.PaymentSource,
                             BankMasterId = bankVoucherDetail.BankMasterId,
                             CashMasterId = bankVoucherDetail.CashMasterId,
-                            DrAmount = bankVoucherDetail.DrAmount * voucherVM.CompanyCurrencyRate
+                            DrAmount = item.BankAmount
                         });
 
                         if (voucherVM.BankReconciliationUploadedDataId != null)
@@ -8958,6 +8957,69 @@ namespace Library.Service.Advances
                 vendorAdWr.Append(vendorAdWrsql);
                 _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
                 _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
+        public void DeleteMultiVendorAdvance(string companyId, string plantId, string voucherId,string advanceGroupNo)
+        {
+            var flag = false;
+            try
+            {
+                var advanceList = base.Query(r=>r.AdvanceGroupNo== advanceGroupNo).Select().ToList();
+                
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                if (advanceList !=null && advanceList.Count>0)
+                {
+                    foreach (var item in advanceList)
+                    {
+                        var vendorAdWr = new System.Text.StringBuilder();
+                        var vendorAdWrsql = "";
+                        vendorAdWrsql = @"delete trn.voucherdetailcurrency where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + item.VoucherId.ToString() + "')";
+                        vendorAdWr.Append(vendorAdWrsql);
+                        vendorAdWrsql = @"delete trn.GLTransactionDetail where VoucherDetailId in (select id from trn.voucherdetail where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + item.VoucherId.ToString() + "'))";
+                        vendorAdWr.Append(vendorAdWrsql);
+                        vendorAdWrsql = @"update trn.VoucherDetail set InvoiceTaxDetailId=NULL  where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + item.VoucherId.ToString() + "')";
+                        vendorAdWr.Append(vendorAdWrsql);
+                        vendorAdWrsql = @"update trn.InvoiceTax set VoucherDetailId=NULL where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + item.VoucherId.ToString() + "')";
+                        vendorAdWr.Append(vendorAdWrsql);
+                        vendorAdWrsql = @"delete trn.voucherdetail where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + item.VoucherId.ToString() + "')";
+                        vendorAdWr.Append(vendorAdWrsql);
+                        vendorAdWrsql = @"delete trn.InvoiceTaxDetail where InvoiceTaxId in (select Id from trn.InvoiceTax where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + item.VoucherId.ToString() + "'))";
+                        vendorAdWr.Append(vendorAdWrsql);
+                        vendorAdWrsql = @"delete trn.InvoiceTax where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + item.VoucherId.ToString() + "')";
+                        vendorAdWr.Append(vendorAdWrsql);
+                        vendorAdWrsql = @"delete TRN.AdvanceDetail where AdvanceId in (select Id from TRN.Advance where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + item.VoucherId.ToString() + "'))";
+                        vendorAdWr.Append(vendorAdWrsql);
+                        vendorAdWrsql = @"delete TRN.BankCharge where AdvanceId in (select Id from TRN.Advance where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + item.VoucherId.ToString() + "'))";
+                        vendorAdWr.Append(vendorAdWrsql);
+                        vendorAdWrsql = @"delete TRN.Advance where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + item.VoucherId.ToString() + "')";
+                        vendorAdWr.Append(vendorAdWrsql);
+                        vendorAdWrsql = @"delete trn.voucher where Id in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + item.VoucherId.ToString() + "')";
+                        vendorAdWr.Append(vendorAdWrsql);
+                        _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+                        _unitOfWork.SaveChanges();
+                    }
+                }
+                
                 flag = false;
                 _unitOfWork.Commit();
 

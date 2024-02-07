@@ -1,6 +1,6 @@
 ﻿'use strict';
-PayableCreationAndWorkerAdvanceController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', "$controller"];
-function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
+PayableCreationAndWorkerAdvanceController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', "$controller", "$window"];
+function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller,$window) {
     $rootScope.title = 'Payable Creation & Multiple Employee advance';
     $rootScope.titleTab1 = 'Payable Creation';
     $rootScope.titleTab2 = 'Multiple Employee Payment';
@@ -509,8 +509,8 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         ToDate: null,
         UserRef: null,
         PaymentDate: null,
-        ByWhom: null,
-        ByWhomId: null,
+        ByWhom: $window.employeeName,
+        ByWhomId: $window.employeeId,
         Remarks: null
     };
     $scope.ModelPCNew = Object.assign({}, $scope.ModelPCTemp);
@@ -717,8 +717,8 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         ToDate: null,
         UserRef: null,
         PaymentDate: null,
-        ByWhom: null,
-        ByWhomId: null,
+        ByWhom: $window.employeeName,
+        ByWhomId: $window.employeeId,
         Remarks: null
     };
     $scope.ModelOTNew = Object.assign({}, $scope.ModelOTemp);

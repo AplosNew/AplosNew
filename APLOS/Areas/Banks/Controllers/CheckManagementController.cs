@@ -2123,6 +2123,7 @@ namespace Aplos.Areas.Banks.Controllers
                         dr["ResponsiblePersonId"] = Pdc["ResponsiblePersonId"];
                         dr["POId"] = Pdc["POId"];
                         dr["RemainderDays"] = Pdc["RemainderDays"];
+                        dr["EffectiveDate"] = Pdc["PostingDate"]+Pdc["RemainderDays"].ToString();
                         dr["Days"] = Pdc["Days"];
                         dr["Remarks"] = Pdc["Remarks"];
 
@@ -2149,7 +2150,8 @@ namespace Aplos.Areas.Banks.Controllers
                         dr["ResponsiblePersonId"] = Pdc["ResponsiblePersonId"];
                         dr["POId"] = Pdc["POId"];
                         dr["RemainderDays"] = Pdc["RemainderDays"];
-                        dr["Days"] = Pdc["Days"];
+                    dr["EffectiveDate"] = Pdc["PostingDate"] + Pdc["RemainderDays"].ToString();
+                    dr["Days"] = Pdc["Days"];
                         dr["Remarks"] = Pdc["Remarks"];
 
                         dr["UpdatedBy"] = identity.Name;
