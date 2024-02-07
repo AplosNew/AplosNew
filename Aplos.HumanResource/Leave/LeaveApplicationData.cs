@@ -62,9 +62,9 @@ namespace Library.Service.EmployeeServices
                                     WHERE DC.PlantId='" + PlantId + @"') DM ON DM.LeavePolicyMasterId=LPM.SystemID
                                     LEFT JOIN EmployeeInformation EI ON EI.GivenDesignationId=DM.DesignationId
                                     LEFT JOIN ESICEligibleEmployee EE ON EE.EmpSystemID=EI.SystemId
-									left join (select IsEligible , SalaryHeadEnum , sif.EmpInfoSystemID from SalaryInfoDefineMaster sif 
+									left join (select top 1 IsEligible , SalaryHeadEnum , sif.EmpInfoSystemID from SalaryInfoDefineMaster sif 
 												left join EmployeeEligibleForSalaryHeadEnum EEI on EEI.SalaryStructureId = sif.SystemID
-												where  SalaryHeadEnum = 'ESIC'
+												where  SalaryHeadEnum = 'ESIC' order by sif.DateUpdated desc
 											   )ElI on ElI.EmpInfoSystemID = EI.SystemID
                                     WHERE EI.SystemID='" + EmpId + @"' AND EI.GroupID='" + GroupId + @"' AND  EI.PlantID='" + PlantId + @"'  AND LT.LeaveType <>'Maternity' 
 									AND ( case when ElI.IsEligible = 0 then (select LT.ID where LT.IsGeneral = 1) 
