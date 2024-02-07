@@ -2973,6 +2973,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         }
 
+        #region Receipt Payment Status
         [HttpPost, Authorize]
         public ActionResult GetReceiptPaymentStatusDataList()
         {
@@ -3004,6 +3005,32 @@ namespace Aplos.Areas.Accounts.Controllers
             }
 
         }
+        #endregion Receipt Payment Status
 
+        #region Employee Tab
+        [HttpPost, Authorize]
+        public ActionResult GetEmployeeList(string fromDate, string toDate)
+        {
+            AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(new { DATA = accountsStatusDashboardService.GetEmployeeListData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate), Error = false }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetEmployeeSummaryReport(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                string fileName = "";
+                AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+                fileName = accountsStatusDashboardService.EmployeeSummaryWiseReport(data, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion Employee Tab
     }
 }
