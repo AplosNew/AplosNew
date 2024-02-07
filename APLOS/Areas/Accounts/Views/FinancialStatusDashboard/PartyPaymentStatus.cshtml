@@ -100,7 +100,7 @@
                 <ul class="nav nav-tabs" role="tablist">
                     <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);GetInvoiceList();" href="" data-toggle="tab">Vendor</a></li>
                     <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);GetCustomerReceiptMasterList();" href="" data-toggle="tab">Customer</a></li>
-                    <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" data-toggle="tab">Employee</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);GetEmployeeDataList();" href="" data-toggle="tab">Employee</a></li>
                     <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5);GetDateRangeWisePaymentData();" href="" data-toggle="tab">Payment</a></li>
                     <li role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6);GetBankMasterListData();" href="" data-toggle="tab">Bank</a></li>
                     <li role="presentation" ng-class="{ active: isSet(7) }"><a ng-click="setTab(7);GetCashListData();" href="" data-toggle="tab">Cash</a></li>
@@ -575,40 +575,64 @@
 
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
                     <div class="row">
-                        <div class="col-sm-12 col-sm-12 col-md-12">
-                            <div class="common-btn">
-                                <ul class="list-inline text-left">
-                                    <li><button ng-click="showDocumentSourcePopUp();" ng-disabled="sopDocumentNew.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
-                                </ul>
+                        <fieldset class="scheduler-border">
+                            <div class="col-xs-5 col-sm-5 col-md-5" id="div_EmpToDate">
+                                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                                <div class="col-sm-8  show-message">
+                                    <input type="text" name="To Date" ng-model="EmpToDate" datepicker tabindex="3" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="GetEmployeeDataList();" title="As On Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="row">
+                        <div class="table-responsive modal-table aplos-grid-toggle">
+                            <div class="content-container-fluid" style="color:black;overflow:scroll">
+                                <div style="color:black;" id="Gridemp" ej-grid e-datasource="EmployeeDataList" e-templaterefresh="refreshTemplateEmployees"
+                                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowresizing="true" e-allowselection="false" e-allowsorting="true">
+                                    <div e-columns>
+                                        <div e-column e-headertext="All" e-headertemplateid="#headerTemplateEmp" e-template="#checkMasterEmp" e-textalign="center" e-width="30"></div>
+                                        <div e-column e-field="NoOfEmployeePayable" e-headertext="No Of Employee Payable" e-width="60"></div>
+                                        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="60"></div>
+                                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
+                                        <div e-column e-field="CurrencyCode" e-headertext="Currency Code" e-width="80"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Gross" e-headertext="Gross" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="SetOff" e-headertext="Set Off" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Balance" e-headertext="Balance" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Advance" e-headertext="Advance" e-width="80" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="NetBalance" e-headertext="Net Balance" e-width="80" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="LedgerBalanceAmount" e-headertext="Ledger Balance Amount" e-width="80" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="WriteOffPendingPost" e-headertext="Write Off Pending Post" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                    </div>
+                                </div>
+                                 
+                                <script type="text/template" id="checkMasterEmp">
+                                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
+                                </script>
+
+                                <script type="text/x-jsrender" id="headerTemplateEmp">
+                                    <input type="checkbox" id="headchkemp" />
+                                </script> 
                             </div>
                         </div>
 
-                        @*<div class="col-xs-12">
-                                <div style="color:black;" id="GridSelectedMasterEmployee" ej-grid e-datasource="MasterEmployeeList"
-                                     e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                                     e-allowselection="false" e-filtersettings-filterType="excel">
-                                    <div e-columns>
-                                        <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="80"></div>
-                                        <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="80"></div>
-                                        <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
-                                        <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
-                                        <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="140"></div>
-
-                                        <div e-column e-template="#DeleteDocumentDocumentSource" e-width="40"></div>
-                                    </div>
-                                </div>
-
-                                <script type="text/template" id="DeleteDocumentDocumentSource">
-                                    <div class="common-btn">
-                                        <ul class="list-inline text-left">
-                                            <li><button ng-click="$parent.ConfirmDeleteDocumentSource(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
-                                        </ul>
-                                    </div>
-                                </script>
-
-                            </div>*@
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li><button ng-click="EmployeeSummaryReport();" title="All active summary with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Summary</button></li>
+                                @*<li><button ng-click="CustomerAgingReport();" title="All active Aging with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Detail</button></li>*@
+                            </ul>
+                        </div>
 
                     </div>
+
                 </div>
 
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
@@ -2479,7 +2503,7 @@
                         </fieldset>
 
                         <div class="col-md-12">
-                            <div style="color:black;" id="GridRFC" ej-grid e-datasource="ReceiptFromCustomerList" 
+                            <div style="color:black;" id="GridRFC" ej-grid e-datasource="ReceiptFromCustomerList"
                                  e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-filtersettings-filterType="excel"
                                  e-enabletouch="false" e-allowresizing="true" e-allowselection="false" e-allowsorting="true">
                                 <div e-columns>

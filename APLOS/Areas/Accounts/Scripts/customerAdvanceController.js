@@ -462,9 +462,29 @@ function customerAdvanceController(cboService, bankService, baseService, factory
                 ShowResult("Please select Customer!", "failure");
                 return true;
             }
-            if ($scope.advance.PaymentSource != 'MultiBank' && parseFloat($scope.advance.Amount) === 0) {
+            if (parseFloat($scope.advance.Amount) === 0) {
                 ShowResult("Advance Amount must greater than 0!", "failure");
                 return true;
+            }
+            if ($scope.advance.PaymentSource == 'MultiBank') {
+                var totalDrAmount = 0; var advanceBooksAmount = 0;
+                var totalDrBooksAmount = 0;
+                totalDrAmount = Math.round(($filter("sumByKey")($filter("filter")($scope.bankDetailList), "Amount")) * 100 + Number.EPSILON) / 100;
+                totalDrAmount += Math.round(($filter("sumByKey")($filter("filter")($scope.bankChargesList), "Amount")) * 100 + Number.EPSILON) / 100;
+
+                totalDrBooksAmount = Math.round(($filter("sumByKey")($filter("filter")($scope.bankDetailList), "BaseDrAmount")) * 100 + Number.EPSILON) / 100;
+                totalDrBooksAmount += Math.round(($filter("sumByKey")($filter("filter")($scope.bankChargesList), "CompanyCurrencyAmount")) * 100 + Number.EPSILON) / 100;
+                advanceBooksAmount = Math.round(($scope.advance.Amount * $scope.advance.CompanyCurrencyRate) * 100 + Number.EPSILON) / 100;
+                if ($scope.advance.Amount != totalDrAmount) {
+                    ShowResult("Input Bank and Charges Amount are not equal Advance Amount!", "failure");
+                    return true;
+                }
+
+                if (advanceBooksAmount != totalDrBooksAmount) {
+                    ShowResult("Input Bank and Charges BooksAmount are not equal Advance Books Amount!", "failure");
+                    return true;
+                }
+
             }
             if ($scope.advance.PaymentSource !='MultiBank' && baseService.isUndefinedOrNull($scope.advance.GLGeneralInfoId)) {
                 ShowResult("Please select Cash or Bank!", "failure");
@@ -930,7 +950,6 @@ function customerAdvanceController(cboService, bankService, baseService, factory
             }
             return true;
         }
-        return true;
     };
 
     $scope.advanceId = null;

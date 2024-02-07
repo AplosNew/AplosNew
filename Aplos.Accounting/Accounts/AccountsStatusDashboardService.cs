@@ -22846,7 +22846,150 @@ group by Id) O60 ON O60.Id=IV.Id
         }
 
         #endregion  Receipt from Customer
+        
+        #region Employee tab report
+        public string EmployeeSummaryWiseReport(List<Dictionary<string, object>> data, string ReportHeader, string reportFileName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Employee Payable Summary Report";
+                sheet = workbook.Worksheets[0];
+                int ROW = 5; int COL = 1;
 
+                #region columns
+                sheet[ROW, COL].Text = "Employee Code";
+                sheet[ROW, COL].ColumnWidth = 11;
+                int ColEmployeeCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Employee Name";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int ColEmployeeName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Currency Code";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColCurrencyCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Gross";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColGross = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Set Off";
+                sheet[ROW, COL].ColumnWidth = 8;
+                int ColSetOff = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Balance";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColBalance = COL;
+                COL++;
+
+
+                sheet[ROW, COL].Text = "Advance";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColAdvance = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Net Balance";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColNetBalance = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Ledger Balance Amount";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColLedgerBalanceAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Write Off Pending Post";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColWriteOffPendingPost = COL;
+                
+                #endregion columns
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                ROW++;
+
+                int startRow = ROW;
+                for (int i = 0; i < data.Count; i++)
+                {
+                    sheet[ROW, ColEmployeeCode].Text = data[i]["EmployeeCode"].ToString();
+                    sheet[ROW, ColEmployeeName].Text = data[i]["EmployeeName"].ToString();
+                    sheet[ROW, ColCurrencyCode].Text = data[i]["CurrencyCode"].ToString();
+                    sheet[ROW, ColGross].Number = clsStaticInfo.dbl(data[i]["Gross"].ToString());
+                    sheet[ROW, ColGross].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColSetOff].Number = clsStaticInfo.dbl(data[i]["SetOff"].ToString());
+                    sheet[ROW, ColSetOff].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(data[i]["Balance"].ToString());
+                    sheet[ROW, ColBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColAdvance].Number = clsStaticInfo.dbl(data[i]["Advance"].ToString());
+                    sheet[ROW, ColAdvance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColNetBalance].Number = clsStaticInfo.dbl(data[i]["NetBalance"].ToString());
+                    sheet[ROW, ColNetBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColLedgerBalanceAmount].Number = clsStaticInfo.dbl(data[i]["LedgerBalanceAmount"].ToString());
+                    sheet[ROW, ColLedgerBalanceAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColWriteOffPendingPost].Number = clsStaticInfo.dbl(data[i]["WriteOffPendingPost"].ToString());
+                    sheet[ROW, ColWriteOffPendingPost].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+                }
+
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Employee Payable Summary Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion Employee tab report
         #region invoice with out GRN
         public IEnumerable<object> GetGRNWithOutInvoiceDataList(string companyGroupId, string companyId, string plantId, string toDate)
 
@@ -23444,7 +23587,95 @@ group by Id) O60 ON O60.Id=IV.Id
 												,I.ActualDueDate,IWO.PostingDate ,IWOD.Amount ,MOC.CommissionAmount,MOCD.CDAmount";
             return _sqlRepository.GetDataTable(sql);
         }
-
+        
+        public List<Dictionary<string, object>> GetEmployeeListData(string companyGroupId, string companyId, string plantId, string fromDate, string toDate)
+        { 
+            var sql = @" SELECT count(X.EmployeeId) NoOfEmployeePayable,convert(bit,0) AS isSelected,X.EmployeeId,X.EmployeeCode,X.EmployeeName,x.CurrencyCode
+				,SUM(X.Gross) Gross 
+				,SUM(X.SetOff) SetOff
+				,SUM(X.Balance) Balance
+				,ISNULL((SELECT ISNULL((SUM(AD.Amount)-SUM(ISNULL(AD.WrittenOffAmount ,0))-SUM(ISNULL(SAVW.SalaryWrittenOffAmount,0))),0) AS Advance
+					FROM  TRN.Advance A
+					INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
+					INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdvanceDetailId=AD.Id
+				    INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCA ON VDCA.VoucherDetailId=VDA.Id
+                    LEFT JOIN (select SUM(VDCW.CrAmount)AdvanceWriteOffBooksAmount,AdvanceId from [TRN].[AdvanceWriteOffDetail] AWD
+										INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.AdvanceWriteOffDetailId=AWD.Id
+										INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+										LEFT JOIN [TRN].[AdvanceWriteOff] AW ON AW.Id=AWD.AdvanceWriteOffId WHERE AW.IsPark=0 AND AW.Archive=0 GROUP BY AdvanceId)AW ON AW.AdvanceId=A.Id
+                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
+				LEFT JOIN [HKP].[EmployeeTransactionType] AS ETT ON ETT.Id=A.EmployeeTransactionTypeId
+								LEFT JOIN (SELECT SUM(ARS.InstallmentAmount)SalaryWrittenOffAmount,ADV.Id AdvanceId
+                                    FROM  [TRN].EmployeeAdvanceDeduction EAD 
+                                    LEFT JOIN dbo.AdvanceReqSchedule  ARS ON EAD.AdvanceReqScheduleId=ARS.Id
+                                    INNER JOIN [TRN].EmployeeSalaryAdvance ESA ON ESA.Id=ARS.EmployeeSalaryAdvanceId
+                                    INNER JOIN [TRN].[Advance] ADV ON ADV.VoucherId=ESA.VoucherId
+                                    LEFT JOIN DBO.SalaryLock SL ON SL.YearNo=ARS.YearNo AND SL.MonthNo=ARS.MonthNo AND SL.EmpSystemId=ESA.EmployeeId AND SL.PayableVoucherId IS NULL
+									GROUP BY ADV.Id) SAVW ON SAVW.AdvanceId=AD.AdvanceId
+                WHERE A.Archive=0  AND V.IsPark=0 AND V.SourceType in ('EmployeeAdvance','InterTransaction')
+               AND A.CompanyGroupId='" + companyGroupId + "' AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + @"' AND A.EmployeeId=X.EmployeeId
+			   AND ( convert(Date,V.PostingDate) <= '" + toDate + @"' )
+                AND ISNULL(A.Amount,0)-ISNULL(A.WrittenOffAmount,0)>0 GROUP BY A.EmployeeId ),0) Advance 
+				,SUM(X.Balance) - ISNULL((SELECT ISNULL((SUM(AD.Amount)-SUM(ISNULL(AD.WrittenOffAmount ,0))-SUM(ISNULL(SAVW.SalaryWrittenOffAmount,0))),0) 
+					FROM  TRN.Advance A
+					INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
+					INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdvanceDetailId=AD.Id
+				    INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCA ON VDCA.VoucherDetailId=VDA.Id
+                    LEFT JOIN (select SUM(VDCW.CrAmount)AdvanceWriteOffBooksAmount,AdvanceId from [TRN].[AdvanceWriteOffDetail] AWD
+										INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.AdvanceWriteOffDetailId=AWD.Id
+										INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+										LEFT JOIN [TRN].[AdvanceWriteOff] AW ON AW.Id=AWD.AdvanceWriteOffId WHERE AW.IsPark=0 AND AW.Archive=0 GROUP BY AdvanceId)AW ON AW.AdvanceId=A.Id
+                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
+				LEFT JOIN [HKP].[EmployeeTransactionType] AS ETT ON ETT.Id=A.EmployeeTransactionTypeId
+								LEFT JOIN (SELECT SUM(ARS.InstallmentAmount)SalaryWrittenOffAmount,ADV.Id AdvanceId
+                                    FROM  [TRN].EmployeeAdvanceDeduction EAD 
+                                    LEFT JOIN dbo.AdvanceReqSchedule  ARS ON EAD.AdvanceReqScheduleId=ARS.Id
+                                    INNER JOIN [TRN].EmployeeSalaryAdvance ESA ON ESA.Id=ARS.EmployeeSalaryAdvanceId
+                                    INNER JOIN [TRN].[Advance] ADV ON ADV.VoucherId=ESA.VoucherId
+                                    LEFT JOIN DBO.SalaryLock SL ON SL.YearNo=ARS.YearNo AND SL.MonthNo=ARS.MonthNo AND SL.EmpSystemId=ESA.EmployeeId AND SL.PayableVoucherId IS NULL
+									GROUP BY ADV.Id) SAVW ON SAVW.AdvanceId=AD.AdvanceId
+                WHERE A.Archive=0  AND V.IsPark=0 AND V.SourceType in ('EmployeeAdvance','InterTransaction')
+               AND A.CompanyGroupId='" + companyGroupId + "' AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + @"' AND A.EmployeeId=X.EmployeeId
+			   AND ( convert(Date,V.PostingDate) <= '" + toDate + @"' )
+                AND ISNULL(A.Amount,0)-ISNULL(A.WrittenOffAmount,0)>0 GROUP BY A.EmployeeId ),0) NetBalance 
+                ,ISNULL((SELECT  round(SUM(ISNULL(CC.CompanyCurrencyCrAmount, 0)) - SUM(ISNULL(CC.CompanyCurrencyDrAmount, 0)),2) AS LedgerBalanceAmount
+                    FROM [TRN].[VoucherDetail] AS VD
+                    LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                    LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                    FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                    WHERE CPC.ParallelCurrencyType='CompanyCurrency' 
+                    ) AS CC ON CC.VoucherDetailId=VD.Id
+                    WHERE V.Archive=0 AND V.IsPark=0 AND V.PlantId='" + plantId + @"' AND convert(Date,V.PostingDate) <= '" + toDate + @"' AND VD.EmployeeId=X.EmployeeId 
+					GROUP BY VD.EmployeeId),0) LedgerBalanceAmount
+                ,CASE WHEN (SELECT COUNT(V.Id)NoOfPendingPostWriteOff
+                    FROM [TRN].[VoucherDetail] AS VD
+		            LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+		            WHERE  V.IsPark=1 AND V.PlantId='" + plantId + @"' AND VD.EmployeeId=X.EmployeeId
+		            AND V.SourceType in ('EmployeePayment')
+		            AND  convert(Date,V.PostingDate) <= '" + toDate + @"' 
+		            GROUP BY VD.EmployeeId)>0 THEN 'Yes' ELSE '' END WriteOffPendingPost
+                FROM (
+				SELECT  EP.EmployeeId, EI.EmployeeCode, EI.EmployeeName,DS.UserName Designation,DP.UserName Department,c.Code CurrencyCode, EPD.NetAmount AS Gross,
+                EPD.WrittenOffAmount AS SetOff, EPD.NetAmount-EPD.WrittenOffAmount AS Balance
+                FROM [TRN].[EmployeePayableDetail] AS EPD
+                LEFT JOIN [TRN].[EmployeePayable] AS EP ON EPD.EmployeePayableId=EP.Id
+                LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.EmployeePayableDetailId=EPD.Id
+                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                LEFT JOIN [SCS].[Currency] AS C ON C.Id=EP.CurrencyId
+                LEFT JOIN [ORG].[Entity] AS E ON E.Id=VD.EntityId
+                LEFT JOIN HKP.EmployeeTransactionType ET ON ET.Id=EP.EmployeeTransactionTypeId
+				LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=EP.EmployeeId
+				LEFT JOIN ORG.Department DP ON DP.Id=EI.DepartmentId
+				LEFT JOIN HKP.Designation DS ON DS.Id=EI.GivenDesignationId
+                WHERE EP.Archive=0 AND EP.IsPark=0 AND EP.IsWrittenOff=0 AND EPD.IsWrittenOff=0 AND EPD.IsBlock=0 AND EP.SourceType IN ('EmployeePayable','SalaryPayable','VendorInvoice','InventoryPayable')
+                AND EP.CompanyGroupId='" + companyGroupId + "' AND EP.CompanyId='" + companyId + "' AND EP.PlantId='" + plantId + @"' AND ISNULL(EP.EmployeeId,'')<>'' AND (EPD.NetAmount-EPD.WrittenOffAmount)>0 
+				AND  convert(Date,V.PostingDate) <='" + toDate + @"'
+				)X
+                GROUP BY EmployeeId,EmployeeCode,EmployeeName,CurrencyCode
+                order by x.EmployeeName";
+            return _sqlRepository.GetDataCollection(sql); 
+        }
         #endregion 
 
     }
