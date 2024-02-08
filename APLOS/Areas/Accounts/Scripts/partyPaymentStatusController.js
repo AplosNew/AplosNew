@@ -4668,6 +4668,39 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         }
     }
 
+    $scope.EmployeeDetailReport = function () {
+        try {
+            var NewMasterEmpIds = [];
+            for (var i = 0; i < $scope.EmployeeDataList.length; i++) {
+                if ($scope.EmployeeDataList[i].isSelected == true) {
+                    NewMasterEmpIds.push($scope.EmployeeDataList[i].EmployeeId);
+                }
+            }
+            if (NewMasterEmpIds.length == 0) {
+                ShowResult('Please select at least one Employee', 'failure');
+            }
+            $scope.fileName = 'Employee Details Report.xlsx';
+
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetEmployeeDetailsReport",
+                data: { 'data': NewMasterEmpIds, 'reportFileName': $scope.fileName },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
     //**********************#endregion Employee**************************
 
 }
