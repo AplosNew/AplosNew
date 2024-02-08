@@ -45,6 +45,12 @@ namespace Library.Model.OrderManagements
         public string ProductionType { get; set; }
         public bool ShipmentFromStock { get; set; }
         public string StockResponsiblePersonId { get; set; }
+        public DateTime? CheckByDate { get; set; }
+        public string CheckByStatus { get; set; }
+        public string ApproveBy { get; set; }
+        public DateTime? ApproveByDate { get; set; }
+        public string ApprovedStatus { get; set; }
+
         #endregion Scalar Properties
 
         #region Audit Properties

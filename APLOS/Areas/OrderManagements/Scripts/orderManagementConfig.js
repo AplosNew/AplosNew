@@ -284,6 +284,13 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             templateUrl: 'OrderManagements/TermsAndConditions/Group',
             controller: 'TermsandConditionGroupController'
         })
-
+        .when('/mo-checkby', {
+            templateUrl: 'OrderManagements/masterOrder/CheckBy',
+            controller: 'masterOrderCheckByController'
+        })
+        .when('/mo-approveby', {
+            templateUrl: 'OrderManagements/masterOrder/ApproveBy',
+            controller: 'masterOrderApproveByController'
+        })
         ;
 }

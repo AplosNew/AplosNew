@@ -801,6 +801,8 @@ namespace Library.Service.OrderManagements
             }
         }
 
+       
+
         public IEnumerable<object> GetpackingTypeList(string SOId, string PackingType)
         {
             try
@@ -2340,7 +2342,62 @@ WHERE MOI.MasterOrderId='" + id + "'";
             }
         }
 
+        public void CheckSOGraph(SalesOrderMaster salesOrderMaster)
+        {
+            try
+            {
+               
+                if (!string.IsNullOrEmpty(salesOrderMaster.Id))
+                {
+                    AuditService.UpdatedLog(salesOrderMaster);
+                    salesOrderMaster.ApprovedStatus = "To Be Approve";
+                    salesOrderMaster.CheckByDate = DateTime.Now;
 
+                    _salesOrderRepository.Update(salesOrderMaster);
+                }
+             
+                _unitOfWork.SaveChanges();
+
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.OrderManagement.ToString()));
+            }
+        }
+
+        public void ApproveSOGraph(SalesOrderMaster salesOrderMaster)
+        {
+            try
+            {
+
+                if (!string.IsNullOrEmpty(salesOrderMaster.Id))
+                {
+                    AuditService.UpdatedLog(salesOrderMaster);
+                    salesOrderMaster.ApproveByDate = DateTime.Now;
+
+                    _salesOrderRepository.Update(salesOrderMaster);
+                }
+
+                _unitOfWork.SaveChanges();
+
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.OrderManagement.ToString()));
+            }
+        }
 
         public void DeleteSOGraph(string masterItemId, SalesOrderMaster salesOrderMaster)
         {
