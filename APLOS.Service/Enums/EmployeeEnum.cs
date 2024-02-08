@@ -232,6 +232,8 @@ namespace Library.Service.Enums
         [Description("Sales Chalan ApproveBy")]
         SalesChalanApproveBy,
         [Description("Multiple Vendor Payment")]
-        MultipleVendorPayment
+        MultipleVendorPayment,
+        [Description("Sales Order ApproveBy")]
+        SalesOrderApproveBy
     }
 }

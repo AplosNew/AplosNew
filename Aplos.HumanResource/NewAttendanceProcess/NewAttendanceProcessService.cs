@@ -2061,7 +2061,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             for (int i = 0; i < FlaggedIn.Tables[0].Rows.Count; i++)
                             {
                                 string EmpId = clsWebLib.RetValidLen(FlaggedIn.Tables[0].Rows[i][@"EmpId"]).ToString();
-                                if (EmpId == "2200009")
+                                if (EmpId == "22221041")
                                 {
                                     // do nothing
                                 }

@@ -1734,7 +1734,247 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
                        K.ThirdCharacteristics, K.ThirdCharacteristicsValue, K.Quantity");
         }
 
+        public IEnumerable<object> GetCheckByList(string companyId, string column, string value, string empId)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false)
+                strkey = column + " like '%" + value + "%'";
 
-   
+
+            string sql = @"select * from (SELECT A.Id, A.CompanyId, A.CommitmentId, A.PlantId, A.EntityId, EN.UserName Entity,FORMAT(A.AddedDate,'dd-MMM-yyyy') AS CreationDate,a.AddedBy AS CreatedBy
+                                    , A.OrderType, A.PartyId, P.Code CustomerCode, P.UserName AS CustomerName, A.BuyerId,B.UserName Buyer
+                                    , A.BuyerBrandId, A.BuyerDivisionId, A.TestingStandardId, A.MasterOrderNo, A.OrderStatusId	
+                                    , A.OrderCategoryId,OC.UserName AS OrderCategory, A.SeasonId, A.OrderYear, A.CurrencyId, A.TotalQty	
+									,MS.TotalAmount
+                                    , A.NoOfLineItem, A.ResponsiblePersonId, EI.EmployeeName AS ResponsiblePersonName
+                                    , A.InvoicingPartyPlantId, InvPP.UserName AS InvoicingPartyPlant, A.InvoicingByAddress
+		                            , A.DeliveryPartyPlantId, DeliPP.UserName AS DeliveryPartyPlant, A.DeliveryByAddress
+		                            , PartyAccountGroupId=(SELECT DISTINCT PartyAccountGroupId FROM [HKP].[CompanyParty] WHERE CompanyId=A.CompanyId
+								                            AND PartyId=A.PartyId AND PartyType='Customer' AND PlantId=A.PlantId)
+								    ,A.OrderWastagePercentage
+								    ,A.ExtraOrderPercentage,A.BuyerDepartmentId
+								    ,A.TotalQtyUOMId,PL.UserName,A.IsReplacement,A.Type,C.Code Currency,A.SpecialTaxId,A.IsExtraOrderPercentage,PM.UserName ProductMaster,OS.UserName OrderStatus,A.AddedDate,A.AddedBy
+                                       ,A.OwnReferenceNo,A.BuyerReferenceNo
+									   ,[BuyerReferenceNoItem]=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                                     [OwnItem]=STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									  ,A.PaymentTermId,A.PaymentTermDays,A.ExceptionalProcessId,A.ExceptionalSubProcessId
+                                   
+                                   ,ContractNo=STUFF((select distinct ','+CNT.ContractNo from dbo.Contract CNT
+															INNER JOIN trn.SalesOrder XSO  ON XSO.ContractId=CNT.Id	  
+															INNER JOIN trn.MasterOrderItem XMOI  ON XMOI.Id=XSO.MasterOrderItemId	  
+							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+									MasterLCNo=STUFF((select distinct ','+MLC.LCRef from dbo.Contract CNT
+															INNER JOIN trn.SalesOrder XSO  ON XSO.ContractId=CNT.Id	  
+															INNER JOIN trn.MasterOrderItem XMOI  ON XMOI.Id=XSO.MasterOrderItemId
+															LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CNT.MasterLCId	  
+							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),CP.PaymentTermId DefaultPaymentTermId,RC.Process RemarksControl,URC.RemarkControlId
+                            FROM [TRN].[MasterOrder] AS A
+                            JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
+                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=A.PartyId AND CP.PartyType='Customer'  AND CP.PlantId=A.PlantId
+                            LEFT JOIN ORG.Plant AS PL ON A.PlantId=PL.Id
+                            LEFT JOIN [HKP].[PartyPlant] AS InvPP ON A.InvoicingPartyPlantId=InvPP.Id
+                            LEFT JOIN [HKP].[PartyPlant] AS DeliPP ON A.DeliveryPartyPlantId=DeliPP.Id
+                            LEFT JOIN EmployeeInformation AS EI ON A.ResponsiblePersonId=EI.SystemId
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
+                            LEFT JOIN TRN.Commitment COM ON COM.Id=A.CommitmentId
+							LEFT JOIN [MST].[ProductMaster] PM ON COM.ProductMasterId=PM.Id
+                            LEFT JOIN HKP.OrderStatus OS ON OS.Id=A.OrderStatusId
+                            LEFT JOIN hkp.OrderCategory AS oc ON oc.Id=a.OrderCategoryId
+                            LEFT JOIN HKP.Buyer B ON B.Id=A.BuyerId
+                            LEFT JOIN ORG.Entity EN ON EN.Id=A.EntityId
+							LEFT JOIN(select moi.MasterOrderId,TotalAmount=SUM(SO.Qty*SO.Rate) 
+									from TRN.MasterOrderItem moi
+									LEFT JOIN TRN.SalesOrder so on so.MasterOrderItemId=moi.Id
+									Group By moi.MasterOrderId) MS ON MS.MasterOrderId=A.Id
+                            LEFT JOIN TRN.UserRemarksControl URC ON URC.MasterOrderId=A.Id
+							LEFT JOIN [HKP].[RemarksControl] RC ON RC.Id=URC.RemarkControlId
+                            WHERE A.CompanyId='" + companyId + @"' AND A.Id IN(Select distinct MOI.MasterOrderId from  TRN.SalesOrder SO
+LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId
+LEFT JOIN TRN.MasterOrder MO ON MO.Id = MOI.MasterOrderId
+Where SO.CheckByStatus = 'To Be Check' AND SO.ResponsiblePersonId='"+empId+@"')) AS TEMP WHERE " + strkey + " ORDER BY AddedDate Desc";
+
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public IEnumerable<object> GetApproveList(string companyId, string column, string value, string empId)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false)
+                strkey = column + " like '%" + value + "%'";
+
+
+            string sql = @"select * from (SELECT A.Id, A.CompanyId, A.CommitmentId, A.PlantId, A.EntityId, EN.UserName Entity,FORMAT(A.AddedDate,'dd-MMM-yyyy') AS CreationDate,a.AddedBy AS CreatedBy
+                                    , A.OrderType, A.PartyId, P.Code CustomerCode, P.UserName AS CustomerName, A.BuyerId,B.UserName Buyer
+                                    , A.BuyerBrandId, A.BuyerDivisionId, A.TestingStandardId, A.MasterOrderNo, A.OrderStatusId	
+                                    , A.OrderCategoryId,OC.UserName AS OrderCategory, A.SeasonId, A.OrderYear, A.CurrencyId, A.TotalQty	
+									,MS.TotalAmount
+                                    , A.NoOfLineItem, A.ResponsiblePersonId, EI.EmployeeName AS ResponsiblePersonName
+                                    , A.InvoicingPartyPlantId, InvPP.UserName AS InvoicingPartyPlant, A.InvoicingByAddress
+		                            , A.DeliveryPartyPlantId, DeliPP.UserName AS DeliveryPartyPlant, A.DeliveryByAddress
+		                            , PartyAccountGroupId=(SELECT DISTINCT PartyAccountGroupId FROM [HKP].[CompanyParty] WHERE CompanyId=A.CompanyId
+								                            AND PartyId=A.PartyId AND PartyType='Customer' AND PlantId=A.PlantId)
+								    ,A.OrderWastagePercentage
+								    ,A.ExtraOrderPercentage,A.BuyerDepartmentId
+								    ,A.TotalQtyUOMId,PL.UserName,A.IsReplacement,A.Type,C.Code Currency,A.SpecialTaxId,A.IsExtraOrderPercentage,PM.UserName ProductMaster,OS.UserName OrderStatus,A.AddedDate,A.AddedBy
+                                       ,A.OwnReferenceNo,A.BuyerReferenceNo
+									   ,[BuyerReferenceNoItem]=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                                     [OwnItem]=STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									  ,A.PaymentTermId,A.PaymentTermDays,A.ExceptionalProcessId,A.ExceptionalSubProcessId
+                                   
+                                   ,ContractNo=STUFF((select distinct ','+CNT.ContractNo from dbo.Contract CNT
+															INNER JOIN trn.SalesOrder XSO  ON XSO.ContractId=CNT.Id	  
+															INNER JOIN trn.MasterOrderItem XMOI  ON XMOI.Id=XSO.MasterOrderItemId	  
+							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+									MasterLCNo=STUFF((select distinct ','+MLC.LCRef from dbo.Contract CNT
+															INNER JOIN trn.SalesOrder XSO  ON XSO.ContractId=CNT.Id	  
+															INNER JOIN trn.MasterOrderItem XMOI  ON XMOI.Id=XSO.MasterOrderItemId
+															LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CNT.MasterLCId	  
+							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),CP.PaymentTermId DefaultPaymentTermId,RC.Process RemarksControl,URC.RemarkControlId
+                            FROM [TRN].[MasterOrder] AS A
+                            JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
+                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=A.PartyId AND CP.PartyType='Customer'  AND CP.PlantId=A.PlantId
+                            LEFT JOIN ORG.Plant AS PL ON A.PlantId=PL.Id
+                            LEFT JOIN [HKP].[PartyPlant] AS InvPP ON A.InvoicingPartyPlantId=InvPP.Id
+                            LEFT JOIN [HKP].[PartyPlant] AS DeliPP ON A.DeliveryPartyPlantId=DeliPP.Id
+                            LEFT JOIN EmployeeInformation AS EI ON A.ResponsiblePersonId=EI.SystemId
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
+                            LEFT JOIN TRN.Commitment COM ON COM.Id=A.CommitmentId
+							LEFT JOIN [MST].[ProductMaster] PM ON COM.ProductMasterId=PM.Id
+                            LEFT JOIN HKP.OrderStatus OS ON OS.Id=A.OrderStatusId
+                            LEFT JOIN hkp.OrderCategory AS oc ON oc.Id=a.OrderCategoryId
+                            LEFT JOIN HKP.Buyer B ON B.Id=A.BuyerId
+                            LEFT JOIN ORG.Entity EN ON EN.Id=A.EntityId
+							LEFT JOIN(select distinct moi.MasterOrderId,TotalAmount=SUM(SO.Qty*SO.Rate) 
+									from TRN.MasterOrderItem moi
+									LEFT JOIN TRN.SalesOrder so on so.MasterOrderItemId=moi.Id
+									Group By moi.MasterOrderId) MS ON MS.MasterOrderId=A.Id
+                            LEFT JOIN TRN.UserRemarksControl URC ON URC.MasterOrderId=A.Id
+							LEFT JOIN [HKP].[RemarksControl] RC ON RC.Id=URC.RemarkControlId
+                            WHERE A.CompanyId='" + companyId + @"' AND A.Id IN(Select distinct MOI.MasterOrderId from  TRN.SalesOrder SO
+LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId
+LEFT JOIN TRN.MasterOrder MO ON MO.Id = MOI.MasterOrderId
+Where SO.CheckByStatus = 'Checked' AND ApprovedStatus='To Be Approve' AND SO.ApproveBy='" + empId + @"')) AS TEMP WHERE " + strkey + " ORDER BY AddedDate Desc";
+
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public IEnumerable<object> GetSOListForCheck(string masterItemId)
+        {
+            try
+            {
+                var sql = @"SELECT  SO.Id,SO.ParentId
+                            , SO.MasterOrderItemId
+                            , MOI.MaterialMasterId
+                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), SO.DeliveryDate, 106),' ','-')
+                            , SO.DestinationId, D.UserName Destination
+                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), SO.CommitmentDate, 106),' ','-')
+                            , SO.ShipmentModeId
+                            , SO.CustomerPOId
+		                    , po.PONumber
+                            ,SO.DestinationDescription
+                            , SO.OrderStatusId, SO.OrderCategoryId
+                            , SO.SOType, SO.ResponsiblePersonId
+                            , SO.UpCharge, SO.Qty, SO.Rate, SO.IsFirstEntry,SO.Discount,EMP.EmployeeName ResponsiblePersonName
+                            ,FORMAT (SO.LSD, 'dd-MMM-yyyy') as LSD ,FORMAT (SO.MainRawMaterialInhouseDate, 'dd-MMM-yyyy') as MainRawMaterialInhouseDate
+                            ,FORMAT (SO.OtherRawMaterialInhouseDate, 'dd-MMM-yyyy') as OtherRawMaterialInhouseDate
+                            ,FORMAT (SO.PlanExFactoryDate, 'dd-MMM-yyyy') as PlanExFactoryDate
+                            , hasFirst=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[FirstCharacteristics] WHERE SalesOrderId=SO.Id)
+                            --, (SELECT ISNULL(sum(Qty),0) total FROM(
+							--		select Qty FROM  TRN.FirstCharacteristics AS FCS WHERE SO.Id= FCS.SalesOrderId
+							--		union
+							--		select Qty FROM TRN.SecondCharacteristics AS SCS WHERE SO.Id= SCS.SalesOrderId
+							--		union
+							--		select Qty FROM TRN.ThirdCharacteristics AS TCS WHERE SO.Id= TCS.SalesOrderId
+							--	) SoT ) as SKUQty
+                            ,(SELECT ISNULL(sum(Qty),0) FROM TRN.FirstCharacteristics AS FCS WHERE SO.Id= FCS.SalesOrderId) SKUQty
+                            , isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id)
+                            ,ISNULL(POD.ProductionOrderId,'') ProductionOrderId,SO.Reason,SO.Description,SO.CM,SO.SalesOrderYear,SO.WeekNo
+                            ,SO.ProductionBookedQty,SO.ProductionBookingLevel,SO.SalesExpense,SO.CM,SO.DirectMaterialCost,SO.DirectProcessCost,SO.Commission,SO.ValueLoss,SO.Other,SO.StockResponsiblePersonId,SO.ShipmentFromStock,SO.ProductionType,SEMP.EmployeeName StockResponsiblePerson,SO.PackingTypeId,PT.UserName PackingType,SO.ContractId,C.ContractNo,SO.CheckByStatus,SO.CheckByDate,SO.ApproveBy
+                    FROM [TRN].[SalesOrder] AS SO
+                   -- LEFT JOIN TRN.FirstCharacteristics SKU ON SKU.SalesOrderId=SO.Id
+                    JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+                    LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+                    LEFT JOIN dbo.EmployeeInformation AS EMP ON EMP.SystemId = SO.ResponsiblePersonId
+                    LEFT JOIN dbo.EmployeeInformation AS SEMP ON SEMP.SystemId = SO.StockResponsiblePersonId
+                    LEFT JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
+                    LEFT JOIN [MST].[Destination] D ON D.Id=SO.DestinationId
+                    LEFT JOIN HKP.PackingType PT ON PT.Id=SO.PackingTypeId
+                    LEFT JOIN dbo.Contract C ON C.Id=SO.ContractId
+                    WHERE SO.MasterOrderItemId='" + masterItemId + "' AND SO.CheckByStatus IN('To Be Check','Reject') ORDER BY SO.DeliveryDate";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetSOListForApprove(string masterItemId)
+        {
+            try
+            {
+                var sql = @"SELECT  SO.Id,SO.ParentId
+                            , SO.MasterOrderItemId
+                            , MOI.MaterialMasterId
+                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), SO.DeliveryDate, 106),' ','-')
+                            , SO.DestinationId, D.UserName Destination
+                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), SO.CommitmentDate, 106),' ','-')
+                            , SO.ShipmentModeId
+                            , SO.CustomerPOId
+		                    , po.PONumber
+                            ,SO.DestinationDescription
+                            , SO.OrderStatusId, SO.OrderCategoryId
+                            , SO.SOType, SO.ResponsiblePersonId
+                            , SO.UpCharge, SO.Qty, SO.Rate, SO.IsFirstEntry,SO.Discount,EMP.EmployeeName ResponsiblePersonName
+                            ,FORMAT (SO.LSD, 'dd-MMM-yyyy') as LSD ,FORMAT (SO.MainRawMaterialInhouseDate, 'dd-MMM-yyyy') as MainRawMaterialInhouseDate
+                            ,FORMAT (SO.OtherRawMaterialInhouseDate, 'dd-MMM-yyyy') as OtherRawMaterialInhouseDate
+                            ,FORMAT (SO.PlanExFactoryDate, 'dd-MMM-yyyy') as PlanExFactoryDate
+                            , hasFirst=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[FirstCharacteristics] WHERE SalesOrderId=SO.Id)
+                            --, (SELECT ISNULL(sum(Qty),0) total FROM(
+							--		select Qty FROM  TRN.FirstCharacteristics AS FCS WHERE SO.Id= FCS.SalesOrderId
+							--		union
+							--		select Qty FROM TRN.SecondCharacteristics AS SCS WHERE SO.Id= SCS.SalesOrderId
+							--		union
+							--		select Qty FROM TRN.ThirdCharacteristics AS TCS WHERE SO.Id= TCS.SalesOrderId
+							--	) SoT ) as SKUQty
+                            ,(SELECT ISNULL(sum(Qty),0) FROM TRN.FirstCharacteristics AS FCS WHERE SO.Id= FCS.SalesOrderId) SKUQty
+                            , isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id)
+                            ,ISNULL(POD.ProductionOrderId,'') ProductionOrderId,SO.Reason,SO.Description,SO.CM,SO.SalesOrderYear,SO.WeekNo
+                            ,SO.ProductionBookedQty,SO.ProductionBookingLevel,SO.SalesExpense,SO.CM,SO.DirectMaterialCost,SO.DirectProcessCost,SO.Commission,SO.ValueLoss,SO.Other,SO.StockResponsiblePersonId,SO.ShipmentFromStock,SO.ProductionType,SEMP.EmployeeName StockResponsiblePerson,SO.PackingTypeId,PT.UserName PackingType,SO.ContractId,C.ContractNo,SO.CheckByStatus,SO.CheckByDate,SO.ApproveBy,SO.ApprovedStatus
+                    FROM [TRN].[SalesOrder] AS SO
+                   -- LEFT JOIN TRN.FirstCharacteristics SKU ON SKU.SalesOrderId=SO.Id
+                    JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+                    LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+                    LEFT JOIN dbo.EmployeeInformation AS EMP ON EMP.SystemId = SO.ResponsiblePersonId
+                    LEFT JOIN dbo.EmployeeInformation AS SEMP ON SEMP.SystemId = SO.StockResponsiblePersonId
+                    LEFT JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
+                    LEFT JOIN [MST].[Destination] D ON D.Id=SO.DestinationId
+                    LEFT JOIN HKP.PackingType PT ON PT.Id=SO.PackingTypeId
+                    LEFT JOIN dbo.Contract C ON C.Id=SO.ContractId
+                    WHERE SO.MasterOrderItemId='" + masterItemId + "' AND SO.CheckByStatus = 'Checked' AND SO.ApprovedStatus IN('To Be Approve','Reject') ORDER BY SO.DeliveryDate";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetApproveByCboList()
+        {
+            var sql = @"SELECT E.SystemId As Value, E.EmployeeName As Text FROM dbo.AuthorizationConfig A 
+                          INNER JOIN dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          WHERE A.ActionStatus='SalesOrderApproveBy' AND E.EmployeeStatus='Active'";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
     }
 }
