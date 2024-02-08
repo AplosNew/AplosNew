@@ -88,6 +88,10 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
         , PackingTypeId: null
         , UserName: null
         , MarkerId: null
+        , MarkerGSM: null
+        , MarkerWidth: null
+        , MarkerLength: null
+        , MarkerEfficiency: null
         , Remarks: null
         , NoOfPly: 0
         , SKU1ColorId: null
@@ -268,9 +272,9 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
         }).then(function successCallback(response) {
             $scope.CutPlanList = response.data;
             for (var i = 0; i < $scope.CutPlanList.length; i++) {
-                if ($scope.CutPlanList[i].BalanceQty == 0) {
-                    $scope.CutPlanList[i].Status = false;
-                }
+                //if ($scope.CutPlanList[i].BalanceQty == 0) {
+                //    $scope.CutPlanList[i].Status = false;
+                //}
                 if ($scope.CutPlanList[i].BalanceQty > 0) {
                     $scope.CutPlanMinQtyList.push($scope.CutPlanList[i].BalanceQty);
                 }
@@ -297,7 +301,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
             $scope.CutPlanMinimumQtyList = [];
             $scope.CutPlanRatioList = [];
             for (var i = 0; i < $scope.CutPlanList.length; i++) {
-                if ($scope.CutPlanList[i].Status == true) {
+                if ($scope.CutPlanList[i].Status == true || $scope.CutPlanList[i].BalanceQty > 0) {
                     $scope.CutPlanMinimumQtyList.push($scope.CutPlanList[i].BalanceQty);
                 }
             }
@@ -340,7 +344,8 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
             }
             $scope.CutPlanRatioList = [];
             for (var i = 0; i < $scope.CutPlanList.length; i++) {
-                if ($scope.CutPlanList[i].Status == true) {
+                //if ($scope.CutPlanList[i].Status == true || $scope.CutPlanList[i].BalanceQty > 0) {
+                if ($scope.CutPlanList[i].BalanceQty > 0) {
                     $scope.CutPlanList[i].Ratio = Math.floor($scope.CutPlanList[i].BalanceQty / $scope.allotedheaderNew.NoOfPly);
                     $scope.CutPlanList[i].CurrentAllotedQty = $scope.CutPlanList[i].Ratio * $scope.allotedheaderNew.NoOfPly;
                     $scope.cutplanNew.TotalRatio = $scope.cutplanNew.TotalRatio + $scope.CutPlanList[i].Ratio;
@@ -472,9 +477,9 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
             try {
                 $scope.SaveList = [];
                 for (var i = 0; i < $scope.CutPlanList.length; i++) {
-                    if ($scope.CutPlanList[i].Status == true && $scope.CutPlanList[i].BalanceQty > 0 && $scope.CutPlanList[i].Ratio > 0) {
+                    //if ($scope.CutPlanList[i].Status == true && $scope.CutPlanList[i].BalanceQty > 0 && $scope.CutPlanList[i].Ratio > 0) {
                         $scope.SaveList.push($scope.CutPlanList[i]);
-                    }
+                  /*  }*/
                 }
                 $http({
                     method: "POST",
@@ -529,6 +534,10 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
         $scope.allotedheaderNew.PackingTypeId = null;
         $scope.allotedheaderNew.UserName = null;
         $scope.allotedheaderNew.MarkerId = null;
+        $scope.allotedheaderNew.MarkerWidth = null;
+        $scope.allotedheaderNew.MarkerGSM = null;
+        $scope.allotedheaderNew.MarkerLength = null;
+        $scope.allotedheaderNew.MarkerEfficiency = null;
         $scope.allotedheaderNew.Remarks = null;
         $scope.allotedheaderNew.NoOfPly = null;
     }
@@ -541,6 +550,10 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
             , PackingTypeId: null
             , UserName: null
             , MarkerId: null
+            , MarkerGSM: null
+            , MarkerWidth: null
+            , MarkerLength: null
+            , MarkerEfficiency: null
             , Remarks: null
             , NoOfPly: 0
             , SKU1ColorId: null

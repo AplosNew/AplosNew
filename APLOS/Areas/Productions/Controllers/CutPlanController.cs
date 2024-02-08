@@ -127,11 +127,30 @@ namespace Aplos.Areas.Productions.Controllers
 
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
+                    if(data["MarkerGSM"] == null)
+                    {
+                        throw new Exception("GSM is missing..");
+                    }
+                    if (data["MarkerWidth"] == null)
+                    {
+                        throw new Exception("MarkerWidth is missing..");
+                    }
+                    if (data["MarkerLength"] == null)
+                    {
+                        throw new Exception("MarkerLength is missing..");
+                    }
+                    if (data["NoOfPly"] == null)
+                    {
+                        throw new Exception("NoOfPly is missing..");
+                    }
+                    else
+                    { 
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "AllotedHeader", out _Id);
                         data["Id"] = _Id;
                         data["MasterPlanId"] = MasterPlanId;
                         AddNewRow(dsMaster.Tables[0], data);
+                    }
                 }
                 else
                 {

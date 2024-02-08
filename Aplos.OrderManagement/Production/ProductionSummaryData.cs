@@ -7366,117 +7366,163 @@ and R1.AllotedHeaderId = (select top 1 Id from[MST].[AllotedHeader] where Master
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
-        public IEnumerable<object> GetTotalStatusList(string MasterPlanId, string ColorId)
-        {
-            string sql = @"select sum(MPC.FinalQty) FinalQty, sum(MPC.AllotedQty) AllotedQty , sum(MPC.FinalQty)-sum(MPC.AllotedQty) BalanceQty from [MST].[MasterPlanChild] MPC 
-where MPC.MasterPlanId='" + MasterPlanId + "' and MPC.SKU1NameId='" + ColorId + "'";
-            return _sqlRepository.GetDataCollection(sql, null);
-        }
-
+        
         public IEnumerable<object> GetCutPlanDetailsR1List(string MasterPlanId, string ColorId)
         {
-            string sql = @"select R1.AllotedHeaderId R1Id,R1.Id,AH.MasterPlanId,(select UserName from HKP.CharacteristicsValue where Id=AH.SKU1ColorId) Color,
-AH.SKU1ColorId,(select UserName from HKP.CharacteristicsValue where Id=MPC.SKU2NameId) Size,MPC.SKU2NameId,
-MPC.FinalQty,AH.UserName UserNameR1,AH.NoOfPly NoOfPlyR1,AH.MarkerId MarkerIdR1,AH.PackingTypeId PackingTypeIdR1,R1.Ratio Ratio1,MPC.AllotedQty,R1.AllotedQty AllotedQtyR1,MPC.FinalQty-R1.AllotedQty BalanceToAllotedR1,R1.Remarks,R1.MasterPlanChildId
-from [MST].[AllotedHeader] AH
-left join [MST].[AllotedChild] R1 on R1.AllotedHeaderId=AH.Id
-left join [MST].[MasterPlanChild] MPC on MPC.Id=R1.MasterPlanChildId and MPC.MasterPlanId='" + MasterPlanId + "' and MPC.SKU1NameId='" + ColorId + @"'
-where AH.MasterPlanId='" + MasterPlanId + "' and AH.SKU1ColorId='" + ColorId + @"' and R1.AllotedHeaderId = (select top 1 Id from[MST].[AllotedHeader] where MasterPlanId = '" + MasterPlanId + "' and SKU1ColorId = '" + ColorId + @"') order by (select Sequence from HKP.CharacteristicsValue where Id=MPC.SKU2NameId)";
+            string sql = @"select AH.MasterPlanId,AC.AllotedHeaderId R1Id,AC.Id,MPC.Id MasterPlanChildId,CV.UserName Size,MPC.FinalQty,CVC.UserName Color,AH.SKU1ColorId,MPC.SKU2NameId,
+AH.UserName UserNameR1,AH.NoOfPly NoOfPlyR1,AH.MarkerId MarkerIdR1,AH.PackingTypeId PackingTypeIdR1,
+AC.Ratio Ratio1,AC.AllotedQty AllotedQtyR1
+from [MST].[MasterPlanChild] MPC 
+left join HKP.CharacteristicsValue CV on CV.Id=MPC.SKU2NameId
+left join [MST].[AllotedChild] AC on AC.MasterPlanChildId=MPC.Id
+left join [MST].[AllotedHeader] AH on AH.Id=AC.AllotedHeaderId
+left join HKP.CharacteristicsValue CVC on CVC.Id=AH.SKU1ColorId
+where MPC.MasterPlanId='" + MasterPlanId + "' and MPC.SKU1NameId='" + ColorId + @"' and AC.AllotedHeaderId = (select top 1 Id from[MST].[AllotedHeader] where MasterPlanId = '" + MasterPlanId + "' and SKU1ColorId = '" + ColorId + @"') order by CV.Sequence";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
         public IEnumerable<object> GetCutPlanDetailsR2List(string MasterPlanId, string ColorId)
         {
-            string sql = @"select distinct (select Id from [MST].[AllotedChild] where MasterPlanChildId=(select Id from [MST].[MasterPlanChild]  where MasterPlanId = '" + MasterPlanId + "' and SKU1NameId = '" + ColorId + @"'
-and SKU2NameId=MPC.SKU2NameId and Ratio=floor((MPC.FinalQty-R1.AllotedQty)/Ratio2.NoOfPlyR2)) and AllotedQty=floor((MPC.FinalQty-R1.AllotedQty)/Ratio2.NoOfPlyR2)*Ratio2.NoOfPlyR2) Id,AH.MasterPlanId,(select UserName from HKP.CharacteristicsValue where Id=AH.SKU1ColorId) Color,
-AH.SKU1ColorId,(select UserName from HKP.CharacteristicsValue where Id=MPC.SKU2NameId) Size,MPC.SKU2NameId,
-Ratio2.UserNameR2,Ratio2.NoOfPlyR2,Ratio2.MarkerIdR2,Ratio2.PackingTypeIdR2,Ratio2.R2Id,(select Id from [MST].[MasterPlanChild]  where MasterPlanId = '" + MasterPlanId + "' and SKU1NameId = '" + ColorId + @"'
-and SKU2NameId=MPC.SKU2NameId) as MasterPlanChildId,
-floor((MPC.FinalQty-R1.AllotedQty)/Ratio2.NoOfPlyR2) Ratio2,MPC.AllotedQty,
-floor((MPC.FinalQty-R1.AllotedQty)/Ratio2.NoOfPlyR2)*Ratio2.NoOfPlyR2 AllotedQtyR2,
-(MPC.FinalQty-R1.AllotedQty)-(floor((MPC.FinalQty-R1.AllotedQty)/Ratio2.NoOfPlyR2)*Ratio2.NoOfPlyR2) BalanceToAllotedR2,MPC.FinalQty-MPC.AllotedQty BalanceToAllotedR1
-,Ratio2.Remarks
-from [MST].[AllotedHeader] AH
-left join [MST].[AllotedChild] R1 on R1.AllotedHeaderId=AH.Id
-left join [MST].[MasterPlanChild] MPC on MPC.Id=R1.MasterPlanChildId and MPC.MasterPlanId='" + MasterPlanId + "' and MPC.SKU1NameId='" + ColorId + @"'
-left join(
-select distinct R2.Id,AH.MasterPlanId, AH.SKU1ColorId, MPC.FinalQty, UserName UserNameR2, NoOfPly NoOfPlyR2, R2.Ratio Ra2, R2.AllotedQty AllotedQtyR2, MPC.FinalQty-R2.AllotedQty BalanceToAllotedR2,R2.Remarks,AH.MarkerId MarkerIdR2,AH.PackingTypeId PackingTypeIdR2,R2.AllotedHeaderId R2Id from [MST].[AllotedHeader] AH
-      left join [MST].[AllotedChild] R2 on R2.AllotedHeaderId = AH.Id
-left join[MST].[MasterPlanChild] MPC on MPC.Id = R2.MasterPlanChildId and MPC.MasterPlanId = '" + MasterPlanId + "' and MPC.SKU1NameId = '" + ColorId + @"'
-where AH.MasterPlanId = '" + MasterPlanId + "' and AH.SKU1ColorId = '" + ColorId + @"'
-and R2.AllotedHeaderId = (select Id from [MST].[AllotedHeader] where MasterPlanId = '" + MasterPlanId + "' and SKU1ColorId = '" + ColorId + @"' ORDER BY Id OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY)) Ratio2 on Ratio2.MasterPlanId = AH.MasterPlanId
-where AH.MasterPlanId = '" + MasterPlanId + "' and AH.SKU1ColorId = '" + ColorId + @"'
-and R1.AllotedHeaderId = (select top 1 Id from[MST].[AllotedHeader] where MasterPlanId = '" + MasterPlanId + "' and SKU1ColorId = '" + ColorId + @"')";
+            string sql = @"select AH.MasterPlanId,AC.AllotedHeaderId R2Id,AC.Id,MPC.Id MasterPlanChildId,CV.UserName Size,MPC.FinalQty,CVC.UserName Color,AH.SKU1ColorId,MPC.SKU2NameId,
+AH.UserName UserNameR2,AH.NoOfPly NoOfPlyR2,AH.MarkerId MarkerIdR2,AH.PackingTypeId PackingTypeIdR2,
+AC.Ratio Ratio2,AC.AllotedQty AllotedQtyR2,MPC.FinalQty-MPC.AllotedQty BalanceToAllotedR1
+from [MST].[MasterPlanChild] MPC 
+left join HKP.CharacteristicsValue CV on CV.Id=MPC.SKU2NameId
+left join [MST].[AllotedChild] AC on AC.MasterPlanChildId=MPC.Id
+left join [MST].[AllotedHeader] AH on AH.Id=AC.AllotedHeaderId
+left join HKP.CharacteristicsValue CVC on CVC.Id=AH.SKU1ColorId
+where MPC.MasterPlanId = '" + MasterPlanId + "' and MPC.SKU1NameId = '" + ColorId + @"'
+and AC.AllotedHeaderId = (select Id from[MST].[AllotedHeader] where MasterPlanId = '" + MasterPlanId + "' and SKU1ColorId = '" + ColorId + @"' ORDER BY Id OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY) order by CV.Sequence ";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
         public IEnumerable<object> GetCutPlanDetailsR3List(string MasterPlanId, string ColorId)
         {
-            string sql = @"select distinct (select Id from [MST].[AllotedChild] where MasterPlanChildId=(select Id from [MST].[MasterPlanChild]  where MasterPlanId = '" + MasterPlanId + "' and SKU1NameId = '" + ColorId + @"'
-and SKU2NameId=MPC.SKU2NameId) and Ratio=floor(((MPC.FinalQty-R1.AllotedQty)-(floor((MPC.FinalQty-R1.AllotedQty)/Ratio2.NoOfPlyR2)*Ratio2.NoOfPlyR2))/Ratio3.NoOfPlyR3) and AllotedQty=floor(((MPC.FinalQty-R1.AllotedQty)-(floor((MPC.FinalQty-R1.AllotedQty)/Ratio2.NoOfPlyR2)*Ratio2.NoOfPlyR2))/Ratio3.NoOfPlyR3)*Ratio3.NoOfPlyR3) Id,AH.MasterPlanId,(select UserName from HKP.CharacteristicsValue where Id=AH.SKU1ColorId) Color,
-AH.SKU1ColorId,(select UserName from HKP.CharacteristicsValue where Id=MPC.SKU2NameId) Size,MPC.SKU2NameId,
-(MPC.FinalQty-MPC.AllotedQty)-(floor((MPC.FinalQty-MPC.AllotedQty)/Ratio2.NoOfPlyR2)*Ratio2.NoOfPlyR2) BalanceToAllotedR2,
-Ratio3.UserNameR3,Ratio3.NoOfPlyR3,Ratio3.MarkerIdR3,Ratio3.PackingTypeIdR3,Ratio3.R3Id,(select Id from [MST].[MasterPlanChild]  where MasterPlanId = '" + MasterPlanId + "' and SKU1NameId = '" + ColorId + @"'
-and SKU2NameId=MPC.SKU2NameId) as MasterPlanChildId,
-floor(((MPC.FinalQty-R1.AllotedQty)-(floor((MPC.FinalQty-R1.AllotedQty)/Ratio2.NoOfPlyR2)*Ratio2.NoOfPlyR2))/Ratio3.NoOfPlyR3) Ratio3,
-floor(((MPC.FinalQty-R1.AllotedQty)-(floor((MPC.FinalQty-R1.AllotedQty)/Ratio2.NoOfPlyR2)*Ratio2.NoOfPlyR2))/Ratio3.NoOfPlyR3)*Ratio3.NoOfPlyR3 AllotedQtyR3,
-(MPC.FinalQty-R1.AllotedQty)-(floor((MPC.FinalQty-R1.AllotedQty)/Ratio2.NoOfPlyR2)*Ratio2.NoOfPlyR2)-floor(((MPC.FinalQty-R1.AllotedQty)-(floor((MPC.FinalQty-R1.AllotedQty)/Ratio2.NoOfPlyR2)*Ratio2.NoOfPlyR2))/Ratio3.NoOfPlyR3)*Ratio3.NoOfPlyR3 BalanceToAllotedR3,
-Ratio3.Remarks
-from [MST].[AllotedHeader] AH
-left join [MST].[AllotedChild] R1 on R1.AllotedHeaderId=AH.Id
-left join [MST].[MasterPlanChild] MPC on MPC.Id=R1.MasterPlanChildId and MPC.MasterPlanId='" + MasterPlanId + "' and MPC.SKU1NameId='" + ColorId + @"'
-left join(
-select distinct R2.Id,AH.MasterPlanId, AH.SKU1ColorId, MPC.FinalQty, UserName UserNameR2, NoOfPly NoOfPlyR2, R2.Ratio Ra2, R2.AllotedQty AllotedQtyR2, MPC.FinalQty-R2.AllotedQty BalanceToAllotedR2 from [MST].[AllotedHeader] AH
-left join [MST].[AllotedChild] R2 on R2.AllotedHeaderId = AH.Id
-left join [MST].[MasterPlanChild] MPC on MPC.Id = R2.MasterPlanChildId and MPC.MasterPlanId = '" + MasterPlanId + "' and MPC.SKU1NameId = '" + ColorId + @"'
-where AH.MasterPlanId = '" + MasterPlanId + "' and AH.SKU1ColorId = '" + ColorId + @"'
-and R2.AllotedHeaderId = (select Id from [MST].[AllotedHeader] where MasterPlanId = '" + MasterPlanId + "' and SKU1ColorId = '" + ColorId + @"' ORDER BY Id OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY)) Ratio2 on Ratio2.MasterPlanId = AH.MasterPlanId
-left join(
-select AH.MasterPlanId, AH.SKU1ColorId, MPC.FinalQty, UserName UserNameR3, NoOfPly NoOfPlyR3, R2.Ratio Ra3, R2.AllotedQty AllotedQtyR3, MPC.FinalQty-R2.AllotedQty BalanceToAllotedR3,R2.Remarks,AH.MarkerId MarkerIdR3,AH.PackingTypeId PackingTypeIdR3,R2.AllotedHeaderId R3Id from [MST].[AllotedHeader] AH
-left join [MST].[AllotedChild] R2 on R2.AllotedHeaderId = AH.Id
-left join[MST].[MasterPlanChild] MPC on MPC.Id = R2.MasterPlanChildId and MPC.MasterPlanId = '" + MasterPlanId + "' and MPC.SKU1NameId = '" + ColorId + @"'
-where AH.MasterPlanId = '" + MasterPlanId + "' and AH.SKU1ColorId = '" + ColorId + @"'
-and R2.AllotedHeaderId = (select Id from[MST].[AllotedHeader] where MasterPlanId = '" + MasterPlanId + "' and SKU1ColorId = '" + ColorId + @"' ORDER BY Id OFFSET 2 ROWS FETCH NEXT 1 ROWS ONLY)) Ratio3 on Ratio3.MasterPlanId = AH.MasterPlanId
-where AH.MasterPlanId = '" + MasterPlanId + "' and AH.SKU1ColorId = '" + ColorId + @"'
-and R1.AllotedHeaderId = (select top 1 Id from[MST].[AllotedHeader] where MasterPlanId = '" + MasterPlanId + "' and SKU1ColorId = '" + ColorId + @"')";
+            string sql = @"select AH.MasterPlanId,AC.AllotedHeaderId R3Id,AC.Id,MPC.Id MasterPlanChildId,CV.UserName Size,MPC.FinalQty,CVC.UserName Color,AH.SKU1ColorId,MPC.SKU2NameId,
+AH.UserName UserNameR3,AH.NoOfPly NoOfPlyR3,AH.MarkerId MarkerIdR3,AH.PackingTypeId PackingTypeIdR3,
+AC.Ratio Ratio3,AC.AllotedQty AllotedQtyR3,MPC.FinalQty-MPC.AllotedQty  BalanceToAllotedR2 from [MST].[MasterPlanChild] MPC 
+left join HKP.CharacteristicsValue CV on CV.Id=MPC.SKU2NameId
+left join [MST].[AllotedChild] AC on AC.MasterPlanChildId=MPC.Id
+left join [MST].[AllotedHeader] AH on AH.Id=AC.AllotedHeaderId
+left join HKP.CharacteristicsValue CVC on CVC.Id=AH.SKU1ColorId
+where MPC.MasterPlanId = '" + MasterPlanId + "' and MPC.SKU1NameId = '" + ColorId + @"'
+and AC.AllotedHeaderId = (select Id from[MST].[AllotedHeader] where MasterPlanId = '" + MasterPlanId + "' and SKU1ColorId = '" + ColorId + @"' ORDER BY Id OFFSET 2 ROWS FETCH NEXT 1 ROWS ONLY) order by CV.Sequence";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
         public IEnumerable<object> GetCutPlanDetailsR4List(string MasterPlanId, string ColorId)
         {
-            string sql = @"select distinct (select Id from [MST].[AllotedChild] where MasterPlanChildId=(select Id from [MST].[MasterPlanChild]  where MasterPlanId = '" + MasterPlanId + "' and SKU1NameId = '" + ColorId + @"'
-and SKU2NameId=MPC.SKU2NameId) and Ratio=floor(((MPC.FinalQty-R1.AllotedQty)-(floor((MPC.FinalQty-R1.AllotedQty)/Ratio2.NoOfPlyR2)*Ratio2.NoOfPlyR2)-floor(((MPC.FinalQty-R1.AllotedQty)-(floor((MPC.FinalQty-R1.AllotedQty)/Ratio2.NoOfPlyR2)*Ratio2.NoOfPlyR2))/Ratio3.NoOfPlyR3)*Ratio3.NoOfPlyR3)/Ratio4.NoOfPlyR4) and AllotedQty=floor(((MPC.FinalQty-R1.AllotedQty)-(floor((MPC.FinalQty-R1.AllotedQty)/Ratio2.NoOfPlyR2)*Ratio2.NoOfPlyR2)-floor(((MPC.FinalQty-R1.AllotedQty)-(floor((MPC.FinalQty-R1.AllotedQty)/Ratio2.NoOfPlyR2)*Ratio2.NoOfPlyR2))/Ratio3.NoOfPlyR3)*Ratio3.NoOfPlyR3)/Ratio4.NoOfPlyR4)*Ratio4.NoOfPlyR4) Id,AH.MasterPlanId,(select UserName from HKP.CharacteristicsValue where Id=AH.SKU1ColorId) Color,
-AH.SKU1ColorId,(select UserName from HKP.CharacteristicsValue where Id=MPC.SKU2NameId) Size,MPC.SKU2NameId,
-(MPC.FinalQty-MPC.AllotedQty)-(floor((MPC.FinalQty-MPC.AllotedQty)/Ratio2.NoOfPlyR2)*Ratio2.NoOfPlyR2)-floor(((MPC.FinalQty-MPC.AllotedQty)-(floor((MPC.FinalQty-MPC.AllotedQty)/Ratio2.NoOfPlyR2)*Ratio2.NoOfPlyR2))/Ratio3.NoOfPlyR3)*Ratio3.NoOfPlyR3 BalanceToAllotedR3
-,Ratio4.UserNameR4,Ratio4.NoOfPlyR4,(select Id from [MST].[MasterPlanChild]  where MasterPlanId = '" + MasterPlanId + "' and SKU1NameId = '" + ColorId + @"'
-and SKU2NameId=MPC.SKU2NameId) as MasterPlanChildId,
-floor(((MPC.FinalQty-R1.AllotedQty)-(floor((MPC.FinalQty-R1.AllotedQty)/Ratio2.NoOfPlyR2)*Ratio2.NoOfPlyR2)-floor(((MPC.FinalQty-R1.AllotedQty)-(floor((MPC.FinalQty-R1.AllotedQty)/Ratio2.NoOfPlyR2)*Ratio2.NoOfPlyR2))/Ratio3.NoOfPlyR3)*Ratio3.NoOfPlyR3)/Ratio4.NoOfPlyR4) Ratio4,
-floor(((MPC.FinalQty-R1.AllotedQty)-(floor((MPC.FinalQty-R1.AllotedQty)/Ratio2.NoOfPlyR2)*Ratio2.NoOfPlyR2)-floor(((MPC.FinalQty-R1.AllotedQty)-(floor((MPC.FinalQty-R1.AllotedQty)/Ratio2.NoOfPlyR2)*Ratio2.NoOfPlyR2))/Ratio3.NoOfPlyR3)*Ratio3.NoOfPlyR3)/Ratio4.NoOfPlyR4)*Ratio4.NoOfPlyR4 AllotedQtyR4,
-(MPC.FinalQty-R1.AllotedQty)-(floor((MPC.FinalQty-R1.AllotedQty)/Ratio2.NoOfPlyR2)*Ratio2.NoOfPlyR2)-floor(((MPC.FinalQty-R1.AllotedQty)-(floor((MPC.FinalQty-R1.AllotedQty)/Ratio2.NoOfPlyR2)*Ratio2.NoOfPlyR2))/Ratio3.NoOfPlyR3)*Ratio3.NoOfPlyR3-floor(((MPC.FinalQty-R1.AllotedQty)-(floor((MPC.FinalQty-R1.AllotedQty)/Ratio2.NoOfPlyR2)*Ratio2.NoOfPlyR2)-floor(((MPC.FinalQty-R1.AllotedQty)-(floor((MPC.FinalQty-R1.AllotedQty)/Ratio2.NoOfPlyR2)*Ratio2.NoOfPlyR2))/Ratio3.NoOfPlyR3)*Ratio3.NoOfPlyR3)/Ratio4.NoOfPlyR4)*Ratio4.NoOfPlyR4 BalanceToAllotedR4,
-Ratio4.Remarks
-from [MST].[AllotedHeader] AH
-left join [MST].[AllotedChild] R1 on R1.AllotedHeaderId=AH.Id
-left join [MST].[MasterPlanChild] MPC on MPC.Id=R1.MasterPlanChildId and MPC.MasterPlanId='" + MasterPlanId + "' and MPC.SKU1NameId='" + ColorId + @"'
-left join(
-select AH.MasterPlanId, AH.SKU1ColorId, MPC.FinalQty, UserName UserNameR2, NoOfPly NoOfPlyR2, R2.Ratio Ra2, R2.AllotedQty AllotedQtyR2, MPC.FinalQty-R2.AllotedQty BalanceToAllotedR2 from[MST].[AllotedHeader] AH
-      left join[MST].[AllotedChild] R2 on R2.AllotedHeaderId = AH.Id
-left join[MST].[MasterPlanChild] MPC on MPC.Id = R2.MasterPlanChildId and MPC.MasterPlanId = '" + MasterPlanId + "' and MPC.SKU1NameId = '" + ColorId + @"'
-where AH.MasterPlanId = '" + MasterPlanId + "' and AH.SKU1ColorId = '" + ColorId + @"'
-and R2.AllotedHeaderId = (select Id from[MST].[AllotedHeader] where MasterPlanId = '" + MasterPlanId + "' and SKU1ColorId = '" + ColorId + @"' ORDER BY Id OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY)) Ratio2 on Ratio2.MasterPlanId = AH.MasterPlanId
-left join(
-select AH.MasterPlanId, AH.SKU1ColorId, MPC.FinalQty, UserName UserNameR3, NoOfPly NoOfPlyR3, R2.Ratio Ra3, R2.AllotedQty AllotedQtyR3, MPC.FinalQty-R2.AllotedQty BalanceToAllotedR3 from[MST].[AllotedHeader] AH
-      left join[MST].[AllotedChild] R2 on R2.AllotedHeaderId = AH.Id
-left join[MST].[MasterPlanChild] MPC on MPC.Id = R2.MasterPlanChildId and MPC.MasterPlanId = '" + MasterPlanId + "' and MPC.SKU1NameId = '" + ColorId + @"'
-where AH.MasterPlanId = '" + MasterPlanId + "' and AH.SKU1ColorId = '" + ColorId + @"'
-and R2.AllotedHeaderId = (select Id from[MST].[AllotedHeader] where MasterPlanId = '" + MasterPlanId + "' and SKU1ColorId = '" + ColorId + @"' ORDER BY Id OFFSET 2 ROWS FETCH NEXT 1 ROWS ONLY)) Ratio3 on Ratio3.MasterPlanId = AH.MasterPlanId
-left join(
-select AH.MasterPlanId, AH.SKU1ColorId, MPC.FinalQty, UserName UserNameR4, NoOfPly NoOfPlyR4, R2.Ratio Ra4, R2.AllotedQty AllotedQtyR4, MPC.FinalQty-R2.AllotedQty BalanceToAllotedR4,R2.Remarks,AH.MarkerId MarkerIdR4,AH.PackingTypeId PackingTypeIdR4,R2.AllotedHeaderId R4Id from [MST].[AllotedHeader] AH
-      left join[MST].[AllotedChild] R2 on R2.AllotedHeaderId = AH.Id
-left join[MST].[MasterPlanChild] MPC on MPC.Id = R2.MasterPlanChildId and MPC.MasterPlanId = '" + MasterPlanId + "' and MPC.SKU1NameId = '" + ColorId + @"'
-where AH.MasterPlanId = '" + MasterPlanId + "' and AH.SKU1ColorId = '" + ColorId + @"'
-and R2.AllotedHeaderId = (select Id from[MST].[AllotedHeader] where MasterPlanId = '" + MasterPlanId + "' and SKU1ColorId = '" + ColorId + @"' ORDER BY Id OFFSET 3 ROWS FETCH NEXT 1 ROWS ONLY)) Ratio4 on Ratio4.MasterPlanId = AH.MasterPlanId
-where AH.MasterPlanId = '" + MasterPlanId + "' and AH.SKU1ColorId = '" + ColorId + @"'
-and R1.AllotedHeaderId = (select top 1 Id from[MST].[AllotedHeader] where MasterPlanId = '" + MasterPlanId + "' and SKU1ColorId = '" + ColorId + @"')";
+            string sql = @"select AH.MasterPlanId,AC.AllotedHeaderId R4Id,AC.Id,MPC.Id MasterPlanChildId,CV.UserName Size,MPC.FinalQty,CVC.UserName Color,AH.SKU1ColorId,MPC.SKU2NameId,
+AH.UserName UserNameR4,AH.NoOfPly NoOfPlyR4,AH.MarkerId MarkerIdR4,AH.PackingTypeId PackingTypeIdR4,
+AC.Ratio Ratio4,AC.AllotedQty AllotedQtyR4,MPC.FinalQty-MPC.AllotedQty BalanceToAllotedR3
+ from [MST].[MasterPlanChild] MPC 
+left join HKP.CharacteristicsValue CV on CV.Id=MPC.SKU2NameId
+left join [MST].[AllotedChild] AC on AC.MasterPlanChildId=MPC.Id
+left join [MST].[AllotedHeader] AH on AH.Id=AC.AllotedHeaderId
+left join HKP.CharacteristicsValue CVC on CVC.Id=AH.SKU1ColorId
+where MPC.MasterPlanId = '" + MasterPlanId + "' and MPC.SKU1NameId = '" + ColorId + @"'
+and AC.AllotedHeaderId = (select Id from[MST].[AllotedHeader] where MasterPlanId = '" + MasterPlanId + "' and SKU1ColorId = '" + ColorId + @"' ORDER BY Id OFFSET 3 ROWS FETCH NEXT 1 ROWS ONLY) order by CV.Sequence";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public IEnumerable<object> GetCutPlanDetailsR5List(string MasterPlanId, string ColorId)
+        {
+            string sql = @"select AH.MasterPlanId,AC.AllotedHeaderId R5Id,AC.Id,MPC.Id MasterPlanChildId,CV.UserName Size,MPC.FinalQty,CVC.UserName Color,AH.SKU1ColorId,MPC.SKU2NameId,
+AH.UserName UserNameR5,AH.NoOfPly NoOfPlyR5,AH.MarkerId MarkerIdR5,AH.PackingTypeId PackingTypeIdR5,
+AC.Ratio Ratio5,AC.AllotedQty AllotedQtyR5,MPC.FinalQty-MPC.AllotedQty BalanceToAllotedR4
+ from [MST].[MasterPlanChild] MPC 
+left join HKP.CharacteristicsValue CV on CV.Id=MPC.SKU2NameId
+left join [MST].[AllotedChild] AC on AC.MasterPlanChildId=MPC.Id
+left join [MST].[AllotedHeader] AH on AH.Id=AC.AllotedHeaderId
+left join HKP.CharacteristicsValue CVC on CVC.Id=AH.SKU1ColorId
+where MPC.MasterPlanId = '" + MasterPlanId + "' and MPC.SKU1NameId = '" + ColorId + @"'
+and AC.AllotedHeaderId = (select Id from[MST].[AllotedHeader] where MasterPlanId = '" + MasterPlanId + "' and SKU1ColorId = '" + ColorId + @"' ORDER BY Id OFFSET 4 ROWS FETCH NEXT 1 ROWS ONLY) order by CV.Sequence";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public IEnumerable<object> GetCutPlanDetailsR6List(string MasterPlanId, string ColorId)
+        {
+            string sql = @"select AH.MasterPlanId,AC.AllotedHeaderId R6Id,AC.Id,MPC.Id MasterPlanChildId,CV.UserName Size,MPC.FinalQty,CVC.UserName Color,AH.SKU1ColorId,MPC.SKU2NameId,
+AH.UserName UserNameR6,AH.NoOfPly NoOfPlyR6,AH.MarkerId MarkerIdR6,AH.PackingTypeId PackingTypeIdR6,
+AC.Ratio Ratio6,AC.AllotedQty AllotedQtyR6,MPC.FinalQty-MPC.AllotedQty BalanceToAllotedR5
+ from [MST].[MasterPlanChild] MPC 
+left join HKP.CharacteristicsValue CV on CV.Id=MPC.SKU2NameId
+left join [MST].[AllotedChild] AC on AC.MasterPlanChildId=MPC.Id
+left join [MST].[AllotedHeader] AH on AH.Id=AC.AllotedHeaderId
+left join HKP.CharacteristicsValue CVC on CVC.Id=AH.SKU1ColorId
+where MPC.MasterPlanId = '" + MasterPlanId + "' and MPC.SKU1NameId = '" + ColorId + @"'
+and AC.AllotedHeaderId = (select Id from[MST].[AllotedHeader] where MasterPlanId = '" + MasterPlanId + "' and SKU1ColorId = '" + ColorId + @"' ORDER BY Id OFFSET 5 ROWS FETCH NEXT 1 ROWS ONLY) order by CV.Sequence";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public IEnumerable<object> GetCutPlanDetailsR7List(string MasterPlanId, string ColorId)
+        {
+            string sql = @"select AH.MasterPlanId,AC.AllotedHeaderId R7Id,AC.Id,MPC.Id MasterPlanChildId,CV.UserName Size,MPC.FinalQty,CVC.UserName Color,AH.SKU1ColorId,MPC.SKU2NameId,
+AH.UserName UserNameR7,AH.NoOfPly NoOfPlyR7,AH.MarkerId MarkerIdR7,AH.PackingTypeId PackingTypeIdR7,
+AC.Ratio Ratio7,AC.AllotedQty AllotedQtyR7,MPC.FinalQty-MPC.AllotedQty BalanceToAllotedR6
+ from [MST].[MasterPlanChild] MPC 
+left join HKP.CharacteristicsValue CV on CV.Id=MPC.SKU2NameId
+left join [MST].[AllotedChild] AC on AC.MasterPlanChildId=MPC.Id
+left join [MST].[AllotedHeader] AH on AH.Id=AC.AllotedHeaderId
+left join HKP.CharacteristicsValue CVC on CVC.Id=AH.SKU1ColorId
+where MPC.MasterPlanId = '" + MasterPlanId + "' and MPC.SKU1NameId = '" + ColorId + @"'
+and AC.AllotedHeaderId = (select Id from[MST].[AllotedHeader] where MasterPlanId = '" + MasterPlanId + "' and SKU1ColorId = '" + ColorId + @"' ORDER BY Id OFFSET 6 ROWS FETCH NEXT 1 ROWS ONLY) order by CV.Sequence";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public IEnumerable<object> GetCutPlanDetailsR8List(string MasterPlanId, string ColorId)
+        {
+            string sql = @"select AH.MasterPlanId,AC.AllotedHeaderId R8Id,AC.Id,MPC.Id MasterPlanChildId,CV.UserName Size,MPC.FinalQty,CVC.UserName Color,AH.SKU1ColorId,MPC.SKU2NameId,
+AH.UserName UserNameR8,AH.NoOfPly NoOfPlyR8,AH.MarkerId MarkerIdR8,AH.PackingTypeId PackingTypeIdR8,
+AC.Ratio Ratio8,AC.AllotedQty AllotedQtyR8,MPC.FinalQty-MPC.AllotedQty BalanceToAllotedR7
+ from [MST].[MasterPlanChild] MPC 
+left join HKP.CharacteristicsValue CV on CV.Id=MPC.SKU2NameId
+left join [MST].[AllotedChild] AC on AC.MasterPlanChildId=MPC.Id
+left join [MST].[AllotedHeader] AH on AH.Id=AC.AllotedHeaderId
+left join HKP.CharacteristicsValue CVC on CVC.Id=AH.SKU1ColorId
+where MPC.MasterPlanId = '" + MasterPlanId + "' and MPC.SKU1NameId = '" + ColorId + @"'
+and AC.AllotedHeaderId = (select Id from[MST].[AllotedHeader] where MasterPlanId = '" + MasterPlanId + "' and SKU1ColorId = '" + ColorId + @"' ORDER BY Id OFFSET 7 ROWS FETCH NEXT 1 ROWS ONLY) order by CV.Sequence";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public IEnumerable<object> GetCutPlanDetailsR9List(string MasterPlanId, string ColorId)
+        {
+            string sql = @"select AH.MasterPlanId,AC.AllotedHeaderId R9Id,AC.Id,MPC.Id MasterPlanChildId,CV.UserName Size,MPC.FinalQty,CVC.UserName Color,AH.SKU1ColorId,MPC.SKU2NameId,
+AH.UserName UserNameR9,AH.NoOfPly NoOfPlyR9,AH.MarkerId MarkerIdR9,AH.PackingTypeId PackingTypeIdR9,
+AC.Ratio Ratio9,AC.AllotedQty AllotedQtyR9,MPC.FinalQty-MPC.AllotedQty BalanceToAllotedR8
+ from [MST].[MasterPlanChild] MPC 
+left join HKP.CharacteristicsValue CV on CV.Id=MPC.SKU2NameId
+left join [MST].[AllotedChild] AC on AC.MasterPlanChildId=MPC.Id
+left join [MST].[AllotedHeader] AH on AH.Id=AC.AllotedHeaderId
+left join HKP.CharacteristicsValue CVC on CVC.Id=AH.SKU1ColorId
+where MPC.MasterPlanId = '" + MasterPlanId + "' and MPC.SKU1NameId = '" + ColorId + @"'
+and AC.AllotedHeaderId = (select Id from[MST].[AllotedHeader] where MasterPlanId = '" + MasterPlanId + "' and SKU1ColorId = '" + ColorId + @"' ORDER BY Id OFFSET 8 ROWS FETCH NEXT 1 ROWS ONLY) order by CV.Sequence";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public IEnumerable<object> GetCutPlanDetailsR10List(string MasterPlanId, string ColorId)
+        {
+            string sql = @"select AH.MasterPlanId,AC.AllotedHeaderId R10Id,AC.Id,MPC.Id MasterPlanChildId,CV.UserName Size,MPC.FinalQty,CVC.UserName Color,AH.SKU1ColorId,MPC.SKU2NameId,
+AH.UserName UserNameR10,AH.NoOfPly NoOfPlyR10,AH.MarkerId MarkerIdR10,AH.PackingTypeId PackingTypeIdR10,
+AC.Ratio Ratio10,AC.AllotedQty AllotedQtyR10,MPC.FinalQty-MPC.AllotedQty BalanceToAllotedR9
+ from [MST].[MasterPlanChild] MPC 
+left join HKP.CharacteristicsValue CV on CV.Id=MPC.SKU2NameId
+left join [MST].[AllotedChild] AC on AC.MasterPlanChildId=MPC.Id
+left join [MST].[AllotedHeader] AH on AH.Id=AC.AllotedHeaderId
+left join HKP.CharacteristicsValue CVC on CVC.Id=AH.SKU1ColorId
+where MPC.MasterPlanId = '" + MasterPlanId + "' and MPC.SKU1NameId = '" + ColorId + @"'
+and AC.AllotedHeaderId = (select Id from[MST].[AllotedHeader] where MasterPlanId = '" + MasterPlanId + "' and SKU1ColorId = '" + ColorId + @"' ORDER BY Id OFFSET 9 ROWS FETCH NEXT 1 ROWS ONLY) order by CV.Sequence";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public IEnumerable<object> GetCutPlanDetailsBalanceList(string MasterPlanId, string ColorId)
+        {
+            string sql = @"select MPC.Id,MPC.FinalQty,CV.UserName Size,(select Sum(AllotedQty) from  [MST].[AllotedChild] where MasterPlanChildId=MPC.Id) AllotedQty,
+MPC.FinalQty-(select Sum(AllotedQty) from  [MST].[AllotedChild] where MasterPlanChildId=MPC.Id) BalanceQty
+from [MST].[MasterPlanChild] MPC 
+left join HKP.CharacteristicsValue CV on CV.Id=MPC.SKU2NameId
+where MPC.MasterPlanId='" + MasterPlanId + "' and MPC.SKU1NameId='" + ColorId + @"' 
+order by CV.Sequence";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 

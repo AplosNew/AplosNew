@@ -128,7 +128,7 @@
                     <div>
                         <div class="col-xs-12 " style="padding-left:20px;">
                             <div class="content-container-fluid" style="color:black;overflow:scroll">
-                                <div id="GridSOItemSelectedForCutPlan" ng-init="chkinit()" ng-show="MasterPlanList.length>0"32321 ej-grid e-datasource="CutPlanListSelected"
+                                <div id="GridSOItemSelectedForCutPlan" ng-init="chkinit()" ng-show="MasterPlanList.length>0" 32321 ej-grid e-datasource="CutPlanListSelected"
                                      e-allowscrolling="true" e-actioncomplete="actionCompleteSelected" e-rowdatabound="rowDataBound"
                                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                                      e-showsummary="true" e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateCutPlan">
@@ -287,6 +287,31 @@
                                                 </div>
                                                 <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal" style="padding-left:10px;">
                                                     <div class="form-group" style="margin-bottom: 0px;">
+                                                        <label class="col-sm-1 control-label">Marker GSM</label>
+                                                        <div class="col-sm-2">
+                                                            @*<div class="select-style">
+                                                                    <select class="form-control" ng-model="allotedheaderNew.MarkerId" name="PackingTypeId" ng-options="item.Value as item.Text for item in PackingTypeLists">
+                                                                        <option value=""></option>
+                                                                    </select>
+                                                                </div>*@
+                                                                <input type="number" ng-model="allotedheaderNew.MarkerGSM" class="form-control" maxlength="100" autocomplete="off">
+                                                        </div>
+                                                        <label class="col-sm-1 control-label">Marker Width</label>
+                                                        <div class="col-sm-1">
+                                                            <input type="number" ng-model="allotedheaderNew.MarkerWidth" class="form-control" maxlength="100" autocomplete="off">
+                                                        </div>
+                                                        <label class="col-sm-1 control-label">Marker Length</label>
+                                                        <div class="col-sm-1">
+                                                            <input type="number" ng-model="allotedheaderNew.MarkerLength" class="form-control" maxlength="100" autocomplete="off">
+                                                        </div>
+                                                        <label class="col-sm-1 control-label">Marker Efficiency</label>
+                                                        <div class="col-sm-1">
+                                                            <input type="number" ng-model="allotedheaderNew.MarkerEfficiency" class="form-control" maxlength="100" autocomplete="off">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal" style="padding-left:10px;">
+                                                    <div class="form-group" style="margin-bottom: 0px;">
                                                         <label class="col-sm-1 control-label">Packing Type</label>
                                                         <div class="col-sm-2">
                                                             <div class="select-style">
@@ -297,14 +322,7 @@
                                                         </div>
                                                         <label class="col-sm-1 control-label">User Name</label>
                                                         <div class="col-sm-1"><input type="text" ng-model="allotedheaderNew.UserName" class="form-control" maxlength="100" autocomplete="off"></div>
-                                                        <label class="col-sm-1 control-label">Marker</label>
-                                                        <div class="col-sm-1">
-                                                            <div class="select-style">
-                                                                <select class="form-control" ng-model="allotedheaderNew.MarkerId" name="PackingTypeId" ng-options="item.Value as item.Text for item in PackingTypeLists">
-                                                                    <option value=""></option>
-                                                                </select>
-                                                            </div>
-                                                        </div>
+
                                                         <label class="col-sm-1 control-label">Remarks</label>
                                                         <div class="col-sm-1">
                                                             <input type="text" ng-model="allotedheaderNew.Remarks" class="form-control" maxlength="100" autocomplete="off">
@@ -369,7 +387,7 @@
                                                     </script>
                                                     <script type="text/template" id="CPLIRemark">
                                                         <div class="col-sm-10" style="padding:0px;">
-                                                            <input type="text" name="Remarks" ng-model="data.Remarks"  ng-click="" class="form-control" maxlength="100">
+                                                            <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="100">
                                                         </div>
                                                     </script>
                                                     <div class="col-md-12 col-sm-12 col-xs-12">
@@ -476,7 +494,7 @@
                                                             <div e-column e-type="string" e-field="ArticleName" e-headertext="Article" e-width="150"></div>
                                                             <div e-column e-type="string" e-field="SKU1Name" e-headertext="SKU1 Name" e-width="120"></div>
                                                             <div e-column e-type="string" e-field="SKU2Name" e-headertext="SKU2 Name" e-width="120"></div>
-                                                            <div e-column e-headertext="All" e-headertemplateid="#headerTemplateCPSKU2" e-template="#checkboxTemplateCPSKU2" e-textalign="center" e-width="30"></div>
+                                                            @* <div e-column e-headertext="All" e-headertemplateid="#headerTemplateCPSKU2" e-template="#checkboxTemplateCPSKU2" e-textalign="center" e-width="30"></div>*@
                                                             <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="100"></div>
                                                             <div e-column e-type="string" e-field="Qty" e-headertext="Qty" e-width="100"></div>
                                                             <div e-column e-type="string" e-field="FinalQty" e-headertext="FinalQty" e-width="100"></div>
