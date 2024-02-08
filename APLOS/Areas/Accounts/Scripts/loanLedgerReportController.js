@@ -31,9 +31,18 @@ function loanLedgerReportController(commonMessage, $scope, $rootScope, baseServi
 
    
     $scope.loanDataList = [];
-    $scope.getPopUpData = function () {        $http({            method: 'GET',            url: 'Accounts/Loan/GetLoanRegisterList?transactionType=' + $scope.report.TransactionType        }).then(function successCallback(response) {            $scope.loanDataList = response.data;            for (var i = 0; i < $scope.loanDataList.length; i++) {
-                response.data[i].PostingDateNew = new Date($scope.loanDataList[i].PostingDateNew);                response.data[i].DocDate = new Date($scope.loanDataList[i].DocDate);
-            }        });    };
+    $scope.getPopUpData = function () {
+        $http({
+            method: 'GET',
+            url: 'Accounts/Loan/GetLoanRegisterList?transactionType=' + $scope.report.TransactionType
+        }).then(function successCallback(response) {
+            $scope.loanDataList = response.data;
+            for (var i = 0; i < $scope.loanDataList.length; i++) {
+                response.data[i].PostingDateNew = new Date($scope.loanDataList[i].PostingDateNew);
+                response.data[i].DocDate = new Date($scope.loanDataList[i].DocDate);
+            }
+        });
+    };
     $scope.showloanPopUp = function () {
         $scope.getPopUpData();
         angular.element(document.querySelector('#loanPopUp')).modal('show');
