@@ -48,13 +48,37 @@ namespace Library.Service.EmployeeServices
 
         public IEnumerable<object> GetLeaveType(string PlantId, string EmpId, string GroupId)
         {
+            var esic = GetESICEligibleEmployeeFromEnum(EmpId, DateTime.Now.ToString("dd-MMM-yyyy"));
+            string sql;
             try
             {
-                var sql = @"SELECT  case when ElI.IsEligible = 0 then (select LT.ID where LT.IsGeneral = 1) 
-                            else (select LT.ID where LT.IsESIC = 1) end  Value , 
-                            case when ElI.IsEligible = 0 then (select LT.UserName where LT.IsGeneral = 1) 
-                            else (select LT.UserName where LT.IsESIC = 1) end Text
-                            FROM LeaveType LT
+                if(esic.Tables[0].Rows.Count > 0)
+                {
+
+                 sql = @"SELECT LT.ID Value, LT.UserName FROM dbo.ESICPolicyLeaveType AS EPLT
+                  LEFT JOIN dbo.LeaveType AS LT ON LT.Id = EPLT.LeaveTypeID
+                  WHERE
+                  EPLT.LeaveTypeID IN
+                   (
+                     SELECT LTSystemID FROM dbo.LeavePolicyDetail AS LPD
+                  LEFT JOIN  (SELECT DC.LeavePolicyMasterId,DM.DesignationId FROM MST.DesignationMaster DM
+                  LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId WHERE DC.PlantId='" + PlantId + @"') AS DM ON DM.LeavePolicyMasterId=LPD.LPMSystemID
+                  LEFT JOIN dbo.EmployeeInformation AS EI ON EI.GivenDesignationId=DM.DesignationId
+                  WHERE EI.SystemID='" + EmpId + @"' AND EI.GroupID='" + GroupId + @"' AND EI.PlantID='" + PlantId + @"'
+                   )
+                AND
+                EPLT.ESICPolicyMasterID IN (
+                 SELECT DM.ESICPolicyMasterID FROM (SELECT DC.ESICPolicyMasterID,DM.DesignationId FROM MST.DesignationMaster DM
+                LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId
+                WHERE DC.PlantId='" + PlantId + @"') DM
+                 WHERE DM.DesignationId IN (SELECT GivenDesignationId FROM dbo.EmployeeInformation WHERE SystemID='" + EmpId + @"')
+
+                ) AND  LT.UserName NOT LIKE'%Maternity%'";
+
+                }
+                else
+                {
+                    sql = @"SELECT LT.ID Value, LT.UserName Text FROM LeaveType LT
                                     LEFT JOIN LeavePolicyDetail LPD ON LPD.LTSystemID=LT.Id
                                     LEFT JOIN LeavePolicyMaster LPM ON LPM.SystemID=LPD.LPMSystemID
                                     LEFT JOIN (SELECT DC.LeavePolicyMasterId,DM.DesignationId FROM MST.DesignationMaster DM
@@ -62,14 +86,8 @@ namespace Library.Service.EmployeeServices
                                     WHERE DC.PlantId='" + PlantId + @"') DM ON DM.LeavePolicyMasterId=LPM.SystemID
                                     LEFT JOIN EmployeeInformation EI ON EI.GivenDesignationId=DM.DesignationId
                                     LEFT JOIN ESICEligibleEmployee EE ON EE.EmpSystemID=EI.SystemId
-									left join (select top 1 IsEligible , SalaryHeadEnum , sif.EmpInfoSystemID from SalaryInfoDefineMaster sif 
-												left join EmployeeEligibleForSalaryHeadEnum EEI on EEI.SalaryStructureId = sif.SystemID
-												where  SalaryHeadEnum = 'ESIC' order by sif.DateUpdated desc
-											   )ElI on ElI.EmpInfoSystemID = EI.SystemID
-                                    WHERE EI.SystemID='" + EmpId + @"' AND EI.GroupID='" + GroupId + @"' AND  EI.PlantID='" + PlantId + @"'  AND LT.LeaveType <>'Maternity' 
-									AND ( case when ElI.IsEligible = 0 then (select LT.ID where LT.IsGeneral = 1) 
-                                            else (select LT.ID where LT.IsESIC = 1) end) <> ''";
-
+                                    WHERE EI.SystemID='" + EmpId + @"' AND EI.GroupID='" + GroupId + @"' AND EI.PlantID='" + PlantId + @"' AND LT.IsGeneral = 1 AND LT.UserName NOT LIKE'%Maternity%'";
+                }
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
