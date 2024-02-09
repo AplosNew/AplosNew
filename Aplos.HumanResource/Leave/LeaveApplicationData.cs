@@ -55,7 +55,7 @@ namespace Library.Service.EmployeeServices
                 if(esic.Tables[0].Rows.Count > 0)
                 {
 
-                 sql = @"SELECT LT.ID Value, LT.UserName FROM dbo.ESICPolicyLeaveType AS EPLT
+                 sql = @"SELECT LT.ID Value, LT.UserName Text FROM dbo.ESICPolicyLeaveType AS EPLT
                   LEFT JOIN dbo.LeaveType AS LT ON LT.Id = EPLT.LeaveTypeID
                   WHERE
                   EPLT.LeaveTypeID IN
