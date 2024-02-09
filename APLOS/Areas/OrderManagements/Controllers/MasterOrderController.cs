@@ -71,7 +71,15 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             return View();
         }
+        public ActionResult CheckBy()
+        {
+            return View();
+        }
 
+        public ActionResult ApproveBy()
+        {
+            return View();
+        }
 
         public ActionResult IndependentOrder()
         {
@@ -616,6 +624,18 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetSOListForCheck(string masterItemId)
+        {
+            return Json(MasterOrder.GetSOListForCheck(masterItemId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetSOListForApprove(string masterItemId)
+        {
+            return Json(MasterOrder.GetSOListForApprove(masterItemId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetpackingTypeDataList(string SOId,string PackingType)
         {
             return Json(_masterOrderService.GetpackingTypeList(SOId, PackingType), JsonRequestBehavior.AllowGet);
@@ -631,6 +651,24 @@ namespace Aplos.Areas.OrderManagements.Controllers
         public ActionResult GetList(string companyId, string column, string value)
         {
             var jsondata = Json(_masterOrderService.GetList(companyId, column, value), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetCheckByList(string companyId, string column, string value)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(MasterOrder.GetCheckByList(companyId, column, value, identity.EmployeeId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetApproveList(string companyId, string column, string value)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(MasterOrder.GetApproveList(companyId, column, value, identity.EmployeeId), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
@@ -2261,6 +2299,27 @@ namespace Aplos.Areas.OrderManagements.Controllers
             }
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetApproveByCboList()
+        {
+            return Json(MasterOrder.GetApproveByCboList(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult CheckSalesOrder(SalesOrderMaster salesOrderMaster)
+        {
+            _masterOrderService.CheckSOGraph(salesOrderMaster);
+          
+            return Json(new { Message = AplosMessage.Updated });
+        }
+
+        [HttpPost]
+        public JsonResult ApproveSalesOrder(SalesOrderMaster salesOrderMaster)
+        {
+            _masterOrderService.ApproveSOGraph(salesOrderMaster);
+
+            return Json(new { Message = AplosMessage.Updated });
+        }
 
     }
 

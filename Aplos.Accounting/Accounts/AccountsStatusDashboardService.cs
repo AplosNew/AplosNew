@@ -22989,6 +22989,160 @@ group by Id) O60 ON O60.Id=IV.Id
             }
         }
 
+        public string EmployeeDetailsWiseReport(string EmpIds, string ReportHeader, string reportFileName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Employee Payable Summary Report";
+                sheet = workbook.Worksheets[0];
+
+                DataTable data = null; 
+                data = GetEmployeeDetailsData(EmpIds);
+                if (data.Rows.Count == 0)
+                {
+                    throw new Exception("No Data Found....");
+                }
+
+                int ROW = 5; int COL = 1;
+                #region columns
+                sheet[ROW, COL].Text = "Employee Code";
+                sheet[ROW, COL].ColumnWidth = 11;
+                int ColEmployeeCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Employee Name";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int ColEmployeeName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Designation";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColDesignation = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Department";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColDepartment = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Currency";
+                sheet[ROW, COL].ColumnWidth = 8;
+                int ColCurrencyCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Gross";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColGross = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Set Off";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColSetOff = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Balance";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColBalance = COL;                 
+
+                #endregion columns
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                ROW++;
+
+                int startRow = ROW;
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, ColEmployeeCode].Text = data.Rows[i]["EmployeeCode"].ToString();
+                    sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
+                    sheet[ROW, ColDesignation].Text = data.Rows[i]["Designation"].ToString();
+                    sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
+                    sheet[ROW, ColCurrencyCode].Text = data.Rows[i]["CurrencyCode"].ToString();
+                     
+                    sheet[ROW, ColGross].Number = clsStaticInfo.dbl(data.Rows[i]["Gross"].ToString());
+                    sheet[ROW, ColGross].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    sheet[ROW, ColSetOff].Number = clsStaticInfo.dbl(data.Rows[i]["SetOff"].ToString());
+                    sheet[ROW, ColSetOff].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(data.Rows[i]["Balance"].ToString());
+                    sheet[ROW, ColBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                     
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+                }
+
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Employee Payable Details Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        private DataTable GetEmployeeDetailsData(string EmpIds)
+        {
+            string strSql = @"SELECT  EP.EmployeeId, EI.EmployeeCode, EI.EmployeeName,DS.UserName Designation,DP.UserName Department,c.Code CurrencyCode, EPD.NetAmount AS Gross,EPD.WrittenOffAmount AS SetOff, EPD.NetAmount-EPD.WrittenOffAmount AS Balance
+                
+                FROM [TRN].[EmployeePayableDetail] AS EPD
+                LEFT JOIN [TRN].[EmployeePayable] AS EP ON EPD.EmployeePayableId=EP.Id
+                LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.EmployeePayableDetailId=EPD.Id
+                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                LEFT JOIN [SCS].[Currency] AS C ON C.Id=EP.CurrencyId
+                LEFT JOIN [ORG].[Entity] AS E ON E.Id=VD.EntityId
+                LEFT JOIN HKP.EmployeeTransactionType ET ON ET.Id=EP.EmployeeTransactionTypeId
+				LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=EP.EmployeeId
+				LEFT JOIN ORG.Department DP ON DP.Id=EI.DepartmentId
+				LEFT JOIN HKP.Designation DS ON DS.Id=EI.GivenDesignationId
+                WHERE EP.Archive=0 AND EP.IsPark=0 AND EP.IsWrittenOff=0 AND EPD.IsWrittenOff=0 AND EPD.IsBlock=0 AND EP.SourceType IN ('EmployeePayable','SalaryPayable','VendorInvoice','InventoryPayable')
+				AND ISNULL(EP.EmployeeId,'')<>'' AND (EPD.NetAmount-EPD.WrittenOffAmount)>0 
+				AND EP.EmployeeId in ('" + EmpIds + "')";
+
+            return _sqlRepository.GetDataTable(strSql); 
+        }
+
         #endregion Employee tab report
         #region invoice with out GRN
         public IEnumerable<object> GetGRNWithOutInvoiceDataList(string companyGroupId, string companyId, string plantId, string toDate)
