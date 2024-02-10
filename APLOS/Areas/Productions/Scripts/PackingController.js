@@ -1193,4 +1193,13 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
             ShowResult(response.data.Message, 'failure');
         });
     }
+
+    $scope.ViewReport = function (data) {
+        try {
+            var url = 'QMS/LWQSummaryReport/GetCustomerLWQSummaryJobCardReport?ProductionOrderId=' + data.data.PO + '&LotNumber=' + data.data.LotNo;
+            $rootScope.report(url);
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 }
