@@ -210,12 +210,13 @@ namespace Library.OrderManagement.Sales
             , SM.TransactionQty,BUoM.UserName AS BaseUoM, SM.BaseUOMId, SM.TransactionUoMId, TUoM.UserName AS TransactionUoM, SM.TransactionRate
             , CU.Code AS Currency, SM.TransactionAmount, SM.TaxAmount, SM.NetAmount, NULL TaxList ,FC.ValueFreeText,FCV.UserName AS [FreeText] 
             , SCV.UserName AS SecondCharacteristicsValue,TCV.UserName AS ThirdCharacteristicsValue,SM.FirstCharacteristicsValueId,SM.SecondCharacteristicsValueId,SM.ThirdCharacteristicsValueId 
-			, SM.IsCanceled,SM.CanceledBy,SM.Remark,SM.FirstCharacteristicsId,SM.SecondCharacteristicsId,SM.ThirdCharacteristicsId
+			, SM.IsCanceled,SM.CanceledBy,SM.Remark,SM.FirstCharacteristicsId,SM.SecondCharacteristicsId,SM.ThirdCharacteristicsId , HSN.Code HSNCode
             FROM TRN.SalesMaterial AS SM 
             LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
             LEFT JOIN MST.MaterialMaster AS MM ON MM.Id=SM.MaterialMasterId
             LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
             LEFT JOIN MST.MaterialMasterArticle AS ART ON SM.ArticleId=ART.Id
+			left join HKP.HSNCode as HSN on HSN.Id = ART.HSNCodeId
             LEFT JOIN TRN.FirstCharacteristics AS FC ON FC.Id=SM.FirstCharacteristicsId
             LEFT JOIN HKP.CharacteristicsValue AS FCV ON FCV.Id=SM.FirstCharacteristicsValueId
             LEFT JOIN TRN.SecondCharacteristics AS SC ON SC.Id=SM.SecondCharacteristicsId
