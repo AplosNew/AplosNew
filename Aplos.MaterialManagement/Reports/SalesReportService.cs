@@ -3372,7 +3372,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
             WCharacterFormat FontBold = new WCharacterFormat(document);
             WCharacterFormat DFontSize = new WCharacterFormat(document);
             FontBold.Bold = true;
-            DFontSize.FontSize = 8f;
+            DFontSize.FontSize = 6f;
 
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
             wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
