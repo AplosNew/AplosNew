@@ -32,6 +32,8 @@ namespace Library.Service.OrderManagements
         //DataTable LoadOrderMasterItems(string OrderMasterID);
         //DataTable LoadOrderMaster(string companyId, string OrderMasterID);
         void UpdateSOGraph(string masterItemId, SalesOrderMaster salesOrderMaster, IEnumerable<SalesOrderTax> taxCategoryList);
+        void CheckSOGraph(SalesOrderMaster salesOrderMaster);
+        void ApproveSOGraph(SalesOrderMaster salesOrderMaster);
        // IEnumerable<object> GetDepartmentPersonCbo(string plantId, string partyAccountGroupId, string partyId);
 
         GridModel Query(GridParameter parameters, string companyId);

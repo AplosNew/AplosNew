@@ -3031,6 +3031,22 @@ namespace Aplos.Areas.Accounts.Controllers
                 throw ex;
             }
         }
+
+        [HttpPost, Authorize]
+        public ActionResult GetEmployeeDetailsReport(string EmpIds, string reportFileName)
+        {
+            try
+            {
+                string fileName = "";
+                AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+                fileName = accountsStatusDashboardService.EmployeeDetailsWiseReport(EmpIds, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion Employee Tab
     }
 }

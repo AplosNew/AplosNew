@@ -51,7 +51,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         #region Loan
-        
+
         public ActionResult Loan()
         {
             return View("~/Areas/Accounts/Views/Loan/Loan.cshtml");
@@ -112,7 +112,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 if (voucherVM.NoOfInstallmentPerYear == 0)
                     throw new CustomException("Please Input  No Of Installment!");
             }
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoan(voucherVM, existingLoanList, loanRepaymentSchedulelist, financingMasterOrderlist,bankChargeDetailVMList)) });
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoan(voucherVM, existingLoanList, loanRepaymentSchedulelist, financingMasterOrderlist, bankChargeDetailVMList)) });
         }
 
         [HttpPost]
@@ -195,7 +195,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
         #region Loan Payment
-       
+
         public ActionResult LoanPayment()
         {
             return View("~/Areas/Accounts/Views/Loan/LoanPayment.cshtml");
@@ -275,7 +275,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     throw new CustomException("Please Input  No Of Installment!");
             }
 
-            if(voucherVM.PaymentSource== PaymentSource.Loan.ToString())
+            if (voucherVM.PaymentSource == PaymentSource.Loan.ToString())
             {
                 if (voucherVM.FinancingId == loanAdditionVM.FinancingId)
                     throw new CustomException("Please Select  Different Loan!");
@@ -294,9 +294,9 @@ namespace Aplos.Areas.Accounts.Controllers
                 {
                     return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoanWriteOff(voucherVM, loanRepaymentSchedulelist)) });
                 }
-                    
+
             }
-            
+
         }
 
 
@@ -395,12 +395,12 @@ namespace Aplos.Areas.Accounts.Controllers
             _financingService.DeleteLoanPayment(identity.CompanyId, identity.PlantId, voucherId);
             return Json(new { Message = AplosMessage.Deleted });
         }
-        
+
         [HttpGet, Authorize]
         public ActionResult LoanPaymentReport(ReportFormat reportFormat, string voucherId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var workbook = _loanReportService.GetLoanWriteOffReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId,identity.PlantName, voucherId, SourceType.LoanPayment.ToString());
+            var workbook = _loanReportService.GetLoanWriteOffReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId, SourceType.LoanPayment.ToString());
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
@@ -507,7 +507,7 @@ namespace Aplos.Areas.Accounts.Controllers
         public ActionResult LoanIntersetPayableReport(ReportFormat reportFormat, string voucherId, string sourceType)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var workbook = _loanReportService.GetLoanInterestPayableReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId,identity.PlantName, voucherId, sourceType);
+            var workbook = _loanReportService.GetLoanInterestPayableReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId, sourceType);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
@@ -524,8 +524,8 @@ namespace Aplos.Areas.Accounts.Controllers
         #endregion
         #region Loan Interest Payable Reverse
 
-       
-       
+
+
         public ActionResult LoanInterestPayableReverse()
         {
             return View("~/Areas/Accounts/Views/Loan/LoanInterestPayableReverse.cshtml");
@@ -549,7 +549,7 @@ namespace Aplos.Areas.Accounts.Controllers
             //return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-     
+
         [HttpPost]
         public JsonResult CreateLoanInterestPayableReverse(VoucherViewModel voucherVM, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist)
         {
@@ -590,7 +590,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoanInterestPayableReverse(voucherVM, loanRepaymentSchedulelist)) });
         }
         [HttpPost]
-        public ActionResult DeleteLoanInterestPayableReverse(string loanIntPayableId,string voucherId)
+        public ActionResult DeleteLoanInterestPayableReverse(string loanIntPayableId, string voucherId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -653,7 +653,7 @@ namespace Aplos.Areas.Accounts.Controllers
         public ActionResult LoanIntersetPayableReverseReport(ReportFormat reportFormat, string voucherId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var workbook = _loanReportService.GetLoanInterestPayableReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId,identity.PlantName, voucherId, SourceType.LoanInterestPayableReverse.ToString());
+            var workbook = _loanReportService.GetLoanInterestPayableReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId, SourceType.LoanInterestPayableReverse.ToString());
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
@@ -714,29 +714,29 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_accountsLoanService.GetLoanRegisterDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, transactionType), JsonRequestBehavior.AllowGet);
         }
 
-    
+
         //Specify loan ledger report
         [HttpGet, Authorize]
         public ActionResult GetLoanLedgerReport(ReportFormat reportFormat, TransactionType transactionType, string voucherId, string financingId)
         {
-            if(financingId==null)
+            if (financingId == null)
                 throw new CustomException("Please Select Loan !");
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-           
-                var workbook = _loanReportService.GetLoanLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId,identity.PlantName, transactionType, voucherId, financingId);
-                var reportFileName = DateTime.Now.ToString("yyMMdd") + " Loan Register";
-                switch (reportFormat)
-                {
-                    case ReportFormat.Pdf:
-                        return RenderReportAsPdf(workbook, reportFileName);
 
-                    case ReportFormat.Excel:
-                        return RenderReportAsExcel(workbook, reportFileName);
+            var workbook = _loanReportService.GetLoanLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, transactionType, voucherId, financingId);
+            var reportFileName = DateTime.Now.ToString("yyMMdd") + " Loan Register";
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
 
-                    default:
-                        return RenderReportAsExcel(workbook, reportFileName);
-                }
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
         }
 
 
@@ -747,7 +747,7 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-              
+
                 ExcelEngine excelEngine = new ExcelEngine();
 
                 IWorkbook workbook = AllLoanRegisterList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, transactionType);
@@ -767,150 +767,120 @@ namespace Aplos.Areas.Accounts.Controllers
 
         private IWorkbook AllLoanRegisterList(string companyGroupId, string companyId, string plantId, TransactionType transactionType)
         {
-
-            //Start EmployeeAdvanceDueList
-
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
             ExcelEngine excelEngine = new ExcelEngine();
-            //Instantiate the Excel application object
             IApplication application = excelEngine.Excel;
-
-            //Set the default application version
             application.DefaultVersion = ExcelVersion.Excel2013;
-
-            //Load the existing Excel workbook into IWorkbook
             IWorkbook workbook = application.Workbooks.Create(1);
-
-            //Get the first worksheet in the workbook into IWorksheet
             IWorksheet worksheet = workbook.Worksheets[0];
             AccountsLoanService _accountsLoanService = new AccountsLoanService(_sqlRepository);
 
-            DataTable dtAllLoanRegisterList = _accountsLoanService.GetAllLoanRegisterReportData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId,transactionType);
-
-
+            DataTable dtAllLoanRegisterList = _accountsLoanService.GetAllLoanRegisterReportData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, transactionType);
 
             if (dtAllLoanRegisterList.Rows.Count == 0)
                 throw new Exception("No data found");
-            // throw new Exception("To date must be above or equal to From Date.");
-
-
-
             worksheet.Name = "AllRegisterReport";
 
             int COL = 1; int ROW = 5;
             int startCol = COL;
 
-            // worksheet[ROW, COL].Text = "Employee Advance Due List Details:";
-            // worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //  ROW++;
-
-            worksheet[ROW, COL].Text = "FinancingNo";
-            int colFinancingNo  = COL;
+            worksheet[ROW, COL].Text = "Financing No";
+            int colFinancingNo = COL;
             worksheet[ROW, COL].ColumnWidth = 10;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
-           // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            //worksheet[ROW, COL].Text = "Transaction Type";
-            //int colTransactionType  = COL;
-            //worksheet[ROW, COL].ColumnWidth = 12;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
+            worksheet[ROW, COL].Text = "Transaction Type";
+            int colTransactionType = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
 
+            worksheet[ROW, COL].Text = "Standard Name";
+            int colStandardName = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
 
-            
-            
-
-            worksheet[ROW, COL].Text = "LoanType";
-            int colLoanType  = COL;
+            worksheet[ROW, COL].Text = "Loan Type";
+            int colLoanType = COL;
             worksheet[ROW, COL].ColumnWidth = 14;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-
-            
-           
+            worksheet[ROW, COL].Text = "Source Type";
+            int colSourceType = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
 
             worksheet[ROW, COL].Text = "Posting Date";
-            int colPostingDate  = COL;
+            int colPostingDate = COL;
             worksheet[ROW, COL].ColumnWidth = 13;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-
-
-
             worksheet[ROW, COL].Text = "VoucherNo";
-            int colVoucherNo  = COL;
-            worksheet[ROW, COL].ColumnWidth = 10;
+            int colVoucherNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
             worksheet[ROW, COL].Text = "Voucher Date";
-            int colVoucherDate  = COL;
-            worksheet[ROW, COL].ColumnWidth = 15;
+            int colVoucherDate = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
             worksheet[ROW, COL].Text = "DocRefNo";
-            int colDocRefNo  = COL;
-            worksheet[ROW, COL].ColumnWidth = 10;
+            int colDocRefNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
-          //  worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            
-
             worksheet[ROW, COL].Text = "DocDate";
-            int colDocDate  = COL;
-            worksheet[ROW, COL].ColumnWidth = 13;
+            int colDocDate = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
             worksheet[ROW, COL].Text = "Narration";
             int colNarration = COL;
-            worksheet[ROW, COL].ColumnWidth = 40;
+            worksheet[ROW, COL].ColumnWidth = 45;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
-           // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
             worksheet[ROW, COL].Text = "Currency";
             int colCurrencyCode = COL;
             worksheet[ROW, COL].ColumnWidth = 8;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
-        
             COL++;
 
+            worksheet[ROW, COL].Text = "GSTIN";
+            int colGSTIN = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
 
             worksheet[ROW, COL].Text = "Loan To";
-            int colParticulars  = COL;
-            worksheet[ROW, COL].ColumnWidth = 25;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-           // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            COL++;
-            worksheet[ROW, COL].Text = "Party Type";
-            int colPartyType = COL;
+            int colParticulars = COL;
             worksheet[ROW, COL].ColumnWidth = 16;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
+            worksheet[ROW, COL].Text = "Party Type";
+            int colPartyType = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
 
             worksheet[ROW, COL].Text = "Loan From";
             int colLoanFrom = COL;
-            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].ColumnWidth = 16;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            worksheet[ROW, COL].Text = "Payment Source";
-            int colPaymentSource = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
-
-            worksheet[ROW, COL].Text = "BankAccount Type ";
+            worksheet[ROW, COL].Text = "Bank Account Type ";
             int colBankAccountType = COL;
             worksheet[ROW, COL].ColumnWidth = 16;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
@@ -928,10 +898,8 @@ namespace Aplos.Areas.Accounts.Controllers
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            
-
-            worksheet[ROW, COL].Text = "Is Opening";
-            int colIsOpening = COL;
+            worksheet[ROW, COL].Text = "Payment Source";
+            int colPaymentSource = COL;
             worksheet[ROW, COL].ColumnWidth = 12;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
@@ -942,81 +910,76 @@ namespace Aplos.Areas.Accounts.Controllers
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            //reportUtility.SetHeaderText(ref sheet, row - 1, col, "Principle", 12, ExcelHAlign.HAlignRight); int colPrinciple = col;
-
-            worksheet[ROW -1, COL].Text = "Principle";
-            int colPrinciple  = COL;
-            worksheet[ROW, COL].ColumnWidth = 15;
-            worksheet[ROW-1, COL].CellStyle.Font.Bold = true;
-            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-
-            worksheet[ROW, COL].Text = "Amount";
-            int colScantionAmount  = COL;
+            worksheet[ROW, COL].Text = "GL General Info Code";
+            int colGLGeneralInfoCode = COL;
             worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            worksheet[ROW, COL].Text = "Written-Off";
-            int colWrittenOffAmount  = COL;
+            worksheet[ROW, COL].Text = "Budget";
+            int colBudget = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Activity";
+            int colActivity = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Is Opening";
+            int colIsOpening = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Scantion Amount";
+            int colScantionAmount = COL;
             worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            worksheet[ROW, COL].Text = "Balance";
-            int colBalancePrinciple  = COL;
-            worksheet[ROW, COL].ColumnWidth = 13;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            COL++;
-
-            worksheet.Range[ROW - 1, colPrinciple, ROW - 1, colBalancePrinciple].Merge();
-            worksheet.Range[ROW - 1, colPrinciple, ROW - 1, colBalancePrinciple].BorderAround(ExcelLineStyle.Thin);
-            worksheet.Range[ROW - 1, colPrinciple, ROW - 1, colBalancePrinciple].BorderInside(ExcelLineStyle.Thin);
-            worksheet.Range[ROW - 1, colPrinciple, ROW - 1, colBalancePrinciple].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-
-
-            worksheet[ROW - 1, COL].Text = "Interest";
-            int colInterest  = COL;
-            worksheet[ROW, COL].ColumnWidth = 15;
-            worksheet[ROW - 1, COL].CellStyle.Font.Bold = true;
-            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-
-            worksheet[ROW, COL].Text = "Amount";
-            int colInterestAmount  = COL;
-            worksheet[ROW, COL].ColumnWidth = 14;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            COL++;
-
-            worksheet[ROW, COL].Text = "Written-Off";
-            int colWrittenOffInterestAmount = COL;
-            worksheet[ROW, COL].ColumnWidth = 18;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            COL++;
-
-            worksheet[ROW, COL].Text = "Balance";
-            int colInterestBalanceAmount  = COL;
-            worksheet[ROW, COL].ColumnWidth = 18;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            COL++;
-
-
-            worksheet.Range[ROW - 1, colInterest, ROW - 1, colInterestBalanceAmount].Merge();
-            worksheet.Range[ROW - 1, colInterest, ROW - 1, colInterestBalanceAmount].BorderAround(ExcelLineStyle.Thin);
-            worksheet.Range[ROW - 1, colInterest, ROW - 1, colInterestBalanceAmount].BorderInside(ExcelLineStyle.Thin);
-            worksheet.Range[ROW - 1, colInterest, ROW - 1, colInterestBalanceAmount].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-
-
-            worksheet[ROW, COL].Text = "Remaning Balance";
-            int colRemaningBalance  = COL;
+            worksheet[ROW, COL].Text = "Additional Loan Amount";
+            int colAdditionalLoanAmount = COL;
             worksheet[ROW, COL].ColumnWidth = 17;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-          //  COL++;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Interest Amount";
+            int colInterestAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Total Loan Amount";
+            int colTotalLoanAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Written Off Amount";
+            int colWrittenOffAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Remaning Balance";
+            int colRemaningBalance = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Loan Close Status";
+            int colIsLoanClose = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
 
             int endCol = COL;
             worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -1027,97 +990,82 @@ namespace Aplos.Areas.Accounts.Controllers
             for (int i = 0; i < dtAllLoanRegisterList.Rows.Count; i++)
             {
                 var glName = dtAllLoanRegisterList.Rows[i]["Budget"].ToString();
-
-
-                //reportUtility.SetText(ref sheet, row, colGl, dsLocal.Rows[i]["GLGeneralInfoCode"] + " - " + glName + " - " + dtAllLoanRegisterList.Rows[i]["Activity"]);
-                worksheet[ROW, colGLBUDGETACTIVITY].Text = dtAllLoanRegisterList.Rows[i]["GLGeneralInfoCode"] + " - " + glName + " - " + dtAllLoanRegisterList.Rows[i]["Activity"];
-
-                //worksheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(2) + row].Merge();
-
-
-                // int i = 0; i < dtMasterOrderItem.Rows.Count; i++
                 worksheet[ROW, colFinancingNo].Text = dtAllLoanRegisterList.Rows[i]["FinancingNo"].ToString();
-               // worksheet[ROW, colTransactionType].Text = dtAllLoanRegisterList.Rows[i]["TransactionType"].ToString();
-              
+                worksheet[ROW, colTransactionType].Text = dtAllLoanRegisterList.Rows[i]["TransactionType"].ToString();
+                worksheet[ROW, colStandardName].Text = dtAllLoanRegisterList.Rows[i]["StandardName"].ToString();
                 worksheet[ROW, colLoanType].Text = dtAllLoanRegisterList.Rows[i]["LoanType"].ToString();
-                worksheet[ROW, colBankAccountType].Text = dtAllLoanRegisterList.Rows[i]["FromBankAccountType"].ToString();
-                worksheet[ROW, colLoanFrom].Text = dtAllLoanRegisterList.Rows[i]["LoanFrom"].ToString();
-                worksheet[ROW, colPaymentSource].Text = dtAllLoanRegisterList.Rows[i]["PaymentSource"].ToString();
-                worksheet[ROW, colIsOpening].Text = dtAllLoanRegisterList.Rows[i]["IsOpening"].ToString();
+                worksheet[ROW, colSourceType].Text = dtAllLoanRegisterList.Rows[i]["SourceType"].ToString();
                 worksheet[ROW, colPostingDate].Text = (dtAllLoanRegisterList.Rows[i]["PostingDate"].ToString());
-
                 worksheet[ROW, colVoucherNo].Text = dtAllLoanRegisterList.Rows[i]["VoucherNo"].ToString();
                 worksheet[ROW, colVoucherDate].Text = dtAllLoanRegisterList.Rows[i]["VoucherDate"].ToString();
                 worksheet[ROW, colDocRefNo].Text = dtAllLoanRegisterList.Rows[i]["DocRefNo"].ToString();
-
                 worksheet[ROW, colDocDate].Text = dtAllLoanRegisterList.Rows[i]["DocDate"].ToString();
                 worksheet[ROW, colNarration].Text = dtAllLoanRegisterList.Rows[i]["Narration"].ToString();
                 worksheet[ROW, colCurrencyCode].Text = dtAllLoanRegisterList.Rows[i]["CurrencyCode"].ToString();
-              
-               // worksheet[ROW, colPurchasePrice].NumberFormat = clsStaticInfo.NumberFormat();
+                worksheet[ROW, colGSTIN].Text = dtAllLoanRegisterList.Rows[i]["GSTIN"].ToString();
                 worksheet[ROW, colParticulars].Text = dtAllLoanRegisterList.Rows[i]["LoanTo"].ToString();
                 worksheet[ROW, colPartyType].Text = dtAllLoanRegisterList.Rows[i]["PartyType"].ToString();
+                worksheet[ROW, colLoanFrom].Text = dtAllLoanRegisterList.Rows[i]["LoanFrom"].ToString();
+                worksheet[ROW, colBankAccountType].Text = dtAllLoanRegisterList.Rows[i]["FromBankAccountType"].ToString();
                 worksheet[ROW, colBank].Text = dtAllLoanRegisterList.Rows[i]["FromBankName"].ToString();
                 worksheet[ROW, colBankBranch].Text = dtAllLoanRegisterList.Rows[i]["FromBankBranch"].ToString();
+                worksheet[ROW, colPaymentSource].Text = dtAllLoanRegisterList.Rows[i]["PaymentSource"].ToString();
+                worksheet[ROW, colGLBUDGETACTIVITY].Text = dtAllLoanRegisterList.Rows[i]["GLGeneralInfoCode"] + " - " + glName + " - " + dtAllLoanRegisterList.Rows[i]["Activity"];
+                worksheet[ROW, colGLGeneralInfoCode].Text = dtAllLoanRegisterList.Rows[i]["GLGeneralInfoCode"].ToString();
+                worksheet[ROW, colBudget].Text = dtAllLoanRegisterList.Rows[i]["Budget"].ToString();
+                worksheet[ROW, colActivity].Text = dtAllLoanRegisterList.Rows[i]["Activity"].ToString();
+                worksheet[ROW, colIsLoanClose].Text = dtAllLoanRegisterList.Rows[i]["IsLoanClose"].ToString();
+
                 worksheet[ROW, colScantionAmount].Number = clsStaticInfo.dbl(dtAllLoanRegisterList.Rows[i]["ScantionAmount"].ToString());
                 worksheet[ROW, colScantionAmount].NumberFormat = clsStaticInfo.NumberFormat();
                 worksheet[ROW, colScantionAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-              
-                worksheet[ROW, colWrittenOffAmount].Number =clsStaticInfo.dbl(dtAllLoanRegisterList.Rows[i]["WrittenOffAmount"].ToString());
-                worksheet[ROW, colWrittenOffAmount].NumberFormat = clsStaticInfo.NumberFormat();
-                worksheet[ROW, colWrittenOffAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colBalancePrinciple].Number = clsStaticInfo.dbl(dtAllLoanRegisterList.Rows[i]["BalancePrinciple"].ToString());
-                worksheet[ROW, colBalancePrinciple].NumberFormat = clsStaticInfo.NumberFormat();
-                worksheet[ROW, colBalancePrinciple].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                worksheet[ROW, colAdditionalLoanAmount].Number = clsStaticInfo.dbl(dtAllLoanRegisterList.Rows[i]["AdditionalLoanAmount"].ToString());
+                worksheet[ROW, colAdditionalLoanAmount].NumberFormat = clsStaticInfo.NumberFormat();
+                worksheet[ROW, colAdditionalLoanAmount].NumberFormat = "#,##0.00;(#,##0.00)";
 
                 worksheet[ROW, colInterestAmount].Number = clsStaticInfo.dbl(dtAllLoanRegisterList.Rows[i]["InterestAmount"].ToString());
                 worksheet[ROW, colInterestAmount].NumberFormat = clsStaticInfo.NumberFormat();
                 worksheet[ROW, colInterestAmount].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                worksheet[ROW, colWrittenOffInterestAmount].Number = clsStaticInfo.dbl(dtAllLoanRegisterList.Rows[i]["WrittenOffInterestAmount"].ToString());
-                worksheet[ROW, colWrittenOffInterestAmount].NumberFormat = clsStaticInfo.NumberFormat();
-                worksheet[ROW, colWrittenOffInterestAmount].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                worksheet[ROW, colInterestBalanceAmount].Number = clsStaticInfo.dbl(dtAllLoanRegisterList.Rows[i]["InterestBalanceAmount"].ToString());
-                worksheet[ROW, colInterestBalanceAmount].NumberFormat = clsStaticInfo.NumberFormat();
-                worksheet[ROW, colInterestBalanceAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colTotalLoanAmount].Number = clsStaticInfo.dbl(dtAllLoanRegisterList.Rows[i]["TotalLoanAmount"].ToString());
+                worksheet[ROW, colTotalLoanAmount].NumberFormat = clsStaticInfo.NumberFormat();
+                worksheet[ROW, colTotalLoanAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                worksheet[ROW, colWrittenOffAmount].Number = clsStaticInfo.dbl(dtAllLoanRegisterList.Rows[i]["WrittenOffAmount"].ToString());
+                worksheet[ROW, colWrittenOffAmount].NumberFormat = clsStaticInfo.NumberFormat();
+                worksheet[ROW, colWrittenOffAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
                 worksheet[ROW, colRemaningBalance].Number = clsStaticInfo.dbl(dtAllLoanRegisterList.Rows[i]["RemaningBalance"].ToString());
                 worksheet[ROW, colRemaningBalance].NumberFormat = clsStaticInfo.NumberFormat();
                 worksheet[ROW, colRemaningBalance].NumberFormat = "#,##0.00;(#,##0.00)";
 
+                worksheet[ROW, colIsOpening].Text = dtAllLoanRegisterList.Rows[i]["IsOpening"].ToString();
+
                 worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                 worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-
                 ROW++;
-
             }
-
             worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
             worksheet.UsedRange.CellStyle.Font.Size = 8f;
 
-
-         
             ReportUtility reportUtility = new ReportUtility();
-
-            reportUtility.PlantHeader(ref worksheet, endCol, "All '"+ transactionType + "' Register", identity.PlantId);
+            reportUtility.PlantHeader(ref worksheet, endCol, "All '" + transactionType + "' Register", identity.PlantId);
             reportUtility.PageSetup(ref worksheet, 5, ExcelPageOrientation.Landscape);
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-            // worksheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             worksheet.Range[1, 1, 3, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-
             worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
             worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
             worksheet.IsGridLinesVisible = false;
 
             #region Freeze Panes
-
             worksheet.IsDisplayZeros = false;
             worksheet.UsedRange["A6"].FreezePanes();
             worksheet.FirstVisibleColumn = 1;
             worksheet.FirstVisibleRow = 6;
 
             #endregion Freeze Panes
-
             return workbook;
         }
 
