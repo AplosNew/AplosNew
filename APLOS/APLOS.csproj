@@ -2577,7 +2577,6 @@
     <Content Include="Areas\OrderManagements\Scripts\OrderControlController.js" />
     <Content Include="Areas\OrderManagements\Scripts\OrderControlTypesController.js" />
     <Content Include="Areas\OrderManagements\Scripts\BOMMasterAttachmentController.js" />
-    <Content Include="Areas\OrderManagements\Scripts\inquiryMasterController.js" />
     <Content Include="Areas\OrderManagements\Scripts\independentOrderController.js" />
     <Content Include="Areas\OrderManagements\Scripts\BOMMasterController.js" />
     <Content Include="Areas\OrderManagements\Scripts\OrderReportController.js" />
