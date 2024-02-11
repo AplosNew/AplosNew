@@ -1,5 +1,4 @@
-﻿
-<h3 class="site-heading">Financial Status Dashboard</h3>
+﻿<h3 class="site-heading">Financial Status Dashboard</h3>
 <style>
     /*    #myDIV {
         width: 100%;
@@ -71,12 +70,8 @@
             border-radius: 50%;
         }
 </style>
-
-
-
-
-<div class="container-fluid" id="MainDiv">
-
+ 
+<div class="container-fluid" id="MainDiv"> 
     <div class="row">
         <div class="col-md-12">
             <div class="col-md-4"></div>
@@ -92,9 +87,7 @@
 
     <div class="clearfix"></div>
     <div class="col-lg-12">
-        <div class="clearfix"></div>
-
-
+        <div class="clearfix"></div> 
         <div class="row">
             <div class="site-tab">
                 <ul class="nav nav-tabs" role="tablist">
@@ -121,6 +114,7 @@
                     <li role="presentation" ng-class="{ active: isSet(21) }"><a ng-click="setTab(21);GetReceiptPaymentStatusList();" href="" data-toggle="tab">Receipt Payment Status</a></li>
                     <li role="presentation" ng-class="{ active: isSet(22) }"><a ng-click="setTab(22);GetPartyStatusData();" href="" data-toggle="tab">Party Status</a></li>
                     <li role="presentation" ng-class="{ active: isSet(23) }"><a ng-click="setTab(23);" href="" data-toggle="tab">Receipt From Invoice</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(24) }"><a ng-click="setTab(24);" href="" data-toggle="tab">Payment Against Invoice</a></li>
                 </ul>
             </div>
 
@@ -129,11 +123,11 @@
                     <div class="row">
                         <fieldset class="scheduler-border">
                             @*<div class="col-xs-5 col-sm-5 col-md-5" id="div_FromDate">
-                                    <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
-                                    <div class="col-sm-9 show-message">
-                                        <input type="text" name="Form Date" ng-model="material.VendorFromDate" datepicker tabindex="2" class="form-control">
-                                    </div>
-                                </div>*@
+                        <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                        <div class="col-sm-9 show-message">
+                            <input type="text" name="Form Date" ng-model="material.VendorFromDate" datepicker tabindex="2" class="form-control">
+                        </div>
+                    </div>*@
 
                             <div class="col-xs-5 col-sm-5 col-md-5" id="div_ToDate">
                                 <label class="col-sm-3 control-label">TO Date<sup>*</sup></label>
@@ -356,11 +350,11 @@
                     <div class="row">
                         <fieldset class="scheduler-border">
                             @*<div class="col-xs-5 col-sm-5 col-md-5" id="div_FromDate">
-                                    <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
-                                    <div class="col-sm-9 show-message">
-                                        <input type="text" name="Form Date" ng-model="material.CustomerFromDate" datepicker tabindex="2" class="form-control">
-                                    </div>
-                                </div>*@
+                        <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                        <div class="col-sm-9 show-message">
+                            <input type="text" name="Form Date" ng-model="material.CustomerFromDate" datepicker tabindex="2" class="form-control">
+                        </div>
+                    </div>*@
 
                             <div class="col-xs-5 col-sm-5 col-md-5" id="div_CustomerToDate">
                                 <label class="col-sm-3 control-label">TO Date<sup>*</sup></label>
@@ -613,14 +607,14 @@
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="WriteOffPendingPost" e-headertext="Write Off Pending Post" e-width="60" e-textalign="right" style="height: 20px;"></div>
                                     </div>
                                 </div>
-                                 
+
                                 <script type="text/template" id="checkMasterEmp">
                                     <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
                                 </script>
 
                                 <script type="text/x-jsrender" id="headerTemplateEmp">
                                     <input type="checkbox" id="headchkemp" />
-                                </script> 
+                                </script>
                             </div>
                         </div>
 
@@ -843,10 +837,10 @@
                         </div>
                     </div>
                     @*<div class="common-btn">
-                           <ul class="list-inline text-right">
-                               <li><button ng-click="DateRangeWisePaymentReport();" title="All active Cash with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i>Cash</button></li>
-                           </ul>
-                        </div>*@
+               <ul class="list-inline text-right">
+                   <li><button ng-click="DateRangeWisePaymentReport();" title="All active Cash with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i>Cash</button></li>
+               </ul>
+            </div>*@
 
                     <div class="row" id="overall" style="background-color:white;">
                         <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
@@ -888,8 +882,8 @@
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="FACount" e-headertext=" Total Qty" e-width="25" e-textalign="right" style="height: 20px;"></div>
 
                                     @*<div e-column e-type="numeric" e-format="{0:0.00}" e-field="FABaseAmount" e-headertext="Gross Amount" e-width="45" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ADBaseAmount" e-headertext="Acc.Dep.Amount" e-width="45" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="NetFixedAssetsAmount" e-headertext="Net Amount" e-width="45" e-textalign="right" style="height: 20px;"></div>*@
+                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ADBaseAmount" e-headertext="Acc.Dep.Amount" e-width="45" e-textalign="right" style="height: 20px;"></div>
+                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="NetFixedAssetsAmount" e-headertext="Net Amount" e-width="45" e-textalign="right" style="height: 20px;"></div>*@
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="FABaseAmount" e-headertext="FA Base Amount" e-width="65" e-textalign="right" style="height: 20px;"></div>
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="SubAssetAmount" e-headertext="Sub Asset Amount" e-width="65" e-textalign="right" style="height: 20px;"></div>
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TotalBaseAmount" e-headertext="Total Base Amount" e-width="65" e-textalign="right" style="height: 20px;"></div>
@@ -977,8 +971,8 @@
                                     <div e-column e-type="number" e-format="{0:N2}" e-field="AdditionalLoanAmount" e-template="#LoanTakenAdditionalLoanPayableTemplate" e-headertext="Additional Amount" e-width="75" e-textalign="right" style="height: 20px;"></div>
 
                                     @*<div e-column e-field="InterestAmount" e-headertext="Interest Amount" e-width="80" e-type='string'></div>
-                                        <div e-column e-field="LoanPayment" e-headertext="SetOff" e-width="80" textAlign='Right'></div>
-                                        <div e-column e-field="Balance" e-headertext="Balance" e-width="80" textAlign='Right'></div>*@
+                            <div e-column e-field="LoanPayment" e-headertext="SetOff" e-width="80" textAlign='Right'></div>
+                            <div e-column e-field="Balance" e-headertext="Balance" e-width="80" textAlign='Right'></div>*@
 
                                     @*<div e-column e-field="LoanAmount" e-headertext="Amount" e-width="80" textAlign='Right'></div>*@
                                     <div e-column e-type="number" e-format="{0:N2}" e-field="InterestAmount" e-template="#LoanTakenSetOffInterestTemplate" e-headertext="Interest" e-width="75" textAlign='Right'></div>
@@ -1007,10 +1001,10 @@
                         </div>
                     </div>
                     @*<div class="common-btn">
-                           <ul class="list-inline text-right">
-                               <li><button ng-click="DateRangeWisePaymentReport();" title="All active Aging with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Loan</button></li>
-                           </ul>
-                        </div>*@
+               <ul class="list-inline text-right">
+                   <li><button ng-click="DateRangeWisePaymentReport();" title="All active Aging with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Loan</button></li>
+               </ul>
+            </div>*@
 
                     <div class="row" id="overall" style="background-color:white;">
                         <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
@@ -1087,19 +1081,19 @@
                                  e-allowselection="false" e-allowresizing="true" e-filtersettings-filterType="excel" @*e-width="100"*@ e-showsummary="true" e-summaryrows="summaryRowsTrialBalance" @*e-actioncomplete="actionCompleteLoanSelected"*@>
                                 <div e-columns>
                                     @*<div e-column e-field="DocRefNo" e-headertext="Loan No" e-width="100">
-                                        <div class="common-btn">
-                                            <ul class="list-inline text-left">
-                                                <li> <button ng-click="$parent.GetAllLoanRegisterReport(this);" tooltip="Loan No" class="btn" style="top: 1px; font-size:12px; width:100%">{{data.DocRefNo}}</button></li>
-                                        </ul>
-                                        </div>
-                                        </div>
-                                            <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="100">
-                                            <div class="common-btn">
-                                                <ul class="list-inline text-left">
-                                                    <li> <button ng-click="$parent.printLoanVoucherReport(this);" tooltip="Voucher No" class="btn" style="top: 1px; font-size:12px; width:100% ">{{data.VoucherNo}}</button></li>
-                                                </ul>
-                                            </div>
-                                        </div>*@
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li> <button ng-click="$parent.GetAllLoanRegisterReport(this);" tooltip="Loan No" class="btn" style="top: 1px; font-size:12px; width:100%">{{data.DocRefNo}}</button></li>
+                            </ul>
+                            </div>
+                            </div>
+                                <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="100">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li> <button ng-click="$parent.printLoanVoucherReport(this);" tooltip="Voucher No" class="btn" style="top: 1px; font-size:12px; width:100% ">{{data.VoucherNo}}</button></li>
+                                    </ul>
+                                </div>
+                            </div>*@
 
 
                                     <div e-column e-field="MainHead" e-headertext="MainHead" e-width="80"></div>
@@ -1131,8 +1125,8 @@
 
 
                             @*<script type="text/template" id="TrialBalanceAccountGroupTemplate">
-                                    <a href="" ng-click="$parent.showTrialBalanceAccountGroupPopUp(data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.AccountGroupName}}</span></a>
-                                </script>*@
+                        <a href="" ng-click="$parent.showTrialBalanceAccountGroupPopUp(data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.AccountGroupName}}</span></a>
+                    </script>*@
 
                         </div>
 
@@ -1141,11 +1135,11 @@
 
 
                     @*<div class="common-btn">
-                            <ul class="list-inline text-left">
-                                <li><button ng-click="GetTrialBLAccountGroupReport();" title="All active summary with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Summary</button></li>
-                                <li><button ng-click="GetAcceptanceLiabilityReport();" title="All active Aging with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Detail</button></li>
-                            </ul>
-                        </div>*@
+                <ul class="list-inline text-left">
+                    <li><button ng-click="GetTrialBLAccountGroupReport();" title="All active summary with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Summary</button></li>
+                    <li><button ng-click="GetAcceptanceLiabilityReport();" title="All active Aging with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Detail</button></li>
+                </ul>
+            </div>*@
 
 
                 </div>
@@ -1163,12 +1157,12 @@
                                         <div e-column e-field="InvoiceNo" @*e-template="#customerhLink"*@ e-headertext="No Of Invoice" e-width="40"></div>
 
                                         @*<div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="60">
-                                                <div class="common-btn">
-                                                    <ul class="list-inline text-left">
-                                                        <li> <button ng-click="$parent.getvouchardetailjs(this);" tooltip="Voucher No" class="btn" style="top: 1px;">{{data.VoucherNo}}</button></li>
-                                                    </ul>
-                                                </div>
-                                            </div>*@
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li> <button ng-click="$parent.getvouchardetailjs(this);" tooltip="Voucher No" class="btn" style="top: 1px;">{{data.VoucherNo}}</button></li>
+                                        </ul>
+                                    </div>
+                                </div>*@
 
                                         <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="InvoieDate" e-headertext="InvoieDate" e-width="35"></div>
                                         <div e-column e-field="SourceType" e-headertext="Source Type" e-width="60" e-textalign="right"></div>
@@ -1210,7 +1204,7 @@
                                         <div e-column e-field="PaymentYear" e-headertext="Payment Year" e-width="30"></div>
                                         <div e-column e-field="PaymentMonth" e-headertext="Payment Month" e-width="30"></div>
                                         @*<div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="PaymentYear" e-headertext="Payment Year" e-width="35"></div>
-                                            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="PaymentMonth" e-headertext="Payment Month" e-width="35"></div>*@
+                                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="PaymentMonth" e-headertext="Payment Month" e-width="35"></div>*@
                                         <div e-column e-field="Type" e-headertext="Type" e-width="30"></div>
 
 
@@ -1221,51 +1215,51 @@
 
 
                                 @*<div class="col-lg-12">
-                                        <label class="col-sm-3 control-label">Party: {{partyCode}} - {{partyName}} </label>
-                                        <label class="col-sm-3 control-label">Party Plant: {{partyPlantName}}</label>
+                            <label class="col-sm-3 control-label">Party: {{partyCode}} - {{partyName}} </label>
+                            <label class="col-sm-3 control-label">Party Plant: {{partyPlantName}}</label>
 
-                                        <label class="col-sm-2 control-label">Currency: {{currencyCode}}</label>
-                                        <label class="col-sm-4 control-label">Account Group: {{partyAccountGroupName}}</label>
-                                        <label class="chart-title"></label>
-                                    </div>
+                            <label class="col-sm-2 control-label">Currency: {{currencyCode}}</label>
+                            <label class="col-sm-4 control-label">Account Group: {{partyAccountGroupName}}</label>
+                            <label class="chart-title"></label>
+                        </div>
 
-                                    <div class="clearfix"></div>*@
+                        <div class="clearfix"></div>*@
 
                                 @*<script type="text/template" id="customerhLink">
-                                        <a href="{{$parent.bootPoint}}financial-status-customer-receivable-invoice-detail/{{data.PartyId}}" class="btn btn-action">{{data.NoOfInvoice}} </a>
-                                    </script>*@
+                            <a href="{{$parent.bootPoint}}financial-status-customer-receivable-invoice-detail/{{data.PartyId}}" class="btn btn-action">{{data.NoOfInvoice}} </a>
+                        </script>*@
 
                                 @*<script type="text/template" id="checkMasterCustomer">
-                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
-                                    </script>*@
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
+                        </script>*@
 
                                 @*<script type="text/x-jsrender" id="headerTemplateCustomer">
-                                        <input type="checkbox" id="headchkcustomer" />
-                                    </script>*@
+                            <input type="checkbox" id="headchkcustomer" />
+                        </script>*@
 
                             </div>
                         </div>
 
                         @*<div class="common-btn">
-                                <ul class="list-inline text-left">
-                                    <li><button ng-click="CustomerSummaryReport();" title="All active summary with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Summary</button></li>
-                                    <li><button ng-click="CustomerAgingReport();" title="All active Aging with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Detail</button></li>
-                                </ul>
-                            </div>*@
+                    <ul class="list-inline text-left">
+                        <li><button ng-click="CustomerSummaryReport();" title="All active summary with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Summary</button></li>
+                        <li><button ng-click="CustomerAgingReport();" title="All active Aging with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Detail</button></li>
+                    </ul>
+                </div>*@
 
                     </div>
 
                     <div class="row">
                         @*<div class="col-md-2">
 
-                            </div>*@
+                </div>*@
 
                         @*<div class="col-md-4">
-                                <div class="col-lg-12">
-                                    <label class="chart-title"> Receivable <br><span>{{totalCustomerReceivableAgingPiaAndTable|number:2}}</span></label>
-                                    <canvas id="customerReceivablePieChart" width="200" height="200"></canvas>
-                                </div>
-                            </div>*@
+                    <div class="col-lg-12">
+                        <label class="chart-title"> Receivable <br><span>{{totalCustomerReceivableAgingPiaAndTable|number:2}}</span></label>
+                        <canvas id="customerReceivablePieChart" width="200" height="200"></canvas>
+                    </div>
+                </div>*@
 
                         <div class="col-md-5">
 
@@ -1301,40 +1295,40 @@
                                         </tr>
 
                                         @*<tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
-                                                <td class="doc_dashboardpieTableTD">Today</td>
-                                                <td><span style="background-color:rgba(82, 179, 217, 0.7); border:.5px solid  rgba(82, 179, 217, 0.7)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
-                                                <td style="text-align:center">{{TodayBalanceCustomerNoOfInvoice}}</td>
-                                                <td ng-click="showCustomerReceivableAgingSlotPopUp('TodayBalancePai')" class="doc_dashboardpieTableTDR hoverItem">{{TodayBalanceCustomerPai|number:2}}</td>
-                                            </tr>
+                                    <td class="doc_dashboardpieTableTD">Today</td>
+                                    <td><span style="background-color:rgba(82, 179, 217, 0.7); border:.5px solid  rgba(82, 179, 217, 0.7)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                    <td style="text-align:center">{{TodayBalanceCustomerNoOfInvoice}}</td>
+                                    <td ng-click="showCustomerReceivableAgingSlotPopUp('TodayBalancePai')" class="doc_dashboardpieTableTDR hoverItem">{{TodayBalanceCustomerPai|number:2}}</td>
+                                </tr>
 
-                                            <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
-                                                <td class="doc_dashboardpieTableTD">1-7 Days</td>
-                                                <td><span style="background-color: rgba(253, 227, 167, 0.7); border: .5px solid rgba(253, 227, 167, 0.7)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
-                                                <td style="text-align:center">{{OneToSevenBalanceCustomerNoOfInvoice}}</td>
-                                                <td ng-click="showCustomerReceivableAgingSlotPopUp('OneToSevenBalancePai')" class="doc_dashboardpieTableTDR hoverItem">{{OneToSevenBalanceCustomerPai |number:2}}</td>
-                                            </tr>
+                                <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
+                                    <td class="doc_dashboardpieTableTD">1-7 Days</td>
+                                    <td><span style="background-color: rgba(253, 227, 167, 0.7); border: .5px solid rgba(253, 227, 167, 0.7)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                    <td style="text-align:center">{{OneToSevenBalanceCustomerNoOfInvoice}}</td>
+                                    <td ng-click="showCustomerReceivableAgingSlotPopUp('OneToSevenBalancePai')" class="doc_dashboardpieTableTDR hoverItem">{{OneToSevenBalanceCustomerPai |number:2}}</td>
+                                </tr>
 
-                                            <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
-                                                <td class="doc_dashboardpieTableTD">8-30 Days</td>
-                                                <td><span style="background-color:rgba(65, 246, 188, 0.7); border:.5px solid rgba(65, 246, 188, 0.7)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
-                                                <td style="text-align:center">{{EightToThirtyBalanceCustomerNoOfInvoice}}</td>
-                                                <td ng-click="showCustomerReceivableAgingSlotPopUp('EightToThirtyBalancePai')" class="doc_dashboardpieTableTDR hoverItem">{{EightToThirtyBalanceCustomerPai|number:2}}</td>
-                                            </tr>
+                                <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
+                                    <td class="doc_dashboardpieTableTD">8-30 Days</td>
+                                    <td><span style="background-color:rgba(65, 246, 188, 0.7); border:.5px solid rgba(65, 246, 188, 0.7)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                    <td style="text-align:center">{{EightToThirtyBalanceCustomerNoOfInvoice}}</td>
+                                    <td ng-click="showCustomerReceivableAgingSlotPopUp('EightToThirtyBalancePai')" class="doc_dashboardpieTableTDR hoverItem">{{EightToThirtyBalanceCustomerPai|number:2}}</td>
+                                </tr>
 
-                                            <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
-                                                <td class="doc_dashboardpieTableTD">30-60 Days</td>
-                                                <td><span style="background-color:rgba(196, 171, 93, 0.46); border:.5px solid rgba(196, 171, 93, 0.46)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
-                                                <td style="text-align:center">{{ThirtyToSixtyBalanceCustomerNoOfInvoice}}</td>
-                                                <td ng-click="showCustomerReceivableAgingSlotPopUp('ThirtyToSixtyBalancePai')" class="doc_dashboardpieTableTDR hoverItem">{{ThirtyToSixtyBalanceCustomerPai|number:2}}</td>
-                                            </tr>
+                                <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
+                                    <td class="doc_dashboardpieTableTD">30-60 Days</td>
+                                    <td><span style="background-color:rgba(196, 171, 93, 0.46); border:.5px solid rgba(196, 171, 93, 0.46)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                    <td style="text-align:center">{{ThirtyToSixtyBalanceCustomerNoOfInvoice}}</td>
+                                    <td ng-click="showCustomerReceivableAgingSlotPopUp('ThirtyToSixtyBalancePai')" class="doc_dashboardpieTableTDR hoverItem">{{ThirtyToSixtyBalanceCustomerPai|number:2}}</td>
+                                </tr>
 
-                                            <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
-                                                <td class="doc_dashboardpieTableTD">60 On word</td>
-                                                <td><span style="background-color:rgba(196, 93, 119, 0.46); border:.5px solid rgba(196, 93, 119, 0.46)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
-                                                <td style="text-align:center">{{Onword60CustomerNoOfInvoice}}</td>
-                                                <td ng-click="showCustomerReceivableAgingSlotPopUp('Onword60Pai')" class="doc_dashboardpieTableTDR hoverItem">{{Onword60CustomerPai|number:2}}</td>
+                                <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
+                                    <td class="doc_dashboardpieTableTD">60 On word</td>
+                                    <td><span style="background-color:rgba(196, 93, 119, 0.46); border:.5px solid rgba(196, 93, 119, 0.46)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                    <td style="text-align:center">{{Onword60CustomerNoOfInvoice}}</td>
+                                    <td ng-click="showCustomerReceivableAgingSlotPopUp('Onword60Pai')" class="doc_dashboardpieTableTDR hoverItem">{{Onword60CustomerPai|number:2}}</td>
 
-                                            </tr>*@
+                                </tr>*@
 
                                     </tbody>
 
@@ -1344,7 +1338,7 @@
 
                         @*<div class="col-md-1">
 
-                            </div>*@
+                </div>*@
 
                     </div>
 
@@ -1362,10 +1356,10 @@
                                         <div e-column e-field="InvoiceNo" @*e-template="#hLink"*@ e-headertext="No Of Invoice" e-width="40"></div>
 
                                         @*<td class="text-right">
-                                              <ul class="list-inline action-list">
-                                                  <li><a href="{{bootPoint}}expense-booking-approved/{{x.Id}}" class="btn btn-action">View & Post</a></li>
-                                              </ul>
-                                            </td>*@
+                                  <ul class="list-inline action-list">
+                                      <li><a href="{{bootPoint}}expense-booking-approved/{{x.Id}}" class="btn btn-action">View & Post</a></li>
+                                  </ul>
+                                </td>*@
 
                                         @*<div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="InvoieDate" e-headertext="InvoieDate" e-width="35"></div>*@
                                         <div e-column e-field="SourceType" e-headertext="Source Type" e-width="60" e-textalign="right"></div>
@@ -1397,27 +1391,27 @@
                                 </div>
 
                                 @*<script type="text/template" id="hLink">
-                                        <a href="{{$parent.bootPoint}}party-payment-status-detail/{{data.PartyId}}" class="btn btn-action">{{data.NoOfInvoice}} </a>
-                                    </script>
+                            <a href="{{$parent.bootPoint}}party-payment-status-detail/{{data.PartyId}}" class="btn btn-action">{{data.NoOfInvoice}} </a>
+                        </script>
 
-                                    <script type="text/template" id="checkMasterLC">
-                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
-                                    </script>
+                        <script type="text/template" id="checkMasterLC">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
+                        </script>
 
-                                    <script type="text/x-jsrender" id="headerTemplate">
-                                        <input type="checkbox" id="headchk" />
-                                    </script>*@
+                        <script type="text/x-jsrender" id="headerTemplate">
+                            <input type="checkbox" id="headchk" />
+                        </script>*@
 
 
                             </div>
                         </div>
 
                         @*<div class="common-btn">
-                                <ul class="list-inline text-left">
-                                    <li><button ng-click="InvoiceSummaryReport();" title="All active summary with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Summary</button></li>
-                                    <li><button ng-click="InvoiceAgingReport();" title="All active Aging with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Detail</button></li>
-                                </ul>
-                            </div>*@
+                    <ul class="list-inline text-left">
+                        <li><button ng-click="InvoiceSummaryReport();" title="All active summary with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Summary</button></li>
+                        <li><button ng-click="InvoiceAgingReport();" title="All active Aging with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Detail</button></li>
+                    </ul>
+                </div>*@
 
                     </div>
 
@@ -1449,47 +1443,47 @@
                                     </tr>
 
                                     @*<tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
-                                                <td class="doc_dashboardpieTableTD">Non Shifted Master Order Sales</td>
-                                                <td><span style="background-color:rgba(231, 76, 60,0.7); border:.5px solid rgba(231, 76, 60,0.7)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
-                                                <td style="text-align:center">{{ODueLessThan15CustomerNoOfInvoice}}</td>
-                                                <td ng-click="showCustomerReceivableAgingSlotPopUp('ODueLessThan15Pai')" class="doc_dashboardpieTableTDR hoverItem" style="text-align:right">{{cashInFlowNSMOSBooksBalance|number:2}}</td>
-                                            </tr>
+                                    <td class="doc_dashboardpieTableTD">Non Shifted Master Order Sales</td>
+                                    <td><span style="background-color:rgba(231, 76, 60,0.7); border:.5px solid rgba(231, 76, 60,0.7)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                    <td style="text-align:center">{{ODueLessThan15CustomerNoOfInvoice}}</td>
+                                    <td ng-click="showCustomerReceivableAgingSlotPopUp('ODueLessThan15Pai')" class="doc_dashboardpieTableTDR hoverItem" style="text-align:right">{{cashInFlowNSMOSBooksBalance|number:2}}</td>
+                                </tr>
 
-                                            <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
-                                            <td class="doc_dashboardpieTableTD">Today</td>
-                                            <td><span style="background-color:rgba(82, 179, 217, 0.7); border:.5px solid  rgba(82, 179, 217, 0.7)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
-                                            <td style="text-align:center">{{TodayBalanceCustomerNoOfInvoice}}</td>
-                                            <td ng-click="showCustomerReceivableAgingSlotPopUp('TodayBalancePai')" class="doc_dashboardpieTableTDR hoverItem">{{TodayBalanceCustomerPai|number:2}}</td>
-                                        </tr>
+                                <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
+                                <td class="doc_dashboardpieTableTD">Today</td>
+                                <td><span style="background-color:rgba(82, 179, 217, 0.7); border:.5px solid  rgba(82, 179, 217, 0.7)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                <td style="text-align:center">{{TodayBalanceCustomerNoOfInvoice}}</td>
+                                <td ng-click="showCustomerReceivableAgingSlotPopUp('TodayBalancePai')" class="doc_dashboardpieTableTDR hoverItem">{{TodayBalanceCustomerPai|number:2}}</td>
+                            </tr>
 
-                                        <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
-                                            <td class="doc_dashboardpieTableTD">1-7 Days</td>
-                                            <td><span style="background-color: rgba(253, 227, 167, 0.7); border: .5px solid rgba(253, 227, 167, 0.7)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
-                                            <td style="text-align:center">{{OneToSevenBalanceCustomerNoOfInvoice}}</td>
-                                            <td ng-click="showCustomerReceivableAgingSlotPopUp('OneToSevenBalancePai')" class="doc_dashboardpieTableTDR hoverItem">{{OneToSevenBalanceCustomerPai |number:2}}</td>
-                                        </tr>
+                            <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
+                                <td class="doc_dashboardpieTableTD">1-7 Days</td>
+                                <td><span style="background-color: rgba(253, 227, 167, 0.7); border: .5px solid rgba(253, 227, 167, 0.7)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                <td style="text-align:center">{{OneToSevenBalanceCustomerNoOfInvoice}}</td>
+                                <td ng-click="showCustomerReceivableAgingSlotPopUp('OneToSevenBalancePai')" class="doc_dashboardpieTableTDR hoverItem">{{OneToSevenBalanceCustomerPai |number:2}}</td>
+                            </tr>
 
-                                        <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
-                                            <td class="doc_dashboardpieTableTD">8-30 Days</td>
-                                            <td><span style="background-color:rgba(65, 246, 188, 0.7); border:.5px solid rgba(65, 246, 188, 0.7)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
-                                            <td style="text-align:center">{{EightToThirtyBalanceCustomerNoOfInvoice}}</td>
-                                            <td ng-click="showCustomerReceivableAgingSlotPopUp('EightToThirtyBalancePai')" class="doc_dashboardpieTableTDR hoverItem">{{EightToThirtyBalanceCustomerPai|number:2}}</td>
-                                        </tr>
+                            <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
+                                <td class="doc_dashboardpieTableTD">8-30 Days</td>
+                                <td><span style="background-color:rgba(65, 246, 188, 0.7); border:.5px solid rgba(65, 246, 188, 0.7)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                <td style="text-align:center">{{EightToThirtyBalanceCustomerNoOfInvoice}}</td>
+                                <td ng-click="showCustomerReceivableAgingSlotPopUp('EightToThirtyBalancePai')" class="doc_dashboardpieTableTDR hoverItem">{{EightToThirtyBalanceCustomerPai|number:2}}</td>
+                            </tr>
 
-                                        <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
-                                            <td class="doc_dashboardpieTableTD">30-60 Days</td>
-                                            <td><span style="background-color:rgba(196, 171, 93, 0.46); border:.5px solid rgba(196, 171, 93, 0.46)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
-                                            <td style="text-align:center">{{ThirtyToSixtyBalanceCustomerNoOfInvoice}}</td>
-                                            <td ng-click="showCustomerReceivableAgingSlotPopUp('ThirtyToSixtyBalancePai')" class="doc_dashboardpieTableTDR hoverItem">{{ThirtyToSixtyBalanceCustomerPai|number:2}}</td>
-                                        </tr>
+                            <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
+                                <td class="doc_dashboardpieTableTD">30-60 Days</td>
+                                <td><span style="background-color:rgba(196, 171, 93, 0.46); border:.5px solid rgba(196, 171, 93, 0.46)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                <td style="text-align:center">{{ThirtyToSixtyBalanceCustomerNoOfInvoice}}</td>
+                                <td ng-click="showCustomerReceivableAgingSlotPopUp('ThirtyToSixtyBalancePai')" class="doc_dashboardpieTableTDR hoverItem">{{ThirtyToSixtyBalanceCustomerPai|number:2}}</td>
+                            </tr>
 
-                                        <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
-                                            <td class="doc_dashboardpieTableTD">60 On word</td>
-                                            <td><span style="background-color:rgba(196, 93, 119, 0.46); border:.5px solid rgba(196, 93, 119, 0.46)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
-                                            <td style="text-align:center">{{Onword60CustomerNoOfInvoice}}</td>
-                                            <td ng-click="showCustomerReceivableAgingSlotPopUp('Onword60Pai')" class="doc_dashboardpieTableTDR hoverItem">{{Onword60CustomerPai|number:2}}</td>
+                            <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
+                                <td class="doc_dashboardpieTableTD">60 On word</td>
+                                <td><span style="background-color:rgba(196, 93, 119, 0.46); border:.5px solid rgba(196, 93, 119, 0.46)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                <td style="text-align:center">{{Onword60CustomerNoOfInvoice}}</td>
+                                <td ng-click="showCustomerReceivableAgingSlotPopUp('Onword60Pai')" class="doc_dashboardpieTableTDR hoverItem">{{Onword60CustomerPai|number:2}}</td>
 
-                                        </tr>*@
+                            </tr>*@
 
                                 </tbody>
 
@@ -1537,10 +1531,10 @@
                                     @*<div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkMasterLC" e-textalign="center" e-width="30"></div>*@
 
                                     @*<td class="text-right">
-                                          <ul class="list-inline action-list">
-                                              <li><a href="{{bootPoint}}expense-booking-approved/{{x.Id}}" class="btn btn-action">View & Post</a></li>
-                                          </ul>
-                                        </td>*@
+                              <ul class="list-inline action-list">
+                                  <li><a href="{{bootPoint}}expense-booking-approved/{{x.Id}}" class="btn btn-action">View & Post</a></li>
+                              </ul>
+                            </td>*@
                                     <div e-column e-type="string" e-field="SourceType" e-headertext="Source Type" e-width="80"></div>
                                     <div e-column e-type="string" e-field="AcceptanceNo" e-headertext="AccNo" e-width="80"></div>
                                     <div e-column e-type="date" e-field="AcceptanceDate" e-headertext="Date" e-format="{0:dd-MMM-yyyy}" e-width="50"></div>
@@ -1592,32 +1586,32 @@
                                 </div>
                             </script>
                             @*<script type="text/template" id="hLink">
-                                    <a href="{{$parent.bootPoint}}party-payment-status-detail/{{data.PartyId}}" class="btn btn-action">{{data.NoOfInvoice}} </a>
-                                </script>
+                        <a href="{{$parent.bootPoint}}party-payment-status-detail/{{data.PartyId}}" class="btn btn-action">{{data.NoOfInvoice}} </a>
+                    </script>
 
-                                <script type="text/template" id="checkMasterLC">
-                                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
-                                </script>
+                    <script type="text/template" id="checkMasterLC">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
+                    </script>
 
-                                <script type="text/x-jsrender" id="headerTemplate">
-                                    <input type="checkbox" id="headchk" />
-                                </script>*@
+                    <script type="text/x-jsrender" id="headerTemplate">
+                        <input type="checkbox" id="headchk" />
+                    </script>*@
 
 
 
                         </div>
 
                         @*<div class="form-group">
-                                <div class="col-xs-12 col-sm-12 col-md-12">
-                                    <ul class="common-btn list-inline text-right">
-                                        <li>
-                                            <div ej-tooltip e-showshadow="true" e-content="All Acceptance values" ng-click="getAcceptanceLiabilityReport();" e-width="width">
-                                                <button class="btn"><i class="glyphicon glyphicon-file"></i>Downloard</button>
-                                            </div>
-                                        </li>
-                                    </ul>
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <ul class="common-btn list-inline text-right">
+                            <li>
+                                <div ej-tooltip e-showshadow="true" e-content="All Acceptance values" ng-click="getAcceptanceLiabilityReport();" e-width="width">
+                                    <button class="btn"><i class="glyphicon glyphicon-file"></i>Downloard</button>
                                 </div>
-                            </div>*@
+                            </li>
+                        </ul>
+                    </div>
+                </div>*@
 
 
                         <div class="common-btn">
@@ -1732,15 +1726,15 @@
                                 </div>
                             </script>
                             @*<script type="text/template" id="hLink">
-                                    <a href="{{$parent.bootPoint}}party-payment-status-detail/{{data.PartyId}}" class="btn btn-action">{{data.NoOfInvoice}} </a>
-                                </script>*@
+                        <a href="{{$parent.bootPoint}}party-payment-status-detail/{{data.PartyId}}" class="btn btn-action">{{data.NoOfInvoice}} </a>
+                    </script>*@
 
                             @*<script type="text/template" id="checkOtherLiability">
-                                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
-                                </script>
-                                <script type="text/x-jsrender" id="headerTemplateOLiab">
-                                    <input type="checkbox" id="headchkOLia" />
-                                </script>*@
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
+                    </script>
+                    <script type="text/x-jsrender" id="headerTemplateOLiab">
+                        <input type="checkbox" id="headchkOLia" />
+                    </script>*@
 
 
 
@@ -1759,90 +1753,90 @@
 
 
                     @*<div class="row">
-                            <div class="col-md-2">
+                <div class="col-md-2">
 
-                            </div>
-                            <div class="col-md-4">
-                                <div class="col-lg-12">
-                                    <label class="chart-title"> Payable <br><span>{{totalAgingdonught|number:2}}</span></label>
-                                    <canvas id="attnPieChart" width="200" height="200"></canvas>
-                                </div>
-                            </div>
-                            <div class="col-md-5">
-                                <div class="col-lg-12 doc_dashboardpieTableDiv" style="margin-left: -6.5%;width: 45.666667%;">
-                                    <table class="table  table-hover doc_dashboardpieTable">
-                                        <thead>
-                                            <tr>
-                                                <th>Particulars</th>
-                                                <th>Colors</th>
-                                                <th class="text-right">No Of Invoices</th>
-                                                <th class="text-right">Amount</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr style="cursor:pointer;">
-                                                <td class="doc_dashboardpieTableTD">Over Due More Than 30:</td>
-                                                <td><span style="background-color:rgba(242, 38, 19, 1); border:.5px solid rgba(242, 38, 19, 1)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
-                                                <td class="doc_dashboardpieTableTDR hoverItem" style="text-align:center">{{ODueMoreThan30NoOfInvoicePai}}</td>
-                                                <td ng-click="showPartyWiseDueAmountPopUp('ODueMoreThan30Pai')" class="doc_dashboardpieTableTDR hoverItem">{{ODueMoreThan30Pai|number:2}}</td>
-                                            </tr>
-                                            <tr ng-click="GetModalDueDoc();" style="cursor:pointer;">
-                                                <td class="doc_dashboardpieTableTD">Over Due More Than 15 Days</td>
+                </div>
+                <div class="col-md-4">
+                    <div class="col-lg-12">
+                        <label class="chart-title"> Payable <br><span>{{totalAgingdonught|number:2}}</span></label>
+                        <canvas id="attnPieChart" width="200" height="200"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="col-lg-12 doc_dashboardpieTableDiv" style="margin-left: -6.5%;width: 45.666667%;">
+                        <table class="table  table-hover doc_dashboardpieTable">
+                            <thead>
+                                <tr>
+                                    <th>Particulars</th>
+                                    <th>Colors</th>
+                                    <th class="text-right">No Of Invoices</th>
+                                    <th class="text-right">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="cursor:pointer;">
+                                    <td class="doc_dashboardpieTableTD">Over Due More Than 30:</td>
+                                    <td><span style="background-color:rgba(242, 38, 19, 1); border:.5px solid rgba(242, 38, 19, 1)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                    <td class="doc_dashboardpieTableTDR hoverItem" style="text-align:center">{{ODueMoreThan30NoOfInvoicePai}}</td>
+                                    <td ng-click="showPartyWiseDueAmountPopUp('ODueMoreThan30Pai')" class="doc_dashboardpieTableTDR hoverItem">{{ODueMoreThan30Pai|number:2}}</td>
+                                </tr>
+                                <tr ng-click="GetModalDueDoc();" style="cursor:pointer;">
+                                    <td class="doc_dashboardpieTableTD">Over Due More Than 15 Days</td>
 
-                                                <td><span style="background-color:rgba(150, 40, 27, 1); border:.5px solid rgba(150, 40, 27, 1)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
-                                                <td style="text-align:center">{{ODueMoreThan15NoOfInvoicePai}}</td>
-                                                <td ng-click="showPartyWiseDueAmountPopUp('ODueMoreThan15Pai')" class="doc_dashboardpieTableTDR hoverItem">{{ODueMoreThan15Pai|number:2}}</td>
-                                            </tr>
-                                            <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
-                                                <td class="doc_dashboardpieTableTD">Over Due Less Than 15 Days</td>
-                                                <td><span style="background-color:rgba(231, 76, 60,0.7); border:.5px solid rgba(231, 76, 60,0.7)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
-                                                <td style="text-align:center">{{ODueLessThan15NoOfInvoicePai}}</td>
-                                                <td ng-click="showPartyWiseDueAmountPopUp('ODueLessThan15Pai')" class="doc_dashboardpieTableTDR hoverItem">{{ODueLessThan15Pai|number:2}}</td>
-                                            </tr>
+                                    <td><span style="background-color:rgba(150, 40, 27, 1); border:.5px solid rgba(150, 40, 27, 1)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                    <td style="text-align:center">{{ODueMoreThan15NoOfInvoicePai}}</td>
+                                    <td ng-click="showPartyWiseDueAmountPopUp('ODueMoreThan15Pai')" class="doc_dashboardpieTableTDR hoverItem">{{ODueMoreThan15Pai|number:2}}</td>
+                                </tr>
+                                <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
+                                    <td class="doc_dashboardpieTableTD">Over Due Less Than 15 Days</td>
+                                    <td><span style="background-color:rgba(231, 76, 60,0.7); border:.5px solid rgba(231, 76, 60,0.7)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                    <td style="text-align:center">{{ODueLessThan15NoOfInvoicePai}}</td>
+                                    <td ng-click="showPartyWiseDueAmountPopUp('ODueLessThan15Pai')" class="doc_dashboardpieTableTDR hoverItem">{{ODueLessThan15Pai|number:2}}</td>
+                                </tr>
 
-                                            <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
-                                                <td class="doc_dashboardpieTableTD">Today</td>
-                                                <td><span style="background-color:rgba(82, 179, 217, 0.7); border:.5px solid  rgba(82, 179, 217, 0.7)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
-                                                <td style="text-align:center">{{TodayBalanceNoOfInvoicePai}}</td>
-                                                <td ng-click="showPartyWiseDueAmountPopUp('TodayBalancePai')" class="doc_dashboardpieTableTDR hoverItem">{{TodayBalancePai|number:2}}</td>
-                                            </tr>
+                                <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
+                                    <td class="doc_dashboardpieTableTD">Today</td>
+                                    <td><span style="background-color:rgba(82, 179, 217, 0.7); border:.5px solid  rgba(82, 179, 217, 0.7)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                    <td style="text-align:center">{{TodayBalanceNoOfInvoicePai}}</td>
+                                    <td ng-click="showPartyWiseDueAmountPopUp('TodayBalancePai')" class="doc_dashboardpieTableTDR hoverItem">{{TodayBalancePai|number:2}}</td>
+                                </tr>
 
-                                            <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
-                                                <td class="doc_dashboardpieTableTD">1-7 Days</td>
-                                                <td><span style="background-color: rgba(253, 227, 167, 0.7); border: .5px solid rgba(253, 227, 167, 0.7)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
-                                                <td style="text-align:center">{{OneToSevenBalanceNoOfInvoicePai}}</td>
-                                                <td ng-click="showPartyWiseDueAmountPopUp('OneToSevenBalancePai')" class="doc_dashboardpieTableTDR hoverItem">{{OneToSevenBalancePai |number:2}}</td>
-                                            </tr>
+                                <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
+                                    <td class="doc_dashboardpieTableTD">1-7 Days</td>
+                                    <td><span style="background-color: rgba(253, 227, 167, 0.7); border: .5px solid rgba(253, 227, 167, 0.7)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                    <td style="text-align:center">{{OneToSevenBalanceNoOfInvoicePai}}</td>
+                                    <td ng-click="showPartyWiseDueAmountPopUp('OneToSevenBalancePai')" class="doc_dashboardpieTableTDR hoverItem">{{OneToSevenBalancePai |number:2}}</td>
+                                </tr>
 
-                                            <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
-                                                <td class="doc_dashboardpieTableTD">8-30 Days</td>
-                                                <td><span style="background-color:rgba(65, 246, 188, 0.7); border:.5px solid rgba(65, 246, 188, 0.7)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
-                                                <td style="text-align:center">{{EightToThirtyBalanceNoOfInvoicePai}}</td>
-                                                <td ng-click="showPartyWiseDueAmountPopUp('EightToThirtyBalancePai')" class="doc_dashboardpieTableTDR hoverItem">{{EightToThirtyBalancePai|number:2}}</td>
-                                            </tr>
+                                <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
+                                    <td class="doc_dashboardpieTableTD">8-30 Days</td>
+                                    <td><span style="background-color:rgba(65, 246, 188, 0.7); border:.5px solid rgba(65, 246, 188, 0.7)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                    <td style="text-align:center">{{EightToThirtyBalanceNoOfInvoicePai}}</td>
+                                    <td ng-click="showPartyWiseDueAmountPopUp('EightToThirtyBalancePai')" class="doc_dashboardpieTableTDR hoverItem">{{EightToThirtyBalancePai|number:2}}</td>
+                                </tr>
 
-                                            <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
-                                                <td class="doc_dashboardpieTableTD">30-60 Days</td>
-                                                <td><span style="background-color:rgba(196, 171, 93, 0.46); border:.5px solid rgba(196, 171, 93, 0.46)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
-                                                <td style="text-align:center">{{ThirtyToSixtyBalanceNoOfInvoicePai}}</td>
-                                                <td ng-click="showPartyWiseDueAmountPopUp('ThirtyToSixtyBalancePai')" class="doc_dashboardpieTableTDR hoverItem">{{ThirtyToSixtyBalancePai|number:2}}</td>
-                                            </tr>
+                                <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
+                                    <td class="doc_dashboardpieTableTD">30-60 Days</td>
+                                    <td><span style="background-color:rgba(196, 171, 93, 0.46); border:.5px solid rgba(196, 171, 93, 0.46)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                    <td style="text-align:center">{{ThirtyToSixtyBalanceNoOfInvoicePai}}</td>
+                                    <td ng-click="showPartyWiseDueAmountPopUp('ThirtyToSixtyBalancePai')" class="doc_dashboardpieTableTDR hoverItem">{{ThirtyToSixtyBalancePai|number:2}}</td>
+                                </tr>
 
-                                            <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
-                                                <td class="doc_dashboardpieTableTD">60 On word</td>
-                                                <td><span style="background-color:rgba(196, 93, 119, 0.46); border:.5px solid rgba(196, 93, 119, 0.46)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
-                                                <td style="text-align:center">{{Onword60NoOfInvoicePai}}</td>
-                                                <td ng-click="showPartyWiseDueAmountPopUp('Onword60Pai')" class="doc_dashboardpieTableTDR hoverItem">{{Onword60Pai|number:2}}</td>
-                                            </tr>
+                                <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
+                                    <td class="doc_dashboardpieTableTD">60 On word</td>
+                                    <td><span style="background-color:rgba(196, 93, 119, 0.46); border:.5px solid rgba(196, 93, 119, 0.46)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                    <td style="text-align:center">{{Onword60NoOfInvoicePai}}</td>
+                                    <td ng-click="showPartyWiseDueAmountPopUp('Onword60Pai')" class="doc_dashboardpieTableTDR hoverItem">{{Onword60Pai|number:2}}</td>
+                                </tr>
 
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="col-md-1">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-1">
 
-                            </div>
-                        </div>*@
+                </div>
+            </div>*@
 
 
                 </div>
@@ -1890,10 +1884,10 @@
                                         @*<div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkMasterLC" e-textalign="center" e-width="30"></div>*@
 
                                         @*<td class="text-right">
-                                              <ul class="list-inline action-list">
-                                                  <li><a href="{{bootPoint}}expense-booking-approved/{{x.Id}}" class="btn btn-action">View & Post</a></li>
-                                              </ul>
-                                            </td>*@
+                                  <ul class="list-inline action-list">
+                                      <li><a href="{{bootPoint}}expense-booking-approved/{{x.Id}}" class="btn btn-action">View & Post</a></li>
+                                  </ul>
+                                </td>*@
 
                                         @*<div e-column e-type="string" e-field="PurchaseDocAcceptanceId" e-headertext="Id" e-width="80"></div>*@
                                         <div e-column e-type="string" e-field="AcceptanceNo" e-headertext="AccNo" e-width="80"></div>
@@ -1936,16 +1930,16 @@
                                 </div>
 
                                 @*<script type="text/template" id="hLink">
-                                        <a href="{{$parent.bootPoint}}party-payment-status-detail/{{data.PartyId}}" class="btn btn-action">{{data.NoOfInvoice}} </a>
-                                    </script>
+                            <a href="{{$parent.bootPoint}}party-payment-status-detail/{{data.PartyId}}" class="btn btn-action">{{data.NoOfInvoice}} </a>
+                        </script>
 
-                                    <script type="text/template" id="checkMasterLC">
-                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
-                                    </script>
+                        <script type="text/template" id="checkMasterLC">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
+                        </script>
 
-                                    <script type="text/x-jsrender" id="headerTemplate">
-                                        <input type="checkbox" id="headchk" />
-                                    </script>*@
+                        <script type="text/x-jsrender" id="headerTemplate">
+                            <input type="checkbox" id="headchk" />
+                        </script>*@
 
 
                             </div>
@@ -2529,6 +2523,67 @@
                                 <ul class="list-inline text-left">
                                     <li>
                                         <button ng-click="ReceiptFromCustomerReportExcel();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Download</button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(24), active: isSet(24) }">
+                    <div class="row">
+                        <fieldset class="scheduler-border">
+                            <div class="form-group" id="div_PSToDate">
+                                <div class="form-group">
+                                    <label class="col-sm-1 control-label">From Date<sup>*</sup></label>
+                                    <div class="col-sm-2">
+                                        <input type="text" name="FromDate" ng-model="reportPAI.FromDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="3">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-1 control-label">ToDate<sup>*</sup></label>
+                                    <div class="col-sm-2">
+                                        <input type="text" name="FromDate" ng-model="reportPAI.ToDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="3">
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button ng-click="GetPaymentAgainstInvoiceData();" title="As On Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <div class="col-md-12">
+                            <div style="color:black;" id="GridPAI" ej-grid e-datasource="PaymentAgainstInvoiceList"
+                                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-filtersettings-filterType="excel"
+                                 e-enabletouch="false" e-allowresizing="true" e-allowselection="false" e-allowsorting="true">
+                                <div e-columns>
+                                    <div e-column e-field="CustomerCode" e-headertext="Customer Code" e-width="70"></div>
+                                    <div e-column e-field="Customer" e-headertext="Customer" e-width="100"></div>
+                                    <div e-column e-field="PaymentVoucherNo" e-headertext="Payment Voucher No" e-width="120"></div>
+                                    <div e-column e-field="PaymentPostingDate" e-headertext="Payment Posting Date" e-width="80"></div>
+                                    <div e-column e-field="Currency" e-headertext="Currency" e-width="60"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="InvoiceAmount" e-headertext="Invoice Amount" e-width="80" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-field="InvoiceNo" e-headertext="Invoice No" e-width="130"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Payment" e-headertext="Payment" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ToCurrencyRate" e-headertext="To Currency Rate" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Balance" e-headertext="Balance" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="DebitNote" e-headertext="Debit Note" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-field="InvoiceVoucherNo" e-headertext="Invoice Voucher No" e-width="120"></div>
+                                    <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="80"></div>
+                                    <div e-column e-field="InvoiceDocRefNo" e-headertext="Invoice Doc Ref No" e-width="120"></div>
+                                    <div e-column e-field="PaymentSource" e-headertext="Payment Source" e-width="80"></div>
+                                    <div e-column e-field="BankDetail" e-headertext="Bank Detail" e-width="100"></div>
+                                    <div e-column e-field="CashDetail" e-headertext="Cash Detail" e-width="100"></div>
+                                </div>
+                            </div>
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li>
+                                        <button ng-click="PaymentAgainstInvoiceReportExcel();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Download</button>
                                     </li>
                                 </ul>
                             </div>
