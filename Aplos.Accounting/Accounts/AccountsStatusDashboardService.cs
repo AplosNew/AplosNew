@@ -23029,7 +23029,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 COL++;
 
                 sheet[ROW, COL].Text = "Department";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].ColumnWidth = 18;
                 int ColDepartment = COL;
                 COL++;
 
@@ -23049,7 +23049,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 COL++;
 
                 sheet[ROW, COL].Text = "Balance";
-                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].ColumnWidth = 12;
                 int ColBalance = COL;                 
 
                 #endregion columns
@@ -23138,7 +23138,7 @@ group by Id) O60 ON O60.Id=IV.Id
 				LEFT JOIN HKP.Designation DS ON DS.Id=EI.GivenDesignationId
                 WHERE EP.Archive=0 AND EP.IsPark=0 AND EP.IsWrittenOff=0 AND EPD.IsWrittenOff=0 AND EPD.IsBlock=0 AND EP.SourceType IN ('EmployeePayable','SalaryPayable','VendorInvoice','InventoryPayable')
 				AND ISNULL(EP.EmployeeId,'')<>'' AND (EPD.NetAmount-EPD.WrittenOffAmount)>0 
-				AND EP.EmployeeId in ('" + EmpIds + "')";
+				AND EP.EmployeeId in (" + EmpIds + ")";
 
             return _sqlRepository.GetDataTable(strSql); 
         }

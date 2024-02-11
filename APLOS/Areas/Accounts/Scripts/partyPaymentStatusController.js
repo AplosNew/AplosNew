@@ -4670,13 +4670,15 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
     $scope.EmployeeDetailReport = function () {
         try {
-            var NewMasterEmpIds = [];
+            $scope.NewMasterEmpIds = [];
             for (var i = 0; i < $scope.EmployeeDataList.length; i++) {
                 if ($scope.EmployeeDataList[i].isSelected == true) {
-                    NewMasterEmpIds.push($scope.EmployeeDataList[i].EmployeeId);
+                    $scope.NewMasterEmpIds.push($scope.EmployeeDataList[i].EmployeeId);
                 }
             }
-            if (NewMasterEmpIds.length == 0) {
+            var empIds = getString($scope.NewMasterEmpIds);
+
+            if ($scope.NewMasterEmpIds.length == 0) {
                 ShowResult('Please select at least one Employee', 'failure');
             }
             $scope.fileName = 'Employee Details Report.xlsx';
@@ -4684,7 +4686,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $http({
                 method: 'POST',
                 url: $scope.path + "GetEmployeeDetailsReport",
-                data: { 'data': NewMasterEmpIds, 'reportFileName': $scope.fileName },
+                data: { 'EmpIds': empIds, 'reportFileName': $scope.fileName },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
@@ -4701,6 +4703,17 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         }
     }
 
+    var getString = function (data) {
+        var string = "''";
+        var collection = [];
+        for (var i = 0; i < data.length; i++) {
+            if (collection.includes(data[i]) == false) {
+                string += ",'" + data[i] + "'";
+                collection.push(data[i]);
+            }
+        }
+        return string;
+    }
     //**********************#endregion Employee**************************
 
 }
