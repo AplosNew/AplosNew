@@ -33,13 +33,13 @@
                 <div class="form-group" show-errors id="div_FromDate">
                     <label class="col-sm-3 control-label">{{fromDateTitle}}<sup>*</sup></label>
                     <div class="col-sm-7 show-message">
-                        <input type="text" name="Date" ng-model="report.FromDate" datepicker class="form-control" required tabindex="3">
+                        <input type="text" name="Date" ng-model="report.FromDate" ng-change="checkYearClosedByDate(report.FromDate);" datepicker class="form-control" required tabindex="3">
                     </div>
                 </div>
                 <div ng-show="toDateShow" class="form-group" show-errors id="div_WDToDate">
                     <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
                     <div class="col-sm-7 show-message">
-                        <input type="text" name="Date" ng-model="report.ToDate" datepicker class="form-control" required tabindex="4">
+                        <input type="text" name="Date" ng-model="report.ToDate" ng-change="checkYearClosedByDate(report.ToDate);" datepicker class="form-control" required tabindex="4">
                     </div>
                 </div>
                 <div class="form-group">
@@ -104,6 +104,61 @@
                     </div>
                 </div>
             </fieldset>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4" ng-show="masterList.length">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Year Closed Trial Balance</legend>
+                <div class="form-group" id="div_FiscalYearName">
+                    <label class="col-sm-3 control-label">Fiscal Year<sup>*</sup></label>
+                    <div class="col-sm-7 show-message">
+                        <div class="input-group">
+                            <input type="text" ng-model="yearClosedTBReport.FiscalYearName" class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <button ng-click="getMasterData();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Up To<sup>*</sup></label>
+                    <div class="col-sm-7 show-message">
+                        <div class="select-style">
+                            <select id="upToLevel" class="form-control" name="upToLevel" ng-model="yearClosedTBReport.IsUpToLevel" ng-change="yearClosedLevelAssaignTB(yearClosedTBReport.IsUpToLevel)" required tabindex="3">
+                                <option ng-repeat="option in upToLevelList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button ng-click="getYearClosedTBReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+                    </ul>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="modal fade site-modal in" id="FiscalYearClosepopUp" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg modellgModify1">
+            <div class="modal-content">
+                <div class="modal-header"> Fiscal Year Close <button type="button" class="close" ng-click="closePopUp();">&times;</button></div>
+                <div class="modal-body form-elements form-horizontal">
+                    <div class="col-md-12">
+                        <div style="color:black;" id="GridMaster" ej-grid e-datasource="masterList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-recorddoubleclick="SelectMaster" e-allowselection="true" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Master Id" e-width="40"></div>
+                                <div e-column e-field="FiscalYearName" e-headertext="Fiscal Year" e-width="80"></div>
+                                <div e-column e-field="CompanyName" e-headertext="Company" e-width="80"></div>
+                                <div e-column e-field="PlantName" e-headertext="Plant" e-width="80"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="common-btn list-inline text-right">
+                        <li><button ng-click="closePopUp();" class="btn"> Close</button></li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 

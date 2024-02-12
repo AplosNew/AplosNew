@@ -85,6 +85,7 @@ function trialBalanceReportController($scope, $rootScope, $filter, baseService, 
         }).then(function successCallback(response) {
             $scope.upToLevelList = response.data;
             $scope.report.IsUpToLevel = response.data[0].Value;
+            $scope.yearClosedTBReport.IsUpToLevel = response.data[0].Value;
         });
     };
     $scope.getLevelType();
@@ -249,4 +250,113 @@ function trialBalanceReportController($scope, $rootScope, $filter, baseService, 
         $scope.PartyId = null;
         $scope.PartyName = null;
     }
+
+    $scope.yearClosedByDateList = [];
+    $scope.checkYearClosedByDate = function (date) {
+        $scope.yearClosedByDateList = [];
+        $http({
+            method: "GET",
+            url: "accounts/FiscalYearClose/CheckYearClosedByDate?date=" + date
+        }).then(function successCallback(response) {
+            $scope.yearClosedByDateList = response.data;
+            if ($scope.yearClosedByDateList.length > 0) {
+                $scope.report.FromDate = $filter('dateFiltering')(Date.now());
+                $scope.report.ToDate = $filter('dateFiltering')(Date.now());
+                $scope.report.Date = $filter('dateFiltering')(Date.now());
+                ShowResult('Fiscal Year already closed!!!', 'failure');
+            }
+        });
+    };
+
+    //Year Closed Income Statement
+    $scope.yearClosedTBReport = {
+        FiscalYearCloseId: null,
+        FiscalYearName: null,
+        IsUpToLevel: null,
+        IsBudgetLevel: false,
+        IsActivityLevel: false,
+        IsDetailLevel: false,
+        isACGroupLevel: false,
+        ReportFormat: 'Excel'
+    };
+    $scope.yearClosedLevelAssaignTB = function (level) {
+        $scope.yearClosedTBReport.IsBudgetLevel = false;
+        $scope.yearClosedTBReport.IsActivityLevel = false;
+        $scope.yearClosedTBReport.IsDetailLevel = false;
+        if (level == 'GL') {
+            $scope.yearClosedTBReport.IsBudgetLevel = false;
+            $scope.yearClosedTBReport.IsActivityLevel = false;
+            $scope.yearClosedTBReport.IsDetailLevel = false;
+
+        }
+        if (level == 'Budget') {
+            $scope.yearClosedTBReport.IsBudgetLevel = true;
+            $scope.yearClosedTBReport.IsActivityLevel = false;
+            $scope.yearClosedTBReport.IsDetailLevel = false;
+
+        }
+        if (level == 'Activity') {
+            $scope.yearClosedTBReport.IsBudgetLevel = false;
+            $scope.yearClosedTBReport.IsActivityLevel = true;
+            $scope.yearClosedTBReport.IsDetailLevel = false;
+
+        }
+        if (level == 'Detail') {
+            $scope.yearClosedTBReport.IsDetailLevel = true;
+            $scope.yearClosedTBReport.IsBudgetLevel = false;
+            $scope.yearClosedTBReport.IsActivityLevel = false;
+            $scope.yearClosedTBReport.isACGroupLevel = false;
+        }
+    };
+    $scope.masterList = [];
+    $scope.getMasterData = function () {
+        $scope.masterList = [];
+        $http.get("accounts/FiscalYearClose/GetFiscalYearClosedListForReporting")
+            .then(
+                function successCallback(response) {
+                    $scope.masterList = response.data;
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+        angular.element(document.querySelector('#FiscalYearClosepopUp')).modal('show');
+    };
+    $scope.getFiscalYearClosedData = function () {
+        $scope.masterList = [];
+        $http.get("accounts/FiscalYearClose/GetFiscalYearClosedListForReporting")
+            .then(
+                function successCallback(response) {
+                    $scope.masterList = response.data;
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
+    $scope.getFiscalYearClosedData();
+
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#FiscalYearClosepopUp')).modal('hide');
+    }
+
+    $scope.SelectMaster = function (x) {
+        var data = x.data;
+        $scope.yearClosedTBReport.FiscalYearCloseId = data.Id;
+        $scope.yearClosedTBReport.FiscalYearName = data.FiscalYearName;
+        angular.element(document.querySelector('#FiscalYearClosepopUp')).modal('hide');
+    };
+    $scope.getYearClosedTBReport = function () {
+        if (baseService.isUndefinedOrNull($scope.yearClosedTBReport.FiscalYearName)) {
+            manualValidation('div_FiscalYearName', true, "Fiscal Year is required.");
+        }
+        else {
+            var url = 'Accounts/Voucher/TrialBalanceYearClosedReport?reportFormat=' + $scope.yearClosedTBReport.ReportFormat
+                + '&fiscalYearCloseId=' + $scope.yearClosedTBReport.FiscalYearCloseId + '&fiscalYearName=' + $scope.yearClosedTBReport.FiscalYearName
+                + '&isBudgetLevel=' + $scope.yearClosedTBReport.IsBudgetLevel
+                + '&isActivityLevel=' + $scope.yearClosedTBReport.IsActivityLevel
+                + '&isDetailLevel=' + $scope.yearClosedTBReport.IsDetailLevel ;
+            $window.open(url, '_blank');
+            //location.href = 'accounts/voucher/TrialBalanceYearClosedReport?fiscalYearCloseId=' + $scope.yearClosedTBReport.FiscalYearCloseId + '&fiscalYearName=' + $scope.yearClosedTBReport.FiscalYearName + '&isBudgetLevel=' + $scope.yearClosedTBReport.IsBudgetLevel + '&isActivityLevel=' + $scope.yearClosedTBReport.IsActivityLevel + '&isDetailLevel=' + $scope.yearClosedTBReport.IsDetailLevel;
+        }
+    };
+    //Year Closed Income Statement
 }

@@ -22846,7 +22846,264 @@ group by Id) O60 ON O60.Id=IV.Id
         }
 
         #endregion  Receipt from Customer
-        
+
+        #region Payment Against Invoice
+        public IEnumerable<object> GetPaymentAgainstInvoiceList(string fromDate, string toDate)
+        {
+            try
+            {
+                var sql = @"select  P.Code CustomerCode,P.UserName Customer ,V.VoucherNo PaymentVoucherNo,format(IWO.PostingDate,'dd-MMM-yyyy') PaymentPostingDate
+												,C.Code Currency
+												,I.Amount InvoiceAmount,I.DocRefNo InvoiceNo
+												,IWOD.Amount Payment,VDC.ToCurrencyRate
+												,Balance=I.Amount- SUM(IWOD.Amount)   over (partition by I.Id),SR.Amount DebitNote
+												,VI.VoucherNo InvoiceVoucherNo,format(I.DocDate,'dd-MMM-yyyy')InvoiceDate,VI.DocRefNo InvoiceDocRefNo
+												,PaymentSource=case when IWO.PaymentSource<>'' then IWO.PaymentSource when awd.AccountTitle<>'' then 'Advance' else NULL end
+												,[BankDetail]=case when bm.AccountTitle<>'' then bm.AccountTitle else awd.AccountTitle end
+												,[CashDetail]=Cm.UserName
+						                      
+						                        from TRN.InvoiceWriteOffDetail IWOD
+						                        left join TRN.InvoiceWriteOff IWO on IWO.Id=IWOD.InvoiceWriteOffId
+						                        left join TRN.Voucher V on V.Id=IWO.VoucherId
+						                        left join TRN.VoucherDetail  VD on VD.InvoiceWriteOffDetailId=IWOD.Id
+						                        left join TRN.VoucherDetailCurrency VDC on VDC.VoucherDetailId=VD.Id
+												left join trn.AdvanceWriteOff awo on awo.VoucherId=v.Id
+												left join (SELECT awd.AdvanceId,awd.AdvanceWriteOffId,bmawo.AccountTitle FROM TRN.AdvanceWriteOffDetail awd 
+														join trn.Advance a on a.Id=awd.AdvanceId
+														left join mst.BankMaster bmawo ON bmawo.Id=a.BankMasterId) awd on awd.AdvanceWriteOffId=awo.Id
+						                        left JOIN TRN.InvoiceDetail IND on IND.Id=IWOD.InvoiceDetailId 
+						                        left join TRN.Invoice I on I.Id=IWOD.InvoiceId
+						                        left join TRN.Voucher VI on VI.Id=I.VoucherId
+						                        left join SCS.Currency C on C.Id=I.CurrencyId
+												left join mst.BankMaster bm ON bm.Id=IWO.BankMasterId
+												left join mst.CashMaster cm ON cm.Id=IWO.CashMasterId
+												left join (select sum(iwd.Amount) Amount,iwd.InvoiceId from TRN.InvoiceWriteOffDetail iwd 
+															join trn.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+															where iw.sourceType in ('DebitNoteSetOff') and iw.PartyType = 'Vendor' group by iwd.InvoiceId)SR ON SR.InvoiceId=I.Id
+						                        LEFT JOIN HKP.Party P on I.PartyId=P.Id
+                                                where  IWO.PartyType = 'Vendor' 
+												and I.WrittenOffAmount>0  and  IWO.SourceType in ('VendorPayment','VendorAdvanceWriteOff')
+												and IWO.PostingDate  Between '" + fromDate + "' AND '" + toDate + @"'
+												 group by IWO.SourceType,
+												 P.Code ,P.UserName ,V.VoucherNo , IWO.PostingDate  ,C.Code,I.Amount ,IWOD.Amount,I.Id ,I.Amount ,VI.VoucherNo, I.DocDate ,VI.DocRefNo 
+												 ,I.DocRefNo,bm.AccountTitle,Cm.UserName,IWO.PaymentSource,awd.AccountTitle,SR.Amount,VDC.ToCurrencyRate
+
+												 order by IWO.PostingDate ,i.Id desc,V.VoucherNo desc";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        public string PaymentAgainstInvoicexlsx(List<Dictionary<string, object>> data, string ReportHeader, string reportFileName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "PaymentAgainstInvoiceReport";
+                sheet = workbook.Worksheets[0];
+                int ROW = 5; int COL = 1;
+
+                #region columns
+                sheet[ROW, COL].Text = "Customer Code";
+                sheet[ROW, COL].ColumnWidth = 11;
+                int ColCustomerCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Customer";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int ColCustomer = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Payment Voucher No";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColPaymentVoucherNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Payment Posting Date";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColPaymentPostingDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Currency";
+                sheet[ROW, COL].ColumnWidth = 8;
+                int ColCurrency = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Invoice Amount";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColInvoiceAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Invoice No";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColInvoiceNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Payment";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColPayment = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "To Currency Rate";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColToCurrencyRate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Balance";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColBalance = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Debit Note";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColDebitNote = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Invoice Voucher No";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColInvoiceVoucherNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Invoice Date";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColInvoiceDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Invoice Doc RefNo";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColInvoiceDocRefNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Payment Source";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColPaymentSource = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Bank Detail";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColBankDetail = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Cash Detail";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColCashDetail = COL;
+
+                #endregion columns
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                ROW++;
+
+                int startRow = ROW;
+                for (int i = 0; i < data.Count; i++)
+                {
+                    sheet[ROW, ColCustomerCode].Text = data[i]["CustomerCode"].ToString();
+                    sheet[ROW, ColCustomer].Text = data[i]["Customer"].ToString();
+                    sheet[ROW, ColPaymentVoucherNo].Text = data[i]["PaymentVoucherNo"].ToString();
+                    sheet[ROW, ColPaymentPostingDate].Text = data[i]["PaymentPostingDate"].ToString();
+                    sheet[ROW, ColCurrency].Text = data[i]["Currency"].ToString();
+                    sheet[ROW, ColInvoiceAmount].Number = clsStaticInfo.dbl(data[i]["InvoiceAmount"].ToString());
+                    sheet[ROW, ColInvoiceAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColInvoiceNo].Text = data[i]["InvoiceNo"].ToString();
+                    sheet[ROW, ColPayment].Number = clsStaticInfo.dbl(data[i]["Payment"].ToString());
+                    sheet[ROW, ColPayment].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColToCurrencyRate].Number = clsStaticInfo.dbl(data[i]["ToCurrencyRate"].ToString());
+                    sheet[ROW, ColToCurrencyRate].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(data[i]["Balance"].ToString());
+                    sheet[ROW, ColBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    if (data[i]["DebitNote"] != null)
+                    {
+                        sheet[ROW, ColDebitNote].Number = clsStaticInfo.dbl(data[i]["DebitNote"].ToString());
+                        sheet[ROW, ColDebitNote].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    }
+                    else
+                    {
+                        sheet[ROW, ColDebitNote].Text = null;
+                    }
+                    
+
+                    sheet[ROW, ColInvoiceVoucherNo].Text = data[i]["InvoiceVoucherNo"].ToString();
+                    sheet[ROW, ColInvoiceDate].Text = data[i]["InvoiceDate"].ToString();
+                    sheet[ROW, ColInvoiceDocRefNo].Text = data[i]["InvoiceDocRefNo"].ToString();
+                    sheet[ROW, ColPaymentSource].Text = data[i]["PaymentSource"].ToString();
+                    
+                    if (data[i]["BankDetail"] != null)
+                    {
+                        sheet[ROW, ColBankDetail].Text = data[i]["BankDetail"].ToString();
+                    }
+                    else
+                    {
+                        sheet[ROW, ColBankDetail].Text = null;
+                    }
+                    if (data[i]["CashDetail"] != null)
+                    {
+                        sheet[ROW, ColCashDetail].Text = data[i]["CashDetail"].ToString();
+                    }
+                    else
+                    {
+                        sheet[ROW, ColCashDetail].Text = null;
+                    }
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+                }
+
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Payment Against Invoice Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion Payment Against Invoice
+
         #region Employee tab report
         public string EmployeeSummaryWiseReport(List<Dictionary<string, object>> data, string ReportHeader, string reportFileName)
         {
@@ -23029,7 +23286,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 COL++;
 
                 sheet[ROW, COL].Text = "Department";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].ColumnWidth = 18;
                 int ColDepartment = COL;
                 COL++;
 
@@ -23049,7 +23306,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 COL++;
 
                 sheet[ROW, COL].Text = "Balance";
-                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].ColumnWidth = 12;
                 int ColBalance = COL;                 
 
                 #endregion columns
@@ -23138,7 +23395,7 @@ group by Id) O60 ON O60.Id=IV.Id
 				LEFT JOIN HKP.Designation DS ON DS.Id=EI.GivenDesignationId
                 WHERE EP.Archive=0 AND EP.IsPark=0 AND EP.IsWrittenOff=0 AND EPD.IsWrittenOff=0 AND EPD.IsBlock=0 AND EP.SourceType IN ('EmployeePayable','SalaryPayable','VendorInvoice','InventoryPayable')
 				AND ISNULL(EP.EmployeeId,'')<>'' AND (EPD.NetAmount-EPD.WrittenOffAmount)>0 
-				AND EP.EmployeeId in ('" + EmpIds + "')";
+				AND EP.EmployeeId in (" + EmpIds + ")";
 
             return _sqlRepository.GetDataTable(strSql); 
         }

@@ -1705,6 +1705,35 @@ namespace Aplos.Areas.Accounts.Controllers
 
         #endregion Receipt from Customer
 
+        #region Payment Against Invoice
+        [HttpPost, Authorize]
+        public ActionResult GetPaymentAgainstInvoiceList(string fromDate, string toDate)
+        {
+            AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(new { DATA = accountsStatusDashboardService.GetPaymentAgainstInvoiceList(fromDate, toDate), Error = false }, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetPaymentAgainstInvoiceReport(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                string fileName = "";
+                AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+                fileName = accountsStatusDashboardService.PaymentAgainstInvoicexlsx(data, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion Payment Against Invoice
+
         [HttpGet, Authorize]
         public ActionResult GetNonRegisterAssetData()
         {
