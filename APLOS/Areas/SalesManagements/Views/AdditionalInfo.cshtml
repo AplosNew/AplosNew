@@ -6,7 +6,7 @@
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Post Sales Invoice</a></li>
             <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Invoice Additional Info</a></li>
             @*<li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" data-toggle="tab">Negotiating Bank</a></li>*@
-           @* <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" data-toggle="tab">Invoice Status</a></li>*@
+            @* <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" data-toggle="tab">Invoice Status</a></li>*@
         </ul>
     </div>
     <div class="tab-content">
@@ -218,11 +218,12 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label" tilte="PaymentAdviseNo">Payment Advise No</label>
+                            <label class="col-sm-4 control-label" style="font-size: 10pt;" title="Payment Received Confirmation In Bank Date">Payment Received Confirmation In Bank Date</label>
                             <div class="col-sm-8">
-                                <input type="text" ng-maxlength="100" name="PaymentAdviseNo" ng-model="ModelNew.PaymentAdviseNo" class="form-control" tabindex="7">
+                                <input type="text" name="Payment Received Confirmation In Bank Date" id="txtLockDate" class="form-control dtpicker" dtpicker autocomplete="off" ng-model="ModelNew.PaymentReceivedConfirmationInBankDate" placeholder="dd-MM-yyyy" />
                             </div>
                         </div>
+                       
                     </div>
                     <div class="col-xs-12 col-sm-4 col-md-4">
                         <div class="form-group">
@@ -285,8 +286,7 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label" style="font-size: 10pt;">Payment Received Date</label>
                             <div class="col-sm-8">
-                                @*<input type="text" name="Payment Received Date" ng-model="ModelNew.PaymentReceivedDate" datepicker class="form-control" tabindex="5">*@
-                                <input type="text" name="Payment Received Date"  id="txtLockDate" class="form-control dtpicker" dtpicker autocomplete="off" ng-model="ModelNew.PaymentReceivedDate" placeholder="dd-MM-yyyy"/>
+                                <input type="text" name="Payment Received Date" ng-model="ModelNew.PaymentReceivedDate" datepicker class="form-control" tabindex="5">
                             </div>
                         </div>
                         <div class="form-group">
@@ -324,9 +324,15 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label" title="Payment Due/Mature Date">Payment Due/Mature Date</label>
+                            <label class="col-sm-4 control-label" title="Payment Due/Mature Date" style="font-size:10pt">Payment Due/Mature Date</label>
                             <div class="col-sm-8">
                                 <input type="text" name="PaymentDueMatureDate" ng-model="ModelNew.PaymentDueMatureDate" datepicker class="form-control" tabindex="9">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" tilte="PaymentAdviseNo">Payment Advise No</label>
+                            <div class="col-sm-8">
+                                <input type="text" ng-maxlength="100" name="PaymentAdviseNo" ng-model="ModelNew.PaymentAdviseNo" class="form-control" tabindex="7">
                             </div>
                         </div>
                     </div>
@@ -535,7 +541,7 @@
             </div>
         </div>
 
-        
+
 
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
             <div class="form-elements form-horizontal" ng-form name="ModelNewForm">

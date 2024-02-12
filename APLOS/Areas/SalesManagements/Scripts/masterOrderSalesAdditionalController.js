@@ -657,7 +657,7 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
 
     $('.dtpicker').datepicker({
         startDate: '-1d',
-        endDate: '+1d',
+        endDate: '+0d',
         datesDisabled: $scope.DisabledDates,
         format: 'dd-M-yyyy',
         todayHighlight: true,
