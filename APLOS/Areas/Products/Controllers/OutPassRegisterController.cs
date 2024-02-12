@@ -339,8 +339,8 @@ LateByDays = case when isnull(gdp.TransactionQty,0) < isnull(gpd2.InQty,0) then 
 DATEDIFF(Day,FORMAT(gpm.ReturnableDate,'dd-MMM-yyyy'),GETDATE()) end , EI.EmployeeName Sender, D.UserName Department
 
 					from trn.GatePassDetails gdp
-					left join MST.MaterialMaster MM on MM.Id = gdp.MaterialMasterId
 					left join MST.MaterialMasterArticle MMA on MMA.Id = gdp.ArticleId
+					left join MST.MaterialMaster MM on MM.Id = MMA.MaterialMasterId
 					join TRN.GatePassMaster gpm on gpm.Id=gdp.GatePassMasterId
 					left join hkp.Party P ON P.Id=gpm.ToPartyCode
 					left join MST.AddressMaster am on am.Id=p.AddressMasterId

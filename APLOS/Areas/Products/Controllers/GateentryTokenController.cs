@@ -3154,8 +3154,8 @@ namespace Aplos.Areas.Products.Controllers
 						gpm.ChallanNo as GPMChallanNo , gpm.TransportAgentMobileNo, gpm.TransportAgentName , gpm.VehicleNo, gpm.GateOutStatus, gpm.GateRegisterType, gpm.ReceivedChallanNO,
 						gpm.InvoiceNo, gpm.PurposeofGatePass as GPMPurposeOfGatePass, gpm.ConsignmentNo as GPMConsignmentNo, gpm.DriverName
 						from trn.GatePassDetails gpd
-						left join mst.MaterialMaster mm on mm.Id = gpd.MaterialMasterId
 						left join mst.MaterialMasterArticle mma on mma.Id = gpd.ArticleId
+						left join mst.MaterialMaster mm on mm.Id = mma.MaterialMasterId
 						left join hkp.Characteristics cf on cf.Id = gpd.FirstCharacteristicsId
 						left join hkp.CharacteristicsValue cvf on cvf.Id = gpd.FirstCharacteristicsValueId
 						left join hkp.Characteristics cs on cs.Id = gpd.SecondCharacteristicsId

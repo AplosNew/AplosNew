@@ -4372,6 +4372,13 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
 								SUM(NetWeight)NetWeight,SUM(GWeight)GWeight FROM ItemScanChild 
 								group by SalesId ,SalesMaterialId, LotNo) SCNS on  SCNS.SalesMaterialId=IRDS.Id
 								WHERE IRDS.SalesId = IR.Id)
+,SumTrnAmountBL = (select sum(CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCNS.NetWeight,0)=0 THEN ROUND((IRDS.TransactionQty * IRDS.TransactionRate), 2)
+					ELSE ROUND((SCNS.NetWeight * IRDS.TransactionRate), 2) END))
+					from trn.SalesMaterial IRDS
+					LEFT JOIN (SELECT distinct LotNo, SalesId,SalesMaterialId,  COUNT(RefNo) Bags, 
+								SUM(NetWeight)NetWeight,SUM(GWeight)GWeight FROM ItemScanChild 
+								group by SalesId ,SalesMaterialId, LotNo) SCNS on  SCNS.SalesMaterialId=IRDS.Id
+								WHERE IRDS.SalesId = IR.Id)
 ,SumTrnAmountNew = (select sum(CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCNS.NetWeight,0)=0 THEN ROUND((IRDS.TransactionQty * IRDS.TransactionRate), 2)
 					ELSE ROUND((SCNS.NetWeight * IRDS.TransactionRate), 2) END))
 					from trn.SalesMaterial IRDS

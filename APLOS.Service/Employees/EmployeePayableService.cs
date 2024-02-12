@@ -603,7 +603,7 @@ namespace Library.Service.Employees
         {
             var sql = @"SELECT DISTINCT E.UserName AS EntityName, FY.FiscalYearName, FY.YearPrefix, FYP.PeriodName, FYP.PeriodNo, VT.UserName AS VoucherTypeName, V.CurrencyId, C.Code AS CurrencyCode, V.VoucherNo
                         , REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate, V.DocRefNo, V.IsPark
-                        , AddedBy=CASE WHEN EB.AppliedBy='Self' THEN AEI.EmployeeName ELSE V.AddedBy END, V.PostedBy, REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, UPPER(V.Narration) AS Narration
+                        , AddedBy=CASE WHEN EB.AppliedBy='Self' THEN AEI.EmployeeName ELSE V.AddedBy END,U.FullName PostedBy, REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, UPPER(V.Narration) AS Narration
 						,EmployeeCode=CASE WHEN  EI.EmployeeCode<>'' THEN EI.EmployeeCode ELSE EPI.EmployeeCode END
 						,EmployeeName=CASE WHEN EI.EmployeeName<>'' THEN EI.EmployeeName ELSE EPI.EmployeeName END
 						, EB.BeneficiaryType
@@ -623,6 +623,8 @@ namespace Library.Service.Employees
 						LEFT JOIN [dbo].[EmployeeInformation] AS AEI ON AEI.SystemId=EB.EmployeeId
                         LEFT JOIN [dbo].[EmployeeInformation] AS REI ON REI.SystemId=EB.ResponsiblePersonId
                         LEFT JOIN [dbo].[EmployeeInformation] AS EPI ON EPI.SystemId=EP.EmployeeId
+                        LEFT JOIN [SEC].[User] U on U.UserId=V.PostedBy
+                        LEFT JOIN [dbo].[EmployeeInformation] AS EIAN ON EIAN.SystemId=V.PostedBy
                         WHERE V.Archive=0 AND V.Id='" + voucherId + "' AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + "' AND V.SourceType in ('" + sourceType + "','VendorInvoice')";
             return _sqlRepository.GetData(sql);
         }
