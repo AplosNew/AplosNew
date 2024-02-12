@@ -1604,9 +1604,9 @@ namespace Library.MaterialManagement.InventoryManagements
 						,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
                         ,PLC.LCANo,PLC.LCRef,IR.ContractId,IM.RefferenceNo
 						from TRN.PurchaseOrderDetail AS IM
-						left JOIN MST.MaterialMaster AS MM ON IM.InventoryMaterialId=MM.Id
-						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
 						LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
+						left JOIN MST.MaterialMaster AS MM ON ART.MaterialMasterId=MM.Id
+						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
 						LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
 						LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
 						LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
@@ -5612,8 +5612,8 @@ namespace Library.MaterialManagement.InventoryManagements
 									from trn.InventoryReceiveDetail IRD
 									left join trn.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
 									left join trn.InventoryMaterial IM on IM.Id=IRD.InventoryMaterialId
-									left join MST.MaterialMaster MM on MM.Id=IM.MaterialMasterId
 									left join MST.MaterialMasterArticle MMA on MMA.Id=IM.ArticleId
+									left join MST.MaterialMaster MM on MM.Id=MMA.MaterialMasterId
 									left join HKP.Party P on P.Id=IR.PartyId
 									left join [SCS].[UnitOfMeasurement] uom on uom.Id=IRD.TransactionUoMId	
 									left join TRN.[GateEntry] GE on GE.Id=IR.GateEntryNo	
