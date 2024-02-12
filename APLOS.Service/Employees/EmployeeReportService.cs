@@ -526,7 +526,8 @@ namespace Library.Service.Employees
             report.SetHeaderText(ref sheet, _rowL - 1, headreColIndex, companyCurrencyCode, 12, ExcelHAlign.HAlignCenter);
             sheet[_rowL - 1, headreColIndex, _rowL - 1, headreColIndex + 1].Merge();
 
-            report.SetHeaderText(ref sheet, _rowL, headreColIndex, "Debit", ExcelHAlign.HAlignRight); headreColIndex++;
+            report.SetHeaderText(ref sheet, _rowL, headreColIndex, "Debit", ExcelHAlign.HAlignRight); 
+            headreColIndex++;
             report.SetHeaderText(ref sheet, _rowL, headreColIndex, "Credit", ExcelHAlign.HAlignRight);
 
             shet2EndxlsCol = headreColIndex;
@@ -629,6 +630,7 @@ namespace Library.Service.Employees
             report.SetTextMiddle(ref sheet, _rowL, 3, "Checked By", true);
 
             report.SetSignatureText(ref sheet, _rowL - 1, 5, headerData["PostedBy"].ToString());
+            sheet.Range[_rowL - 1, 5].RowHeight = 25;
             sheet.Range[_rowL, 5].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
             report.SetTextMiddle(ref sheet, _rowL, 5, "Posted By", true);
 
