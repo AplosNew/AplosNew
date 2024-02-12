@@ -215,8 +215,8 @@ namespace Library.Service.Employees
             return _sqlRepository.GetDataTable(cmdText);
         }
 
-        
-        
+
+
         public IWorkbook GetEmployeeExpenseBookingReport(string companyGroupId, string companyId, string plantId, string plantName, string employeeId, string fromDate, string toDate)
         {
             try
@@ -300,7 +300,7 @@ namespace Library.Service.Employees
                 reportUtility.SetText(ref sheet, row, col - 1, Convert.ToDouble(totalAmount), true);
                 sheet.UsedRange.AutofitColumns();
                 sheet.UsedRange.CellStyle.Font.Size = 8;
-                reportUtility.CompanyPlantHeader(ref sheet, col, "Employee Expense", companyId,plantId, plantName, "From " + fromDate + " To " + toDate + "");
+                reportUtility.CompanyPlantHeader(ref sheet, col, "Employee Expense", companyId, plantId, plantName, "From " + fromDate + " To " + toDate + "");
                 sheet.Range[reportUtility.GetColumnNameForXls(1) + 5 + ":" + reportUtility.GetColumnNameForXls(col) + 5].Merge();
                 reportUtility.PageSetup(ref sheet, 5, ExcelPageOrientation.Portrait);
                 return workbook;
@@ -405,9 +405,9 @@ namespace Library.Service.Employees
             }
         }
 
-       
-       
-       
+
+
+
         public IWorkbook GetEmployeePayableExpenseBookingReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId)
         {
             var excelEngine = new ExcelEngine();
@@ -628,8 +628,12 @@ namespace Library.Service.Employees
             sheet.Range[_rowL, 3].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
             report.SetTextMiddle(ref sheet, _rowL, 3, "Checked By", true);
 
-            sheet.Range[_rowL, shet2EndxlsCol].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-            report.SetTextMiddle(ref sheet, _rowL, shet2EndxlsCol, "Authorized By", true);
+            report.SetSignatureText(ref sheet, _rowL - 1, 5, headerData["PostedBy"].ToString());
+            sheet.Range[_rowL, 5].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+            report.SetTextMiddle(ref sheet, _rowL, 5, "Posted By", true);
+
+            sheet.Range[_rowL, shet2EndxlsCol + 1].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+            report.SetTextMiddle(ref sheet, _rowL, shet2EndxlsCol + 1, "Authorized By", true);
 
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
@@ -702,7 +706,7 @@ namespace Library.Service.Employees
             report.SetMasterHeaderText(ref sheet, _rowR, 4, "Status");
             report.SetText(ref sheet, _rowR, 5, headerData["ApprovalStatus"].ToString());
             sheet[report.GetColumnNameForXls(5) + _rowR + ":" + report.GetColumnNameForXls(6) + _rowR].Merge();
-            sheet.Range[ _row, 4].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[_row, 4].VerticalAlignment = ExcelVAlign.VAlignTop;
 
             var headreColIndex = 1;
 
@@ -1141,7 +1145,7 @@ namespace Library.Service.Employees
         //        row++;
         //    }
 
-         
+
 
 
         //    var rowLast = row - 1;
@@ -1304,7 +1308,7 @@ namespace Library.Service.Employees
             var row = 5;
             var colLast = 1;
             int xlsCol = 1;
-          
+
             int colinrDebit = 0;
             int colinrCredit = 0;
             int colusdDebit = 0;
@@ -1318,7 +1322,7 @@ namespace Library.Service.Employees
             sheet.Range[row, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
 
             sheet[row, 3].ColumnWidth = 10;
-     
+
             reportUtility.SetMasterHeaderText(ref sheet, row, 6, "Voucher Date");
             reportUtility.SetText(ref sheet, row, 7, header["VoucherDate"].ToString());
             sheet.Range[row, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
@@ -1337,7 +1341,7 @@ namespace Library.Service.Employees
             row++;
 
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Employee:");
-            reportUtility.SetText(ref sheet, row, 2, header["EmployeeCode"].ToString()+" - "+ header["EmployeeName"].ToString());
+            reportUtility.SetText(ref sheet, row, 2, header["EmployeeCode"].ToString() + " - " + header["EmployeeName"].ToString());
             sheet.Range[row, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[row, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
 
@@ -1378,7 +1382,7 @@ namespace Library.Service.Employees
                 sheet[row, 8, row, 9].Merge();
             }
             //sheet[row, 6].RowHeight = 15;
-          
+
             sheet.Range[row, 6, row, colLast].BorderAround(ExcelLineStyle.Hair);
             sheet.Range[row, 6, row, colLast].BorderInside(ExcelLineStyle.Hair);
             row++;
@@ -1388,7 +1392,7 @@ namespace Library.Service.Employees
             sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(3) + row].Merge();
 
             xlsCol++; //clo3
-           
+
             xlsCol++; //cloDNaration
             int colDnaration = 0;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Detail Narration"); colDnaration = xlsCol;
@@ -1404,7 +1408,7 @@ namespace Library.Service.Employees
             xlsCol++;
 
             //xlsCol++;
-           
+
             if (companyCurrencyId != transcationCurrency)
             {
                 reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Debit", 13, ExcelHAlign.HAlignRight); colinrDebit = xlsCol; xlsCol++;
@@ -1447,7 +1451,7 @@ namespace Library.Service.Employees
                 for (int i = 0; i < dsLocal.Rows.Count; i++)
                 {
                     var glName = dsLocal.Rows[i]["Budget"].ToString();
-                   // glName = string.Empty;
+                    // glName = string.Empty;
                     reportUtility.SetText(ref sheet, row, colGl, dsLocal.Rows[i]["GLGeneralInfoCode"] + " - " + glName + " - " + dsLocal.Rows[i]["Activity"]);
                     sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(colGl + 2) + row].Merge();
 
@@ -1475,11 +1479,11 @@ namespace Library.Service.Employees
                     sheet.Range[row, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
                     sheet.Range[row, 1, row, colLast].BorderAround(ExcelLineStyle.Hair);
 
-                   // glName = string.Empty;
-                    
-                   // sheet.AutofitRow(3);
-                  
-                   
+                    // glName = string.Empty;
+
+                    // sheet.AutofitRow(3);
+
+
 
                     row++;
                 }
@@ -1562,7 +1566,7 @@ namespace Library.Service.Employees
                 sheet.Range[reportUtility.GetColumnNameForXls(2) + row].Text = reportUtility.InWord(totalBookCurrencyAmount, companyCurrencyId);
                 sheet.Range[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
                 sheet.Range[reportUtility.GetColumnNameForXls(2) + row].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-               // sheet.Range[reportUtility.GetColumnNameForXls(2) + row].VerticalAlignment = ExcelVAlign.VAlignTop;
+                // sheet.Range[reportUtility.GetColumnNameForXls(2) + row].VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[reportUtility.GetColumnNameForXls(2) + row].CellStyle.Font.Bold = true;
                 sheet.Range[row, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
 
@@ -1597,7 +1601,7 @@ namespace Library.Service.Employees
                 sheet[row, 9].ColumnWidth = 15;
 
 
-                reportUtility.CompanyPlantHeader(ref sheet, colLast, header["VoucherTypeName"].ToString(), companyId,plantId, plantName, null);
+                reportUtility.CompanyPlantHeader(ref sheet, colLast, header["VoucherTypeName"].ToString(), companyId, plantId, plantName, null);
                 reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
 
                 //    //else
@@ -1611,7 +1615,7 @@ namespace Library.Service.Employees
             {
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.CellStyle.Font.Size = 8;
-                reportUtility.CompanyPlantHeader(ref sheet, 9, header["VoucherTypeName"].ToString(), companyId,plantId, plantName, null);
+                reportUtility.CompanyPlantHeader(ref sheet, 9, header["VoucherTypeName"].ToString(), companyId, plantId, plantName, null);
                 reportUtility.PageSetup(ref sheet, 9, ExcelPageOrientation.Portrait);
             }
 
