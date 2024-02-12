@@ -3372,7 +3372,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
             WCharacterFormat FontBold = new WCharacterFormat(document);
             WCharacterFormat DFontSize = new WCharacterFormat(document);
             FontBold.Bold = true;
-            DFontSize.FontSize = 8f;
+            DFontSize.FontSize = 6f;
 
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
             wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
@@ -4366,6 +4366,13 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
 ,DelCN.UserName INVOICEDILEVERYPLANTCOUNTRYBE
 
 ,SumTrnAmount = (select sum(CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCNS.NetWeight,0)=0 THEN ROUND((IRDS.TransactionQty * IRDS.TransactionRate), 2)
+					ELSE ROUND((SCNS.NetWeight * IRDS.TransactionRate), 2) END))
+					from trn.SalesMaterial IRDS
+					LEFT JOIN (SELECT distinct LotNo, SalesId,SalesMaterialId,  COUNT(RefNo) Bags, 
+								SUM(NetWeight)NetWeight,SUM(GWeight)GWeight FROM ItemScanChild 
+								group by SalesId ,SalesMaterialId, LotNo) SCNS on  SCNS.SalesMaterialId=IRDS.Id
+								WHERE IRDS.SalesId = IR.Id)
+,SumTrnAmountBL = (select sum(CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCNS.NetWeight,0)=0 THEN ROUND((IRDS.TransactionQty * IRDS.TransactionRate), 2)
 					ELSE ROUND((SCNS.NetWeight * IRDS.TransactionRate), 2) END))
 					from trn.SalesMaterial IRDS
 					LEFT JOIN (SELECT distinct LotNo, SalesId,SalesMaterialId,  COUNT(RefNo) Bags, 

@@ -4587,6 +4587,65 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
     //**********************#endregion Receipt From Customer**************************
 
+    //**********************#region Payment against invoice**************************
+    $scope.PaymentAgainstInvoiceList = [];
+    $scope.GetPaymentAgainstInvoiceData = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetPaymentAgainstInvoiceList",
+                data: { 'fromDate': $scope.reportPAI.FromDate, 'toDate': $scope.reportPAI.ToDate },
+                dataType: 'JSON'
+
+            }).then(function successCallback(response) {
+                $scope.PaymentAgainstInvoiceList = response.data.DATA;
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+        }
+        catch (e) {
+        }
+    }
+
+    $scope.PaymentAgainstInvoiceReportExcel = function () {
+        if ($scope.reportPAI.FromDate === "" || $scope.reportPAI.FromDate === null || $scope.reportPAI.FromDate === undefined) {
+            ShowResult('Select To FromDate', 'failure');
+            return false;
+        }
+        if ($scope.reportPAI.ToDate === "" || $scope.reportPAI.ToDate === null || $scope.reportPAI.ToDate === undefined) {
+            ShowResult('Select To Date', 'failure');
+            return false;
+        }
+
+        var dataList = [];
+        var g = $("#GridPAI").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.PaymentAgainstInvoiceList;
+        }
+        $scope.fileName = 'Payment Against Invoice Report.xlsx';
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetPaymentAgainstInvoiceReport",
+            data: { 'data': dataList, 'reportFileName': $scope.fileName },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    };
+
+    //**********************#endregion Payment against invoice**************************
+
     //**********************#region Employee**************************
     $scope.EmpToDate = $filter('dateFiltering')(Date.now());
     $scope.EmployeeDataList = [];
@@ -4670,13 +4729,15 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
     $scope.EmployeeDetailReport = function () {
         try {
-            var NewMasterEmpIds = [];
+            $scope.NewMasterEmpIds = [];
             for (var i = 0; i < $scope.EmployeeDataList.length; i++) {
                 if ($scope.EmployeeDataList[i].isSelected == true) {
-                    NewMasterEmpIds.push($scope.EmployeeDataList[i].EmployeeId);
+                    $scope.NewMasterEmpIds.push($scope.EmployeeDataList[i].EmployeeId);
                 }
             }
-            if (NewMasterEmpIds.length == 0) {
+            var empIds = getString($scope.NewMasterEmpIds);
+
+            if ($scope.NewMasterEmpIds.length == 0) {
                 ShowResult('Please select at least one Employee', 'failure');
             }
             $scope.fileName = 'Employee Details Report.xlsx';
@@ -4684,7 +4745,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $http({
                 method: 'POST',
                 url: $scope.path + "GetEmployeeDetailsReport",
-                data: { 'data': NewMasterEmpIds, 'reportFileName': $scope.fileName },
+                data: { 'EmpIds': empIds, 'reportFileName': $scope.fileName },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
@@ -4701,6 +4762,17 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         }
     }
 
+    var getString = function (data) {
+        var string = "''";
+        var collection = [];
+        for (var i = 0; i < data.length; i++) {
+            if (collection.includes(data[i]) == false) {
+                string += ",'" + data[i] + "'";
+                collection.push(data[i]);
+            }
+        }
+        return string;
+    }
     //**********************#endregion Employee**************************
 
 }

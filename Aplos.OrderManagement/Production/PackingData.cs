@@ -500,7 +500,7 @@ namespace Library.OrderManagement.Production
                 //                  group by sc.ProductCode , sc.POId, sc.LotNo ,StockQty.StockQty,desp.Despatch,bb.BookQty,plann.PlanQty,PO.Qty, PS.StandardName
                 //                  ";
 
-                string str = @"Select G.QualityStatus,sc.ProductCode , sc.POId as PO,PS.StandardName POStatus ,PO.Qty POQty ,pack.ProducedQty 
+                string str = @"Select G.QualityStatus,G.CommentDetails,G.Grade,sc.ProductCode , sc.POId as PO,PS.StandardName POStatus ,PO.Qty POQty ,pack.ProducedQty 
                         ,case when pack.ProducedQty > PO.Qty then 0 else (isnull(PO.Qty,0)-isnull(pack.ProducedQty,0)) end as BalanceQty ,sc.LotNo 
                         ,isnull(plann.PlanQty,0) as PlannedQty , isnull(StockQty.StockQty,0)  as StockQty , isnull(desp.Despatch,0) as Despatch , isnull(bb.BookQty,0) as BookedQty,
                         (Case when bb.BookQty >plann.PlanQty then (isnull(StockQty.StockQty,0) - isnull(bb.BookQty,0)) else (isnull(StockQty.StockQty,0)  - isnull(plann.PlanQty,0)) end) as Available
@@ -553,8 +553,11 @@ LEFT JOIN (
 when sum(Convert(Int,Z.FailValue)) > 0  then 'Fail'
 when sum(Z.EntryMissing) > 0  then 'Pending'
 else 'Pass' end) QualityStatus,
-Z.PONo,Z.LotNumber
-
+Z.PONo,Z.LotNumber,
+Reverse(stuff(Reverse((select OWC.Grade +', ' from MST.OrderWiseQualityComment OWC																			
+where OWC.PONo=Z.PONo and OWC.LotNo=Z.LotNumber for xml PATH(''))),1,2,'')) Grade,
+Reverse(stuff(Reverse((select format(OWC.AddedDate,'dd-MMM-yyyy') + '-' + OWC.Comment +', ' from MST.OrderWiseQualityComment OWC																			
+where OWC.PONo=Z.PONo and OWC.LotNo=Z.LotNumber for xml PATH(''))),1,2,'')) CommentDetails
 from (select distinct M.ProductionOrderId PONo,isnull(QCData.LotNumber,M.LotNumber) LotNumber
 ,QCData.PassValue,QCData.FailValue,QCData.RejectValue,
 (Case When (QCData.Value is null or QCData.Value = '0') then 1 else 0 end) EntryMissing
@@ -591,7 +594,7 @@ inner Join (select QMP.QMID IssueId,QMP.Id ParameterId,1 as PlanSet,PR.UserName 
 					   )G ON G.PONo=sc.POId AND G.LotNumber=sc.LotNo
 
                         where sc.ProductCode = '" + productCode + @"' and StockQty.StockQty <> 0
-                        group by G.QualityStatus,sc.ProductCode , sc.POId, sc.LotNo ,StockQty.StockQty,desp.Despatch,bb.BookQty,plann.PlanQty,PS.StandardName,PO.Qty,pack.ProducedQty";
+                        group by G.QualityStatus,G.CommentDetails,G.Grade,sc.ProductCode , sc.POId, sc.LotNo ,StockQty.StockQty,desp.Despatch,bb.BookQty,plann.PlanQty,PS.StandardName,PO.Qty,pack.ProducedQty";
 
                 DataTable dt = _sqlRepository.GetDataTable(str);
 
