@@ -4032,7 +4032,8 @@ namespace Library.MaterialManagement.InventoryManagements
 									FROM TRN.InventoryIssueDetail IID  
 									LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
 									LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
-								WHERE convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND  '" + toDate + @"' " + assetIssuInvStatus + " AND II.PlantId='" + plantId + @"'  GROUP BY IID.InventoryMaterialId
+                                    LEFT JOIN TRN.inventoryreceiveDetail IRD On IRD.Id=IH.inventoryreceiveDetailId
+								WHERE convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND  '" + toDate + @"' " + assetInvStatus + " AND II.PlantId='" + plantId + @"'  GROUP BY IID.InventoryMaterialId
 								) IFD1 On IFD1.InventoryMaterialId=IM.Id
                                
                        --Issue Return
@@ -4269,11 +4270,12 @@ namespace Library.MaterialManagement.InventoryManagements
 									group By IRD.InventoryMaterialId ,IRD.MaterialStorageId ) AS opbal2 ON opbal2.InventoryMaterialId=IM.Id AND IM.PlantId='" + plantId + @"' 
                             and opbal2.MaterialStorageId=IRS.MaterialStorageId
 
-						left join (select IID.InventoryMaterialId,IH.MaterialStorageId, Sum(IH.Qty) IssueQty , Sum(IH.TotalAmount) PolicyAmount
+						        left join (select IID.InventoryMaterialId,IH.MaterialStorageId, Sum(IH.Qty) IssueQty , Sum(IH.TotalAmount) PolicyAmount
 									FROM TRN.InventoryIssueDetail IID  
 									LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
 									LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
-								WHERE convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND  '" + toDate + @"' " + assetIssuInvStatus + @" AND II.PlantId='" + plantId + @"' 
+                            LEFT JOIN TRN.inventoryreceiveDetail IRD On IRD.Id=IH.inventoryreceiveDetailId
+								WHERE convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND  '" + toDate + @"' " + assetInvStatus + @" AND II.PlantId='" + plantId + @"' 
                                 AND ISNULL(IH.inventoryreceivedetailId,'')  NOT IN (SELECT inventoryreceivedetailId FROM [TRN].[CapitalizationMasterDetail] where  InventoryIssueHistoryId is null and Source='AUC' )
 								GROUP BY IID.InventoryMaterialId,IH.MaterialStorageId
 								) IFD1 On IFD1.InventoryMaterialId=IM.Id and IFD1.MaterialStorageId=IRS.MaterialStorageId
