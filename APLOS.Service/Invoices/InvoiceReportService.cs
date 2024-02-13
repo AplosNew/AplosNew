@@ -445,6 +445,7 @@ namespace Library.Service.Invoices
 								WHEN I.DocRefNo<>'' THEN I.DocRefNo 
 								WHEN CM.UserName<>'' THEN CM.UserName
                                 WHEN PPN.UserName<>'' THEN PPN.UserName
+								WHEN VD.EmployeeId<>'' THEN EI.EmployeeCode+'-'+EI.EmployeeName
 								ELSE ''	END
                             FROM [TRN].[VoucherDetailCurrency] AS VDC
                             JOIN [TRN].[VoucherDetail] AS VD ON VD.Id=VDC.VoucherDetailId
@@ -466,6 +467,7 @@ namespace Library.Service.Invoices
                             LEFT JOIN [HKP].[Activity] AS ACT ON ACT.Id=VD.ActivityId
                             LEFT JOIN [MST].[CashMaster] AS CM ON CM.Id=VD.CashMasterId
                             LEFT JOIN [MST].[BankMaster] AS BKM ON BKM.Id=VD.BankMasterId
+                            LEFT JOIN [DBO].[EmployeeInformation] EI ON EI.SystemId=VD.EmployeeId 
                             WHERE V.Archive=0 AND V.Id='" + voucherId + "' ORDER BY VD.DrAmount DESC";
                 return _sqlRepository.GetDataTable(sql);
             }

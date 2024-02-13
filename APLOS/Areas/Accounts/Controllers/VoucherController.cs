@@ -2842,7 +2842,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     parameters.CmdText = @"SELECT [AccountCodeId], [ParallelCurrencyId], [CurrencyCode],CAST([DRcumulative] AS DECIMAL(18,2)) DRcumulative
 									, CAST([CRcumulative] AS DECIMAL(18,2))CRcumulative
 									, [BalanceType], [MainHead], [GLGeneralInfoId], [GL], [GLGeneralInfoCode], [Budget], [BudgetMasterId], [Activity], [ActivityId],[Particulars]
-                                    , BankMasterId, CashMasterId, PartyId
+                                    , BankMasterId, CashMasterId, PartyId,PartyPlantId
 									FROM [TRN].[FiscalYearCloseTrialBalance]  FYCB WHERE FYCB.FiscalYearCloseId= '" + fiscalYearCloseId + @"' AND FYCB.CompanyId='" + companyId + @"'  AND FYCB.PlantId='" + plantId + @"'   
                                     ";
 
@@ -3085,7 +3085,8 @@ namespace Aplos.Areas.Accounts.Controllers
                         var BankMasterId = dtMainBody.Rows[n]["BankMasterId"].ToString();
                         var CashMasterId = dtMainBody.Rows[n]["CashMasterId"].ToString();
                         var PartyId = dtMainBody.Rows[n]["PartyId"].ToString();
-                        //var PartyPlantId = dtMainBody.Rows[n]["PartyPlantId"].ToString();
+                        var PartyPlantId = dtMainBody.Rows[n]["PartyPlantId"].ToString();
+                        
                         var Balancetype = dtMainBody.Rows[n]["Balancetype"].ToString();
 
                         mainColIndex = 1;
@@ -3153,7 +3154,7 @@ namespace Aplos.Areas.Accounts.Controllers
                             {
                                 var dvDrCr = new DataView(dsLocal.Tables[0])
                                 {
-                                    RowFilter = "ISNULL(ParallelCurrencyId,'')='" + ParallelCurrencyId + "' AND ISNULL(GLGeneralInfoCode,'')='" + AccountCodeId + "' AND ISNULL(BudgetMasterId,'')='" + BudgetMasterId + "' AND ISNULL(ActivityId,'')='" + ActivityId + "'  AND ISNULL(PartyId,'') = '" + PartyId + "' " //AND ISNULL(PartyPlantId,'') = '" + PartyPlantId + "'
+                                    RowFilter = "ISNULL(ParallelCurrencyId,'')='" + ParallelCurrencyId + "' AND ISNULL(GLGeneralInfoCode,'')='" + AccountCodeId + "' AND ISNULL(BudgetMasterId,'')='" + BudgetMasterId + "' AND ISNULL(ActivityId,'')='" + ActivityId + "' AND ISNULL(PartyId,'')='" + PartyId + "'  AND ISNULL(PartyPlantId,'') = '" + PartyPlantId + "' " 
                                 };
                                 var dtDrCr = dvDrCr.ToTable();
                                 if (dtDrCr.Rows.Count != 0)
@@ -3178,7 +3179,7 @@ namespace Aplos.Areas.Accounts.Controllers
                             {
                                 var dvDrCr = new DataView(dsLocal.Tables[0])
                                 {
-                                    RowFilter = "ISNULL(ParallelCurrencyId,'')='" + ParallelCurrencyId + "' AND ISNULL(GLGeneralInfoCode,'')='" + AccountCodeId + "' AND ISNULL(BudgetMasterId,'')='" + BudgetMasterId + "' AND ISNULL(ActivityId,'')='" + ActivityId + "' AND ISNULL(BankMasterId,'') = '' AND ISNULL(CashMasterId,'') = '' AND ISNULL(PartyId,'') = '' " //AND ISNULL(PartyPlantId,'') = ''
+                                    RowFilter = "ISNULL(ParallelCurrencyId,'')='" + ParallelCurrencyId + "' AND ISNULL(GLGeneralInfoCode,'')='" + AccountCodeId + "' AND ISNULL(BudgetMasterId,'')='" + BudgetMasterId + "' AND ISNULL(ActivityId,'')='" + ActivityId + "' AND ISNULL(BankMasterId,'') = '' AND ISNULL(CashMasterId,'') = '' AND ISNULL(PartyId,'') = '' " 
                                 };
                                 var dtDrCr = dvDrCr.ToTable();
                                 if (dtDrCr.Rows.Count != 0)
