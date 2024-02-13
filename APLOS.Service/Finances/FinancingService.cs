@@ -334,11 +334,13 @@ namespace Library.Service.Finances
                 vendorAdWrsql = @"delete from TRN.FinancingSchedule where FinancingId in (select Id from TRN.Financing where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.Loan.ToString() + "' AND Id = '" + voucherId + "'))";
                 vendorAdWr.Append(vendorAdWrsql);
 
-
+                vendorAdWrsql = @"delete TRN.BankCharge where FinancingId in (select Id from trn.Financing where   VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.Loan.ToString() + "' AND Id = '" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
                 vendorAdWrsql = @"delete from TRN.FinancingDetail where FinancingId in (select Id from TRN.Financing where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.Loan.ToString() + "' AND Id = '" + voucherId + "'))";
                 vendorAdWr.Append(vendorAdWrsql);
                 vendorAdWrsql = @"delete from TRN.Financing where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.Loan.ToString() + "' AND Id = '" + voucherId + "')";
                 vendorAdWr.Append(vendorAdWrsql);
+               
                 vendorAdWrsql = @"delete trn.voucher  where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.Loan.ToString() + "' AND Id = '" + voucherId + "'";
                 vendorAdWr.Append(vendorAdWrsql);
                 _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());

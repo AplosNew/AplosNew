@@ -2039,9 +2039,9 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 
 							,Round(((sum(isnull(opbal.TotalMaterialBooksCurrencyAmount,0)) + sum(isnull(opbal2.TotalMaterialBooksCurrencyAmount,0)))-sum(isnull(IFD1.PolicyAmount,0))) / ISNULL(NULLIF( ((sum(isnull(opbal.TransactionQty,0))-sum(isnull(IFD3.OpeningIssueQty,0)) + sum(isnull(opbal2.TransactionQty,0)))-sum(isnull(IFD1.IssueQty,0))),0), 1),2) ClosingUnitPrice
 						from TRN.InventoryMaterial AS IM
-						left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
-						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
 						LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
+						left JOIN MST.MaterialMaster AS MM ON ART.MaterialMasterId=MM.Id
+						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
 						LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
 						LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
 						LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
@@ -8676,9 +8676,9 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
  
 					--from (
 					FROM TRN.InventoryMaterial AS IM
-						left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
-						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
 						LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
+						left JOIN MST.MaterialMaster AS MM ON ART.MaterialMasterId=MM.Id
+						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
 						LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
 						LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
 						LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
@@ -10107,9 +10107,9 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                         LEFT JOIN trn.InventoryIssue II On II.Id=IId.InventoryIssueId
                         LEFT JOIN [ORG].[Entity] EN ON EN.ID= II.EntityId
                         LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id = IID.InventoryMaterialId
-                        LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
-                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
                         LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+                        LEFT JOIN MST.MaterialMaster AS MM ON ART.MaterialMasterId = MM.Id
+                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
                         LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
                         LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
                         LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
@@ -10165,9 +10165,9 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                     LEFT JOIN [ORG].[Entity] EN ON EN.ID= II.EntityId
                     LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
                     LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id = IID.InventoryMaterialId
-                    LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
-                    LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
                     LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+                    LEFT JOIN MST.MaterialMaster AS MM ON v.MaterialMasterId = MM.Id
+                    LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
                     LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
                     LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
                     LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
@@ -12650,10 +12650,10 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 						,MM.Id MaterialMasterID
 						,ART.Id MaterialMasterArticleID
 					from TRN.InventoryMaterial AS IM
-			left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
+			LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
+			left JOIN MST.MaterialMaster AS MM ON ART.MaterialMasterId=MM.Id
 			LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
 			LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
-			LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
 			LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
 			LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
 			LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
@@ -13927,10 +13927,10 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 						LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
 						LEFT JOIN HKP.MaterialStorage MS ON II.MaterialStorageId = MS.Id
 						LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id = IID.InventoryMaterialId
-						LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
+						LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+						LEFT JOIN MST.MaterialMaster AS MM ON ART.MaterialMasterId = MM.Id
 						LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
 						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-						LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
 						LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
 						LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
 						LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
@@ -13964,10 +13964,10 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 						LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
 						LEFT JOIN HKP.MaterialStorage MS ON II.MaterialStorageId = MS.Id
 						LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id = IID.InventoryMaterialId
-						LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
+						LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+						LEFT JOIN MST.MaterialMaster AS MM ON ART.MaterialMasterId = MM.Id
 						LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
 						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-						LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
 						LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
 						LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
 						LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
@@ -16623,9 +16623,9 @@ where IRD.InventoryMaterialId <>'' and convert(Date,IRD.GRNDate) BETWEEN  '" + f
 							,REQData.EstimatedRate
 							,REQData.TotalAmount
                         FROM TRN.InventoryMaterial IM
-						LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
-                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
                         LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
+						LEFT JOIN MST.MaterialMaster AS MM ON ART.MaterialMasterId=MM.Id
+                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
                         LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
                         LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
                         LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
@@ -18461,9 +18461,9 @@ SELECT --ROW_NUMBER() Over(Order by  MM.Id) As[S.N],
 						,ei2.EmployeeName RequisitionBy
 						,RequisitionStatus=CASE WHEN IM.POQtyStatus=1 THEN 'Closed' ELSE 'Not Closed' END
 						FROM TRN.MaterialRequsitionDetails AS IM
-						LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
-						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
 						LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
+						LEFT JOIN MST.MaterialMaster AS MM ON ART.MaterialMasterId=MM.Id
+						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
 						LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
 						LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
 						LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
@@ -18622,9 +18622,9 @@ SELECT --ROW_NUMBER() Over(Order by  MM.Id) As[S.N],
                          ,MM.Id MaterialMasterID
 						,ART.Id MaterialMasterArticleID
                         FROM TRN.InventoryMaterial IM
-                        LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
-                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
                         LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
+                        LEFT JOIN MST.MaterialMaster AS MM ON ART.MaterialMasterId=MM.Id
+                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
                         LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
                         LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
                         LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
@@ -20217,10 +20217,10 @@ SELECT --ROW_NUMBER() Over(Order by  MM.Id) As[S.N],
                         ,isnull(p.TINNO,'') GSTINNo
                         ,IRD.InventoryReceiveDetailId
 					from [TRN].[PurchaseReturnDetail] AS IRD
-					JOIN MST.MaterialMaster AS MM ON IRD.MaterialMasterId=MM.Id
+					LEFT JOIN MST.MaterialMasterArticle AS ART ON IRD.ArticleId=ART.Id
+					JOIN MST.MaterialMaster AS MM ON ART.MaterialMasterId=MM.Id
 					
 					LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
-					LEFT JOIN MST.MaterialMasterArticle AS ART ON IRD.ArticleId=ART.Id
 					LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId=FC.Id
 					LEFT JOIN HKP.Characteristics AS SC ON IRD.SecondCharacteristicsId=SC.Id
 					LEFT JOIN HKP.Characteristics AS TC ON IRD.ThirdCharacteristicsId=TC.Id

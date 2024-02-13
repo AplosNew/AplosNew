@@ -331,9 +331,9 @@ namespace Aplos.Areas.Products.Controllers
                     LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                    ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                     LEFT JOIN [EmployeeInformation] AS EI ON IR.EmployeeId=EI.SystemId
-					LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
-					LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
 					LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=IM.ArticleId
+					LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
+					LEFT JOIN MST.MaterialMaster MM ON MM.Id=MMA.MaterialMasterId
                     LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
                     LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
                     LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
