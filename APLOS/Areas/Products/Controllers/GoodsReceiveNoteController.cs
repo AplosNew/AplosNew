@@ -5291,14 +5291,14 @@ ROW_NUMBER() OVER(ORDER BY MT.Id) SrNo
                             LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId                       
                             LEFT JOIN HKP.Party Party ON Party.Id = IR.PartyId
                             LEFT JOIN trn.InventoryMaterial AS IOM ON IRD.InventoryMaterialId = IOM.Id
-                             LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IOM.MaterialMasterId
+                            LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IOM.ArticleId      
+                             LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = MMA.MaterialMasterId
 							LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
-                            LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
-                            LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IOM.ArticleId                            
+                            LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId                      
                             JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id                           														
 							LEFT JOIN HKP.MaterialType MT on MT.Id = MGM.MaterialTypeId
 							LEFT JOIN [HKP].[MaterialStorage] MS on MS.Id = IR.MaterialStorageId                          
-                            WHERE IR.GRNDate between '"+from+"' and '"+to+ "' and MT.Id in ("+ MaterialType + ") and IOM.MaterialMasterId is not NULL";
+                            WHERE IR.GRNDate between '" + from+"' and '"+to+ "' and MT.Id in ("+ MaterialType + ") and IOM.MaterialMasterId is not NULL";
                 data = _sqlRepository.GetDataTable(sql);
                 return Json(data, JsonRequestBehavior.AllowGet);
             }

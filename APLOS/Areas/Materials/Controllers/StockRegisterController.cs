@@ -163,9 +163,9 @@ namespace Aplos.Areas.Materials.Controllers
 						,EMRM1.EmployeeName ReqCheckBy
 						,EMRM2.EmployeeName ReqApproveBy
 					from TRN.InventoryMaterial AS IM
-					JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
-					LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
 					LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
+					left JOIN MST.MaterialMaster AS MM ON ART.MaterialMasterId=MM.Id
+					LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
 					LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
 					LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
 					LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
@@ -296,9 +296,9 @@ namespace Aplos.Areas.Materials.Controllers
 													FROM TRN.InventoryIssueHistory IIH GROUP BY IIH.InventoryReceiveDetailId) II ON II.InventoryReceiveDetailId=IRD.Id
 													GROUP BY GRM.ReqDetailId
 											) GRM ON GRM.ReqDetailId=RMD.Id
-                                            LEFT JOIN MST.MaterialMaster AS MM ON RMD.MaterialMasterId=MM.Id
-                                            LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
                                             LEFT JOIN MST.MaterialMasterArticle AS ART ON RMD.ArticleId=ART.Id
+                                            LEFT JOIN MST.MaterialMaster AS MM ON ART.MaterialMasterId=MM.Id
+                                            LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
                                             LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON RMD.TransactionUoMId=TUoM.Id	
 											left join EmployeeInformation EI on EI.SystemId=RM.ReqEmpId
 											left join ORG.Department D on EI.DepartmentId=D.Id
