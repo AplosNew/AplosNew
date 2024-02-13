@@ -4405,7 +4405,8 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
                     WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
-,PTD.NoOfDay PaymentTermDays
+,case when isnull(PTD.NoOfDay,0) > 0 then  (convert(varchar(10), PTD.NoOfDay) + ' ' + 'DAYS AFTER THE DATE OF LORRY RECEIPT ') 
+ else 'AT SIGHT' end PaymentTermDays
 ,SwiftCode =Stuff((
                     SELECT distinct',' + NB.SWIFTCode
                     FROM dbo.MasterLC LC 

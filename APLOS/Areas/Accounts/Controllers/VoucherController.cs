@@ -2817,34 +2817,37 @@ namespace Aplos.Areas.Accounts.Controllers
                 };
                 if (isActivityLevel)
                 {
-                    parameters.CmdText = @"SELECT [AccountCodeId], [ParallelCurrencyId], [CurrencyCode],SUM(CAST([DRcumulative] AS DECIMAL(18,2))) DRcumulative
+                    parameters.CmdText = @"SELECT * FROM (SELECT [AccountCodeId], [ParallelCurrencyId], [CurrencyCode],SUM(CAST([DRcumulative] AS DECIMAL(18,2))) DRcumulative
 									, SUM(CAST([CRcumulative] AS DECIMAL(18,2)))CRcumulative
 									, [BalanceType], [MainHead], [GLGeneralInfoId], [GL], [GLGeneralInfoCode], [Budget], [BudgetMasterId], [Activity], [ActivityId]
 									FROM [TRN].[FiscalYearCloseTrialBalance]  FYCB WHERE FYCB.FiscalYearCloseId= '" + fiscalYearCloseId + @"' AND FYCB.CompanyId='" + companyId + @"'  AND FYCB.PlantId='" + plantId + @"'   
                                     GROUP BY [AccountCodeId], [ParallelCurrencyId], [CurrencyCode], [BalanceType], [MainHead], [GLGeneralInfoId], [GL], [GLGeneralInfoCode]
-									, [Budget], [BudgetMasterId], [Activity], [ActivityId] ";
+									, [Budget], [BudgetMasterId], [Activity], [ActivityId] )T
+									WHERE DRcumulative+CRcumulative<>0 ";
 
                     return _sqlRepository.GetGridData(parameters).Source;
                 }
                 else if (isBudgetLevel)
                 {
-                    parameters.CmdText = @" SELECT [AccountCodeId], [ParallelCurrencyId], [CurrencyCode],SUM(CAST([DRcumulative] AS DECIMAL(18,2))) DRcumulative
+                    parameters.CmdText = @"SELECT * FROM ( SELECT [AccountCodeId], [ParallelCurrencyId], [CurrencyCode],SUM(CAST([DRcumulative] AS DECIMAL(18,2))) DRcumulative
 									, SUM(CAST([CRcumulative] AS DECIMAL(18,2)))CRcumulative
 									, [BalanceType], [MainHead], [GLGeneralInfoId], [GL], [GLGeneralInfoCode], [Budget], [BudgetMasterId]
 									FROM [TRN].[FiscalYearCloseTrialBalance]  FYCB WHERE FYCB.FiscalYearCloseId= '" + fiscalYearCloseId + @"' AND FYCB.CompanyId='" + companyId + @"'  AND FYCB.PlantId='" + plantId + @"'   
                                     GROUP BY [AccountCodeId], [ParallelCurrencyId], [CurrencyCode], [BalanceType], [MainHead], [GLGeneralInfoId], [GL], [GLGeneralInfoCode]
-									, [Budget], [BudgetMasterId] ";
+									, [Budget], [BudgetMasterId] )T
+									WHERE DRcumulative+CRcumulative<>0 ";
 
                     return _sqlRepository.GetGridData(parameters).Source;
                 }
                 else if (isDetailLevel)
                 {
-                    parameters.CmdText = @"SELECT [AccountCodeId], [ParallelCurrencyId], [CurrencyCode],CAST([DRcumulative] AS DECIMAL(18,2)) DRcumulative
+                    parameters.CmdText = @"SELECT * FROM (SELECT [AccountCodeId], [ParallelCurrencyId], [CurrencyCode],CAST([DRcumulative] AS DECIMAL(18,2)) DRcumulative
 									, CAST([CRcumulative] AS DECIMAL(18,2))CRcumulative
 									, [BalanceType], [MainHead], [GLGeneralInfoId], [GL], [GLGeneralInfoCode], [Budget], [BudgetMasterId], [Activity], [ActivityId],[Particulars]
                                     , BankMasterId, CashMasterId, PartyId,PartyPlantId
 									FROM [TRN].[FiscalYearCloseTrialBalance]  FYCB WHERE FYCB.FiscalYearCloseId= '" + fiscalYearCloseId + @"' AND FYCB.CompanyId='" + companyId + @"'  AND FYCB.PlantId='" + plantId + @"'   
-                                    ";
+                                    )T
+									WHERE DRcumulative+CRcumulative<>0 ";
 
                     return _sqlRepository.GetGridData(parameters).Source;
 
@@ -2853,11 +2856,12 @@ namespace Aplos.Areas.Accounts.Controllers
 
                 else
                 {
-                    parameters.CmdText = @" SELECT [AccountCodeId], [ParallelCurrencyId], [CurrencyCode],SUM(CAST([DRcumulative] AS DECIMAL(18,2))) DRcumulative
+                    parameters.CmdText = @"SELECT * FROM ( SELECT [AccountCodeId], [ParallelCurrencyId], [CurrencyCode],SUM(CAST([DRcumulative] AS DECIMAL(18,2))) DRcumulative
 									, SUM(CAST([CRcumulative] AS DECIMAL(18,2)))CRcumulative
 									, [BalanceType], [MainHead], [GLGeneralInfoId], [GL], [GLGeneralInfoCode]
 									FROM [TRN].[FiscalYearCloseTrialBalance]  FYCB WHERE FYCB.FiscalYearCloseId= '" + fiscalYearCloseId + @"' AND FYCB.CompanyId='" + companyId + @"'  AND FYCB.PlantId='" + plantId + @"'   
-                                    GROUP BY [AccountCodeId], [ParallelCurrencyId], [CurrencyCode], [BalanceType], [MainHead], [GLGeneralInfoId], [GL], [GLGeneralInfoCode] ";
+                                    GROUP BY [AccountCodeId], [ParallelCurrencyId], [CurrencyCode], [BalanceType], [MainHead], [GLGeneralInfoId], [GL], [GLGeneralInfoCode] )T
+									WHERE DRcumulative+CRcumulative<>0 ";
 
                     return _sqlRepository.GetGridData(parameters).Source;
                 }
@@ -2985,50 +2989,12 @@ namespace Aplos.Areas.Accounts.Controllers
                     for (int n = 0; n < dtMainBody.Rows.Count; n++)
                     {
                         row++;
-                        var AccountCodeId = dtMainBody.Rows[n]["GLGeneralInfoCode"].ToString();
-                        var BudgetMasterId = dtMainBody.Rows[n]["BudgetMasterId"].ToString();
-                        var ActivityId = dtMainBody.Rows[n]["ActivityId"].ToString();
-                       
-
-                        var Balancetype = dtMainBody.Rows[n]["Balancetype"].ToString();
-
                         mainColIndex = 1;
-
-                        oRU.SetText(ref sheet, row, mainColIndex, AccountCodeId + " - " + dtMainBody.Rows[n]["GL"]); mainColIndex++;
+                        oRU.SetText(ref sheet, row, mainColIndex, dtMainBody.Rows[n]["GLGeneralInfoCode"].ToString() + " - " + dtMainBody.Rows[n]["GL"].ToString()); mainColIndex++;
                         oRU.SetText(ref sheet, row, mainColIndex, dtMainBody.Rows[n]["Budget"].ToString()); mainColIndex++;
                         oRU.SetText(ref sheet, row, mainColIndex, dtMainBody.Rows[n]["Activity"].ToString()); mainColIndex++;
-                        
-
-                        for (int p = 0; p < dtParallelCurrency.Rows.Count; p++)
-                        {
-                            var ParallelCurrencyId = dtParallelCurrency.Rows[p]["ParallelCurrencyId"].ToString();
-
-
-
-                            var dvDrCr = new DataView(dsLocal.Tables[0])
-                            {
-                                RowFilter = "ISNULL(ParallelCurrencyId,'')='" + ParallelCurrencyId + "' AND ISNULL(GLGeneralInfoCode,'')='" + AccountCodeId + "' AND ISNULL(BudgetMasterId,'')='" + BudgetMasterId + "' AND ISNULL(ActivityId,'')='" + ActivityId + "'"
-                            };
-                            var dtDrCr = dvDrCr.ToTable();
-                            if (dtDrCr.Rows.Count != 0)
-                            {
-                                var _drPC = Convert.ToDouble(dtDrCr.Rows[0]["DRcumulative"].ToString());
-                                var _crPC = Convert.ToDouble(dtDrCr.Rows[0]["CRcumulative"].ToString());
-                                if (_drPC < 0)
-                                {
-                                    _crPC += _drPC * -1;
-                                    _drPC = 0.00;
-                                }
-                                if (_crPC < 0)
-                                {
-                                    _drPC += _crPC * -1;
-                                    _crPC = 0.00;
-                                }
-                                oRU.SetText(ref sheet, row, mainColIndex, _drPC); mainColIndex++;
-                                oRU.SetText(ref sheet, row, mainColIndex, _crPC);
-                            }
-
-                        }
+                        oRU.SetText(ref sheet, row, mainColIndex, Convert.ToDouble(dtMainBody.Rows[n]["DRcumulative"].ToString())); mainColIndex++;
+                        oRU.SetText(ref sheet, row, mainColIndex, Convert.ToDouble(dtMainBody.Rows[n]["CRcumulative"].ToString()));
                     }
 
                 }
@@ -3037,41 +3003,11 @@ namespace Aplos.Areas.Accounts.Controllers
                     for (int n = 0; n < dtMainBody.Rows.Count; n++)
                     {
                         row++;
-                        var AccountCodeId = dtMainBody.Rows[n]["GLGeneralInfoCode"].ToString();
-                        var BudgetMasterId = dtMainBody.Rows[n]["BudgetMasterId"].ToString();
-                        var _Balancetype = dtMainBody.Rows[n]["Balancetype"].ToString();
                         mainColIndex = 1;
-                        oRU.SetText(ref sheet, row, mainColIndex, AccountCodeId + " - " + dtMainBody.Rows[n]["GL"]); mainColIndex++;
+                        oRU.SetText(ref sheet, row, mainColIndex, dtMainBody.Rows[n]["GLGeneralInfoCode"].ToString() + " - " + dtMainBody.Rows[n]["GL"].ToString()); mainColIndex++;
                         oRU.SetText(ref sheet, row, mainColIndex, dtMainBody.Rows[n]["Budget"].ToString()); mainColIndex++;
-
-                        for (int p = 0; p < dtParallelCurrency.Rows.Count; p++)
-                        {
-                            var ParallelCurrencyId = dtParallelCurrency.Rows[p]["ParallelCurrencyId"].ToString();
-
-                            var dvDrCr = new DataView(dsLocal.Tables[0])
-                            {
-                                RowFilter = "ISNULL(ParallelCurrencyId,'')='" + ParallelCurrencyId + "' AND ISNULL(GLGeneralInfoCode,'')='" + AccountCodeId + "' AND ISNULL(BudgetMasterId,'')='" + BudgetMasterId + "'"
-                            };
-
-                            var dtDrCr = dvDrCr.ToTable();
-                            if (dtDrCr.Rows.Count != 0)
-                            {
-                                var _drPC = clsStaticInfo.dbl(dtDrCr.Rows[0]["DRcumulative"].ToString());
-                                var _crPC = clsStaticInfo.dbl(dtDrCr.Rows[0]["CRcumulative"].ToString());
-                                if (_drPC < 0)
-                                {
-                                    _crPC += _drPC * -1;
-                                    _drPC = 0.00;
-                                }
-                                if (_crPC < 0)
-                                {
-                                    _drPC += _crPC * -1;
-                                    _crPC = 0.00;
-                                }
-                                oRU.SetText(ref sheet, row, mainColIndex, _drPC); mainColIndex++;
-                                oRU.SetText(ref sheet, row, mainColIndex, _crPC);
-                            }
-                        }
+                        oRU.SetText(ref sheet, row, mainColIndex, Convert.ToDouble(dtMainBody.Rows[n]["DRcumulative"].ToString())); mainColIndex++;
+                        oRU.SetText(ref sheet, row, mainColIndex, Convert.ToDouble(dtMainBody.Rows[n]["CRcumulative"].ToString())); 
                     }
                 }
                 else if (isDetailLevel)
@@ -3079,128 +3015,13 @@ namespace Aplos.Areas.Accounts.Controllers
                     for (int n = 0; n < dtMainBody.Rows.Count; n++)
                     {
                         row++;
-                        var AccountCodeId = dtMainBody.Rows[n]["GLGeneralInfoCode"].ToString();
-                        var BudgetMasterId = dtMainBody.Rows[n]["BudgetMasterId"].ToString();
-                        var ActivityId = dtMainBody.Rows[n]["ActivityId"].ToString();
-                        var BankMasterId = dtMainBody.Rows[n]["BankMasterId"].ToString();
-                        var CashMasterId = dtMainBody.Rows[n]["CashMasterId"].ToString();
-                        var PartyId = dtMainBody.Rows[n]["PartyId"].ToString();
-                        var PartyPlantId = dtMainBody.Rows[n]["PartyPlantId"].ToString();
-                        
-                        var Balancetype = dtMainBody.Rows[n]["Balancetype"].ToString();
-
                         mainColIndex = 1;
-
-                        oRU.SetText(ref sheet, row, mainColIndex, AccountCodeId + " - " + dtMainBody.Rows[n]["GL"]); mainColIndex++;
+                        oRU.SetText(ref sheet, row, mainColIndex, dtMainBody.Rows[n]["GLGeneralInfoCode"].ToString() + " - " + dtMainBody.Rows[n]["GL"].ToString()); mainColIndex++;
                         oRU.SetText(ref sheet, row, mainColIndex, dtMainBody.Rows[n]["Budget"].ToString()); mainColIndex++;
                         oRU.SetText(ref sheet, row, mainColIndex, dtMainBody.Rows[n]["Activity"].ToString()); mainColIndex++;
                         oRU.SetText(ref sheet, row, mainColIndex, dtMainBody.Rows[n]["Particulars"].ToString()); mainColIndex++;
-
-                        for (int p = 0; p < dtParallelCurrency.Rows.Count; p++)
-                        {
-                            var ParallelCurrencyId = dtParallelCurrency.Rows[p]["ParallelCurrencyId"].ToString();
-                            if (!string.IsNullOrEmpty(BankMasterId))
-                            {
-                                var dvDrCr = new DataView(dsLocal.Tables[0])
-                                {
-                                    RowFilter = "ISNULL(ParallelCurrencyId,'')='" + ParallelCurrencyId + "' AND ISNULL(GLGeneralInfoCode,'')='" + AccountCodeId + "' AND ISNULL(BudgetMasterId,'')='" + BudgetMasterId + "' AND ISNULL(ActivityId,'')='" + ActivityId + "' AND ISNULL(BankMasterId,'') = '" + BankMasterId + "'"
-                                };
-                                var dtDrCr = dvDrCr.ToTable();
-                                if (dtDrCr.Rows.Count != 0)
-                                {
-                                    var _drPC = Convert.ToDouble(dtDrCr.Rows[0]["DRcumulative"].ToString());
-                                    var _crPC = Convert.ToDouble(dtDrCr.Rows[0]["CRcumulative"].ToString());
-                                    if (_drPC < 0)
-                                    {
-                                        _crPC += _drPC * -1;
-                                        _drPC = 0.00;
-                                    }
-                                    if (_crPC < 0)
-                                    {
-                                        _drPC += _crPC * -1;
-                                        _crPC = 0.00;
-                                    }
-
-                                    oRU.SetText(ref sheet, row, mainColIndex, _drPC); mainColIndex++;
-                                    oRU.SetText(ref sheet, row, mainColIndex, _crPC);
-                                }
-                            }
-                            else if (!string.IsNullOrEmpty(CashMasterId))
-                            {
-                                var dvDrCr = new DataView(dsLocal.Tables[0])
-                                {
-                                    RowFilter = "ISNULL(ParallelCurrencyId,'')='" + ParallelCurrencyId + "' AND ISNULL(GLGeneralInfoCode,'')='" + AccountCodeId + "' AND ISNULL(BudgetMasterId,'')='" + BudgetMasterId + "' AND ISNULL(ActivityId,'')='" + ActivityId + "'  AND ISNULL(CashMasterId,'') = '" + CashMasterId + "'"
-                                };
-                                var dtDrCr = dvDrCr.ToTable();
-                                if (dtDrCr.Rows.Count != 0)
-                                {
-                                    var _drPC = Convert.ToDouble(dtDrCr.Rows[0]["DRcumulative"].ToString());
-                                    var _crPC = Convert.ToDouble(dtDrCr.Rows[0]["CRcumulative"].ToString());
-                                    if (_drPC < 0)
-                                    {
-                                        _crPC += _drPC * -1;
-                                        _drPC = 0.00;
-                                    }
-                                    if (_crPC < 0)
-                                    {
-                                        _drPC += _crPC * -1;
-                                        _crPC = 0.00;
-                                    }
-                                    oRU.SetText(ref sheet, row, mainColIndex, _drPC); mainColIndex++;
-                                    oRU.SetText(ref sheet, row, mainColIndex, _crPC);
-                                }
-                            }
-                            else if (!string.IsNullOrEmpty(PartyId))
-                            {
-                                var dvDrCr = new DataView(dsLocal.Tables[0])
-                                {
-                                    RowFilter = "ISNULL(ParallelCurrencyId,'')='" + ParallelCurrencyId + "' AND ISNULL(GLGeneralInfoCode,'')='" + AccountCodeId + "' AND ISNULL(BudgetMasterId,'')='" + BudgetMasterId + "' AND ISNULL(ActivityId,'')='" + ActivityId + "' AND ISNULL(PartyId,'')='" + PartyId + "'  AND ISNULL(PartyPlantId,'') = '" + PartyPlantId + "' " 
-                                };
-                                var dtDrCr = dvDrCr.ToTable();
-                                if (dtDrCr.Rows.Count != 0)
-                                {
-                                    var _drPC = Convert.ToDouble(dtDrCr.Rows[0]["DRcumulative"].ToString());
-                                    var _crPC = Convert.ToDouble(dtDrCr.Rows[0]["CRcumulative"].ToString());
-                                    if (_drPC < 0)
-                                    {
-                                        _crPC += _drPC * -1;
-                                        _drPC = 0.00;
-                                    }
-                                    if (_crPC < 0)
-                                    {
-                                        _drPC += _crPC * -1;
-                                        _crPC = 0.00;
-                                    }
-                                    oRU.SetText(ref sheet, row, mainColIndex, _drPC); mainColIndex++;
-                                    oRU.SetText(ref sheet, row, mainColIndex, _crPC);
-                                }
-                            }
-                            else
-                            {
-                                var dvDrCr = new DataView(dsLocal.Tables[0])
-                                {
-                                    RowFilter = "ISNULL(ParallelCurrencyId,'')='" + ParallelCurrencyId + "' AND ISNULL(GLGeneralInfoCode,'')='" + AccountCodeId + "' AND ISNULL(BudgetMasterId,'')='" + BudgetMasterId + "' AND ISNULL(ActivityId,'')='" + ActivityId + "' AND ISNULL(BankMasterId,'') = '' AND ISNULL(CashMasterId,'') = '' AND ISNULL(PartyId,'') = '' " 
-                                };
-                                var dtDrCr = dvDrCr.ToTable();
-                                if (dtDrCr.Rows.Count != 0)
-                                {
-                                    var _drPC = Convert.ToDouble(dtDrCr.Rows[0]["DRcumulative"].ToString());
-                                    var _crPC = Convert.ToDouble(dtDrCr.Rows[0]["CRcumulative"].ToString());
-                                    if (_drPC < 0)
-                                    {
-                                        _crPC += _drPC * -1;
-                                        _drPC = 0.00;
-                                    }
-                                    if (_crPC < 0)
-                                    {
-                                        _drPC += _crPC * -1;
-                                        _crPC = 0.00;
-                                    }
-                                    oRU.SetText(ref sheet, row, mainColIndex, _drPC); mainColIndex++;
-                                    oRU.SetText(ref sheet, row, mainColIndex, _crPC);
-                                }
-                            }
-                        }
+                        oRU.SetText(ref sheet, row, mainColIndex, Convert.ToDouble(dtMainBody.Rows[n]["DRcumulative"].ToString())); mainColIndex++;
+                        oRU.SetText(ref sheet, row, mainColIndex, Convert.ToDouble(dtMainBody.Rows[n]["CRcumulative"].ToString())); 
                     }
 
                 }
@@ -3208,43 +3029,11 @@ namespace Aplos.Areas.Accounts.Controllers
                 {
                     for (int n = 0; n < dtMainBody.Rows.Count; n++)
                     {
-                        if (Convert.ToDouble(dtMainBody.Rows[n]["DRcumulative"].ToString()) + Convert.ToDouble(dtMainBody.Rows[n]["CRcumulative"].ToString()) != 0)
-                        {
-                            row++;
-                            var AccountCodeId = dtMainBody.Rows[n]["GLGeneralInfoCode"].ToString();
-                            var _Balancetype = dtMainBody.Rows[n]["Balancetype"].ToString();
-                            oRU.SetText(ref sheet, row, mainColIndex, AccountCodeId + " - " + dtMainBody.Rows[n]["GL"]);
-                            mainColIndex++;
-                            for (int p = 0; p < dtParallelCurrency.Rows.Count; p++)
-                            {
-                                var ParallelCurrencyId = dtParallelCurrency.Rows[p]["ParallelCurrencyId"].ToString();
-
-                                var dvDrCr = new DataView(dsLocal.Tables[0])
-                                {
-                                    RowFilter = "ISNULL(ParallelCurrencyId,'')='" + ParallelCurrencyId + "' AND ISNULL(GLGeneralInfoCode,'')='" + AccountCodeId + "'"
-                                };
-                                var dtDrCr = dvDrCr.ToTable();
-                                if (dtDrCr.Rows.Count != 0)
-                                {
-                                    drcrCol++;
-                                    var _drPC = Convert.ToDouble(dtDrCr.Rows[0]["DRcumulative"].ToString());
-                                    var _crPC = Convert.ToDouble(dtDrCr.Rows[0]["CRcumulative"].ToString());
-                                    if (_drPC < 0)
-                                    {
-                                        _crPC += _drPC * -1;
-                                        _drPC = 0.00;
-                                    }
-                                    if (_crPC < 0)
-                                    {
-                                        _drPC += _crPC * -1;
-                                        _crPC = 0.00;
-                                    }
-                                    oRU.SetText(ref sheet, row, mainColIndex, _drPC); mainColIndex++;
-                                    oRU.SetText(ref sheet, row, mainColIndex, _crPC);
-                                }
-                            }
-                            mainColIndex = 1;
-                        }
+                        row++;
+                        mainColIndex = 1;
+                        oRU.SetText(ref sheet, row, mainColIndex, dtMainBody.Rows[n]["GLGeneralInfoCode"].ToString() + " - " + dtMainBody.Rows[n]["GL"].ToString()); mainColIndex++;
+                        oRU.SetText(ref sheet, row, mainColIndex, Convert.ToDouble(dtMainBody.Rows[n]["DRcumulative"].ToString())); mainColIndex++;
+                        oRU.SetText(ref sheet, row, mainColIndex, Convert.ToDouble(dtMainBody.Rows[n]["CRcumulative"].ToString()));  
                     }
                 }
 

@@ -259,9 +259,9 @@ namespace Library.MaterialManagement.InventoryManagements
 						,FP.UserName FromPlantName
 						,TP.UserName ToPlantName
 					from TRN.InventoryMaterial AS IM
-					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
-					LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
 					LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
+					left JOIN MST.MaterialMaster AS MM ON ART.MaterialMasterId=MM.Id
+					LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
 					LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
 					LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
 					LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
