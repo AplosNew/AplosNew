@@ -66,13 +66,13 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
             SalesId: null,
             PostCode: null,
             ShippingDate: null,
-            ShippingBill: null, 
+            ShippingBill: null,
             AddedBy: null,
             AddedDate: null,
             AddedFromIP: null,
             UpdatedBy: null,
             UpdatedDate: null,
-             UpdatedFromIP: null
+            UpdatedFromIP: null
         }
         $scope.modelNew = Object.assign({}, $scope.model);
         angular.element(document.querySelector('#detailpopup')).modal('hide');
@@ -346,11 +346,11 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
         IsPark: 1,
         IsAdditionalInfoApplicable: true,
         IsIncentiveApplicable: false,
-        InvoiceStatus:'Active'
+        InvoiceStatus: 'Active'
     };
 
     $scope.getPostSalesData = function () {
-        
+
         $http.get("Commercial/PostSalesInvoice/GetListBySalesId?SalesId=" + $scope.SalesId)
             .then(
                 function successCallback(response) {
@@ -655,9 +655,20 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
         });
     }
 
+    $('.dtpicker').datepicker({
+        startDate: '-1d',
+        endDate: '+0d',
+        datesDisabled: $scope.DisabledDates,
+        format: 'dd-M-yyyy',
+        todayHighlight: true,
+        autoclose: true,
+        inline: true,
+        changeMonth: true
+    });
+
     $scope.SavePostSales = function () {
         try {
-          
+
 
             if (!baseService.isUndefinedOrNull($scope.ModelNew.ShippingBillDate)) {
                 if (new Date($scope.ModelNew.InvoiceDate) > new Date($scope.ModelNew.ShippingBillDate)) {
@@ -862,18 +873,17 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
     };
     $scope.ModelInvoiceStatus = Object.assign({}, $scope.ModelTemp);
 
-    console.log($scope.ModelInvoiceStatus);
     $scope.InvoiceStatusList = [
-        { Value: 'Active', Text:'Active'},
-        { Value: 'Closed', Text:'Closed'},
-        { Value: 'Pending', Text:'Pending'}
+        { Value: 'Active', Text: 'Active' },
+        { Value: 'Closed', Text: 'Closed' },
+        { Value: 'Pending', Text: 'Pending' }
     ]
-    
-  
+
+
 
     $scope.saveInvoiceStatusUrl = $scope.path + 'CreateInvoiceStatus';
     $scope.SaveInvoiceStatus = function () {
-        try {  
+        try {
             $http({
                 method: 'POST',
                 url: $scope.saveInvoiceStatusUrl,
@@ -884,14 +894,45 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    ShowResult(response.data.Message, 'success'); 
+                    ShowResult(response.data.Message, 'success');
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
-            } 
+            }
         } catch (e) {
             ShowResult(e, 'failure');
         }
+    };
+
+    $scope.popUpDataList = [];
+    $scope.showEmployeeListPopUp = function () {
+        try {
+            $scope.popUpDataList = [];
+            $http({
+                method: 'GET',
+                url: 'employees/authorizationconfig/getallemployeedata'
+
+            }).then(function successCallback(response) {
+                $scope.popUpDataList = response.data;
+            });
+            angular.element(document.querySelector('#popUp')).modal('show');
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+
+    $scope.selectdblClick = function (obj) {
+        var ob = obj.data;
+        $scope.ModelNew.PaymentReceiveConfirmationBy = ob.SystemId;
+        $scope.ModelNew.PaymentReceiveConfirmationByName = ob.EmployeeName;
+        angular.element(document.querySelector('#popUp')).modal('hide');
+
+    };
+
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#popUp')).modal('hide');
     };
 
     //#region Sales File upload

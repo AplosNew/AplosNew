@@ -102,14 +102,16 @@ namespace Aplos.Areas.Commercial.Controllers
 						  ,PT.UserName [Port]
 						  ,SP.UserName ShipMode
                             ,P.ExportRefNo,P.TransporterCHAForwarderId,FORMAT(P.DocumentReceiveDate,'dd-MMM-yyyy')DocumentReceiveDate,P.AWBB2B,P.ActualPaymentReceived,P.ShippingBillNo,P.PortCode,FORMAT(P.DocumentSubmissionDate,'dd-MMM-yyyy')DocumentSubmissionDate
-					      ,FORMAT(P.DocAcceptanceDate,'dd-MMM-yyyy')DocAcceptanceDate,P.FinalShipmentStatus,FORMAT(P.ShippingBillDate,'dd-MMM-yyyy')ShippingBillDate,FORMAT(P.ShipmentDate,'dd-MMM-yyyy')ShipmentDate,P.NegotiationType,FORMAT(P.PaymentReceivedDate,'dd-MMM-yyyy')PaymentReceivedDate,P.Remark,S.InvoiceStatus,P.TransporterCHAForwarderId,TF.UserName TransporterCHAForwarder,FORMAT(P.PaymentDueMatureDate,'dd-MMM-yyyy')PaymentDueMatureDate,P.RFIDSealNo,P.LineSealNo
+					      ,FORMAT(P.DocAcceptanceDate,'dd-MMM-yyyy')DocAcceptanceDate,P.FinalShipmentStatus,FORMAT(P.ShippingBillDate,'dd-MMM-yyyy')ShippingBillDate,FORMAT(P.ShipmentDate,'dd-MMM-yyyy')ShipmentDate,P.NegotiationType,FORMAT(P.PaymentReceivedDate,'dd-MMM-yyyy')PaymentReceivedDate,P.Remark,S.InvoiceStatus,P.TransporterCHAForwarderId,TF.UserName TransporterCHAForwarder,FORMAT(P.PaymentDueMatureDate,'dd-MMM-yyyy')PaymentDueMatureDate,P.RFIDSealNo,P.LineSealNo,P.PaymentAdviseNo,P.PaymentReceiveConfirmationBy,P.PaymentReceivedConfirmationInBankDate
+                          ,EI.EmployeeName PaymentReceiveConfirmationByName
                       FROM [dbo].[PostSalesInvoice] P
 					  LEFT JOIN TRN.Sales S ON S.Id=P.SalesId
 					  LEFT JOIN HKP.Party C ON C.Id=P.CNFAgentId
 					  LEFT JOIN HKP.Party T ON T.Id=P.TransportAgentId					  
 					  LEFT JOIN HKP.Party TF ON TF.Id=P.TransporterCHAForwarderId					  
 					  LEFT JOIN MST.[Port] PT ON PT.Id=P.PortOfLoadingId
-					  LEFT JOIN [MST].[ShipMode] SP ON SP.Id=P.ShipmentModeId";
+					  LEFT JOIN [MST].[ShipMode] SP ON SP.Id=P.ShipmentModeId
+					  LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=P.PaymentReceiveConfirmationBy";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -160,6 +162,8 @@ namespace Aplos.Areas.Commercial.Controllers
                           ,P.[UpdatedBy]
                           ,P.RFIDSealNo
                           ,P.LineSealNo
+                          ,P.PaymentAdviseNo,P.PaymentReceiveConfirmationBy
+                          ,EI.EmployeeName PaymentReceiveConfirmationByName
                           ,FORMAT(P.[UpdatedDate],'dd-MMM-yyyy')[UpdatedDate]
                           ,P.UpdatedFromIP
 						  ,C.UserName CNFAgentName
@@ -168,14 +172,15 @@ namespace Aplos.Areas.Commercial.Controllers
 						  ,PT.UserName [Port]
 						  ,SP.UserName ShipMode
                            ,P.ExportRefNo,P.TransporterCHAForwarderId,FORMAT(P.DocumentReceiveDate,'dd-MMM-yyyy')DocumentReceiveDate,P.AWBB2B,P.ActualPaymentReceived,P.ShippingBillNo,P.PortCode,FORMAT(P.DocumentSubmissionDate,'dd-MMM-yyyy')DocumentSubmissionDate
-					      ,FORMAT(P.DocAcceptanceDate,'dd-MMM-yyyy')DocAcceptanceDate,P.FinalShipmentStatus,FORMAT(P.ShippingBillDate,'dd-MMM-yyyy')ShippingBillDate,FORMAT(P.ShipmentDate,'dd-MMM-yyyy')ShipmentDate,P.NegotiationType,FORMAT(P.PaymentReceivedDate,'dd-MMM-yyyy')PaymentReceivedDate,P.Remark,S.InvoiceStatus,P.TransporterCHAForwarderId,TF.UserName TransporterCHAForwarder,P.FileName,FORMAT(P.PaymentDueMatureDate,'dd-MMM-yyyy')PaymentDueMatureDate
+					      ,FORMAT(P.DocAcceptanceDate,'dd-MMM-yyyy')DocAcceptanceDate,P.FinalShipmentStatus,FORMAT(P.ShippingBillDate,'dd-MMM-yyyy')ShippingBillDate,FORMAT(P.ShipmentDate,'dd-MMM-yyyy')ShipmentDate,P.NegotiationType,FORMAT(P.PaymentReceivedDate,'dd-MMM-yyyy')PaymentReceivedDate,P.Remark,S.InvoiceStatus,P.TransporterCHAForwarderId,TF.UserName TransporterCHAForwarder,P.FileName,FORMAT(P.PaymentDueMatureDate,'dd-MMM-yyyy')PaymentDueMatureDate,FORMAT(P.PaymentReceivedConfirmationInBankDate,'dd-MMM-yyyy')PaymentReceivedConfirmationInBankDate
                       FROM [dbo].[PostSalesInvoice] P
 					  LEFT JOIN TRN.Sales S ON S.Id=P.SalesId
 					  LEFT JOIN HKP.Party C ON C.Id=P.CNFAgentId
 					  LEFT JOIN HKP.Party T ON T.Id=P.TransportAgentId	
-                        LEFT JOIN HKP.Party TF ON TF.Id=P.TransporterCHAForwarderId
+                      LEFT JOIN HKP.Party TF ON TF.Id=P.TransporterCHAForwarderId
 					  LEFT JOIN MST.[Port] PT ON PT.Id=P.PortOfLoadingId
 					  LEFT JOIN [MST].[ShipMode] SP ON SP.Id=P.ShipmentModeId
+					  LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=P.PaymentReceiveConfirmationBy
                       Where P.SalesId='" + SalesId+"' ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -488,6 +493,10 @@ namespace Aplos.Areas.Commercial.Controllers
                     }
                     dr["RFIDSealNo"] = data.RFIDSealNo;
                     dr["LineSealNo"] = data.LineSealNo;
+
+                    dr["PaymentReceiveConfirmationBy"] = data.PaymentReceiveConfirmationBy;
+                    dr["PaymentAdviseNo"] = data.PaymentAdviseNo;
+
                     if (String.IsNullOrEmpty(data.PaymentDueMatureDate.ToString()))
                     {
                         dr["PaymentDueMatureDate"] = DBNull.Value;
@@ -496,6 +505,17 @@ namespace Aplos.Areas.Commercial.Controllers
                     {
                         dr["PaymentDueMatureDate"] = data.PaymentDueMatureDate;
                     }
+
+
+                    if (String.IsNullOrEmpty(data.PaymentReceivedConfirmationInBankDate.ToString()))
+                    {
+                        dr["PaymentReceivedConfirmationInBankDate"] = DBNull.Value;
+                    }
+                    else
+                    {
+                        dr["PaymentReceivedConfirmationInBankDate"] = data.PaymentReceivedConfirmationInBankDate;
+                    }
+
                     dr["Remark"] = data.Remark;
 
                     dr["AddedBy"] = identity.Name;
@@ -668,6 +688,9 @@ namespace Aplos.Areas.Commercial.Controllers
                     }
                     dr["RFIDSealNo"] = data.RFIDSealNo;
                     dr["LineSealNo"] = data.LineSealNo;
+
+                    dr["PaymentReceiveConfirmationBy"] = data.PaymentReceiveConfirmationBy;
+                    dr["PaymentAdviseNo"] = data.PaymentAdviseNo;
                     if (String.IsNullOrEmpty(data.PaymentDueMatureDate.ToString()))
                     {
                         dr["PaymentDueMatureDate"] = DBNull.Value;
@@ -676,7 +699,16 @@ namespace Aplos.Areas.Commercial.Controllers
                     {
                         dr["PaymentDueMatureDate"] = data.PaymentDueMatureDate;
                     }
-                   
+
+                    if (String.IsNullOrEmpty(data.PaymentReceivedConfirmationInBankDate.ToString()))
+                    {
+                        dr["PaymentReceivedConfirmationInBankDate"] = DBNull.Value;
+                    }
+                    else
+                    {
+                        dr["PaymentReceivedConfirmationInBankDate"] = data.PaymentReceivedConfirmationInBankDate;
+                    }
+
                     dr["Remark"] = data.Remark;
 
 
@@ -941,6 +973,9 @@ namespace Aplos.Areas.Commercial.Controllers
         public string Flag { get; set; }
         public string RFIDSealNo { get; set; }
         public string LineSealNo { get; set; }
+        public string PaymentReceiveConfirmationBy { get; set; }
+        public string PaymentAdviseNo { get; set; }
+        public DateTime? PaymentReceivedConfirmationInBankDate { get; set; }
 
     }
 }
