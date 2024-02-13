@@ -1614,10 +1614,10 @@ WHERE R.PurposeId IN (" + purposeId + ") AND ISM.WorkDate between '" + fromDate 
                         #endregion
 
 
-
+                        clsStaticInfo _info = new clsStaticInfo();
+                        _info.SaveDataSets(dsProductionSummary, dsItemScanChild);
                     }
-                    clsStaticInfo _info = new clsStaticInfo();
-                    _info.SaveDataSets(dsProductionSummary, dsItemScanChild);
+                    
 
 
                 }
