@@ -384,61 +384,6 @@
 </div>
 
 
-<!--<div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                Employee List
-                <button type="button" class="close" ng-click="closeEmployeePopUps();">&times;</button>
-            </div>
-            <div class="modal-body">
-
-                <div class="row" style="color:black;">
-                    <div style="color:black;" id="GridEmp" ej-grid e-datasource="dataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                         e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateemployee">
-                        <div e-columns>
-                            <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
-                            
-
-                            <div e-column e-field="EmployeeStatus" e-headertext="Emp Status" e-width="100"></div>
-                            <div e-column e-field="EmployeeCurrentStatus" e-headertext="Emp Cr. St." e-width="100"></div>-->
-                            @*<div e-column e-field="DOS" e-headertext="DOS" e-width="100"></div>*@
-                            <!--<div e-column e-field="DOJ" e-headertext="DOJ" e-width="100"></div>
-                            <div e-column e-field="EmployeeCategory" e-headertext="Emp Category" e-width="100"></div>
-                            <div e-column e-field="Skill" e-headertext="Skill" e-width="100"></div>
-                            <div e-column e-field="LegalDesignation" e-headertext="Given Designation" e-width="100"></div>
-                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="100"></div>
-                            <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
-                            <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
-                            <div e-column e-field="EmployeeCode" e-headertext="Emp Code" e-width="100"></div>
-                            <div e-column e-field="EmployeeName" e-headertext="Emp Name" e-width="100"></div>
-                            <div e-column e-field="GenderID" e-headertext="Gender" e-width="100"></div>-->
-                            @*<div e-column e-field="ResidenceNumber" e-headertext="Residence Number" e-width="100"></div>
-                                <div e-column e-field="Block" e-headertext="Block" e-width="100"></div>
-                                <div e-column e-field="ResidentType" e-headertext="Resident Type" e-width="100"></div>*@
-                            <!--<div e-column e-field="Location" e-headertext="Location" e-width="100"></div>
-                            <div e-column e-field="ResidenceCategory" e-headertext="Residence Category" e-width="100"></div>
-                            <div e-column e-field="ResidenceGroup" e-headertext="Res Group" e-width="100"></div>
-
-
-                        </div>
-                    </div>
-                </div>
-                <script type="text/template" id="checkboxTemplate">
-                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
-                </script>
-                <script type="text/x-jsrender" id="headerTemplate">
-                    <input type="checkbox" id="headchk" />
-                </script>
-            </div>
-            <div class="modal-footer common-btn">
-                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Allocate</button>
-            </div>
-        </div>
-    </div>
-</div>-->
-
-
 @* POP UP SCREEN FOR OCCUPIED EMPLOYEE*@
 
 <div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
@@ -447,7 +392,6 @@
             <div class="modal-header">Employee List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-md-12">
-                    <div class="content-container-fluid" style="color:black;overflow:scroll">
                         <p>Double click to Select an Responible Person</p>
 
                         <div style="color:black;" id="GridEmp" ej-grid e-datasource="dataList"
@@ -487,7 +431,6 @@
                         <script type="text/x-jsrender" id="headerTemplate">
                             <input type="checkbox" id="headchk" />
                         </script>
-                    </div>
                 </div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">

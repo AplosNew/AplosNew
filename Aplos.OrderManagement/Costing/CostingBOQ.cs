@@ -180,8 +180,8 @@ namespace Library.OrderManagement.Costing
 																			 where CBM.Id=boq.CostingBOQMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                                     FROM BOQ
                                     LEFT JOIN CostingBOQMaster AS cb ON cb.Id=boq.CostingBOQMasterId
-									JOIN CostingBOQItems CBI ON CBI.CostingItemId=BOQ.CostingItemId AND CBI.CostingBOQMasterId=boq.CostingBOQMasterId
-									join dbo.OrderProcurementCostingDirectMaterial R ON R.Id=CBI.OrderProcurementCostingDirectMaterialId AND R.CostingItemId=boq.CostingItemId
+									LEFT JOIN CostingBOQItems CBI ON CBI.CostingItemId=BOQ.CostingItemId AND CBI.CostingBOQMasterId=boq.CostingBOQMasterId
+									LEFT JOIN dbo.OrderProcurementCostingDirectMaterial R ON R.Id=CBI.OrderProcurementCostingDirectMaterialId AND R.CostingItemId=boq.CostingItemId
                                     LEFT JOIN hkp.Party AS p ON p.Id=boq.VendorId
                                     LEFT JOIN employeeinformation emp ON emp.SystemId=cb.EmployeeSystemId
 
