@@ -409,7 +409,8 @@ function employeeAdvanceWriteOffController(bankService, cboService, commonMessag
                     url: 'accounts/Advance/InsertEmployeeAdvanceWriteOff',
                     data: {
                         'voucherVM': $scope.advance,
-                        'voucherDetailList': $scope.voucherDetailList
+                        'voucherDetailList': $scope.voucherDetailList,
+                        'voucherDetailGLList': $scope.voucherDetailGLList
                     },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
@@ -496,6 +497,7 @@ function employeeAdvanceWriteOffController(bankService, cboService, commonMessag
         $scope.advance.Type = 'Receivable';
         $scope.advance.VoucherDate = $filter('date')(Date.now(), 'dd-MMM-yyyy');
         $scope.voucherDetailList = [];
+        $scope.voucherDetailGLList = [];
         $scope.getCboVoucherTypeEmployeeAdvanceWriteOffList();
         $scope.advance.DocRefNo = null;
         $scope.advance.SettlementType = "SetOff";
@@ -697,9 +699,125 @@ function employeeAdvanceWriteOffController(bankService, cboService, commonMessag
             ShowResult(e, 'failure');
         }
     }
+    $scope.voucherDetailGLList = [];
+    $scope.addRow = function () {
+        if (baseService.isUndefinedOrNull($scope.advance.CurrencyId)) {
+            ShowResult("Please select Currency!", "failure");
+            return true;
+        }
+        if (baseService.isUndefinedOrNull($scope.selectedInvoiceGLId)) {
+            ShowResult("Please select GL.", "failure");
+            return;
+        }
+        var getRow = null;
+        getRow = $filter("filter")($scope.voucherDetailGLList, { "TrnType": "Dr", "GLGeneralInfoId": $scope.selectedInvoiceGLId, "BudgetMasterId": $scope.voucherDetail.BudgetMasterId, "ActivityId": $scope.voucherDetail.ActivityId });
+        if (!baseService.isUndefinedOrNull(getRow) && getRow.length > 0 && getRow[0].GLGeneralInfoId === $scope.selectedInvoiceGLId && getRow[0].BudgetMasterId === $scope.voucherDetail.BudgetMasterId && getRow[0].ActivityId === $scope.voucherDetail.ActivityId) {
+            ShowResult("This GL Budget and Activity is already added!", "failure");
+        }
+        else {
+            $scope.voucherDetail.Id = baseService.pk();
+            $scope.voucherDetail.GLGeneralInfoId = $scope.selectedInvoiceGLId;
+            $scope.voucherDetail.GLGeneralInfoCode = $scope.selectedInvoiceGLCode;
+            $scope.voucherDetail.GLGeneralInfoName = $scope.selectedInvoiceGLName;
+            $scope.voucherDetail.PostingWithoutTaxAllow = $scope.selectedInvoiceGLPostingWithoutTaxAllow;
 
-    
+            $scope.voucherDetail.DocDate = $scope.advance.DocDate;
+            $scope.voucherDetail.DocRefNo = $scope.advance.DocRefNo;
+            $scope.voucherDetail.Narration = $scope.advance.Narration;
+            $scope.voucherDetail.EntityId = $scope.advance.EntityId;
+            $scope.voucherDetail.PlantId = $scope.advance.PlantId;
+            $scope.voucherDetail.DrAmount = null;
+            $scope.voucherDetail.TotalTax = null;
+            $scope.voucherDetail.TotalAmount = null;
+
+            $scope.voucherDetail.TrnType =  "Dr";
+            $scope.voucherDetail.InvoiceTaxViewModel = [];
+            $scope.voucherDetailGLList.splice(0, 0, $scope.voucherDetail);
+            $scope.voucherDetail = {};
+            $scope.searchStr = null;
+        }
+    };
+    $scope.customerInvoiceGLSearchList = [
+        {
+            "name": "GL Code",
+            "value": "GLGeneralInfoCode"
+        },
+        {
+            "name": "GL Name",
+            "value": "GLGeneralInfoName"
+        },
+        {
+            "name": "Account Group",
+            "value": "AccountGroupName"
+        },
+        {
+            "name": "COA",
+            "value": "COA"
+        },
+        {
+            "name": "Budget",
+            "value": "BudgetName"
+        },
+        {
+            "name": "Activity",
+            "value": "ActivityName"
+        },
+        {
+            "name": "Ref No",
+            "value": "RefNo"
+        }
+    ];
+    $scope.customerInvoiceGLParameters = {
+        limit: 10,
+        offset: 0,
+        order: "asc",
+        sort: "GLGeneralInfoCode",
+        searchBy: "ActivityName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+    $scope.popUp = function () {
+        $scope.customerInvoiceGLList = [];
+        baseService.setCurrentPage("customerInvoiceGLList");
+        $scope.customerInvoiceGLGLData = function (pageno) {
+            baseService.paginationBase("Accounts/GLItem/GetVendorInvoiceGLBudgetList", pageno, $scope.customerInvoiceGLParameters)
+                .then(function (result) {
+                    $scope.customerInvoiceGLList = result.Rows;
+                    $scope.customerInvoiceGLParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, "failure", "CustomerInvoiceGLPopUp");
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector("#CustomerInvoiceGLPopUp")).modal("show");
+        $scope.customerInvoiceGLGLData();
+    };
+    $scope.glSelect = function (data) {
+        $scope.selectedInvoiceGLId = data.GLGeneralInfoId;
+        $scope.selectedInvoiceGLName = data.GLGeneralInfoName;
+        $scope.selectedInvoiceGLCode = data.GLGeneralInfoCode;
+        $scope.voucherDetail.BudgetMasterId = data.BudgetMasterId;
+        $scope.voucherDetail.BudgetName = data.BudgetName;
+        $scope.voucherDetail.BudgetCode = data.BudgetCode;
+        $scope.voucherDetail.ActivityId = data.ActivityId;
+        $scope.voucherDetail.ActivityName = data.ActivityName;
+        $scope.voucherDetail.ActivityCode = data.ActivityCode;
+        $scope.voucherDetail.IsOrderSpecific = data.IsOrderSpecific;
+        $scope.voucherDetail.ActivityOrderType = data.ActivityOrderType;
+        $scope.voucherDetail.ValueOfDistribution = data.ValueOfDistribution;
+        $scope.voucherDetail.AccountType = data.AccountType;
+        $scope.addRow();
+        $scope.closeGLPopUp();
+    };
+    $scope.closeGLPopUp = function () {
+        angular.element(document.querySelector("#CustomerInvoiceGLPopUp")).modal("hide");
+    };
        
-
+    $scope.removeGLRow = function (index) {
+        var row = $scope.voucherDetailGLList[index];
+        $scope.voucherDetailGLList.splice(index, 1);
+    };
 
 }
