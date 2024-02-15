@@ -486,8 +486,8 @@
                              e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                             <div e-columns>
-                                <div e-column e-headertext="Actions" e-width="20">
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.deleteBankModal($event);" style="margin: -6px;"></i></button>
+                                <div e-column e-headertext="Actions" e-width="15">
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.deleteBankModal(this);" style="margin: -6px;"></i></button>
                                 </div>
                                 <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="20" e-visible="false"></div>
                                 <div e-column e-type="string" e-field="BankName" e-headertext="Bank Name" e-width="50"></div>
@@ -870,7 +870,7 @@
     </div>
 </div>
 <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="RemoveContract();"></confirm-archive-generic>
-<confirm-archive-generic modalid="removerBankPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="deleteBankModal();"></confirm-archive-generic>
+<confirm-archive-generic modalid="removerBankPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="DeleteBank();"></confirm-archive-generic>
 <confirm-archive-generic modalid="removerAddInfoPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="RemoveAddInfo();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteTNC();"></confirm-archive-generic>
 <!-- #endregion -->

@@ -595,9 +595,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
     };
 
     $scope.deleteBankModal = function (obj) {
-        var gridObj = $("#GridAddInfo").data("ejGrid");
-        var data = gridObj.getSelectedRecords()[0];
-        $scope.BankId = data.Id;
+        $scope.BankId = obj.data.Id;
         $scope.message = "Are you sure to delete permanently?";
         angular.element(document.querySelector("#removerBankPopUp")).modal("show");
     }
