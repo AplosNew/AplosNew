@@ -2318,7 +2318,8 @@ namespace Library.Accounting.Accounts
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 parameters.CmdText = @"SELECT V.Id PayableVoucherId, V.VoucherDate, V.PostingDate, V.DocRefNo, V.VoucherTypeId, V.CurrencyId, V.DocDate, V.EntityId, C.Code AS CurrencyCode
-                                    , VD.DrAmount, V.VoucherNo,ISNULL(BM.AccountTitle,CM.UserName) PaymentBank, V.IsPark, V.Narration
+                                    , VD.DrAmount, V.VoucherNo,ISNULL(BM.AccountTitle,CM.UserName) PaymentBank
+                                    ,V.IsPark,Status= case when V.IsPark=0 then 'Posted' else 'Parked' end, V.Narration
 									,[Month]=case when sl.MonthNo=1 then 'January'
                                     when sl.MonthNo=2 then 'February'
                                     when sl.MonthNo=3 then 'March'
@@ -2359,7 +2360,7 @@ namespace Library.Accounting.Accounts
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 parameters.CmdText = @"SELECT V.Id PayableVoucherId, V.VoucherDate, V.PostingDate, V.DocRefNo, V.VoucherTypeId, V.CurrencyId, V.DocDate, V.EntityId, C.Code AS CurrencyCode
-                                    , VD.DrAmount, V.VoucherNo,ISNULL(BM.AccountTitle,CM.UserName) PaymentBank, V.IsPark, V.Narration
+                                    , VD.DrAmount, V.VoucherNo,ISNULL(BM.AccountTitle,CM.UserName) PaymentBank,V.IsPark,Status = case when V.IsPark=0 then 'Posted' else 'Parked' end, V.Narration
 									,CONCAT(DATENAME(mm, DA.FromDate), '-', DATEPART(yy, DA.FromDate))FromDate
 									,CONCAT(DATENAME(mm, DA.ToDate), '-', DATEPART(yy, DA.ToDate))ToDate
                                     FROM TRN.[Voucher] AS V

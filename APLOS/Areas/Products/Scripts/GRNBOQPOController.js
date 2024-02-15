@@ -2687,7 +2687,8 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     $scope.PODocumentMapDataAll();
 
     function containsSpecialChars(str) {
-        const specialChars = /[@!#$%^&*()_+\-=\[\]{};':"|,.<>\?`~]/;
+        //const specialChars = /[@!#$%^&*()_+\-=\[\]{};':"|,.<>\?`~]/;
+        const specialChars = /[@!#$%^&*()_+\=\[\]{};':"|,.<>\?`~]/;
         return specialChars.test(str);
     }
 

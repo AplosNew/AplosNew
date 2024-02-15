@@ -3019,25 +3019,24 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
 							,GLGeneralInfoId =BM.GLGeneralInfoId        
 							,GLGeneralInfoCode =GL.AccountCode 
 							,GLGeneralInfoName =GL.UserName
-							,BudgetMasterId =FAMBT.BudgetMasterId
+							,BudgetMasterId =VD.BudgetMasterId
 							,BudgetCode = B.Code
 							,BudgetName =B.UserName 
-							,ActivityId = BMA.ActivityId
+							,ActivityId = VD.ActivityId
 							,ActivityCode = A.Code
 							,ActivityName =A.UserName
 							, NULL Dr
 							,  SUM( ISNULL(ADDS.DepreciationAmount,0)) AS Cr
 							,  SUM( ISNULL(ADDS.DepreciationAmount,0)) AS Amount
 						FROM [TRN].[AssetDepreciationDetail] ADDS
-						LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=ADDS.FixedAssetMasterId
-						LEFT JOIN [HKP].[FixedAssetMasterBudgetTag] AS FAMBT  ON FAMBT.FixedAssetMasterId=FAM.Id
-						LEFT JOIN [MST].[BudgetMaster] AS BM ON FAMBT.BudgetMasterId= BM.Id
-						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
+						LEFT JOIN [TRN].[AssetRegisterChild]  ARC ON ARC.Id=ADDS.AssetRegisterChildId
+						LEFT JOIN [TRN].[VoucherDetail]  VD ON VD.Id=ARC.VoucherDetailId
+						LEFT JOIN [MST].[BudgetMaster] AS BM ON  BM.Id=VD.BudgetMasterId
+						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON VD.GLGeneralInfoId=GL.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
-						LEFT JOIN (SELECT Id,BudgetMasterId,ActivityId FROM [MST].[BudgetMasterActivity] WHERE Isdefault=1 ) AS BMA ON BMA.BudgetMasterId= FAMBT.BudgetMasterId 
-						LEFT JOIN [HKP].[Activity] AS A ON BMA.ActivityId= A.Id
+						LEFT JOIN [HKP].[Activity] AS A ON VD.ActivityId= A.Id
 						WHERE ADDS.AssetDepreciationId=@assetDepreciationId 
-						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, FAMBT.BudgetMasterId, B.Code, B.UserName, BMA.ActivityId, A.Code, A.UserName
+						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, VD.BudgetMasterId, B.Code, B.UserName, VD.ActivityId, A.Code, A.UserName
 						) X 
                         WHERE X.Amount>0
 						ORDER BY 2 DESC";

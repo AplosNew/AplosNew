@@ -182,19 +182,19 @@ function assetDepreciationProcessController(cboService, commonMessage, $scope, $
             var selectedAssetMastersList = [];
             for (var i = 0; i < $scope.fixedAssetMastersList.length; i++) {
                 if ($scope.fixedAssetMastersList[i].isSelected == true) {
-
+                    if ($scope.fixedAssetMastersList[i].PreviousYearAsset > 0 && $scope.fixedAssetMastersList[i].PreviousYearAssetProcess == 0) {
+                        ShowResult('Please process previous fiscal year fixed Asset First!', 'failure');
+                        return;
+                    }
+                    if ($scope.fixedAssetMastersList[i].PreviousYearAsset > 0 && $scope.fixedAssetMastersList[i].PreviousYearAssetProcess > 0 && $scope.fixedAssetMastersList[i].PreviousYearAssetFullProcess == "No") {
+                        ShowResult('Please process previous fiscal year fixed Asset First!', 'failure');
+                        return;
+                    }
                     if (selectedAssetMastersList, $scope.fixedAssetMastersList[i].Id) {
                         selectedAssetMastersList.push($scope.fixedAssetMastersList[i].Id);
                     }
                 }
-                if ($scope.fixedAssetMastersList[i].PreviousYearAsset > 0 && $scope.fixedAssetMastersList[i].PreviousYearAssetProcess==0) {
-                    ShowResult('Please process previous fiscal year fixed Asset First!', 'failure');
-                    return;
-                }
-                if ($scope.fixedAssetMastersList[i].PreviousYearAsset > 0 && $scope.fixedAssetMastersList[i].PreviousYearAssetProcess > 0 && $scope.fixedAssetMastersList[i].PreviousYearAssetFullProcess == "No") {
-                    ShowResult('Please process previous fiscal year fixed Asset First!', 'failure');
-                    return;
-                }
+                
             }
             if (selectedAssetMastersList.length == 0) {
                 ShowResult('Please select at least one Asset master', 'failure');

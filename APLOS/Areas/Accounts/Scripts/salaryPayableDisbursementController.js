@@ -56,6 +56,10 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
         {
             "name": "Payment Bank",
             "value": "PaymentBank"
+        },
+        {
+            "name": "Status",
+            "value": "Status"
         }
     ];
 
