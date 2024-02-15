@@ -567,6 +567,60 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         $scope.ActionAdd = 'Update';
     }
 
+    $scope.deleteAddInfoModal = function (obj) {
+
+        var gridObj = $("#GridAddInfo").data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        $scope.AddInfoId = data.Id;
+        $scope.message = "Are you sure to delete permanently?";
+        angular.element(document.querySelector("#removerAddInfoPopUp")).modal("show");
+    }
+
+    $scope.RemoveAddInfo = function () {
+        $http({
+            method: 'POST',
+            url: 'Commercial/Contract/RemoveAddInfo?id=' + $scope.AddInfoId
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetMasterLCAddInfoData();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+    };
+
+    $scope.deleteBankModal = function (obj) {
+        var gridObj = $("#GridAddInfo").data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        $scope.BankId = data.Id;
+        $scope.message = "Are you sure to delete permanently?";
+        angular.element(document.querySelector("#removerBankPopUp")).modal("show");
+    }
+
+    $scope.DeleteBank = function () {
+        $http({
+            method: 'POST',
+            url: 'Commercial/Contract/DeleteBank?id=' + $scope.BankId
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetNegotiatingBankList();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+    };
+
+
     $scope.ClearAddInfo = function () {
         $scope.AddModel = { Id: null, MasterLCId: null, Sequence: 0, Description: null, Remarks: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
         $scope.addInfo = Object.assign({}, $scope.AddModel);
