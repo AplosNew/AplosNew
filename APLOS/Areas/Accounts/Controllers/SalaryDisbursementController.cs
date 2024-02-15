@@ -847,7 +847,7 @@ namespace Aplos.Areas.Accounts.Controllers
                                     LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
                                     LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.DisbursementVoucherId 
                                     LEFT JOIN [dbo].[DisbursementAdvice]  DA ON DA.Id=sl.DisbursementAdviceId 
-                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' AND ISNULL(e.PaymentMode,'')='" + paymentMode + "' AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.IsDisbursed = 1 " + wcPayrollGroup + @" 
+                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' AND ISNULL(DA.PaymentMode,'')='" + paymentMode + "' AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.IsDisbursed = 1 " + wcPayrollGroup + @" 
                                     ) DD " + wcEmpStatus + @" ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
             var empdata = _sqlRepository.GetDataCollection(sql);
             JsonResult json = Json(new { empdata}, JsonRequestBehavior.AllowGet);
