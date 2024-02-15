@@ -155,8 +155,8 @@ from trn.ProductionOrderDetail AS pod JOIN  trn.SalesOrder SO ON pod.SalesOrderI
 								,ItemList=STUFF((SELECT distinct ','+cix.UserName FROM CostingBOQ AS cbx
 													JOIN hkp.CostingItem AS cix ON cix.Id=cbx.CostingItemId
                                     where cbx.SalesOrderId=so.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-								,BOMList=STUFF((SELECT distinct ','+cbx.CostingBOQMasterId FROM CostingBOQSalesOrder AS cbx
-                                    where cbx.SalesOrderId=so.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								,BOMList=STUFF((SELECT distinct ','+cbx.CostingBOQMasterId FROM TRN.SalesOrder AS cbx
+                                    where cbx.Id=so.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 ,Approved=CASE WHEN OCMT.isPreCostingApproved=0 THEN 'Yes' WHEN OCMT.isQuickCostingApproved=1 THEN 'Yes' WHEN OCMT.isProcurementCostingApproved=1 THEN 'Yes' ELSE 'No' END,OCMT.CostingStage
                        FROM [TRN].[SalesOrder] AS SO 
                        JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id

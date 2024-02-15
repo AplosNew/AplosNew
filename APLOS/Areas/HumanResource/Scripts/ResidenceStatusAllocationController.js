@@ -233,7 +233,7 @@ function ResidenceStatusAllocationController(cboService, $window,commonMessage, 
     $scope.closeEmployeePopUp = function () {
         MakeData();
         $scope.SaveAllocation();
-        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+        
     }
 
     $scope.refreshTemplateemployee = function (args) {
@@ -296,10 +296,10 @@ function ResidenceStatusAllocationController(cboService, $window,commonMessage, 
 
     $scope.SaveAllocation = function () {
         try {
-            //if ($scope.availableNumber < $scope.saveList.length)
-            //{
-            //    throw "Selected Employee should not greater than Available.";
-            //}
+            if (baseService.arrayLength($scope.saveList)==0)
+            {
+                throw "Select Employee";
+            }
             $http({
                 method: 'POST',
                 url: $scope.path + 'residenceStatusSave',
@@ -314,6 +314,7 @@ function ResidenceStatusAllocationController(cboService, $window,commonMessage, 
                     $scope.UnallocationView();
                     $scope.view();
                     $scope.saveList = [];
+                    angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -819,29 +820,36 @@ function ResidenceStatusAllocationController(cboService, $window,commonMessage, 
     };
 
     $scope.SaveOccupiedRSU = function () {
-        $scope.unallocationLoop = [];
-        for (var i = 0; i < $scope.OccupiedEmployeeList.length; i++) {
+        try {
+            $scope.unallocationLoop = [];
+            for (var i = 0; i < $scope.OccupiedEmployeeList.length; i++) {
+                if ($scope.OccupiedEmployeeList[i].isSelected) {
+                    $scope.unallocationLoop.push($scope.OccupiedEmployeeList[i]);
+                }
+            }
+            if (baseService.arrayLength($scope.unallocationLoop) == 0) {
+                throw "Select Employee.";
+            }
 
-            if ($scope.OccupiedEmployeeList[i].isSelected) {
-                $scope.unallocationLoop.push($scope.OccupiedEmployeeList[i]);
-            }
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SaveRSUnallocation',
+                data: { 'employeeList': $scope.unallocationLoop },
+                dataType: 'JSON',
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.closeOccupiedEmployeePopUps();
+                    /// $scope.OccupiedAvailablePopUpData();
+                    $scope.view();
+                }
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
-        $http({
-            method: 'POST',
-            url: $scope.path + 'SaveRSUnallocation',
-            data: { 'employeeList': $scope.unallocationLoop },
-            dataType: 'JSON',
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.closeOccupiedEmployeePopUps();
-               /// $scope.OccupiedAvailablePopUpData();
-                $scope.view();
-            }
-        });
     }
 
     $scope.ResidenceNumberN = null
