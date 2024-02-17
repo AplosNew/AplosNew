@@ -312,7 +312,7 @@ namespace Library.OrderManagement.Costing
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (
+            string sql = @"select top 1000 * from (
                                   SELECT cost.Id, cost.Remarks,ei.EmployeeName,p.UserName AS CustomerName,COST.CustomerId,
                                     ei.SystemId AS EmployeeSystemId,cost.UserName,FORMAT(cost.AddedDate,'dd-MMM-yyyy') BOMCreationDate,cost.AddedDate,
                                     ItemList=STUFF((SELECT distinct ','+  XCI.UserName
