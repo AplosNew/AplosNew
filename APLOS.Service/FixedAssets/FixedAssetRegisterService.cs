@@ -4994,6 +4994,73 @@ GROUP BY FAR.FABudgetMasterId
                     _unitOfWork.Rollback();
             }
         }
+        public string InsertCapitalizeAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, List<Dictionary<string, object>> assetRegisterList)
+        {
+            var flag = false;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                string TableName = "trn.FixedAssetRegisterDisposed";
+                bplib.clsGenID genidYearly = new bplib.clsGenID();
+                genidYearly.GenerateIDYearly(DateTime.Now.ToString(), TableName, out string _id);
+                int detailId = 0;
+                var fixedAssetDispose = new FixedAssetRegisterDisposed
+                {
+                    Status = fixedAssetDisposed.Status,
+                    Remarks = fixedAssetDisposed.Remarks,
+                    EmployeeId = fixedAssetDisposed.EmployeeId,
+                    Id = "RD" + _id,
+                    IsPark = true,
+                    DocDate = fixedAssetDisposed.DocDate
+                };
+                AuditService.AddedLog(fixedAssetDispose);
+                _fixedAssetRegisterDisposedRepository.Insert(fixedAssetDispose);
+                var rdBuilder = new System.Text.StringBuilder();
+                var builderSql = "";
+                foreach (var item in assetRegisterList)
+                {
+                    detailId++;
+                    builderSql = @"UPDATE [TRN].[AssetRegister] SET Status = 'Disposed'  WHERE Id='" + item["AssetRegisterId"].ToString() + "'  ";
+                    rdBuilder.Append(builderSql);
+
+
+                    var fixedAssetDisposeDetail = new FixedAssetRegisterDisposedDetail
+                    {
+                        FixedAssetRegisterId = item["AssetRegisterId"].ToString(),
+                        NegotiationValue = Convert.ToDecimal(item["NegotiationValue"].ToString()) ,
+                        BaseNagotiationValue = Convert.ToDecimal(item["NegotiationValue"].ToString()),
+
+                        FixedAssetRegisterDisposedId = fixedAssetDispose.Id,
+                        Id = "D" + fixedAssetDispose.Id + detailId,
+                    };
+                    AuditService.AddedLog(fixedAssetDisposeDetail);
+                    _fixedAssetRegisterDisposedDetailRepository.Insert(fixedAssetDisposeDetail);
+                }
+
+                _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+                return fixedAssetDisposed.Remarks;
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
 
         public string EditFixedAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegisterDisposedDetail> fixedAssetRegister)
         {

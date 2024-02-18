@@ -1933,6 +1933,7 @@
     <Content Include="Areas\Attendances\Scripts\GoodWorkApproveController.js" />
     <Content Include="Areas\Attendances\Scripts\GoodWorkPaymentDisburseController.js" />
     <Content Include="Areas\Commercial\Scripts\LCPendingReportController.js" />
+    <Content Include="Areas\FixedAssets\Scripts\assetDisposeController.js" />
     <Content Include="Areas\OrderManagements\Scripts\masterOrderApproveByController.js" />
     <Content Include="Areas\OrderManagements\Scripts\masterOrderCheckByController.js" />
     <Content Include="Areas\OrderManagements\Scripts\TermsandConditionGroupController.js" />
@@ -4909,6 +4910,8 @@
     <Content Include="Areas\Attendances\Views\GoodWork\GWPaymnetDisburse.cshtml" />
     <Content Include="Areas\OrderManagements\Views\MasterOrder\CheckBy.cshtml" />
     <Content Include="Areas\OrderManagements\Views\MasterOrder\ApproveBy.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\AssetDispose.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\_CapitalizeAssetRegisterPopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

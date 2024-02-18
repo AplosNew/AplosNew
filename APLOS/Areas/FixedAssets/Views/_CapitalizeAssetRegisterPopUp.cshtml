@@ -1,0 +1,66 @@
+﻿<style>
+    .modellgModify {
+        width: 1400px;
+    }
+</style>
+<div class="modal fade site-modal in" id="assetRegisterPopUpmodal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Capitalize Asset Register List <button type="button" class="close" ng-click="closeFARegisterPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchByFARegister">
+                                            <option ng-repeat="option in searchByFARegisterList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchFARegister" ng-enter="getFixedAssetRegisterPopUpList()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getFixedAssetRegisterPopUpList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+                        <div style="color:black;" id="capitalizeAssetPopUpGrid" ng-init="chkinit()" ej-grid e-datasource="assetRegisterPopUpList" e-load="loadGridEdit"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-template="#checkboxTemplateMaster" e-headertext="Check" e-textalign="center" e-width="60"></div>
+                                <div e-column e-field="FixedAssetRegisterId" e-headertext="Asset Register Id" e-width="60" e-filter="false"></div>
+                                <div e-column e-field="FixedAssetMaster" e-headertext="Asset Master" e-width="60" e-filter="false"></div>
+                                <div e-column e-field="FixedAssetItem" e-headertext="Asset Item" e-width="60" e-filter="false"></div>
+                                <div e-column e-field="AssetSlNo" e-headertext="Asset Sl No" e-width="60"></div>
+                                <div e-column e-field="AssetCondition" e-headertext="Asset Condition" e-width="60" e-filter="false"></div>
+                                <div e-column e-field="UserReference" e-headertext="User Reference" e-width="60" e-filter="false"></div>
+                                <div e-column e-field="OldReference" e-headertext="Old Reference" e-width="60" e-filter="false"></div>
+                                <div e-column e-field="UserGroup" e-headertext="User Group" e-width="60"></div>
+                                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="60" e-filter="false"></div>
+                                <div e-column e-field="AssetAmount" e-headertext="Asset Amount" e-width="80"></div>
+                                <div e-column e-field="DepreciationAmount" e-headertext="Depreciation Amount" e-width="80"></div>
+                                <div e-column e-field="NetAmount" e-headertext="Net Amount" e-width="80"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateMaster">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                        </script>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="selectFARegisterPopUp();" class="btn"><i></i> Select</button></li>
+                    <li><button ng-click="closeFARegisterPopUp();" class="btn"> Close</button></li>
+                </ul>
+                <i>**Showing top 300 Register order by Serial No</i>
+            </div>
+        </div>
+    </div>
+</div>

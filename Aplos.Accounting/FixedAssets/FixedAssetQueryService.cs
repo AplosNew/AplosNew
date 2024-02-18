@@ -270,7 +270,25 @@ namespace Library.Accounting.FixedAssets
             }
         }
 
-
+        public List<Dictionary<string, object>> GetCapitalizeAssetRegisterPopUpList(string column, string value, string companyId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+            var sql = @"select top 300 * from (SELECT ARC.AssetRegisterId FixedAssetRegisterId,ARC.AssetRegisterId,SUM(ARC.Amount) AssetAmount,SUM(ISNULL(ARC.DepreciationAmount,0))DepreciationAmount,SUM(ARC.NetAmount)NetAmount
+                            ,FAM.UserName FixedAssetMaster,FAI.UserName FixedAssetItem,AR.AssetSlNo, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks  
+                            FROM TRN.AssetRegisterChild ARC
+							LEFT JOIN TRN.AssetRegister AR ON AR.Id=ARC.AssetRegisterId
+                            LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
+                            LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
+                            WHERE ARC.CompanyGroupId='" + identity.CompanyGroupId + "' AND ARC.CompanyId='" + companyId + "' AND ARC.PlantId='" + identity.PlantId + @"'  AND ARC.VoucherDetailId is not null
+                            AND ARC.AssetRegisterId NOT IN(select AssetRegisterId from TRN.FixedAssetRegisterDisposedDetail)
+                            GROUP BY ARC.AssetRegisterId,FAM.UserName ,FAI.UserName ,AR.AssetSlNo,AR.Status
+						    , AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks
+                            ) AS TEMP WHERE " + strkey + " order by FixedAssetMaster,FixedAssetItem ";
+            return _sqlRepository.GetDataCollection(sql);
+        }
         public List<Dictionary<string, object>> GetFixedAssetRegisterPopUpList(string column, string value, string companyId)
         {
             string strkey = "1=1";

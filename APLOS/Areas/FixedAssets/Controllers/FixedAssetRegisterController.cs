@@ -1912,5 +1912,38 @@ namespace Aplos.Areas.FixedAssets.Controllers
             }
         }
         #endregion
+
+        #region Capitalize Asset Dispose
+        public ActionResult AssetDispose()
+        {
+            return View("~/Areas/FixedAssets/Views/AssetDispose.cshtml");
+        }
+        [Authorize, HttpPost]
+        public ActionResult GetCapitalizeAssetDisposeList(string column, string value, string companyId)
+        {
+            FixedAssetDisposeService _fixedAssetDisposeService = new FixedAssetDisposeService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (companyId == null)
+                companyId = identity.CompanyId;
+            return Json(_fixedAssetDisposeService.GetCapitalizeAssetDisposeList(column, value, companyId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetCapitalizeAssetRegisterPopUpList(string column, string value, string companyId)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            if (companyId == null)
+                companyId = identity.CompanyId;
+            return Json(_fixedAssetQueryService.GetCapitalizeAssetRegisterPopUpList(column, value, companyId), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
+        }
+        [HttpPost]
+        public JsonResult CreateCapitalizeAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, List<Dictionary<string, object>> assetRegisterList)
+        {
+            _fixedAssetRegisterService.InsertCapitalizeAssetLost(fixedAssetDisposed,assetRegisterList);
+            return Json(new { Message = AplosMessage.Insert });
+        }
+        #endregion
     }
 }
