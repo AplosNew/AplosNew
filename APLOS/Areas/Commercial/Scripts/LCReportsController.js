@@ -30,17 +30,7 @@ function LCReportsController(cboService, commonMessage, $scope, $rootScope, base
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {
-                if (response.data.Error == false) {
-                    //for (var i = 0; i < response.data.DATA.length; i++) {
-                    //    response.data.DATA[i].LCOpeningDate = new Date(response.data.DATA[i].LCOpeningDate);
-                    //    response.data.DATA[i].ExpiryDate = new Date(response.data.DATA[i].ExpiryDate);
-                    //}
-                    $scope.MasterLCList = response.data.DATA;
-                }
-                else {
-                    ShowResult(response.data.Message, 'failure');
-                }
-
+                $scope.MasterLCList = response.data;
             }),
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
