@@ -453,8 +453,11 @@ namespace Aplos.Areas.Commercial.Controllers
                 }
 
                 var data = _sqlRepository.GetDataCollection(sql);
-                return Json(new { DATA = data, Error = false }, JsonRequestBehavior.AllowGet);
-            }
+				var jsondata = Json(data, JsonRequestBehavior.AllowGet);
+				jsondata.MaxJsonLength = int.MaxValue;
+				return jsondata;
+
+			}
             catch (Exception ex)
             {
                 return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);

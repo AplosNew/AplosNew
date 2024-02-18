@@ -690,6 +690,9 @@
                         <button ng-show="data.WrittenOffAmount" ng-click="$parent.getInvoiceSetOffDetailByInvoice(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="SetOff">
                             <i class="glyphicon glyphicon-eye-open" style="color:orangered;"></i>
                         </button>
+                        <button ng-show="data.IsPark==true" ng-click="$parent.confirmPost(data.InvoiceId,data.BeneficiaryType,data.AdditionalTaxId,data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Post">
+                            Post
+                        </button>
                     </li>
                 </ul>
             </div>
@@ -724,5 +727,6 @@
 @Html.Partial("~/Areas/Accounts/Views/_InvoiceSetOffDetailByInvoicePopUp.cshtml")
 
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(GRNId,VoucherId,InvoiceId,Type,TDSTaxVoucherId,TDSVoucherNo)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(invoiceId,type,tdsId,data)"></confirm-archive-generic>
 
 

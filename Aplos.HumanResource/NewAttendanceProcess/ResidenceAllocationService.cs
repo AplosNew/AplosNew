@@ -701,48 +701,51 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
 
             try
             {
-                //Master Table - PMSMaster
-                string TableName = "dbo.ResidenceAllocatedEmployees";
-                DataSet dsMaster = null;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-
-
-                string _Id = "";
-
-                #region data Master update
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                bplib.clsGenID genid = new bplib.clsGenID();
-                genid.GenID(TableName, out _Id);
-
-                int count = 0;
-                foreach (var item in EmployeeList)
+                if (EmployeeList!=null)
                 {
-                    con.OpenDataSetThroughAdapter("select * from " + TableName + " where EmployeeSystemId='" + item["EmployeeSystemId"] + "'", out dsMaster, false, "1");
-                    count++;
-                    DataView dv = new DataView(dsMaster.Tables[0]);
-                    dv.RowFilter = "EmployeeSystemId='" + item["EmployeeSystemId"] + "'";
+                    //Master Table - PMSMaster
+                    string TableName = "dbo.ResidenceAllocatedEmployees";
+                    DataSet dsMaster = null;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                    if (dv.Count == 0)
+
+
+                    string _Id = "";
+
+                    #region data Master update
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    int count = 0;
+                    foreach (var item in EmployeeList)
                     {
-                        item["Id"] = _Id + "-" + count;
-                        item["Date"] = DateTime.Now;
-                        item["isOccupied"] = 1;
-                        AddNewRow(dsMaster.Tables[0], item);
+                        con.OpenDataSetThroughAdapter("select * from " + TableName + " where EmployeeSystemId='" + item["EmployeeSystemId"] + "'", out dsMaster, false, "1");
+                        count++;
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "EmployeeSystemId='" + item["EmployeeSystemId"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = _Id + "-" + count;
+                            item["Date"] = DateTime.Now;
+                            item["isOccupied"] = 1;
+                            AddNewRow(dsMaster.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            item["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                            item["isOccupied"] = 1;
+                            EditRow(drmo, item);
+                        }
                     }
-                    else
-                    {
-                        DataRow drmo = dv[0].Row;
-                        item["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-                        item["isOccupied"] = 1;
-                        EditRow(drmo, item);
-                    }
+                    #endregion data Master update
+
+                    OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+
                 }
-                #endregion data Master update
-
-                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
-                obj.SaveDataSets(dsMaster);
-
                 //return ;
             }
             catch (Exception ex)
@@ -756,43 +759,46 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
 
             try
             {
-                var id = "";
-                foreach (var item in employeeList)
+                if (employeeList!=null)
                 {
-                    if (id == "")
-                        id = "'" + item["Id"] + "'";
-                    else
-                        id = id + ",'" + item["Id"] + "'";
-                }
-
-                //Master Table - PMSMaster
-                string TableName = "dbo.ResidenceAllocatedEmployees";
-                DataSet dsMaster;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id In (" + id + ")", out dsMaster, false, "1");
-
-                string _Id = "";
-
-                #region data Master update
-
-                foreach (var item in employeeList)
-                {
-                    DataView dv = new DataView(dsMaster.Tables[0]);
-                    dv.RowFilter = "Id='" + item["Id"] + "'";
-
-                    if (dv.Count > 0)
+                    var id = "";
+                    foreach (var item in employeeList)
                     {
-                        DataRow drmo = dv[0].Row;
-                        item["isOccupied"] = 0;
-                        EditRow(drmo, item);
+                        if (id == "")
+                            id = "'" + item["Id"] + "'";
+                        else
+                            id = id + ",'" + item["Id"] + "'";
                     }
 
-                }
-                #endregion data Master update
+                    //Master Table - PMSMaster
+                    string TableName = "dbo.ResidenceAllocatedEmployees";
+                    DataSet dsMaster;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
-                obj.SaveDataSets(dsMaster);
+                    con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id In (" + id + ")", out dsMaster, false, "1");
+
+                    string _Id = "";
+
+                    #region data Master update
+
+                    foreach (var item in employeeList)
+                    {
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count > 0)
+                        {
+                            DataRow drmo = dv[0].Row;
+                            item["isOccupied"] = 0;
+                            EditRow(drmo, item);
+                        }
+
+                    }
+                    #endregion data Master update
+
+                    OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                    obj.SaveDataSets(dsMaster); 
+                }
 
                 //return ;
             }

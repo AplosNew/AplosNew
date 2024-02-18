@@ -41,7 +41,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
             var date = new Date();
             date.setDate(date.getDate() - 1);
             $scope.YDate = $filter('dateFiltering')(date);
-           
+
             if (ParameterDate < $scope.YDate) {
                 throw "Parameter date should be today's or yestarday's date only.";
             }
@@ -781,14 +781,14 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
             }
             //$scope.SaveList = [];
             //for (var i = 0; i < $scope.DailyTargetList.length; i++) {
-                if (baseService.isUndefinedOrNull(data.data.Id) == true) {
-                    if (baseService.isUndefinedOrNull(data.data.ProductionOrderId) == true) {
-                        throw "Please select Production Order No. for '" + data.data.Line + "'";
-                    }
-                    data.data.EntityId = $scope.DailyProductionTargetNew.EntityId;
-                    data.data.ProcessId = $scope.DailyProductionTargetNew.ProcessId;
-                    data.data.TargetDate = $scope.DailyProductionTargetNew.TargetDate;
-                    data.data.ProductionShiftId = $scope.DailyProductionTargetNew.ProductionShiftId;
+            if (baseService.isUndefinedOrNull(data.data.Id) == true) {
+                if (baseService.isUndefinedOrNull(data.data.ProductionOrderId) == true) {
+                    throw "Please select Production Order No. for '" + data.data.Line + "'";
+                }
+                data.data.EntityId = $scope.DailyProductionTargetNew.EntityId;
+                data.data.ProcessId = $scope.DailyProductionTargetNew.ProcessId;
+                data.data.TargetDate = $scope.DailyProductionTargetNew.TargetDate;
+                data.data.ProductionShiftId = $scope.DailyProductionTargetNew.ProductionShiftId;
                 //    $scope.SaveList.push($scope.DailyTargetList[i]);
                 //}
             }
@@ -805,7 +805,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
                     //ShowResult(response.data.Message, 'success');
                     $scope.RMSId = response.data.Id;
                     $scope.getItemValuePopup(response.data.Id);
-                     $scope.getDailytarget();
+                    $scope.getDailytarget();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -906,7 +906,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
     $scope.ProcessDetentionLists = [];
     $scope.getProcessDetentionPopupPoPUp = function (data) {
         $scope.NewObject = data.data;
-        
+
         var processid = $scope.DailyProductionTargetNew.ProcessId;
         var entityid = $scope.DailyProductionTargetNew.EntityId;
         var targetdate = $scope.DailyProductionTargetNew.TargetDate;
@@ -1268,16 +1268,20 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
         for (var i = 0; i < $scope.DailyTargetList.length; i++) {
             if ($scope.SelectedLineForPR.WorkCenterMasterId == $scope.DailyTargetList[i].WorkCenterMasterId && $scope.SelectedLineForPR.ProductionOrderId == $scope.DailyTargetList[i].ProductionOrderId) {
                 //if ($scope.SelectedLineForPR.ProductionOrderId == $scope.DailyTargetList[i].ProductionOrderId) {
-                    $scope.DailyTargetList[i].ProductionOrderId = args.data.Id;
-                    $scope.DailyTargetList[i].Material = args.data.Material;
-                    $scope.DailyTargetList[i].Article = args.data.Article;
-                    $scope.DailyTargetList[i].MaterialMasterId = args.data.MaterialMasterId;
-                    $scope.DailyTargetList[i].MaterialMasterArticleId = args.data.ArticleId;
-                    $scope.DailyTargetList[i].CustomerPONo = args.data.CustomerPONo;
-                    $scope.DailyTargetList[i].BuyerItemNo = args.data.BuyerItemNo;
-                    $scope.DailyTargetList[i].SMV = args.data.SPT;
-                    $scope.DailyTargetList[i].LotNumber = args.data.LotNumber;
-                    angular.element(document.querySelector('#POItemPopup')).modal('hide');
+                $scope.DailyTargetList[i].ProductionOrderId = args.data.Id;
+                $scope.DailyTargetList[i].Material = args.data.Material;
+                $scope.DailyTargetList[i].Article = args.data.Article;
+                $scope.DailyTargetList[i].MaterialMasterId = args.data.MaterialMasterId;
+                $scope.DailyTargetList[i].MaterialMasterArticleId = args.data.ArticleId;
+                $scope.DailyTargetList[i].CustomerPONo = args.data.CustomerPONo;
+                $scope.DailyTargetList[i].BuyerItemNo = args.data.BuyerItemNo;
+                $scope.DailyTargetList[i].SMV = args.data.SPT;
+                $scope.DailyTargetList[i].LotNumber = args.data.LotNumber;
+
+                $scope.DailyTargetList[i].TargetProductionFP = (dbl(60 / dbl($scope.DailyTargetList[i].SMV)) * ($scope.DailyTargetList[i].WorkStation) * ($scope.DailyTargetList[i].PlanHours)).toFixed(0);
+                $scope.DailyTargetList[i].TargetFD = (dbl(60 / dbl($scope.DailyTargetList[i].SMV)) * ($scope.DailyTargetList[i].WorkStation) * ($scope.DailyTargetList[i].PlanHours) * dbl($scope.DailyTargetList[i].Efficiency) / 100).toFixed(0);
+
+                angular.element(document.querySelector('#POItemPopup')).modal('hide');
                 //}
                 break;
 

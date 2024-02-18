@@ -35,6 +35,10 @@
                     <input ng-click="changeSettlementType()" type="radio" name="SettlementType" ng-model="advance.SettlementType" value="@Library.Model.Payments.SettlementType.Return.ToString()">
                     <span class="cr" tabindex="9"><i class="cr-icon"></i></span>Returned by Employee
                 </label>
+                <label>
+                    <input ng-click="changeSettlementType()" type="radio" name="SettlementType" ng-model="advance.SettlementType" value="@Library.Model.Payments.SettlementType.Others.ToString()">
+                    <span class="cr" tabindex="9"><i class="cr-icon"></i></span>GL
+                </label>
             </div>
         </div>
         <div class="form-group" ng-show="advance.SettlementType=='@Library.Model.Payments.SettlementType.Return.ToString()'">
@@ -123,6 +127,16 @@
                 </div>
             </div>
         </div>
+        <div class="form-group" ng-show="advance.SettlementType=='@Library.Model.Payments.SettlementType.Others.ToString()'">
+            <label class="col-sm-4 control-label">GL<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <span class="common-btn">
+                        <button ng-click="popUp();" class="btn single-btn"><i class="glyphicon glyphicon-plus"></i> Add GL</button>
+                    </span>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="col-xs-12 col-sm-4 col-md-4">
         <div class="form-group" show-errors>
@@ -192,6 +206,45 @@
                     <td></td>
                     <td><b>Sub Total</b></td>
                     <td class="text-right"><b>{{ voucherDetailList | sumByKey : 'Amount' }}</b></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <div class="clearfix"></div>
+    <div class="table-responsive modal-table" ng-show="voucherDetailGLList.length" style="padding-top:10px;">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th style="width:200px;">GL</th>
+                    <th>Budget</th>
+                    <th>Activity</th>
+                    <th> Amount</th>
+                    <th style="width:130px;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in voucherDetailGLList | filter:{TrnType:'Dr'}">
+                    <td>{{x.GLGeneralInfoCode}} - {{x.GLGeneralInfoName}}</td>
+                    <td>{{x.BudgetName}}</td>
+                    <td>{{x.ActivityName}}</td>
+                    <td>
+                        <div class="show-message">
+                            <input type="text" n-decimals="3" class="form-control text-right" ng-model="x.DrAmount">
+                        </div>
+                    </td>
+                    <td class="text-right">
+                        <button ng-click="removeGLRow($index)" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                            <i class="glyphicon glyphicon-remove"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td></td>
+                    <td colspan="2" class="text-right">Total</td>
+                    <td class="text-right"><b>{{ (voucherDetailGLList | filter:{TrnType:'Dr'}) | sumByKey:'DrAmount'| number:3 }}</b></td>
                     <td></td>
                 </tr>
             </tfoot>
@@ -270,5 +323,6 @@
 @Html.Partial("~/Areas/Accounts/Views/_EmployeePayablePopUp.cshtml")
 @Html.Partial("~/Areas/Banks/Views/_CashPopUp.cshtml")
 @Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/GLItem/_GLMappingPopUp.cshtml")
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(advanceWriteOffId,voucherId)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceWriteOffId)"></confirm-archive-generic>

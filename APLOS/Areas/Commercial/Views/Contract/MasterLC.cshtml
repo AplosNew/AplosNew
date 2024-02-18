@@ -46,10 +46,10 @@
                             <label class="col-sm-4 control-label">Advising Bank</label>
                             <div class="col-sm-8">
                                 @*<div class="select-style">
-                    <select name="Lein Bank" class="form-control" ng-model="masterLC.LeinBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="5">
-                        <option value="">--Select--</option>
-                    </select>
-                </div>*@
+                                        <select name="Lein Bank" class="form-control" ng-model="masterLC.LeinBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="5">
+                                            <option value="">--Select--</option>
+                                        </select>
+                                    </div>*@
                                 <input type="text" name="Advising Bank" ng-model="masterLC.LeinBank" class="form-control" tabindex="5" maxlength="50">
                             </div>
                         </div>
@@ -389,10 +389,10 @@
                             </div>
                         </div>
                         <div class="col-xs-12">
-                            <div class="form-group">
-                                <label class="col-sm-2 control-label">Description</label>
-                                <div class="col-sm-10">
-                                    <textarea class="form-control" rows="2" ng-model="addInfo.Description" maxlength="1000" tabindex="103"></textarea>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-2 control-label">Description<sup>*</sup></label>
+                                <div class="col-sm-10 show-message">
+                                    <textarea class="form-control" rows="2" name="Description" ng-model="addInfo.Description" maxlength="1000" tabindex="103" required></textarea>
                                 </div>
                             </div>
                         </div>
@@ -408,12 +408,12 @@
                             <div style="color:black;" id="GridAddInfo" ej-grid e-datasource="masterLCAddInfoList" e-gridlines="vertical" e-allowfiltering="true"
                                  e-recorddoubleclick="GetAddInfo" e-allowpaging="true" e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel">
                                 <div e-columns>
+                                    <div e-column e-headertext="Actions" e-width="20">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.deleteAddInfoModal($event);" style="margin: -6px;"></i></button>
+                                    </div>
                                     <div e-column e-field="Sequence" e-headertext="Sequence" e-width="50"></div>
                                     <div e-column e-field="Description" e-headertext="Description" e-width="150"></div>
                                     <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
-                                    @*<div e-column e-headertext="Actions" e-width="20">
-                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.deleteModal($event);" style="margin: -6px;"></i></button>
-                                        </div>*@
                                 </div>
                             </div>
                         </div>
@@ -486,6 +486,9 @@
                              e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                             <div e-columns>
+                                <div e-column e-headertext="Actions" e-width="15">
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.deleteBankModal(this);" style="margin: -6px;"></i></button>
+                                </div>
                                 <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="20" e-visible="false"></div>
                                 <div e-column e-type="string" e-field="BankName" e-headertext="Bank Name" e-width="50"></div>
                                 <div e-column e-type="string" e-field="AccountNo" e-headertext="AccountNo" e-width="40"></div>
@@ -867,6 +870,8 @@
     </div>
 </div>
 <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="RemoveContract();"></confirm-archive-generic>
+<confirm-archive-generic modalid="removerBankPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="DeleteBank();"></confirm-archive-generic>
+<confirm-archive-generic modalid="removerAddInfoPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="RemoveAddInfo();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteTNC();"></confirm-archive-generic>
 <!-- #endregion -->
 <div class="loader" data-loader>

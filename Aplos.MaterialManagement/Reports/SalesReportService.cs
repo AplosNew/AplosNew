@@ -4037,6 +4037,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
     ,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS DocDate
     ,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDate
 	,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDateNew
+    ,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDateANX
     ,REPLACE(Convert(VARCHAR(11), IR.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate
     ,REPLACE(Convert(VARCHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate   
     ,INVPARTYPL.UserName InvoiceParty,INVPARTYPL.UserName InvoiceParty2,IR.InvoicingByAddress AS ConsigneeAddress,IR.DeliveryByAddress,DPARTYPL.UserName DeliveryParty 

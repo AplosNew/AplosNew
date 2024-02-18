@@ -1943,7 +1943,8 @@ namespace Library.Service.SalesManagements
                 var currentSalesTaxId = 0;
                 if (salesMaterialVMList != null)
                 {
-                    var historyId = _salesMaterialRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM TRN.SalesMaterial WHERE SalesId='{sales.Id}'").First();
+                    //var historyId = _salesMaterialRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM TRN.SalesMaterial WHERE SalesId='{sales.Id}'").First();
+                    var historyId = _salesMaterialRepository.SqlQuery<int>($"SELECT ISNULL(COUNT(Id), 0) Id FROM TRN.SalesMaterial WHERE SalesId='{sales.Id}'").First();
                     foreach (var salesMaterialVM in salesMaterialVMList)
                     {
                         currentSalesMaterialId++;

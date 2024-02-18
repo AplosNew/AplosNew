@@ -1351,4 +1351,44 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
     $scope.closeInvoiceSetOffDetailByInvoice = function () {
         angular.element(document.querySelector('#invoiceetOffByInvoicePopUp')).modal('hide');
     }
+
+    $scope.postUrl = "Accounts/Invoice/PostVendorInvoice";
+    $scope.post = function (invoiceId, type, tdsId, data) {
+        $http({
+            method: "POST",
+            url: $scope.postUrl,
+            data: {
+                "invoiceId": invoiceId,
+                "type": type
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.Clear();
+                $scope.invoiceId = null;
+                $scope.type = null;
+
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+    $scope.invoiceId = null;
+    $scope.confirmPost = function (invoiceId, type, tdsId, data) {
+        $scope.invoiceId = invoiceId;
+        $scope.type = 'Vendor';
+        $scope.tdsId = tdsId;
+        $scope.data = data;
+
+        $scope.message_confirmation = "Are you sure to Post?";
+        angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
+    };
+
 }

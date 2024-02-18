@@ -367,7 +367,7 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = null;
-                sql = @" select isSelected = Convert(bit, 'True'),sl.EmpSystemId,sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,spd.PaymentMode,spd.BankAccNo,spd.IFSCCode
+                sql = @" select isSelected = Convert(bit, 'True'),sl.EmpSystemId,sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,DA.PaymentMode,spd.BankAccNo,spd.IFSCCode
                         ,DirectManpowerCost=case when po.DirectManpowerCost=0 then 'No' when po.DirectManpowerCost=1 then 'Yes' end ,b.UserName BankName,v.VoucherNo PayableVoucherNo
                         ,spc.DisbusmentAmount Amount,spd.Id
 						,Department.UserName Department,Department.Id DepartmentId
@@ -438,7 +438,7 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = null;
-            sql = @" select isSelected = Convert(bit, 'True'),sl.EmpSystemId,sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,spd.PaymentMode,spd.BankAccNo,spd.IFSCCode
+            sql = @" select isSelected = Convert(bit, 'True'),sl.EmpSystemId,sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,DA.PaymentMode,spd.BankAccNo,spd.IFSCCode
                         ,DirectManpowerCost=case when po.DirectManpowerCost=0 then 'No' when po.DirectManpowerCost=1 then 'Yes' end ,b.UserName BankName,v.VoucherNo PayableVoucherNo
                         ,spc.DisbusmentAmount Amount,sl.Id
 						,Department.UserName Department,Department.Id DepartmentId
@@ -847,7 +847,7 @@ namespace Aplos.Areas.Accounts.Controllers
                                     LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
                                     LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.DisbursementVoucherId 
                                     LEFT JOIN [dbo].[DisbursementAdvice]  DA ON DA.Id=sl.DisbursementAdviceId 
-                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' AND ISNULL(e.PaymentMode,'')='" + paymentMode + "' AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.IsDisbursed = 1 " + wcPayrollGroup + @" 
+                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' AND ISNULL(DA.PaymentMode,'')='" + paymentMode + "' AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.IsDisbursed = 1 " + wcPayrollGroup + @" 
                                     ) DD " + wcEmpStatus + @" ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
             var empdata = _sqlRepository.GetDataCollection(sql);
             JsonResult json = Json(new { empdata}, JsonRequestBehavior.AllowGet);

@@ -3028,7 +3028,7 @@ namespace Library.Service.Advances
         {
             return _pKGeneratorService.GetAutoNumber("EmployeeSubsequentTransaction", PKGeneratorEnum.Auto, null, DateTime.Now);
         }
-        public string InsertEmployeeAdvanceWriteOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        public string InsertEmployeeAdvanceWriteOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<VoucherDetailViewModel> voucherDetailGLList)
         {
             var flag = false;
             try
@@ -3044,6 +3044,10 @@ namespace Library.Service.Advances
                 if (voucherDetailVMList != null)
                 {
                     voucherVM.Amount = voucherDetailVMList.Sum(r => r.Amount);
+                }
+                if (voucherDetailGLList != null)
+                {
+                    voucherVM.Amount = voucherDetailGLList.Sum(r => r.DrAmount);
                 }
                 var advanceWriteOff = InsertAdvanceWriteOff(voucherVM);
 
@@ -3118,7 +3122,7 @@ namespace Library.Service.Advances
                     voucherDetail.CrAmount = advanceWriteOffDetail.Amount;
                     voucherDetail.DrAmount = 0;
                 }
-                else if (advanceWriteOff.SettlementType == SettlementType.Return.ToString())
+                else if (advanceWriteOff.SettlementType == SettlementType.Return.ToString()|| advanceWriteOff.SettlementType == SettlementType.Others.ToString())
                 {
                     voucherDetail.DrAmount = 0;
                     voucherDetail.CrAmount = advanceWriteOffDetail.Amount;
@@ -3382,6 +3386,76 @@ namespace Library.Service.Advances
                     };
                     AuditService.AddedLog(EmployeeSubsequentAdvance);
                     _employeeSubsequentTransactionRepository.Insert(EmployeeSubsequentAdvance);
+                }
+                else if (advanceWriteOff.SettlementType == SettlementType.Others.ToString())
+                {
+                    if (voucherDetailGLList!=null) {
+                        foreach (var glitem in voucherDetailGLList)
+                        {
+                            var voucherDetailCr = new VoucherDetail
+                            {
+                                CurrencyId = voucher.CurrencyId,
+                                DrAmount = glitem.DrAmount,
+                                PartyType = voucherVM.PaymentSource,
+                                PaymentSource = "GL",
+                                GLGeneralInfoId = glitem.GLGeneralInfoId,
+                                BudgetMasterId = glitem.BudgetMasterId,
+                                ActivityId = glitem.ActivityId,
+                                DocRefNo = glitem.DocRefNo,
+                                Narration = glitem.Narration,
+                            };
+
+
+
+                            currentVoucherDetailId++;
+                            _voucherService.InsertVoucherDetail(voucher, voucherDetailCr, currentVoucherDetailId);
+
+
+                            _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailCr, new VoucherDetailCurrency
+                            {
+                                ParallelCurrencyId = companyCurrencyId,
+                                FromCurrencyId = companyCurrencyId,
+                                ToCurrencyId = companyCurrencyId,
+                                ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                                ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailCr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                                DrAmount = voucherDetailCr.DrAmount,
+                            });
+
+                            var EmployeeSubsequentAdvance = new EmployeeSubsequentTransaction
+                            {
+                                CompanyGroupId = voucherVM.CompanyGroupId,
+                                CompanyId = voucherVM.CompanyId,
+                                PlantId = voucherVM.PlantId,
+                                EntityId = voucherVM.EntityId,
+                                VoucherTypeId = voucherVM.VoucherTypeId,
+                                AdvanceId = null,
+                                EmployeeId = voucherVM.EmployeeId,
+                                AdvanceWriteOffId = advanceWriteOff.Id,
+                                EmployeePayableWriteOffId = null,
+                                EmployeePayableId = null,
+                                PartyType = voucherVM.PartyType,
+                                CurrencyId = voucherVM.CurrencyId,
+                                Amount = glitem.DrAmount,
+                                VoucherDate = voucherVM.VoucherDate,
+                                PostingDate = voucherVM.PostingDate,
+                                DocDate = voucherVM.DocDate,
+                                DocRefNo = voucherVM.DocRefNo,
+                                JournalType = voucherVM.JournalType,
+                                TransactionType = EmployeeSubsequentTranEnum.Payment.ToString(),
+                                Narration = voucherVM.Narration,
+                                SourceType = voucherVM.SourceType,
+                                IsPark = voucherVM.IsPark,
+                                Id = "ES" + GetEmployeeSubsequentTransactionPK(),
+                                VoucherId = voucher.Id,
+                                VoucherDetailId = voucherDetailCr.Id,
+                                PaymentSource = "GL",
+                            };
+                            AuditService.AddedLog(EmployeeSubsequentAdvance);
+                            _employeeSubsequentTransactionRepository.Insert(EmployeeSubsequentAdvance);
+                        }
+                    }
+                   
+                    
                 }
 
                 _unitOfWork.SaveChanges();

@@ -469,14 +469,14 @@
                 <ul class="common-btn list-inline text-center">
                     <li>
                         @*<button ng-disabled="data.AdditionalTaxId==null" ng-click="$parent.onClickadditionalTaxPop(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="TDS">
-                            TDS
-                        </button>*@
+                                TDS
+                            </button>*@
                         <button ng-disabled="data.IsPark==false" ng-click="$parent.onClickDeletePopUp(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
                             <i class="glyphicon glyphicon-trash" style="color:orangered;"></i>
                         </button>
-                        @*<button ng-show="data.WrittenOffAmount" ng-click="$parent.getInvoiceSetOffDetailByInvoice(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="SetOff">
-                            <i class="glyphicon glyphicon-eye-open" style="color:orangered;"></i>
-                        </button>*@
+                        <button ng-show="data.IsPark==true" ng-click="$parent.confirmPost(data.InvoiceId,data.BeneficiaryType,data.AdditionalTaxId,data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Post">
+                            Post
+                        </button>
                     </li>
                 </ul>
             </div>
@@ -490,5 +490,6 @@
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(ServiceAckId,VoucherId,InvoiceId,TDSTaxVoucherId,TDSVoucherNo)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmTDSDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="deleteAdditionalTax(AdditionalTaxId,TDSTaxVoucherId)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmTDSPostDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="deletePostAdditionalTax(TDSTaxVoucherId,ServiceAckId,InvoiceWriteOffId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(invoiceId,type,tdsId,data)"></confirm-archive-generic>
 
 

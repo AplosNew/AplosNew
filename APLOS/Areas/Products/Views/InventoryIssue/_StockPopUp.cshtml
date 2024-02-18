@@ -28,12 +28,12 @@
                                     <th>TransferedFromGrnId</th>
                                     <th>Receive Qty</th>
                                     <th>Issue Qty</th>
+                                    <th>Shortage Qty</th>
                                     <th>Purchase Return Qty</th>
                                     <th>Issue Return Qty</th>
                                     <th>Adjustment Qty</th>
                                     <th>InventorySales Qty</th>
                                     <th>InventoryScrap Qty</th>
-                                    <th>InventoryTransfer Qty</th>
 
 
                                     <th>Rate</th>
@@ -75,6 +75,7 @@
                                     <td>{{x.TransactionQty}} {{x.TUoM}}</td>
                                     @*<td>{{x.BaseQty}} {{x.BUoM}}</td>*@
                                     <td>{{x.BaseIssueQty}} {{x.BUoM}}</td>
+                                    <td>{{x.ShortageQty}} {{x.BUoM}}</td>
 
                                     <td>{{x.PurchaseReturnQty}} {{x.BUoM}}</td>
                                     <td>{{x.IssueReturnQty}} {{x.BUoM}}</td>
@@ -82,7 +83,6 @@
 
                                     <td>{{x.InventorySalesQty}} {{x.BUoM}}</td>
                                     <td>{{x.InventoryScrapQty}} {{x.BUoM}}</td>
-                                    <td>{{x.InventoryTransferQty}} {{x.BUoM}}</td>
 
 
                                     <td>{{x.BaseRate|setDecimal:4}} {{x.TCurrency}}</td>
