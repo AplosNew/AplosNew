@@ -170,6 +170,10 @@ function fixedAssetConfig($routeProvider, $locationProvider) {
             templateUrl: "FixedAssets/FixedAssetRegister/AssetDepreciationPost",
             controller: "assetDepreciationPostController"
         })
+        .when("/fa-dispose", {
+            templateUrl: "FixedAssets/FixedAssetRegister/AssetDispose",
+            controller: "assetDisposeController"
+        })
         .when("/fa-register-report", {
             templateUrl: "FixedAssets/FixedAssetRegister/AssetsRegisterReport",
             controller: "AssetsRegisterReportController"

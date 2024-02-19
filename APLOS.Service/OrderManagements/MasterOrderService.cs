@@ -2157,6 +2157,8 @@ WHERE MOI.MasterOrderId='" + id + "'";
                     count++;
                     salesOrderMaster.Id = MakePK(salesOrderMaster.MasterOrderItemId, count, 2);
                     salesOrderMaster.MasterOrderItemId = masterItemId;
+                    salesOrderMaster.OrderStatusId = null;
+                    salesOrderMaster.CheckByStatus = "To Be Check";
                     AuditService.AddedLog(salesOrderMaster);
                     _salesOrderRepository.Insert(salesOrderMaster);
 
@@ -2380,6 +2382,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
                 {
                     AuditService.UpdatedLog(salesOrderMaster);
                     salesOrderMaster.ApproveByDate = DateTime.Now;
+                    salesOrderMaster.OrderStatusId = "Active";
 
                     _salesOrderRepository.Update(salesOrderMaster);
                 }

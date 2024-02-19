@@ -367,7 +367,7 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = null;
-                sql = @" select isSelected = Convert(bit, 'True'),sl.EmpSystemId,sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,spd.PaymentMode,spd.BankAccNo,spd.IFSCCode
+                sql = @" select isSelected = Convert(bit, 'True'),sl.EmpSystemId,sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,DA.PaymentMode,spd.BankAccNo,spd.IFSCCode
                         ,DirectManpowerCost=case when po.DirectManpowerCost=0 then 'No' when po.DirectManpowerCost=1 then 'Yes' end ,b.UserName BankName,v.VoucherNo PayableVoucherNo
                         ,spc.DisbusmentAmount Amount,spd.Id
 						,Department.UserName Department,Department.Id DepartmentId
@@ -438,7 +438,7 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = null;
-            sql = @" select isSelected = Convert(bit, 'True'),sl.EmpSystemId,sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,spd.PaymentMode,spd.BankAccNo,spd.IFSCCode
+            sql = @" select isSelected = Convert(bit, 'True'),sl.EmpSystemId,sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,DA.PaymentMode,spd.BankAccNo,spd.IFSCCode
                         ,DirectManpowerCost=case when po.DirectManpowerCost=0 then 'No' when po.DirectManpowerCost=1 then 'Yes' end ,b.UserName BankName,v.VoucherNo PayableVoucherNo
                         ,spc.DisbusmentAmount Amount,sl.Id
 						,Department.UserName Department,Department.Id DepartmentId

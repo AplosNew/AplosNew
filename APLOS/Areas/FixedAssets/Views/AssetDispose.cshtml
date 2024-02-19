@@ -1,0 +1,370 @@
+﻿<togglable name="Capitalize Asset Dispose"></togglable>
+<div class="form-elements form-horizontal" ng-form="form0">
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Disposal Type<sup>*</sup></label>
+            <div class="col-sm-6 show-message">
+                <div class="select-style">
+                    <select class="form-control"  ng-disabled="Action == 'Update'" ng-change="DisposeTpye();"  name="Status" submit-required="true" ng-model="voucher.Status" required
+                            ng-options="item.Value as item.Text for item in fixedAssetDisposeStatusList"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <fieldset class="scheduler-border" ng-show="voucher.Status=='@Library.Service.Enums.FixedAssetDisposeStatusEnum.CompensateByEmployee.ToString()'">
+        <legend class="scheduler-border"> Employee Info</legend>
+        <div class="col-xs-12 col-sm-5 col-md-5">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Select Employee<sup>*</sup></label>
+                <div class="col-sm-7 show-message">
+                    <input type="text" class="form-control" readonly name="EmployeeName" ng-model="voucher.EmployeeName">
+                </div>
+                <div class="col-sm-1 input-group">
+                    <span class="input-group-btn">
+                        <button ng-click="showEmployeeListPopUp();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Designation</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" readonly class="form-control" name="Designation" ng-model="voucher.LegalDesignation">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-3 col-md-3">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">DOJ</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" readonly class="form-control" name="DOJ" ng-model="voucher.DOJ">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Department</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" readonly class="form-control" name="Department" ng-model="voucher.Department">
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset class="scheduler-border" ng-show="voucher.Status=='@Library.Service.Enums.FixedAssetDisposeStatusEnum.Sales.ToString()' ">
+        <legend class="scheduler-border"> Customer Info</legend>
+        <div class="col-xs-12 col-sm-5 col-md-5">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Customer<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+                        <input type="text" name="PartyName" ng-model="voucher.PartyName" class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button ng-click="showPartyPopUpNew();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                            <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
+                        </span>
+                       
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-2 control-label">Currency<sup>*</sup></label>
+            <div class="col-sm-2 show-message" style="padding-right:0px;">
+                <div class="select-style">
+                    <select id="currencyId" class="form-control" tabindex="5" name="Currency" ng-model="voucher.CurrencyId" ng-change="GetCurrencyExchangeRateList();" >
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-2 show-message" style="padding-left:0px;">
+                <input type="text" maxlength="50" id="Rate" name="Rate" ng-disabled="voucher.CurrencyId==companyCurrencyId" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="5"  autocomplete="off">
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-3 col-md-3">
+
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+
+        </div>
+    </fieldset>
+    <div class="clearfix"></div>
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border"> Register Info</legend>
+
+        <div class="col-xs-12 col-sm-3 col-md-3">
+            <div class="form-group">
+                <label class="col-sm-8 control-label">Add Capitalize Asset Register<sup>*</sup></label>
+                <div class="col-sm-4 input-group">
+                    <span class="input-group-btn">
+                        <button ng-click="getFixedAssetRegisterPopUpList();" class="btn single-small-btn" tabindex="2" ng-disabled="Action == 'Update'"><i class="glyphicon glyphicon-plus"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div id="div_DocDate" class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Doc Date<sup>  *</sup>  </label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="DocDate" ng-model="voucher.DocDate" datepicker="checkDocDate();" required class="form-control" tabindex="3">
+                </div>
+            </div>
+        </div>
+
+       
+
+        <div class="col-xs-12 col-sm-5 col-md-5">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Remarks<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <textarea rows="1" type="text" maxlength="500" name="Remarks" tabindex="8" class="form-control" ng-model="voucher.Remarks" required capitalize></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="table-responsive modal-table ">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Asset Register Id</th>
+                            <th>Asset Master</th>
+                            <th>Asset Item</th>
+                            <th>Asset SlNo</th>
+                            <th>Asset Condition</th>
+                            <th>User Reference</th>
+                            <th>Old Reference</th>
+                            <th>User Group</th>
+                            <th>Remarks</th>
+                           
+                            <th style="width:100px">Asset Amount</th>
+                            <th class="text-center">Depreciation Amount</th>
+                            <th class="text-center">NetAmount</th>
+                            <th class="text-center">Adjustment Depreciation Amount</th>
+                            <th class="text-center" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'">Negotiation Amount</th>
+                            <th class="text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in voucherDetailList">
+                            <td>{{x.FixedAssetRegisterId}}</td>
+                            <td>{{x.FixedAssetMaster}}</td>
+                            <td>{{x.FixedAssetItem}}</td>
+                            <td>{{x.AssetSlNo}}</td>
+                            <td>{{x.AssetCondition}}</td>
+                            <td>{{x.UserReference}}</td>
+                            <td>{{x.OldReference}}</td>
+                            <td>{{x.UserGroup}}</td>
+                            <td>{{x.Remarks}}</td>
+                            
+                            <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="AssetAmount" ng-model="x.AssetAmount " n-decimals="2"></td>
+                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="DepreciationAmount" ng-model="x.DepreciationAmount " n-decimals="2"></td>
+                            <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="NetAmount" ng-model="x.NetAmount " n-decimals="2"></td>
+                            <td><input type="text" style="width:100px" class="form-control text-right" id="AdjustmentDepreciationAmount" ng-model="x.AdjustmentDepreciationAmount" ng-keyup="calBooksAdjustmentDepreciation(x)" n-decimals="2" autocomplete="off"></td>
+                            <td ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><input type="text" style="width:100px" class="form-control text-right" id="NegotiationValue" ng-model="x.NegotiationValue" ng-keyup="calBooksNegotiationValue(x,$index)" n-decimals="2" autocomplete="off"></td>
+                            
+                            <td class="text-right">
+                                <button ng-click="removeRow($index)" ng-disabled="Action == 'Update'" data-toggle="modal" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                                    <i class="glyphicon glyphicon-remove"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="9" class="text-right">Total</td>
+                            <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'AssetAmount'| number:2 }}</b></td>
+                            <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'DepreciationAmount'| number:2 }}</b></td>
+                            <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'NetAmount'| number:2 }}</b></td>
+                            <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'AdjustmentDepreciationAmount'| number:2 }}</b></td>
+                            <td class="text-right" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><b>{{ (voucherDetailList ) | sumByKey:'NegotiationValue'| number:2 }}</b></td>
+                           
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+    </fieldset>
+
+    <div class="clearfix"></div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-disabled="voucher.VoucherNo" ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+
+
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ej-grid e-datasource="voucherList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="DisposeNo" e-headertext="Dispose No" e-width="70" e-filter="false"></div>
+            <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="70" e-filter="false"></div>
+            <div e-column e-field="Status" e-headertext="Type" e-width="70"></div>
+            <div e-column e-field="CustomerName" e-headertext="Customer" e-width="120"></div>
+            <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="120"></div>
+            <div e-column e-field="TrnCurrency" e-headertext="Currency" e-width="60"></div>
+            <div e-column e-field="NegotiationValue" e-headertext="Negotiation" e-width="80"></div>
+            <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="70"></div>
+        </div>
+        <script type="text/template" id="ShowActionButtonsBOM">
+
+            <ul class="common-btn list-inline text-left">
+                <li>
+                    <div ej-tooltip e-showshadow="true" e-content="Detail" ng-click="$parent.onClickExcelPrints(this);" e-width="width">
+                        <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-excel-o"></i></button>
+                    </div>
+                </li>
+                <li>
+                    <div ej-tooltip e-showshadow="true" e-content="Pdf" ng-click="$parent.onClickPdfPrints(this);" e-width="width">
+                        <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-pdf-o"></i></button>
+                    </div>
+                </li>
+
+            </ul>
+
+        </script>
+    </div>
+</div>
+<style>
+    .modellgModify {
+        width: 1000px;
+    }
+</style>
+<div class="modal fade site-modal in" id="employeeSelectionPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content" ng-form name="PopUpForm1">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-horizontal">
+                    <div class="col-xs-12 col-sm-8 col-md-8">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Select Employee<sup>*</sup></label>
+                            <div class="col-sm-6 ">
+                                <input type="text" ng-maxlength="50" name="ParticularName" ng-disabled="true" ng-model="voucherDetail.ParticularName" class="form-control">
+                            </div>
+                            <div class="col-sm-2 input-group">
+                                <span class="input-group-btn">
+                                    <button ng-click="showEmployeeListPopUp();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Select GL<sup>*</sup></label>
+                            <div class="col-sm-6 ">
+                                <input type="text" ng-maxlength="50" name="ActivityName" ng-disabled="true" ng-model="voucherDetail.ActivityName" class="form-control">
+                            </div>
+                            <div class="col-sm-2 input-group">
+                                <span class="input-group-btn">
+                                    <button ng-click="GetemployeeReconGLList();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn btn-default" ng-click="closeEmployeeSelectionPopUp();">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="employeeReconGLPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-form name="glPopUpForm1">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">GL List</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="employeeReconglListParameters.searchBy">
+                                            <option ng-repeat="option in searchglemployeeReconGLByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="employeeReconglListParameters.search" ng-enter="GetemployeeReconGLListData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="GetemployeeReconGLListData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Account Group</th>
+                                <th>GL</th>
+                                <th>Budget</th>
+                                <th>Activity</th>
+                                <th>RefNo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in employeeReconGLList |itemsPerPage:employeeReconglListParameters.pageSize" pagination-id="metaData.name + 'employeeReconGLList'" total-items="employeeReconglListParameters.total_count"
+                                ng-dblclick="setemployeeReconGSelected(x, $index)" ng-class="{selected : x.BudgetMasterId === rowSelected}">
+                                <td>{{x.AccountGroupName}}</td>
+                                <td>{{x.GLGeneralInfoCode}} - {{x.GLGeneralInfoName}}</td>
+                                <td>{{x.BudgetName}}</td>
+                                <td>{{x.ActivityName}}</td>
+                                <td>{{x.RefNo}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'employeeReconGLList'" direction-links="true" boundary-links="true" on-page-change="GetemployeeReconGLListData(newPageNumber)"></dir-pagination-controls>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn btn-default" ng-click="closeEmployeeReconGLListPopUp()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")
+@Html.Partial("~/Areas/FixedAssets/Views/_FixedAssetMasterAccDepGLPopUp.cshtml")
+@Html.Partial("~/Areas/FixedAssets/Views/_FixedAssetMasterAUCGLPopUp.cshtml")
+@Html.Partial("~/Areas/FixedAssets/Views/_FixedAssetMasterFAMGLPopUp.cshtml")
+@Html.Partial("~/Areas/FixedAssets/Views/_CapitalizeAssetRegisterPopUp.cshtml")
+@Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
+@Html.Partial("~/Areas/FixedAssets/Views/FixedAssetDispose/_BillToShipToPopUp.cshtml")
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
+<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(voucherId)"></confirm-archive-generic>

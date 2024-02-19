@@ -3739,7 +3739,7 @@ namespace Library.MaterialManagement.Inventory
                         };
                         itemDetail.InventoryReceiveDetailId = receiveDetail.Id;
 
-                        receiveDetail.ShortageValue = Math.Round(((Convert.ToDecimal(itemDetail.ShortageQty) * receiveDetail.ShortageRatePercent) / 100) * Convert.ToDecimal(itemDetail.TransactionRate), 2);
+                        receiveDetail.ShortageValue = Math.Round(Convert.ToDecimal(itemDetail.ShortageQty * itemDetail.TrnCurrencyBaseRate), 2);//Math.Round(((Convert.ToDecimal(itemDetail.ShortageQty) * receiveDetail.ShortageRatePercent) / 100) * Convert.ToDecimal(itemDetail.TransactionRate), 2);
                         receiveDetail.RejectValue = Math.Round(((Convert.ToDecimal(itemDetail.RejectionQty) * receiveDetail.RejectRatePercent) / 100) * Convert.ToDecimal(itemDetail.TransactionRate), 2);
                         receiveDetail.RejectClamPercent = (100 - receiveDetail.RejectRatePercent);
 

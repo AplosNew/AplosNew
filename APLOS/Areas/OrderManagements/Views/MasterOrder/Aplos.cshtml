@@ -478,8 +478,10 @@
                                                 {{x.SOQty}}
                                             </label>
                                         </td>
-                                        <td> 
-                                            {{x.TotalAmount}}
+                                        <td>
+                                            <label ng-class="{'control-label redClr':x.SOQty != x.TotalQty, 'control-label': x.SOQty == x.TotalQty}">
+                                                {{x.TotalAmount}}
+                                            </label>
                                         </td>
                                         <td>
                                             <div class="select-style">
@@ -1294,11 +1296,11 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Order Status<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Order Status</label>
+                            <div class="col-sm-8">
                                 <div class="select-style">
-                                    <select name="Order Status" class="form-control" ng-model="soModel.OrderStatusId" ng-options="item.Value as item.Text for item in orderStatusList" required tabindex="105" ng-change="GetSOBookedQtyAndLevel(soModel.Id);" ng-disabled="soModel.Id!=null">
+                                    <select name="Order Status" class="form-control" disabled ng-model="soModel.OrderStatusId" ng-options="item.Value as item.Text for item in orderStatusList" tabindex="105" ng-change="GetSOBookedQtyAndLevel(soModel.Id);" @*ng-disabled="soModel.Id!=null"*@>
                                         <option value="">--Select--</option>
                                     </select>
                                 </div>
