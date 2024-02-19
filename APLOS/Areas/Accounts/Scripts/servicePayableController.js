@@ -1108,7 +1108,6 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
                 $scope.Clear();
                 $scope.invoiceId = null;
                 $scope.type = null;
-
             }
         }, function errorCallback(response) {
             ShowResult(response.status.Message, "failure");
@@ -1122,7 +1121,6 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
         $scope.type = 'Vendor';
         $scope.tdsId = tdsId;
         $scope.data = data;
-
         $scope.message_confirmation = "Are you sure to Post?";
         angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
     };
