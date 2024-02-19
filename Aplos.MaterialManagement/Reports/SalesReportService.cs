@@ -2074,7 +2074,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
             {
                 WSection section = document.Sections[0];
 
-                DataTable dsOrderMaster, dsConditions, dsaddInfo, dsaddInfo1, dsaddInfo2, dsaddInfo3, dsaddInfo4, dsaddInfo5, dsaddInfo6, dsaddInfo7, dsaddInfo8, dsaddInfo9 , dsaddInfo10;
+                DataTable dsOrderMaster, dsConditions, dsaddInfo, dsaddInfo1, dsaddInfo2, dsaddInfo3, dsaddInfo4, dsaddInfo5, dsaddInfo6, dsaddInfo7, dsaddInfo8, dsaddInfo9 , dsaddInfo10 , dsaddInfo11;
 
                 dsOrderMaster = GetloadCommercialLocalTaxMaterialMasterBC(salesId);
                 dsConditions = TermsAndConditionSQL(salesId);
@@ -2089,6 +2089,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
                 dsaddInfo8 = GetAddinfo(salesId);
                 dsaddInfo9 = GetAddinfo(salesId);
                 dsaddInfo10 = GetAddinfo(salesId);
+                dsaddInfo11 = GetAddinfo(salesId);
                 Dictionary<string, string> columns = new Dictionary<string, string>();
 
                 foreach (DataColumn item in dsOrderMaster.Columns)
@@ -2106,6 +2107,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
                 var addInfo8 = makeaddInfoBE8(salesId, document, dsaddInfo8);   // {makeaddInfo}
                 var addInfo9 = makeaddInfoBE9(salesId, document, dsaddInfo9);   // {makeaddInfo}
                 var addInfo10 = makeaddInfoBE10(salesId, document, dsaddInfo10);   // {makeaddInfo}
+                var addInfo11 = makeaddInfoBE11(salesId, document, dsaddInfo11);   // {makeaddInfo}
                 var TermsAndCondition = makeTermsAndCondition(salesId, document, dsConditions);   // {conditions}
                 var totalQty = clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(POTransactionQty)", "CustomerNo='" + dsOrderMaster.Rows[0]["CustomerNo"].ToString() + "'"));
                 var FREIGHTVALUE = totalQty * clsStaticInfo.dbl(dsOrderMaster.Rows[0]["AdditionalFrieghtValue"].ToString());
@@ -3212,6 +3214,101 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
             #region paragrpath formats
 
             IWParagraphStyle myaddStyle9 = document.AddParagraphStyle("AddinfoStyle10");
+            //Sets the formatting of the style
+            myaddStyle9.CharacterFormat.FontSize = 8f;
+            myaddStyle9.CharacterFormat.TextColor = Color.Black;
+            myaddStyle9.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+            #endregion paragrpath formats
+
+            #region merging section
+
+            //tax codes merging (horizontal)
+            ROW = 0;
+            ROW++;
+            #endregion merging section
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTable);
+            document.Replace(replaceString, textBodyPart, true, true);
+
+            return 0;
+        }
+
+        public double makeaddInfoBE11(string salesId, WordDocument document, DataTable dsaddInfo)
+        {
+            string replaceString = "{addInfo11}";
+
+
+            IWParagraphStyle arightAlign = document.AddParagraphStyle("addrightAlign11");
+            //Sets the formatting of the style
+            arightAlign.CharacterFormat.FontSize = 8f;
+            arightAlign.CharacterFormat.TextColor = Color.Black;
+            arightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
+            int LasColumnIndex = 1;
+            WTable wTable = new WTable(document);
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex);
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+            #region column headers
+            document.EnsureMinimal();
+
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            WCharacterFormat DFontSize = new WCharacterFormat(document);
+            FontBold.Bold = true;
+            DFontSize.FontSize = 8f;
+
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+            range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
+            int colTermsAndCondition = COL; COL++;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 500;
+
+            #endregion column headers
+            double totalValue = 0;
+            int sl = 0;
+            int startRow = 0;
+            for (int i = 0; i < dsaddInfo.Rows.Count; i++)
+            {
+                ROW++;
+                sl++;
+                wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsaddInfo.Rows[i]["Description"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+
+            }
+            ROW++;
+
+            #region Total
+            //int TotalRow = ROW;
+            //wTable.AddRow();
+            //WTableRow _TROW = wTable.LastRow;
+
+            //range.ApplyCharacterFormat(FontBold);
+            #endregion Total
+            ROW++;
+            #region paragrpath formats
+
+            IWParagraphStyle myaddStyle9 = document.AddParagraphStyle("AddinfoStyle11");
             //Sets the formatting of the style
             myaddStyle9.CharacterFormat.FontSize = 8f;
             myaddStyle9.CharacterFormat.TextColor = Color.Black;
@@ -4589,6 +4686,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
     ,CONVERT(NUMERIC(10,2),IRD.BooksCurrencyTaxAmount)BooksCurrencyTaxAmount
     ,CONVERT(NUMERIC(10,4),IRD.BooksCurrencyBaseRate)BooksCurrencyBaseRate
     ,TUoM.UserName AS TransactionUoM
+      ,PSI.ExportRefNo EPN
     ,PONumber = REPLACE(REPLACE(STUFF((
                     SELECT DISTINCT ', ' + CPO.PONumber
                     FROM TRN.SalesMaterial SM
@@ -4610,6 +4708,15 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
                     ), 1, 1, '')
         ) AS ProdDetails,SCN.Bags Cartons, SCN.LotNo, CONVERT(NUMERIC(10,2),SCN.GWeight)GWeight, MO.Type,MO.MasterOrderNo,SO.Id SalesOrderNo,MO.BuyerReferenceNo,BB.IFSCCode
 ,LcNo=Stuff((
+                    SELECT distinct',' + LC.LCRef
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,LcNoNN=Stuff((
                     SELECT distinct',' + LC.LCRef
                     FROM dbo.MasterLC LC 
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
@@ -4831,6 +4938,9 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
 ,NetWeights =convert(NUMERIC(10,2), (select sum(NetWeight) from Itemscanchild 
 				where SalesId = IR.Id
 				))
+,NetWeightsNN =convert(NUMERIC(10,2), (select sum(NetWeight) from Itemscanchild 
+				where SalesId = IR.Id
+				))
 ,NoCartons =convert(NUMERIC(10,0), (select COUNT(RefNo) from Itemscanchild 
 				where SalesId = IR.Id
 				))
@@ -4863,6 +4973,15 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
 								WHERE IRDS.SalesId = IR.Id)
 ,CurrentDate = format(PSI.ShipmentDate,'dd-MM-yyyy')
 ,LCDateNew=Stuff((
+                    SELECT distinct',' + FORMAT(LC.LCDate, 'yyMMdd')
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,LCDateNewNN=Stuff((
                     SELECT distinct',' + FORMAT(LC.LCDate, 'yyMMdd')
                     FROM dbo.MasterLC LC 
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
@@ -5020,6 +5139,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
 ,CurrentDate8 = format(PSI.ShipmentDate,'dd-MM-yyyy')
 ,CurrentDate9 = format(PSI.ShipmentDate,'dd-MM-yyyy')
 ,CurrentDate10 = format(PSI.ShipmentDate,'dd-MM-yyyy')
+,CurrentDate11 = format(PSI.ShipmentDate,'dd-MM-yyyy')
 ,p.UserName Customer1
 ,Addres.Address1 VendorAddress1
 ,p.UserName Customer2
@@ -5038,6 +5158,8 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
 ,Addres.Address1 VendorAddress8
 ,p.UserName Customer9
 ,Addres.Address1 VendorAddress9
+,p.UserName Customer10
+,Addres.Address1 VendorAddress10
 
 ,IR.InvoiceNo  InvoiceNo1
 ,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDate1
@@ -5068,6 +5190,10 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
 ,FORMAT(PSI.ShipmentDate,'dd-MMM-yyyy')ShipmentDate9
 ,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDate10
 ,IR.InvoiceNo InvoiceNo10
+,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDate11
+,IR.InvoiceNo InvoiceNo11
+,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDate12
+,IR.InvoiceNo InvoiceNo12
 
 ,PSI.PreCarriageDocRef LRCopy1 
 ,FORMAT(PSI.PreCarriageDocDate,'dd-MMM-yyyy') LRDate1
@@ -5089,6 +5215,8 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
 ,FORMAT(PSI.PreCarriageDocDate,'dd-MMM-yyyy') LRDate9
 ,PSI.PreCarriageDocRef LRCopy10 
 ,FORMAT(PSI.PreCarriageDocDate,'dd-MMM-yyyy') LRDate10
+,PSI.PreCarriageDocRef LRCopy11 
+,FORMAT(PSI.PreCarriageDocDate,'dd-MMM-yyyy') LRDate11
 
 FROM TRN.Sales IR
 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
