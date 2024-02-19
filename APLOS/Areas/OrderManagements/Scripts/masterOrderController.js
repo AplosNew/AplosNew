@@ -1998,7 +1998,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 , ShipmentModeId: null
                 , CustomerPOId: null
                 , PONumber: null
-                , OrderStatusId: $scope.fileNew.OrderStatusId
+                , OrderStatusId: null
                 , OrderCategoryId: $scope.fileNew.OrderCategoryId
                 , SOType: null
                 , ResponsiblePersonId: $scope.ResponsiblePersonId

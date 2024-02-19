@@ -567,6 +567,7 @@ upanelApp.controller('finalSettlementReportController', finalSettlementReportCon
 upanelApp.controller('finalSettlementVoucherController', finalSettlementVoucherController);
 upanelApp.controller('fiscalYearBudgetController', fiscalYearBudgetController);
 upanelApp.controller('fixedAssetAUCCapitalizeGRNBassController', fixedAssetAUCCapitalizeGRNBassController);
+upanelApp.controller('assetDisposeController', assetDisposeController);
 upanelApp.controller('fixedAssetDisposeController', fixedAssetDisposeController);
 upanelApp.controller('fixedAssetDisposePostController', fixedAssetDisposePostController);
 upanelApp.controller('FixedAssetsRegisterReportController', FixedAssetsRegisterReportController);
