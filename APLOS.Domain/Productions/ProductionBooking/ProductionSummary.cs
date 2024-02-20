@@ -31,6 +31,8 @@ namespace Library.Model.Productions.ProductionBooking
         public bool PPQFlag { get; set; }
         public bool IsInventory { get; set; }
         public string SourceType { get; set; }
+        public bool IsJobWork { get; set; }
+        public decimal JobWorkQty { get; set; }
 
         #endregion Scalar Properties
 

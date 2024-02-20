@@ -789,15 +789,15 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
         }
 
         [HttpPost]
-        public JsonResult Create(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, List<Dictionary<string, object>> ProcessParaList, string ProcessId)
+        public JsonResult Create(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, IEnumerable<ProductionSummaryParameterValue> ProcessParaList, string ProcessId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ps.PlantId = identity.PlantId;
-            _ProductionSummaryService.SaveMaster(ps, psd, identity.CompanyGroupId, ProcessId);
-            if (ProcessParaList != null)
-            {
-                SaveMasterOrderItemCostingRateData(ProcessParaList, ps.Id);
-            }
+            _ProductionSummaryService.SaveMaster(ps, psd, identity.CompanyGroupId, ProcessId, ProcessParaList);
+            //if (ProcessParaList != null)
+            //{
+            //    SaveMasterOrderItemCostingRateData(ProcessParaList, ps.Id);
+            //}
             return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
         }
         //[HttpPost]

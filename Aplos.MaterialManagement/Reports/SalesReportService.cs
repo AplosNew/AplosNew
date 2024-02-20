@@ -1538,6 +1538,96 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
 
             return 0;
         }
+
+        public double makeCartoons(WordDocument document, DataTable dsOrderMaster)
+        {
+            string replaceString = "{Cartonss}";
+
+
+            IWParagraphStyle ConrightAlign = document.AddParagraphStyle("CartoonrightAlign");
+            //Sets the formatting of the style
+            ConrightAlign.CharacterFormat.FontSize = 8f;
+            ConrightAlign.CharacterFormat.TextColor = Color.Black;
+            ConrightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
+            int LasColumnIndex = 1;
+            WTable wTable = new WTable(document);
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex);
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+            #region column headers
+            document.EnsureMinimal();
+
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            WCharacterFormat DFontSize = new WCharacterFormat(document);
+            FontBold.Bold = true;
+            DFontSize.FontSize = 8f;
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
+            range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
+            int colTermsAndCondition = COL; COL++;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 100;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+
+            #endregion column headers
+            double totalValue = 0;
+            int sl = 0;
+            int startRow = 0;
+            for (int i = 0; i < dsOrderMaster.Rows.Count; i++)
+            {
+                ROW++;
+                sl++;
+                wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Cartonss"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+            }
+            ROW++;
+
+            #region Total
+
+            #endregion Total
+            ROW++;
+            #region paragrpath formats
+
+            IWParagraphStyle myStyle = document.AddParagraphStyle("CartoonStyle");
+            //Sets the formatting of the style
+            myStyle.CharacterFormat.FontSize = 8f;
+            myStyle.CharacterFormat.TextColor = Color.Black;
+            myStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+            #endregion paragrpath formats
+
+            #region merging section
+
+            //tax codes merging (horizontal)
+            ROW = 0;
+            ROW++;
+            #endregion merging section
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTable);
+            document.Replace(replaceString, textBodyPart, true, true);
+
+            return 0;
+        }
+
         public double makeserviceInfo(string salesId, WordDocument document, DataTable dsaddInfo)
         {
             string replaceString = "{addInfo}";
@@ -1974,6 +2064,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
                 var MaterialTotal = makeCommercialInvoiceService(companyGroupId, companyId, plantId, salesId, document, dsOrderMaster);   // {materialItems}
                 var addInfo = makeaddInfoWithoutHeading(salesId, document, dsaddInfo);   // {makeaddInfo}
                 var TermsAndCondition = makeTermsAndCondition(salesId, document, dsConditions);   // {conditions}
+                var Cartoons = makeCartoons(document, dsOrderMaster);   // {conditions}
                 var totalQty = clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(POTransactionQty)", "CustomerNo='" + dsOrderMaster.Rows[0]["CustomerNo"].ToString() + "'"));
                 var FREIGHTVALUE = totalQty * clsStaticInfo.dbl(dsOrderMaster.Rows[0]["AdditionalFrieghtValue"].ToString());
                 var FCAVALUE = MaterialTotal - FREIGHTVALUE;
@@ -4528,12 +4619,12 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
                     ), 1, 1, '')
 , LotNOs =Replace(STUFF((SELECT distinct ',' + LotNo   FROM ItemScanChild 
 			where SalesId = IR.InvoiceNo  FOR XML PATH('') ) , 1,1 , ''),',' , Char(13) + Char(10))
-,Cartonss =Replace(STUFF((SELECT distinct ',' + convert(varchar(50), COUNT(RefNo))
-             FROM ItemScanChild 
-			 where SalesId = Ir.Id
-			group by SalesId ,SalesMaterialId, LotNo
-			  FOR XML PATH('') ) , 1,1 , ''),',' , Char(13) + Char(10))
-
+--,Cartonss =Replace(STUFF((SELECT distinct ',' + convert(varchar(50), COUNT(RefNo))
+--             FROM ItemScanChild 
+--			 where SalesId = Ir.Id
+--			group by SalesId ,SalesMaterialId, LotNo
+--			  FOR XML PATH('') ) , 1,1 , ''),',' , Char(13) + Char(10))
+,SCN.Bags Cartonss
 ,Articless=Replace(STUFF((select distinct ',' + CASE WHEN ISNULL(moi.LCArticle,'')<>'' THEN moi.LCArticle 
 WHEN ISNULL(AA.ArticlePartyName,'')<>'' THEN AA.ArticlePartyName ELSE MMA.StandardName END 
 from TRN.Sales IRs
