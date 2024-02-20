@@ -5022,13 +5022,13 @@ GROUP BY FAR.FABudgetMasterId
                 foreach (var item in assetRegisterList)
                 {
                     detailId++;
-                    builderSql = @"UPDATE [TRN].[AssetRegister] SET Status = 'Disposed'  WHERE Id='" + item["AssetRegisterId"].ToString() + "'  ";
+                    builderSql = @"UPDATE [TRN].[AssetRegister] SET Status = 'Disposed' ,AdjustmentDepreciationAmount = '" + item["AdjustmentDepreciationAmount"] + "'  WHERE Id='" + item["AssetRegisterId"].ToString() + "'  ";
                     rdBuilder.Append(builderSql);
 
 
                     var fixedAssetDisposeDetail = new FixedAssetRegisterDisposedDetail
                     {
-                        FixedAssetRegisterId = item["AssetRegisterId"].ToString(),
+                        AssetRegisterId = item["AssetRegisterId"].ToString(),
                         NegotiationValue = Convert.ToDecimal(item["NegotiationValue"].ToString()) ,
                         BaseNagotiationValue = Convert.ToDecimal(item["NegotiationValue"].ToString()),
 

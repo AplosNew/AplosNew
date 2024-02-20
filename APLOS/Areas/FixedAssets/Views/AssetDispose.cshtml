@@ -229,13 +229,13 @@
             <div e-column e-field="DisposeNo" e-headertext="Dispose No" e-width="70" e-filter="false"></div>
             <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="70" e-filter="false"></div>
             <div e-column e-field="Status" e-headertext="Type" e-width="70"></div>
-            <div e-column e-field="CustomerName" e-headertext="Customer" e-width="120"></div>
             <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="120"></div>
-            <div e-column e-field="TrnCurrency" e-headertext="Currency" e-width="60"></div>
-            <div e-column e-field="NegotiationValue" e-headertext="Negotiation" e-width="80"></div>
-            <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="70"></div>
+            <div e-column e-field="CustomerName" e-headertext="Customer" e-width="120"></div>
+            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="60"></div>
+            <div e-column e-field="NegotiationValue" e-headertext="Negotiation Amount" e-width="80" e-type="numeric" e-format="{0:0.00}" e-textalign="right"></div>
+            @*<div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="70"></div>*@
         </div>
-        <script type="text/template" id="ShowActionButtonsBOM">
+        @*<script type="text/template" id="ShowActionButtonsBOM">
 
             <ul class="common-btn list-inline text-left">
                 <li>
@@ -251,7 +251,7 @@
 
             </ul>
 
-        </script>
+        </script>*@
     </div>
 </div>
 <style>

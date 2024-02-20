@@ -61,22 +61,34 @@ WHERE WorkCenterMasterId IN(SELECT Id FROM SCS.WorkCenterMaster AS wcm WHERE wcm
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult GetWorkcenter(string entityid, string processid, string headerid)
+        public ActionResult GetWorkcenter(string entityid, string processid, string headerid, string detentionId,string date)
         {
-            var sqlCondition = "";
+            //            var sqlCondition = "";
+            //            if (headerid == null || headerid == "")
+            //            {
+            //               sqlCondition = $"where WCM.EntityId = '{entityid}' and WCM.ProcessId = '{processid}' and Active=1 and WCM.StandardName is not null";
+            //            }
+
+            //            else
+            //            {
+            //                sqlCondition = $"where MMT.Id = '{headerid}'";
+            //            }
+            //            string str = @"SELECT distinct WCM.Id WorkcenterId, WCM.StandardName, '' Id ,'' EntityId, '' DetentionId,  '' FromTime, '' ToTime, '' [Date] , '' ProcessId, '' ShiftId ,'' Minute, '' Detention , ''ResponsiblePersonId,'' Remark FROM  SCS.WorkCenterMaster WCM  
+            //" + sqlCondition + " order by WCM.StandardName";
+            string str = "";
+
             if (headerid == null || headerid == "")
             {
-                sqlCondition = $"where WCM.EntityId = '{entityid}' and WCM.ProcessId = '{processid}' and Active=1 and WCM.StandardName is not null";
+                 str = @"SELECT distinct WCM.Id WorkcenterId, WCM.StandardName, '' Id ,'' EntityId, '' DetentionId,  '' FromTime, '' ToTime, '' [Date] , '' ProcessId, '' ShiftId ,'' Minute, '' Detention , ''ResponsiblePersonId,'' Remark FROM  SCS.WorkCenterMaster WCM  
+                  where WCM.EntityId = '" + entityid + @"' and WCM.ProcessId = '" + processid + @"' and Active=1 and WCM.StandardName is not null order by WCM.StandardName";
             }
-
             else
             {
-                sqlCondition = $"where MMT.Id = '{headerid}'";
+                str = @"SELECT WCM.Id WorkcenterId, WCM.StandardName, MMT.* FROM  SCS.WorkCenterMaster WCM  
+left join dbo.MachineMasterTransaction MMT on MMT.WorkCenterId = WCM.Id
+where WCM.EntityId = '"+ entityid + @"' and WCM.ProcessId = '"+ processid + @"' AND MMT.Date = '"+ date + @"' AND MMT.DetentionId='"+ detentionId + @"' and Active=1 and WCM.StandardName is not null order by WCM.StandardName";
             }
-            string str = @"SELECT distinct WCM.Id WorkcenterId, WCM.StandardName, '' Id ,'' EntityId, '' DetentionId,  '' FromTime, '' ToTime, '' [Date] , '' ProcessId, '' ShiftId ,'' Minute, '' Detention , ''ResponsiblePersonId,'' Remark FROM  SCS.WorkCenterMaster WCM  
 
---left join SCS.WorkCenterMaster WCM on MMT.WorkCenterId = WCM.Id
-" + sqlCondition + " order by WCM.StandardName";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
@@ -137,7 +149,7 @@ where DetentionMasterId='" + detentionId + "'";
 	left join SCS.WorkCenterMaster WCM  on WCM.Id = MMT.WorkCenterId
 	left join DetentionMaster DM on DM.Id=MMT.DetentionId  
 	left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
-	 where MMT.addedby in ('nitesh', 'talwinders') and  MMT.EntityId = '" + entityid + @"' and MMT.DetentionId = '" + detentionid + @"' and MMT.ProcessId = '" + processid + @"' and format(MMT.Date, 'dd-MMM-yyyy') = '" + date + @"' and MMT.ShiftId = '" + shiftid + @"' and MMT.Minute = '" + minute + @"'
+	 where MMT.EntityId = '" + entityid + @"' and MMT.DetentionId = '" + detentionid + @"' and MMT.ProcessId = '" + processid + @"' and format(MMT.Date, 'dd-MMM-yyyy') = '" + date + @"' and MMT.ShiftId = '" + shiftid + @"' and MMT.Minute = '" + minute + @"'
 	 order by FORMAT(MMT.AddedDate, 'dd-MMM-yyyy') DESC";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

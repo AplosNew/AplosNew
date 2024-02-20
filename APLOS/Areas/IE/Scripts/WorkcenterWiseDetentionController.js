@@ -240,7 +240,9 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
             data: {
                 'entityid': $scope.ModelNew.EntityId,
                 'processid': $scope.ModelNew.ProcessId,
-                'headerid': $scope.ModelNew.Id
+                'headerid': $scope.ModelNew.Id,
+                'detentionId': $scope.ModelNew.DetentionId,
+                'date': $scope.ModelNew.Date
 
             },
             dataType: 'JSON'
@@ -345,7 +347,6 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
     $scope.CheckedDetentionWorkList = [];
     $scope.Save = function () {
 
-
         if ($scope.ModelNewForm.$valid) {
             for (var i = 0; i < $scope.WorkcenterList.length; i++) {
 
@@ -380,8 +381,8 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-
-
+                    $scope.getData();
+                    $scope.Clear();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

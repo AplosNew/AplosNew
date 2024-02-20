@@ -35,11 +35,13 @@ namespace Library.Service.Productions
         private readonly ISqlRepository _sqlRepository;
         private readonly IRepositoryAsync<FGInventoryReceive> _FGInventoryReceiveRepository;
         private readonly IRepositoryAsync<ProductionOrderProcessSet> _ProductionOrderProcessSetRepository;
-
+        private readonly IRepositoryAsync<ProductionSummaryParameterValue> _ProductionSummaryParameterValueRepository;
+        private readonly IPKGeneratorService _pkGeneratorService;
         public ProductionSummaryService(
             IRepositoryAsync<ProductionSummary> ProductionSummaryRepository,
             IRepositoryAsync<FGInventoryReceive> FGInventoryReceiveRepository,
             IRepositoryAsync<ProductionOrderProcessSet> ProductionOrderProcessSetRepository,
+            IRepositoryAsync<ProductionSummaryParameterValue> ProductionSummaryParameterValueRepository,
             IProductionSummaryDetailService psds,
             IPKGeneratorService pkGeneratorService,
             IUnitOfWork unitOfWork
@@ -51,6 +53,8 @@ namespace Library.Service.Productions
             _psds = psds;
             _FGInventoryReceiveRepository = FGInventoryReceiveRepository;
             _ProductionOrderProcessSetRepository = ProductionOrderProcessSetRepository;
+            _ProductionSummaryParameterValueRepository = ProductionSummaryParameterValueRepository;
+            _pkGeneratorService = pkGeneratorService;
         }
 
         #endregion Constructor
@@ -1333,7 +1337,7 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
             parameters.order = "X.StartTime";
             return _sqlRepository.GetGridData(parameters).Source;
         }
-        public void SaveMaster(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, string companyGroupId, string ProcessId)
+        public void SaveMaster(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, string companyGroupId, string ProcessId, IEnumerable<ProductionSummaryParameterValue> ProcessParaList)
         {
             var flag = false;
             try
@@ -1342,7 +1346,7 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                 conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  LotNumber='" + ps.LotNumber + "' and ProcessId = '" + ProcessId + "'", out DataSet dsProductionSummaryLotNumberValidation, false, "1");
                 conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  MasterOrderItemId='" + ps.MasterOrderItemId + "' and ProductionOrderId='" + ps.ProductionOrderId + "' and ProcessId='" + ProcessId + "'", out DataSet dsProductionSummaryArticleValidation, false, "1");
                 conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber = '" + ps.LotNumber + "' and ProcessId = '" + ProcessId + "'", out DataSet dsProductionSummaryPOLotNumberValidation, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "' and MasterOrderItemId='"+ps.MasterOrderItemId+"' and ProcessId='"+ ProcessId +"'", out DataSet dsProductionSummaryPOArticleValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "' and MasterOrderItemId='" + ps.MasterOrderItemId + "' and ProcessId='" + ProcessId + "'", out DataSet dsProductionSummaryPOArticleValidation, false, "1");
                 if (!string.IsNullOrEmpty(ps.LotNumber))
                 {
                     if (dsProductionSummaryLotNumberValidation.Tables[0].Rows.Count > 0)
@@ -1387,7 +1391,7 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                         }
                     }
 
-                    ps.Quantity = ps.QtyWithoutScan + ps.ScanQty ;
+                    ps.Quantity = ps.QtyWithoutScan + ps.ScanQty;
 
                     base.Insert(ps);
                 }
@@ -1438,9 +1442,16 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                 {
                     SaveSecondDetail(psd, ps, companyGroupId, ps.PlantId);
                 }
+                if (ProcessParaList != null)
+                {
+                    SaveMasterOrderItemCostingRateData(ProcessParaList, ps.Id);
+                }
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
+
+                
+
             }
             catch (Exception ex)
             {
@@ -1455,6 +1466,95 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
             }
         }
 
+        public void SaveMasterOrderItemCostingRateData(IEnumerable<ProductionSummaryParameterValue> entites, string masterId)
+        {
+            try
+            {
+                int _count = 0;
+                foreach (var item in entites)
+                {
+                    if (string.IsNullOrEmpty(item.Id))
+                    {
+                            _count++;
+                            item.Id = _pkGeneratorService.MakePK(masterId, _count, 3); ;
+                            item.ProductionSummaryId = masterId;
+                            item.ModelState = ModelState.Added;
+                            AuditService.AddedLog(item);
+                        _ProductionSummaryParameterValueRepository.Insert(item);
+                    }
+                    else
+                    {
+                            item.ProductionSummaryId = masterId;
+                            item.ModelState = ModelState.Modified;
+                            AuditService.UpdatedLog(item);
+                        _ProductionSummaryParameterValueRepository.Update(item);
+                    }
+                }
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Material.ToString()));
+            }
+        }
+
+        public void SaveMasterOrderItemCostingRateData(List<Dictionary<string, object>> data, string masterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                if (string.IsNullOrEmpty(masterId))
+                {
+                    throw new Exception("Select Line Item.");
+                }
+                #region FUND 
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster = null;
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ProductionSummaryParameterValue where  ProductionSummaryId='" + masterId + "'", out dsMaster, false, "1");
+                int idc = 0;
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        idc++;
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            string id = _pkGeneratorService.MakePK(masterId, idc, 3);
+                            item["Id"] = id;
+                            item["ProductionSummaryId"] = masterId;
+
+                            AddNewRow(dsMaster.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            item["ProductionSummaryId"] = masterId;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         public void SaveMasterWC(ProductionSummary ps, string companyGroupId, string ProcessId)
         {
             var flag = false;

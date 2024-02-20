@@ -21,8 +21,8 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
     $scope.path = 'FixedAssets/FixedAssetRegister/'
 
     $scope.voucherDetailList = [];
-    $scope.searchBy = "FARDisposeNo"; $scope.search = "";
-    $scope.searchByList = [{ value: 'FARDisposeNo', name: "FARDispose No" }, { value: 'EmployeeName', name: "Employee" }, { value: 'Status', name: "Status" }];
+    $scope.searchBy = "DisposeNo"; $scope.search = "";
+    $scope.searchByList = [{ value: 'DisposeNo', name: "Dispose No" }, { value: 'EmployeeName', name: "Employee" }, { value: 'Status', name: "Status" }];
 
     $scope.voucherList = [];
     $scope.getData = function () {
@@ -272,7 +272,7 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
                     url: "fixedassets/fixedassetregister/CreateCapitalizeAssetLost",
                     data: {
                         "fixedAssetDisposed": $scope.voucher,
-                        "fixedAssetRegister": $scope.voucherDetailList
+                        "assetRegisterList": $scope.voucherDetailList
                         
                     },
                     dataType: "JSON"
@@ -490,6 +490,7 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
                             $scope.voucherDetail.AssetAmount = a.AssetAmount;
                             $scope.voucherDetail.DepreciationAmount = a.DepreciationAmount;
                             $scope.voucherDetail.NetAmount = a.NetAmount;
+                            $scope.voucherDetail.AdjustmentDepreciationAmount = 0;
 
                             if ($scope.voucher.Status == 'Scrap') {
                                 $scope.voucherDetail.NegotiationValue = a.NetBookValue;
