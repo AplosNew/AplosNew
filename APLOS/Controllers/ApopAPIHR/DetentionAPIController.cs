@@ -1255,5 +1255,33 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
         #endregion Leave Approve
+
+        #region Invoice remarks
+        public List<Default2> GetInvoiceResponsibleperson()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetInvoiceResponsibleperson(out List<Default2> activelists);
+            return activelists;
+        }
+        public List<Default2> GetInvoiceCustomen()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetInvoiceCustomen(out List<Default2> activelists);
+            return activelists;
+        }
+
+        public List<Default2> GetInvoiceNumber()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetInvoiceNumber(out List<Default2> activelists);
+            return activelists;
+        }
+        public List<InvoiceDataGetset> GetInvoiceData(string ResPer, string Type , string Customer, string InvoiceNo)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetInvoiceData(out List<InvoiceDataGetset> activelists , ResPer, Type, Customer, InvoiceNo);
+            return activelists;
+        }
+        #endregion Invoice remarks
     }
 }
