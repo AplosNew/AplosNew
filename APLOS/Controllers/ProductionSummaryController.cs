@@ -383,7 +383,7 @@ namespace Aplos.Controllers
         {
             try
             {
-                _ProductionSummary.SaveMaster(ps, psd, companyGroupId, ProcessId);
+                _ProductionSummary.SaveMaster(ps, psd, companyGroupId, ProcessId,null);
             }
             catch (Exception)
             {

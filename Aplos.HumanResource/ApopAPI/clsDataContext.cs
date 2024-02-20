@@ -8920,7 +8920,193 @@ where ActionStatus = 'GatePassApproveBy'";
                 objCon = null;
             }
         }
+        public void GetInvoiceResponsibleperson(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct EI.SystemId Value, EI.EmployeeName Name from trn.Sales IR
+left join hkp.Party Pt on Pt.Id = PartyId
+LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
+LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
+LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+left join [TRN].[MasterOrder] MO on MO.Id = MOI.MasterOrderId
+left join EmployeeInformation EI on EI.SystemId = MO.ResponsiblePersonId
+where Invoicestatus <> 'Closed' and EI.SystemId is not null";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetInvoiceCustomen(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct pt.Id Value , PT.UserName Name from trn.Sales IR
+left join hkp.Party Pt on Pt.Id = PartyId
+LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
+LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
+LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+left join [TRN].[MasterOrder] MO on MO.Id = MOI.MasterOrderId
+left join EmployeeInformation EI on EI.SystemId = MO.ResponsiblePersonId
+where Invoicestatus <> 'Closed' and EI.SystemId is not null";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetInvoiceNumber(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct IR.Id Value , IR.InvoiceNo Name from trn.Sales IR
+left join hkp.Party Pt on Pt.Id = PartyId
+LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
+LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
+LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+left join [TRN].[MasterOrder] MO on MO.Id = MOI.MasterOrderId
+left join EmployeeInformation EI on EI.SystemId = MO.ResponsiblePersonId
+where Invoicestatus <> 'Closed' and EI.SystemId is not null";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        public void GetInvoiceData(out List<InvoiceDataGetset> DataList, string ResPer, string Type, string Customer, string InvoiceNo)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<InvoiceDataGetset>();
+            var CusAll = "";
+            if (ResPer != null && Type == null && Customer == null && InvoiceNo == null)
+            {
+                CusAll = " and EI.SystemId = '" + ResPer + "'";
+            }
+            if (ResPer != null && Type != null && Customer == null && InvoiceNo == null)
+            {
+                CusAll = " and EI.SystemId = '" + ResPer + "' and PAG.StandardName = '" +Type + "'";
+            }
+            if (ResPer != null && Type != null && Customer != "" && InvoiceNo == null)
+            {
+                CusAll = "and EI.SystemId = '" + ResPer + "' and PAG.StandardName = '" + Type + "' and PT.Id = '" + Customer + "'";
+            }
+            if (ResPer == null && Type == null && Customer == null && InvoiceNo != null)
+            {
+                CusAll = "and IR.InvoiceNo = '" + InvoiceNo + "'";
+            }
+            
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct IR.InvoiceNo , PT.UserName Customer, EI.EmployeeName ResponsiblePerson ,PAG.StandardName CustomerType from trn.Sales IR
+left join hkp.Party Pt on Pt.Id = PartyId
+LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
+LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
+LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+left join [TRN].[MasterOrder] MO on MO.Id = MOI.MasterOrderId
+left join HKP.CompanyParty CP on CP.PartyId = Pt.Id and CP.PartyType = 'Customer'
+left join HKP.PartyAccountGroup PAG on PAG.Id = CP.PartyAccountGroupId 
+left join EmployeeInformation EI on EI.SystemId = MO.ResponsiblePersonId
+where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll + "";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new InvoiceDataGetset
+                    {
+                        InvoiceNo = dsRef.Tables[0].Rows[i]["InvoiceNo"].ToString(),
+                        Customer = dsRef.Tables[0].Rows[i]["Customer"].ToString(),
+                        ResponsiblePerson = dsRef.Tables[0].Rows[i]["ResponsiblePerson"].ToString(),
+                        CustomerType = dsRef.Tables[0].Rows[i]["CustomerType"].ToString(),
+                        
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
     }
+
+    
 
 
     public class ServerNotifications
@@ -10018,6 +10204,15 @@ where ActionStatus = 'GatePassApproveBy'";
         public string ResponsiblePerson { get; set; }
         public string CheckBy { get; set; }
         public string ApproveBy { get; set; }
+    }
+
+    public class InvoiceDataGetset
+    {
+        public string InvoiceNo { get; set; }
+        public string Customer { get; set; }
+        public string ResponsiblePerson { get; set; }
+        public string CustomerType { get; set; }
+        
     }
 
 }
