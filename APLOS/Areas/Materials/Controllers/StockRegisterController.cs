@@ -132,12 +132,12 @@ namespace Aplos.Areas.Materials.Controllers
 						,MM.UserName MaterialMasterName
 						,ART.StandardName ArticleName, ISNULL(FCV.UserName,'') AS SKU1
 						,ISNULL(SCV.UserName,'') AS SKU2
-						,ISNULL(TCV.UserName,'') AS SKU3 
 						,IR.Id As GRNNo,IRD.Id As GRNROWId,   REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate
 						,IRD.TransactionQty GRNQty
+						,IRD.ShortageQty 
 						,TUoM.UserName AS UOM
 						,ROUND(Isnull(IRD.MaterialTranAmount,0),2)  GRNMaterialAmount
-						,IRD.BaseQty-IRD.IssueQty BalanceStock
+						,IRD.BaseQty-IRD.ShortageQty-IRD.IssueQty BalanceStock
 						,DATEDIFF(day, IR.GRNDate,GETDATE()) AS 'StockInDays'
                         ,IsAsset=CASE WHEN IRD.IsAsset=0 then 'No' else 'Yes' END
 						,MS.UserName StorageLocation,'' StorageResponsiblePerson
@@ -207,7 +207,7 @@ namespace Aplos.Areas.Materials.Controllers
 					WHERE  IR.PlantId='" + PlantId + "' " + tempquery + @"
 						AND (isnull(ir.AuthorizedByStatus,'')!='Reject') and   isnull(ir.CheckedByStatus,'')!='Reject'
                         AND IRD.QualityStatus!='Reject'
-					AND (IRD.BaseQty-IRD.IssueQty)>0  
+					AND (IRD.BaseQty-IRD.IssueQty)>0   AND IRD.Id  NOT IN (SELECT ISNULL(InventoryReceiveDetailId,'') FROM [TRN].[CapitalizationMasterDetail]  where InventoryIssueHistoryId IS NULL)
 						) x where x.StockInDays >= " + Days + " AND x.IsRegular='" + Type + "'";
                 return _sqlRepository.GetDataTable(str);
 
