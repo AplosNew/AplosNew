@@ -23,7 +23,7 @@
                     <label class="control-label">Detention<sup>*</sup></label>
 
                     <div class="select-style">
-                        <select class="form-control" ng-model="ModelNew.DetentionId" name="Detention" ng-change="SelectedDetentionInGrid();"
+                        <select id="DetentionId" class="form-control" ng-model="ModelNew.DetentionId" name="Detention" ng-change="SelectedDetentionInGrid();"
                                 tabindex="2">
                             <option value="">--Select--</option>
                             <option ng-repeat="option in DetentionList" value="{{option.Value}}">{{option.Text}}</option>
@@ -176,19 +176,25 @@
                             <div e-column e-headertext="Check / UnCheck" e-template="#checkboxUpdateTemplate" e-textalign="center" e-width="60"></div>
 
                             <div e-column e-field="StandardName" e-headertext="Workcenter" e-width="100"></div>
-                            <div e-column e-headertext="DetentionUserName" e-template="#Detention" e-textalign="center" e-width="100"></div>
-                            <div e-column e-headertext="Responsible Person" e-template="#Responsibleperson" e-textalign="center" e-width="100"></div>
+                            <div e-column e-headertext="DetentionUserName" e-field="DetentionUserName" e-width="100"></div>
+                            <div e-column e-headertext="Responsible Person" e-field="EmployeeName" e-width="100"></div>
                             <div e-column e-headertext="Calculated Minute" e-template="#calculatedTime" e-textalign="center" e-width="100"></div>
                         </div>
-                        <div class="common-btn">
-                            <ul class="list-inline text-right">
-                                <li> <button data-toggle="modal" ng-click="Delete();" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                            </ul>
-                        </div>
+                        @*<div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li> <button data-toggle="modal" ng-click="Delete();" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                                </ul>
+                            </div>*@
+
                     </div>
                     <script type="text/template" id="checkboxUpdateTemplate">
                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" ng-model="data.Active" />
                     </script>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="UpdateOrDelete();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Update</button></li>
+                    </ul>
                 </div>
             </div>
         </div>
