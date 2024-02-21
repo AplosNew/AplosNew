@@ -1283,6 +1283,13 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
+        public List<InvoiceDataEntry> GetInvoiceRemarksData(string ActionById)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetInvoiceRemarksData(out List<InvoiceDataEntry> activelists, ActionById);
+            return activelists;
+        }
+
         public string PostInvoiceRemarks([FromBody] IEnumerable<InvoiceDataEntry> DataToSave)
         {
             try
@@ -1296,7 +1303,19 @@ namespace Aplos.Controllers.ApopAPIHR
 
             }
         }
+        public string PostInvoiceRemarksClos([FromBody] IEnumerable<InvoiceDataEntry> DataToSave, string IRId)
+        {
+            try
+            {
+                string Id = clsData.PostInvoiceRemarksClos(DataToSave, IRId);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
 
+            }
+        }
         public List<Default2> GetEmployeeInColumnWithoutAssociate()
         {
             clsDataContext clsData = new clsDataContext();

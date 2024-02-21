@@ -9192,6 +9192,48 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
                 objCon = null;
             }
         }
+
+        public void GetInvoiceRemarksData(out List<InvoiceDataEntry> DataList, string ActionById)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<InvoiceDataEntry>();
+            
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select * from trn.InvoiceRemarks where ActionToBeTakenId = '" + ActionById + "' and CloseStatus <> 1";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new InvoiceDataEntry
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        SalesId = dsRef.Tables[0].Rows[i]["SalesId"].ToString(),
+                        Status = dsRef.Tables[0].Rows[i]["Status"].ToString(),
+                        ActionToBeTakenId = dsRef.Tables[0].Rows[i]["ActionToBeTakenId"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+                        CloseStatus = dsRef.Tables[0].Rows[i]["CloseStatus"].ToString(),
+                        AddedBy = dsRef.Tables[0].Rows[i]["AddedBy"].ToString(),
+                        AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
+                        UpdatedBy = dsRef.Tables[0].Rows[i]["UpdatedBy"].ToString(),
+                        UpdatedDate = dsRef.Tables[0].Rows[i]["UpdatedDate"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
         public string PostInvoiceRemarks(IEnumerable<InvoiceDataEntry> DataToSave)
         {
             try
@@ -9228,6 +9270,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
                         dr["Status"] = item.Status;
                         dr["ActionToBeTakenId"] = item.ActionToBeTakenId;
                         dr["Remarks"] = item.Remarks;
+                        dr["CloseStatus"] = item.CloseStatus;
 
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -9252,6 +9295,51 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
                 return ex.ToString();
             }
 
+        }
+        public string PostInvoiceRemarksClos(IEnumerable<InvoiceDataEntry> DataToSave, string IRId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<InvoiceDataEntry> items = DataToSave.ToList();
+
+
+                con.OpenDataSetThroughAdapter("select * from TRN.InvoiceRemarks where Id='" + IRId + "'", out dsMaster, false, "1");
+
+                foreach (InvoiceDataEntry item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                        // DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["CloseStatus"] = item.CloseStatus;
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+
+                        dr.EndEdit();
+
+                    }
+                }
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
         }
     }
 
@@ -10371,6 +10459,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
         public string Status { get; set; }
         public string ActionToBeTakenId { get; set; }
         public string Remarks { get; set; }
+        public string CloseStatus { get; set; }
         public string AddedBy { get; set; }
         public string AddedDate { get; set; }
         public string UpdatedBy { get; set; }
