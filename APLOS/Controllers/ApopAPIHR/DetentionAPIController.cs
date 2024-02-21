@@ -1282,6 +1282,20 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetInvoiceData(out List<InvoiceDataGetset> activelists , ResPer, Type, Customer, InvoiceNo);
             return activelists;
         }
+
+        public string PostInvoiceRemarks([FromBody] IEnumerable<InvoiceDataEntry> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostInvoiceRemarks(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
         #endregion Invoice remarks
     }
 }
