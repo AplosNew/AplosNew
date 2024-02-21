@@ -9058,6 +9058,10 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null";
                 {
                     Type = "Customer Local";
                 }
+                if(Type == "Both")
+                {
+                    Type = null;
+                }
             }
             if (ResPer != null && Type == null && Customer == null && InvoiceNo == null)
             {
@@ -9086,6 +9090,27 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null";
             if (ResPer != null && Type != null && Customer != null && InvoiceNo != null)
             {
                 CusAll = " and EI.SystemId = '" + ResPer + "' and PAG.StandardName = '" + Type + "' and PT.Id = '" + Customer + "' and IR.InvoiceNo = '" + InvoiceNo + "'";
+            }
+            if (ResPer != null && Type == null && Customer != null && InvoiceNo == null)
+            {
+                CusAll = " and EI.SystemId = '" + ResPer + "' and PT.Id = '" + Customer + "'";
+            }
+            if (ResPer != null && Type == null && Customer == null && InvoiceNo != null)
+            {
+                CusAll = " and EI.SystemId = '" + ResPer + "' and IR.InvoiceNo = '" + InvoiceNo + "'";
+            }
+            if (ResPer == null && Type != null && Customer != null && InvoiceNo == null)
+            {
+                CusAll = " and PAG.StandardName = '" + Type + "' and PT.Id = '" + Customer + "'";
+            }
+            
+            if (ResPer == null && Type == null && Customer != null && InvoiceNo != null)
+            {
+                CusAll = " and PT.Id = = '" + Customer + "' and IR.InvoiceNo = '" + InvoiceNo + "'";
+            }
+            if (ResPer == null && Type != null && Customer == null && InvoiceNo != null)
+            {
+                CusAll = " and PAG.StandardName = '" + Type + "' and IR.InvoiceNo = '" + InvoiceNo + "'";
             }
 
             System.Data.DataSet dsRef;
