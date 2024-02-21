@@ -1296,6 +1296,13 @@ namespace Aplos.Controllers.ApopAPIHR
 
             }
         }
+
+        public List<Default2> GetEmployeeInColumnWithoutAssociate()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetEmployeeInColumnWithoutAssociate(out List<Default2> activelists);
+            return activelists;
+        }
         #endregion Invoice remarks
     }
 }

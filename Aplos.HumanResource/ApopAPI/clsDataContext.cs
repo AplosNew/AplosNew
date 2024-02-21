@@ -8886,6 +8886,44 @@ where ActionStatus = 'GatePassApproveBy'";
         }
         #endregion Gate pass
 
+        public void GetEmployeeInColumnWithoutAssociate(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select CONCAT(EMP.EmployeeCode, '       ' , EMP.EmployeeName) as Name  , EMp.SystemId as Value from EmployeeInformation EMP
+LEFT JOIN MST.DesignationMasterLegalDesignation DMLD ON DMLD.LegalDesignationId = EMP.LegalDesignationId
+left join mst.DesignationMaster dm on dm.Id = DMLD.DesignationMasterId
+left join hkp.EmployeeCategory x on x.Id=dm.EmployeeCategoryId
+Where EMP.EmployeeStatus = 'Active' and x.UserName <> 'Associate'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public void GetLeaveApprovestatus(out List<Default2> DataList , string Fmdate, string Todate)
         {
             clsConnectionManager objCon = null;
@@ -9112,7 +9150,10 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null";
             {
                 CusAll = " and PAG.StandardName = '" + Type + "' and IR.InvoiceNo = '" + InvoiceNo + "'";
             }
-
+            if (ResPer != null && Type == null && Customer != null && InvoiceNo != null)
+            {
+                CusAll = " and EI.SystemId = '" + ResPer + "' and PT.Id = '" + Customer + "' and IR.InvoiceNo = '" + InvoiceNo + "'";
+            }
             System.Data.DataSet dsRef;
             try
             {
