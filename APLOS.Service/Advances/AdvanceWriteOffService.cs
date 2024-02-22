@@ -244,7 +244,7 @@ namespace Library.Service.Advances
         public GridModel QueryEmployee(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
         {
             parameters.CmdText = @"SELECT V.VoucherNo, V.VoucherDate,V.CurrencyId, V.VoucherTypeId, AW.Id, EI.SystemId AS EmployeeId,  EI.EmployeeCode, EI.EmployeeName, AW.PostingDate, AW.DocDate, AW.DocRefNo, C.Code AS CurrencyCode, AW.Narration,AW.SettlementType,  X.DrAmount AS Amount
-                                    , AW.VoucherId,  AW.IsPark
+                                    , AW.VoucherId,AW.IsPark, Status= case when AW.IsPark=1 then 'Parked' else 'Posted' end
                                     FROM [TRN].[AdvanceWriteOff] AS AW
 									LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=AW.EmployeeId
                                     LEFT JOIN [SCS].[Currency] AS C ON C.Id=AW.CurrencyId
