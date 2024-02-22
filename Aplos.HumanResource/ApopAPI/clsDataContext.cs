@@ -8999,11 +8999,40 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null";
             }
         }
 
-        public void GetInvoiceCustomen(out List<Default2> DataList)
+        public void GetInvoiceCustomen(out List<Default2> DataList , string Respr , string Type)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
             DataList = new List<Default2>();
+            var CusAll = "";
+            if (Type != null)
+            {
+                if (Type == "Export")
+                {
+                    Type = "Customer Export";
+                }
+                if (Type == "Local")
+                {
+                    Type = "Customer Local";
+                }
+                if (Type == "Both")
+                {
+                    Type = null;
+                }
+            }
+            if (Respr != null && Type == null)
+            {
+                CusAll = " and EI.SystemId = '" + Respr + "'";
+            }
+            if (Respr == null && Type != null)
+            {
+                CusAll = " and PAG.StandardName = '" + Type + "'";
+            }
+            if (Respr != null && Type != null)
+            {
+                CusAll = " and EI.SystemId = '" + Respr + "' and PAG.StandardName = '" + Type + "'";
+            }
+
 
             System.Data.DataSet dsRef;
             try
@@ -9014,8 +9043,10 @@ LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
 LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
 LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
 left join [TRN].[MasterOrder] MO on MO.Id = MOI.MasterOrderId
+left join HKP.CompanyParty CP on CP.PartyId = Pt.Id and CP.PartyType = 'Customer'
+left join HKP.PartyAccountGroup PAG on PAG.Id = CP.PartyAccountGroupId 
 left join EmployeeInformation EI on EI.SystemId = MO.ResponsiblePersonId
-where Invoicestatus <> 'Closed' and EI.SystemId is not null";
+where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -9040,12 +9071,56 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null";
             }
         }
 
-        public void GetInvoiceNumber(out List<Default2> DataList)
+        public void GetInvoiceNumber(out List<Default2> DataList, string Respr, string Type , string Customer)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
             DataList = new List<Default2>();
-
+            var CusAll = "";
+            if (Type != null)
+            {
+                if (Type == "Export")
+                {
+                    Type = "Customer Export";
+                }
+                if (Type == "Local")
+                {
+                    Type = "Customer Local";
+                }
+                if (Type == "Both")
+                {
+                    Type = null;
+                }
+            }
+            if (Respr != null && Type == null && Customer == null )
+            {
+                CusAll = " and EI.SystemId = '" + Respr + "'";
+            }
+            if (Respr != null && Type != null && Customer == null)
+            {
+                CusAll = " and EI.SystemId = '" + Respr + "' and PAG.StandardName = '" + Type + "'";
+            }
+            if (Respr != null && Type != null && Customer != null)
+            {
+                CusAll = " and EI.SystemId = '" + Respr + "' and PAG.StandardName = '" + Type + "' and PT.Id = '" + Customer + "'";
+            }
+           
+            if (Respr == null && Type != null && Customer == null)
+            {
+                CusAll = " and PAG.StandardName = '" + Type + "'";
+            }
+            if (Respr == null && Type == null && Customer != null)
+            {
+                CusAll = " and PT.Id = '" + Customer + "'";
+            }
+            if (Respr == null && Type != null && Customer != null)
+            {
+                CusAll = " and PAG.StandardName = '" + Type + "' and PT.Id = '" + Customer + "'";
+            }
+            if (Respr != null && Type == null && Customer != null)
+            {
+                CusAll = " and EI.SystemId = '" + Respr + "' and PT.Id = '" + Customer + "'";
+            }
             System.Data.DataSet dsRef;
             try
             {
@@ -9055,8 +9130,10 @@ LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
 LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
 LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
 left join [TRN].[MasterOrder] MO on MO.Id = MOI.MasterOrderId
+left join HKP.CompanyParty CP on CP.PartyId = Pt.Id and CP.PartyType = 'Customer'
+left join HKP.PartyAccountGroup PAG on PAG.Id = CP.PartyAccountGroupId 
 left join EmployeeInformation EI on EI.SystemId = MO.ResponsiblePersonId
-where Invoicestatus <> 'Closed' and EI.SystemId is not null";
+where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);

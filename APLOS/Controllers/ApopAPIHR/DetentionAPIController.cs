@@ -1263,17 +1263,17 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetInvoiceResponsibleperson(out List<Default2> activelists);
             return activelists;
         }
-        public List<Default2> GetInvoiceCustomen()
+        public List<Default2> GetInvoiceCustomen( string Respr, string Type)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetInvoiceCustomen(out List<Default2> activelists);
+            clsData.GetInvoiceCustomen(out List<Default2> activelists, Respr, Type);
             return activelists;
         }
 
-        public List<Default2> GetInvoiceNumber()
+        public List<Default2> GetInvoiceNumber(string Respr, string Type, string Customer)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetInvoiceNumber(out List<Default2> activelists);
+            clsData.GetInvoiceNumber(out List<Default2> activelists, Respr, Type, Customer);
             return activelists;
         }
         public List<InvoiceDataGetset> GetInvoiceData(string ResPer, string Type , string Customer, string InvoiceNo)
