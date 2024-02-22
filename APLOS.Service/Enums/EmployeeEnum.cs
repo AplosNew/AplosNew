@@ -212,9 +212,6 @@ namespace Library.Service.Enums
         [Description("Order Costing ApproveBy")]
         OrderCostingApproveBy,
 
-        [Description("Sasles Order ApproveBy")]
-        SaslesOrderApproveBy,
-
         [Description("Employee Approval Authority")]
         EmployeeApprovalAuthority,
 
