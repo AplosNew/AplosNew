@@ -9124,7 +9124,12 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select distinct IR.Id Value , IR.InvoiceNo Name from trn.Sales IR
+                strSQL = @"select distinct IR.InvoiceNo , PT.UserName Customer, EI.EmployeeName ResponsiblePerson ,PAG.StandardName CustomerType
+,format(psi.InvoiceDate , 'dd-MM-yyyy') InvoiceDate , format(psi.ShipmentDate , 'dd-MM-yyyy') ShipmentDate , format(psi.DocumentReceiveDate , 'dd-MM-yyyy') DocReceivedate
+,format(psi.DocumentSubmissionDate , 'dd-MM-yyyy') DocSubDate , format(psi.DocAcceptanceDate , 'dd-MM-yyyy') DocAccpDate
+,psi.PaymentAdviseNo PayAdbisNo , format(psi.PaymentReceivedDate , 'dd-MM-yyyy') PayResDate 
+, InvoiceAmount = (select  convert(decimal(30,2) ,Sum(NetAmount)) InvoiceAmount from trn.SalesMaterial where SalesId  = IR.Id)
+from trn.Sales IR
 left join hkp.Party Pt on Pt.Id = PartyId
 LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
 LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
@@ -9133,6 +9138,7 @@ left join [TRN].[MasterOrder] MO on MO.Id = MOI.MasterOrderId
 left join HKP.CompanyParty CP on CP.PartyId = Pt.Id and CP.PartyType = 'Customer'
 left join HKP.PartyAccountGroup PAG on PAG.Id = CP.PartyAccountGroupId 
 left join EmployeeInformation EI on EI.SystemId = MO.ResponsiblePersonId
+left join PostSalesInvoice psi on psi.SalesId = ir.Id
 where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -9234,7 +9240,12 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select distinct IR.InvoiceNo , PT.UserName Customer, EI.EmployeeName ResponsiblePerson ,PAG.StandardName CustomerType from trn.Sales IR
+                strSQL = @"select distinct IR.InvoiceNo , PT.UserName Customer, EI.EmployeeName ResponsiblePerson ,PAG.StandardName CustomerType
+,format(psi.InvoiceDate , 'dd-MM-yyyy') InvoiceDate , format(psi.ShipmentDate , 'dd-MM-yyyy') ShipmentDate , format(psi.DocumentReceiveDate , 'dd-MM-yyyy') DocReceivedate
+,format(psi.DocumentSubmissionDate , 'dd-MM-yyyy') DocSubDate , format(psi.DocAcceptanceDate , 'dd-MM-yyyy') DocAccpDate
+,psi.PaymentAdviseNo PayAdbisNo , format(psi.PaymentReceivedDate , 'dd-MM-yyyy') PayResDate 
+, InvoiceAmount = (select  convert(decimal(30,2) ,Sum(NetAmount)) InvoiceAmount from trn.SalesMaterial where SalesId  = IR.Id)
+from trn.Sales IR
 left join hkp.Party Pt on Pt.Id = PartyId
 LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
 LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
@@ -9243,6 +9254,7 @@ left join [TRN].[MasterOrder] MO on MO.Id = MOI.MasterOrderId
 left join HKP.CompanyParty CP on CP.PartyId = Pt.Id and CP.PartyType = 'Customer'
 left join HKP.PartyAccountGroup PAG on PAG.Id = CP.PartyAccountGroupId 
 left join EmployeeInformation EI on EI.SystemId = MO.ResponsiblePersonId
+left join PostSalesInvoice psi on psi.SalesId = ir.Id
 where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -9256,7 +9268,14 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
                         Customer = dsRef.Tables[0].Rows[i]["Customer"].ToString(),
                         ResponsiblePerson = dsRef.Tables[0].Rows[i]["ResponsiblePerson"].ToString(),
                         CustomerType = dsRef.Tables[0].Rows[i]["CustomerType"].ToString(),
-                        
+                        InvoiceDate = dsRef.Tables[0].Rows[i]["InvoiceDate"].ToString(),
+                        ShipmentDate = dsRef.Tables[0].Rows[i]["ShipmentDate"].ToString(),
+                        DocReceivedate = dsRef.Tables[0].Rows[i]["DocReceivedate"].ToString(),
+                        DocSubDate = dsRef.Tables[0].Rows[i]["DocSubDate"].ToString(),
+                        DocAccpDate = dsRef.Tables[0].Rows[i]["DocAccpDate"].ToString(),
+                        PayAdbisNo = dsRef.Tables[0].Rows[i]["PayAdbisNo"].ToString(),
+                        PayResDate = dsRef.Tables[0].Rows[i]["PayResDate"].ToString(),
+                        InvoiceAmount = dsRef.Tables[0].Rows[i]["InvoiceAmount"].ToString(),
                     });
                 }
             }
@@ -10526,6 +10545,14 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
         public string Customer { get; set; }
         public string ResponsiblePerson { get; set; }
         public string CustomerType { get; set; }
+        public string InvoiceDate { get; set; }
+        public string ShipmentDate { get; set; }
+        public string DocReceivedate { get; set; }
+        public string DocSubDate { get; set; }
+        public string DocAccpDate { get; set; }
+        public string PayAdbisNo { get; set; }
+        public string PayResDate { get; set; }
+        public string InvoiceAmount { get; set; }
         
     }
 
