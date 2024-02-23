@@ -9294,7 +9294,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select * from trn.InvoiceRemarks where ActionToBeTakenId = '" + ActionById + "' and CloseStatus <> 1";
+                strSQL = @"select * from trn.InvoiceRemarks where ActionToBeTakenId = '" + ActionById + "' and CloseStatus <> 1  order by AddedDate desc";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
