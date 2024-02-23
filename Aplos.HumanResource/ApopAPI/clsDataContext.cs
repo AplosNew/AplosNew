@@ -9124,11 +9124,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select distinct IR.InvoiceNo , PT.UserName Customer, EI.EmployeeName ResponsiblePerson ,PAG.StandardName CustomerType
-,format(psi.InvoiceDate , 'dd-MM-yyyy') InvoiceDate , format(psi.ShipmentDate , 'dd-MM-yyyy') ShipmentDate , format(psi.DocumentReceiveDate , 'dd-MM-yyyy') DocReceivedate
-,format(psi.DocumentSubmissionDate , 'dd-MM-yyyy') DocSubDate , format(psi.DocAcceptanceDate , 'dd-MM-yyyy') DocAccpDate
-,psi.PaymentAdviseNo PayAdbisNo , format(psi.PaymentReceivedDate , 'dd-MM-yyyy') PayResDate 
-, InvoiceAmount = (select  convert(decimal(30,2) ,Sum(NetAmount)) InvoiceAmount from trn.SalesMaterial where SalesId  = IR.Id)
+                strSQL = @"select distinct IR.InvoiceNo Name, IR.Id Value
 from trn.Sales IR
 left join hkp.Party Pt on Pt.Id = PartyId
 LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
