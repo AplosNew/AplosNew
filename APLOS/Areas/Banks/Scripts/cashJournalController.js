@@ -94,14 +94,18 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
         {
             "name": "Currency",
             "value": "Currency"
+        },
+        {
+            "name": "Status",
+            "value": "Status"
         }
     ];
 
     baseService.getCompanyConfiguration(function (result) {
         $scope.companyConfig = result;
-            cboService.getCboEntityByPlant(null, null, "", function (result) {
-                $scope.entityList = result;
-            });
+        cboService.getCboEntityByPlant(null, null, "", function (result) {
+            $scope.entityList = result;
+        });
     });
 
     $scope.SelectedBudgetItem = function (id) {
@@ -528,7 +532,7 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
     //    $scope.voucherDetailList.splice(index, 1);
     //};
 
-    $scope.removeDetaillRow = function (Id, voucherId,voucherDetailId, index) {
+    $scope.removeDetaillRow = function (Id, voucherId, voucherDetailId, index) {
         if (Id === null) {
             //$(this).remove();
             $scope.voucherDetailList.splice(index, 1);
