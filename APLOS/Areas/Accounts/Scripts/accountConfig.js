@@ -1062,5 +1062,9 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/PettyCashMaster/Aplos",
             controller: "PettyCashMasterController"
         })
+        .when("/bss-report", {
+            templateUrl: "Accounts/BalanceSheetScheduling/Report",
+            controller: "BalanceSheetSchedulingReportController"
+        })
         ;
 } 
