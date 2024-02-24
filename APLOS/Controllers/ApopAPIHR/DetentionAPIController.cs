@@ -1263,23 +1263,63 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetInvoiceResponsibleperson(out List<Default2> activelists);
             return activelists;
         }
-        public List<Default2> GetInvoiceCustomen()
+        public List<Default2> GetInvoiceCustomen( string Respr, string Type)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetInvoiceCustomen(out List<Default2> activelists);
+            clsData.GetInvoiceCustomen(out List<Default2> activelists, Respr, Type);
             return activelists;
         }
 
-        public List<Default2> GetInvoiceNumber()
+        public List<Default2> GetInvoiceNumber(string Respr, string Type, string Customer)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetInvoiceNumber(out List<Default2> activelists);
+            clsData.GetInvoiceNumber(out List<Default2> activelists, Respr, Type, Customer);
             return activelists;
         }
         public List<InvoiceDataGetset> GetInvoiceData(string ResPer, string Type , string Customer, string InvoiceNo)
         {
             clsDataContext clsData = new clsDataContext();
             clsData.GetInvoiceData(out List<InvoiceDataGetset> activelists , ResPer, Type, Customer, InvoiceNo);
+            return activelists;
+        }
+
+        public List<InvoiceDataEntry> GetInvoiceRemarksData(string ActionById)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetInvoiceRemarksData(out List<InvoiceDataEntry> activelists, ActionById);
+            return activelists;
+        }
+
+        public string PostInvoiceRemarks([FromBody] IEnumerable<InvoiceDataEntry> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostInvoiceRemarks(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+        public string PostInvoiceRemarksClos([FromBody] IEnumerable<InvoiceDataEntry> DataToSave, string IRId)
+        {
+            try
+            {
+                string Id = clsData.PostInvoiceRemarksClos(DataToSave, IRId);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+        public List<Default2> GetEmployeeInColumnWithoutAssociate()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetEmployeeInColumnWithoutAssociate(out List<Default2> activelists);
             return activelists;
         }
         #endregion Invoice remarks

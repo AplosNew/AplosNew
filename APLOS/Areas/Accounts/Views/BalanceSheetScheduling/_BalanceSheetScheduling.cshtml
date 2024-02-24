@@ -22,7 +22,7 @@
             <label class="col-sm-4 control-label">DetailApplicable</label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select id="DetailApplicable" class="form-control" name="DetailApplicable" ng-model="balanceSheetScheduling.DetailApplicable" tabindex="7" >
+                    <select id="DetailApplicable" class="form-control" name="DetailApplicable" ng-model="balanceSheetScheduling.DetailApplicable" tabindex="7">
                         <option value="Budget Level">Budget Level</option>
                         <option value="Activity Level">Activity Level</option>
                     </select>
@@ -69,6 +69,17 @@
             <label class="col-sm-4 control-label">User Sub Group</label>
             <div class="col-sm-8 show-message">
                 <input type="text" maxlength="50" name="SubGroup" ng-model="balanceSheetScheduling.UserSubGroup" class="form-control" tabindex="2">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">IsCalculate</label>
+            <div class="col-sm-8">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="balanceSheetScheduling.IsCalculate" tabindex="8">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
             </div>
         </div>
     </div>
@@ -127,7 +138,117 @@
                 <input maxlength="50" type="text" name="UserScheduleName" ng-model="balanceSheetScheduling.UserScheduleName" class="form-control" tabindex="4">
             </div>
         </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Active</label>
+            <div class="col-sm-8">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="balanceSheetScheduling.IsActive" tabindex="8">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12" ng-show="balanceSheetScheduling.IsCalculate">
+        <fieldset class="scheduler-border" style="width:1076px">
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Head</label>
+                    <div class="col-sm-6">
+                        @*<div class="select-style">
+                            <select ng-model="balanceSheetScheduling.HeadIdFormula" id="QHeadFormula" class="form-control" name="Salary Head" ng-options="item.Value as item.Text for item in QualityProcessParameterHeaderList">
+                                <option value=""></option>
+                            </select>
+                        </div>*@
+                        <div class="input-group">
+                            <input type="text" name="BalanceSheetScheduling" ng-model="balanceSheetScheduling.HeadIdFormula" class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <button ng-click="ShowBalanceSheetSchedulingPopUp();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li>
+                                    <button ng-click="SetFormula('SHead');" class="btn"><i class="glyphicon glyphicon-forward"></i></button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Value</label>
+                    <div class="col-sm-6">
+                        <input type="text" name="Value" ng-model="balanceSheetScheduling.Value" class="form-control" maxlength="50">
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li>
+                                    <button ng-click="SetFormula('Value');" class="btn"><i class="glyphicon glyphicon-forward"></i></button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Operator</label>
+                    <div class="col-sm-6">
+                        <div class="select-style">
+                            <select ng-model="balanceSheetScheduling.Operator" id="Operator" class="form-control" name="Operator" ng-options="item.Value as item.Text for item in OperatorList">
+                                <option value=""></option>
+                            </select>
+                        </div>
 
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li>
+                                    <button ng-click="SetFormula('Operator');" class="btn"><i class="glyphicon glyphicon-forward"></i></button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Precedence</label>
+                    <div class="col-sm-6">
+                        <div class="select-style">
+                            <select ng-model="balanceSheetScheduling.Precedence" class="form-control" name="Precedence">
+                                <option value=""></option>
+                                <option value="(">(</option>
+                                <option value=")">)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li>
+                                    <button ng-click="SetFormula('Precedence');" class="btn"><i class="glyphicon glyphicon-forward"></i></button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li>
+                            <button ng-click="RemoveFormula();" class="btn"><i class="glyphicon glyphicon-backward"></i></button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="form-group">
+                    {{balanceSheetScheduling.FormulaDescription}}
+                </div>
+            </div>
+        </fieldset>
     </div>
     <div class="common-btn">
         <ul class="list-inline text-right">
@@ -178,3 +299,38 @@
     </div>
 </div>
 <confirm-archive-generic modalid="confirmDetailPopUpLevel1" title="Confirmation" message={{message_Detailconfirmation}} data-ng-click-right-button="DeleteBalanceSheetScheduling();"></confirm-archive-generic>
+
+<div class="modal fade site-modal in" id="BalanceSheetSchedulingPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header"> Balance Sheet Scheduling List <button type="button" class="close" ng-click="closeBalanceSheetSchedulingPopUpNew();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+
+                        <div style="color:black;" id="BalanceSheetSchedulingPopUpGrid" ej-grid e-datasource="BalanceSheetSchedulingList" e-recorddoubleclick="SetBalanceSheetSchedulingData"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="2"></div>
+                                <div e-column e-field="OptionNo" e-headertext="OptionNo" e-width="3"></div>
+                                <div e-column e-field="Type" e-headertext="Type" e-width="5"></div>
+                                <div e-column e-field="DetailApplicable" e-headertext="Detail Applicable" e-width="5"></div>
+                                <div e-column e-field="GroupSequence" e-headertext="Group Sequence" e-width="5"></div>
+                                <div e-column e-field="Group" e-headertext="Group" e-width="5"></div>
+                                <div e-column e-field="SubGroupSequence" e-headertext="Sub Group Sequence" e-width="5"></div>
+                                <div e-column e-field="SubGroup" e-headertext="Sub Group" e-width="5"></div>
+                                <div e-column e-field="UserGroup" e-headertext="User Group" e-width="2"></div>
+                                <div e-column e-field="UserSubGroup" e-headertext="User Sub Group" e-width="2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closeBalanceSheetSchedulingPopUpNew();" class="btn"> Close</button></li>
+                </ul>
+               
+            </div>
+        </div>
+    </div>
+</div>

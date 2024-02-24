@@ -8886,6 +8886,44 @@ where ActionStatus = 'GatePassApproveBy'";
         }
         #endregion Gate pass
 
+        public void GetEmployeeInColumnWithoutAssociate(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select CONCAT(EMP.EmployeeCode, '       ' , EMP.EmployeeName) as Name  , EMp.SystemId as Value from EmployeeInformation EMP
+LEFT JOIN MST.DesignationMasterLegalDesignation DMLD ON DMLD.LegalDesignationId = EMP.LegalDesignationId
+left join mst.DesignationMaster dm on dm.Id = DMLD.DesignationMasterId
+left join hkp.EmployeeCategory x on x.Id=dm.EmployeeCategoryId
+Where EMP.EmployeeStatus = 'Active' and x.UserName <> 'Associate'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public void GetLeaveApprovestatus(out List<Default2> DataList , string Fmdate, string Todate)
         {
             clsConnectionManager objCon = null;
@@ -8961,11 +8999,40 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null";
             }
         }
 
-        public void GetInvoiceCustomen(out List<Default2> DataList)
+        public void GetInvoiceCustomen(out List<Default2> DataList , string Respr , string Type)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
             DataList = new List<Default2>();
+            var CusAll = "";
+            if (Type != null)
+            {
+                if (Type == "Export")
+                {
+                    Type = "Customer Export";
+                }
+                if (Type == "Local")
+                {
+                    Type = "Customer Local";
+                }
+                if (Type == "Both")
+                {
+                    Type = null;
+                }
+            }
+            if (Respr != null && Type == null)
+            {
+                CusAll = " and EI.SystemId = '" + Respr + "'";
+            }
+            if (Respr == null && Type != null)
+            {
+                CusAll = " and PAG.StandardName = '" + Type + "'";
+            }
+            if (Respr != null && Type != null)
+            {
+                CusAll = " and EI.SystemId = '" + Respr + "' and PAG.StandardName = '" + Type + "'";
+            }
+
 
             System.Data.DataSet dsRef;
             try
@@ -8976,8 +9043,10 @@ LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
 LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
 LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
 left join [TRN].[MasterOrder] MO on MO.Id = MOI.MasterOrderId
+left join HKP.CompanyParty CP on CP.PartyId = Pt.Id and CP.PartyType = 'Customer'
+left join HKP.PartyAccountGroup PAG on PAG.Id = CP.PartyAccountGroupId 
 left join EmployeeInformation EI on EI.SystemId = MO.ResponsiblePersonId
-where Invoicestatus <> 'Closed' and EI.SystemId is not null";
+where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -9002,23 +9071,71 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null";
             }
         }
 
-        public void GetInvoiceNumber(out List<Default2> DataList)
+        public void GetInvoiceNumber(out List<Default2> DataList, string Respr, string Type , string Customer)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
             DataList = new List<Default2>();
-
+            var CusAll = "";
+            if (Type != null)
+            {
+                if (Type == "Export")
+                {
+                    Type = "Customer Export";
+                }
+                if (Type == "Local")
+                {
+                    Type = "Customer Local";
+                }
+                if (Type == "Both")
+                {
+                    Type = null;
+                }
+            }
+            if (Respr != null && Type == null && Customer == null )
+            {
+                CusAll = " and EI.SystemId = '" + Respr + "'";
+            }
+            if (Respr != null && Type != null && Customer == null)
+            {
+                CusAll = " and EI.SystemId = '" + Respr + "' and PAG.StandardName = '" + Type + "'";
+            }
+            if (Respr != null && Type != null && Customer != null)
+            {
+                CusAll = " and EI.SystemId = '" + Respr + "' and PAG.StandardName = '" + Type + "' and PT.Id = '" + Customer + "'";
+            }
+           
+            if (Respr == null && Type != null && Customer == null)
+            {
+                CusAll = " and PAG.StandardName = '" + Type + "'";
+            }
+            if (Respr == null && Type == null && Customer != null)
+            {
+                CusAll = " and PT.Id = '" + Customer + "'";
+            }
+            if (Respr == null && Type != null && Customer != null)
+            {
+                CusAll = " and PAG.StandardName = '" + Type + "' and PT.Id = '" + Customer + "'";
+            }
+            if (Respr != null && Type == null && Customer != null)
+            {
+                CusAll = " and EI.SystemId = '" + Respr + "' and PT.Id = '" + Customer + "'";
+            }
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select distinct IR.Id Value , IR.InvoiceNo Name from trn.Sales IR
+                strSQL = @"select distinct IR.InvoiceNo Name, IR.Id Value
+from trn.Sales IR
 left join hkp.Party Pt on Pt.Id = PartyId
 LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
 LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
 LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
 left join [TRN].[MasterOrder] MO on MO.Id = MOI.MasterOrderId
+left join HKP.CompanyParty CP on CP.PartyId = Pt.Id and CP.PartyType = 'Customer'
+left join HKP.PartyAccountGroup PAG on PAG.Id = CP.PartyAccountGroupId 
 left join EmployeeInformation EI on EI.SystemId = MO.ResponsiblePersonId
-where Invoicestatus <> 'Closed' and EI.SystemId is not null";
+left join PostSalesInvoice psi on psi.SalesId = ir.Id
+where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -9048,6 +9165,21 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null";
             string strSQL = "";
             DataList = new List<InvoiceDataGetset>();
             var CusAll = "";
+            if(Type != null)
+            {
+                if(Type == "Export")
+                {
+                    Type = "Customer Export";
+                }
+                if(Type == "Local")
+                {
+                    Type = "Customer Local";
+                }
+                if(Type == "Both")
+                {
+                    Type = null;
+                }
+            }
             if (ResPer != null && Type == null && Customer == null && InvoiceNo == null)
             {
                 CusAll = " and EI.SystemId = '" + ResPer + "'";
@@ -9056,20 +9188,60 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null";
             {
                 CusAll = " and EI.SystemId = '" + ResPer + "' and PAG.StandardName = '" +Type + "'";
             }
-            if (ResPer != null && Type != null && Customer != "" && InvoiceNo == null)
+            if (ResPer != null && Type != null && Customer != null && InvoiceNo == null)
             {
-                CusAll = "and EI.SystemId = '" + ResPer + "' and PAG.StandardName = '" + Type + "' and PT.Id = '" + Customer + "'";
+                CusAll = " and EI.SystemId = '" + ResPer + "' and PAG.StandardName = '" + Type + "' and PT.Id = '" + Customer + "'";
             }
             if (ResPer == null && Type == null && Customer == null && InvoiceNo != null)
             {
-                CusAll = "and IR.InvoiceNo = '" + InvoiceNo + "'";
+                CusAll = " and IR.InvoiceNo = '" + InvoiceNo + "'";
+            }
+            if (ResPer == null && Type != null && Customer == null && InvoiceNo == null)
+            {
+                CusAll = " and PAG.StandardName = '" + Type + "'";
+            }
+            if (ResPer == null && Type == null && Customer != null && InvoiceNo == null)
+            {
+                CusAll = " and PT.Id = '" + Customer + "'";
+            }
+            if (ResPer != null && Type != null && Customer != null && InvoiceNo != null)
+            {
+                CusAll = " and EI.SystemId = '" + ResPer + "' and PAG.StandardName = '" + Type + "' and PT.Id = '" + Customer + "' and IR.InvoiceNo = '" + InvoiceNo + "'";
+            }
+            if (ResPer != null && Type == null && Customer != null && InvoiceNo == null)
+            {
+                CusAll = " and EI.SystemId = '" + ResPer + "' and PT.Id = '" + Customer + "'";
+            }
+            if (ResPer != null && Type == null && Customer == null && InvoiceNo != null)
+            {
+                CusAll = " and EI.SystemId = '" + ResPer + "' and IR.InvoiceNo = '" + InvoiceNo + "'";
+            }
+            if (ResPer == null && Type != null && Customer != null && InvoiceNo == null)
+            {
+                CusAll = " and PAG.StandardName = '" + Type + "' and PT.Id = '" + Customer + "'";
             }
             
-
+            if (ResPer == null && Type == null && Customer != null && InvoiceNo != null)
+            {
+                CusAll = " and PT.Id = = '" + Customer + "' and IR.InvoiceNo = '" + InvoiceNo + "'";
+            }
+            if (ResPer == null && Type != null && Customer == null && InvoiceNo != null)
+            {
+                CusAll = " and PAG.StandardName = '" + Type + "' and IR.InvoiceNo = '" + InvoiceNo + "'";
+            }
+            if (ResPer != null && Type == null && Customer != null && InvoiceNo != null)
+            {
+                CusAll = " and EI.SystemId = '" + ResPer + "' and PT.Id = '" + Customer + "' and IR.InvoiceNo = '" + InvoiceNo + "'";
+            }
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select distinct IR.InvoiceNo , PT.UserName Customer, EI.EmployeeName ResponsiblePerson ,PAG.StandardName CustomerType from trn.Sales IR
+                strSQL = @"select distinct IR.InvoiceNo , PT.UserName Customer, EI.EmployeeName ResponsiblePerson ,PAG.StandardName CustomerType
+,format(psi.InvoiceDate , 'dd-MM-yyyy') InvoiceDate , format(psi.ShipmentDate , 'dd-MM-yyyy') ShipmentDate , format(psi.DocumentReceiveDate , 'dd-MM-yyyy') DocReceivedate
+,format(psi.DocumentSubmissionDate , 'dd-MM-yyyy') DocSubDate , format(psi.DocAcceptanceDate , 'dd-MM-yyyy') DocAccpDate
+,psi.PaymentAdviseNo PayAdbisNo , format(psi.PaymentReceivedDate , 'dd-MM-yyyy') PayResDate 
+, InvoiceAmount = (select  convert(decimal(30,2) ,Sum(NetAmount)) InvoiceAmount from trn.SalesMaterial where SalesId  = IR.Id)
+from trn.Sales IR
 left join hkp.Party Pt on Pt.Id = PartyId
 LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
 LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
@@ -9078,7 +9250,8 @@ left join [TRN].[MasterOrder] MO on MO.Id = MOI.MasterOrderId
 left join HKP.CompanyParty CP on CP.PartyId = Pt.Id and CP.PartyType = 'Customer'
 left join HKP.PartyAccountGroup PAG on PAG.Id = CP.PartyAccountGroupId 
 left join EmployeeInformation EI on EI.SystemId = MO.ResponsiblePersonId
-where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll + "";
+left join PostSalesInvoice psi on psi.SalesId = ir.Id
+where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -9091,7 +9264,14 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll + "";
                         Customer = dsRef.Tables[0].Rows[i]["Customer"].ToString(),
                         ResponsiblePerson = dsRef.Tables[0].Rows[i]["ResponsiblePerson"].ToString(),
                         CustomerType = dsRef.Tables[0].Rows[i]["CustomerType"].ToString(),
-                        
+                        InvoiceDate = dsRef.Tables[0].Rows[i]["InvoiceDate"].ToString(),
+                        ShipmentDate = dsRef.Tables[0].Rows[i]["ShipmentDate"].ToString(),
+                        DocReceivedate = dsRef.Tables[0].Rows[i]["DocReceivedate"].ToString(),
+                        DocSubDate = dsRef.Tables[0].Rows[i]["DocSubDate"].ToString(),
+                        DocAccpDate = dsRef.Tables[0].Rows[i]["DocAccpDate"].ToString(),
+                        PayAdbisNo = dsRef.Tables[0].Rows[i]["PayAdbisNo"].ToString(),
+                        PayResDate = dsRef.Tables[0].Rows[i]["PayResDate"].ToString(),
+                        InvoiceAmount = dsRef.Tables[0].Rows[i]["InvoiceAmount"].ToString(),
                     });
                 }
             }
@@ -9102,6 +9282,155 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll + "";
             finally
             {
                 objCon = null;
+            }
+        }
+
+        public void GetInvoiceRemarksData(out List<InvoiceDataEntry> DataList, string ActionById)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<InvoiceDataEntry>();
+            
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select * from trn.InvoiceRemarks where ActionToBeTakenId = '" + ActionById + "' and CloseStatus <> 1  order by AddedDate desc";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new InvoiceDataEntry
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        SalesId = dsRef.Tables[0].Rows[i]["SalesId"].ToString(),
+                        Status = dsRef.Tables[0].Rows[i]["Status"].ToString(),
+                        ActionToBeTakenId = dsRef.Tables[0].Rows[i]["ActionToBeTakenId"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+                        CloseStatus = dsRef.Tables[0].Rows[i]["CloseStatus"].ToString(),
+                        AddedBy = dsRef.Tables[0].Rows[i]["AddedBy"].ToString(),
+                        AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
+                        UpdatedBy = dsRef.Tables[0].Rows[i]["UpdatedBy"].ToString(),
+                        UpdatedDate = dsRef.Tables[0].Rows[i]["UpdatedDate"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        public string PostInvoiceRemarks(IEnumerable<InvoiceDataEntry> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.InvoiceRemarks";
+                string Id = "''";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<InvoiceDataEntry> items = DataToSave.ToList();
+
+                foreach (InvoiceDataEntry item in DataToSave)
+                {
+                    Id += ",'" + item.Id + "'";
+                }
+
+                con.OpenDataSetThroughAdapter("select * from TRN.InvoiceRemarks where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+
+                foreach (InvoiceDataEntry item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+                        string year = DateTime.Now.ToString("yyyy");
+                        dr["Id"] = year + "-" +  _Id;
+                        dr["SalesId"] = item.SalesId;
+                        dr["Status"] = item.Status;
+                        dr["ActionToBeTakenId"] = item.ActionToBeTakenId;
+                        dr["Remarks"] = item.Remarks;
+                        dr["CloseStatus"] = item.CloseStatus;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+        }
+        public string PostInvoiceRemarksClos(IEnumerable<InvoiceDataEntry> DataToSave, string IRId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<InvoiceDataEntry> items = DataToSave.ToList();
+
+
+                con.OpenDataSetThroughAdapter("select * from TRN.InvoiceRemarks where Id='" + IRId + "'", out dsMaster, false, "1");
+
+                foreach (InvoiceDataEntry item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                        // DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["CloseStatus"] = item.CloseStatus;
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+
+                        dr.EndEdit();
+
+                    }
+                }
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
             }
         }
     }
@@ -10212,7 +10541,32 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll + "";
         public string Customer { get; set; }
         public string ResponsiblePerson { get; set; }
         public string CustomerType { get; set; }
+        public string InvoiceDate { get; set; }
+        public string ShipmentDate { get; set; }
+        public string DocReceivedate { get; set; }
+        public string DocSubDate { get; set; }
+        public string DocAccpDate { get; set; }
+        public string PayAdbisNo { get; set; }
+        public string PayResDate { get; set; }
+        public string InvoiceAmount { get; set; }
         
     }
+
+    public class InvoiceDataEntry
+    {
+        public string Id { get; set; }
+        public string SalesId { get; set; }
+        public string Status { get; set; }
+        public string ActionToBeTakenId { get; set; }
+        public string Remarks { get; set; }
+        public string CloseStatus { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+
+    }
+
+
 
 }

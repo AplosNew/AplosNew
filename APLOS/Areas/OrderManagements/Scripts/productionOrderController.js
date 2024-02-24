@@ -691,6 +691,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                 };
             }
         } catch (e) {
+            $scope.btndisable = false;
             ShowResult(e, 'failure');
         }
     };

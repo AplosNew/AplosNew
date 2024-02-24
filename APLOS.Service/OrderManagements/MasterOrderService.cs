@@ -578,6 +578,8 @@ namespace Library.Service.OrderManagements
             try
             {
                 var sql = @"SELECT MOI.Id, MOI.MasterOrderId, MOI.InquiryItemId, MOI.SampleItemId, MOI.TestingStandardId
+                            ,(select case when CheckByStatus = 'Checked' then 'Checked' else 'Pending' end
+                            from trn.SalesOrder So where So.MasterOrderItemId = MOI.Id) as Status
 	                         , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName
 	                         , MOI.ArticleId, ART.StandardName AS ArticleName
 	                         , MOI.BuyerReferenceNo, MOI.OwnReferenceNo, MOI.TotalQty

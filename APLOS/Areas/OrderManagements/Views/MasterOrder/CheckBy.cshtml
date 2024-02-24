@@ -411,6 +411,7 @@
                                 <thead>
                                     <tr>
                                         <th>Code</th>
+                                        <th>Status</th>
                                         <th class="col-sm-1">Action</th>
 
                                         <th>Total Quantity</th>
@@ -448,12 +449,13 @@
                                 <tbody>
                                     <tr ng-repeat="x in itemList">
                                         <td>{{x.Id}}</td>
+                                        <td>{{x.Status}}</td>
                                         <td class="text-right table-td">
                                             <ul class="list-inline action-list">
                                                 <li>
                                                     <button ng-click="getSalesOrder(x,x.Id, x.MaterialMasterId, x.MaterialMasterName, x.ArticleName,x.HSNCodeId,x.BuyerReferenceNo);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="SO" ng-disabled="x.Id==null">SO</button>
                                                 </li>
-                                                
+
                                             </ul>
                                         </td>
 
@@ -465,12 +467,12 @@
                                                 {{x.SOQty}}
                                             </label>
                                         </td>
-                                        <td> 
+                                        <td>
                                             {{x.TotalAmount}}
                                         </td>
                                         <td>
                                             <div class="select-style">
-                                                <select name="UOM" style="width: 60px;" class="form-control" ng-model="x.UOMId"disabled
+                                                <select name="UOM" style="width: 60px;" class="form-control" ng-model="x.UOMId" disabled
                                                         ng-options="item.Value as item.Text for item in ProductMasterUoMList| filter:{ProductMasterId:x.ProductMasterId}"
                                                         ng-selected="x.ByDefault == item.ByDefault"></select>
                                             </div>
@@ -530,7 +532,7 @@
                                         <td>
                                             <div class="checkbox-site">
                                                 <label class="control-label">
-                                                    <input type="checkbox" ng-model="x.IsRepeat" ng-checked="x.IsRepeat" disabled> 
+                                                    <input type="checkbox" ng-model="x.IsRepeat" ng-checked="x.IsRepeat" disabled>
                                                     <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                                 </label>
                                             </div>
@@ -538,7 +540,7 @@
                                         <td>
                                             <div class="input-group">
                                                 <input type="text" name="ProductLibrary" ng-model="x.ProductLibrary" disabled class="form-control" readonly style="width: 200px;">
-                                                
+
                                             </div>
                                         </td>
                                         <td>
@@ -551,7 +553,7 @@
                                         <td>{{x.LCRef}}</td>
                                         <td>
                                             <div class="select-style">
-                                                <select name="Type" class="form-control" ng-model="x.Type" ng-change="ChangeJobType($index);"disabled
+                                                <select name="Type" class="form-control" ng-model="x.Type" ng-change="ChangeJobType($index);" disabled
                                                         ng-options="item.Value as item.Text for item in linetypeList" style="width: 100px;">
                                                     <option value="">--Select--</option>
                                                 </select>
@@ -597,7 +599,7 @@
                                         </td>
                                         <td>
                                             <div class="select-style">
-                                                <select name="Order Status" class="form-control"disabled ng-model="x.OrderStatusId" ng-options="item.Value as item.Text for item in orderStatusList" tabindex="9" style="width: 82px;">
+                                                <select name="Order Status" class="form-control" disabled ng-model="x.OrderStatusId" ng-options="item.Value as item.Text for item in orderStatusList" tabindex="9" style="width: 82px;">
                                                     <option value="">--Select--</option>
                                                 </select>
                                             </div>
