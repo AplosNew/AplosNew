@@ -1918,6 +1918,10 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             return View("~/Areas/FixedAssets/Views/AssetDispose.cshtml");
         }
+        public ActionResult AssetDisposePost()
+        {
+            return View("~/Areas/FixedAssets/Views/AssetDisposePost.cshtml");
+        }
         [Authorize, HttpPost]
         public ActionResult GetCapitalizeAssetDisposeList(string column, string value, string companyId)
         {
