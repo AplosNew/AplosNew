@@ -89,7 +89,7 @@ namespace Aplos.Areas.Accounts.Controllers
         public ActionResult GetBalanceSheetSchedulingList(string id)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT * FROM dbo.BalanceSheetScheduling Where Id<>'"+id+"' order by Id desc";
+            string sql = @"SELECT * FROM dbo.BalanceSheetScheduling Where Id<>'" + id + "' order by Id desc";
 
 
 
@@ -103,18 +103,19 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> data)
+        public JsonResult Create(Dictionary<string, object> data, List<Dictionary<string, object>> details)
         {
             try
             {
-                DataSet dsMaster;
+                DataSet dsMaster, dsDestination = null;
+                DataRow drF;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 //con.OpenDataSetThroughAdapter("select * from " + TableName + " where OptionNo='" + data["OptionNo"].ToString() + "' AND  Id<>'" + data["Id"] + "' ", out dsMaster, false, "1");
                 //if (dsMaster.Tables[0].Rows.Count > 0)
                 //    throw new Exception("Same Option No already exists!!!");
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
+                con.OpenDataSetThroughAdapter("SELECT * FROM dbo.FormulaDetail Where BalanceSheetSchedulingId='" + data["Id"] + "'", out dsDestination, false, "1");
                 string _Id = "";
 
                 #region data update
@@ -133,8 +134,35 @@ namespace Aplos.Areas.Accounts.Controllers
                 }
                 #endregion data update
 
+                #region NoticePeriodFormulaDetail 
+
+                if (Convert.ToBoolean(data["IsCalculate"]) == true)
+                {
+                    while (dsDestination.Tables[0].DefaultView.Count > 0)
+                        dsDestination.Tables[0].DefaultView[0].Delete();
+                    int count = 0;
+                    if (details != null)
+                    {
+                        foreach (var item in details)
+                        {
+                            drF = dsDestination.Tables[0].NewRow();
+                            count++;
+                            string pk = _Id + "_" + count;
+                            drF["Id"] = pk;
+                            drF["BalanceSheetSchedulingId"] = _Id;
+                            drF["Sequence"] = item["Sequence"];
+                            drF["BalanceSheetSchedulingHeadId"] = item["BalanceSheetSchedulingHeadId"];
+                            drF["Component"] = item["Component"];
+
+                            dsDestination.Tables[0].Rows.Add(drF);
+                        }
+
+                    }
+                }
+                #endregion NoticePeriodFormulaDetail 
+
                 Library.Security.Core.clsStaticInfo _info = new Library.Security.Core.clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
+                _info.SaveDataSets(dsMaster, dsDestination);
 
                 return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Insert });
 
@@ -145,6 +173,18 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(new { Error = true, Message = ex.Message });
 
             }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetDetailList(string balanceSheetSchedulingId)
+        {
+
+            string sql = @"SELECT D.Sequence,D.BalanceSheetSchedulingHeadId
+                            ,SalaryHead= CASE WHEN ISNULL(SD.Id,'')<>'' THEN SD.Id ELSE D.Component END,D.Component,D.BalanceSheetSchedulingId
+                            FROM [dbo].[FormulaDetail] D
+                            LEFT JOIN dbo.BalanceSheetScheduling SD ON SD.Id=D.BalanceSheetSchedulingHeadId
+                            WHERE D.BalanceSheetSchedulingId='"+ balanceSheetSchedulingId + "' Order By D.Sequence";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult Delete(string id)
@@ -701,7 +741,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
                         xlsCol = 1;
                         #region ----------------------Data-----------------------
-                       
+
                         sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["OptionNo"].ToString().Trim();
                         sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -812,9 +852,9 @@ namespace Aplos.Areas.Accounts.Controllers
                         sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                         xlsCol += 1;
-                        if (OTSBD.clsStaticInfo.dbl(dvAttn[i]["CalAmount"].ToString())==0)
+                        if (OTSBD.clsStaticInfo.dbl(dvAttn[i]["CalAmount"].ToString()) == 0)
                         {
-                            sheet1.Range[xlsRow, xlsCol].Number = OTSBD.clsStaticInfo.dbl(dvAttn[i]["Amount"].ToString()); 
+                            sheet1.Range[xlsRow, xlsCol].Number = OTSBD.clsStaticInfo.dbl(dvAttn[i]["Amount"].ToString());
                         }
                         else
                         {
@@ -1012,7 +1052,7 @@ namespace Aplos.Areas.Accounts.Controllers
             try
             {
 
-                strSql = @"declare  @fromDate date ='"+ FromDate + @"', @todate date ='" + ToDate + @"',@companyId varchar(10)='"+identity.CompanyId+@"',@plantId varchar(10)='"+identity.PlantId+ @"'--Cedaar
+                strSql = @"declare  @fromDate date ='" + FromDate + @"', @todate date ='" + ToDate + @"',@companyId varchar(10)='" + identity.CompanyId + @"',@plantId varchar(10)='" + identity.PlantId + @"'--Cedaar
 
  SELECT A.Id,A.OptionNo,A.Type,A.DetailApplicable,A.GroupSequence,A.[Group],A.SubGroupSequence,A.SubGroup,A.UserGroup,A.UserSubGroup,A.ItemSequence,A.ItemNo,A.Item,A.SubItemNo,A.SubItem,A.ScheduleNo,A.ScheduleName,A.UserItem,A.UserScheduleName,A.IsActive,SUM(B.Amount)Amount,A.FormulaDes,0 CalAmount FROM [dbo].[BalanceSheetScheduling] A
  LEFT JOIN 
