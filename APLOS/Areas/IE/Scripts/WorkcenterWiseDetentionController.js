@@ -6,6 +6,7 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
     $scope.ModelList = [];
     $scope.path = 'IE/WorkcenterWiseDetention/';
     $scope.saveUrl = $scope.path + 'Create';
+    $scope.UpdateOrDeleteUrl = $scope.path + 'UpdateOrDelete';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.Action = 'Save';
     $scope.employeeUrl = $scope.path + 'GetEmployeeListByWhom';
@@ -219,6 +220,8 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
 
                     for (var i = 0; i < $scope.WorkcenterList.length; i++) {
                         $scope.WorkcenterList[i].Minute = response.data;
+                        $scope.WorkcenterList[i].Detention = $("#DetentionId option:selected").text();
+                        $scope.WorkcenterList[i].ResponsiblePerson = $scope.ModelNew.ResponsiblePerson;
                     }
 
                 }), function errorCallBack(response) {
@@ -240,7 +243,9 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
             data: {
                 'entityid': $scope.ModelNew.EntityId,
                 'processid': $scope.ModelNew.ProcessId,
-                'headerid': $scope.ModelNew.Id
+                'shiftId': $scope.ModelNew.ShiftId,
+                'detentionId': $scope.ModelNew.DetentionId,
+                'date': $scope.ModelNew.Date
 
             },
             dataType: 'JSON'
@@ -345,7 +350,6 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
     $scope.CheckedDetentionWorkList = [];
     $scope.Save = function () {
 
-
         if ($scope.ModelNewForm.$valid) {
             for (var i = 0; i < $scope.WorkcenterList.length; i++) {
 
@@ -380,8 +384,8 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-
-
+                    $scope.getData();
+                    $scope.Clear();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -390,6 +394,34 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
         }
 
 
+    };
+
+    $scope.UpdateOrDelete = function () {
+        try {
+            if (baseService.arrayLength($scope.MachineMasterDateForUpdate) > 0) {
+                $http({
+                    method: 'POST',
+                    url: $scope.UpdateOrDeleteUrl,
+                    data: {
+                        'data': $scope.MachineMasterDateForUpdate
+                    },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.getData();
+                        $scope.Clear();
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     };
 
     // #endregion Save
@@ -460,6 +492,7 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
         };
         $scope.ModelNew = Object.assign({}, $scope.ModelTransaction);
         $scope.WorkcenterList = [];
+        $scope.MachineMasterDateForUpdate = [];
 
     }
 

@@ -1928,6 +1928,7 @@
     <Content Include="Areas\Accounts\Scripts\taxPayableReportController.js" />
     <Content Include="Areas\Accounts\Scripts\invoiceChargeWriteOffController.js" />
     <Content Include="Areas\Accounts\Scripts\fiscalYearCloseController.js" />
+    <Content Include="Areas\Accounts\Scripts\BalanceSheetSchedulingReportController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralContractApprovedController.js" />
     <Content Include="Areas\Attendances\Scripts\GoodWorkCheckedController.js" />
     <Content Include="Areas\Attendances\Scripts\GoodWorkApproveController.js" />
@@ -4913,6 +4914,7 @@
     <Content Include="Areas\OrderManagements\Views\MasterOrder\ApproveBy.cshtml" />
     <Content Include="Areas\FixedAssets\Views\AssetDispose.cshtml" />
     <Content Include="Areas\FixedAssets\Views\_CapitalizeAssetRegisterPopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\Report.cshtml" />
     <Content Include="Areas\FixedAssets\Views\AssetDisposePost.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />

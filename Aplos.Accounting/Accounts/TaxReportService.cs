@@ -12712,14 +12712,15 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 				GROUP BY D.VoucherId,D.ActivityId,D.InvoiceWriteOffDetailId
 				) VD ON VD.VoucherId=IT.VoucherId 
                 LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId 
-                LEFT JOIN (SELECT IW.InvoiceWriteOffId,I.InventoryReceiveId,IW.ActivityId
-				,SUM(I.Amount) Amount,SUM(VD.DrAmount) TaxableAmount
+                LEFT JOIN (SELECT IT.InvoiceWriteOffId,I.InventoryReceiveId,IW.ActivityId
+				, I.Amount Amount,SUM(VD.DrAmount) TaxableAmount
 				,V.VoucherNo,V.PostingDate,V.DocRefNo,V.DocDate
 				FROM TRN.InvoiceWriteOffDetail IW 
+							JOIN TRN.InvoiceTax IT ON IT.InvoiceWriteOffId=iw.InvoiceWriteOffId
 			                JOIN TRN.Invoice I ON I.Id=IW.InvoiceId
 							JOIN TRN.Voucher V ON V.Id=I.VoucherId
 							JOIN TRN.VoucherDetail VD ON VD.VoucherId=I.VoucherId AND VD.DrAmount>0 AND VD.InvoiceTaxDetailId IS NULL
-		                GROUP BY InvoiceWriteOffId,IW.ActivityId,V.VoucherNo,V.PostingDate,V.DocRefNo,V.DocDate,I.InventoryReceiveId
+		                GROUP BY IT.InvoiceWriteOffId,IW.ActivityId,V.VoucherNo,I.Amount,V.PostingDate,V.DocRefNo,V.DocDate,I.InventoryReceiveId
 						) IWD ON IWD.InvoiceWriteOffId=IT.InvoiceWriteOffId
                 LEFT JOIN HKP.Activity AP ON AP.Id=IWD.ActivityId
 				LEFT JOIN (select InventoryReceiveId,sum(TotalMaterialTranAmount) TotalMaterialTranAmount from TRN.InventoryReceiveDetail group by InventoryReceiveId)IRD ON IWD.InventoryReceiveId=IRD.InventoryReceiveId

@@ -73,6 +73,10 @@ function employeeAdvanceWriteOffController(bankService, cboService, commonMessag
         {
             "name": "Currency",
             "value": "Currency"
+        },
+        {
+            "name": "Status",
+            "value": "Status"
         }
     ];
 

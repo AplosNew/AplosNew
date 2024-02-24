@@ -444,6 +444,7 @@
     <Compile Include="Configurations\Payrolls\XLUploadDetailConfiguration.cs" />
     <Compile Include="Configurations\Productions\ItemScanChildDataConfiguration.cs" />
     <Compile Include="Configurations\Productions\ProductionBookingPeriodConfiguration.cs" />
+    <Compile Include="Configurations\Productions\ProductionBooking\ProductionSummaryParameterValueConfiguration.cs" />
     <Compile Include="Configurations\Productions\ProductionBooking\ProductionSummaryDetailConfiguration.cs" />
     <Compile Include="Configurations\Productions\ProductionBooking\ProductionSummaryConfiguration.cs" />
     <Compile Include="Configurations\Productions\RecipeConfigConfiguration.cs" />
@@ -824,6 +825,7 @@
     <Compile Include="Productions\PackingScanUploadedData.cs" />
     <Compile Include="Productions\PackingScanUpload.cs" />
     <Compile Include="Productions\ProductionBookingPeriod.cs" />
+    <Compile Include="Productions\ProductionBooking\ProductionSummaryParameterValue.cs" />
     <Compile Include="Productions\ProductionBooking\ProductionSummaryDetail.cs" />
     <Compile Include="Productions\ProductionBooking\ProductionSummary.cs" />
     <Compile Include="Productions\RecipeConfig.cs" />

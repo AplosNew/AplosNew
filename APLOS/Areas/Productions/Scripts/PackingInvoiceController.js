@@ -2713,4 +2713,104 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
     };
 
 
+    $scope.PISVM = {//Production Inventory Sales 
+        Id: null,
+        CompanyGroupId: null,
+        CompanyId: null,
+        PartyId: null,
+        PartyName: null,
+        CurrencyId: null,
+        EntityId: null,
+        ItemDescription: null,
+        PartyType: "Customer",
+        InvoiceDate: $filter("dateFiltering")(Date.now()),
+        VoucherDate: $filter("dateFiltering")(Date.now()),
+        PostingDate: $filter("dateFiltering")(Date.now()),
+        DocDate: $filter("dateFiltering")(Date.now()),
+        DocRefNo: null,
+        Amount: 0,
+        BankAmount: 0,
+        BaseOnDueDate: null,
+        BaseNoOfDays: null,
+        PaymentTermId: null,
+        Narration: null,
+        CompanyCurrencyRate: 1,
+        InvoicingPartyPlantId: null,
+        DeliveryPartyPlantId: null,
+        InvoicingByAddress: null,
+        DeliveryByAddress: null,
+        InvoicingState: null,
+        InvoicingGSTIN: null,
+        DeliveryState: null,
+        DeliveryGSTIN: null,
+        BLNumber: null,
+        LCNumber: null,
+        ComercialInvoiceNo: null,
+        EXPFromNo: null,
+        SourceType: 'Packing',
+        ContractId: null
+        , TaxOption: 'Yes'
+        , TaxOptionMat: 'Yes'
+        , TaxOptionService: 'Yes'
+        , TaxOptionServiceModify: 'Yes'
+        , TaxOptionAddiTax: 'Yes',
+        BooksCurrencyTransactionAmount: null,
+        BooksCurrencyTaxAmount: null,
+        BooksCurrencyBaseRate: null,
+        IsPark: 1,
+        IsAdditionalInfoApplicable: true,
+        IsIncentiveApplicable: false,
+        InvoiceStatus: 'Active',
+        PaymentToReceiveBankId: null
+    };
+
+    $scope.NewEntityList = [];
+    $scope.GetEntityPlantWise = function () {
+        var PLT = $window.plantId
+        $http({
+            method: 'GET',
+            url:  'Outsourcing/OSTransformationPO/GetAllEntity?PlantId=' + PLT
+        }).then(function successCallback(response) {
+            $scope.NewEntityList = response.data;
+
+        });
+    }
+
+
+    $scope.loadProcessList = function (entityid) {
+        cboService.GetEntityProcessCbo(entityid, function (result) {
+            $scope.processList = result;
+            if (baseService.arrayLength(result) === 1) {
+                $scope.PISNew.ProcessId = $scope.processList[0].Value;
+            }
+        });
+    };
+
+    $scope.ProductionOrderList = [];
+    $scope.PRSearchColumn = null;
+    $scope.PRSearchValue = null;
+    $scope.GetProductionOrderPopUp = function () {
+        if (!baseService.isUndefinedOrNull($scope.PISNew.EntityId)) {
+            $http({
+                method: 'POST',
+                data: {
+                    'entityid': $scope.PISNew.EntityId, 'processid': $scope.PISNew.ProcessId, 'column': $scope.PRSearchColumn, 'value': $scope.PRSearchValue
+                },
+                url: 'Outsourcing/OSTransformationPO/GetProductionOredrList'
+            }).then(function successCallback(response) {
+                $scope.ProductionOrderList = response.data;
+                angular.element(document.querySelector('#POItemPopup')).modal('show');
+            });
+        }
+    };
+    $scope.selectedProductionOrder = [];
+    $scope.SetPrOData = function () {
+        var gridObj = $("#GridPO").data("ejGrid");
+        $scope.selectedProductionOrder.push(gridObj.getSelectedRecords()[0]);
+        angular.element(document.querySelector('#POItemPopup')).modal('hide');
+    }
+
+    $scope.removeSelectedPO = function (x, index) {
+        $scope.selectedProductionOrder.splice(index, 1);
+    }
 }

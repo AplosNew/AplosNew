@@ -4,9 +4,10 @@
     <div class="tab-design" id="tab_show">
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" ng-class="{ active: isSet2(1) }"><a ng-click="setTab2(1)" href="" aria-controls="general" role="tab" data-toggle="tab2">Invoice</a></li>
-                <li role="presentation" ng-class="{ active: isSet2(2) }"><a ng-click="setTab2(2)" href="" aria-controls="address" role="tab" data-toggle="tab2">Post Sales</a></li>
-                <li role="presentation" ng-class="{ active: isSet2(3) }"><a ng-click="setTab2(3)" href="" data-toggle="tab">Invoice Additional Info</a></li>
+                <li role="presentation" ng-class="{ active: isSet2(1) }"><a ng-click="setTab2(1)" href="" aria-controls="general" role="tab" data-toggle="tab2">Scan Sale</a></li>
+                <li role="presentation" ng-class="{ active: isSet2(2) }"><a ng-click="setTab2(2);GetEntityPlantWise()" href="" aria-controls="general" role="tab" data-toggle="tab2">Production Inventory Sale</a></li>
+                <li role="presentation" ng-class="{ active: isSet2(3) }"><a ng-click="setTab2(3)" href="" aria-controls="address" role="tab" data-toggle="tab2">Post Sales</a></li>
+                <li role="presentation" ng-class="{ active: isSet2(4) }"><a ng-click="setTab2(4)" href="" data-toggle="tab">Invoice Additional Info</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -208,8 +209,8 @@
                                     <div class="col-sm-2 show-message">
                                         <div class="select-style">
                                             @*<select tabindex="10" id="paymentTermId" class="form-control" name="Payment Term" ng-model="salesVM.PaymentTermId" ng-change="changePaymentTerm(salesVM.PaymentTermId);">
-                                            <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
-                                        </select>*@
+                                                    <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
+                                                </select>*@
                                             <select name="Payment Term" id="paymentTermId" class="form-control" ng-model="salesVM.PaymentTermId" ng-options="item.Value as item.Text for item in paymentTermList" ng-change="changePaymentTerm(salesVM.PaymentTermId);">
                                                 <option value="">--Select--</option>
                                             </select>
@@ -326,8 +327,8 @@
                                                 </td>
 
                                                 @*<td class="text-right">
-                                                <strong>{{salesOrderList | sumByKey : 'Balance'| setDecimal:2 | number:2}}</strong>
-                                            </td>*@
+                                                        <strong>{{salesOrderList | sumByKey : 'Balance'| setDecimal:2 | number:2}}</strong>
+                                                    </td>*@
                                                 <td class="text-right">
                                                     <strong>{{salesOrderList | sumByKey : 'TransactionAmount'| setDecimal:2 | number:2}}</strong>
                                                 </td>
@@ -539,6 +540,81 @@
                 </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(2), active: isSet2(2) }">
+                <div class="form-horizontal form-elements" ng-form="PBForm">
+                    <div class="col-xs-4 col-sm-4 col-md-4">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="PISNew.EntityId" name="Entity" ng-change="loadProcessList(PISNew.EntityId)"
+                                            ng-options="item.Value as item.Text for item in NewEntityList" required tabindex="12">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-4 col-sm-4 col-md-4">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="PISNew.ProcessId" name="ProcessId" ng-options="item.Value as item.Text for item in processList" ng-disabled="selectedProductionOrder.length" required>
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-4 col-sm-4 col-md-4">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Production Order<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <button ng-click="GetProductionOrderPopUp();" ng-disabled="PISNew.Id" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="row">
+                        <div class="content-container-fluid" style="color:black;">
+                            <div style="color:black;" id="GridSPO" ej-grid e-datasource="selectedProductionOrder" e-allowscrolling="true"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-allowselection="true" e-filtersettings-filterType="excel">
+
+                                <div e-columns>
+                                    <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="StyleNo" e-headertext="BuyerRef#" e-width="50"></div>
+                                    <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Ref#" e-width="50"></div>
+                                    <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="POId" e-headertext="PO No" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="POStatus" e-headertext="PO Status" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="SONo" e-headertext="SONo" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="SOStatus" e-headertext="SO Status" e-width="80"></div>
+                                    <div e-column e-type="number" e-format="{0:0.00}" e-field="SOQty" e-headertext="SOQty" e-width="80" e-textalign="right"></div>
+                                    <div e-column e-type="string" e-field="LineItemId" e-headertext="LineItemId" e-width="80"></div>
+                                    <div e-column e-headertext=" Action " e-template="#DeleteTemplate" e-width="120"></div>
+                                </div>
+                                <script id="DeleteTemplate" type="text/template">
+                                    <div class="common-btn" ng-disabled="productNew.Id">
+                                        <ul class="common-btn list-inline text-center">
+                                            <li>
+                                                <button ng-click="$parent.removeSelectedPO(data,$index);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
+                                                    <i class="glyphicon glyphicon-trash" style="color:orangered;"></i>
+                                                </button>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(3), active: isSet2(3) }">
                 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
                     <input type="hidden" ng-model="ModelNew.Id">
                     <fieldset class="scheduler-border">
@@ -999,7 +1075,7 @@
                     </div>
                 </div>
             </div>
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(3), active: isSet2(3) }">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(4), active: isSet2(4) }">
                 <div class="row">
                     <div class="table-responsive modal-table">
                         <table class="table table-striped">
@@ -1073,13 +1149,13 @@
         <thead>
             <tr>
                 <th style="width: 22px">InvoiceNo</th>
-                <th  style="width: 25px">Date</th>
-                <th  style="width: 50px">@Library.Model.Parties.PartyType.Customer.ToString()</th>
-              @*  <th>Bill To</th>
-                <th>DocRef No</th>*@
-                <th  style="width: 20px">Amount</th>
-                <th  style="width: 10px">Currency</th>
-                <th  style="width: 10px">Status</th>
+                <th style="width: 25px">Date</th>
+                <th style="width: 50px">@Library.Model.Parties.PartyType.Customer.ToString()</th>
+                @*  <th>Bill To</th>
+                    <th>DocRef No</th>*@
+                <th style="width: 20px">Amount</th>
+                <th style="width: 10px">Currency</th>
+                <th style="width: 10px">Status</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -1089,7 +1165,7 @@
                 <td>{{x.InvoiceDate}}</td>
                 <td>{{x.PartyCode}} - {{x.PartyName}}</td>
                 @*<td>{{x.BillTo}}</td>
-                <td>{{x.DocRefNo}}</td>*@
+                    <td>{{x.DocRefNo}}</td>*@
                 <td>{{x.Amount | number:2}}</td>
                 <td>{{x.CurrencyCode}}</td>
                 <td>{{x.RowState}}</td>
@@ -1105,7 +1181,7 @@
                     <button type="button" ng-click="BeneficiaryCertificate(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Beneficiary Certificate" class="btn"><i class=""></i>BC</button>
                     <button type="button" ng-click="InsuranceCoverLetter(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Insurance Cover Letter" class="btn"><i class=""></i>INS</button>
                     <button type="button" ng-click="ANNEXUREReport(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="ANNEXURE" class="btn"><i class=""></i>AX</button>
-                    
+
                 </td>
             </tr>
         </tbody>
@@ -1797,5 +1873,35 @@
         </div>
     </div>
 </ej-dialog>
+<div class="modal site-modal in" id="POItemPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Production Order<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div class="row">
+                    <div style="color:black;" id="GridPO" ej-grid e-datasource="ProductionOrderList" e-allowscrolling="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="SetPrOData"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="80"></div>
+                            <div e-column e-type="string" e-field="StyleNo" e-headertext="BuyerRef#" e-width="50"></div>
+                            <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Ref#" e-width="50"></div>
+                            <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="80"></div>
+                            <div e-column e-type="string" e-field="POId" e-headertext="PO No" e-width="80"></div>
+                            <div e-column e-type="string" e-field="POStatus" e-headertext="PO Status" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SONo" e-headertext="SONo" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SOStatus" e-headertext="SO Status" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:0.00}" e-field="SOQty" e-headertext="SOQty" e-width="80" e-textalign="right"></div>
+                            <div e-column e-type="string" e-field="LineItemId" e-headertext="LineItemId" e-width="80"></div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @Html.Partial("~/Areas/SalesManagements/Views/_SalesOrderItemPopUp.cshtml")
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteAddInfo();"></confirm-archive-generic>

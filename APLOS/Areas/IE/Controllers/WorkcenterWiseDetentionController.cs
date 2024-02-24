@@ -61,22 +61,27 @@ WHERE WorkCenterMasterId IN(SELECT Id FROM SCS.WorkCenterMaster AS wcm WHERE wcm
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult GetWorkcenter(string entityid, string processid, string headerid)
+        public ActionResult GetWorkcenter(string entityid, string processid, string shiftId, string detentionId, string date)
         {
-            var sqlCondition = "";
-            if (headerid == null || headerid == "")
-            {
-                sqlCondition = $"where WCM.EntityId = '{entityid}' and WCM.ProcessId = '{processid}' and Active=1 and WCM.StandardName is not null";
-            }
+            //            var sqlCondition = "";
+            //            if (headerid == null || headerid == "")
+            //            {
+            //               sqlCondition = $"where WCM.EntityId = '{entityid}' and WCM.ProcessId = '{processid}' and Active=1 and WCM.StandardName is not null";
+            //            }
 
-            else
-            {
-                sqlCondition = $"where MMT.Id = '{headerid}'";
-            }
-            string str = @"SELECT distinct WCM.Id WorkcenterId, WCM.StandardName, '' Id ,'' EntityId, '' DetentionId,  '' FromTime, '' ToTime, '' [Date] , '' ProcessId, '' ShiftId ,'' Minute, '' Detention , ''ResponsiblePersonId,'' Remark FROM  SCS.WorkCenterMaster WCM  
+            //            else
+            //            {
+            //                sqlCondition = $"where MMT.Id = '{headerid}'";
+            //            }
+            //            string str = @"SELECT distinct WCM.Id WorkcenterId, WCM.StandardName, '' Id ,'' EntityId, '' DetentionId,  '' FromTime, '' ToTime, '' [Date] , '' ProcessId, '' ShiftId ,'' Minute, '' Detention , ''ResponsiblePersonId,'' Remark FROM  SCS.WorkCenterMaster WCM  
+            //" + sqlCondition + " order by WCM.StandardName";
+            string str = "";
+            str = @"SELECT  WCM.Id WorkcenterId, WCM.StandardName, '' Id ,'' EntityId, '' DetentionId,  '' FromTime, '' ToTime, '' [Date] , '' ProcessId, '' ShiftId ,'' Minute, '' Detention , ''ResponsiblePersonId,'' Remark 
+FROM  SCS.WorkCenterMaster WCM  
+where WCM.EntityId = '" + entityid + @"' and WCM.ProcessId = '" + processid + @"' and Active=1 and WCM.StandardName IS NOT NULL 
+AND  WCM.Id NOT IN(Select  WorkCenterId from MachineMasterTransaction MMT where MMT.EntityId = '" + entityid + @"' and MMT.DetentionId = '" + detentionId + @"' and MMT.ProcessId = '" + processid + @"' and format(MMT.Date, 'dd-MMM-yyyy') = '" + date + @"' and MMT.ShiftId = '" + shiftId + @"')
+ORDER BY WCM.StandardName";
 
---left join SCS.WorkCenterMaster WCM on MMT.WorkCenterId = WCM.Id
-" + sqlCondition + " order by WCM.StandardName";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
@@ -133,11 +138,11 @@ where DetentionMasterId='" + detentionId + "'";
 
         public JsonResult GetSavedWorkCenterForUpdate(string entityid, string detentionid, string processid, string date, string shiftid, string minute)
         {
-            string sql = @"	select MMT.Id, WCM.Id WorkcenterId, WCM.StandardName, MMT.Minute, MMT.DetentionId, DM.DetentionUserName from MachineMasterTransaction MMT
+            string sql = @"SELECT CAST(1 AS BIT)isSelected,MMT.Id, WCM.Id WorkcenterId, WCM.StandardName, MMT.Minute, MMT.DetentionId, DM.DetentionUserName,EI.EmployeeName from MachineMasterTransaction MMT
 	left join SCS.WorkCenterMaster WCM  on WCM.Id = MMT.WorkCenterId
 	left join DetentionMaster DM on DM.Id=MMT.DetentionId  
 	left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
-	 where MMT.addedby in ('nitesh', 'talwinders') and  MMT.EntityId = '" + entityid + @"' and MMT.DetentionId = '" + detentionid + @"' and MMT.ProcessId = '" + processid + @"' and format(MMT.Date, 'dd-MMM-yyyy') = '" + date + @"' and MMT.ShiftId = '" + shiftid + @"' and MMT.Minute = '" + minute + @"'
+	 where MMT.EntityId = '" + entityid + @"' and MMT.DetentionId = '" + detentionid + @"' and MMT.ProcessId = '" + processid + @"' and format(MMT.Date, 'dd-MMM-yyyy') = '" + date + @"' and MMT.ShiftId = '" + shiftid + @"' --and MMT.Minute = '" + minute + @"'
 	 order by FORMAT(MMT.AddedDate, 'dd-MMM-yyyy') DESC";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -147,67 +152,70 @@ where DetentionMasterId='" + detentionId + "'";
         {
             try
             {
-                foreach (var item in data)
+                if (data != null)
                 {
-                    if (item["ResponsiblePersonId"] == null)
+                    foreach (var item in data)
                     {
-                        throw new Exception("Responsible Person should not empty");
+                        if (item["ResponsiblePersonId"] == null)
+                        {
+                            throw new Exception("Responsible Person should not empty");
+                        }
                     }
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                    string TableName = "MachineMasterTransaction";
+
+                    DataSet dsMaster;
+
+
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                    string _Id = "";
+
+                    #region UserGroup (From Pop Screen)
+                    var id = "";
+                    foreach (var item in data)
+                    {
+                        if (id == "")
+                            id = "'" + item["Id"] + "'";
+                        else
+                            id = id + ",'" + item["Id"] + "'";
+                    }
+                    string _UserGroupId = "";
+                    con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id In (" + id + ")", out dsMaster, false, "1");
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("MachineMasterTransaction", out _Id);
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+                        dr["Id"] = _Id;
+                        dr["ResponsiblePersonId"] = item["ResponsiblePersonId"];
+                        dr["WorkcenterId"] = item["WorkcenterId"];
+                        dr["EntityId"] = item["EntityId"];
+                        dr["DetentionId"] = item["DetentionId"];
+                        dr["ProcessId"] = item["ProcessId"];
+                        dr["ShiftId"] = item["ShiftId"];
+                        dr["Date"] = item["Date"];
+                        dr["FromTime"] = item["FromTime"];
+                        dr["ToTime"] = item["ToTime"];
+                        dr["Minute"] = item["Minute"];
+                        //dr["Remark"] = item["Remark"];
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+                    #endregion UserGroup (From Pop Screen)
+
+                    clsStaticInfo _info = new clsStaticInfo();
+                    _info.SaveDataSets(dsMaster);
+
                 }
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-                string TableName = "MachineMasterTransaction";
-
-                DataSet dsMaster;
-
-
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-                string _Id = "";
-
-                #region UserGroup (From Pop Screen)
-                var id = "";
-                foreach (var item in data)
-                {
-                    if (id == "")
-                        id = "'" + item["Id"] + "'";
-                    else
-                        id = id + ",'" + item["Id"] + "'";
-                }
-                string _UserGroupId = "";
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id In (" + id + ")", out dsMaster, false, "1");
-                foreach (var item in data)
-                {
-                    DataView dv = new DataView(dsMaster.Tables[0]);
-
-                    dv.RowFilter = "Id='" + item["Id"] + "'";
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("MachineMasterTransaction", out _Id);
-                    DataRow dr = dsMaster.Tables[0].NewRow();
-                    dr["Id"] = _Id;
-                    dr["ResponsiblePersonId"] = item["ResponsiblePersonId"];
-                    dr["WorkcenterId"] = item["WorkcenterId"];
-                    dr["EntityId"] = item["EntityId"];
-                    dr["DetentionId"] = item["DetentionId"];
-                    dr["ProcessId"] = item["ProcessId"];
-                    dr["ShiftId"] = item["ShiftId"];
-                    dr["Date"] = item["Date"];
-                    dr["FromTime"] = item["FromTime"];
-                    dr["ToTime"] = item["ToTime"];
-                    dr["Minute"] = item["Minute"];
-                    //dr["Remark"] = item["Remark"];
-                    dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = System.DateTime.Now.ToString();
-                    dr["AddedFromIP"] = identity.IPAddress;
-                    dsMaster.Tables[0].Rows.Add(dr);
-
-                }
-
-                #endregion UserGroup (From Pop Screen)
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-
                 return Json(new { Data = data, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
@@ -216,7 +224,54 @@ where DetentionMasterId='" + detentionId + "'";
             }
         }
 
+        [HttpPost]
+        public JsonResult UpdateOrDelete(List<Dictionary<string, object>> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string id = "";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                foreach (var item in data)
+                {
+                    if (id == "")
+                        id = "'" + item["Id"] + "'";
+                    else
+                        id = id + ",'" + item["Id"] + "'";
+                }
+                con.OpenDataSetThroughAdapter("select * from dbo.MachineMasterTransaction where Id In (" + id + ")", out dsMaster, false, "1");
 
+                foreach (var item in data)
+                {
+                    DataView dv = new DataView(dsMaster.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+                    if (dv.Count > 0 && Convert.ToBoolean(item["isSelected"].ToString()) == true)
+                    {
+                        DataRow drmo = dv[0].Row;
+                        drmo.BeginEdit();
+                        drmo["Minute"] = item["Minute"];
+                        drmo["UpdatedBy"] = identity.Name;
+                        drmo["UpdatedDate"] = DateTime.Now.ToString();
+                        drmo["UpdatedFromIP"] = identity.IPAddress;
+
+                        drmo.EndEdit();
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        drmo.Delete();
+                    }
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return Json(new { Data = data, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         #region AddDefaultColumn
         private void AddNewMachineMasterTransactionRow(DataTable dt, Dictionary<string, object> sourceData)
@@ -275,7 +330,7 @@ where DetentionMasterId='" + detentionId + "'";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             var sql = @"SELECT  MMT.Id, MMT.EntityId, MMT.DetentionId,  MMT.ProcessId,  MMT.ShiftId
-                        ,E.UserName Entity,DM.DetentionUserName Detention, FORMAT(MMT.Date,'dd-MMM-yyyy')[Date],P.UserName Process, FORMAT(MMT.FromTime, 'hh:mm:ss')FromTime,FORMAT(MMT.ToTime, 'hh:mm:ss') ToTime,MMT.Minute,SD.UserName Shift
+                        ,E.UserName Entity,DM.DetentionUserName Detention, FORMAT(MMT.Date,'dd-MMM-yyyy')[Date],P.UserName Process, CONVERT(VARCHAR(5), MMT.FromTime, 108)FromTime,CONVERT(VARCHAR(5), MMT.ToTime, 108) ToTime,MMT.Minute,SD.UserName Shift
                         ,MMT.Remark,MMT.WorkCenterId,WC.UserName as WorkCenter,MMT.DetentionCodeId,DM.DetentionCode DetentionCode, EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode, EI.SystemId ResponsiblePersonId
                         ,  MMT.Remark ,MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.UpdatedDate, MMT.UpdatedFromIP
 			                            from MachineMasterTransaction MMT
