@@ -76,18 +76,18 @@ function balanceSheetSchedulingController(commonMessage, $scope, $rootScope, bas
         $scope.balanceSheetScheduling = Object.assign({}, args.data);
         $scope.ActionBalanceSheetScheduling = 'Update';
 
-
-        $scope.balanceSheetScheduling.FormulaDes = '';
-        $scope.balanceSheetScheduling.FormulaDesID = '';
-
-
         $scope.balanceSheetScheduling.FormulaDescription = $scope.balanceSheetScheduling.FormulaDes;
-        $scope.balanceSheetScheduling.FormulaIDDescription = $scope.balanceSheetScheduling.FormulaDesID;
 
-        $scope.balanceSheetScheduling.Formula = $scope.balanceSheetScheduling.FormulaDescription;
-        $scope.balanceSheetScheduling.FormulaId = $scope.balanceSheetScheduling.FormulaIDDescription;
+        $scope.FormulaDetails = $scope.balanceSheetScheduling.FormulaDes;
 
-
+        //for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+        //    if (!baseService.isUndefinedOrNull($scope.balanceSheetScheduling.FormulaDes)) {
+        //        $scope.balanceSheetScheduling.FormulaDes += ' ' + ($scope.FormulaDetails[i].Id == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].balanceSheetSchedulingHeadId);
+        //    } else {
+        //        $scope.balanceSheetScheduling.FormulaDes = $scope.FormulaDetails[i].Id == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].balanceSheetSchedulingHeadId;
+        //    }
+        //}
+        $scope.balanceSheetScheduling.FormulaDescription = $scope.balanceSheetScheduling.FormulaDes;
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }

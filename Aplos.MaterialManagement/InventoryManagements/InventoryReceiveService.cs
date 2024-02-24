@@ -1460,11 +1460,6 @@ namespace Library.MaterialManagement.InventoryManagements
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                     con.OpenDataSetThroughAdapter(sql, out DataSet dsDetail, false, "1");
 
-                    //string sqllog = "select * from TRN.GRNApprovalLogTbl where 1=2";
-                    //con.OpenDataSetThroughAdapter(sqllog, out DataSet dsDetailLog, false, "1");
-
-                    //for (int i = 0; i < UserSendData.Count; i++)
-                    //{
                     dsDetail.Tables[0].DefaultView.RowFilter = "Id='" + UserSendData["Id"].ToString() + "'";
                     if (dsDetail.Tables[0].DefaultView.Count == 0)
                     {
@@ -1476,8 +1471,6 @@ namespace Library.MaterialManagement.InventoryManagements
                         dr.BeginEdit();
                         dr["CheckedByStatus"] = CheckedApprovedStataus;
                         dr["CheckedHoldRejectReason"] = CheckedHoldRejectReason;
-                        //dr["AuthorizedByStatus"] = null;
-                        //dr["IsApproved"] = 0;
                         dr.EndEdit();
                         
                     }
@@ -1502,31 +1495,14 @@ namespace Library.MaterialManagement.InventoryManagements
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                     con.OpenDataSetThroughAdapter(sql, out DataSet dsDetail, false, "1");
 
-                    //string sqllog = "select * from TRN.GRNApprovalLogTbl where 1=2";
-                    //con.OpenDataSetThroughAdapter(sqllog, out DataSet dsDetailLog, false, "1");
-
-                    //for (int i = 0; i < UserSendData.Count; i++)
-                    //{
                     dsDetail.Tables[0].DefaultView.RowFilter = "Id='" + UserSendData["Id"].ToString() + "'";
-                    if (dsDetail.Tables[0].DefaultView.Count == 0)
-                    {
-                        //DataRow dr = dsDetail.Tables[0].NewRow();
-
-                    }
-                    else
+                    if (dsDetail.Tables[0].DefaultView.Count> 0)
                     {
                         DataRow dr = dsDetail.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
                         dr["GateOutStatus"] = true;
-                        //dr["CheckedByStatus"] = CheckedApprovedStataus;
-                        //dr["CheckedHoldRejectReason"] = CheckedHoldRejectReason;
-                        //dr["AuthorizedByStatus"] = null;
-                        //dr["IsApproved"] = 0;
                         dr.EndEdit();
-
                     }
-
-
 
                     clsStaticInfo info = new clsStaticInfo();
                     info.SaveDataSets(dsDetail);//, dsDetailLog

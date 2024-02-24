@@ -1255,6 +1255,7 @@ upanelApp.controller("CutPlanEditController", CutPlanEditController)
 upanelApp.controller("GoodWorkPaymentDisburseController", GoodWorkPaymentDisburseController)
 upanelApp.controller("masterOrderCheckByController", masterOrderCheckByController)
 upanelApp.controller("masterOrderApproveByController", masterOrderApproveByController)
+upanelApp.controller("BalanceSheetSchedulingReportController", BalanceSheetSchedulingReportController)
 
           
 
