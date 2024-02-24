@@ -1908,7 +1908,7 @@ Where SO.CheckByStatus = 'Checked' AND ApprovedStatus='To Be Approve' AND SO.App
                     LEFT JOIN [MST].[Destination] D ON D.Id=SO.DestinationId
                     LEFT JOIN HKP.PackingType PT ON PT.Id=SO.PackingTypeId
                     LEFT JOIN dbo.Contract C ON C.Id=SO.ContractId
-                    WHERE SO.MasterOrderItemId='" + masterItemId + "' AND SO.CheckByStatus IN('To Be Check','Reject') ORDER BY SO.DeliveryDate";
+                    WHERE SO.MasterOrderItemId='" + masterItemId + "' AND SO.CheckByStatus IN('To Be Check','Reject') AND SO.OrderStatusId  NOT IN('Closed','Cancelled') ORDER BY SO.DeliveryDate";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1959,7 +1959,7 @@ Where SO.CheckByStatus = 'Checked' AND ApprovedStatus='To Be Approve' AND SO.App
                     LEFT JOIN [MST].[Destination] D ON D.Id=SO.DestinationId
                     LEFT JOIN HKP.PackingType PT ON PT.Id=SO.PackingTypeId
                     LEFT JOIN dbo.Contract C ON C.Id=SO.ContractId
-                    WHERE SO.MasterOrderItemId='" + masterItemId + "' AND SO.CheckByStatus = 'Checked' AND SO.ApprovedStatus IN('To Be Approve','Reject') ORDER BY SO.DeliveryDate";
+                    WHERE SO.MasterOrderItemId='" + masterItemId + "' AND SO.CheckByStatus = 'Checked' AND SO.ApprovedStatus IN('To Be Approve','Reject') AND SO.OrderStatusId  NOT IN('Closed','Cancelled') ORDER BY SO.DeliveryDate";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
