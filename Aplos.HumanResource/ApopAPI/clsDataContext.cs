@@ -9336,8 +9336,8 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select IRS.Id InvoiceRemarksId, IRS.Status , EIS.EmployeeCode ActionToBeTakenByID,  EIS.EmployeeName ActionToBeTakenByName
-,case when IRS.CloseStatus = 1 then 'Closed' else 'Active' end CloseStatus  , IRS.AddedBy , IRS.CloseRemarks , format(IRS.AddedDate , 'dd-MM-yyyy') InvoiceRemarksADDDT
+                strSQL = @"select IRS.Id InvoiceRemarksId, IRS.Status , EIS.EmployeeCode ActionToBeTakenById,  EIS.EmployeeName ActionToBeTakenByName
+,case when IRS.CloseStatus = 1 then 'Closed' else 'Active' end CloseStatus  , IRS.AddedBy , IRS.Remarks , IRS.CloseRemarks , format(IRS.AddedDate , 'dd-MM-yyyy') InvoiceRemarksADDDT
 ,IRS.UpdatedBy , format(IRS.UpdatedDate , 'dd-MM-yyyy') InvoiceRemarksUPPDT
 ,IR.InvoiceNo , PT.UserName Customer, EI.EmployeeName ResponsiblePerson ,PAG.StandardName CustomerType
 ,format(psi.InvoiceDate , 'dd-MM-yyyy') InvoiceDate , format(psi.ShipmentDate , 'dd-MM-yyyy') ShipmentDate , format(psi.DocumentReceiveDate , 'dd-MM-yyyy') DocReceivedate
@@ -9367,10 +9367,12 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
                     {
                         InvoiceRemarksId = dsRef.Tables[0].Rows[i]["InvoiceRemarksId"].ToString(),
                         Status = dsRef.Tables[0].Rows[i]["Status"].ToString(),
-                        ActionToBeTakenId = dsRef.Tables[0].Rows[i]["ActionToBeTakenId"].ToString(),
+                        ActionToBeTakenId = dsRef.Tables[0].Rows[i]["ActionToBeTakenById"].ToString(),
                         ActionToBeTakenByName = dsRef.Tables[0].Rows[i]["ActionToBeTakenByName"].ToString(),
                         CloseStatus = dsRef.Tables[0].Rows[i]["CloseStatus"].ToString(),
                         AddedBy = dsRef.Tables[0].Rows[i]["AddedBy"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+                        CloseRemarks = dsRef.Tables[0].Rows[i]["CloseRemarks"].ToString(),
                         InvoiceRemarksADDDT = dsRef.Tables[0].Rows[i]["InvoiceRemarksADDDT"].ToString(),
                         UpdatedBy = dsRef.Tables[0].Rows[i]["UpdatedBy"].ToString(),
                         InvoiceRemarksUPPDT = dsRef.Tables[0].Rows[i]["InvoiceRemarksUPPDT"].ToString(),
@@ -10653,6 +10655,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
         public string CloseStatus { get; set; }
         public string AddedBy { get; set; }
         public string CloseRemarks { get; set; }
+        public string Remarks { get; set; }
         public string InvoiceRemarksADDDT { get; set; }
         public string UpdatedBy { get; set; }
         public string InvoiceRemarksUPPDT { get; set; }
