@@ -696,8 +696,7 @@ LEFT JOIN (
 Select SUM(S.TransactionQty)ShipmentQty,SUM(S.TransactionAmount)ShippedValue,SO.ContractId from TRN.SalesMaterial S
 LEFT JOIN TRN.SalesOrder SO ON SO.Id=S.SalesOrderId
 Group By SO.ContractId
-) SM ON SM.ContractId=C.Id
-Order by B.UserName";
+) SM ON SM.ContractId=C.Id";
 
                 return _sqlRepository.GetDataTable(sql);
             }
