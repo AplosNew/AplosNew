@@ -110,7 +110,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
 					if (lcType == "contract")
 					{
-                        datePic = "where c.AddedDate between '" + FromDate + @"' and '" + ToDate + @"' "; 
+                        datePic = "where ISNULL(c.ContractDate,c.AddedDate) between '" + FromDate + @"' and '" + ToDate + @"' "; 
                     }
 					else if (lcType == "masterLC")
 					{
@@ -118,7 +118,7 @@ namespace Aplos.Areas.Commercial.Controllers
 					}
                     else
                     {
-						datePic = "where PLC.AddedDate between '" + FromDate + @"' and '" + ToDate + @"' ";
+						datePic = "where PLC.LCDate between '" + FromDate + @"' and '" + ToDate + @"' ";
 					}
 				}
 
