@@ -568,6 +568,7 @@ upanelApp.controller('finalSettlementVoucherController', finalSettlementVoucherC
 upanelApp.controller('fiscalYearBudgetController', fiscalYearBudgetController);
 upanelApp.controller('fixedAssetAUCCapitalizeGRNBassController', fixedAssetAUCCapitalizeGRNBassController);
 upanelApp.controller('assetDisposeController', assetDisposeController);
+upanelApp.controller('assetDisposePostController', assetDisposePostController);
 upanelApp.controller('fixedAssetDisposeController', fixedAssetDisposeController);
 upanelApp.controller('fixedAssetDisposePostController', fixedAssetDisposePostController);
 upanelApp.controller('FixedAssetsRegisterReportController', FixedAssetsRegisterReportController);
@@ -1255,6 +1256,7 @@ upanelApp.controller("CutPlanEditController", CutPlanEditController)
 upanelApp.controller("GoodWorkPaymentDisburseController", GoodWorkPaymentDisburseController)
 upanelApp.controller("masterOrderCheckByController", masterOrderCheckByController)
 upanelApp.controller("masterOrderApproveByController", masterOrderApproveByController)
+upanelApp.controller("BalanceSheetSchedulingReportController", BalanceSheetSchedulingReportController)
 
           
 

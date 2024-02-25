@@ -9326,6 +9326,82 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
                 objCon = null;
             }
         }
+
+        public void GetInvoiceRemarksDataInvoice(out List<InvoiceRemarksDataInvoice> DataList, string InvoiceNo)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<InvoiceRemarksDataInvoice>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select IRS.Id InvoiceRemarksId, IRS.Status , EIS.EmployeeCode ActionToBeTakenById,  EIS.EmployeeName ActionToBeTakenByName
+,case when IRS.CloseStatus = 1 then 'Closed' else 'Active' end CloseStatus  , IRS.AddedBy , IRS.Remarks , IRS.CloseRemarks , format(IRS.AddedDate , 'dd-MM-yyyy') InvoiceRemarksADDDT
+,IRS.UpdatedBy , format(IRS.UpdatedDate , 'dd-MM-yyyy') InvoiceRemarksUPPDT
+,IR.InvoiceNo , PT.UserName Customer, EI.EmployeeName ResponsiblePerson ,PAG.StandardName CustomerType
+,format(psi.InvoiceDate , 'dd-MM-yyyy') InvoiceDate , format(psi.ShipmentDate , 'dd-MM-yyyy') ShipmentDate , format(psi.DocumentReceiveDate , 'dd-MM-yyyy') DocReceivedate
+,format(psi.DocumentSubmissionDate , 'dd-MM-yyyy') DocSubDate , format(psi.DocAcceptanceDate , 'dd-MM-yyyy') DocAccpDate
+,psi.PaymentAdviseNo PayAdbisNo , format(psi.PaymentReceivedDate , 'dd-MM-yyyy') PayResDate 
+, InvoiceAmount = (select  convert(decimal(30,2) ,Sum(NetAmount)) InvoiceAmount from trn.SalesMaterial where SalesId  = IR.Id)
+from trn.InvoiceRemarks IRS
+left join trn.Sales IR on IR.Id = IRS.SalesId
+left join hkp.Party Pt on Pt.Id = PartyId
+LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
+LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
+LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+left join [TRN].[MasterOrder] MO on MO.Id = MOI.MasterOrderId
+left join HKP.CompanyParty CP on CP.PartyId = Pt.Id and CP.PartyType = 'Customer'
+left join HKP.PartyAccountGroup PAG on PAG.Id = CP.PartyAccountGroupId 
+left join EmployeeInformation EI on EI.SystemId = MO.ResponsiblePersonId
+left join EmployeeInformation EIS on EIS.SystemId = IRS.ActionToBeTakenId
+left join PostSalesInvoice psi on psi.SalesId = ir.Id
+where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '" + InvoiceNo + "' order by IRS.AddedDate Desc ";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new InvoiceRemarksDataInvoice
+                    {
+                        InvoiceRemarksId = dsRef.Tables[0].Rows[i]["InvoiceRemarksId"].ToString(),
+                        Status = dsRef.Tables[0].Rows[i]["Status"].ToString(),
+                        ActionToBeTakenId = dsRef.Tables[0].Rows[i]["ActionToBeTakenById"].ToString(),
+                        ActionToBeTakenByName = dsRef.Tables[0].Rows[i]["ActionToBeTakenByName"].ToString(),
+                        CloseStatus = dsRef.Tables[0].Rows[i]["CloseStatus"].ToString(),
+                        AddedBy = dsRef.Tables[0].Rows[i]["AddedBy"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+                        CloseRemarks = dsRef.Tables[0].Rows[i]["CloseRemarks"].ToString(),
+                        InvoiceRemarksADDDT = dsRef.Tables[0].Rows[i]["InvoiceRemarksADDDT"].ToString(),
+                        UpdatedBy = dsRef.Tables[0].Rows[i]["UpdatedBy"].ToString(),
+                        InvoiceRemarksUPPDT = dsRef.Tables[0].Rows[i]["InvoiceRemarksUPPDT"].ToString(),
+                        InvoiceNo = dsRef.Tables[0].Rows[i]["InvoiceNo"].ToString(),
+                        Customer = dsRef.Tables[0].Rows[i]["Customer"].ToString(),
+                        ResponsiblePerson = dsRef.Tables[0].Rows[i]["ResponsiblePerson"].ToString(),
+                        CustomerType = dsRef.Tables[0].Rows[i]["CustomerType"].ToString(),
+                        InvoiceDate = dsRef.Tables[0].Rows[i]["InvoiceDate"].ToString(),
+                        ShipmentDate = dsRef.Tables[0].Rows[i]["ShipmentDate"].ToString(),
+                        DocReceivedate = dsRef.Tables[0].Rows[i]["DocReceivedate"].ToString(),
+                        DocSubDate = dsRef.Tables[0].Rows[i]["DocSubDate"].ToString(),
+                        DocAccpDate = dsRef.Tables[0].Rows[i]["DocAccpDate"].ToString(),
+                        PayAdbisNo = dsRef.Tables[0].Rows[i]["PayAdbisNo"].ToString(),
+                        PayResDate = dsRef.Tables[0].Rows[i]["PayResDate"].ToString(),
+                        InvoiceAmount = dsRef.Tables[0].Rows[i]["InvoiceAmount"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public string PostInvoiceRemarks(IEnumerable<InvoiceDataEntry> DataToSave)
         {
             try
@@ -9410,6 +9486,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
                         // DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
 
+                        dr["CloseRemarks"] = item.CloseRemarks;
                         dr["CloseStatus"] = item.CloseStatus;
                         dr["UpdatedBy"] = item.UpdatedBy;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
@@ -10560,10 +10637,40 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
         public string ActionToBeTakenId { get; set; }
         public string Remarks { get; set; }
         public string CloseStatus { get; set; }
+        public string CloseRemarks { get; set; }
         public string AddedBy { get; set; }
         public string AddedDate { get; set; }
         public string UpdatedBy { get; set; }
         public string UpdatedDate { get; set; }
+
+    }
+
+    public class InvoiceRemarksDataInvoice
+    {
+       
+        public string InvoiceRemarksId { get; set; }
+        public string Status { get; set; }
+        public string ActionToBeTakenId { get; set; }
+        public string ActionToBeTakenByName { get; set; }
+        public string CloseStatus { get; set; }
+        public string AddedBy { get; set; }
+        public string CloseRemarks { get; set; }
+        public string Remarks { get; set; }
+        public string InvoiceRemarksADDDT { get; set; }
+        public string UpdatedBy { get; set; }
+        public string InvoiceRemarksUPPDT { get; set; }
+        public string InvoiceNo { get; set; }
+        public string Customer { get; set; }
+        public string ResponsiblePerson { get; set; }
+        public string CustomerType { get; set; }
+        public string InvoiceDate { get; set; }
+        public string ShipmentDate { get; set; }
+        public string DocReceivedate { get; set; }
+        public string DocSubDate { get; set; }
+        public string DocAccpDate { get; set; }
+        public string PayAdbisNo { get; set; }
+        public string PayResDate { get; set; }
+        public string InvoiceAmount { get; set; }
 
     }
 
