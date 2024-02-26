@@ -580,6 +580,10 @@ namespace Library.Service.OrderManagements
                 var sql = @"SELECT MOI.Id, MOI.MasterOrderId, MOI.InquiryItemId, MOI.SampleItemId, MOI.TestingStandardId
                            ,Status=STUFF((select distinct ','+case when CheckByStatus = 'Checked' then 'Checked' else 'Pending' end from trn.SalesOrder XSO 
 							                                where XSO.MasterOrderItemId=MOI.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                            ,CheckStatus=STUFF((select distinct ','+XSO.CheckByStatus from trn.SalesOrder XSO 
+							                                where XSO.MasterOrderItemId=MOI.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+						   ,ApproveStatus=STUFF((select distinct ','+XSO.ApprovedStatus from trn.SalesOrder XSO 
+							                                where XSO.MasterOrderItemId=MOI.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 	                         , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName
 	                         , MOI.ArticleId, ART.StandardName AS ArticleName
 	                         , MOI.BuyerReferenceNo, MOI.OwnReferenceNo, MOI.TotalQty
@@ -781,7 +785,7 @@ namespace Library.Service.OrderManagements
                             ,(SELECT ISNULL(sum(Qty),0) FROM TRN.FirstCharacteristics AS FCS WHERE SO.Id= FCS.SalesOrderId) SKUQty
                             , isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id)
                             ,ISNULL(POD.ProductionOrderId,'') ProductionOrderId,SO.Reason,SO.Description,SO.CM,SO.SalesOrderYear,SO.WeekNo
-                            ,SO.ProductionBookedQty,SO.ProductionBookingLevel,SO.SalesExpense,SO.CM,SO.DirectMaterialCost,SO.DirectProcessCost,SO.Commission,SO.ValueLoss,SO.Other,SO.StockResponsiblePersonId,SO.ShipmentFromStock,SO.ProductionType,SEMP.EmployeeName StockResponsiblePerson,SO.PackingTypeId,PT.UserName PackingType,SO.ContractId,C.ContractNo
+                            ,SO.ProductionBookedQty,SO.ProductionBookingLevel,SO.SalesExpense,SO.CM,SO.DirectMaterialCost,SO.DirectProcessCost,SO.Commission,SO.ValueLoss,SO.Other,SO.StockResponsiblePersonId,SO.ShipmentFromStock,SO.ProductionType,SEMP.EmployeeName StockResponsiblePerson,SO.PackingTypeId,PT.UserName PackingType,SO.ContractId,C.ContractNo,SO.CheckByStatus,SO.ApprovedStatus
                     FROM [TRN].[SalesOrder] AS SO
                    -- LEFT JOIN TRN.FirstCharacteristics SKU ON SKU.SalesOrderId=SO.Id
                     JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
