@@ -1328,6 +1328,15 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetEmployeeInColumnWithoutAssociate(out List<Default2> activelists);
             return activelists;
         }
+
         #endregion Invoice remarks
+        #region PaymentStatus
+        public List<PaymentStatus> GetPaymentStatus(string PartyId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetPaymentStatus(out List<PaymentStatus> activelists, PartyId);
+            return activelists;
+        }
+        #endregion PaymentStatus
     }
 }
