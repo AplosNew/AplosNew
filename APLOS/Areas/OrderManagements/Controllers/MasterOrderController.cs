@@ -730,6 +730,13 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetMasterItemForCheckList(string masterOrderId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(MasterOrder.GetMasterItemForCheckList(masterOrderId, identity.EmployeeId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetItemsData(string masterOrderId)
         {
             return Json(_masterOrderService.GetItemsData(masterOrderId), JsonRequestBehavior.AllowGet);

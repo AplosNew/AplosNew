@@ -1451,7 +1451,7 @@ function masterOrderCheckByController(accountService, $window, cboService, commo
             $scope.itemTestingStandardList = $filter('unique')($scope.testingStandardList, 'Text');
         else
             $scope.itemTestingStandardList = $filter('filter')($scope.testingStandardList, { BuyerId: $scope.fileNew.BuyerId }, true);
-        $http.get($scope.path + "GetMasterItemList?masterOrderId=" + $scope.fileNew.Id)
+        $http.get($scope.path + "GetMasterItemForCheckList?masterOrderId=" + $scope.fileNew.Id)
             .then(function (response) {
                 $scope.itemList = response.data;
                 $scope.mitemList = response.data;
