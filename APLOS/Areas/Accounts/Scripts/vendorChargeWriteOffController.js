@@ -938,7 +938,7 @@ function vendorChargeWriteOffController(bankService, cboService, commonMessage, 
 
    // $scope.cOAICodeList = [];
     $scope.GetCOAICodeList = function () {
-        $scope.GLUrl1 = "Accounts/glitem/GetExpenseTypeGLBudgetActivityList";
+        $scope.GLUrl1 = "Accounts/glitem/GetExpenseRevenueGLBudgetActivity";
         $scope.GetCOAICodeListData = function (pageno) {
             baseService.paginationBase($scope.GLUrl1, pageno, $scope.glListParameters)
                 .then(function (result) {
