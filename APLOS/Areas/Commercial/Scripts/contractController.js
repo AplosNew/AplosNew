@@ -535,6 +535,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
 
     $scope.selectContract = function (obj) {
         $scope.modelNew = obj.data;
+        $scope.modelNew.ContractDate = $filter('dateFiltering')(obj.data.ContractDate, 'dd-M-yyyy');
         $scope.modelNew.Currency = null;
         $scope.GetEditSalesOrderList();
 

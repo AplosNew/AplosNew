@@ -46,9 +46,7 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.GetWorkcenter();
-        $scope.getMinute();
 
-        //$scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
             $scope.GetSavedWorkCenterForUpdate(args.data.EntityId, args.data.DetentionId, args.data.ProcessId, args.data.Date, args.data.ShiftId, args.data.Minute);
@@ -251,7 +249,7 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.WorkcenterList = resp.data;
-
+            $scope.getMinute();
         });
     }
     //$scope.GetWorkcenter();
@@ -475,7 +473,7 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
 
     function ClearFields() {
         $scope.Action = 'Save';
-        $scope.ModelNew = {
+        $scope.ModelTransaction = {
             Id: null,
             EntityId: null,
             Entity: null,
@@ -488,12 +486,11 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
             ProcessId: null,
             Process: null,
             ShiftId: null,
-            Shift: null,
+            Shift: null
         };
         $scope.ModelNew = Object.assign({}, $scope.ModelTransaction);
         $scope.WorkcenterList = [];
         $scope.MachineMasterDateForUpdate = [];
-
     }
 
     $scope.DateValidation = function (ProductionDate) {

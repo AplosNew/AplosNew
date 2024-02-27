@@ -537,24 +537,6 @@ namespace Aplos.Areas.Accounts.Controllers
                 dtValue = dslocal.Tables[0];
                 for (int i = 0; i < dslocal.Tables[0].Rows.Count; i++)
                 {
-                    //if (i == 0)
-                    //{
-                    //    DataRow dtValueRow = dtValue.NewRow();
-
-                    //    dtValueRow["Id"] = dslocal.Tables[0].Rows[i]["Id"].ToString().Trim();
-                    //    dtValueRow["Amount"] = dslocal.Tables[0].Rows[i]["Amount"].ToString().Trim();
-
-                    //    dtValue.Rows.Add(dtValueRow);
-                    //}
-                    //else if (i > 0 && string.IsNullOrEmpty(dslocal.Tables[0].Rows[i]["FormulaDes"].ToString()))
-                    //{
-                    //    DataRow dtValueRow = dtValue.NewRow();
-
-                    //    dtValueRow["Id"] = dslocal.Tables[0].Rows[i]["Id"].ToString().Trim();
-                    //    dtValueRow["Amount"] = dslocal.Tables[0].Rows[i]["Amount"].ToString().Trim();
-
-                    //    dtValue.Rows.Add(dtValueRow);
-                    //}
 
                     if (!string.IsNullOrEmpty(dslocal.Tables[0].Rows[i]["FormulaDes"].ToString()))
                     {
@@ -609,6 +591,12 @@ namespace Aplos.Areas.Accounts.Controllers
                     int strCount = 0;
                     #region ------------------Column Header------------------
                     xlsCol = 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Id";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 8;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    xlsCol += 1;
                     sheet1.Range[xlsRow, xlsCol].Text = "OptionNo";
                     sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10;
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -720,6 +708,13 @@ namespace Aplos.Areas.Accounts.Controllers
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                     xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Formula";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+                    xlsCol += 1;
                     sheet1.Range[xlsRow, xlsCol].Text = "Amount";
                     sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -742,6 +737,12 @@ namespace Aplos.Areas.Accounts.Controllers
                         xlsCol = 1;
                         #region ----------------------Data-----------------------
 
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Id"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        
+                        xlsCol += 1;
                         sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["OptionNo"].ToString().Trim();
                         sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -848,6 +849,12 @@ namespace Aplos.Areas.Accounts.Controllers
                         xlsCol += 1;
                         sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["UserScheduleName"].ToString().Trim();
                         sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["FormulaDes"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 20;
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
