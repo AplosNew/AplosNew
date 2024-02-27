@@ -2113,7 +2113,7 @@ function masterOrderCheckByController(accountService, $window, cboService, commo
         try {
             angular.copy(data, $scope.soModel);
 
-            if (baseService.isUndefinedOrNull($scope.soModel.CheckByStatus)) {
+            if (baseService.isUndefinedOrNull($scope.soModel.CheckByStatus) || $scope.soModel.CheckByStatus =='To Be Check') {
                 throw "CheckBy Status is required.";
             }
             if (baseService.isUndefinedOrNull($scope.soModel.ApproveBy)) {
@@ -2135,6 +2135,7 @@ function masterOrderCheckByController(accountService, $window, cboService, commo
                     ShowResult(response.data.Message, 'success', 'soPoUp');
                     getSalesOrderList();
                     $scope.getMasterItemList();
+                    angular.element(document.querySelector('#soPoUp')).modal('hide');
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure', 'soPoUp');
