@@ -1948,6 +1948,24 @@ namespace Aplos.Areas.FixedAssets.Controllers
             _fixedAssetRegisterService.InsertCapitalizeAssetLost(fixedAssetDisposed,assetRegisterList);
             return Json(new { Message = AplosMessage.Insert });
         }
+        [HttpPost, Authorize]
+        public ActionResult GetCapitalizeAssetRegisterDisposePopUpList(string column, string value, string companyId)
+        {
+            FixedAssetDisposeService _fixedAssetDisposeService = new FixedAssetDisposeService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (companyId == null)
+                companyId = identity.CompanyId;
+            return Json(_fixedAssetDisposeService.GetCapitalizeAssetDisposeListForPosting(column, value, companyId), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetCapitalizeAssetLostJVList(string fixedAssetDisposeId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+
+            return Json(_fixedAssetQueryService.GetCapitalizeAssetLostJVList(fixedAssetDisposeId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
+        }
         #endregion
     }
 }

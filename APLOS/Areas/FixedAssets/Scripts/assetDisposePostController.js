@@ -44,7 +44,7 @@ function assetDisposePostController(accountService, cboService, commonMessage, $
     $scope.getDisposeData = function () {
         $http({
             method: 'Post'
-            , url: 'FixedAssets/FixedAssetRegister/GetFixedAssetRegisterDisposePopUpList'
+            , url: 'FixedAssets/FixedAssetRegister/GetCapitalizeAssetRegisterDisposePopUpList'
             , data: { column: $scope.disposeSearchBy, value: $scope.disposeSearch }
             , dataType: 'JSON'
         }).then(function (response) {
@@ -162,7 +162,7 @@ function assetDisposePostController(accountService, cboService, commonMessage, $
     $scope.getDisposeJV = function (id) {
         $scope.fixedAssetDisposeJVList = [];
         if ($scope.voucher.Status == 'CompensateByEmployee') {
-            $scope.jvurl = 'FixedAssets/FixedAssetRegister/GetFixedAssetLostJVList?fixedAssetDisposeId=' + id
+            $scope.jvurl = 'FixedAssets/FixedAssetRegister/GetCapitalizeAssetLostJVList?fixedAssetDisposeId=' + id
         }
         else if ($scope.voucher.Status == 'Sales') {
             $scope.jvurl = 'FixedAssets/FixedAssetRegister/GetFixedAssetSalesSingleJVList?fixedAssetDisposeId=' + id
