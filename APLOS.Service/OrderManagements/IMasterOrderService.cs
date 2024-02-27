@@ -49,7 +49,7 @@ namespace Library.Service.OrderManagements
 
         IEnumerable<object> GetItemsData(string masterOrderId);
         IEnumerable<object> GetMasterItemList(string masterOrderId);
-
+        IEnumerable<object> GetMasterItemForApproveList(string masterOrderId,string empId);
         IEnumerable<object> GetAttributeListByMaterialMasterId(string materialMasterId);
 
         IEnumerable<object> GetOrderAttributeListByMasterId(string masterItemId, string materialMasterId);

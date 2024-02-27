@@ -70,26 +70,6 @@ function masterOrderCheckByController(accountService, $window, cboService, commo
         }
     };
 
-
-    //$scope.getData = function () {
-    //    baseService.setCurrentPage('files');
-    //    $rootScope.parameters.companyId = $scope.fileNew.CompanyId;
-    //    // baseService.init($scope.getListUrl, null, null, null, 'CONVERT(int,MasterOrderNo)', 'MasterOrderNo');
-    //    baseService.init($scope.getListUrl, null, null, "DESC", 'AddedDate', 'MasterOrderNo');
-    //    $scope.loadMasterData = function (pageno) {
-    //        baseService.pagination(pageno)
-    //            .then(function (result) {
-    //                $scope.files = result.Rows;
-    //                if (baseService.arrayLength($scope.searchMasterFilterList) === 0)
-    //                    baseService.getDDLSearchColumn(result.Rows, $scope.searchMasterFilterList);
-
-    //            }, function () {
-    //                ShowResult(commonMessage.NetworkError, 'failure');
-    //            }).finally(function () {
-    //            });
-    //    }; $scope.loadMasterData();
-    //};
-
     $scope.file = {
         Id: null
         , CompanyId: null
@@ -848,101 +828,7 @@ function masterOrderCheckByController(accountService, $window, cboService, commo
         $scope.RemarksControlmodel = { Id: null, MasterOrderId: null, RemarkControlId: null, RemarksControl: null, UserRemarks: null };
     }
 
-    // #region
-    //$scope.partySearchByList = [
-    //    {
-    //        'name': $scope.partyType + ' Code',
-    //        'value': 'Code'
-    //    },
-    //    {
-    //        'name': $scope.partyType + ' Name',
-    //        'value': 'PartyName'
-    //    },
-    //    {
-    //        'name': 'Account Group',
-    //        'value': 'PartyAccountGroupName'
-    //    },
-    //    {
-    //        'name': 'Country',
-    //        'value': 'CountryName'
-    //    },
-    //    {
-    //        'name': 'State',
-    //        'value': 'StateName'
-    //    },
-    //    {
-    //        'name': 'Currency',
-    //        'value': 'CurrencyCode'
-    //    }
-    //];
-    //$scope.partyParameters = {
-    //    limit: 10
-    //    , offset: 0
-    //    , order: 'ASC'
-    //    , sort: 'PartyName, PartyAccountGroupName'
-    //    , searchBy: 'PartyName'
-    //    , pageSize: 10
-    //    , total_count: 0
-    //    , search: null
-    //    , serverPagination: true
-    //};
-    //$scope.showPartyPopUp = function () {
-    //    if (baseService.isUndefinedOrNull($scope.fileNew.CompanyId)) {
-    //        ShowResult('Select Company', 'failure');
-    //        return false;
-    //    }
-    //    if (baseService.isUndefinedOrNull($scope.fileNew.PlantId)) {
-    //        ShowResult('Select Plant', 'failure');
-    //        return false;
-    //    }
-    //    baseService.setCurrentPage('partyList');
-    //    $scope.getPartyList = function (pageno) {
-    //        $scope.partyUrl = $scope.path + 'GetCompanyPartyDataList?companyId=' + $scope.fileNew.CompanyId + '&plantId=' + $scope.fileNew.PlantId + '&partyType=' + $scope.partyType;
-    //        baseService.paginationBase($scope.partyUrl, pageno, $scope.partyParameters)
-    //            .then(function (result) {
-    //                $scope.partyList = result.Rows;
-    //                $scope.partyParameters.total_count = result.Total;
-    //            }, function () {
-    //                ShowResult(commonMessage.NetworkError, 'failure');
-    //            }).finally(function () {
-    //            });
-    //    };
-    //    angular.element(document.querySelector('#partyPopUp')).modal('show');
-    //    $scope.getPartyList();
-    //};
-
-    //$scope.selectPartyPopUpRow = function (index, id) {
-    //    $scope.partyIndex = index;
-    //    $scope.selectedParty = id;
-    //};
-
-    //$scope.selectCustomerPopUp = function (index, id) {
-    //    $scope.partyIndex = index;
-    //    $scope.selectedCustomer = id;
-    //};
-
-    //$scope.closePartyPopUp = function (x) {
-    //    var party = x.data;
-    //    $scope.fileNew.PartyCode = party.Code;
-    //    $scope.fileNew.CustomerName = party.UserName;
-    //    $scope.fileNew.PartyId = party.Id;
-    //    $scope.fileNew.CurrencyId = party.CurrencyId;
-    //    $scope.fileNew.PartyAccountGroupId = party.PartyAccountGroupId;
-
-    //    $scope.fileNew.IsPaymentTermChangeable = '';
-    //    $scope.fileNew.PaymentTermId = '';
-
-    //    $scope.fileNew.PaymentTermId = party.PaymentTermId;
-    //    $scope.fileNew.IsPaymentTermChangeable = party.IsPaymentTermChangeable;
-
-    //    $scope.changePaymentTerm($scope.fileNew.PaymentTermId);
-    //    $scope.personList = [];
-    //    getPartyPlantList();
-    //    //GetDepartmentPersonCbo();
-    //    $scope.hidePartyPopUp();
-    //};
-
-    // #endregion
+    
 
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
 
@@ -1565,7 +1451,7 @@ function masterOrderCheckByController(accountService, $window, cboService, commo
             $scope.itemTestingStandardList = $filter('unique')($scope.testingStandardList, 'Text');
         else
             $scope.itemTestingStandardList = $filter('filter')($scope.testingStandardList, { BuyerId: $scope.fileNew.BuyerId }, true);
-        $http.get($scope.path + "GetMasterItemList?masterOrderId=" + $scope.fileNew.Id)
+        $http.get($scope.path + "GetMasterItemForCheckList?masterOrderId=" + $scope.fileNew.Id)
             .then(function (response) {
                 $scope.itemList = response.data;
                 $scope.mitemList = response.data;
@@ -2227,7 +2113,7 @@ function masterOrderCheckByController(accountService, $window, cboService, commo
         try {
             angular.copy(data, $scope.soModel);
 
-            if (baseService.isUndefinedOrNull($scope.soModel.CheckByStatus)) {
+            if (baseService.isUndefinedOrNull($scope.soModel.CheckByStatus) || $scope.soModel.CheckByStatus =='To Be Check') {
                 throw "CheckBy Status is required.";
             }
             if (baseService.isUndefinedOrNull($scope.soModel.ApproveBy)) {
@@ -2249,6 +2135,7 @@ function masterOrderCheckByController(accountService, $window, cboService, commo
                     ShowResult(response.data.Message, 'success', 'soPoUp');
                     getSalesOrderList();
                     $scope.getMasterItemList();
+                    angular.element(document.querySelector('#soPoUp')).modal('hide');
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure', 'soPoUp');

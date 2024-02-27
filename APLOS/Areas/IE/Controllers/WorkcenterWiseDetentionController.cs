@@ -136,6 +136,7 @@ where DetentionMasterId='" + detentionId + "'";
             }
         }
 
+        [Authorize, HttpPost]
         public JsonResult GetSavedWorkCenterForUpdate(string entityid, string detentionid, string processid, string date, string shiftid, string minute)
         {
             string sql = @"SELECT CAST(1 AS BIT)isSelected,MMT.Id, WCM.Id WorkcenterId, WCM.StandardName, MMT.Minute, MMT.DetentionId, DM.DetentionUserName,EI.EmployeeName from MachineMasterTransaction MMT
