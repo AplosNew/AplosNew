@@ -414,6 +414,8 @@
                                 <thead>
                                     <tr>
                                         <th>Code</th>
+                                        <th>Check Status</th>
+                                        <th>Approvee Status</th>
                                         <th class="col-sm-1">Action</th>
 
                                         <th>Total Quantity</th>
@@ -452,6 +454,8 @@
                                 <tbody>
                                     <tr ng-repeat="x in itemList">
                                         <td>{{x.Id}}</td>
+                                        <td>{{x.CheckStatus}}</td>
+                                        <td>{{x.ApproveStatus}}</td>
                                         <td class="text-right table-td">
                                             <ul class="list-inline action-list">
                                                 @*<li><button ng-click="getAttribute(x.Id, x.MaterialMasterId, x.MaterialMasterName);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Attribute" ng-disabled="x.Id==null || x.MaterialMasterId==null">Attribute</button></li>*@
@@ -1589,6 +1593,8 @@
                                     <th>Main RM Inhouse Date</th>
                                     <th>Other RM Inhouse Date</th>
                                     <th>Order Status</th>
+                                    <th>Check Status</th>
+                                    <th>Approve Status</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -1624,6 +1630,8 @@
                                     <td>{{x.MainRawMaterialInhouseDate}}</td>
                                     <td>{{x.OtherRawMaterialInhouseDate}}</td>
                                     <td>{{x.OrderStatusId}}</td>
+                                    <td>{{x.CheckByStatus}}</td>
+                                    <td>{{x.ApprovedStatus}}</td>
 
                                     <td class="text-right table-td">
                                         <ul class="list-inline action-list">

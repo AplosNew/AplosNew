@@ -680,10 +680,16 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
             {
                 string sql = "";
 
-                sql = @"SELECT C.Id,C.FileNo,B.UserName BankName,FORMAT(SO.ShipmentStartDate,'dd-MMM-yyyy')ShipmentStartDate,FORMAT(SO.ShipmentEndDate,'dd-MMM-yyyy') ShipmentEndDate
-,C.ContractNo,C.TotalQty,C.Amount,ISNULL(SM.ShipmentQty,0) ShipmentQty,ISNULL(SM.ShippedValue,0) ShippedValue,BalanceQty=C.TotalQty-ISNULL(SM.ShipmentQty,0),BalanceLienValue=C.Amount-ISNULL(SM.ShippedValue,0),C.Remarks 
+                sql = @"SELECT C.Id,C.FileNo,B.AccountTitle BankName,FORMAT(SO.ShipmentStartDate,'dd-MMM-yyyy')ShipmentStartDate,FORMAT(SO.ShipmentEndDate,'dd-MMM-yyyy') ShipmentEndDate
+,C.ContractNo,C.TotalQty,C.Amount,ISNULL(SM.ShipmentQty,0) ShipmentQty,ISNULL(SM.ShippedValue,0) ShippedValue,BalanceQty=C.TotalQty-ISNULL(SM.ShipmentQty,0),BalanceLienValue=C.Amount-ISNULL(SM.ShippedValue,0),C.Remarks,Buyer=REPLACE(REPLACE(STUFF((select distinct ', '+B.UserName FROM 
+                                        HKP.Buyer B 
+										LEFT JOIN TRN.MasterOrder M ON B.Id=M.BuyerId
+										LEFT JOIN TRN.MasterOrderItem MI ON MI.MasterOrderId=M.Id
+										LEFT JOIN TRN.SalesOrder S ON S.MasterOrderItemId=MI.Id
+                                        WHERE S.ContractId=C.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										,'&amp;','&'), 'amp;', '')	 
 FROM dbo.Contract C
-LEFT JOIN HKP.Bank B On B.Id=C.BankId
+LEFT JOIN MST.BankMaster B ON B.Id=C.BankId
 LEFT JOIN(Select MIN(DeliveryDate)ShipmentStartDate,MAX(DeliveryDate)ShipmentEndDate,ContractId
 FROM TRN.SalesOrder Group By ContractId) SO ON SO.ContractId=C.Id
 LEFT JOIN (
@@ -691,7 +697,7 @@ Select SUM(S.TransactionQty)ShipmentQty,SUM(S.TransactionAmount)ShippedValue,SO.
 LEFT JOIN TRN.SalesOrder SO ON SO.Id=S.SalesOrderId
 Group By SO.ContractId
 ) SM ON SM.ContractId=C.Id
-Order by B.UserName";
+Order By B.AccountTitle";
 
                 return _sqlRepository.GetDataTable(sql);
             }
@@ -878,11 +884,12 @@ Order by B.UserName";
                 xlsRow = 5;
 
                 #region ColumnHeaderVariables              
-                int cFileNo = 0; int cTQ = 0; int cA = 0; int cSV; int cSQ; int cBQ = 0; int cBLV = 0; int cR = 0; int cBN = 0; int cSSD = 0; int cCN = 0; int cSED = 0;
+                int cFileNo,cBuyer = 0; int cTQ = 0; int cA = 0; int cSV; int cSQ; int cBQ = 0; int cBLV = 0; int cR = 0; int cBN = 0; int cSSD = 0; int cCN = 0; int cSED = 0;
                 #endregion
                 #region ColumnHeaders
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Bank Name", 14, ExcelHAlign.HAlignCenter); cBN = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FileNo", 8, ExcelHAlign.HAlignCenter); cFileNo = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Buyer", 8, ExcelHAlign.HAlignCenter); cBuyer = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShipmentStartDate", 20, ExcelHAlign.HAlignCenter); cSSD = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShipmentEndDate", 20, ExcelHAlign.HAlignCenter); cSED = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ContractNo", 25, ExcelHAlign.HAlignCenter); cCN = xlsCol; xlsCol++;
@@ -989,6 +996,7 @@ Order by B.UserName";
 
                         sheet1.Range[xlsRow, cBN].Text = dtManPBSummary.Rows[i]["BankName"].ToString();
                         oRU.SetTextBorder(ref sheet1, xlsRow, cFileNo, dtManPBSummary.Rows[i]["FileNo"].ToString());
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cBuyer, dtManPBSummary.Rows[i]["Buyer"].ToString());
                         oRU.SetTextBorder(ref sheet1, xlsRow, cSSD, dtManPBSummary.Rows[i]["ShipmentStartDate"].ToString());
                         oRU.SetTextBorder(ref sheet1, xlsRow, cSED, dtManPBSummary.Rows[i]["ShipmentEndDate"].ToString());
                         oRU.SetTextBorder(ref sheet1, xlsRow, cCN, dtManPBSummary.Rows[i]["ContractNo"].ToString());
