@@ -347,7 +347,7 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
 
     $scope.CheckedDetentionWorkList = [];
     $scope.Save = function () {
-
+        $scope.CheckedDetentionWorkList = [];
         if ($scope.ModelNewForm.$valid) {
             for (var i = 0; i < $scope.WorkcenterList.length; i++) {
 
@@ -491,6 +491,7 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
         $scope.ModelNew = Object.assign({}, $scope.ModelTransaction);
         $scope.WorkcenterList = [];
         $scope.MachineMasterDateForUpdate = [];
+        $scope.CheckedDetentionWorkList = [];
     }
 
     $scope.DateValidation = function (ProductionDate) {
