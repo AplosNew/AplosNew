@@ -1966,6 +1966,34 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
             return Json(_fixedAssetQueryService.GetCapitalizeAssetLostJVList(fixedAssetDisposeId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
         }
+        [HttpPost, Authorize]
+        public ActionResult GetCapitalizeAssetLostByDisposeIdList(string id)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+
+            return Json(_fixedAssetQueryService.GetCapitalizeAssetLostByDisposeIdList(id), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
+        }
+        [HttpPost]
+        public JsonResult CreateCapitalizeAssetDisposePost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<FixedAssetRegisterDisposedDetail> farDisposeDetailList
+            , IEnumerable<AdvanceReqSchedule> advanceSalarySchedulelist)
+        {
+            FixedAssetDisposeService _fixedAssetDisposeService = new FixedAssetDisposeService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            if (voucherVM.Status == "Sales")
+            {
+                _fixedAssetDisposeService.InsertFixedAssetDisposeSalesPosting(voucherVM, voucherDetailVMList, farDisposeDetailList, advanceSalarySchedulelist);
+
+            }
+            else
+            {
+                _fixedAssetDisposeService.InsertCapitalizeAssetDisposeScrapPosting(voucherVM, voucherDetailVMList, farDisposeDetailList, advanceSalarySchedulelist);
+
+            }
+            return Json(new { Message = AplosMessage.Insert });
+        }
         #endregion
     }
 }

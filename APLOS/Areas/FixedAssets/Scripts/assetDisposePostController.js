@@ -139,7 +139,7 @@ function assetDisposePostController(accountService, cboService, commonMessage, $
 
         $http({
             method: 'Post'
-            , url: 'FixedAssets/FixedAssetRegister/GetFixedAssetLostByDisposeIdList?id=' + data.Id
+            , url: 'FixedAssets/FixedAssetRegister/GetCapitalizeAssetLostByDisposeIdList?id=' + data.Id
             , data: { column: $scope.disposeSearchBy, value: $scope.disposeSearch }
             , dataType: 'JSON'
         }).then(function (response) {
@@ -332,7 +332,7 @@ function assetDisposePostController(accountService, cboService, commonMessage, $
         //$scope.voucher.DocDate = $scope.voucher.PostingDate;
         $scope.$broadcast("show-errors-check-validity");
         if ($scope.form0.$valid) {
-                $scope.SaveUrl = "fixedassets/FixedAssetRegister/CreateFixedAssetDisposePost"
+            $scope.SaveUrl = "fixedassets/FixedAssetRegister/CreateCapitalizeAssetDisposePost"
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",

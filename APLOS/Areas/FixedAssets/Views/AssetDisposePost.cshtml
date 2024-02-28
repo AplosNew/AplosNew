@@ -152,63 +152,37 @@
                 <table class="table table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th>Asset No</th>
-                            <th>Serial No</th>
-                            <th>Material</th>
-                            <th>Article</th>
-                            <th>Fixed Asset Master</th>
-                            <th>Invoice Date</th>
-                            <th>Capitalization Date</th>
-                            <th class="text-center">FA Base Amount</th>
-                            <th class="text-center">Base Sub Asset</th>
-                            <th style="width:100px">Total Base Amount</th>
-                            <th class="text-center">Depreciation</th>
-                            <th class="text-center">Net Base Amount</th>
+                            <th>Asset Register Id</th>
+                            <th>Asset Master</th>
+                            <th>Asset Item</th>
+                            <th class="text-center">Asset Amount</th>
+                            <th class="text-center">Depreciation Amount</th>
+                            <th style="width:100px">Net Amount</th>
                             <th class="text-center">Adjustment Depreciation Amount</th>
-                            <th class="text-center" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'">Negotiation</th>
-                            <th class="text-center" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'">Base Negotiation</th>
-                            <th>Vendor</th>
-                            <th>Invoice No</th>
-                            @*<th class="text-center">Trn Currency</th>*@
-                            <th class="text-center">OB</th>
+                            <th class="text-center" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'">Negotiation</th> 
                         </tr>
                     </thead>
                     <tbody>
                         <tr ng-repeat="x in fixedAssetDisposeDetailList">
-                            <td>{{x.AssetNo}}</td>
-                            <td>{{x.SerialNo}}</td>
-                            <td>{{x.MaterialMasterName}}</td>
-                            <td>{{x.Article}}</td>
-                            <td>{{x.FixedAssetMasterName}}</td>
-                            <td>{{x.PurchaseDate}}</td>
-                            <td>{{x.CapitalizationDate}}</td>
-
-                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="Price" ng-model="x.FABaseAmount " n-decimals="2"></td>
-                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="SubAssetAmount" ng-model="x.SubAssetBaseAmount " n-decimals="2"></td>
-                            <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="PurchasePrice" ng-model="x.PurchaseBaseAmount " n-decimals="2"></td>
-                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="ADBaseAmount" ng-model="x.ADBaseAmount " n-decimals="2"></td>
-                            <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="NetBookValue" ng-model="x.NetBaseBookValue " n-decimals="2"></td>
+                            <td>{{x.AssetRegisterId}}</td>
+                            <td>{{x.FixedAssetMaster}}</td>
+                            <td>{{x.FixedAssetItem}}</td>
+                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="Price" ng-model="x.AssetAmount " n-decimals="2"></td>
+                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="DepreciationAmount" ng-model="x.DepreciationAmount " n-decimals="2"></td>
+                            <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="NetAmount" ng-model="x.NetAmount " n-decimals="2"></td>
                             <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="AdjustmentDepreciationAmount" ng-model="x.AdjustmentDepreciationAmount "  n-decimals="2" autocomplete="off"></td>
-                            <td ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="NegotiationValue" ng-disabled="voucher.Status == 'Scrap'" ng-model="x.NegotiationValue " n-decimals="2"></td>
-                            <td ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><input type="text" class="form-control text-right" ng-disabled="true" id="BaseNagotiationValue" ng-model="x.BaseNagotiationValue " n-decimals="2"></td>
-                            <td>{{x.Vendor}}</td>
-                            <td>{{x.InvoiceNo}}</td>
-                            @*<td>{{x.TrnCurrency}}</td>*@
-                            <td>{{x.IsOBBalance}}</td>
-
+                            <td ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="NegotiationValue" ng-model="x.NegotiationValue " n-decimals="2"></td>
                         </tr>
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="7" class="text-right">Total</td>
-                            <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'FABaseAmount' }}</b></td>
-                            <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'SubAssetBaseAmount' }}</b></td>
-                            <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'PurchaseBaseAmount' }}</b></td>
-                            <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'ADBaseAmount' }}</b></td>
-                            <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'NetBaseBookValue' }}</b></td>
+                            <td colspan="3" class="text-right">Total</td>
+                            <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'AssetAmount' }}</b></td>
+                            <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'DepreciationAmount' }}</b></td>
+                            <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'NetAmount' }}</b></td>
                             <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'AdjustmentDepreciationAmount' }}</b></td>
                             <td class="text-right" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'NegotiationValue' }}</b></td>
-                            <td class="text-right" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'BaseNagotiationValue' }}</b></td>
+                            
                         </tr>
                     </tfoot>
                 </table>
