@@ -1150,7 +1150,7 @@ isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * SOP.OrderQty * PPS.Qty / 100 - ISNULL(CEI
                              FROM trn.ProductionOrder AS PO
                              LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '" + processId + @"'
                             LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = PO.Id
-LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = PO.Id
+--LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = PO.Id
 LEFT JOIN (select SUM(PP.Quantity)TotalProductionQty, PP.ProductionOrderId from [TRN].[ProductionSummary] PP where PP.ProcessId = 
 (select ProcessId from TRN.ProductionOrderProcessSet B where B.ProductionOrderId=PP.ProductionOrderId  and B.Sequence =
 (select top 1 Sequence=Sequence - 1  from TRN.ProductionOrderProcessSet A where A.ProductionOrderId=PP.ProductionOrderId and A.ProcessId='" + processId + @"')) GROUP BY PP.ProductionOrderId
@@ -1352,7 +1352,7 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
 
                 string invsql = "Select  JobWorkApplicable from TRN.ProductionOrderProcessSet where ProductionOrderId='" + ps.ProductionOrderId + @"' AND ProcessId='" + ProcessId + "'";
                 conRack.OpenDataSetThroughAdapter(invsql, out dsJobWorkApplicable, false, "1");
-               
+
 
 
                 if (!string.IsNullOrEmpty(ps.LotNumber))
@@ -1384,8 +1384,11 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                 if (dsJobWorkApplicable.Tables[0].Rows.Count > 0)
                 {
                     ps.IsJobWork = Convert.ToBoolean(dsJobWorkApplicable.Tables[0].Rows[0]["JobWorkApplicable"]);
-                    ps.JobWorkQty = ps.Quantity;
-                    ps.SourceType = "JW";
+                    if (ps.IsJobWork == true)
+                    {
+                        ps.JobWorkQty = ps.Quantity;
+                        ps.SourceType = "JW";
+                    }
                 }
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -1414,8 +1417,8 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                         }
                     }
                     ps.Quantity = ps.QtyWithoutScan + ps.ScanQty;
-                    
-                   
+
+
 
                     base.Insert(ps);
                 }
@@ -1468,13 +1471,34 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                 }
                 if (ProcessParaList != null)
                 {
-                    SaveMasterOrderItemCostingRateData(ProcessParaList, ps.Id);
+                    //SaveMasterOrderItemCostingRateData(ProcessParaList, ps.Id);
+
+                    int _count = 0;
+                    foreach (var item in ProcessParaList)
+                    {
+                        if (string.IsNullOrEmpty(item.Id))
+                        {
+                            _count++;
+                            item.Id = _pkGeneratorService.MakePK(ps.Id, _count, 3); ;
+                            item.ProductionSummaryId = ps.Id;
+                            item.ModelState = ModelState.Added;
+                            AuditService.AddedLog(item);
+                            _ProductionSummaryParameterValueRepository.Insert(item);
+                        }
+                        else
+                        {
+                            item.ProductionSummaryId = ps.Id;
+                            item.ModelState = ModelState.Modified;
+                            AuditService.UpdatedLog(item);
+                            _ProductionSummaryParameterValueRepository.Update(item);
+                        }
+                    }
                 }
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
 
-                
+
 
             }
             catch (Exception ex)
@@ -1499,18 +1523,18 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                 {
                     if (string.IsNullOrEmpty(item.Id))
                     {
-                            _count++;
-                            item.Id = _pkGeneratorService.MakePK(masterId, _count, 3); ;
-                            item.ProductionSummaryId = masterId;
-                            item.ModelState = ModelState.Added;
-                            AuditService.AddedLog(item);
+                        _count++;
+                        item.Id = _pkGeneratorService.MakePK(masterId, _count, 3); ;
+                        item.ProductionSummaryId = masterId;
+                        item.ModelState = ModelState.Added;
+                        AuditService.AddedLog(item);
                         _ProductionSummaryParameterValueRepository.Insert(item);
                     }
                     else
                     {
-                            item.ProductionSummaryId = masterId;
-                            item.ModelState = ModelState.Modified;
-                            AuditService.UpdatedLog(item);
+                        item.ProductionSummaryId = masterId;
+                        item.ModelState = ModelState.Modified;
+                        AuditService.UpdatedLog(item);
                         _ProductionSummaryParameterValueRepository.Update(item);
                     }
                 }

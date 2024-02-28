@@ -1643,25 +1643,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 $scope.productionSummaryNew.SourceType = "PB";
             }
 
-            //if ($scope.IsFirst == false) {
-            //    if (parseFloat($scope.RemainQty) < 0) {
-            //        throw "Order Quantity dosen't available.";
-            //    }
-            //}
-
-            //if (parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.TotalPreviousProcessQty) && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks) && $scope.productionSummaryNew.ProcessId!=202028)
-            //{
-            //    throw "If Current Produced Qty is greater than Previous Process Booked Qty then Please enter remarks and inform to departmental head without fail!";
-            //}
-
-            //$scope.CompareMaxValue = Math.max(parseFloat($scope.TotalProcessPlanQty), parseFloat($scope.TotalPreviousProcessQty))
-            //if (parseFloat($scope.TotalProductionBookingQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.CompareMaxValue && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
-            //    throw "You cannot booked greater than Current Process Plan Qty or Previous Process Booked Qty.";
-            //}
-            //else
-            //{
-            //    $scope.productionSummaryNew.PPQFlag = true;
-            //}
+            
             if (parseFloat($scope.productionSummaryNew.Quantity) < 0) {
                 throw "Quantity should not be less than 0.";
             }
@@ -1712,20 +1694,6 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             }
 
 
-            //if (parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.RemainingQtyValue)) {
-            //    throw "Produced Quantity should not be greater than RemainingQtyValue.";
-            //}
-
-            //if ($scope.IsFirst == false) {
-            //    if (parseFloat($scope.NewObject.RemainingQty) < 0 && $scope.productionSummaryNew.Quantity > 0) {
-            //        throw "Produced Quantity should less than Order Quantity.";
-            //    }
-            //}
-
-            //if (parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.NewObject.RemainingQty) && $scope.productionSummaryNew.Quantity > 0) {
-            //    throw "Produced Quantity should not be greater than Balance Quantity.";
-            //}
-
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
@@ -1759,7 +1727,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 ShowResult(response.data.Message, 'failure');
             };
         } catch (ex) {
-            ShowResult(ex, 'Info');
+            ShowResult(ex, 'failure');
         }
     };
     $scope.refreshTemplateProductionSummaryWC = function (args) {
