@@ -515,7 +515,11 @@ Where SC.Id<>''
             }
         }//End of function
 
-
+        [HttpGet, Authorize]
+        public JsonResult GetProductionOrderSOList(string productionOrderId)
+        {
+            return Json(clsSales.GetProductionOrderSOList(productionOrderId), JsonRequestBehavior.AllowGet);
+        }
 
     }
 }
