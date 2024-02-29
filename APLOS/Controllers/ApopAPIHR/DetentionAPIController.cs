@@ -1337,6 +1337,12 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetPaymentStatus(out List<PaymentStatus> activelists, PartyId);
             return activelists;
         }
+        public List<INvoiceWiseAccount> GetPaymentstatusInvoiceWise(string PartyId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetPaymentstatusInvoiceWise(out List<INvoiceWiseAccount> activelists, PartyId);
+            return activelists;
+        }
         #endregion PaymentStatus
     }
 }
