@@ -27,6 +27,8 @@ using Library.Model.Invoices;
 using Library.Model.Parties;
 using Library.Service.Core;
 using Library.ViewModel.Accounts;
+using Library.Model.Advances;
+using Library.Service.Systems;
 
 namespace Library.Accounting.FixedAssets
 {
@@ -99,6 +101,45 @@ namespace Library.Accounting.FixedAssets
             clsStaticInfo obj = new clsStaticInfo();
             obj.SaveDataSets(ds);
 
+        }
+        public void InsertAdvance(Advance advance,  ref DataSet advanceds)
+        {
+            advance.Id = advance.Id;
+            if (string.IsNullOrEmpty(advance.AddedBy))
+                AuditService.AddedLog(advance);
+            if (advanceds == null || advanceds.Tables.Count == 0)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from [TRN].[Advance] where 1=2", out advanceds);
+            }
+
+            AddNewRow<Advance>(advanceds.Tables[0], advance);
+        }
+        public void InsertAdvanceDetail(Advance advance, AdvanceDetail advanceDetail, ref DataSet advanceDetailds)
+        {
+            advanceDetail.Id = advanceDetail.Id;
+            if (string.IsNullOrEmpty(advanceDetail.AddedBy))
+                AuditService.AddedLog(advanceDetail);
+            if (advanceDetailds == null || advanceDetailds.Tables.Count == 0)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from [TRN].[AdvanceDetail] where 1=2", out advanceDetailds);
+            }
+
+            AddNewRow<AdvanceDetail>(advanceDetailds.Tables[0], advanceDetail);
+        }
+        public void InsertEmployeeSubsequentTransaction(Advance advance, EmployeeSubsequentTransaction employeeSubsequentTransaction, ref DataSet employeeSubsequentTransactionds)
+        {
+            employeeSubsequentTransaction.Id = employeeSubsequentTransaction.Id;
+            if (string.IsNullOrEmpty(employeeSubsequentTransaction.AddedBy))
+                AuditService.AddedLog(employeeSubsequentTransaction);
+            if (employeeSubsequentTransactionds == null || employeeSubsequentTransactionds.Tables.Count == 0)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from [TRN].[EmployeeSubsequentTransaction] where 1=2", out employeeSubsequentTransactionds);
+            }
+
+            AddNewRow<EmployeeSubsequentTransaction>(employeeSubsequentTransactionds.Tables[0], employeeSubsequentTransaction);
         }
         public void InsertAdvanceReqSchedule(VoucherViewModel voucherVM, AdvanceReqSchedule financingSchedule, string requisitionId, ref DataSet advRewSchedule)
         {
@@ -590,9 +631,9 @@ namespace Library.Accounting.FixedAssets
                 DataSet _drvDetailCurrencyData = null;
                 DataSet _crvDetailData = null;
                 DataSet _crvDetailCurrencyData = null;
-                DataSet _frDisposeData = null;
-                DataSet _fixedAssetRegisterData = null;
-                DataSet _advanceReqScheData = null;
+                DataSet _advanceData = null;
+                DataSet _advanceDetailData = null;
+                DataSet _employeeSubsequentTransactionData = null;
 
 
                 var voucher = new Voucher
@@ -638,6 +679,7 @@ namespace Library.Accounting.FixedAssets
                             DrAmount = voucherDetailVM.Amount,
                             DocRefNo = voucherVM.DocRefNo,
                             Narration = voucherDetailVM.Narration,
+                            EmployeeId = voucherVM.EmployeeId,
                         };
                         currentVoucherDetaiRecord++;
                         _accountsCommonService.InsertVoucherDetail(voucher, voucherDr, currentVoucherDetaiRecord, ref _drvDetailData);
@@ -651,6 +693,111 @@ namespace Library.Accounting.FixedAssets
                             ToCurrencyConversion = 1,
                             DrAmount = voucherDr.DrAmount
                         }, ref _drvDetailCurrencyData);
+                        if(voucherDetailVM.OtherName == "Advance")
+                        {
+                            var advance = new Advance
+                            {
+                                Id = _accountsCommonService.GetAutoNumber(nameof(Advance), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                                CompanyGroupId = voucherVM.CompanyGroupId,
+                                CompanyId = voucherVM.CompanyId,
+                                PlantId = voucherVM.PlantId,
+                                EntityId = voucherVM.EntityId,
+                                FiscalYearId = voucherVM.FiscalYearId,
+                                FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
+                                TaxYearId = voucherVM.TaxYearId,
+                                TaxYearPeriodId = voucherVM.TaxYearPeriodId,
+                                VoucherTypeId = voucherVM.VoucherTypeId,
+                                VoucherId = voucher.Id,
+                                CurrencyId = voucher.CurrencyId,
+                                EmployeeId = voucherVM.EmployeeId,
+                                PartyId = voucherVM.PartyId,
+                                PartyPlantId = voucherVM.PartyPlantId,
+                                ResponsiblePersonId = voucherVM.ResponsiblePersonId,
+                                Amount = voucherDetailVM.Amount,
+                                VoucherDate = voucherVM.VoucherDate,
+                                PostingDate = voucherVM.PostingDate,
+                                ReviewDate = voucherVM.ReviewDate,
+                                DocDate = voucherVM.DocDate,
+                                DocRefNo = voucherVM.DocRefNo,
+                                Narration = voucher.SourceType,
+                                PartyType = "Employee",
+                                SourceType = voucher.SourceType,
+                                PaymentSource = voucherVM.PaymentSource,
+                                BankMasterId = voucherVM.BankMasterId,
+                                CashMasterId = voucherVM.CashMasterId,
+                                JournalId =  voucherVM.JournalId,
+                                BankAmount = voucherVM.BankAmount,
+                                EmployeeTransactionTypeId = voucherVM.EmployeeTransactionTypeId,
+                                IsInterTransaction = voucherVM.IsInterTransaction,
+                                FinancingTypeId = voucherVM.IsInterTransaction ? voucherVM.FinancingTypeId : null,
+                                IsPark = voucherVM.IsPark,
+                                JournalType = voucherVM.JournalType,
+                                SettlementType = voucherVM.SettlementType,
+                                RequisitionId = voucherVM.RequisitionId,
+                                CompanyCurrencyRate = 1,
+                                POId = voucherVM.POId,
+                                ContractId = voucherVM.ContractId,
+                                MasterOrderId = voucherVM.MasterOrderId,
+                                AdvanceGroupNo = voucherVM.AdvanceGroupNo
+                            };
+                            InsertAdvance(advance, ref _advanceData);
+                            var advanceDetail = new AdvanceDetail
+                            {
+                                Id = _accountsCommonService.MakePK(advance.Id, 1),
+                                AdvanceId = advance.Id,
+                                PartyType = advance.PartyType,
+                                CompanyId = advance.CompanyId,
+                                EmployeeId = advance.EmployeeId,
+                                PlantId = advance.PlantId,
+                                PartyId = advance.PartyId,
+                                PartyPlantId = advance.PartyPlantId,
+                                PaymentType = voucherDetailVM.PaymentType,
+                                GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                                BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                                ActivityId = voucherDetailVM.ActivityId,
+                                AddedBy = advance.AddedBy,
+                                AddedDate = advance.AddedDate,
+                                AddedFromIP = advance.AddedFromIP,
+                                Archive = advance.Archive,
+                                Narration = voucher.SourceType,
+                                Amount = voucherDetailVM.Amount,
+                                NetAmount = voucherDetailVM.Amount,
+                                BooksAmount = voucherDetailVM.Amount
+                                
+                        };
+                            InsertAdvanceDetail(advance, advanceDetail, ref _advanceDetailData);
+                            
+                            var employeeSubsequentTransaction = new EmployeeSubsequentTransaction
+                            {
+                                Id = "ES" + _accountsCommonService.GetAutoNumber(nameof(EmployeeSubsequentTransaction), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                                CompanyGroupId = voucherVM.CompanyGroupId,
+                                CompanyId = voucherVM.CompanyId,
+                                PlantId = voucherVM.PlantId,
+                                EntityId = voucherVM.EntityId,
+                                VoucherTypeId = voucherVM.VoucherTypeId,
+                                AdvanceId = advance.Id,
+                                EmployeeId = advance.EmployeeId,
+                                EmployeeTransactionTypeId = advance.EmployeeTransactionTypeId,
+                                AdvanceWriteOffId = null,
+                                EmployeePayableId = null,
+                                PartyType = advance.PartyType,
+                                CurrencyId = advance.CurrencyId,
+                                Amount = advanceDetail.Amount,
+                                VoucherDate = voucherVM.VoucherDate,
+                                PostingDate = voucherVM.PostingDate,
+                                DocDate = voucherVM.DocDate,
+                                DocRefNo = voucherVM.DocRefNo,
+                                JournalType = voucherVM.JournalType,
+                                TransactionType = EmployeeSubsequentTranEnum.Advance.ToString(),
+                                Narration = voucher.SourceType,
+                                SourceType = voucher.SourceType,
+                                IsPark = voucherVM.IsPark,
+                                VoucherId = voucher.Id,
+                                VoucherDetailId = voucherDr.Id,
+                                PaymentSource = voucherVM.PaymentSource
+                            };
+                            InsertEmployeeSubsequentTransaction(advance, employeeSubsequentTransaction, ref _employeeSubsequentTransactionData);
+                        }
                     }
                     else if (voucherDetailVM.TrnType == "Cr" && voucherDetailVM.Amount > 0)
                     {
@@ -680,60 +827,21 @@ namespace Library.Accounting.FixedAssets
                         }, ref _crvDetailCurrencyData);
                     }
                 }
+                
+                clsStaticInfo objApp = new clsStaticInfo();
+                objApp.SaveDataSets(_vdataset, _crvDetailData, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData, _advanceData, _advanceDetailData, _employeeSubsequentTransactionData);
                 if (farDisposeDetailList != null)
                 {
                     foreach (var item in farDisposeDetailList)
                     {
-
-                        var faRegisterDispose = new FixedAssetRegisterDisposed
-                        {
-                            DisposedVoucherId = voucher.Id,
-                            Id = item.FixedAssetRegisterDisposedId,
-                            Status = voucherVM.Status,
-                            Remarks = voucherVM.Remarks,
-                            EmployeeId = voucherVM.EmployeeId,
-                            PartyId = voucherVM.PartyId,
-                            PartyPlantId = voucherVM.PartyPlantId,
-                            DocDate = voucherVM.DocDate,
-                            AddedBy = item.AddedBy,
-                            AddedDate = item.AddedDate,
-                            AddedFromIP = item.AddedFromIP
-                        };
-                        UpdateFixedAssetRegisterDispose(faRegisterDispose, ref _frDisposeData);
-
-                        //var faRegister = new FixedAssetRegister
-                        //{
-                        //    DisposedVoucherId = voucher.Id,
-                        //    DisposedDate = voucher.PostingDate,
-                        //    Id = item.FixedAssetRegisterId
-                        //};
-                        //UpdateFixedAssetRegister(faRegister, ref _fixedAssetRegisterData);
-
+                        var rdBuilder = new System.Text.StringBuilder();
+                        var builderSql = "";
+                        builderSql = @"UPDATE [TRN].[FixedAssetRegisterDisposed] SET DisposedVoucherId='" + voucher.Id + "' WHERE Id='" + item.FixedAssetRegisterDisposedId + "' ";
+                        rdBuilder.Append(builderSql);
+                        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                     }
                 }
-                if (advanceSalarySchedulelist != null)
-                {
-                    foreach (var item in advanceSalarySchedulelist)
-                    {
-                        var advanceReqSchedule = new AdvanceReqSchedule
-                        {
-                            Id = _accountsCommonService.MakePK(voucherVM.Id, item.InstallmentNo, 3),
-                            InstallmentAmount = item.InstallmentAmount,
-                            InstallmentDate = item.InstallmentDate,
-                            InstallmentNo = item.InstallmentNo,
-                            PrincipalAmount = item.PrincipalAmount,
-                            ProfitAmount = item.ProfitAmount,
-                            ScheduleNo = item.ScheduleNo,
-                            Balance = item.Balance,
-                            YearNo = item.InstallmentDate.Year,
-                            MonthNo = item.InstallmentDate.Month
-                        };
-                        InsertAdvanceReqSchedule(voucherVM, advanceReqSchedule, voucherVM.RequisitionId, ref _advanceReqScheData);
-                    }
-                }
-                clsStaticInfo objApp = new clsStaticInfo();
-                objApp.SaveDataSets(_vdataset, _crvDetailData, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData, _frDisposeData, _fixedAssetRegisterData, _advanceReqScheData
-                    );
+                
             }
             catch (Exception ex)
             {
@@ -1013,6 +1121,7 @@ namespace Library.Accounting.FixedAssets
 				LEFT JOIN HKP.PartyPlant PP ON PP.Id=FRD.PartyPlantId
 	            LEFT JOIN SCS.Currency C ON C.Id =frd.CurrencyId
                 LEFT JOIN TRN.Voucher V ON V.Id =frd.DisposedVoucherId
+                WHERE frd.DisposedVoucherId IS NULL
                 group by frd.Id,frd.Status,frd.Remarks,frd.EmployeeId,ei.EmployeeName,D.UserName,DG.UserName ,c.Code,frd.IsPark,c.Id,frd.DocDate
 				,P.UserName ,frd.PartyId,frd.PartyPlantId ,frd.DeliveryPartyPlantId,frd.InvoicingByAddress,frd.DeliveryByAddress,c.Code,v.VoucherNo		
                 ) AS TEMP WHERE " + strkey + " order by SlNo desc ";
@@ -1061,7 +1170,32 @@ namespace Library.Accounting.FixedAssets
             return _sqlRepository.GetDataCollection(sql);
         }
 
-
+        public List<Dictionary<string, object>> GetCapitalizeAssetDisposePostedList(string column, string value, string companyId)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+            var sql = @"select top 100 * from (select frd.Id DisposeNo,cast(substring(frd.Id,3,8) as int)SlNo,frd.EmployeeId,ei.EmployeeName,D.UserName Department
+									,frd.Status,frd.Remarks,DG.UserName Designation,c.Code TrnCurrency,frd.IsPark,  c.Id trnCurrencyId
+									,format( frd.DocDate,'dd-MMM-yyyy')DocDate ,P.UserName CustomerName,frd.PartyId,frd.PartyPlantId 
+									 ,frd.DeliveryPartyPlantId,frd.InvoicingByAddress,frd.DeliveryByAddress,c.Code TrnPurchaseCurrency,V.VoucherNo,V.PostingDate,V.Id
+									,sum(isnull( rdd.NegotiationValue,0))NegotiationValue
+                                    ,sum(isnull( rdd.BaseNagotiationValue,0))BaseNagotiationValue
+                from TRN.FixedAssetRegisterDisposed frd 
+				join TRN.FixedAssetRegisterDisposedDetail rdd ON rdd.FixedAssetRegisterDisposedId=frd.Id
+                left join  TRN.AssetRegister AR on AR.Id=rdd.AssetRegisterId
+                left join dbo.EmployeeInformation ei on ei.SystemId=frd.EmployeeId
+				left join ORG.Department D on D.Id=ei.DepartmentId
+				left join HKP.Designation DG ON DG.Id=ei.DesignationSystemID
+				LEFT JOIN HKP.Party P ON P.Id=FRD.PartyId
+				LEFT JOIN HKP.PartyPlant PP ON PP.Id=FRD.PartyPlantId
+	            LEFT JOIN SCS.Currency C ON C.Id =frd.CurrencyId
+                LEFT JOIN TRN.Voucher V ON V.Id =frd.DisposedVoucherId
+				WHERE V.SourceType='FixedAssetDisposeJournal'
+                group by frd.Id,frd.Status,frd.Remarks,frd.EmployeeId,ei.EmployeeName,D.UserName,DG.UserName ,c.Code,frd.IsPark,c.Id,frd.DocDate
+				,P.UserName ,frd.PartyId,frd.PartyPlantId ,frd.DeliveryPartyPlantId,frd.InvoicingByAddress,frd.DeliveryByAddress,c.Code,V.VoucherNo,V.PostingDate,V.Id) AS TEMP WHERE " + strkey + " order by SlNo desc ";
+            return _sqlRepository.GetDataCollection(sql);
+        }
 
 
         public void GetParallelCurrency(string companyId, out string companyCurrencyId, out string companyCurrencyCode)
