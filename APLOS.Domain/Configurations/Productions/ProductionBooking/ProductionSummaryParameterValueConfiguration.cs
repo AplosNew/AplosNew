@@ -12,6 +12,7 @@ namespace Library.Model.Configurations.Productions.ProductionBooking
             // Primary Key
             HasKey(t => t.Id);
             // Table & Column Configuration
+            Property(r => r.Value).HasPrecision(18, 4);
             ToTable(nameof(ProductionSummaryParameterValue), DbSchema.Dbo);
             Ignore(r => r.ModelState);
         }

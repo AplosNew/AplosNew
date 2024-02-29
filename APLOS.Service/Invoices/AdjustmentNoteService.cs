@@ -591,7 +591,7 @@ namespace Library.Service.Invoices
                 {
                     if (voucherVM.PartyType == PartyType.Vendor.ToString() && null != additionalTaxList && additionalTaxList.Count() > 0)
                     {
-                        adjustmentNoteDetail.Amount = adjustmentNote.Amount - totalwithholdDrAmount + totalBaseCurrencyCrAmount - additionalTaxList.Sum(r => r.TaxAmount);
+                        adjustmentNoteDetail.Amount = adjustmentNote.Amount - totalwithholdDrAmount + taxDrAmount - additionalTaxList.Sum(r => r.TaxAmount);
                     }
                     else
                         adjustmentNoteDetail.Amount = adjustmentNote.Amount - totalwithholdCrAmount + totalBaseCurrencyDrAmount;

@@ -1068,7 +1068,7 @@ function creditNoteController(accountService, cboService, commonMessage, $scope,
             return item.Id === $scope.TDS.TaxCodeId;
         })[0].TaxCategoryId;
         if ($scope.TDS.Type == 'FixedPercentage' && !baseService.isUndefinedOrNull($scope.TDS.ValueOfFixed)) {
-            $scope.TDS.TaxAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryReceivedList), "TaxableAmount") * $scope.TDS.ValueOfFixed / 100).toFixed(4);
+            $scope.TDS.TaxAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.invoiceSalesAvailableList), "Amount") * $scope.TDS.ValueOfFixed / 100).toFixed(4);
         }
     }
     $scope.TDSList = [];

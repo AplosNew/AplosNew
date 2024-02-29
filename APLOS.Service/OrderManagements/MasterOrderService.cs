@@ -633,6 +633,66 @@ namespace Library.Service.OrderManagements
             }
         }
 
+        public IEnumerable<object> GetMasterItemForApproveList(string masterOrderId, string empId)
+        {
+            try
+            {
+                var sql = @"SELECT MOI.Id, MOI.MasterOrderId, MOI.InquiryItemId, MOI.SampleItemId, MOI.TestingStandardId
+                           ,Status=STUFF((select distinct ','+case when CheckByStatus = 'Checked' then 'Checked' else 'Pending' end from trn.SalesOrder XSO 
+							                                where XSO.MasterOrderItemId=MOI.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                            ,CheckStatus=STUFF((select distinct ','+XSO.CheckByStatus from trn.SalesOrder XSO 
+							                                where XSO.MasterOrderItemId=MOI.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+						   ,ApproveStatus=STUFF((select distinct ','+XSO.ApprovedStatus from trn.SalesOrder XSO 
+							                                where XSO.MasterOrderItemId=MOI.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+	                         , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName
+	                         , MOI.ArticleId, ART.StandardName AS ArticleName
+	                         , MOI.BuyerReferenceNo, MOI.OwnReferenceNo, MOI.TotalQty
+	                         , MOI.OrderWastagePercentage, MOI.ExtraOrderPercentage, MOI.ProductionGrouping, MM.HSNCodeId
+							 , ISNULL(HART.HasAttribute,CAST(0 AS BIT)) AS HasAttribute
+                             , ISNULL((select sum(SO.Qty) from TRN.SalesOrder SO where So.MasterOrderItemId = MOI.Id),0) as SOQty
+                             , ISNULL((select sum(so.Rate*so.Qty) from TRN.SalesOrder SO where So.MasterOrderItemId = MOI.Id),0) as TotalAmount
+                             ,MOI.Type,MOI.IsRepeat, PM.UserName AS ProductMaster
+                            --a ,MOI.ContractId,CNT.ContractNo,MLC.LCRef
+							 ,MOI.BuyerItemDescription,MOI.MainRawMaterialDescription,MOI.PartyId,MOI.EntityIdWithinGroup,MOI.EntityIdWithinCompany,MOI.JobWorkType
+                             , EntityOrVendorName= CASE WHEN MOI.EntityIdWithinCompany<>'' THEN EWCC.UserName +' - '+EWC.UserName 
+					                        WHEN MOI.EntityIdWithinGroup<>'' THEN EWGC.UserName+' - '+EWG.UserName
+					                        WHEN MOI.PartyId<>'' THEN PRT.UserName
+					                        ELSE PRT.UserName END
+                            ,enableJobOrOutSource=CASE WHEN MOI.[Type]='JobWork' OR MOI.[Type]='OutSource' THEN 'false' ELSE 'true' END
+                            ,MOI.ProductLibraryId,MOI.FileName,MOI.Remark,MOI.OrderStatusId,MOI.UOMId
+                            ,BOQNo=(Select COUNT(Id) from [dbo].[QuickBOQ] Where MasterOrderItemId=MOI.Id)
+                            ,SONo=(Select COUNT(Id) from TRN.SalesOrder Where MasterOrderItemId=MOI.Id)
+                            ,MOI.Consignment,MOI.OrderCostingMasterTemplateId,'' TempList,PM.Id ProductMasterId,CAST(1 as bit) ByDefault,PL.UserName ProductLibrary,OCT.UserName OrderCostingMasterTemplate,MOI.Rate,ISNULL(AA.ArticlePartyName,P.UserName) CustomerArticle
+                        FROM TRN.MasterOrderItem AS MOI
+                        JOIN MST.MaterialMaster AS MM ON MOI.MaterialMasterId=MM.Id
+                        LEFT JOIN MST.MaterialMasterArticle AS ART ON MOI.ArticleId=ART.Id
+						LEFT JOIN (SELECT AttributeSetLength=CASE WHEN COUNT(MaterialMasterId)>0 THEN COUNT(MaterialMasterId) ELSE 0 END
+                                                , HasAttribute=CASE WHEN COUNT(MaterialMasterId)>0 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END, MaterialMasterId
+                                            FROM MST.MaterialMasterAttribute GROUP BY MaterialMasterId) AS HART ON HART.MaterialMasterId=MM.Id
+                        LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=ART.Id AND AA.MasterOrderItemId=MOI.Id
+						LEFT JOIN HKP.Party P ON P.Id=AA.Partyid
+                        LEFT JOIN [TRN].ProductDefinition AS PD ON PD.MaterialMasterId= MM.Id
+						LEFT JOIN [MST].[ProductMaster] AS PM ON PD.ProductMasterId = PM.Id
+                        --LEFT JOIN dbo.Contract CNT ON CNT.Id=MOI.ContractId
+						--LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CNT.MasterLCId
+						LEFT JOIN ORG.Entity AS EWC ON MOI.EntityIdWithinCompany=EWC.Id
+						LEFT JOIN ORG.Company AS EWCC ON EWC.CompanyId=EWCC.Id
+                        LEFT JOIN ORG.Entity AS EWG ON MOI.EntityIdWithinGroup=EWG.Id
+						LEFT JOIN ORG.CompanyGroup AS EWGC ON EWG.CompanyGroupId=EWGC.Id
+                        LEFT JOIN HKP.Party AS PRT ON MOI.PartyId=PRT.Id
+                        LEFT JOIN dbo.ProductLibrary PL ON PL.Id=MOI.ProductLibraryId
+                        LEFT JOIN dbo.OrderCostingMasterTemplate OCT ON OCT.Id=MOI.OrderCostingMasterTemplateId
+                        WHERE MOI.MasterOrderId='" + masterOrderId + @"' AND MOI.Id IN(Select distinct SO.MasterOrderItemId from  TRN.SalesOrder SO
+Where SO.CheckByStatus = 'Checked' AND ApprovedStatus = 'To Be Approve' AND SO.ApproveBy = '"+ empId + "')";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
+            }
+        }
 
         public IEnumerable<object> GetItemsData(string masterOrderId)
         {

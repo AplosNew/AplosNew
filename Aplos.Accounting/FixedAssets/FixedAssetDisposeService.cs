@@ -575,6 +575,173 @@ namespace Library.Accounting.FixedAssets
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        public void InsertCapitalizeAssetDisposeScrapPosting(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
+           , IEnumerable<FixedAssetRegisterDisposedDetail> farDisposeDetailList
+           , IEnumerable<AdvanceReqSchedule> advanceSalarySchedulelist)
+        {
+            try
+            {
+                AccountsCommonService _accountsCommonService = new AccountsCommonService(_sqlRepository);
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+
+                DataSet _drvDetailData = null;
+                DataSet _drvDetailCurrencyData = null;
+                DataSet _crvDetailData = null;
+                DataSet _crvDetailCurrencyData = null;
+                DataSet _frDisposeData = null;
+                DataSet _fixedAssetRegisterData = null;
+                DataSet _advanceReqScheData = null;
+
+
+                var voucher = new Voucher
+                {
+                    CompanyGroupId = voucherVM.CompanyGroupId,
+                    CompanyId = voucherVM.CompanyId,
+                    PlantId = voucherVM.PlantId,
+                    CurrencyId = companyCurrencyId,
+                    FiscalYearId = voucherVM.FiscalYearId,
+                    FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
+                    TaxYearId = voucherVM.TaxYearId,
+                    TaxYearPeriodId = voucherVM.TaxYearPeriodId,
+                    VoucherDate = DateTime.Now,
+                    DocDate = voucherVM.DocDate,
+                    DocRefNo = voucherVM.DocRefNo,
+                    Narration = "Posting",//voucherVM.Narration,
+                    PostingDate = voucherVM.PostingDate,
+                    SourceType = SourceType.FixedAssetDisposeJournal.ToString(),
+                    VoucherTypeId = voucherVM.VoucherTypeId
+                };
+                _accountsCommonService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);
+
+                var currentVoucherDetaiRecord = 0;
+                var currentInvoiceDetail = 0;
+
+                foreach (var voucherDetailVM in voucherDetailVMList)
+                {
+
+                    if (voucherDetailVM.TrnType == "Dr" && voucherDetailVM.Amount > 0)
+                    {
+
+                        // INSERT INTO InvoiceDetail
+
+
+                        if (string.IsNullOrEmpty(voucherDetailVM.GLGeneralInfoId))
+                            throw new CustomException("Without GL can not post.");
+                        // in libility side Dr.
+                        var voucherDr = new VoucherDetail
+                        {
+                            GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                            BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                            ActivityId = voucherDetailVM.ActivityId,
+                            DrAmount = voucherDetailVM.Amount,
+                            DocRefNo = voucherVM.DocRefNo,
+                            Narration = voucherDetailVM.Narration,
+                        };
+                        currentVoucherDetaiRecord++;
+                        _accountsCommonService.InsertVoucherDetail(voucher, voucherDr, currentVoucherDetaiRecord, ref _drvDetailData);
+
+                        _accountsCommonService.InsertVoucherDetailCompanyCurrency(voucherDr, new VoucherDetailCurrency
+                        {
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = companyCurrencyId,
+                            ToCurrencyId = companyCurrencyId,
+                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                            ToCurrencyConversion = 1,
+                            DrAmount = voucherDr.DrAmount
+                        }, ref _drvDetailCurrencyData);
+                    }
+                    else if (voucherDetailVM.TrnType == "Cr" && voucherDetailVM.Amount > 0)
+                    {
+                        if (string.IsNullOrEmpty(voucherDetailVM.GLGeneralInfoId))
+                            throw new CustomException("Without GL can not post.");
+                        // INSERT INTO VoucherDetail
+                        var voucherCr = new VoucherDetail
+                        {
+                            GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                            BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                            ActivityId = voucherDetailVM.ActivityId,
+                            CurrencyId = voucher.CurrencyId,
+                            DrAmount = 0,
+                            CrAmount = voucherDetailVM.Amount,
+                        };
+                        currentVoucherDetaiRecord++;
+                        _accountsCommonService.InsertVoucherDetail(voucher, voucherCr, currentVoucherDetaiRecord, ref _crvDetailData);
+
+                        _accountsCommonService.InsertVoucherDetailCompanyCurrency(voucherCr, new VoucherDetailCurrency
+                        {
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = companyCurrencyId,
+                            ToCurrencyId = companyCurrencyId,
+                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                            ToCurrencyConversion = 1,
+                            CrAmount = voucherCr.CrAmount
+                        }, ref _crvDetailCurrencyData);
+                    }
+                }
+                if (farDisposeDetailList != null)
+                {
+                    foreach (var item in farDisposeDetailList)
+                    {
+
+                        var faRegisterDispose = new FixedAssetRegisterDisposed
+                        {
+                            DisposedVoucherId = voucher.Id,
+                            Id = item.FixedAssetRegisterDisposedId,
+                            Status = voucherVM.Status,
+                            Remarks = voucherVM.Remarks,
+                            EmployeeId = voucherVM.EmployeeId,
+                            PartyId = voucherVM.PartyId,
+                            PartyPlantId = voucherVM.PartyPlantId,
+                            DocDate = voucherVM.DocDate,
+                            AddedBy = item.AddedBy,
+                            AddedDate = item.AddedDate,
+                            AddedFromIP = item.AddedFromIP
+                        };
+                        UpdateFixedAssetRegisterDispose(faRegisterDispose, ref _frDisposeData);
+
+                        //var faRegister = new FixedAssetRegister
+                        //{
+                        //    DisposedVoucherId = voucher.Id,
+                        //    DisposedDate = voucher.PostingDate,
+                        //    Id = item.FixedAssetRegisterId
+                        //};
+                        //UpdateFixedAssetRegister(faRegister, ref _fixedAssetRegisterData);
+
+                    }
+                }
+                if (advanceSalarySchedulelist != null)
+                {
+                    foreach (var item in advanceSalarySchedulelist)
+                    {
+                        var advanceReqSchedule = new AdvanceReqSchedule
+                        {
+                            Id = _accountsCommonService.MakePK(voucherVM.Id, item.InstallmentNo, 3),
+                            InstallmentAmount = item.InstallmentAmount,
+                            InstallmentDate = item.InstallmentDate,
+                            InstallmentNo = item.InstallmentNo,
+                            PrincipalAmount = item.PrincipalAmount,
+                            ProfitAmount = item.ProfitAmount,
+                            ScheduleNo = item.ScheduleNo,
+                            Balance = item.Balance,
+                            YearNo = item.InstallmentDate.Year,
+                            MonthNo = item.InstallmentDate.Month
+                        };
+                        InsertAdvanceReqSchedule(voucherVM, advanceReqSchedule, voucherVM.RequisitionId, ref _advanceReqScheData);
+                    }
+                }
+                clsStaticInfo objApp = new clsStaticInfo();
+                objApp.SaveDataSets(_vdataset, _crvDetailData, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData, _frDisposeData, _fixedAssetRegisterData, _advanceReqScheData
+                    );
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
 
         public void InsertFixedAssetDepreciationPosting(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
            , IEnumerable<FixedAssetDepreciationProcessVM> fixedAssetDepreciationList)
@@ -822,6 +989,32 @@ namespace Library.Accounting.FixedAssets
                        group by fr.[Status],frd.Id ,frd.PartyId,frd.PartyPlantId, BC.Code,P.UserName,c.Id,c.Code,frd.IsPark,frd.ToCurrencyRate,frd.DeliveryPartyPlantId,frd.InvoicingByAddress,frd.DeliveryByAddress
 					 --,FR.IsOpeningBalance 
 					 ,frd.DocDate,fr.Remarks,ei.EmployeeName,frd.EmployeeId	,P.UserName  ,frd.IsPark,D.UserName ,DG.UserName	
+                ) AS TEMP WHERE " + strkey + " order by SlNo desc ";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        public List<Dictionary<string, object>> GetCapitalizeAssetDisposeListForPosting(string column, string value, string companyId)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+            var sql = @"select top 100 * from (select frd.Id,frd.Id DisposeNo,cast(substring(frd.Id,3,8) as int)SlNo,frd.EmployeeId,ei.EmployeeName,D.UserName Department
+									,frd.Status,frd.Remarks,DG.UserName Designation,c.Code TrnCurrency,frd.IsPark,  c.Id trnCurrencyId
+									,format( frd.DocDate,'dd-MMM-yyyy')DocDate ,P.UserName CustomerName,frd.PartyId,frd.PartyPlantId 
+									 ,frd.DeliveryPartyPlantId,frd.InvoicingByAddress,frd.DeliveryByAddress,c.Code TrnPurchaseCurrency,v.VoucherNo
+									,sum(isnull( rdd.NegotiationValue,0))NegotiationValue
+                                    ,sum(isnull( rdd.BaseNagotiationValue,0))BaseNagotiationValue
+                from TRN.FixedAssetRegisterDisposed frd 
+				join TRN.FixedAssetRegisterDisposedDetail rdd ON rdd.FixedAssetRegisterDisposedId=frd.Id
+                left join  TRN.AssetRegister AR on AR.Id=rdd.AssetRegisterId
+                left join dbo.EmployeeInformation ei on ei.SystemId=frd.EmployeeId
+				left join ORG.Department D on D.Id=ei.DepartmentId
+				left join HKP.Designation DG ON DG.Id=ei.DesignationSystemID
+				LEFT JOIN HKP.Party P ON P.Id=FRD.PartyId
+				LEFT JOIN HKP.PartyPlant PP ON PP.Id=FRD.PartyPlantId
+	            LEFT JOIN SCS.Currency C ON C.Id =frd.CurrencyId
+                LEFT JOIN TRN.Voucher V ON V.Id =frd.DisposedVoucherId
+                group by frd.Id,frd.Status,frd.Remarks,frd.EmployeeId,ei.EmployeeName,D.UserName,DG.UserName ,c.Code,frd.IsPark,c.Id,frd.DocDate
+				,P.UserName ,frd.PartyId,frd.PartyPlantId ,frd.DeliveryPartyPlantId,frd.InvoicingByAddress,frd.DeliveryByAddress,c.Code,v.VoucherNo		
                 ) AS TEMP WHERE " + strkey + " order by SlNo desc ";
             return _sqlRepository.GetDataCollection(sql);
         }

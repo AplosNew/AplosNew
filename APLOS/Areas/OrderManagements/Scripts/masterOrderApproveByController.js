@@ -21,7 +21,7 @@ function masterOrderApproveByController(accountService, $window, cboService, com
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.employeeUrl = $scope.path + 'GetEmployeeListResponsible';
-    $scope.ItemListUrl = $scope.path + 'GetMasterItemList';
+    $scope.ItemListUrl = $scope.path + 'GetMasterItemForApproveList';
     $scope.partyType = 'Customer';
     $controller('partyBaseController', { $scope: $scope, $http: $http });
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
@@ -1547,7 +1547,7 @@ function masterOrderApproveByController(accountService, $window, cboService, com
             $scope.itemTestingStandardList = $filter('unique')($scope.testingStandardList, 'Text');
         else
             $scope.itemTestingStandardList = $filter('filter')($scope.testingStandardList, { BuyerId: $scope.fileNew.BuyerId }, true);
-        $http.get($scope.path + "GetMasterItemList?masterOrderId=" + $scope.fileNew.Id)
+        $http.get($scope.path + "GetMasterItemForApproveList?masterOrderId=" + $scope.fileNew.Id)
             .then(function (response) {
                 $scope.itemList = response.data;
                 $scope.mitemList = response.data;
@@ -2209,10 +2209,10 @@ function masterOrderApproveByController(accountService, $window, cboService, com
         try {
             angular.copy(data, $scope.soModel);
 
-            if (baseService.isUndefinedOrNull($scope.soModel.ApprovedStatus)) {
+            if (baseService.isUndefinedOrNull($scope.soModel.ApprovedStatus) || $scope.soModel.ApprovedStatus == 'To Be Approve') {
                 throw "Approved Status is required.";
             }
-           
+
             $http({
                 method: 'POST'
                 , url: $scope.path + 'ApproveSalesOrder'
@@ -2228,6 +2228,7 @@ function masterOrderApproveByController(accountService, $window, cboService, com
                     ShowResult(response.data.Message, 'success', 'soPoUp');
                     getSalesOrderList();
                     $scope.getMasterItemList();
+                    angular.element(document.querySelector('#soPoUp')).modal('hide');
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure', 'soPoUp');

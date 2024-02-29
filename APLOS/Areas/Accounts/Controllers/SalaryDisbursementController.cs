@@ -3132,7 +3132,7 @@ Where HeadCategory='Net Payable' ";
 									,ISNULL(PG.UserName,'') PayRollGroup
                                     ,e.EmployeeCodePreFix,e.EmployeeCodeNumeric
                                     ,ISNULL(jl.JobLocation, '') JobLocation
-									,ISNULL(e.PaymentMode,'') PaymentMode
+									,ISNULL(DA.PaymentMode,'') PaymentMode
 									,ISNULL(bb.UserName,'') BankName
                                     ,ISNULL(v.VoucherNo,'' ) VoucherNo
                                     ,ISNULL(sl.PayableVoucherId,'') PayableVoucherId
@@ -3184,7 +3184,7 @@ Where HeadCategory='Net Payable' ";
                                     LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
                                     LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.BonusDisbursementVoucherId 
                                     LEFT JOIN [dbo].[BonusDisbursementAdvice]  DA ON DA.Id=sl.BonusDisbursementAdviceId 
-                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' AND ISNULL(e.PaymentMode,'')='" + paymentMode + "' AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.IsBonusDisbursed = 1 " + wcPayrollGroup + @" 
+                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' AND ISNULL(DA.PaymentMode,'')='" + paymentMode + "' AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.IsBonusDisbursed = 1 " + wcPayrollGroup + @" 
                                     AND CONCAT(sl.YearNo,RIGHT('00'+Isnull(Cast(SL.MonthNo AS VARCHAR(max)), ''),2)) 
 									BETWEEN  CONCAT(YEAR('" + fromDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + fromDate + @"') AS VARCHAR(max)), ''),2))
 									AND CONCAT(YEAR('" + toDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + toDate + @"') AS VARCHAR(max)), ''),2))
