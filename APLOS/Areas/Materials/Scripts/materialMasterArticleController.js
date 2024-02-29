@@ -112,7 +112,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         , serverPagination: true
     };
     $scope.popUp = function () {
-        $scope.popUpUrl = 'Materials/materialmaster/getlist';
+        $scope.popUpUrl = 'Materials/materialmaster/GetMaterialMasterActiveItemPopUp';
         $scope.getPopUpData = function (pageno) {
             baseService.paginationBase($scope.popUpUrl, pageno, $scope.popUpParameters)
                 .then(function (result) {

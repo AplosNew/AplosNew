@@ -701,42 +701,6 @@
                                     </tbody>
                                 </table>
                             </div>
-                            @*<table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>{{rowName}}</th>
-                                            <th ng-repeat="x in skuList[0].childList">
-                                                <div class="select-style">
-                                                    <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char2.Id }:true"
-                                                            ng-change="chvChange(x.CharacteristicsValueId, $index);">
-                                                        <option value=""></option>
-                                                    </select>
-                                                </div>
-                                                <div>
-                                                    <input type="text" ng-model="x.ValueFreeText" ng-keyup="chvKeyChange(x.ValueFreeText, $index);" class="form-control">
-                                                </div>
-                                            </th>
-                                            <th ng-click="addSkuMatrixColumn()"> Add </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr ng-repeat="x in skuList">
-                                            <td>
-                                                <div class="select-style">
-                                                    <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
-                                                        <option value=""></option>
-                                                    </select>
-                                                </div>
-                                                <div>
-                                                    <input type="text" ng-model="x.ValueFreeText" class="form-control">
-                                                </div>
-                                            </td>
-                                            <td ng-repeat="y in x.childList">
-                                                <input type="text" only-numbers ng-model="y.Qty" ng-keyup="sumQty(x, $parent.$index );" class="form-control text-right">
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>*@
                         </div>
                     </div>
                 </div>
