@@ -9880,6 +9880,216 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
                 objCon = null;
             }
         }
+        public void GetPaymentstatusInvoiceWise(out List<INvoiceWiseAccount> DataList, string PartyId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<INvoiceWiseAccount>();
+            var CusAll = "";
+            if (PartyId != null)
+            {
+                CusAll = "where X.PartyId = '" + PartyId + "'";
+            }
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select x.* from (
+
+                    SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,EN.UserName Entity,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+										,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
+										, replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate,iv.DocDate  SortDocDate, C.Code CurrencyCode,IV.BaseNoOfDays
+										, REPLACE(CONVERT(VARCHAR(11), IV.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate
+										, REPLACE(CONVERT(VARCHAR(11), IV.ActualDueDate, 106), ' ', '-') AS ActualDueDate
+										,Days=DATEDIFF(DAY, GETDATE(),IV.DocDate)
+										,AgingInvoice= case 
+														when DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-30  OR IV.ActualDueDate IS NULL then 'OverDueMoreThan30'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then 'OverDueMoreThan15'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-15  OR IV.ActualDueDate IS NULL then 'OverDueLessThan15'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then 'Today'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '1-7'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '8-30'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '31-60'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '60 Onword'
+														end
+										,AgingSorting= case 
+														when DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-30  OR IV.ActualDueDate IS NULL then '1.OverDueMoreThan30'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then '2.OverDueMoreThan15'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-15  OR IV.ActualDueDate IS NULL then '3.OverDueLessThan15'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then '4.Today'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '5.1-7'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '6.8-30'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '7.31-60'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '8.60 Onward'
+														end
+										,Convert(decimal(30,3),ISNULL(IVD.InvoiceBooksAmount,0)) AS GrossSales,0 DebitNoteAmount,0 TaxAmount,
+                                         TrnReceipt=Convert(decimal(30,3),ISNULL(IVD.SetOffBooksAmount, 0)) 
+										 ,Convert(decimal(30,3),ISNULL(IVD.InvoiceBooksAmount,0))-Convert(decimal(30,3),ISNULL(IVD.SetOffBooksAmount,0)) AS TrnBalance
+										 ,Convert(decimal(30,3),ISNULL(IVD.InvoiceBooksAmount ,0)) AS BooksGrossSales
+										,0  BooksDebitNoteAmount,0  BooksTaxAmount,
+                                         BooksReceipt=Convert(decimal(30,3),ISNULL(IVD.SetOffBooksAmount, 0) )
+										 ,Convert(decimal(30,3),ISNULL(IVD.InvoiceBooksAmount,0))-Convert(decimal(30,3),ISNULL(IVD.SetOffBooksAmount,0)) AS BooksBalance
+										 ,ss.Id INVS
+                                        FROM  [TRN].[Invoice] AS IV 
+										 JOIN (select IDE.InvoiceId,VD.PartyId,SUM(VDC.DrAmount) InvoiceBooksAmount ,SUM(IwV.SetOffBooksAmount) SetOffBooksAmount
+											FROM  [TRN].[InvoiceDetail] IDE
+											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
+											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+											LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+											LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId
+												,SUM(VDC.CrAmount) SetOffBooksAmount
+												FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+												JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+												LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+												LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+													JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+												WHERE WV.IsPark=0 AND ( convert(Date,WV.PostingDate) <= convert(date, getdate()) )
+												GROUP BY iwd.InvoiceDetailId,iw.PartyId
+												)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
+											WHERE VI.IsPark=0 and VD.PartyType='Customer'
+											GROUP BY IDE.InvoiceId,VD.PartyId
+										) AS IVD ON IVD.InvoiceId=IV.Id AND IVD.PartyId=IV.PartyId
+									    LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
+                                        LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                                        LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                                        LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
+                                        LEFT JOIN dbo.EmployeeInformation AS E ON E.SystemID=P.ResponsiblePersonId
+									    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
+                                        LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
+										left join trn.Sales ss on ss.VoucherId  = V.Id
+                                        LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
+                                        LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
+                                        WHERE IV.Archive=0 AND V.IsPark=0  AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice','InventorySales')
+										AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
+                                        AND IV.CompanyGroupId='CG20181' AND IV.CompanyId='C20201' AND IV.PlantId='202034' AND ( convert(Date,IV.PostingDate) <= convert(date, getdate()) )
+                                        AND IV.PartyId in(" + PartyId + @")
+
+								    UNION ALL
+                                    SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,EN.UserName Entity,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+										,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
+										,replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate ,iv.DocDate  SortDocDate,C.Code CurrencyCode
+										,'' BaseNoOfDays, '' BaseOnDueDate, REPLACE(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') AS ActualDueDate
+										,Days=DATEDIFF(DAY, GETDATE(),IV.DocDate)
+										
+												   	,AgingInvoice= case 
+														when DATEDIFF(DAY, GETDATE(),Iv.PostingDate)<-30  OR IV.PostingDate IS NULL then 'OverDueMoreThan30'
+														when DATEDIFF(DAY, GETDATE(),IV.PostingDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-30  OR IV.PostingDate IS NULL then 'OverDueMoreThan15'
+														when DATEDIFF(DAY, GETDATE(),IV.PostingDate)<0 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-15  OR IV.PostingDate IS NULL then 'OverDueLessThan15'
+															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)=0 then 'Today'
+															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>0 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=7 then '1-7'
+															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>7 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=30 then '8-30'
+															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>30 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=60 then '31-60'
+															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>60 then '60 Onword'
+															end
+										,AgingSorting = case 
+														when DATEDIFF(DAY, GETDATE(),Iv.PostingDate)<-30  OR IV.PostingDate IS NULL then '1.OverDueMoreThan30'
+														when DATEDIFF(DAY, GETDATE(),IV.PostingDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-30  OR IV.PostingDate IS NULL then '2.OverDueMoreThan15'
+														when DATEDIFF(DAY, GETDATE(),IV.PostingDate)<0 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-15  OR IV.PostingDate IS NULL then '3.OverDueLessThan15'
+
+															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)=0 then '4.Today'
+															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>0 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=7 then '5.1-7'
+															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>7 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=30 then '6.8-30'
+															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>30 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=60 then '7.31-60'
+															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>60 then '8.60 Onword'
+															end
+										 ,Convert(decimal(30,3),ISNULL(IVD.Amount,0)) AS GrossSales,0 DebitNoteAmount ,0 TaxAmount
+                                         ,TrnReceipt=Convert(decimal(30,3),ISNULL(IVD.WrittenOffAmount, 0) )
+										 ,Convert(decimal(30,3),ISNULL(IVD.Amount,0))-Convert(decimal(30,3),ISNULL(IVD.WrittenOffAmount,0)) AS TrnBalance
+										 ,Convert(decimal(30,3),ISNULL(IVD.Amount *CC.CompanyCurrencyRate,0)) AS BooksGrossSales,0  BooksDebitNoteAmount,0  BooksTaxAmount,
+                                         BooksReceipt=Convert(decimal(30,3),ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)) 
+										 ,Convert(decimal(30,3),ISNULL(IVD.Amount * CC.CompanyCurrencyRate,0)) - Convert(decimal(30,3),ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)) AS BooksBalance
+										 ,ss.Id INVS
+                                        FROM [TRN].[AdjustmentNoteDetail] AS IVD
+										LEFT JOIN [TRN].[AdjustmentNote] AS IV ON IVD.AdjustmentNoteId=IV.Id
+										LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
+                                        LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                                        LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                                        LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
+                                        LEFT JOIN dbo.EmployeeInformation AS E ON E.SystemID=P.ResponsiblePersonId
+										LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
+										LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=IVD.Id
+										LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+										left join trn.Sales ss on ss.VoucherId  = V.Id
+										LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
+										LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
+										LEFT JOIN (select SUM(ISNULL(VDCW.CrAmount,0))AdjustmentNoteWriteOffBooksAmount,AdjustmentNoteId from [TRN].[InvoiceWriteOffDetail] IWD
+												INNER JOIN [TRN].[InvoiceWriteOff] IW ON IW.Id=IWD.InvoiceWriteOffId
+												INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.InvoiceWriteOffDetailId=IWD.Id
+												INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+												where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null
+												GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=IVD.AdjustmentNoteId
+										LEFT JOIN (
+										SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+										FROM [TRN].[VoucherDetailCurrency] AS VDC
+										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='C20201'
+									) AS CC ON CC.VoucherDetailId=VD.Id
+									
+                                        WHERE IV.Archive=0 AND V.IsPark=0  AND IV.PartyType='Customer' AND IV.SourceType in ('DebitNote','CustomerReceipt')
+										AND ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)>0
+                                        AND IV.CompanyGroupId='CG20181' AND IV.CompanyId='C20201' AND IV.PlantId='202034' AND ( convert(Date,IV.PostingDate) <= convert(date, getdate()) )
+                                        AND IV.PartyId in(" + PartyId + @")
+									
+
+										) x
+										order by x.PartyNature,x.PartyGroup,x.PartyName asc";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new INvoiceWiseAccount
+                    {
+                        PartyNature = dsRef.Tables[0].Rows[i]["PartyNature"].ToString(),
+                        PartyGroup = dsRef.Tables[0].Rows[i]["PartyGroup"].ToString(),
+                        PartyCategory = dsRef.Tables[0].Rows[i]["PartyCategory"].ToString(),
+                        PartySubCategory = dsRef.Tables[0].Rows[i]["PartySubCategory"].ToString(),
+                        ResponsiblePerson = dsRef.Tables[0].Rows[i]["ResponsiblePerson"].ToString(),
+                        Entity = dsRef.Tables[0].Rows[i]["Entity"].ToString(),
+                        PartyType = dsRef.Tables[0].Rows[i]["PartyType"].ToString(),
+                        PartyId = dsRef.Tables[0].Rows[i]["PartyId"].ToString(),
+                        PartyPlantId = dsRef.Tables[0].Rows[i]["PartyPlantId"].ToString(),
+                        PartyCode = dsRef.Tables[0].Rows[i]["PartyCode"].ToString(),
+                        PartyName = dsRef.Tables[0].Rows[i]["PartyName"].ToString(),
+                        PartyPlantName = dsRef.Tables[0].Rows[i]["PartyPlantName"].ToString(),
+                        VoucherNo = dsRef.Tables[0].Rows[i]["VoucherNo"].ToString(),
+                        PostingDate = dsRef.Tables[0].Rows[i]["PostingDate"].ToString(),
+                        InvoiceNo = dsRef.Tables[0].Rows[i]["InvoiceNo"].ToString(),
+                        DocDate = dsRef.Tables[0].Rows[i]["DocDate"].ToString(),
+                        SortDocDate = dsRef.Tables[0].Rows[i]["SortDocDate"].ToString(),
+                        CurrencyCode = dsRef.Tables[0].Rows[i]["CurrencyCode"].ToString(),
+                        BaseNoOfDays = dsRef.Tables[0].Rows[i]["BaseNoOfDays"].ToString(),
+                        BaseOnDueDate = dsRef.Tables[0].Rows[i]["BaseOnDueDate"].ToString(),
+                        ActualDueDate = dsRef.Tables[0].Rows[i]["ActualDueDate"].ToString(),
+                        Days = dsRef.Tables[0].Rows[i]["Days"].ToString(),
+                        AgingInvoice = dsRef.Tables[0].Rows[i]["AgingInvoice"].ToString(),
+                        AgingSorting = dsRef.Tables[0].Rows[i]["AgingSorting"].ToString(),
+                        GrossSales = dsRef.Tables[0].Rows[i]["GrossSales"].ToString(),
+                        DebitNoteAmount = dsRef.Tables[0].Rows[i]["DebitNoteAmount"].ToString(),
+                        TaxAmount = dsRef.Tables[0].Rows[i]["TaxAmount"].ToString(),
+                        TrnReceipt = dsRef.Tables[0].Rows[i]["TrnReceipt"].ToString(),
+                        TrnBalance = dsRef.Tables[0].Rows[i]["TrnBalance"].ToString(),
+                        BooksGrossSales = dsRef.Tables[0].Rows[i]["BooksGrossSales"].ToString(),
+                        BooksDebitNoteAmount = dsRef.Tables[0].Rows[i]["BooksDebitNoteAmount"].ToString(),
+                        BooksTaxAmount = dsRef.Tables[0].Rows[i]["BooksTaxAmount"].ToString(),
+                        BooksReceipt = dsRef.Tables[0].Rows[i]["BooksReceipt"].ToString(),
+                        BooksBalance = dsRef.Tables[0].Rows[i]["BooksBalance"].ToString(),
+                        INVS = dsRef.Tables[0].Rows[i]["INVS"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
         #endregion payment Receive
     }
 
@@ -11083,4 +11293,43 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
 
     }
 
+    public class INvoiceWiseAccount
+    {
+        public string PartyNature { get; set; }
+        public string PartyGroup { get; set; }
+        public string PartyCategory { get; set; }
+        public string PartySubCategory { get; set; }
+        public string ResponsiblePerson { get; set; }
+        public string Entity { get; set; }
+        public string PartyType { get; set; }
+        public string PartyId { get; set; }
+        public string PartyPlantId { get; set; }
+        public string PartyCode { get; set; }
+        public string PartyName { get; set; }
+        public string PartyPlantName { get; set; }
+        public string VoucherNo { get; set; }
+        public string PostingDate { get; set; }
+        public string InvoiceNo { get; set; }
+        public string DocDate { get; set; }
+        public string SortDocDate { get; set; }
+        public string CurrencyCode { get; set; }
+        public string BaseNoOfDays { get; set; }
+        public string BaseOnDueDate { get; set; }
+        public string ActualDueDate { get; set; }
+        public string Days { get; set; }
+        public string AgingInvoice { get; set; }
+        public string AgingSorting { get; set; }
+        public string GrossSales { get; set; }
+        public string DebitNoteAmount { get; set; }
+        public string TaxAmount { get; set; }
+        public string TrnReceipt { get; set; }
+        public string TrnBalance { get; set; }
+        public string BooksGrossSales { get; set; }
+        public string BooksDebitNoteAmount { get; set; }
+        public string BooksTaxAmount { get; set; }
+        public string BooksReceipt { get; set; }
+        public string BooksBalance { get; set; }
+        public string INVS { get; set; }
+
+    }
 }
