@@ -16656,9 +16656,12 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
                          SELECT PayDays = ISNULL(TotalPresent,0) + ISNULL(TotalLate,0), EmpSystemID, FORMAT(FromDate,'MMM') [MonthName],FromDate FROM [dbo].[SalaryProceAttdnData] WHERE EmpSystemID='" + empId + @"' and YearNo='" + yearNo + @"' 
                          ) P ON P.EmpSystemID=E.SystemId
                          LEFT JOIN (
-                         SELECT BroughtForward,CurrentYearAvailedOpeningBalance,CarryForwardOpeningBalance,CurrentYearAllocation CurrentYearAllocationAsPerPolicy,EmployeeId FROM TRN.EmployeeLeaveSummary WHERE EmployeeId='" + empId + @"' 
-                         AND LeaveTypeId=(SELECT Id FROM LeaveType WHERE LeaveType='Earn') 
-                         AND CalanderYearId=(SELECT Id FROM [dbo].[YearlyCalendar] WHERE YearNo='" + yearNo + @"' AND PlantId='" + plantId + @"')
+                         select A.LeaveYearId CalanderYearID,0 IsExceptionAllowed,a.Id SystemID,A.LeaveTypeId LTSystemID,A.EmployeeId EmployeeID,lt.UserName LeaveName, lt.Description LeaveDescription,lt.LeaveType
+ ,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate,A.Opening BroughtForward,0 CurrentYearAllocationAsPerPolicy, 0 CurrentYearAvailedOpeningBalance,0 CarryForwardOpeningBalance
+from dbo.AnnualLeaveDataCurrent A
+left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
+Where LY.FromDate between'01-JAN-" + year+ @"' AND  '31-DEC-" + year + @"' AND LY.ToDate between'01-JAN-" + year + @"' AND  '31-DEC-" + year + @"' AND A.EmployeeId='" + empId + @"'
                          ) S ON S.EmployeeId=E.SystemId 
                          LEFT JOIN (
                             SELECT ISNULL(Sum(Ld.LeaveDuration),0) LeaveDays
