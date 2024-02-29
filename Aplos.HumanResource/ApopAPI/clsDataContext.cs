@@ -9929,7 +9929,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
 										,0  BooksDebitNoteAmount,0  BooksTaxAmount,
                                          BooksReceipt=Convert(decimal(30,3),ISNULL(IVD.SetOffBooksAmount, 0) )
 										 ,Convert(decimal(30,3),ISNULL(IVD.InvoiceBooksAmount,0))-Convert(decimal(30,3),ISNULL(IVD.SetOffBooksAmount,0)) AS BooksBalance
-										 ,ss.Id INVS
+										 ,ss.Id INVS, AddRemarks = 'AddRemarks'
                                         FROM  [TRN].[Invoice] AS IV 
 										 JOIN (select IDE.InvoiceId,VD.PartyId,SUM(VDC.DrAmount) InvoiceBooksAmount ,SUM(IwV.SetOffBooksAmount) SetOffBooksAmount
 											FROM  [TRN].[InvoiceDetail] IDE
@@ -9998,7 +9998,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
 										 ,Convert(decimal(30,3),ISNULL(IVD.Amount *CC.CompanyCurrencyRate,0)) AS BooksGrossSales,0  BooksDebitNoteAmount,0  BooksTaxAmount,
                                          BooksReceipt=Convert(decimal(30,3),ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)) 
 										 ,Convert(decimal(30,3),ISNULL(IVD.Amount * CC.CompanyCurrencyRate,0)) - Convert(decimal(30,3),ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)) AS BooksBalance
-										 ,ss.Id INVS
+										 ,ss.Id INVS, AddRemarks = 'AddRemarks'
                                         FROM [TRN].[AdjustmentNoteDetail] AS IVD
 										LEFT JOIN [TRN].[AdjustmentNote] AS IV ON IVD.AdjustmentNoteId=IV.Id
 										LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
@@ -10077,6 +10077,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
                         BooksReceipt = dsRef.Tables[0].Rows[i]["BooksReceipt"].ToString(),
                         BooksBalance = dsRef.Tables[0].Rows[i]["BooksBalance"].ToString(),
                         INVS = dsRef.Tables[0].Rows[i]["INVS"].ToString(),
+                        AddRemarks = dsRef.Tables[0].Rows[i]["AddRemarks"].ToString(),
 
                     });
                 }
@@ -11330,6 +11331,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
         public string BooksReceipt { get; set; }
         public string BooksBalance { get; set; }
         public string INVS { get; set; }
+        public string AddRemarks { get; set; }
 
     }
 }
