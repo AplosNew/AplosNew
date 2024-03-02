@@ -3261,7 +3261,7 @@ WHERE CT.ContractId IN(" + id + ") AND TermsAndConditionsId NOT IN(SELECT TermsA
                 //var workbook = clsCon.GetContarctWorkbook(identity.CompanyId);
                 var workbook = clsCon.GetContarctWorkbookExcel(identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
 
-                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "ContarctReport.xlsx";
+                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "BANK LIEN Report.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
                 workbook.SaveAs(fullPath);
 

@@ -697,6 +697,7 @@ Select SUM(S.TransactionQty)ShipmentQty,SUM(S.TransactionAmount)ShippedValue,SO.
 LEFT JOIN TRN.SalesOrder SO ON SO.Id=S.SalesOrderId
 Group By SO.ContractId
 ) SM ON SM.ContractId=C.Id
+Where C.ContractNo<>''
 Order By B.AccountTitle";
 
                 return _sqlRepository.GetDataTable(sql);
@@ -888,19 +889,22 @@ Order By B.AccountTitle";
                 #endregion
                 #region ColumnHeaders
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Bank Name", 14, ExcelHAlign.HAlignCenter); cBN = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FileNo", 8, ExcelHAlign.HAlignCenter); cFileNo = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Buyer", 8, ExcelHAlign.HAlignCenter); cBuyer = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShipmentStartDate", 20, ExcelHAlign.HAlignCenter); cSSD = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShipmentEndDate", 20, ExcelHAlign.HAlignCenter); cSED = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ContractNo", 25, ExcelHAlign.HAlignCenter); cCN = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "TotalQty", 8, ExcelHAlign.HAlignCenter); cTQ = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "File", 8, ExcelHAlign.HAlignCenter); cFileNo = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Buyer", 25, ExcelHAlign.HAlignCenter); cBuyer = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shipment Start Date", 20, ExcelHAlign.HAlignCenter); cSSD = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shipment End Date", 20, ExcelHAlign.HAlignCenter); cSED = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Contract No", 25, ExcelHAlign.HAlignCenter); cCN = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Total Qty", 8, ExcelHAlign.HAlignCenter); cTQ = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Amount", 12, ExcelHAlign.HAlignCenter); cA = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShipmentQty", 14, ExcelHAlign.HAlignCenter); cSQ = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShippedValue", 14, ExcelHAlign.HAlignCenter); cSV = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shipment Qty", 14, ExcelHAlign.HAlignCenter); cSQ = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shipped Value", 14, ExcelHAlign.HAlignCenter); cSV = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BalanceQty", 12, ExcelHAlign.HAlignCenter); cBQ = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BalanceLienValue", 14, ExcelHAlign.HAlignCenter); cBLV = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Balance Lien Value", 14, ExcelHAlign.HAlignCenter); cBLV = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks", 14, ExcelHAlign.HAlignCenter); cR = xlsCol; xlsCol++;
-
+                sheet1.Range[xlsRow, cBN, xlsRow, cR].CellStyle.FillBackground = ExcelKnownColors.Light_yellow;
+                sheet1.Range[xlsRow, cBN, xlsRow, cR].RowHeight = 15;
+                sheet1.Range[xlsRow, cBN, xlsRow, cR].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, cBN, xlsRow, cR].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 
                 var orgCollist = xlsCol;
                 xlsRow++;
@@ -974,7 +978,7 @@ Order By B.AccountTitle";
 
 
                             sheet1.Range[xlsRow, cTQ, xlsRow, cBLV].CellStyle.Font.Bold = true;
-
+                            sheet1.Range[xlsRow, cBN, xlsRow, cR].CellStyle.FillBackground = ExcelKnownColors.Light_yellow;
 
                             xlsRow++;
 
@@ -992,14 +996,12 @@ Order By B.AccountTitle";
 
                         #endregion
 
-
-
                         sheet1.Range[xlsRow, cBN].Text = dtManPBSummary.Rows[i]["BankName"].ToString();
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cFileNo, dtManPBSummary.Rows[i]["FileNo"].ToString());
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cBuyer, dtManPBSummary.Rows[i]["Buyer"].ToString());
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cSSD, dtManPBSummary.Rows[i]["ShipmentStartDate"].ToString());
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cSED, dtManPBSummary.Rows[i]["ShipmentEndDate"].ToString());
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cCN, dtManPBSummary.Rows[i]["ContractNo"].ToString());
+                        oRU.SetTextBdr(ref sheet1, xlsRow, cFileNo, dtManPBSummary.Rows[i]["FileNo"].ToString());
+                        oRU.SetTextBdr(ref sheet1, xlsRow, cBuyer, dtManPBSummary.Rows[i]["Buyer"].ToString());
+                        oRU.SetTextBdr(ref sheet1, xlsRow, cSSD, dtManPBSummary.Rows[i]["ShipmentStartDate"].ToString());
+                        oRU.SetTextBdr(ref sheet1, xlsRow, cSED, dtManPBSummary.Rows[i]["ShipmentEndDate"].ToString());
+                        oRU.SetTextBdr(ref sheet1, xlsRow, cCN, dtManPBSummary.Rows[i]["ContractNo"].ToString());
                         oRU.SetTextBorder(ref sheet1, xlsRow, cTQ, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["TotalQty"].ToString()));//
                         oRU.SetTextBorder(ref sheet1, xlsRow, cA, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["Amount"].ToString()));//
                         oRU.SetTextBorder(ref sheet1, xlsRow, cSQ, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["ShipmentQty"].ToString()));//
@@ -1010,7 +1012,7 @@ Order By B.AccountTitle";
                         xlsRow++;
                     }
                     //  xlsRow += 1;
-                    sheet1.AutoFilters.FilterRange = sheet1.Range[catFRow - 1, 1, xlsRow, endXlsCol];
+                   // sheet1.AutoFilters.FilterRange = sheet1.Range[catFRow - 1, 1, xlsRow, endXlsCol];
 
 
                     oRU.SetHeadText(sheet1, xlsRow, 1, "Grand Total:");
@@ -1047,80 +1049,12 @@ Order By B.AccountTitle";
                     sheet1.FirstVisibleRow = 6;
 
                     #endregion
-
-
-                    objRpt.SelectedPlantWiseCompany(identity.PlantId, "", out dsCmp);
-                    xlsRow = 1;
-                    xlsCol = 1;
-
-                    FactoryName = string.Empty;
-
-                    var FactoryAddress = string.Empty;
-
-                    if (dsCmp.Tables[0].Rows.Count > 0)
-                    {
-                        CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
-                    }
-                    else
-                    {
-                        CmpName = "";
-                    }
-                    if (dsCmp.Tables[0].Rows.Count > 0)
-                    {
-                        FactoryName = dsCmp.Tables[0].Rows[0]["PlantName"].ToString();
-                    }
-                    else
-                    {
-                        FactoryName = "";
-                    }
-                    sheet1.Range[xlsRow, 1].Text = FactoryName;
-                    sheet1.Range[xlsRow, 1].CellStyle.Font.Size = 20;
-                    sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
-                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                    sheet1.Range[xlsRow, 1, xlsRow, Convert.ToInt32(endXlsCol)].Merge();
-                    sheet1.Range[xlsRow, 1].RowHeight = 30;
-
-                    #region Plant Address
-
-
-                    if (dsCmp.Tables[0].Rows.Count > 0)
-                    {
-                        FactoryAddress = dsCmp.Tables[0].Rows[0]["CompanyAddress"].ToString();
-                    }
-                    else
-                    {
-                        FactoryAddress = "";
-                    }
-
-                    #endregion
-                    xlsRow += 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "BANK LIEN REPORT";
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
-                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 15;
-                    sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
-                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 24;
-
-
-                    //#endregion *****************Report Header*****************
-                    #region Freeze Panes
-                    sheet1.UsedRange["A6"].FreezePanes();
-                    sheet1.FirstVisibleColumn = 1;
-                    sheet1.FirstVisibleRow = 5;
-                    #endregion
-
-                    #region UsedRange Alignment
-                    sheet1.UsedRange.WrapText = true;
-                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
-                    #endregion UsedRange Alignment
-
-                    oRU.PageSetup(ref sheet1, 5, ExcelPageOrientation.Portrait);
+                    
                 }
-
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.CompanyPlantHeaderNew(ref sheet1, 2, "BANK LIEN REPORT", identity.CompanyId, identity.CompanyName, "");
+                sheet1.Range[1, 2, 5, endXlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                reportUtility.PageSetup(ref sheet1, 5, ExcelPageOrientation.Landscape);
 
 
                 return workbook;
