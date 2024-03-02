@@ -1606,6 +1606,7 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
         public void SaveMasterWC(ProductionSummary ps, string companyGroupId, string ProcessId)
         {
             var flag = false;
+            DataSet dsJobWorkApplicable = null;
             try
             {
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
@@ -1613,6 +1614,11 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                 conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  MasterOrderItemId='" + ps.MasterOrderItemId + "' and ProductionOrderId='" + ps.ProductionOrderId + "' and ProcessId='" + ProcessId + "'", out DataSet dsProductionSummaryArticleValidation, false, "1");
                 conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "' and ProcessId='" + ProcessId + "'", out DataSet dsProductionSummaryPOLotNumberValidation, false, "1");
                 conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "' and MasterOrderItemId='" + ps.MasterOrderItemId + "' and ProcessId='" + ProcessId + "'", out DataSet dsProductionSummaryPOArticleValidation, false, "1");
+
+
+                string invsql = "Select  JobWorkApplicable from TRN.ProductionOrderProcessSet where ProductionOrderId='" + ps.ProductionOrderId + @"' AND ProcessId='" + ProcessId + "'";
+                conRack.OpenDataSetThroughAdapter(invsql, out dsJobWorkApplicable, false, "1");
+
                 if (!string.IsNullOrEmpty(ps.LotNumber))
                 {
                     if (dsProductionSummaryLotNumberValidation.Tables[0].Rows.Count > 0)
@@ -1628,6 +1634,24 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                         {
                             throw new Exception("This Article Number is already used for another LotNumber and Production Order No.");
                         }
+                    }
+                }
+
+                if (ps.ScanQty == 0)
+                {
+                    ps.SourceType = "PB";
+                }
+                if (ps.SKUQty != 0)
+                {
+                    ps.SourceType = "SKU";
+                }
+                if (dsJobWorkApplicable.Tables[0].Rows.Count > 0)
+                {
+                    ps.IsJobWork = Convert.ToBoolean(dsJobWorkApplicable.Tables[0].Rows[0]["JobWorkApplicable"]);
+                    if (ps.IsJobWork == true)
+                    {
+                        ps.JobWorkQty = ps.Quantity;
+                        ps.SourceType = "JW";
                     }
                 }
 

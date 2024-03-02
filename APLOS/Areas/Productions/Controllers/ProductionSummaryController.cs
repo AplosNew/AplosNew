@@ -88,6 +88,12 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetBookingLevelByPrOandProcess(string poId, string processId)
+        {
+            return Json(_productionSummaryData.GetBookingLevelByPrOandProcess(poId, processId), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpGet]
         public ActionResult LoadReasonDetails()
         {
