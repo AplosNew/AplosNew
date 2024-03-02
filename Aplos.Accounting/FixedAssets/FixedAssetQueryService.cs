@@ -726,6 +726,7 @@ namespace Library.Accounting.FixedAssets
 											LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON VD.GLGeneralInfoId=GL.Id
 											LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 											LEFT JOIN [HKP].[Activity] AS A ON VD.ActivityId= A.Id
+                                            WHERE ARC.VoucherDetailId IS NOT NULL
 											GROUP BY  ARC.AssetRegisterId ,BM.GLGeneralInfoId, GL.AccountCode, GL.UserName
 						, VD.BudgetMasterId, B.Code, B.UserName, VD.ActivityId, A.Code, A.UserName) ADP ON ADP.AssetRegisterId=AR.Id
 						WHERE FRDD.FixedAssetRegisterDisposedId=@receiveId

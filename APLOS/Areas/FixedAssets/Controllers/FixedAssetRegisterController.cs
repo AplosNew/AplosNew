@@ -1994,6 +1994,16 @@ namespace Aplos.Areas.FixedAssets.Controllers
             }
             return Json(new { Message = AplosMessage.Insert });
         }
+        [Authorize, HttpPost]
+        public ActionResult GetCapitalizeAssetDisposePostedList(string column, string value, string companyId)
+        {
+            FixedAssetDisposeService _fixedAssetDisposeService = new FixedAssetDisposeService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (companyId == null)
+                companyId = identity.CompanyId;
+            return Json(_fixedAssetDisposeService.GetCapitalizeAssetDisposePostedList(column, value, companyId), JsonRequestBehavior.AllowGet);
+        }
         #endregion
     }
 }
