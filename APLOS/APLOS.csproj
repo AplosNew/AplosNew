@@ -1316,6 +1316,7 @@
     <Compile Include="Areas\TaskManagement\Controllers\TNAReportsController.cs" />
     <Compile Include="Areas\TaskManagement\Controllers\TaskTemplateController.cs" />
     <Compile Include="Areas\TaskManagement\TaskManagementAreaRegistration.cs" />
+    <Compile Include="Areas\TaskScheduler\Controllers\DependantTaskController.cs" />
     <Compile Include="Areas\TaskScheduler\Controllers\TaskScheduleController.cs" />
     <Compile Include="Areas\TaskScheduler\TaskSchedulerRegistration.cs" />
     <Compile Include="Controllers\APIAuthenticationForRawData.cs" />
@@ -3133,6 +3134,7 @@
     <Content Include="Areas\TaskManagement\Views\TaskList\IssueTransactionList.cshtml" />
     <Content Include="Areas\TaskScheduler\Scripts\taskScheduleController.js" />
     <Content Include="Areas\TaskScheduler\Scripts\TaskSchedulerConfig.js" />
+    <Content Include="Areas\TaskScheduler\Scripts\DependantTaskController.js" />
     <Content Include="Content\angucomplete-alt.css" />
     <Content Include="Content\bootstrap-datepicker3.css" />
     <Content Include="Content\bootstrap-datepicker3.min.css" />
@@ -5088,6 +5090,7 @@
     <Content Include="Areas\QMS\Views\LotWiseQualityReport\Aplos.cshtml" />
     <Content Include="Areas\QMS\Views\LWQSummaryReport\Aplos.cshtml" />
     <Content Include="Areas\QMS\Views\LWQRUpdate\Aplos.cshtml" />
+    <Content Include="Areas\TaskScheduler\Views\DependantTask\Aplos.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />
