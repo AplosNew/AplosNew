@@ -67,6 +67,10 @@ namespace Aplos.Areas.Commercial.Controllers
         {
             return View();
         }
+        public ActionResult ContractSummary()
+        {
+            return View();
+        }
         #endregion
 
         #region -- Operations
@@ -1697,6 +1701,25 @@ WHERE CT.ContractId IN(" + id + ") AND TermsAndConditionsId NOT IN(SELECT TermsA
             }
         }
         #endregion
+
+        [HttpGet, Authorize]
+        public ActionResult GetContractSummaryReport(string ContractId)
+        { 
+            try
+            { 
+                ExcelEngine excelEngine = new ExcelEngine(); 
+                IWorkbook workbook = clsCon.GetContractSummaryReportXlx(ContractId);
+
+                string strFileName = "Contract Summary.xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet); 
+            } 
+            return null;
+        }
 
         #region Master Order & Items Details Report 
 

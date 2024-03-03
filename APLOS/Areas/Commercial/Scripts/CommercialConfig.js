@@ -128,5 +128,9 @@ function CommercialConfig($routeProvider) {
             templateUrl: "Commercial/Contract/LCPendingReport",
             controller: "LCPendingReportController"
         })
+        .when('/contract-summary', {
+            templateUrl: 'Commercial/contract/ContractSummary',
+            controller: 'ContractSummaryController'
+        })
         ;
 }
