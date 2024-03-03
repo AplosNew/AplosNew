@@ -5,6 +5,9 @@ function TaskSchedulerConfig($routeProvider, $locationProvider) {
             templateUrl: 'TaskScheduler/TaskSchedule/Aplos',
             controller: 'taskScheduleController'
         })
-
+        .when('/dependant-task', {
+            templateUrl: 'TaskScheduler/DependantTask/Aplos',
+            controller: 'DependantTaskController'
+        })
         ;
 }

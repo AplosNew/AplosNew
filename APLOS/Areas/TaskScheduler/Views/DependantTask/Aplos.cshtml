@@ -65,6 +65,101 @@
             <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
+    <div class="row">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Detail</a></li>
+            </ul>
+        </div>
+
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div class="row" ng-form name="ModelNewChildForm">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Dependant Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Dependant Date" ng-model="ModelChildNew.DependantDate" datepicker class="form-control" placeholder="dd-MM-yyyy" required tabindex="3">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Leg Days<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="LegDays" ng-model="ModelChildNew.LegDays" only-numbers class="form-control" required tabindex="5" maxlength="50">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group">
+                                    <span class="input-group-addon">{{ModelChildNew.ResponsiblePersonCode}}</span>
+                                    <input type="text" name="By Whom" ng-model="ModelChildNew.ResponsiblePersonName" class="form-control" readonly required>
+                                    <span class="input-group-btn">
+                                        <button name="submit" ng-click="GetByWhomPopupData()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Dependant Task<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group">
+                                    <span class="input-group-addon">{{ModelChildNew.DependantTaskId}}</span>
+                                    <input type="text" name="By Whom" ng-model="ModelChildNew.DependantTaskName" class="form-control" readonly required>
+                                    <span class="input-group-btn">
+                                        <button name="submit" ng-click="getDependantTaskData()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Task Dependant Leg Days<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Task Dependant Leg Days" ng-model="ModelChildNew.TaskDependantLegDays" only-numbers class="form-control" required tabindex="5" maxlength="50">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="3" ng-model="ModelChildNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SaveChild();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                            <li> <button ng-click="ClearChild();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
+                    </div>
+
+
+
+                    <div id="GridChildEdit" ej-grid e-datasource="ChildModelList" e-recorddoubleclick="GetChild"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+                            <div e-column e-field="DependantDate" e-headertext="Dependant Date" e-width="2"></div>
+                            <div e-column e-field="LegDays" e-headertext="LegDays" e-width="3"></div>
+                            <div e-column e-field="TaskDependantLegDays" e-headertext="TaskDependantLegDays" e-width="5"></div>
+                            <div e-column e-field="ResponsiblePerson" e-headertext="ResponsiblePerson" e-width="5"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+
+            
+
+        </div>
+    </div>
 </div>
 <div class="row text-right aplos-grid-toggle">
     <div class="col-xs-12 col-sm-12 col-sm-12">
@@ -94,7 +189,6 @@
         <div e-columns>
             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
             <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
-            @*<div e-column e-field="AddedDate" e-format="{0:dd-MMM-yyyy}"  e-type="date" e-headertext="Date Added" e-width="2"></div>*@
             <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
             <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
             <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
@@ -104,3 +198,62 @@
     </div>
 </div>
 <confirm-modal></confirm-modal>
+<div class="modal fade site-modal in" id="DependantPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Dependant Task List
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridPopUp" ej-grid e-datasource="DependantTaskList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="selectdblClickDependant" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+                            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
+                            <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+                            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
+                            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+                            <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                            <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="EmpPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee Information
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridPopUp" ej-grid e-datasource="popUpDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="selectdblClick" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-headertext="Pic" e-template="#empimage" e-textalign="center" e-width="40"></div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="Company" e-headertext="Company" e-width="80"></div>
+                            <div e-column e-field="Plant" e-headertext="Plant" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/x-jsrender" id="empimage">
+        <img src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:48px;width:48px;" />
+    </script>
+</div>
