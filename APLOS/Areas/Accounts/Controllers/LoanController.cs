@@ -1123,7 +1123,7 @@ namespace Aplos.Areas.Accounts.Controllers
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            worksheet[ROW, COL].Text = "Loan Amount";
+            worksheet[ROW, COL].Text = "Received Amount";
             int colAdditionalLoanAmount = COL;
             worksheet[ROW, COL].ColumnWidth = 17;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
