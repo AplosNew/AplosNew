@@ -559,46 +559,20 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                         }
                     });
             }
-            //else if ($scope.productionSummaryNew.ProductionBookingLevel === 'SalesOrder') {
-            //    if (baseService.isUndefinedOrNull($scope.productionSummaryNew.SalesOrderId)) {
-            //        $scope.productionSummaryNew.SalesOrderId = $scope.SalesOrderId;
-            //    }
-            //    $http.get('Productions/Productionsummary/GetTotalSOQty?salesOrderId=' + $scope.productionSummaryNew.SalesOrderId + '&processId=' + $scope.productionSummaryNew.ProcessId)
-            //        .then(function (response) {
-            //            if (baseService.arrayLength(response.data) > 0) {
-            //                $scope.TotalSalesOrderQty = parseFloat(response.data[0].PlannedQty).toFixed(2);
-            //                $scope.RemainQty = parseFloat(response.data[0].RemainingQty).toFixed(2);
-            //                $scope.TotalProductionBookingQty = parseFloat(response.data[0].TotalProductionQty).toFixed(2);
-            //                $scope.NewObject.RemainingQty = $scope.RemainQty;
-            //                $scope.NewObject.OrderQty = $scope.TotalSalesOrderQty;
-            //                $scope.NewObject.BookedQty = $scope.TotalProductionBookingQty;
-            //            }
-            //        });
-            //}
-            //else if ($scope.productionSummaryNew.ProductionBookingLevel === 'MasterOrderItem' || $scope.productionSummaryNew.ProductionBookingLevel === 'ProductionCode') {
-            //    if (baseService.isUndefinedOrNull($scope.NewObject.MasterOrderItemId)) {
-            //        $scope.NewObject.MasterOrderItemId = $scope.MasterOrderItemId;
-            //    }
-            //    $http.get('Productions/Productionsummary/GetTotalMOIQty?MasterOrderItemId=' + $scope.NewObject.MasterOrderItemId + '&processId=' + $scope.productionSummaryNew.ProcessId)
-            //        .then(function (response) {
-            //            if (baseService.arrayLength(response.data) > 0) {
-            //                $scope.TotalSalesOrderQty = parseFloat(response.data[0].PlannedQty).toFixed(2);
-            //                $scope.RemainQty = parseFloat(response.data[0].RemainingQty).toFixed(2);
-            //                $scope.TotalProductionBookingQty = parseFloat(response.data[0].TotalProductionQty).toFixed(2);
-            //                $scope.TotalActualPlannedQty = parseFloat(response.data[0].TotalActualPlannedQty).toFixed(2);
-            //                $scope.TotalProcessPlanPercentage = parseFloat(response.data[0].TotalProcessPlanPercentage).toFixed(0);
-            //                $scope.NewObject.RemainingQty = $scope.RemainQty;
-            //                $scope.NewObject.OrderQty = $scope.TotalSalesOrderQty;
-            //                $scope.NewObject.BookedQty = $scope.TotalProductionBookingQty;
-            //                $scope.NewObject.ActualPlannedQty = $scope.TotalActualPlannedQty;
-            //                $scope.NewObject.ProcessPlanPercentage = $scope.TotalProcessPlanPercentage;
-            //            }
-            //        });
-            //}
+            GetBookingLevelByPrOandProcess();
         } catch (ex) {
             ShowResult(ex, 'Info');
         }
     };
+
+    function GetBookingLevelByPrOandProcess() {
+        $http.get('Productions/Productionsummary/GetBookingLevelByPrOandProcess?poId=' + $scope.NewObject.ProductionOrderId + '&processId=' + $scope.productionSummaryNew.ProcessId)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.NewObject.BookingLevel = response.data[0].ProductionBookingLevel;
+                }
+            });
+    }
 
     $scope.GetMasterOrderItemQty = function () {
         try {
@@ -750,14 +724,6 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         }
     };
 
-    //$scope.shiftList = [];
-    //cboService.GetProductionShiftCbo(function (result) {
-    //    $scope.shiftList = result;
-    //    if (baseService.arrayLength(result) === 1) {
-    //        $scope.productionSummaryNew.ProductionShiftId = $scope.shiftList[0].Value;
-    //    }
-    //});
-
     function CheckField(fieldname, field) {
         try {
             if (baseService.isUndefinedOrNull(field)) {
@@ -768,7 +734,6 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             throw ex;
         }
     }
-
 
     $scope.DateValidation = function (ProductionDate) {
         try {
@@ -800,17 +765,13 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     function ValidationMaster() {
         try {
-            //CheckField("Work Center Master", $scope.productionSummaryNew.WorkCenterMasterId);
-
+        
             if ($scope.LotNumberCapture && $scope.LotNumberMandatory) {
                 CheckField("Lot Number", $scope.NewObject.LotNumber);
             }
 
-            /*  if ($scope.productionSummaryNew.ProductionBookingLevel === "ProductionOrder") {*/
             if ($scope.productionSummaryNew.ProductionOrderId == null) {
                 CheckField("Production Order", $scope.productionSummaryNew.ProductionOrderId);
-                /*CheckField("Production Grade", $scope.productionSummaryNew.ProductionGrade);*/
-                //CheckField("Quantity", $scope.productionSummaryNew.Quantity);
             }
 
             if ($scope.productionSummaryNew.ProductionBookingLevel === "MasterOrderItem") {
@@ -819,30 +780,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                     throw "MO Item not belongs to the selected PO please refresh and proceed.";
                 }
             }
-            //else if ($scope.productionSummaryNew.ProductionBookingLevel === "SalesOrder") {
-            //    CheckField("Sales Order", $scope.productionSummaryNew.SalesOrderId);
-            //    CheckField("Master Order No", $scope.productionSummaryNew.MasterOrderNo);
-            //    CheckField("MaterialMaster", $scope.productionSummaryNew.MaterialMasterId);
-            //    CheckField("Article", $scope.productionSummaryNew.ArticleId);
-            //    CheckField("Production Grade", $scope.productionSummaryNew.ProductionGrade);
-            //    //CheckField("Quantity", $scope.productionSummaryNew.Quantity);
-            //}
-            //else if ($scope.productionSummaryNew.ProductionBookingLevel === "MasterOrderItem") {
-            //    CheckField("Master Order Item", $scope.productionSummaryNew.MasterOrderItemId);
-            //    CheckField("Master Order No", $scope.productionSummaryNew.MasterOrderNo);
-            //    CheckField("MaterialMaster", $scope.productionSummaryNew.MaterialMasterId);
-            //    CheckField("Article", $scope.productionSummaryNew.ArticleId);
-            //    CheckField("Production Grade", $scope.productionSummaryNew.ProductionGrade);
-            //    //CheckField("Quantity", $scope.productionSummaryNew.Quantity);
-            //}
-            //else {
-            //    CheckField("Product Code", $scope.productionSummaryNew.ProductLibraryId);
-            //    CheckField("Master Order No", $scope.productionSummaryNew.MasterOrderNo);
-            //    CheckField("MaterialMaster", $scope.productionSummaryNew.MaterialMasterId);
-            //    CheckField("Article", $scope.productionSummaryNew.ArticleId);
-            //    CheckField("Production Grade", $scope.productionSummaryNew.ProductionGrade);
-            //    //CheckField("Quantity", $scope.productionSummaryNew.Quantity);
-            //}
+
         } catch (ex) {
             throw ex;
         }
@@ -1027,9 +965,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         $scope.NewObject.IsPreDefineLotApplicable = $event.data.IsPreDefineLotApplicable;
         $scope.NewObject.LotProcessPlanQty = $event.data.LotProcessPlanQty;
         $scope.NewObject.ProductionVerification = $event.data.ProductionVerification;
-        //$scope.NewObject.RemainingQty = $event.data.RemainingQty;
         $scope.GetTotalProductionBookingQty();
-        //$scope.getArticle($scope.NewObject.ProductionOrderId);
         var gridObj = $("#ProductionSummaryWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
 
@@ -1643,7 +1579,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 $scope.productionSummaryNew.SourceType = "PB";
             }
 
-            
+
             if (parseFloat($scope.productionSummaryNew.Quantity) < 0) {
                 throw "Quantity should not be less than 0.";
             }
@@ -1714,7 +1650,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                     $scope.NewObject.Id = response.data.ProductionSummary.Id;
                     $scope.ValidateProdQty($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.ProductionOrderId);
                     for (var i = 0; i < $scope.wcList.length; i++) {
-                            $scope.wcList[i].ClickRow = false;
+                        $scope.wcList[i].ClickRow = false;
                     }
                     var gridObj = $("#ProductionSummaryWC").data("ejGrid");
                     gridObj.refreshContent();
@@ -1775,14 +1711,139 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
     };
 
+    function ValidationMasterWC() {
+        $scope.getProdLevel();
+        //$scope.getMasterOrderValidateView($scope.NewObject.WorkCenterMasterId, $scope.NewObject.BookingLevel, $scope.NewObject.ProductionOrderId);
+
+        if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
+            $scope.productionSummaryNew.MasterOrderItemId = null;
+            $scope.productionSummaryNew.ProductLibraryId = null;
+        }
+
+        else if ($scope.productionSummaryNew.ProductionBookingLevel === 'SalesOrder') {
+            $scope.productionSummaryNew.MasterOrderItemId = null;
+            $scope.productionSummaryNew.ProductLibraryId = null;
+        }
+        else if ($scope.productionSummaryNew.ProductionBookingLevel === 'MasterOrderItem') {
+            $scope.productionSummaryNew.SalesOrderId = null;
+            $scope.productionSummaryNew.ProductLibraryId = null;
+        }
+        else {
+            $scope.productionSummaryNew.SalesOrderId = null;
+        }
+
+        if ($scope.BookingLevel === 'MasterOrderItem') {
+            $scope.productionSummaryNew.MasterOrderItemId = $scope.ItemId;
+        }
+
+        if ($scope.BookingLevel === 'SalesOrder') {
+            $scope.productionSummaryNew.SalesOrderId = $scope.SOId;
+        }
+
+        if ($scope.BookingLevel === 'ProductCode') {
+            $scope.productionSummaryNew.MasterOrderItemId = $scope.ItemId;
+        }
+
+        if ($scope.LotNumberCapture && $scope.LotNumberMandatory) {
+            CheckField("Lot Number", $scope.NewObject.LotNumber);
+        }
+
+        if ($scope.productionSummaryNew.ProductionOrderId == null) {
+            CheckField("Production Order", $scope.productionSummaryNew.ProductionOrderId);
+        }
+
+        if ($scope.productionSummaryNew.ProductionBookingLevel === "MasterOrderItem") {
+            var getRow = $filter("filter")($scope.MasterOrderItemValidateList, { "MasterOrderItemId": $scope.NewObject.MasterOrderItemId });
+            if (getRow.length === 0) {
+                throw "MO Item not belongs to the selected PO please refresh and proceed.";
+            }
+        }
+
+        if (new Date($scope.productionSummaryNew.ProductionDate) > new Date()) {
+            throw "Future Date not allowed for Production Booking.";
+        }
+        $scope.productionSummaryNew.QtyWithoutScan = $scope.productionSummaryNew.Quantity;
+        CheckField("Quantity", $scope.productionSummaryNew.Quantity);
+
+
+        if (!baseService.isUndefinedOrNull($scope.productionSummaryNew.LotNumber)) {
+            if (/^[ A-Za-z0-9_./-]*$/.test($scope.productionSummaryNew.LotNumber)) {
+                ///
+            } else {
+                throw "You have entered an invalid value for Lot Number.";
+            }
+        }
+        $scope.ProdQty = 0;
+
+        if ($scope.IsSKU1 || $scope.IsSKU2 || $scope.IsSKU3) {
+            for (var i = 0; i < $scope.ProductionSummaryDetail.length; i++) {
+                if (!baseService.isUndefinedOrNull($scope.ProductionSummaryDetail[i].Qty)) {
+                    $scope.ProdQty = $scope.ProdQty + $scope.ProductionSummaryDetail[i].Qty;
+                }
+            }
+            $scope.productionSummaryNew.Quantity = $scope.ProdQty;
+            $scope.productionSummaryNew.QtyWithoutScan = $scope.ProdQty;
+            $scope.productionSummaryNew.SKUQty = $scope.ProdQty;
+            $scope.productionSummaryNew.SourceType = "SKU";
+        }
+        if ($scope.IsSKU1 || $scope.IsSKU2 || $scope.IsSKU3) {
+            if ($scope.ProdQty === 0) {
+                throw "SKU Qty is required.";
+            }
+        }
+
+
+        if ($scope.NewObject.POProcessSequence != "1") {
+            if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.NewObject.POFirstProcessProductionQty) {
+                throw "Produced qty cannot more than the first process qty.";
+            }
+            else {
+                $scope.CompareMaxValue = Math.max(parseFloat($scope.NewObject.ProcessPlanQty), parseFloat($scope.NewObject.POPreviousProdQty))
+                if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.CompareMaxValue) {
+                    throw "You cannot booked greater than Current Process Plan Qty or Previous Process Booked Qty.";
+                }
+                else {
+
+                    if (parseFloat($scope.NewObject.POPreviousProdQty) < parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
+                        throw "If Previous Process Booked Qty is less than  Produced and Booked Qty then Please enter remarks and inform to departmental head without fail!";
+                    }
+                    else {
+                        if (parseFloat($scope.NewObject.POPreviousProdQty) < parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) && !baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
+                            $scope.productionSummaryNew.PPQFlag = true;
+                        }
+                        else {
+                            $scope.productionSummaryNew.PPQFlag = false;
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            if ($scope.NewObject.ProductionVerification != true) {
+                throw "You cannot booked more than Verified Process...";
+            }
+            if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.NewObject.ProcessPlanQty) {
+                throw "You cannot booked greater than Process Plan Qty.";
+            }
+            else {
+                if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) == parseFloat($scope.NewObject.ProcessPlanQty)) {
+                    $scope.productionSummaryNew.PPQFlag = true;
+                }
+                else {
+                    if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) < parseFloat($scope.NewObject.ProcessPlanQty) && !baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) { $scope.productionSummaryNew.PPQFlag = true; }
+                    else {
+                        $scope.productionSummaryNew.PPQFlag = false;
+                        throw "If  Booked Qty and Produced Qty is less than Process Plan Qty then Please enter remarks and inform to departmental head without fail!";
+                    }
+                }
+            }
+        }
+
+    }
+
     $scope.SaveMasterWC = function (data) {
         $scope.NewObject = data.data;
-        //if ($scope.NewObject.BookingLevel === 'MasterOrderItem') {
-        //    if (baseService.isUndefinedOrNull($scope.NewObject.MasterOrderItemId)) {
-        //        throw "Select MO Item please.";
-        //    }
-        //    $scope.getMasterOrderValidateView($scope.NewObject.WorkCenterMasterId, $scope.NewObject.BookingLevel, $scope.NewObject.ProductionOrderId);
-        //}
+
         var processid = $scope.productionSummaryNew.ProcessId;
         var entityid = $scope.productionSummaryNew.EntityId;
         var productiondate = $scope.productionSummaryNew.ProductionDate;
@@ -1797,170 +1858,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         $scope.productionSummaryNew.ProductionInChargeId = PInChargId;
         $scope.productionSummaryNew.ProductionInCharge = PInCharg;
         try {
-            $scope.getProdLevel();
-            ValidationMaster();
-            if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
-                $scope.productionSummaryNew.MasterOrderItemId = null;
-                $scope.productionSummaryNew.ProductLibraryId = null;
-            }
-
-            else if ($scope.productionSummaryNew.ProductionBookingLevel === 'SalesOrder') {
-                $scope.productionSummaryNew.MasterOrderItemId = null;
-                $scope.productionSummaryNew.ProductLibraryId = null;
-            }
-            else if ($scope.productionSummaryNew.ProductionBookingLevel === 'MasterOrderItem') {
-                $scope.productionSummaryNew.SalesOrderId = null;
-                $scope.productionSummaryNew.ProductLibraryId = null;
-            }
-            else {
-                $scope.productionSummaryNew.SalesOrderId = null;
-            }
-
-            if ($scope.BookingLevel === 'MasterOrderItem') {
-                $scope.productionSummaryNew.MasterOrderItemId = $scope.ItemId;
-            }
-
-            if ($scope.BookingLevel === 'SalesOrder') {
-                $scope.productionSummaryNew.SalesOrderId = $scope.SOId;
-            }
-
-            if ($scope.BookingLevel === 'ProductCode') {
-                $scope.productionSummaryNew.MasterOrderItemId = $scope.ItemId;
-            }
-
-            if (new Date($scope.productionSummaryNew.ProductionDate) > new Date()) {
-                throw "Future Date not allowed for Production Booking.";
-            }
-            $scope.productionSummaryNew.QtyWithoutScan = $scope.productionSummaryNew.Quantity;
-            CheckField("Quantity", $scope.productionSummaryNew.Quantity);
-            ValidationMaster();
-
-            if (!baseService.isUndefinedOrNull($scope.productionSummaryNew.LotNumber)) {
-                if (/^[ A-Za-z0-9_./-]*$/.test($scope.productionSummaryNew.LotNumber)) {
-                    ///
-                } else {
-                    throw "You have entered an invalid value for Lot Number.";
-                }
-            }
-            $scope.ProdQty = 0;
-
-            if ($scope.IsSKU1 || $scope.IsSKU2 || $scope.IsSKU3) {
-                for (var i = 0; i < $scope.ProductionSummaryDetail.length; i++) {
-                    if (!baseService.isUndefinedOrNull($scope.ProductionSummaryDetail[i].Qty)) {
-                        $scope.ProdQty = $scope.ProdQty + $scope.ProductionSummaryDetail[i].Qty;
-                    }
-                }
-                $scope.productionSummaryNew.Quantity = $scope.ProdQty;
-                $scope.productionSummaryNew.QtyWithoutScan = $scope.ProdQty;
-                $scope.productionSummaryNew.SKUQty = $scope.ProdQty;
-                $scope.productionSummaryNew.SourceType = "SKU";
-            }
-            if ($scope.IsSKU1 || $scope.IsSKU2 || $scope.IsSKU3) {
-                if ($scope.ProdQty === 0) {
-                    throw "SKU Qty is required.";
-                }
-            }
-
-            //if ($scope.IsFirst == false) {
-            //    if (parseFloat($scope.RemainQty) < 0) {
-            //        throw "Order Quantity dosen't available.";
-            //    }
-            //}
-
-            //if ($scope.IsFirst == false) {
-            //    if (parseFloat($scope.TotalSalesOrderQty) <= parseFloat($scope.TotalProductionBookingQty) + parseFloat($scope.productionSummaryNew.Quantity)) {
-            //        throw " less than Order Quantity.";
-            //    }
-            //}
-
-            if ($scope.NewObject.POProcessSequence != "1") {
-                if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.NewObject.POFirstProcessProductionQty) {
-                    throw "Produced qty cannot more than the first process qty.";
-                }
-                else {
-                    $scope.CompareMaxValue = Math.max(parseFloat($scope.NewObject.ProcessPlanQty), parseFloat($scope.NewObject.POPreviousProdQty))
-                    if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.CompareMaxValue) {
-                        throw "You cannot booked greater than Current Process Plan Qty or Previous Process Booked Qty.";
-                    }
-                    else {
-
-                        if (parseFloat($scope.NewObject.POPreviousProdQty) < parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
-                            throw "If Previous Process Booked Qty is less than  Produced and Booked Qty then Please enter remarks and inform to departmental head without fail!";
-                        }
-                        else {
-                            if (parseFloat($scope.NewObject.POPreviousProdQty) < parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) && !baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
-                                $scope.productionSummaryNew.PPQFlag = true;
-                            }
-                            else {
-                                $scope.productionSummaryNew.PPQFlag = false;
-                            }
-                        }
-                    }
-                }
-            }
-            else {
-                if ($scope.NewObject.ProductionVerification != true)
-                {
-                    throw "You cannot booked more than Verified Process...";
-                }
-                if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.NewObject.ProcessPlanQty) {
-                    throw "You cannot booked greater than Process Plan Qty.";
-                }
-                else {
-                    if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) == parseFloat($scope.NewObject.ProcessPlanQty)) {
-                        $scope.productionSummaryNew.PPQFlag = true;
-                    }
-                    else {
-                        if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) < parseFloat($scope.NewObject.ProcessPlanQty) && !baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) { $scope.productionSummaryNew.PPQFlag = true; }
-                        else {
-                            $scope.productionSummaryNew.PPQFlag = false;
-                            throw "If  Booked Qty and Produced Qty is less than Process Plan Qty then Please enter remarks and inform to departmental head without fail!";
-                        }
-                    }
-                }
-            }
-
-            //if ($scope.NewObject.POProcessSequence != 1) {
-            //    if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.NewObject.POFirstProcessProductionQty) {
-            //        throw "Produced qty cannot more than the first process qty.";
-            //    }
-            //    else
-            //    {
-
-            //    if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.NewObject.POPreviousProdQty) && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks) && $scope.productionSummaryNew.ProcessId != 202028) {
-            //        throw "If Current Total Qty is greater than Previous Process Booked Qty then Please enter remarks and inform to departmental head without fail!";
-            //    }
-
-            //    $scope.CompareMaxValue = Math.max(parseFloat($scope.NewObject.ProcessPlanQty), parseFloat($scope.NewObject.POPreviousProdQty))
-            //    if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.CompareMaxValue) {
-            //        if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.CompareMaxValue && !baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks) && $scope.productionSummaryNew.ProcessId != 202028) {
-            //            $scope.productionSummaryNew.PPQFlag = true;
-            //        }
-            //        else {
-            //            throw "You cannot booked greater than Current Process Plan Qty or Previous Process Booked Qty.";
-            //        }
-            //    }
-            //    else {
-            //        $scope.productionSummaryNew.PPQFlag = false;
-            //        }
-            //    }
-            //}
-
-
-            //if (parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.RemainingQtyValue)) {
-            //    throw "Produced Quantity should not be greater than RemainingQtyValue.";
-            //}
-
-            //if (parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.NewObject.RemainingQty) && $scope.productionSummaryNew.Quantity > 0) {
-            //    throw "Produced Quantity should not be greater than Balance Quantity.";
-            //}
-
-            //if ($scope.IsFirst == false) {
-            //    if (parseFloat($scope.NewObject.RemainingQty) < 0 && $scope.productionSummaryNew.Quantity > 0) {
-            //        throw "Produced Quantity should less than Order Quantity.";
-            //    }
-            //}
-
+            ValidationMasterWC();
 
             $http({
                 method: 'POST',
@@ -1992,7 +1890,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 ShowResult(response.data.Message, 'failure');
             };
         } catch (ex) {
-            ShowResult(ex, 'Info');
+            ShowResult(ex, 'failure');
         }
     };
 
@@ -2080,12 +1978,6 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 }
             }
 
-            //if ($scope.IsFirst == false) {
-            //    if (parseFloat($scope.RemainQty) < 0) {
-            //        throw "Order Quantity dosen't available.";
-            //    }
-            //}
-
             if (parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.NewObject.POPreviousProdQty) && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks) && $scope.productionSummaryNew.ProcessId != 202028) {
                 throw "If Current Total Qty is greater than Previous Process Booked Qty then Please enter remarks and inform to departmental head without fail!";
             }
@@ -2106,16 +1998,6 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             if (parseFloat($scope.productionSummaryNew.Quantity) < 0) {
                 throw "Quantity should not be less than 0.";
             }
-
-            //if (parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.NewObject.RemainingQty) && $scope.productionSummaryNew.Quantity > 0) {
-            //    throw "Produced Quantity should not be greater than Balance Quantity.";
-            //}
-
-            //if ($scope.IsFirst == false) {
-            //    if (parseFloat($scope.NewObject.RemainingQty) < 0 && $scope.productionSummaryNew.Quantity > 0) {
-            //        throw "Produced Quantity should less than Order Quantity.";
-            //    }
-            //}
 
             $http({
                 method: 'POST',
@@ -2318,20 +2200,20 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $scope.productionSummaryNew.ProductionInCharge = PInCharg;
             $scope.TotalPreviousProcessQty = $scope.NewObject.POPreviousProdQty;
 
-            
-                $scope.ProcessParaList = [];
-                $http.get('Productions/ProductionSummary/GetProcessParaData?processId=' + $scope.productionSummaryNew.ProcessId + '&masterId=' + data.data.Id + '&ProductionOrderId=' + data.data.ProductionOrderId)
-                    .then(
-                        function successCallback(response) {
-                            $scope.ProcessParaList = response.data;
-                            $scope.GetTotalProductionBookingQty();
-                        },
-                        function errorCallback(response) {
-                            ShowResult(response, 'failure');
-                        });
 
-                angular.element(document.querySelector('#ProcessParaPopup')).modal('show');
-            
+            $scope.ProcessParaList = [];
+            $http.get('Productions/ProductionSummary/GetProcessParaData?processId=' + $scope.productionSummaryNew.ProcessId + '&masterId=' + data.data.Id + '&ProductionOrderId=' + data.data.ProductionOrderId)
+                .then(
+                    function successCallback(response) {
+                        $scope.ProcessParaList = response.data;
+                        $scope.GetTotalProductionBookingQty();
+                    },
+                    function errorCallback(response) {
+                        ShowResult(response, 'failure');
+                    });
+
+            angular.element(document.querySelector('#ProcessParaPopup')).modal('show');
+
         } catch (e) {
             ShowResult(e, 'failure');
         }
@@ -2559,17 +2441,6 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             ShowResult(ex, 'Info');
         }
     };
-
-    //$scope.DetentionTypeList = [];
-    //$scope.GetDetentionTypeList = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'IE/MachineMasterTransaction/GetDetentionTypeList'
-    //    }).then(function successCallback(response) {
-    //        $scope.DetentionTypeList = response.data;
-    //    });
-    //}
-
 
     var currRow = null;
     $scope.DetentionList = [];
@@ -2895,23 +2766,21 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             if (getRow.length > 1) {
                 throw "First complete pending record.";
             }
-            else
-            {
+            else {
                 $scope.getMasterOrderItem();
                 angular.element(document.querySelector('#MasterOrderItemPopup')).modal('show');
             }
-           
+
         }
-        catch (e)
-        {
+        catch (e) {
             ShowResult(e, 'failure');
         }
     }
 
     $scope.getMasterOrderItemViewPopUp = function (data) {
-            $scope.NewobjectMOI = data.data;
-            $scope.getMasterOrderItemView();
-            angular.element(document.querySelector('#MasterOrderItemViewPopup')).modal('show');
+        $scope.NewobjectMOI = data.data;
+        $scope.getMasterOrderItemView();
+        angular.element(document.querySelector('#MasterOrderItemViewPopup')).modal('show');
     }
 
 
@@ -2948,40 +2817,25 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         });
     }
 
-    //$scope.refreshTemplateMOItem = function (args) {
-    //    $("#Mheadchk").ejCheckBox({ "change": CheckBoxSelectAllMOItem });
-    //};
-    //function CheckBoxSelectAllMOItem(e) {
-    //    var ChkOrUnchk = false;
-    //    if (e.model.checkState === "check") {
-    //        ChkOrUnchk = true;
-    //    }
-
-    //    var filtered = $("#MasterOrderItemGrid").data("ejGrid").getFilteredRecords();
-    //    if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-    //        for (var i = 0; i < $scope.MasterOrderItemList.length; i++) {
-    //            $scope.MasterOrderItemList[i].Flag = ChkOrUnchk;
-    //        }
-    //    }
-    //    else {
-    //        for (var j = 0; j < filtered.length; j++) {
-    //            filtered[j].Flag = ChkOrUnchk;
-    //        }
-    //    }
-    //    var gridObj = $("#MasterOrderItemGrid").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-    //};
-
+    $scope.NewObject = {};
     $scope.ItemId = null;
     $scope.selectMasterOrderItem = function (data) {
         try {
-
-            //$scope.NewobjectMOI.MasterOrderItemId = getRow[0].MasterOrderItemId;
-            //$scope.NewobjectMOI.MOIArticle = getRow[0].Article;
             $scope.NewobjectMOI.MasterOrderItemId = data.data.MasterOrderItemId;
             $scope.NewobjectMOI.MOIArticle = data.data.Article;
             $scope.BookingLevel = $scope.NewobjectMOI.BookingLevel;
             $scope.ItemId = $scope.NewobjectMOI.MasterOrderItemId;
             $scope.GetMasterOrderItemQty();
+            if (baseService.isUndefinedOrNull($scope.NewObject.WorkCenterMasterId)) {
+                $scope.NewObject.WorkCenterMasterId = $scope.NewobjectMOI.WorkCenterMasterId;
+            }
+            if (baseService.isUndefinedOrNull($scope.NewObject.BookingLevel)) {
+                $scope.NewObject.BookingLevel = $scope.NewobjectMOI.BookingLevel;
+            }
+            if (baseService.isUndefinedOrNull($scope.NewObject.ProductionOrderId)) {
+                $scope.NewObject.ProductionOrderId = $scope.NewobjectMOI.ProductionOrderId;
+            }
+            $scope.getMasterOrderValidateView($scope.NewObject.WorkCenterMasterId, $scope.NewObject.BookingLevel, $scope.NewObject.ProductionOrderId);
             angular.element(document.querySelector('#MasterOrderItemPopup')).modal('hide');
 
         }

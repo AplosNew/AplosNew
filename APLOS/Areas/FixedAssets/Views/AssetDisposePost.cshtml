@@ -252,11 +252,7 @@
         </div>
     </fieldset>
 
-
-
-
-    <div class="col-md-12 col-sm-12 col-xs-12">
-        @*<div class="form-group" ng-show="true">*@
+    @*<div class="col-md-12 col-sm-12 col-xs-12">
         <fieldset class="scheduler-border" ng-show="voucher.Status=='@Library.Service.Enums.FixedAssetDisposeStatusEnum.CompensateByEmployee.ToString()'">
             <legend class="scheduler-border">Advance Schedule</legend>
             <div class="col-xs-12 col-sm-4 col-md-4">
@@ -320,7 +316,7 @@
 
     </div>
     <div class="col-xs-12 col-sm-12 col-md-12 modal-table" id="loanDetails">
-    </div>
+    </div>*@
 
 
     <div class="clearfix"></div>
@@ -362,7 +358,7 @@
             <div e-column e-field="DisposeNo" e-headertext="Dispose No" e-width="80" e-filter="false"></div>
             <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="80" e-filter="false"></div>
             <div e-column e-field="Status" e-headertext="Status" e-width="70"></div>
-            @*<div e-column e-field="EmployeeName" e-headertext="Employee" e-width="120"></div>*@
+            <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="120"></div>
             <div e-column e-field="CustomerName" e-headertext="Customer" e-width="120"></div>
             <div e-column e-field="TrnCurrency" e-headertext="Currency" e-width="60"></div>
             @*<div e-column e-field="BaseCurrency" e-headertext="Base Currency" e-width="60"></div>*@
@@ -470,7 +466,7 @@
 
 
 
-@Html.Partial("~/Areas/FixedAssets/Views/_FixedAssetRegisterPopUp.cshtml")
-@Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
+@*@Html.Partial("~/Areas/FixedAssets/Views/_FixedAssetRegisterPopUp.cshtml")
+@Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")*@
 
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(voucherId)"></confirm-archive-generic>

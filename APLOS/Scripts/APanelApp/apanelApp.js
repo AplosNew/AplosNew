@@ -530,6 +530,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("MasterPlanSetUpController", MasterPlanSetUpController)
     .controller("RemarksControlController", RemarksControlController)
     .controller("TermsandConditionGroupController", TermsandConditionGroupController)
+    .controller("DependantTaskController", DependantTaskController)
     
 
 
@@ -570,6 +571,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .config(PayrollsConfig)
     .config(MeetingManagementConfig)
     .config(salesManagementConfig)
+    .config(TaskSchedulerConfig)
 
     .config(["$routeProvider", "$locationProvider", "$httpProvider", "$compileProvider", function apanelConfig($routeProvider, $locationProvider, $httpProvider, $compileProvider) {
         $httpProvider.interceptors.push("errorInterceptor");

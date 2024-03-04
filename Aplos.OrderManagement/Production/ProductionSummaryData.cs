@@ -4846,6 +4846,19 @@ Where  SO.OrderStatusId NOT IN('Cancelled','Closed') AND SO.ShipmentFromStock=0 
             }
         }
 
+        public IEnumerable<object> GetBookingLevelByPrOandProcess(string poId,string processId)
+        {
+            try
+            {
+                string sql = @"Select ProductionBookingLevel from TRN.ProductionOrderProcessSet PPS Where PPS.ProductionOrderID = '25178' AND PPS.ProcessId = '202037'";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public void ReportSQL(Dictionary<string, string> parameters, out DataTable data)
         {
             try

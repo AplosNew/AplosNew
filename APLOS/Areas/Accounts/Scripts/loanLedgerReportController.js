@@ -118,6 +118,10 @@ function loanLedgerReportController(commonMessage, $scope, $rootScope, baseServi
         var url = 'accounts/loan/GetAllRegisterReportExcel?transactionType=' + $scope.report.TransactionType;
         $window.open(url, '_blank');
     };
+    $scope.GetAllRegisterSummaryReportExcel = function () {
+        var url = 'accounts/loan/GetAllRegisterSummaryReportExcel?transactionType=' + $scope.report.TransactionType;
+        $window.open(url, '_blank');
+    };
 
     $scope.selectSingleClick = function (data) {
         $scope.valueData = data;

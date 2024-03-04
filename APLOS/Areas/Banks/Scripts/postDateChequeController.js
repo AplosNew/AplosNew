@@ -29,6 +29,7 @@ function postDateChequeController(commonMessage, cboService, $scope, $rootScope,
         Days: null,
         PostingDate: null,
         PaymentDate: null,
+        EffectiveDate: null,
         //VoucherId: false,
         //IsClose: false,
         //PaymentTermId: null,
@@ -104,7 +105,8 @@ function postDateChequeController(commonMessage, cboService, $scope, $rootScope,
     $scope.Save = function () {
         try {
             $scope.$broadcast("show-errors-check-validity");
-
+            var EffectiveDate = new Date($scope.pdcNew.PostingDate + $scope.pdcNew.RemainderDays);
+            $scope.pdcNew.EffectiveDate = EffectiveDate;
             $http({
                 method: "POST",
                 url: $scope.saveUrl,

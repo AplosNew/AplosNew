@@ -30,6 +30,67 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
     }
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
+    // #region  Dynamic PopUp
+    $scope.popUpList = [];
+    $scope.popUpDataList = [];
+    $scope.GetByWhomPopupData = function () {
+        try {
+          
+                $scope.popUpDataList = [];
+                $http({
+                    method: 'GET',
+                    url: 'employees/authorizationconfig/getallemployeedata'
+
+                }).then(function successCallback(response) {
+                    $scope.popUpDataList = response.data;
+                });
+                angular.element(document.querySelector('#EmpPopUp')).modal('show');
+           
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+
+    $scope.selectdblClick = function (obj) {
+        var ob = obj.data;
+        $scope.ModelNew.ByWhomId = ob.SystemId;
+        $scope.ModelNew.ByWhomName   = ob.EmployeeName;
+        $scope.ModelNew.ByWhomCode = ob.EmployeeCode;
+        angular.element(document.querySelector('#EmpPopUp')).modal('hide');
+    };
+
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#EmpPopUp')).modal('hide');
+    };
+
+    $scope.ProductionOrderList = [];
+    $scope.PRSearchColumn = null;
+    $scope.PRSearchValue = null;
+    $scope.GetProductionOrderPopUp = function () {
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.EntityId)) {
+            $http({
+                method: 'POST',
+                data: {
+                    'entityid': $scope.ModelNew.EntityId, 'processid': $scope.ModelNew.ProcessId, 'column': $scope.PRSearchColumn, 'value': $scope.PRSearchValue
+                },
+                url: 'Outsourcing/OSTransformationPO/GetProductionOredrList'
+            }).then(function successCallback(response) {
+                $scope.ProductionOrderList = response.data;
+                angular.element(document.querySelector('#POItemPopup')).modal('show');
+            });
+        }
+    };
+    $scope.selectedProductionOrder = [];
+    $scope.SetPrOData = function () {
+        var gridObj = $("#GridPO").data("ejGrid");
+        $scope.selectedProductionOrder.push(gridObj.getSelectedRecords()[0]);
+    }
+
+    // #endregion
+
+
+
     $scope.ClearPO = function () {
         ClearPOFields();
         return true;
@@ -96,9 +157,24 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
         })
             .then(function successCallback(res) {
                 $scope.EntityList = res.data;
+                if (baseService.arrayLength(res.data) === 1) {
+                    $scope.ModelNew.EntityId = $scope.EntityList[0].Value;
+                    //default
+                    $scope.loadProcessList($scope.ModelNew.EntityId);
+                }
             });
     }
     $scope.GetEntity();
+
+    $scope.loadProcessList = function (entityid) {
+        cboService.GetEntityProcessCbo(entityid, function (result) {
+            $scope.processList = result;
+            if (baseService.arrayLength(result) === 1) {
+                $scope.ModelNew.ProcessId = $scope.processList[0].Value;
+            }
+        });
+    };
+
 
     $scope.POList = [];
     $scope.GetPO = function () {

@@ -67,6 +67,10 @@ namespace Aplos.Areas.Commercial.Controllers
         {
             return View();
         }
+        public ActionResult ContractSummary()
+        {
+            return View();
+        }
         #endregion
 
         #region -- Operations
@@ -1698,6 +1702,25 @@ WHERE CT.ContractId IN(" + id + ") AND TermsAndConditionsId NOT IN(SELECT TermsA
         }
         #endregion
 
+        [HttpGet, Authorize]
+        public ActionResult GetContractSummaryReport(string ContractId)
+        { 
+            try
+            { 
+                ExcelEngine excelEngine = new ExcelEngine(); 
+                IWorkbook workbook = clsCon.GetContractSummaryReportXlx(ContractId);
+
+                string strFileName = "Contract Summary.xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet); 
+            } 
+            return null;
+        }
+
         #region Master Order & Items Details Report 
 
         [HttpGet, Authorize]
@@ -3261,7 +3284,7 @@ WHERE CT.ContractId IN(" + id + ") AND TermsAndConditionsId NOT IN(SELECT TermsA
                 //var workbook = clsCon.GetContarctWorkbook(identity.CompanyId);
                 var workbook = clsCon.GetContarctWorkbookExcel(identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
 
-                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "ContarctReport.xlsx";
+                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "BANK LIEN Report.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
                 workbook.SaveAs(fullPath);
 

@@ -25,7 +25,7 @@ function assetDisposePostController(accountService, cboService, commonMessage, $
     $scope.getData = function () {
         $http({
             method: 'Post'
-            , url: 'FixedAssets/FixedAssetRegister/GetFixedAssetDisposePostedList'
+            , url: 'FixedAssets/FixedAssetRegister/GetCapitalizeAssetDisposePostedList'
             , data: { column: $scope.searchBy, value: $scope.search }
             , dataType: 'JSON'
         }).then(function (response) {
@@ -281,6 +281,15 @@ function assetDisposePostController(accountService, cboService, commonMessage, $
 
     $scope.Clear = function () {
         $scope.Action = "Save";
+        $scope.voucher.DisposeNo = null;
+        $scope.voucher.EmployeeId = null;
+        $scope.voucher.CustomerName = null;;
+        $scope.voucher.PartyId = null;
+        $scope.voucher.PartyPlantId = null;
+        $scope.voucher.EmployeeName = null;
+        $scope.voucher.Designation = null;
+        $scope.voucher.Department = null;
+        $scope.voucher.Status = null;
         $scope.voucher.Active = true;
         $scope.voucher.Amount = 0;
         $scope.voucher.DocRefNo = null;

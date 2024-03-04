@@ -713,12 +713,12 @@ namespace Library.Accounting.FixedAssets
 							,ActivityCode = ADP.ActivityCode
 							,ActivityName =ADP.ActivityName
 							, NULL Dr
-							, SUM(ADP.AssetAmount) AS Cr
-							, SUM(ADP.AssetAmount) AS Amount
+							, SUM(ADP.NetAmount) AS Cr
+							, SUM(ADP.NetAmount) AS Amount
 						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
 						LEFT JOIN TRN.AssetRegister AR ON AR.Id=FRDD.AssetRegisterId
-						LEFT JOIN (select SUM(ARC.Amount) AssetAmount,ARC.AssetRegisterId ,BM.GLGeneralInfoId, GL.AccountCode, GL.UserName GLGeneralInfoName
+						LEFT JOIN (select SUM(ARC.NetAmount) NetAmount,ARC.AssetRegisterId ,BM.GLGeneralInfoId, GL.AccountCode, GL.UserName GLGeneralInfoName
 						, VD.BudgetMasterId, B.Code BudgetCode, B.UserName BudgetName, VD.ActivityId, A.Code ActivityCode, A.UserName ActivityName
 											from [TRN].[AssetRegisterChild] ARC 
 											LEFT JOIN [TRN].[VoucherDetail]  VD ON VD.Id=ARC.VoucherDetailId
@@ -726,6 +726,7 @@ namespace Library.Accounting.FixedAssets
 											LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON VD.GLGeneralInfoId=GL.Id
 											LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 											LEFT JOIN [HKP].[Activity] AS A ON VD.ActivityId= A.Id
+                                            WHERE ARC.VoucherDetailId IS NOT NULL
 											GROUP BY  ARC.AssetRegisterId ,BM.GLGeneralInfoId, GL.AccountCode, GL.UserName
 						, VD.BudgetMasterId, B.Code, B.UserName, VD.ActivityId, A.Code, A.UserName) ADP ON ADP.AssetRegisterId=AR.Id
 						WHERE FRDD.FixedAssetRegisterDisposedId=@receiveId
