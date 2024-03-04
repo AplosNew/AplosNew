@@ -418,12 +418,12 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
         }
 
         [HttpGet, Authorize]
-        public ActionResult OrderBudgetReport(string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, string MOIId, string costingComponentId)
+        public ActionResult OrderBudgetReport(string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, string MOIId)
         {
             try
             {
                 Library.OrderManagement.Costing.CostingReport Report = new Library.OrderManagement.Costing.CostingReport();
-                Report.OrderBudgetReport(OrderCostingId, orderBudget, preCosting, ProcurementCosting, MOIId, costingComponentId); 
+                Report.OrderBudgetReport(OrderCostingId, orderBudget, preCosting, ProcurementCosting, MOIId); 
                 return null;
             }
             catch (Exception ex)
@@ -433,12 +433,12 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetOrderCostingReport(string OrderCostingId,string orderBudget,string preCosting, string ProcurementCosting, string MOIId,string costingComponentId)
+        public ActionResult GetOrderCostingReport(string OrderCostingId,string orderBudget,string preCosting, string ProcurementCosting, string MOIId)
         {
             try
             {
                 Library.OrderManagement.Costing.CostingReport Report = new Library.OrderManagement.Costing.CostingReport();
-                Report.GetOrderCostingReport(OrderCostingId, orderBudget, preCosting, ProcurementCosting, MOIId, costingComponentId); 
+                Report.GetOrderCostingReport(OrderCostingId, orderBudget, preCosting, ProcurementCosting, MOIId); 
                 return null;
             }
             catch (Exception ex)

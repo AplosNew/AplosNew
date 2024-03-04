@@ -24,7 +24,7 @@ namespace Library.OrderManagement.Costing
             _sqlRepository = new SqlRepository();
             identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
         }
-        public void GetOrderCostingReport(string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, string MOIId,string costingComponentId)
+        public void GetOrderCostingReport(string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, string MOIId)
         {
             try
             {
@@ -677,8 +677,7 @@ namespace Library.OrderManagement.Costing
                 int CostingComponentEndcol = 0;
 
                 DirectMateterial(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
-                DirectProcess(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo, costingComponentId);
-                //WashingCost(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo, costingComponentId);
+                DirectProcess(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
                 Operation(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
                 ValueLoss(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
                 Profit(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
@@ -711,7 +710,7 @@ namespace Library.OrderManagement.Costing
             }
         }
 
-        public void OrderBudgetReport(string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, string MOIId,string costingComponentId)
+        public void OrderBudgetReport(string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, string MOIId)
         {
             try
             {
@@ -1063,8 +1062,8 @@ namespace Library.OrderManagement.Costing
 
                 DirectMateterial(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
                 int fundROW = ROW;
-                DirectProcess(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo, costingComponentId);
-                FundRequired(sheet, ref fundROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo, TotalExecutionTC, costingComponentId);
+                DirectProcess(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
+                FundRequired(sheet, ref fundROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo, TotalExecutionTC);
                 Operation(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
                 ValueLoss(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
                 Profit(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
@@ -1285,10 +1284,10 @@ namespace Library.OrderManagement.Costing
             }
         }
 
-        private void DirectProcess(IWorksheet sheet, ref int ROW, string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo,string costingComponentId)
+        private void DirectProcess(IWorksheet sheet, ref int ROW, string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
         {
             ReportUtility reportUtility = new ReportUtility();
-            String CostingDirectProcessSQL = OrderPreCostingDirectProcessSQL(OrderCostingId, orderBudget, preCosting, ProcurementCosting, costingComponentId);
+            String CostingDirectProcessSQL = OrderPreCostingDirectProcessSQL(OrderCostingId, orderBudget, preCosting, ProcurementCosting);
             DataTable dtOrderCostingDirectProcess = _sqlRepository.GetDataTable(CostingDirectProcessSQL);
 
             if (dtOrderCostingDirectProcess.Rows.Count == 0)
@@ -1301,19 +1300,25 @@ namespace Library.OrderManagement.Costing
 
             int COL = 1;
 
-            sheet[ROW, COL].Text = dtOrderCostingDirectProcess.Rows[0]["CostingComponentName"].ToString() + " breakdown.";
-            sheet[ROW, COL].RowHeight = 30;
-            sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
-            sheet.Range[ROW, COL].CellStyle.Font.Size = 15;
-            sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Dark_blue;
-            sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
-            sheet.Range[ROW, COL, ROW, 7].Merge();
+            //sheet[ROW, COL].Text = dtOrderCostingDirectProcess.Rows[0]["CostingComponentName"].ToString() + " breakdown.";
+            //sheet[ROW, COL].RowHeight = 30;
+            //sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
+            //sheet.Range[ROW, COL].CellStyle.Font.Size = 15;
+            //sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Dark_blue;
+            //sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+            //sheet.Range[ROW, COL, ROW, 7].Merge();
 
             for (int i = 0; i < dvDistinctCostingComponent.Rows.Count; i++)
             {
-                ROW++;
-                //sheet[1, 1].Text = dvDistinctCostingComponent.Rows[i]["CostingComponentName"].ToString();
+                sheet[ROW, COL].Text = dvDistinctCostingComponent.Rows[i]["CostingComponentName"].ToString() + " breakdown.";
+                sheet[ROW, COL].RowHeight = 30;
+                sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, COL].CellStyle.Font.Size = 15;
+                sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Dark_blue;
+                sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, COL, ROW, 7].Merge();
 
+                ROW++;
                 COL = 1;
 
                 sheet[ROW, COL].Text = "Costing Item";
@@ -1375,15 +1380,17 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colRate].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Rate"].ToString());
                      
                     sheet[ROW, colQty].Number = clsStaticInfo.dbl(OrderQTY);
-                    
-                    if (preCosting == "1" || ProcurementCosting == "1")
-                    {
-                        sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Rate"].ToString()) * clsStaticInfo.dbl(OrderQTY);
-                    }
-                    if (orderBudget == "1")
-                    {
-                        sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalOrderCost"].ToString());
-                    }
+
+                    //if (preCosting == "1" || ProcurementCosting == "1")
+                    //{
+                    //    sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Rate"].ToString()) * clsStaticInfo.dbl(OrderQTY);
+                    //}
+                    //if (orderBudget == "1")
+                    //{
+                    //    sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalOrderCost"].ToString());
+                    //}
+                    sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Rate"].ToString()) * clsStaticInfo.dbl(OrderQTY);
+
                     sheet[ROW, colCurrency2].Text = dtComponentRelatedItems.DefaultView[M]["Currency"].ToString();
 
                     //sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 1].Merge();
@@ -1420,145 +1427,10 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[CostingComponentStartRow, colValue, ROW, colValue].NumberFormat = clsStaticInfo.NumberFormat(2);
                 sheet.Range[CostingComponentStartRow, colQty, ROW, colQty].NumberFormat = clsStaticInfo.NumberFormat(2);
                 sheet.Range[CostingComponentStartRow, colTotalOrderCost, ROW, colTotalOrderCost].NumberFormat = clsStaticInfo.NumberFormat(2);
+                COL = 1;
             }
         }
-        //private void WashingCost(IWorksheet sheet, ref int ROW, string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo, string costingComponentId)
-        //{
-        //    ReportUtility reportUtility = new ReportUtility();
-        //    String CostingDirectProcessSQL = OrderPreCostingDirectProcessSQL(OrderCostingId, orderBudget, preCosting, ProcurementCosting, costingComponentId);
-        //    DataTable dtOrderCostingDirectProcess = _sqlRepository.GetDataTable(CostingDirectProcessSQL);
-
-        //    if (dtOrderCostingDirectProcess.Rows.Count == 0)
-        //        return;
-
-        //    DataTable dvDistinctCostingComponent = dtOrderCostingDirectProcess.DefaultView.ToTable(true, "CostingComponentId", "CostingComponentName");
-        //    string OrderQTY = clsStaticInfo.dbl(dtMOICostingInfo.DefaultView[0]["OrderQty"].ToString()).ToString();
-
-        //    int CostingComponentEndcol = 0;
-
-        //    int COL = 1;
-
-        //    sheet[ROW, COL].Text = dtOrderCostingDirectProcess.Rows[0]["CostingComponentName"].ToString() + " breakdown.";
-        //    sheet[ROW, COL].RowHeight = 30;
-        //    sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
-        //    sheet.Range[ROW, COL].CellStyle.Font.Size = 15;
-        //    sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Dark_blue;
-        //    sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
-        //    sheet.Range[ROW, COL, ROW, 7].Merge();
-
-        //    for (int i = 0; i < dvDistinctCostingComponent.Rows.Count; i++)
-        //    {
-        //        ROW++;
-        //        //sheet[1, 1].Text = dvDistinctCostingComponent.Rows[i]["CostingComponentName"].ToString();
-
-        //        COL = 1;
-
-        //        sheet[ROW, COL].Text = "Costing Item";
-        //        int colCostingItem = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Type";
-        //        int colType = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Value Loss(%)";
-        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        int colValue = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Rate";
-        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        int colRate = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Qty";
-        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        int colQty = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Total Order Cost";
-        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        int colTotalOrderCost = COL;
-        //        sheet[ROW, COL].WrapText = true;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Currency";
-        //        int colCurrency2 = COL;
-
-        //        CostingComponentEndcol = COL;
-        //        sheet.Range[ROW, 1, ROW, CostingComponentEndcol].CellStyle.Font.Bold = true;
-        //        sheet.Range[ROW, 1, ROW, CostingComponentEndcol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-
-        //        sheet.Range[ROW, 1, ROW, CostingComponentEndcol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_yellow;
-        //        //sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 1].Merge();
-        //        //sheet.Range[ROW, colType, ROW, colType + 1].Merge();
-        //        sheet.Range[ROW - 2, 1, ROW - 2, CostingComponentEndcol].Merge();
-        //        sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderAround(ExcelLineStyle.Hair);
-        //        sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderInside(ExcelLineStyle.Hair);
-
-        //        ROW++;
-
-        //        dtOrderCostingDirectProcess.DefaultView.RowFilter = "CostingComponentId='" + dvDistinctCostingComponent.Rows[i]["CostingComponentId"].ToString() + "'";
-        //        DataTable dtComponentRelatedItems = dtOrderCostingDirectProcess.DefaultView.ToTable();
-
-        //        int CostingComponentStartRow = ROW;
-
-        //        for (int M = 0; M < dtComponentRelatedItems.Rows.Count; M++)
-        //        {
-        //            sheet[ROW, colCostingItem].Text = dtComponentRelatedItems.DefaultView[M]["CostingItem"].ToString();
-        //            sheet[ROW, colType].Text = dtComponentRelatedItems.DefaultView[M]["Type"].ToString();
-
-        //            sheet[ROW, colValue].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Value"].ToString());
-        //            sheet[ROW, colRate].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Rate"].ToString());
-
-        //            sheet[ROW, colQty].Number = clsStaticInfo.dbl(OrderQTY);
-
-        //            if (preCosting == "1" || ProcurementCosting == "1")
-        //            {
-        //                sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Rate"].ToString()) * clsStaticInfo.dbl(OrderQTY);
-        //            }
-        //            if (orderBudget == "1")
-        //            {
-        //                sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalOrderCost"].ToString());
-        //            }
-        //            sheet[ROW, colCurrency2].Text = dtComponentRelatedItems.DefaultView[M]["Currency"].ToString();
-
-        //            //sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 1].Merge();
-        //            //sheet.Range[ROW, colType, ROW, colType + 1].Merge();
-        //            sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderAround(ExcelLineStyle.Hair);
-        //            sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderInside(ExcelLineStyle.Hair);
-
-        //            ROW++;
-        //        }
-        //        int CostingComponentEndRow = ROW - 1;
-        //        sheet[ROW, 1].Text = "Total:";
-        //        sheet.Range[ROW, 1].CellStyle.Font.Bold = true;
-
-        //        sheet.Range[ROW, colCostingItem, ROW, colType + 1].Merge();
-
-        //        sheet.Range[ROW, colValue].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colValue) + CostingComponentStartRow + ":" + reportUtility.GetColumnNameForXls(colValue) + CostingComponentEndRow + ")";
-        //        sheet.Range[ROW, colValue].CellStyle.Font.Bold = true;
-
-        //        sheet.Range[ROW, colQty].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colQty) + CostingComponentStartRow + ":" + reportUtility.GetColumnNameForXls(colQty) + CostingComponentEndRow + ")";
-        //        sheet.Range[ROW, colQty].CellStyle.Font.Bold = true;
-
-        //        sheet.Range[ROW, colTotalOrderCost].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colTotalOrderCost) + CostingComponentStartRow + ":" + reportUtility.GetColumnNameForXls(colTotalOrderCost) + CostingComponentEndRow + ")";
-        //        sheet.Range[ROW, colTotalOrderCost].CellStyle.Font.Bold = true;
-        //        sheet.Range[ROW, colCurrency2].Formula = reportUtility.GetColumnNameForXls(colCurrency2) + (ROW - 1);
-        //        sheet.Range[ROW, colCurrency2].CellStyle.Font.Bold = true;
-
-        //        sheet.Range[CostingComponentStartRow, 1, CostingComponentEndRow + 1, CostingComponentEndcol].NumberFormat = clsStaticInfo.NumberFormat(4);
-
-        //        sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderAround(ExcelLineStyle.Hair);
-        //        sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderInside(ExcelLineStyle.Hair);
-        //        ROW++;
-        //        ROW++;
-
-        //        sheet.Range[CostingComponentStartRow, colValue, ROW, colValue].NumberFormat = clsStaticInfo.NumberFormat(2);
-        //        sheet.Range[CostingComponentStartRow, colQty, ROW, colQty].NumberFormat = clsStaticInfo.NumberFormat(2);
-        //        sheet.Range[CostingComponentStartRow, colTotalOrderCost, ROW, colTotalOrderCost].NumberFormat = clsStaticInfo.NumberFormat(2);
-        //    }
-        //}
+         
         private void Operation(IWorksheet sheet, ref int ROW, string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
         {
             ReportUtility reportUtility = new ReportUtility();
@@ -1629,7 +1501,10 @@ namespace Library.OrderManagement.Costing
                 {
                     sheet[ROW, colCostingItem].Text = dtComponentRelatedItems.DefaultView[M]["CostingItem"].ToString();
                     sheet[ROW, colValue].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Value"].ToString());
-                    sheet[ROW, colQty].Number = sheet[ROW, colQty].Number = clsStaticInfo.dbl(OrderQTY); ;
+                    
+                    //sheet[ROW, colQty].Number = sheet[ROW, colQty].Number = clsStaticInfo.dbl(OrderQTY); ;
+                    sheet[ROW, colQty].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalQty"].ToString());
+
                     if (orderBudget == "1")
                     {
                         //sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalOrderCost"].ToString());
@@ -1669,13 +1544,13 @@ namespace Library.OrderManagement.Costing
             }
         }
 
-        private void FundRequired(IWorksheet sheet, ref int ROW, string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo, double TotalExecutionTC,string costingComponentId)
+        private void FundRequired(IWorksheet sheet, ref int ROW, string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo, double TotalExecutionTC)
         {
             ReportUtility reportUtility = new ReportUtility();
             String CostingDirectMaterialSQL = OrderPreCostingDirectMaterialSQL(OrderCostingId, orderBudget, preCosting, ProcurementCosting);
             DataTable dtFundRequired = _sqlRepository.GetDataTable(CostingDirectMaterialSQL);
 
-            String CostingDirectProcessSQL = OrderPreCostingDirectProcessSQL(OrderCostingId, orderBudget, preCosting, ProcurementCosting, costingComponentId);
+            String CostingDirectProcessSQL = OrderPreCostingDirectProcessSQL(OrderCostingId, orderBudget, preCosting, ProcurementCosting);
             DataTable dtFundRequiredWash = _sqlRepository.GetDataTable(CostingDirectProcessSQL);
 
             if (dtFundRequired.Rows.Count == 0)
@@ -1724,6 +1599,10 @@ namespace Library.OrderManagement.Costing
 
             sheet[ROW, COL].Text = "Washing Cost";
             int colWashingCost = COL;
+            ROW++;
+
+            sheet[ROW, COL].Text = "Direct Process Cost";
+            int colDirectProcessCost = COL;
 
             int ColEnd = COL;
             sheet.Range[StartRow, COLFinal, ROW, COLFinal + 2].BorderAround(ExcelLineStyle.Hair);
@@ -1766,15 +1645,22 @@ namespace Library.OrderManagement.Costing
             double MDRYPROCESSDirectOrderCost = clsStaticInfo.dbl(dtFundRequired.Compute("SUM(TotalOrderCost)", "CostingCategory='" + "DRY PROCESS" + "'"));
             double totalDirectWashingCost = MWetProcessDirectOrderCost + MDRYPROCESSDirectOrderCost;
 
-            double MWetProcessOrderCost = clsStaticInfo.dbl(dtFundRequiredWash.Compute("SUM(TotalOrderCost)", "CostingCategory='" + "Wet-Process" + "'"));
-            double MDRYPROCESSOrderCost = clsStaticInfo.dbl(dtFundRequiredWash.Compute("SUM(TotalOrderCost)", "CostingCategory='" + "DRY PROCESS" + "'"));
+            double MWetProcessOrderCost = clsStaticInfo.dbl(dtFundRequiredWash.Compute("SUM(TOC)", "CostingCategory='" + "Wet-Process" + "'"));
+            double MDRYPROCESSOrderCost = clsStaticInfo.dbl(dtFundRequiredWash.Compute("SUM(TOC)", "CostingCategory='" + "DRY PROCESS" + "'"));
             double totalWashingCost = MWetProcessOrderCost + MDRYPROCESSOrderCost;
 
             sheet.Range[ROW, COL].Number = totalWashingCost + totalDirectWashingCost;
             sheet.Range[ROW, COL].NumberFormat = clsStaticInfo.NumberFormat(2);
             sheet.Range[ROW, COL, ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet.Range[ROW, COL, ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            ROW++;
 
+
+            double MDirectProcessCost = clsStaticInfo.dbl(dtFundRequiredWash.Compute("SUM(TOC)", "CostingCategory='" + "Embriodery" + "'"));
+            sheet.Range[ROW, COL].Number = MDirectProcessCost;
+            sheet.Range[ROW, COL].NumberFormat = clsStaticInfo.NumberFormat(2);
+            sheet.Range[ROW, COL, ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[ROW, COL, ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             ROW++;
 
             ROW = StartRow;
@@ -1809,7 +1695,13 @@ namespace Library.OrderManagement.Costing
             sheet.Range[ROW, COL].NumberFormat = clsStaticInfo.NumberFormat(2);
             sheet.Range[ROW, COL, ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet.Range[ROW, COL, ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            ROW++;
 
+            double totalDirectProcessCost = MDirectProcessCost / TotalExecutionTC * 100;
+            sheet.Range[ROW, COL].Number = totalDirectProcessCost;
+            sheet.Range[ROW, COL].NumberFormat = clsStaticInfo.NumberFormat(2);
+            sheet.Range[ROW, COL, ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[ROW, COL, ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             ROW++;
 
             int CostingComponentEndRow = ROW - 1;
@@ -2378,7 +2270,7 @@ namespace Library.OrderManagement.Costing
 
         }
 
-        private string OrderPreCostingDirectProcessSQL(string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting,string costingComponentId)
+        private string OrderPreCostingDirectProcessSQL(string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting)
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -2418,7 +2310,11 @@ namespace Library.OrderManagement.Costing
 			*(select sum(pc.Amount)
 			from " + TableName + @" pc
 			where pc.OrderCostingMasterTemplateId=OCMT.Id) 
-			
+			,TOC=(select sum(moi.TotalQty)
+			from trn.MasterOrderItem moi 
+			where moi.OrderCostingMasterTemplateId=OCMT.Id
+			group by moi.OrderCostingMasterTemplateId)*
+			ISNULL(pc.Rate,0)
 			
 			FROM " + TableName + @" AS pc 
 			LEFT JOIN HKP.CostingItem I on i.Id=PC.CostingItemId 
@@ -2428,7 +2324,7 @@ namespace Library.OrderManagement.Costing
 			LEFT JOIN EmployeeInformation EI on EI.SystemId=pc.ResponsiblePersonId
 			LEFT JOIN [HKP].[CostingCategory] AS ccg ON ccg.Id = I.CostingCategoryId
 
-			where pc.OrderCostingMasterTemplateId='" + OrderCostingId + @"' and CC.Id='" + costingComponentId + @"'
+			where pc.OrderCostingMasterTemplateId='" + OrderCostingId + @"'
 			order by pc.Sequence";
             }
 
@@ -2447,7 +2343,7 @@ namespace Library.OrderManagement.Costing
 			LEFT JOIN EmployeeInformation EI on EI.SystemId=pc.ResponsiblePersonId
 			LEFT JOIN [HKP].[CostingCategory] AS ccg ON ccg.Id = I.CostingCategoryId
 
-			where pc.OrderCostingMasterTemplateId='" + OrderCostingId + @"' and CC.Id='" + costingComponentId + @"'
+			where pc.OrderCostingMasterTemplateId='" + OrderCostingId + @"'
 			order by pc.Sequence";
         }
 
@@ -2471,7 +2367,9 @@ namespace Library.OrderManagement.Costing
                 return @"SELECT pc.Id,I.Id as CostingId,I.UserName as CostingItem,I.CostingComponentId,pc.Sequence
 				,ISNULL(pc.Value,0) AS Value,OCMT.Id as OrderCostingMasterTemplateId
 				,cc.UserName as CostingComponentName,c.Code as Currency 
-				,ISNULL(pc.Value,0) AS Amount, sum(ISNULL(moi.TotalQty,0)) TotalQty
+				,ISNULL(pc.Value,0) AS Amount
+                --, sum(ISNULL(moi.TotalQty,0)) TotalQty
+                ,TotalQty= case when Value<>0 then sum(ISNULL(moi.TotalQty,0)) else 0 end
 				,TotalOrderCost=ISNULL(pc.Value,0)*sum(ISNULL(moi.TotalQty,0))
 
 				FROM " + TableName + @" AS pc       
