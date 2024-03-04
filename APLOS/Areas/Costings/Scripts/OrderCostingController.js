@@ -5171,7 +5171,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     $scope.OrderBudgetReport = function (x) {
         try {
             var data = x;
-            var file_src = 'Costings/OrderCosting/OrderBudgetReport?OrderCostingId=' + data.Id + '&orderBudget=' + 1 + '&MOIId=' + data.MOIId;
+            var file_src = 'Costings/OrderCosting/OrderBudgetReport?OrderCostingId=' + data.Id + '&orderBudget=' + 1 + '&MOIId=' + data.MOIId + '&costingComponentId=' + $scope.CostingComponentId;
             $rootScope.report(file_src);
 
         } catch (e) {
@@ -5181,7 +5181,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     $scope.PreOrderCostingReport = function (x) {
         try {
             var data = x;
-            var file_src = 'Costings/OrderCosting/GetOrderCostingReport?OrderCostingId=' + data.Id + '&preCosting=' + 1 + '&MOIId=' + data.MOIId;
+            var file_src = 'Costings/OrderCosting/GetOrderCostingReport?OrderCostingId=' + data.Id + '&preCosting=' + 1 + '&MOIId=' + data.MOIId + '&costingComponentId=' + $scope.CostingComponentId;
             $rootScope.report(file_src);
 
         } catch (e) {
@@ -5190,7 +5190,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     $scope.ProOrderCostingReport = function (x) {
         try {
             var data = x;
-            var file_src = 'Costings/OrderCosting/GetOrderCostingReport?OrderCostingId=' + data.Id + '&procurementCosting=' + 1 + '&MOIId=' + data.MOIId;
+            var file_src = 'Costings/OrderCosting/GetOrderCostingReport?OrderCostingId=' + data.Id + '&procurementCosting=' + 1 + '&MOIId=' + data.MOIId + '&costingComponentId=' + $scope.CostingComponentId;
             $rootScope.report(file_src);
 
         } catch (e) {
@@ -5550,7 +5550,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         $scope.OrderBudgetDirectProcessList = [];
         $http({
             method: 'GET',
-            url: 'Costings/OrderCosting/GetOrderBudgetDirectProcess?OrderCostingMasterTemplateId=' + $scope.ModelNew.Id,
+            url: 'Costings/OrderCosting/GetOrderBudgetDirectProcess?OrderCostingMasterTemplateId=' + $scope.ModelNew.Id + '&costingComponentId=' + $scope.CostingComponentId,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.OrderBudgetDirectProcessList = response.data.Pre;
