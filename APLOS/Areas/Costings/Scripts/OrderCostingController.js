@@ -5550,7 +5550,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         $scope.OrderBudgetDirectProcessList = [];
         $http({
             method: 'GET',
-            url: 'Costings/OrderCosting/GetOrderBudgetDirectProcess?OrderCostingMasterTemplateId=' + $scope.ModelNew.Id,
+            url: 'Costings/OrderCosting/GetOrderBudgetDirectProcess?OrderCostingMasterTemplateId=' + $scope.ModelNew.Id + '&costingComponentId=' + $scope.CostingComponentId,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.OrderBudgetDirectProcessList = response.data.Pre;

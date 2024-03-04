@@ -24,6 +24,7 @@ namespace Aplos.Areas.TaskScheduler.Controllers
         //abcd
         //this is my code from tarek
         string TableName = "hkp.DependantTask";
+        string TableName1 = " [HKP].[DependantTaskDetail]";
         //authentication for
         //GetList Create Delete
 
@@ -51,12 +52,15 @@ namespace Aplos.Areas.TaskScheduler.Controllers
             return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName + ""), JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize, HttpPost]
-        public ActionResult Get(string Id)
+        [Authorize, HttpGet]
+        public ActionResult GetDependantTaskDetailData(string masterId)
         {
             try
             {
-                var _master = _sqlRepository.GetDataCollection("select * from hkp.DependantTask wher Id = '" + Id + "' ");
+                var _master = _sqlRepository.GetDataCollection(@"select D.*,E.EmployeeCode ResponsiblePersonCode,E.EmployeeName ResponsiblePerson,DT.Task TaskName from  [HKP].[DependantTaskDetail] D
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=D.ResponsiblePersonId
+LEFT JOIN [HKP].[DependantTaskDetail]  DT ON DT.Id=D.DependantTaskDetailId
+where D.DependantTaskId = '" + masterId + "' ");
 
 
                 return Json(new { master = _master }, JsonRequestBehavior.AllowGet);
@@ -142,7 +146,6 @@ namespace Aplos.Areas.TaskScheduler.Controllers
 
         public ActionResult Delete(string id)
         {
-            string sql = @"select * from '"+TableName+"' where Id = '" + id + "'";
 
             try
             {
@@ -152,6 +155,7 @@ namespace Aplos.Areas.TaskScheduler.Controllers
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
+                con.executeQuery("delete from " + TableName1 + " where DependantTaskId='" + id + "'");
                 con.executeQuery("delete from " + TableName + " where Id='" + id + "'");
                 con.CommitTransaction();
 
@@ -221,5 +225,79 @@ namespace Aplos.Areas.TaskScheduler.Controllers
 
             return 1;
         }
+
+        [HttpPost,Authorize]
+        public JsonResult CreateChild(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName1 + " where Task='" + data["Task"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Task already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName1 + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName1, out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult DeleteDependantTaskDetail(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName1 + " where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+
     }
 }

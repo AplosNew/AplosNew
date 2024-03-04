@@ -416,7 +416,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 $scope.disGo = false;
             }
 
-            
+
         } catch (e) {
             ShowResult(e, 'failure');
         }
@@ -765,8 +765,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     function ValidationMaster() {
         try {
-            //CheckField("Work Center Master", $scope.productionSummaryNew.WorkCenterMasterId);
-
+        
             if ($scope.LotNumberCapture && $scope.LotNumberMandatory) {
                 CheckField("Lot Number", $scope.NewObject.LotNumber);
             }
@@ -775,22 +774,11 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 CheckField("Production Order", $scope.productionSummaryNew.ProductionOrderId);
             }
 
-            //$scope.NewObject.WorkCenterMasterId, $scope.NewObject.BookingLevel, $scope.NewObject.ProductionOrderId
-
             if ($scope.productionSummaryNew.ProductionBookingLevel === "MasterOrderItem") {
-                $http({
-                    method: 'POST',
-                    url: $scope.path + 'GetMasterOrderItem?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.NewObject.WorkCenterMasterId + '&productionLevel=' + $scope.NewObject.BookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ProductionOrderId=' + $scope.productionSummaryNew.ProductionOrderId + '&ToCloseAllowed=' + $scope.ToCloseAllowed,
-                    dataType: 'JSON'
-                }).then(function succ(resp) {
-                    $scope.MasterOrderItemValidateList = resp.data;
-                    var getRow = $filter("filter")($scope.MasterOrderItemValidateList, { "MasterOrderItemId": $scope.NewObject.MasterOrderItemId });
-                    if (getRow.length === 0) {
-                        throw "MO Item not belongs to the selected PO please refresh and proceed.";
-                    }
-                });
-
-
+                var getRow = $filter("filter")($scope.MasterOrderItemValidateList, { "MasterOrderItemId": $scope.NewObject.MasterOrderItemId });
+                if (getRow.length === 0) {
+                    throw "MO Item not belongs to the selected PO please refresh and proceed.";
+                }
             }
 
         } catch (ex) {
@@ -2829,7 +2817,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         });
     }
 
-
+    $scope.NewObject = {};
     $scope.ItemId = null;
     $scope.selectMasterOrderItem = function (data) {
         try {
@@ -2838,6 +2826,15 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $scope.BookingLevel = $scope.NewobjectMOI.BookingLevel;
             $scope.ItemId = $scope.NewobjectMOI.MasterOrderItemId;
             $scope.GetMasterOrderItemQty();
+            if (baseService.isUndefinedOrNull($scope.NewObject.WorkCenterMasterId)) {
+                $scope.NewObject.WorkCenterMasterId = $scope.NewobjectMOI.WorkCenterMasterId;
+            }
+            if (baseService.isUndefinedOrNull($scope.NewObject.BookingLevel)) {
+                $scope.NewObject.BookingLevel = $scope.NewobjectMOI.BookingLevel;
+            }
+            if (baseService.isUndefinedOrNull($scope.NewObject.ProductionOrderId)) {
+                $scope.NewObject.ProductionOrderId = $scope.NewobjectMOI.ProductionOrderId;
+            }
             $scope.getMasterOrderValidateView($scope.NewObject.WorkCenterMasterId, $scope.NewObject.BookingLevel, $scope.NewObject.ProductionOrderId);
             angular.element(document.querySelector('#MasterOrderItemPopup')).modal('hide');
 

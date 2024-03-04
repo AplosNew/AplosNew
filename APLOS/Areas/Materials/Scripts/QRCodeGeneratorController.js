@@ -58,7 +58,6 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
         $scope.ModelNew.ByWhomName   = ob.EmployeeName;
         $scope.ModelNew.ByWhomCode = ob.EmployeeCode;
         angular.element(document.querySelector('#EmpPopUp')).modal('hide');
-        $scope.Save();
     };
 
     $scope.closePopUp = function () {

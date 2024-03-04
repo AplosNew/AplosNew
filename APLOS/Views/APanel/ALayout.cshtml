@@ -52,6 +52,7 @@
     @Scripts.Render("~/bundles/MeetingManagement")
     @Scripts.Render("~/bundles/Administration")
     @Scripts.Render("~/bundles/sm")
+    @Scripts.Render("~/bundles/TaskScheduler")
     @Scripts.Render("~/bundles/apanel")
 
 
@@ -277,6 +278,9 @@
                                     <ul>
                                         <li>
                                             <a href="{{bootPoint}}task-type">Task Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}dependant-task">Dependent Task</a>
                                         </li>
                                         <li>
                                             <a href="{{bootPoint}}task-dependent-dates">Task Dependent Dates</a>

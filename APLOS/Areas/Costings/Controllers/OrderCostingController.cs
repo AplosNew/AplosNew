@@ -6583,7 +6583,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
             return Json(new { Pre = _sqlRepository.GetDataCollection(sqlPre, null)}, JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
-        public ActionResult GetOrderBudgetDirectProcess(string OrderCostingMasterTemplateId)
+        public ActionResult GetOrderBudgetDirectProcess(string OrderCostingMasterTemplateId, string costingComponentId)
         {
             string sqlPre = @"SELECT pc.Id,I.Id as CostingId,pc.Sequence,I.UserName as CostingItems,I.CostingComponentId
             ,ISNULL(pc.ExecutionType,'Fixed') as [Type]
@@ -6599,7 +6599,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
 			LEFT JOIN SCS.Currency C on C.Id=OCMT.CurrencyId
             LEFT JOIN trn.MasterOrderItem AS moi ON moi.OrderCostingMasterTemplateId=ocmt.Id
 
-			where pc.OrderCostingMasterTemplateId='" + OrderCostingMasterTemplateId + @"'
+			where pc.OrderCostingMasterTemplateId='" + OrderCostingMasterTemplateId + @"' and I.CostingComponentId ='" + costingComponentId + @"'
 			order by pc.Sequence";
 
             return Json(new { Pre = _sqlRepository.GetDataCollection(sqlPre, null) }, JsonRequestBehavior.AllowGet);
