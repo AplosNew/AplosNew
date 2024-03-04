@@ -1826,6 +1826,7 @@
     <Compile Include="SqlServerTypes\Loader.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Areas\Accounts\Scripts\roundOffJournalController.js" />
     <Content Include="Areas\Accounts\Scripts\PettyCashMasterController.js" />
     <Content Include="Areas\Accounts\Scripts\pfesiDisbursementController.js" />
     <Content Include="Areas\Accounts\Scripts\multipleVPController.js" />
@@ -4916,6 +4917,7 @@
     <Content Include="Areas\FixedAssets\Views\_CapitalizeAssetRegisterPopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\Report.cshtml" />
     <Content Include="Areas\FixedAssets\Views\AssetDisposePost.cshtml" />
+    <Content Include="Areas\Accounts\Views\RoundOffJournal.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
