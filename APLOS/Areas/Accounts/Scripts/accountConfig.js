@@ -1066,5 +1066,9 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/BalanceSheetScheduling/Report",
             controller: "BalanceSheetSchedulingReportController"
         })
+        .when("/roundoff-journal", {
+            templateUrl: "Accounts/Voucher/RoundOffJournal",
+            controller: "roundOffJournalController"
+        })
         ;
 } 

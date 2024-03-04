@@ -513,6 +513,8 @@ namespace Aplos.Areas.Accounts.Controllers
 
         #endregion ExchangeVoucher
 
+
+       
         [Authorize]
         public ActionResult IntSalesOrderInvoice()
         {
@@ -6949,6 +6951,26 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
         //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
         //    return Json(new { DATA = _accountVoucherReportService.GetFixedArticalListData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, materialMasterId), Error = false }, JsonRequestBehavior.AllowGet);
         //}
+        #endregion
+
+        #region Round Off Journal
+       
+        public ActionResult RoundOffJournal()
+        {
+            return View("~/Areas/Accounts/Views/RoundOffJournal.cshtml");
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult GetTrailBalanceRoundOffList(string trnType)
+        {
+            AccountsGLService accountsGLService = new AccountsGLService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var res = accountsGLService.GetTrailBalanceRoundOffList(identity.PlantId, trnType);
+            var jsondata = Json(res, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
         #endregion
     }
 
