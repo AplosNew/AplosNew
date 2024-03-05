@@ -4850,7 +4850,7 @@ Where  SO.OrderStatusId NOT IN('Cancelled','Closed') AND SO.ShipmentFromStock=0 
         {
             try
             {
-                string sql = @"Select ProductionBookingLevel from TRN.ProductionOrderProcessSet PPS Where PPS.ProductionOrderID = '25178' AND PPS.ProcessId = '202037'";
+                string sql = @"Select ProductionBookingLevel from TRN.ProductionOrderProcessSet PPS Where PPS.ProductionOrderID = '"+ poId + "' AND PPS.ProcessId = '"+ processId + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)

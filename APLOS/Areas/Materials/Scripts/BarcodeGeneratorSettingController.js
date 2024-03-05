@@ -128,16 +128,19 @@ function BarcodeGeneratorSettingController(cboService, commonMessage, $scope, $r
 
 
     $scope.entityList = [];
+    $scope.SavedEntityList = [];
     $scope.getAllEntities = function () {
         $http({
             method: 'POST',
             url: "OrderManagements/productionOrderSchedulingParametersType1/GetEntity"
         }).then(function successCallback(response) {
             $scope.entityList = response.data;
-            for (var i = 0; i < $scope.SavedEntityList.length; i++) {
-                for (var j = 0; j < $scope.entityList.length; j++) {
-                    if ($scope.SavedEntityList[i].EntityId == $scope.entityList[j].Id) {
-                        $scope.entityList.splice(j, 1);
+            if (baseService.arrayLength($scope.SavedEntityList) > 0) {
+                for (var i = 0; i < $scope.SavedEntityList.length; i++) {
+                    for (var j = 0; j < $scope.entityList.length; j++) {
+                        if ($scope.SavedEntityList[i].EntityId == $scope.entityList[j].Id) {
+                            $scope.entityList.splice(j, 1);
+                        }
                     }
                 }
             }
@@ -220,7 +223,7 @@ function BarcodeGeneratorSettingController(cboService, commonMessage, $scope, $r
     };
 
 
-    $scope.SavedEntityList = [];
+
     $scope.GetSavedEntityData = function () {
         try {
             $http({
