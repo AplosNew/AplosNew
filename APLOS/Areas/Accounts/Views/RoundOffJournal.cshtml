@@ -109,149 +109,149 @@
         </div>
     </div>
 
-        <div class="clearfix"></div>
-        <div class="table-responsive modal-table " ng-show="voucherDetailList.length">
-            <table class="table table-striped table-bordered">
-                <thead>
-                    <tr>
-                        <th>GL </th>
-                        <th>Budget</th>
-                        <th>Activity</th>
-                        <th>Particular</th>
-                        <th class="text-center">Dr</th>
-                        <th class="text-center">Cr</th>
-                        <th class="text-right">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="x in voucherDetailList">
-                        <td>{{x.GL}}</td>
-                        <td>{{x.Budget}}</td>
-                        <td>{{x.Activity}}</td>
-                        <td>{{x.Particulars}}</td>
-                        <td><input type="text" class="form-control text-right" id="vdDrAmount" ng-model="x.DrAmount " ng-disabled="x.Particulars!='GL'" n-decimals="6" tabindex="11" ng-change="checkDrAmount($index)" autocomplete="off"></td>
-                        <td><input type="text" class="form-control text-right" id="vdCrAmount" ng-model="x.CrAmount " ng-disabled="x.Particulars!='GL'" n-decimals="6" tabindex="12" ng-change="checkCrAmount($index)" autocomplete="off"></td>
-                        <td class="text-right">
-                            <button ng-click="removeDetaillRow(x.Id,x.VoucherId,$index)" data-toggle="modal" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
-                                <i class="glyphicon glyphicon-remove"></i>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="4" class="text-right">Total</td>
-                        <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'DrAmount' }}</b></td>
-                        <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'CrAmount' }}</b></td>
-                        <td></td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-        <div class="common-btn">
-            <ul class="list-inline text-right">
-                <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                <li ng-hide="voucher.Id==null"><button ng-click="confirmPost(voucher.Id);" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>
-                <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-            </ul>
-        </div>
+    <div class="clearfix"></div>
+    <div class="table-responsive modal-table " ng-show="voucherDetailList.length">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>GL </th>
+                    <th>Budget</th>
+                    <th>Activity</th>
+                    <th>Particular</th>
+                    <th class="text-center">Dr</th>
+                    <th class="text-center">Cr</th>
+                    <th class="text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in voucherDetailList">
+                    <td>{{x.GL}}</td>
+                    <td>{{x.Budget}}</td>
+                    <td>{{x.Activity}}</td>
+                    <td>{{x.Particulars}}</td>
+                    <td><input type="text" class="form-control text-right" id="vdDrAmount" ng-model="x.DrAmount " ng-disabled="x.Particulars!='GL'" n-decimals="6" tabindex="11" ng-change="checkDrAmount($index)" autocomplete="off"></td>
+                    <td><input type="text" class="form-control text-right" id="vdCrAmount" ng-model="x.CrAmount " ng-disabled="x.Particulars!='GL'" n-decimals="6" tabindex="12" ng-change="checkCrAmount($index)" autocomplete="off"></td>
+                    <td class="text-right">
+                        <button ng-click="removeDetaillRow(x.Id,x.VoucherId,$index)" data-toggle="modal" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                            <i class="glyphicon glyphicon-remove"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4" class="text-right">Total</td>
+                    <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'DrAmount' }}</b></td>
+                    <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'CrAmount' }}</b></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
     </div>
-    <div class="aplos-grid-toggle">
-        <div class="row text-right ">
-            <div class="col-xs-12 col-sm-12 col-sm-12">
-                <div class="search-form">
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-3 col-md-3">
-                            <div class="select-style">
-                                <select ng-model="$root.parameters.searchBy">
-                                    <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-                                </select>
-                            </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li ng-hide="voucher.Id==null"><button ng-click="confirmPost(voucher.Id);" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>
+            <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="aplos-grid-toggle">
+    <div class="row text-right ">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="$root.parameters.searchBy">
+                                <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
                         </div>
-                        <div class="col-xs-12 col-sm-7 col-md-7">
-                            <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
-                        </div>
-                        <div class="col-xs-12 col-sm-2 col-md-2">
-                            <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="table-responsive modal-table">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>VoucherNo</th>
-                        <th>Posting Date</th>
-                        <th>Doc Ref No</th>
-                        <th>Currency</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th class="text-right">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr dir-paginate="x in voucherList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Clear();Get(x);getAllPartyPlantJournalCbo(x.Id);">
-                        <td>{{x.VoucherNo}}</td>
-                        <td>{{x.PostingDate | dateFiltering}}</td>
-                        <td>{{x.DocRefNo}}</td>
-                        <td>{{x.CurrencyCode}}</td>
-                        <td class="text-right">{{x.DrAmount | number:2}}</td>
-                        <td>{{x.IsPark?'Parked':'Posted'}}</td>
-                        <td class="text-right">
-                            <ul class="list-inline action-list">
-                                <li ng-show="x.IsPark"><a ng-click="confirmPost(x.Id);" href="" class="btn btn-action tooltip-here">Post</a></li>
-                                <li><a class="btn btn-action" href="Accounts/Voucher/GetAdvanceJournalVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.Id}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
-                                <li><a class="btn btn-action" href="Accounts/Voucher/GetAdvanceJournalVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.Id}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
-                            </ul>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
-        </div>
     </div>
-    @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")
-    <div class="modal fade site-modal in" id="trailBalanceRoundOffListPopUp" role="dialog" data-backdrop="static">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">Round Off TB List<button type="button" class="close" ng-click="closeItemPopUp();">&times;</button></div>
-                <div class="modal-body form-elements form-horizontal">
-                    <div class="col-lg-12">
-                        <div class="content-container-fluid" style="color:black;overflow:scroll">
-                            <div style="color:black;" id="itemPopUp" ej-grid e-datasource="trailBalanceRoundOffList"
-                                 e-templaterefresh="refreshTemplateMasterOrderOperation"
-                                 e-recorddoubleclick=""
-                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                                 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
-                                <div e-columns>
-                                    <div e-column e-template="#checkboxList" e-textalign="center" e-width="30"></div>
-                                    <div e-column e-field="Particulars" e-headertext="Particulars" e-width="200"></div>
-                                    <div e-column e-field="GL" e-headertext="GL" e-width="200"></div>
-                                    <div e-column e-field="Budget" e-headertext="Budget" e-width="150"></div>
-                                    <div e-column e-field="Activity" e-headertext="Activity" e-width="100"></div>
-                                    <div e-column e-field="TrnType" e-headertext="TrnType" e-width="80"></div>
-                                    <div e-column e-field="DrAmount" e-headertext="DrAmount" e-width="80"></div>
-                                    <div e-column e-field="CrAmount" e-headertext="CrAmount" e-width="80"></div>
-                                </div>
-
-                            </div>
-                            <script type="text/template" id="checkboxList">
-                                <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
-                            </script>
-                        </div>
-                    </div>
-                    <div class="clearfix"></div>
-                    <div class="common-btn">
-                        <ul class="list-inline text-right">
-                            <li><button ng-click="clickCheckedTBItem();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Add</button></li>
+    <div class="table-responsive modal-table">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>VoucherNo</th>
+                    <th>Posting Date</th>
+                    <th>Doc Ref No</th>
+                    <th>Currency</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th class="text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr dir-paginate="x in voucherList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Clear();Get(x);getAllPartyPlantJournalCbo(x.Id);">
+                    <td>{{x.VoucherNo}}</td>
+                    <td>{{x.PostingDate | dateFiltering}}</td>
+                    <td>{{x.DocRefNo}}</td>
+                    <td>{{x.CurrencyCode}}</td>
+                    <td class="text-right">{{x.DrAmount | number:2}}</td>
+                    <td>{{x.IsPark?'Parked':'Posted'}}</td>
+                    <td class="text-right">
+                        <ul class="list-inline action-list">
+                            <li ng-show="x.IsPark"><a ng-click="confirmPost(x.Id);" href="" class="btn btn-action tooltip-here">Post</a></li>
+                            <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id);" href="" class="btn btn-action tooltip-here">Delete</a></li>
+                            <li><a class="btn btn-action" href="Accounts/Voucher/GetAdvanceJournalVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.Id}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                            <li><a class="btn btn-action" href="Accounts/Voucher/GetAdvanceJournalVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.Id}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
                         </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+    </div>
+</div>
+@Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")
+<div class="modal fade site-modal in" id="trailBalanceRoundOffListPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Round Off TB List<button type="button" class="close" ng-click="closeItemPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-lg-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="itemPopUp" ej-grid e-datasource="trailBalanceRoundOffList"
+                             e-templaterefresh="refreshTemplateMasterOrderOperation"
+                             e-recorddoubleclick=""
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-template="#checkboxList" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="Particulars" e-headertext="Particulars" e-width="200"></div>
+                                <div e-column e-field="GL" e-headertext="GL" e-width="200"></div>
+                                <div e-column e-field="Budget" e-headertext="Budget" e-width="150"></div>
+                                <div e-column e-field="Activity" e-headertext="Activity" e-width="100"></div>
+                                <div e-column e-field="TrnType" e-headertext="TrnType" e-width="80"></div>
+                                <div e-column e-field="DrAmount" e-headertext="DrAmount" e-width="80"></div>
+                                <div e-column e-field="CrAmount" e-headertext="CrAmount" e-width="80"></div>
+                            </div>
+
+                        </div>
+                        <script type="text/template" id="checkboxList">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                        </script>
                     </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="clickCheckedTBItem();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Add</button></li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
-
-    <confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="detailDelete();"></confirm-archive-generic>
-    <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(voucherId)"></confirm-archive-generic>
+</div>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(voucherId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(voucherId)"></confirm-archive-generic>

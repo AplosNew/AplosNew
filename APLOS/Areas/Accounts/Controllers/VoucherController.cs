@@ -6970,7 +6970,42 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
+        [HttpPost]
+        public JsonResult ParkRoundOffJournal(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            if (voucherDetailVMList == null)
+                throw new CustomException("Please Add GL.");
+            if (voucherDetailVMList.Sum(r => r.DrAmount) != voucherDetailVMList.Sum(r => r.CrAmount))
+                throw new CustomException("Dr Cr not match!");
+            foreach (var item in voucherDetailVMList)
+            {
+                if ((item.DrAmount + item.CrAmount == 0) || (item.DrAmount + item.CrAmount < 0))
+                    throw new CustomException("Please input amount !");
+                if (string.IsNullOrEmpty(item.EntityId))
+                {
+                    item.EntityId = voucherVM.EntityId;
+                }
+            }
+            voucherVM.IsPark = true;
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _voucharService.InsertVoucher(voucherVM, voucherDetailVMList)) });
+        }
+        [HttpPost]
+        public JsonResult PostRoundOffJournal(string id)
+        {
+            _voucharService.PostJournalVoucher(id);
+            return Json(new { Message = AplosMessage.Posted });
+        }
 
+        [HttpPost]
+        public ActionResult DeleteRoundOffJV(string voucherId)
+        {
+            _voucharService.DeleteJV(voucherId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
         #endregion
     }
 

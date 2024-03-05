@@ -11,7 +11,7 @@ function roundOffJournalController(accountService, cboService, commonMessage, $s
     $scope.isDrBankAmount = false;
     $scope.currencyDisable = false;
     $scope.isAdvance = true;
-    $scope.postUrl = "accounts/voucher/PostAdvanceJournal";
+    $scope.postUrl = "accounts/voucher/PostRoundOffJournal";
     $controller("currencyBaseController", { $scope: $scope, $http: $http });
     $controller("partyBaseController", { $scope: $scope, $http: $http });
 
@@ -207,7 +207,7 @@ function roundOffJournalController(accountService, cboService, commonMessage, $s
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",
-                    url: "accounts/voucher/ParkJournal",
+                    url: "accounts/voucher/ParkRoundOffJournal",
                     data: {
                         "voucherVM": $scope.voucher,
                         "voucherDetailVMList": $scope.voucherDetailList
@@ -226,28 +226,6 @@ function roundOffJournalController(accountService, cboService, commonMessage, $s
                     ShowResult(response.status.Message, "failure");
                 });
                 return true;
-            }
-            else if ($scope.Action === "Update") {
-                $http({
-                    method: "POST",
-                    url: "accounts/voucher/UpdateJournal",
-                    data: {
-                        "voucherVM": $scope.voucher,
-                        "voucherDetailVMList": $scope.voucherDetailList
-                    },
-                    dataType: "JSON"
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, "failure");
-                    }
-                    else {
-                        ShowResult(response.data.Message, "success");
-                        $scope.getData();
-                        $scope.Clear();
-                    }
-                }, function errorCallback(response) {
-                    ShowResult(response.status.Message, "failure");
-                });
             }
             return true;
         }
@@ -283,7 +261,7 @@ function roundOffJournalController(accountService, cboService, commonMessage, $s
         return true;
     };
 
-
+    $scope.deleteUrl = "accounts/voucher/DeleteRoundOffJV";
     $scope.delete = function (voucherId) {
         $http({
             method: "POST",
