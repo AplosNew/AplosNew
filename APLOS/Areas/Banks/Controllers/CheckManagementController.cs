@@ -2099,9 +2099,9 @@ namespace Aplos.Areas.Banks.Controllers
                     objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
 
                 DataView DvMaster = new DataView(dsMaster.Tables[0]);
-                DateTime endDate = Convert.ToDateTime(Pdc["PostingDate"]);
+                DateTime eDate = Convert.ToDateTime(Pdc["PostingDate"]);
                 double addedDays = Convert.ToDouble(Pdc["RemainderDays"]);
-                DateTime EffectiveDate = endDate.AddDays(addedDays);
+                DateTime EffectiveDate = eDate.AddDays(addedDays);
 
                 if (DvMaster.Count == 0)
                     {
