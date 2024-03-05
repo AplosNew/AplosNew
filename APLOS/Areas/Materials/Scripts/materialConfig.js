@@ -360,5 +360,8 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'materials/LOTCreation/Aplos',
             controller: 'LOTCreationController'
         })
-
+        .when('/barcode-gen-setting', {
+            templateUrl: 'materials/BarcodeGeneratorSetting/Aplos',
+            controller: 'BarcodeGeneratorSettingController'
+        })
 };

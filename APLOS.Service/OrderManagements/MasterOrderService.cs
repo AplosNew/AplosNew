@@ -2439,7 +2439,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
             }
         }
 
-        public void ApproveSOGraph(SalesOrderMaster salesOrderMaster)
+        public void ApproveSOGraph(MasterOrder entity,SalesOrderMaster salesOrderMaster)
         {
             try
             {
@@ -2448,7 +2448,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
                 {
                     AuditService.UpdatedLog(salesOrderMaster);
                     salesOrderMaster.ApproveByDate = DateTime.Now;
-                    salesOrderMaster.OrderStatusId = "Active";
+                    salesOrderMaster.OrderStatusId = entity.OrderStatusId;
 
                     _salesOrderRepository.Update(salesOrderMaster);
                 }
