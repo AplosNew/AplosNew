@@ -2098,11 +2098,10 @@ namespace Aplos.Areas.Banks.Controllers
                     objCon = new ConnectionManager.DAL.ConManager("1");
                     objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
 
-                    DataView DvMaster = new DataView(dsMaster.Tables[0]);
+                DataView DvMaster = new DataView(dsMaster.Tables[0]);
                 DateTime endDate = Convert.ToDateTime(Pdc["PostingDate"]);
-                Int64 addedDays = Convert.ToInt64(Pdc["RemainderDays"]);
-                endDate.AddDays(addedDays);
-                DateTime EffectiveDate = endDate;
+                double addedDays = Convert.ToDouble(Pdc["RemainderDays"]);
+                DateTime EffectiveDate = endDate.AddDays(addedDays);
 
                 if (DvMaster.Count == 0)
                     {
