@@ -5068,8 +5068,7 @@ order by SAI.SalesId";
 	                            , Flag = CAST(0 AS BIT),ISNULL(SO.DestinationDescription,'')DestinationDescription
 								, SO.Qty,0 SoldQty,BalanceQty=SO.Qty-0, SO.CM, SO.Rate,0 TransactionQty
 							
-                       FROM 
-                       [TRN].[SalesOrder] AS SO 
+                       FROM  [TRN].[SalesOrder] AS SO 
                        JOIN [TRN].[ProductionOrderDetail] AS POD ON pod.SalesOrderId=so.Id
                        JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
                        JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
@@ -5084,11 +5083,11 @@ order by SAI.SalesId";
                        LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
                        LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
                        LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
-							LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
-							LEFT JOIN org.Plant AS POUT ON POUT.Id=EOUT.PlantId
-							LEFT JOIN hkp.Party AS TOUT ON tout.Id=moi.PartyId
-							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
-							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
+					   LEFT JOIN ORG.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
+					   LEFT JOIN ORG.Plant AS POUT ON POUT.Id=EOUT.PlantId
+					   LEFT JOIN hkp.Party AS TOUT ON tout.Id=moi.PartyId
+					   LEFT JOIN ORG.Plant AS POWN ON POWN.Id=MO.PlantId
+					   LEFT JOIN ORG.Entity AS EOWN ON EOWN.Id=MO.EntityId
 
                       WHERE POD.ProductionOrderId = '"+ productionOrderId + "'ORDER BY MOI.MATERIALMASTERID,MOI.ArticleID";
 
