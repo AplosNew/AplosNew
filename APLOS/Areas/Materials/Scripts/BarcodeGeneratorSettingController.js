@@ -124,6 +124,7 @@ function BarcodeGeneratorSettingController(cboService, commonMessage, $scope, $r
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
         $scope.ChildModelList = [];
+        $scope.SavedEntityList = [];
     }
 
 
@@ -171,11 +172,11 @@ function BarcodeGeneratorSettingController(cboService, commonMessage, $scope, $r
         var gridObj = $("#GridEPopUp").data("ejGrid");
         gridObj.refreshContent();
     };
-
+  
     $scope.CloseMasterOrder = function () {
         for (var i = 0; i < $scope.entityList.length; i++) {
-            if (checkItemExist($scope.SavedEntityList, $scope.entityList[i].Id) === false) {
-                if ($scope.entityList[i].Flag == true) {
+            if ($scope.entityList[i].Flag == true) {
+                if (checkItemExist($scope.SavedEntityList, $scope.entityList[i].Id) === false) {
                     var moi = {};
                     moi.Id = null;
                     moi.BarcodeGeneratorSettingId = $scope.ModelNew.Id;
@@ -206,7 +207,7 @@ function BarcodeGeneratorSettingController(cboService, commonMessage, $scope, $r
         $http({
             method: 'POST',
             url: $scope.saveEntityUrl,
-            data: { 'data': $scope.SavedEntityList },
+            data: { 'data': $scope.SavedEntityList, 'masterId': $scope.ModelNew.Id},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -230,7 +231,7 @@ function BarcodeGeneratorSettingController(cboService, commonMessage, $scope, $r
                 method: 'GET',
                 url: 'Materials/BarcodeGeneratorSetting/GetSavedEntity?masterId=' + $scope.ModelNew.Id
             }).then(function successCallback(response) {
-                $scope.SavedEntityList = response.data.master;
+                $scope.SavedEntityList = response.data;
             });
 
         } catch (e) {
