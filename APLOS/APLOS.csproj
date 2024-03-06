@@ -550,6 +550,7 @@
     <Compile Include="Areas\HumanResource\Controllers\PlantInOutControllReportController.cs" />
     <Compile Include="Areas\IE\Controllers\WorkcenterWiseDetentionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WebBasedPackingController.cs" />
+    <Compile Include="Areas\Materials\Controllers\BarcodeGeneratorSettingController.cs" />
     <Compile Include="Areas\Materials\Controllers\LOTCreationController.cs" />
     <Compile Include="Areas\Materials\Controllers\QRCodeGeneratorController.cs" />
     <Compile Include="Areas\Materials\Controllers\WeighingScaleMasterController.cs" />
@@ -1939,6 +1940,7 @@
     <Content Include="Areas\Commercial\Scripts\LCPendingReportController.js" />
     <Content Include="Areas\FixedAssets\Scripts\assetDisposeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\assetDisposePostController.js" />
+    <Content Include="Areas\Materials\Scripts\BarcodeGeneratorSettingController.js" />
     <Content Include="Areas\OrderManagements\Scripts\masterOrderApproveByController.js" />
     <Content Include="Areas\OrderManagements\Scripts\masterOrderCheckByController.js" />
     <Content Include="Areas\OrderManagements\Scripts\TermsandConditionGroupController.js" />
@@ -4922,6 +4924,7 @@
     <Content Include="Areas\FixedAssets\Views\AssetDisposePost.cshtml" />
     <Content Include="Areas\Commercial\Views\Contract\ContractSummary.cshtml" />
     <Content Include="Areas\Accounts\Views\RoundOffJournal.cshtml" />
+    <Content Include="Areas\Materials\Views\BarcodeGeneratorSetting\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

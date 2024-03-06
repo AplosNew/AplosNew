@@ -32,13 +32,13 @@ namespace Library.General.Organization
                 string sql = @"";
                 if (IsSysAdmin)
                 {
-                    sql = @"SELECT distinct E.* FROM [ORG].[Entity] E
+                    sql = @"SELECT distinct E.*,Flag=CAST(0 AS bit) FROM [ORG].[Entity] E
                             LEFT JOIN dbo.EntityConfig ECC ON ECC.EntityId=E.Id
                             WHERE E.PlantId='" + PlantId + @"' AND ECC.IsProductionEntity=1 AND E.[Active]=1 ORDER BY E.Code";
                     return _sqlRepository.GetDataCollection(sql);
                 }
 
-                sql = @"SELECT distinct e2.* FROM [SEC].[UserEntity] E
+                sql = @"SELECT distinct e2.*,Flag=CAST(0 AS bit) FROM [SEC].[UserEntity] E
                         LEFT JOIN org.Entity AS e2 ON e2.Id=e.EntityId
                         LEFT JOIN dbo.EntityConfig ECC ON ECC.EntityId=E2.Id
                         WHERE E.UserId='" + UserId + @"' AND e.PlantId='" + PlantId + "' AND ECC.IsProductionEntity=1 AND E2.[Active]=1 ORDER BY E2.Code";

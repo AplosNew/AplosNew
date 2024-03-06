@@ -2328,9 +2328,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpPost]
-        public JsonResult ApproveSalesOrder(SalesOrderMaster salesOrderMaster)
+        public JsonResult ApproveSalesOrder(MasterOrder entity,SalesOrderMaster salesOrderMaster)
         {
-            _masterOrderService.ApproveSOGraph(salesOrderMaster);
+            _masterOrderService.ApproveSOGraph(entity,salesOrderMaster);
 
             return Json(new { Message = AplosMessage.Updated });
         }

@@ -2217,6 +2217,7 @@ function masterOrderApproveByController(accountService, $window, cboService, com
                 method: 'POST'
                 , url: $scope.path + 'ApproveSalesOrder'
                 , data: {
+                    'MasterOrder': $scope.fileNew,
                     'salesOrderMaster': $scope.soModel
                 }
                 , dataType: 'JSON'

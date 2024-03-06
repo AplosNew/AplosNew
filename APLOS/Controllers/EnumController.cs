@@ -767,5 +767,13 @@ namespace Aplos.Controllers
         {
             return Json(new SelectList(items: EnumService.GetEnumCbo<PackingTypeEnum>(), "Value", "Text"), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet, Authorize]
+        public JsonResult GetBarcodeGeneratorSettingEnumCbo()
+        {
+            return Json(new SelectList(items: EnumService.GetEnumCbo<BarcodeGeneratorSettingEnum>(), "Value", "Text"), JsonRequestBehavior.AllowGet);
+        }
+
+
     }
 }

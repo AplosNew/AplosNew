@@ -1636,8 +1636,8 @@ Order By SO.DeliveryDate";
             IApplication application = excelEngine.Excel; 
             application.DefaultVersion = ExcelVersion.Excel2013; 
             IWorkbook workbook = application.Workbooks.Create(1);
-             
             IWorksheet worksheet = workbook.Worksheets[0];
+
             try
             {
                 DataTable dtOrderMaster = ContractSummaryHeaderSQL(ContractId);
@@ -1651,7 +1651,20 @@ Order By SO.DeliveryDate";
 
                 int ROW = 5; int COL = 1;
                 int MasterOrderDetailsStartRow = ROW;
-                worksheet[ROW, COL].Text = "Sales Contract Details:";
+                worksheet[ROW, COL].Text = "Customer";
+                worksheet[ROW, COL].Text = dtOrderMaster.Rows[0]["Customer"].ToString();
+                worksheet[ROW, COL].CellStyle.Font.Bold = true;
+
+                COL = COL+8; 
+                worksheet[ROW, COL].Text = "Date: ";
+                worksheet[ROW, COL+1].Text = dtOrderMaster.Rows[0]["ContractDate"].ToString();
+                worksheet[ROW, COL+1].CellStyle.Font.Bold = true;
+                ROW++;
+
+                //COL = COL + 8;
+                //worksheet[ROW, COL].Text = "Date";
+                COL = 1;
+                worksheet[ROW, COL].Text = dtOrderMaster.Rows[0]["ContractNo"].ToString();
                 worksheet[ROW, COL].CellStyle.Font.Bold = true;
                 ROW++;
 
@@ -1665,59 +1678,110 @@ Order By SO.DeliveryDate";
                 int RightColumnCaption = MiddleColumnValue + 1;
                 int RightColumnValue = RightColumnCaption + 1;
 
-                //Contract.............................................................
+                //Contract Summary header.............................................................
+                worksheet[ROW, COL].Text = "PO#";
+                worksheet[ROW, COL].ColumnWidth = 10;
+                int ColPO = COL;
+                COL++;
 
-                worksheet[ROW, leftColumnCaption].Text = "PO#";
-                worksheet[ROW, leftColumnValue].Text = dtOrderMaster.Rows[0]["PO"].ToString();
-                worksheet.Range[ROW, leftColumnValue, ROW, leftColumnValue].CellStyle.Font.Color = ExcelKnownColors.Blue;
-                worksheet[ROW, leftColumnValue].ColumnWidth = 16;
-                worksheet.Range[ROW, leftColumnCaption, ROW, leftColumnValue].CellStyle.Font.Bold = true;
-                worksheet[ROW, leftColumnCaption].ColumnWidth = 16;
+                worksheet[ROW, COL].Text = "Style No";
+                worksheet[ROW, COL].ColumnWidth = 10;
+                int ColStyleNo = COL;
+                COL++;
 
-                worksheet[ROW, MiddleColumnCaption].Text = "Style No";
-                worksheet[ROW, MiddleColumnValue].Text = dtOrderMaster.Rows[0]["StyleNo"].ToString();
-                worksheet.Range[ROW, MiddleColumnCaption, ROW, MiddleColumnCaption].CellStyle.Font.Bold = true;
-                worksheet[ROW, MiddleColumnCaption].ColumnWidth = 10;
-                worksheet[ROW, MiddleColumnValue].ColumnWidth = 14;
+                worksheet[ROW, COL].Text = "Order Quantity";
+                worksheet[ROW, COL].ColumnWidth = 12;
+                int ColOrderQuantity = COL;
+                COL++;
 
-                worksheet[ROW, RightColumnCaption].Text = "Order Quantity";
-                worksheet[ROW, RightColumnValue].Text = dtOrderMaster.Rows[0]["OrderQuantity"].ToString();
-                worksheet[ROW, RightColumnCaption].CellStyle.Font.Bold = true;
-                worksheet[ROW, RightColumnCaption].ColumnWidth = 10;
-                worksheet[ROW, RightColumnValue].ColumnWidth = 13;
+                worksheet[ROW, COL].Text = "Shipped Quantity";
+                worksheet[ROW, COL].ColumnWidth = 12;
+                int ColShippedQuantity = COL;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Description";
+                worksheet[ROW, COL].ColumnWidth = 12;
+                int ColDescription = COL;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Unit Price";
+                worksheet[ROW, COL].ColumnWidth = 20;
+                int ColUnitPrice = COL;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Amount";
+                worksheet[ROW, COL].ColumnWidth = 20;
+                int ColAmount = COL;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Export Values";
+                worksheet[ROW, COL].ColumnWidth = 20;
+                int ColExportValues = COL;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Ship Date";
+                worksheet[ROW, COL].ColumnWidth = 20;
+                int ColShipDate = COL;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Remarks";
+                worksheet[ROW, COL].ColumnWidth = 20;
+                int ColRemarks = COL;
+
+                int endCols = COL;
+                worksheet.Range[ROW, 1, ROW, endCols].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                worksheet.Range[ROW, 1, ROW, endCols].CellStyle.Font.Color = ExcelKnownColors.White;
+                worksheet.Range[ROW, 1, ROW, endCols].CellStyle.Font.Bold = true;
+                worksheet.Range[ROW, 1, ROW, endCols].CellStyle.Font.Size = 9f;
+                worksheet.Range[ROW, 1, ROW, endCols].BorderInside(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, 1, ROW, endCols].BorderAround(ExcelLineStyle.Hair);
                 ROW++;
 
-                worksheet[ROW, leftColumnCaption].Text = "Description";
-                worksheet[ROW, leftColumnValue].Text = dtOrderMaster.Rows[0]["Description"].ToString();
-                worksheet.Range[ROW, leftColumnValue, ROW, leftColumnValue].CellStyle.Font.Color = ExcelKnownColors.Blue;
-                worksheet[ROW, leftColumnValue].ColumnWidth = 16;
-                worksheet.Range[ROW, leftColumnCaption, ROW, leftColumnValue].CellStyle.Font.Bold = true;
-                worksheet[ROW, leftColumnCaption].ColumnWidth = 16;
+                //worksheet.Range[MasterOrderDetailsStartRow, leftColumnCaption, ROW, RightColumnValue].CellStyle.Interior.ColorIndex = ExcelKnownColors.Blue_grey;
+                int CostingComponentStartRow = ROW;
 
-                worksheet[ROW, MiddleColumnCaption].Text = "Unit Price";
-                worksheet[ROW, MiddleColumnValue].Text = dtOrderMaster.Rows[0]["UnitPrice"].ToString();
-                worksheet.Range[ROW, MiddleColumnCaption, ROW, MiddleColumnCaption].CellStyle.Font.Bold = true;
-                worksheet[ROW, MiddleColumnCaption].ColumnWidth = 10;
-                worksheet[ROW, MiddleColumnValue].ColumnWidth = 14;
+                for (int i = 0; i < dtOrderMaster.Rows.Count; i++)
+                {
+                    worksheet[ROW, ColPO].Text = dtOrderMaster.Rows[i]["PO"].ToString();
+                    worksheet[ROW, ColStyleNo].Text = dtOrderMaster.Rows[i]["StyleNo"].ToString();
+                    worksheet[ROW, ColOrderQuantity].Number = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["OrderQty"].ToString());
+                    worksheet[ROW, ColOrderQuantity].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    worksheet[ROW, ColShippedQuantity].Number = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["ShippedQty"].ToString());
+                    worksheet[ROW, ColShippedQuantity].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    worksheet[ROW, ColDescription].Text = dtOrderMaster.Rows[i]["Description"].ToString();
+                    worksheet[ROW, ColUnitPrice].Number = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["UnitPrice"].ToString());
+                    worksheet[ROW, ColUnitPrice].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
 
-                worksheet[ROW, RightColumnCaption].Text = "Amount";
-                worksheet[ROW, RightColumnValue].Text = dtOrderMaster.Rows[0]["Amount"].ToString();
-                worksheet[ROW, RightColumnCaption].CellStyle.Font.Bold = true;
-                worksheet[ROW, RightColumnCaption].ColumnWidth = 10;
-                worksheet[ROW, RightColumnValue].ColumnWidth = 13;
-                ROW++;
+                    worksheet[ROW, ColAmount].Number = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["Amount"].ToString());
+                    worksheet[ROW, ColAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    worksheet[ROW, ColExportValues].Number = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["ExportValue"].ToString());
+                    worksheet[ROW, ColExportValues].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    worksheet[ROW, ColShipDate].Text = dtOrderMaster.Rows[i]["ShipDate"].ToString();
+                    worksheet[ROW, ColRemarks].Text = "";
+                
+                    worksheet.Range[ROW, 1, ROW, endCols].BorderAround(ExcelLineStyle.Hair);
+                    worksheet.Range[ROW, 1, ROW, endCols].BorderInside(ExcelLineStyle.Hair);
+                    worksheet.Range[ROW, 1, ROW, endCols].CellStyle.Font.Size = 8f;
+                    ROW++;
+                }
 
-                worksheet[ROW, leftColumnCaption].Text = "Ship Date";
-                worksheet[ROW, leftColumnValue].Text = dtOrderMaster.Rows[0]["ShipDate"].ToString();
-                worksheet.Range[ROW, leftColumnValue, ROW, leftColumnValue].CellStyle.Font.Color = ExcelKnownColors.Blue;
-                worksheet[ROW, leftColumnValue].ColumnWidth = 16;
-                worksheet.Range[ROW, leftColumnCaption, ROW, leftColumnValue].CellStyle.Font.Bold = true;
-                worksheet[ROW, leftColumnCaption].ColumnWidth = 16;
+                int CostingComponentEndRow = ROW - 1;
+                ReportUtility reportUtility = new ReportUtility();
 
-                worksheet.Range[MasterOrderDetailsStartRow, leftColumnCaption, ROW, RightColumnValue].CellStyle.Interior.ColorIndex = ExcelKnownColors.Blue_grey;
+                worksheet[ROW, 1].Text = "Total:";
+                worksheet.Range[ROW, 1].CellStyle.Font.Bold = true;
 
+                worksheet.Range[ROW, ColPO, ROW, ColUnitPrice].Merge();
+                worksheet.Range[ROW, ColAmount, ROW, ColAmount].Formula = "SUM(" + reportUtility.GetColumnNameForXls(ColAmount) + CostingComponentStartRow + ":" + reportUtility.GetColumnNameForXls(ColAmount) + CostingComponentEndRow + ")";
+                worksheet.Range[ROW, ColAmount].CellStyle.Font.Bold = true;
+
+                worksheet.Range[CostingComponentStartRow, 1, CostingComponentEndRow + 1, endCols].NumberFormat = clsStaticInfo.NumberFormat(4);
+
+                worksheet.Range[ROW, 1, ROW, endCols].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, 1, ROW, endCols].BorderInside(ExcelLineStyle.Hair);
+                
                 ROW += 2;
-                 
+                COL = 1;
                 #region columns
                 worksheet[ROW, COL].Text = "Item";
                 worksheet[ROW, COL].ColumnWidth = 10;
@@ -1775,36 +1839,35 @@ Order By SO.DeliveryDate";
 
                 int startRow = ROW;
 
-                for (int i = 0; i < dataDetails.Rows.Count; i++)
-                {
-                    worksheet[ROW, ColItem].Text = dataDetails.Rows[i]["Date"].ToString();
-                    worksheet[ROW, ColSupplier].Text = dataDetails.Rows[i]["Time"].ToString();
-                    worksheet[ROW, ColLCStatus].Text = dataDetails.Rows[i]["Category"].ToString();
-                    worksheet[ROW, ColTTLLCValue].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["Quantity"].ToString());
-                    worksheet[ROW, ColTTLLCValue].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    worksheet[ROW, ColLCValue].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["FinalQuantity"].ToString());
-                    worksheet[ROW, ColLCValue].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    worksheet[ROW, ColActualCost].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["MultiplyingFactor"].ToString());
-                    worksheet[ROW, ColActualCost].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                //for (int i = 0; i < dataDetails.Rows.Count; i++)
+                //{
+                //    worksheet[ROW, ColItem].Text = dataDetails.Rows[i]["Date"].ToString();
+                //    worksheet[ROW, ColSupplier].Text = dataDetails.Rows[i]["Time"].ToString();
+                //    worksheet[ROW, ColLCStatus].Text = dataDetails.Rows[i]["Category"].ToString();
+                //    worksheet[ROW, ColTTLLCValue].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["Quantity"].ToString());
+                //    worksheet[ROW, ColTTLLCValue].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                //    worksheet[ROW, ColLCValue].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["FinalQuantity"].ToString());
+                //    worksheet[ROW, ColLCValue].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                //    worksheet[ROW, ColActualCost].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["MultiplyingFactor"].ToString());
+                //    worksheet[ROW, ColActualCost].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                      
-                    worksheet[ROW, ColShortExcess].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["Reading"].ToString());
-                    worksheet[ROW, ColShortExcess].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    worksheet[ROW, ColBTBPending].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["Amount"].ToString());
-                    worksheet[ROW, ColBTBPending].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    worksheet[ROW, ColPercentage].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["Amount"].ToString());
-                    worksheet[ROW, ColPercentage].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                //    worksheet[ROW, ColShortExcess].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["Reading"].ToString());
+                //    worksheet[ROW, ColShortExcess].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                //    worksheet[ROW, ColBTBPending].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["Amount"].ToString());
+                //    worksheet[ROW, ColBTBPending].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                //    worksheet[ROW, ColPercentage].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["Amount"].ToString());
+                //    worksheet[ROW, ColPercentage].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                      
-                    worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-                    worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-                    worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
-                    ROW++;
-                }
+                //    worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                //    worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                //    worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                //    ROW++;
+                //}
                  
                 worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                 worksheet.UsedRange.CellStyle.Font.Size = 8f; 
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                ReportUtility reportUtility = new ReportUtility();
                 reportUtility.PlantHeader(ref worksheet, endCol, "Contract Summary" /*+ dtOrderMaster.Rows[0]["ContractNo"].ToString()*/, identity.PlantId);
                 // reportUtility.PlantHeader(ref worksheet, endCol, "Contract NO#" + ContractId, identity.PlantId);
                 reportUtility.PageSetup(ref worksheet, 5, ExcelPageOrientation.Landscape);
@@ -1827,11 +1890,12 @@ Order By SO.DeliveryDate";
             string strSQL;
             try
             {
-                strSQL = @"select moi.OwnReferenceNo PO,moi.BuyerReferenceNo StyleNo,so.Qty OrderQuantity,so.Description,so.Rate UnitPrice
-                    ,Amount= so.Qty*so.Rate,so.DeliveryDate ShipDate 
+                strSQL = @"select P.UserName Customer,ContractNo= c.ContractNo+' '+ISNULL(format(c.ContractDate,'dd-MMM-yyyy'),''),moi.OwnReferenceNo PO,moi.BuyerReferenceNo StyleNo,sm.TransactionQty ShippedQty,so.Qty OrderQty,so.Description,so.Rate UnitPrice,Amount= so.Qty*so.Rate,sm.NetAmount ExportValue,so.DeliveryDate ShipDate,c.ContractDate
                     from Contract c
                     left join trn.SalesOrder so on so.ContractId=c.Id
                     left join trn.MasterOrderItem moi on moi.Id=so.MasterOrderItemId
+                    left join trn.SalesMaterial sm on sm.SalesOrderId=so.Id
+                    left join hkp.Party P on P.Id=c.CustomerId
                     where c.Id='" + ContractId + "'";
 
                 return _sqlRepository.GetDataTable(strSQL);

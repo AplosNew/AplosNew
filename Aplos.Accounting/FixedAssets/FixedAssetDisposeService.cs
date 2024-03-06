@@ -735,6 +735,7 @@ namespace Library.Accounting.FixedAssets
                                 SettlementType = voucherVM.SettlementType,
                                 RequisitionId = voucherVM.RequisitionId,
                                 CompanyCurrencyRate = 1,
+                                IsPosted = true,
                                 POId = voucherVM.POId,
                                 ContractId = voucherVM.ContractId,
                                 MasterOrderId = voucherVM.MasterOrderId,
