@@ -395,7 +395,8 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
         if ($scope.salaryHeadGL.COAId === null) {
             return ShowResult("Select COA first", 'failure');
         }
-        $scope.GLUrl1 = 'accounts/glitem/GetExpenseGLBudgetActivityCOAWise?coaId=' + $scope.salaryHeadGL.COAId;
+        //$scope.GLUrl1 = 'accounts/glitem/GetExpenseGLBudgetActivityCOAWise?coaId=' + $scope.salaryHeadGL.COAId;
+        $scope.GLUrl1 = 'employees/salaryheadgl/GetCRDirectIndirectGL?coaId=' + $scope.salaryHeadGL.COAId;
         //baseService.setCurrentPage('DirectGLList');
         $scope.GetDirectGLListData = function (pageno) {
             baseService.paginationBase($scope.GLUrl1, pageno, $scope.DirectListParameters)
@@ -622,7 +623,8 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
         if ($scope.salaryHeadGL.COAId === null) {
             return ShowResult("Select COA first", 'failure');
         }
-        $scope.GLUrl2 = 'accounts/glitem/GetExpenseGLBudgetActivityCOAWise?coaId=' + $scope.salaryHeadGL.COAId;
+        //$scope.GLUrl2 = 'accounts/glitem/GetExpenseGLBudgetActivityCOAWise?coaId=' + $scope.salaryHeadGL.COAId;
+        $scope.GLUrl2 = 'employees/salaryheadgl/GetCRDirectIndirectGL?coaId=' + $scope.salaryHeadGL.COAId;
         $scope.GetInDirectGLListData = function (pageno) {
             baseService.paginationBase($scope.GLUrl2, pageno, $scope.InDirectListParameters)
                 .then(function (data) {
@@ -879,8 +881,15 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
                     $scope.CrDisable = true;
                 }
                 if ($scope.SalaryHeadTransactionType == "Cr.") {
-                    $scope.DrDisable = true;
-                    $scope.CrDisable = false;
+                    if ($scope.SalaryHeadName == "Net Pay") {
+                        $scope.DrDisable = false;
+                        $scope.CrDisable = false;
+                    }
+                    else {
+                        $scope.DrDisable = true;
+                        $scope.CrDisable = false;
+                    }
+                    
                 }
 
                 angular.element(document.querySelector('#SalaryHeadNewPopUp')).modal('hide');
