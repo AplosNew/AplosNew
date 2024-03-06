@@ -1260,6 +1260,7 @@ upanelApp.controller("BalanceSheetSchedulingReportController", BalanceSheetSched
 upanelApp.controller("ContractSummaryController", ContractSummaryController)
 upanelApp.controller("roundOffJournalController", roundOffJournalController)
 
+upanelApp.controller("BarcodeGeneratorSettingController", BarcodeGeneratorSettingController)
           
 
 
