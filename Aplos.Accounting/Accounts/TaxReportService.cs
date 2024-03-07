@@ -12767,6 +12767,75 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 						) IWD ON IWD.Adjustmentnoteid=IT.Adjustmentnoteid
 				where TC.TaxCategoryType='TDS' AND ITD.AType='Cr' 
 				AND V.PostingDate between '" + fromDate + "' AND '" + toDate + "' and V.PlantId = '" + plantId + @"' and V.IsPark=0
+
+                UNION ALL
+                SELECT SourceType= case when V.SourceType='VendorInvoice' then 'Inbound Invoice'
+						                when V.SourceType='VendorPayment' then 'Vendor Payment'
+						                when V.SourceType='CreditNoteSetOff' then 'Credit Note SetOff'
+						                when V.SourceType='InventoryPayable' then 'Purchase' else '' end
+                ,IWD.VoucherNo InvoiceVoucherNo,IWD.InventoryReceiveId
+				,IWD.PostingDate InvoicePostingDate,iwd.DocRefNo InvoieDocRefNo,format( IWD.DocDate, 'dd-MMM-yyyy') InvoiceDocDate
+				,V.VoucherNo,Format(V.PostingDate,'dd-MMM-yyyy') PostingDate,V.DocRefNo,format( V.DocDate, 'dd-MMM-yyyy')DocDate, P.UserName PartyName,P.TINNO GSTIN 
+                ,LineItemType=case when v.SourceType='InventoryPayable' then 'Material' 
+				                   when v.SourceType='VendorInvoice' then 'GL'
+				                   when v.SourceType='VendorPayment' then 'GL'
+				                   when v.SourceType='CreditNoteSetOff' then 'GL'
+				                   else '' end
+				 ,Particular=case when v.SourceType='InventoryPayable' then TXC.UserName 
+								  WHEN v.SourceType='VendorInvoice' THEN A.UserName
+				                  else '' end
+				  ,TaxableAmount=case when IWD.InventoryReceiveId<>'' then IRD.TotalMaterialTranAmount
+									when SAM.ServiceAcknowledgementMasterId<>'' then SAM.TotalMaterialTranAmount
+					                when v.SourceType='VendorInvoice' then VD.DrAmount
+					                when v.SourceType='VendorPayment' then IWD.TaxableAmount
+					                when v.SourceType='CreditNoteSetOff' then IWD.Amount-IT.TaxAmount	else 0 end
+                ,InvoiceAmount=case when v.SourceType='InventoryPayable' then IRD.TotalMaterialTranAmount
+					                when v.SourceType='VendorInvoice' then VD.DrAmount	
+					                when v.SourceType='CreditNoteSetOff' then VD.DrAmount	
+					                when v.SourceType='VendorPayment' then IWD.Amount	else 0 end
+                ,IT.Id,0 DrAmount ,CrAmount=case when ITD.AType='Cr' then IT.TaxAmount else 0 end
+                ,TC.Code TaxCode ,TC.Sequence TCSequence,TC.TaxCategoryType,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM,TAXC.UserName TaxCodeName
+                ,0 IsExcludingTax,IsNULL(IR.IsTaxApplicable,0) IsTaxApplicable,TAXC.[Type],ValueOfFixedNew = TAXC.UserName +' - '+ convert(varchar,TAXC.ValueOfFixed),TAXC.ValueOfFixed
+                ,IsNULL(HSNP.[Percentage],0) Percentage
+                ,P.VATResistrationNo PanNo,TXC.UserName TDSPer,TXC.Code Section
+
+                from TRN.AdditionalTax IT 
+                left join TRN.AdditionalTaxDetail ITD  ON IT.Id=ITD.AdditionalTaxId AND ITD.AType='Cr'
+                LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
+				LEFT JOIN MST.TaxCode TXC ON TXC.Id=ITD.TaxCodeId
+                  JOIN TRN.Invoice IW ON IW.Id=IT.InvoiceId
+                LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
+				LEFT JOIN MST.TaxCategory TC ON TC.Id=ITD.TaxCategoryId AND TC.TaxCategoryType='TDS'
+                LEFT JOIN ( SELECT DISTINCT TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
+	            LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
+	            LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN ('','7') AND TACD.TaxCodeYearId=TAY.Id) TAXC ON TAXC.Id=ITD.TaxCodeId
+                LEFT JOIN TRN.InventoryReceive IR ON IR.VoucherId=V.Id
+                LEFT JOIN TRN.InventoryReceiveTax IRT ON IRT.InventoryReceiveId=IR.Id
+                LEFT JOIN MST.HSNTaxPercentage HSNP ON  IRT.HSNCodeId=HSNP.HSNCodeId AND HSNP.TaxCategoryId=ITD.TaxCategoryId 
+                LEFT JOIN (SELECT SUM(D.DrAmount) DrAmount,D.VoucherId,D.ActivityId,D.InvoiceWriteOffDetailId 
+				FROM  TRN.VoucherDetail D LEFT JOIN TRN.Voucher VV ON VV.Id=D.VoucherId 
+				WHERE D.InvoiceTaxDetailId IS NULL AND D.DrAmount<> 0 
+				GROUP BY D.VoucherId,D.ActivityId,D.InvoiceWriteOffDetailId
+				) VD ON VD.VoucherId=IT.VoucherId 
+                LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId 
+                LEFT JOIN (SELECT I.Id InvoiceId,I.InventoryReceiveId
+				, I.Amount Amount,SUM(VD.DrAmount) TaxableAmount
+				,V.VoucherNo,V.PostingDate,V.DocRefNo,V.DocDate
+				FROM  TRN.Invoice I 
+							JOIN TRN.Voucher V ON V.Id=I.VoucherId
+							JOIN TRN.VoucherDetail VD ON VD.VoucherId=I.VoucherId AND VD.DrAmount>0 AND VD.InvoiceTaxDetailId IS NULL
+		                GROUP BY I.Id,V.VoucherNo,I.Amount,V.PostingDate,V.DocRefNo,V.DocDate,I.InventoryReceiveId
+						) IWD ON IWD.InvoiceId=IT.InvoiceId
+				LEFT JOIN (select InventoryReceiveId,sum(TotalMaterialTranAmount) TotalMaterialTranAmount from TRN.InventoryReceiveDetail group by InventoryReceiveId)IRD ON IWD.InventoryReceiveId=IRD.InventoryReceiveId
+                LEFT JOIN TRN.Invoice SIV ON SIV.VoucherId=V.Id
+				LEFT JOIN (select sad.ServiceAcknowledgementMasterId,IWD.InvoiceWriteOffId,sum(sad.Amount) TotalMaterialTranAmount from TRN.ServiceAcknowledgementDetail sad
+				join TRN.ServiceAcknowledgementMaster sam on sam.Id=sad.ServiceAcknowledgementMasterId
+				join trn.Invoice I on I.ServiceAcknowledgementMasterId =sam.Id
+				join trn.InvoiceWriteOffDetail IWD ON IWD.InvoiceId=I.Id
+				group by sad.ServiceAcknowledgementMasterId,IWD.InvoiceWriteOffId)SAM ON IT.InvoiceWriteOffId=SAM.InvoiceWriteOffId
+                WHERE TC.TaxCategoryType='TDS' AND ITD.AType='Cr' 
+				AND V.PostingDate between  '" + fromDate + "' AND '" + toDate + "' and V.PlantId = '" + plantId + @"' and V.IsPark=0
+                
                 ) X
                 ORDER BY X.LineItemType,X.ValueOfFixed,X.Percentage
 				";
