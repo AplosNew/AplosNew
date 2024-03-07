@@ -80,8 +80,9 @@
 
                             <div id="GridGWChildEdit" ej-grid e-datasource="PCEmployeeList" e-allowfiltering="true" e-allowpaging="true"
                                  e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-allowselection="true"
-                                 e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                                 e-filtersettings-filterType="excel" e-allowtextwrap="true" e-templaterefresh="refreshTemplateGWemployees">
                                 <div e-columns>
+                                    <div e-column e-headertext="All" e-headertemplateid="#CheckGWTemplate" e-template="#checkboxGWTemplate" e-textalign="center" e-width="30"></div>
                                     <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="60"></div>
                                     <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
                                     <div e-column e-field="Minute" e-headertext="Minute" e-width="60"></div>
@@ -91,6 +92,13 @@
                                     <div e-column e-headertext="Remarks" e-template="#remarks" e-textalign="center" e-width="100"></div>
                                 </div>
                             </div>
+                            <script type="text/x-jsrender" id="CheckGWTemplate">
+                                <input type="checkbox" id="GWheadchk" />
+                            </script>
+                            <script type="text/template" id="checkboxGWTemplate">
+                                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+                            </script>
+
                             <script type="text/template" id="remarks">
                                 <input type="text" class="form-control" name="Remarks" ng-model="data.Remarks" e-width="90" />
                             </script>
@@ -121,8 +129,7 @@
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(2), active: isSet2(2) }">
-                    <togglable name="{{titleTab4}}"></togglable>
-
+                    <togglable name="{{titleTab4}}"></togglable> 
                     <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
                         <input type="hidden" ng-model="ModelOTNew.Id">
                         <div class="col-xs-12 col-sm-6 col-md-6">
@@ -180,8 +187,9 @@
 
                             <div id="GridChildEdit" ej-grid e-datasource="PCOTEmployeeList" e-allowfiltering="true" e-allowpaging="true"
                                  e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-allowselection="true"
-                                 e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                                 e-filtersettings-filterType="excel" e-allowtextwrap="true" e-templaterefresh="refreshTemplateemployees">
                                 <div e-columns>
+                                    <div e-column e-headertext="All" e-headertemplateid="#CheckTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
                                     <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="60"></div>
                                     <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
                                     <div e-column e-field="Minute" e-headertext="Minute" e-width="60"></div>
@@ -191,9 +199,16 @@
                                     <div e-column e-headertext="Remarks" e-template="#remarks" e-textalign="center" e-width="100"></div>
                                 </div>
                             </div>
+                            <script type="text/x-jsrender" id="CheckTemplate">
+                                <input type="checkbox" id="headchk" />
+                            </script>
+                            <script type="text/template" id="checkboxTemplate">
+                                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+                            </script>
+
                             <script type="text/template" id="remarks">
                                 <input type="text" class="form-control" name="Remarks" ng-model="data.Remarks" e-width="90" />
-                            </script>
+                            </script> 
                         </div>
 
                         <div class="common-btn">

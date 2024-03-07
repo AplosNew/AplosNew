@@ -125,19 +125,88 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         });
     }
 
+    //#region The Filters 
+
+    $scope.filters = [];
+    $scope.MachineMasterTransactionloadfilters = function () {
+        $http({
+            method: 'GET',
+            url: 'Costings/OrderCostingApproval/getFilters',
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.filters = response.data;
+            var columnList = [
+                { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
+                { field: 'BuyerReferenceNo', width: 20, headerText: "BuyerReferenceNo", type: "string" },
+                { field: 'OwnReferenceNo', width: 20, headerText: "OwnReferenceNo", type: "string" },
+                { field: 'MasterOrderId', width: 20, headerText: "MasterOrderId", type: "string" },
+                //{ field: 'LineItemId', width: 20, headerText: "LineItemId", type: "string" },
+
+            ];
+            $("#filters").ejGrid({
+                dataSource: $scope.filters,
+                minWidth: 450, minHeight: 400,
+                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
+                filterSettings: { filterType: "excel" },
+                columns: columnList
+            });
+
+            var gridObj = $("#filters").data("ejGrid");
+            gridObj.refreshContent(true);
+            gridObj.refreshTemplate();
+            $("#filters").children('.e-pager.e-js.e-pager').hide();
+            $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
+            $("#filters").children('.e-gridcontent').hide();
+        });
+    }
+    $scope.MachineMasterTransactionloadfilters();
+
+    $scope.parameters = [];
+    $scope.filterComplete = function () {
+
+        var g = $("#filters").data("ejGrid");
+        var fl = g.getFilteredRecords();
+        if (fl.length == 0) {
+            fl = $scope.filters;
+        }
+
+        var parameters = [];
+        parameters.push({ "Key": "PartyId", "Value": getString(fl, "PartyId") });
+        //parameters.push({ "Key": "LineItemId", "Value": getString(fl, "LineItemId") });
+
+        $scope.parameters = parameters;
+    }
+
+    var getString = function (data, column) {
+        var string = "''";
+        var collection = [];
+
+        for (var i = 0; i < data.length; i++) {
+            if (collection.includes(data[i][column]) == false) {
+                string += ",'" + data[i][column] + "'";
+                collection.push(data[i][column]);
+            }
+        }
+        return string;
+    }
 
     $scope.getMasterOrderData = function () {
-
+        $scope.filterComplete();
         $http({
             method: 'POST',
             url: $scope.path + "GetMasterOrderList",
-            data: { column: $scope.searchByMasterOrderColumn, value: $scope.searchMasterOrderText },
+            data: { column: $scope.searchByMasterOrderColumn, value: $scope.searchMasterOrderText, 'parameters': $scope.parameters  },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelListMasterOrderMaster = response.data.DATA;
         });
     }
-    $scope.getMasterOrderData();
+   // $scope.getMasterOrderData();
+   
+
+    //#endregion
+
+
     $scope.getMasterOrderItemData = function (args) {
         $scope.Clear();
         $scope.InquiryOrOrder = 'Order';

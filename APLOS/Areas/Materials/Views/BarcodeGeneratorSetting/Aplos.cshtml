@@ -83,15 +83,16 @@
                             <li> <button ng-click="getAllEntities();" ng-disabled="ModelNew.Id===null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Entity</button></li>
                         </ul>
                     </div>
-                    <div id="GridEntity" ej-grid e-datasource="SavedEntityList" e-templaterefresh="refreshTemplate" 
+                    <div id="GridEntity" ej-grid e-datasource="SavedEntityList"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                         <div e-columns>
                             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+                            <div e-column e-field="EntityId" e-headertext="Entity" e-width="2"></div>
                             <div e-column e-field="Code" e-headertext="Code" e-width="2"></div>
-                            <div e-column e-field="UserName" e-headertext="UserName" e-width="2"></div>
-                            <div e-column e-field="IsProduction" e-headertext="IsProduction" e-width="3"></div>
-                            <div e-column e-field="Active" e-headertext="Active" e-width="5"></div>
+                            <div e-column e-field="UserName" e-headertext="UserName" e-width="3"></div>
+                            <div e-column e-field="IsProduction" e-headertext="IsProduction" e-width="2"></div>
+                            <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
                         </div>
                     </div>
                    
@@ -148,14 +149,14 @@
             <div class="modal-body">
                 <div class="content-container-fluid" style="color:black;">
                     <div style="color:black;" id="GridEPopUp" ej-grid e-datasource="entityList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                         e-recorddoubleclick="selectdblClickDependant" e-allowselection="true" e-filtersettings-filterType="excel">
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplate" >
                         <div e-columns>
-                            <div e-column e-headertext="" e-headertemplateid="#headerTemplates" e-template="#checkboxTemplateChild" e-textalign="center" e-width="30"></div>
+                            <div e-column e-headertext="" e-headertemplateid="#headerTemplates" e-template="#checkboxTemplateChild" e-textalign="center" e-width="1"></div>
                             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
                             <div e-column e-field="Code" e-headertext="Code" e-width="2"></div>
-                            <div e-column e-field="UserName" e-headertext="UserName" e-width="2"></div>
-                            <div e-column e-field="IsProduction" e-headertext="IsProduction" e-width="3"></div>
-                            <div e-column e-field="Active" e-headertext="Active" e-width="5"></div>
+                            <div e-column e-field="UserName" e-headertext="UserName" e-width="3"></div>
+                            <div e-column e-field="IsProduction" e-headertext="IsProduction" e-width="2"></div>
+                            <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
                         </div>
                     </div>
                 </div>

@@ -119,7 +119,7 @@ Where B.BarcodeGeneratorSettingId='"+ masterId + "'";
             return masterId + currentId.ToString().PadLeft(padLeft, '0');
         }
         [HttpPost, Authorize]
-        public JsonResult CreateEntity(List<Dictionary<string, object>> funds, string masterId)
+        public JsonResult CreateEntity(List<Dictionary<string, object>> data, string masterId)
         {
             try
             {
@@ -133,17 +133,17 @@ Where B.BarcodeGeneratorSettingId='"+ masterId + "'";
 
                 objCon.OpenDataSetThroughAdapter("SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [HKP].[BarcodeGeneratorEntitySetting]WHERE BarcodeGeneratorSettingId='" + masterId + "'", out dsChildId, false, "1");
 
-                var count = 0;
-                if (funds != null)
+                var count = Convert.ToInt32(dsChildId.Tables[0].Rows[0]["Id"].ToString()); ;
+                if (data != null)
                 {
-                    foreach (var item in funds)
+                    foreach (var item in data)
                     {
                         DataView dv = new DataView(dsChild.Tables[0]);
                         dv.RowFilter = "Id='" + item["Id"] + "'";
 
                         if (dv.Count == 0)
                         {
-                            count = Convert.ToInt32(dsChildId.Tables[0].Rows[0]["Id"].ToString());
+                            
                             count++;
                             item["Id"] = MakePK(masterId, count, 2); 
                             item["BarcodeGeneratorSettingId"] = masterId;

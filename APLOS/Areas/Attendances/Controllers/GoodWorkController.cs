@@ -934,7 +934,7 @@ namespace Aplos.Areas.Attendances.Controllers
             {
                 if (tabName == "GoodWork")
                 {
-                    sql = @"select '' Id,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,sum(gw.Minute) Minute,(sum(gw.Minute)/60) Hour
+                    sql = @"select CheckBoxSelect=cast(case when z.Id is null then 0 else 1 end as bit),z.Id,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,sum(gw.Minute) Minute,(sum(gw.Minute)/60) Hour
                                     ,format(g.Gross,'N2') Gross,format(g.RatePerHour,'N2') Rate,Amount=format((sum(gw.Minute)/60)*g.RatePerHour,'N2')
                                      from [dbo].[GoodWork] gw
                                      left join  GoodWorkDetail GWD on GWD.GoodWorkId=gw.Id 
@@ -945,16 +945,19 @@ namespace Aplos.Areas.Attendances.Controllers
                                                                           FROM SalaryInfoDefine SID 
 								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                                                         WHERE SH.HeadCategory='Gross')g ON g.SalaryID=SIDM.SystemID
+                                    left join (select gwpad.EmpSystemId,gwpad.Id
+									                                from GoodWorkPaymentAdvise gwpa
+									                                left join GoodWorkPaymentAdviseDetail gwpad on gwpad.PaymentAdviseId=gwpa.Id
+									                                where convert( DateTime, gwpa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, gwpa.ToDate) between '" + fromDate + @"' and '" + toDate + @"'
+									                                )z on z.EmpSystemId=GWD.EmpSystemId
                                      where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and gw.Minute<>0 and g.Gross<>0  and SIDM.IsApproved=1
-                                     and gwd.EmpSystemId not in (select EmpSystemId
-									                                    from GoodWorkPaymentAdvise gwpa
-									                                    left join GoodWorkPaymentAdviseDetail gwpad on gwpad.PaymentAdviseId=gwpa.Id
-									                                    where convert( DateTime, gwpa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, gwpa.ToDate) between '" + fromDate + @"' and '" + toDate + @"') 
-                                     group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour";
+                                     group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,z.Id
+                                    order by ei.EmployeeCode";
+                                  
                 }
                 else if(tabName == "ExtraOT")
                 {
-                    sql = @"select ei.SystemId EmpSystemId,'' Id,ei.EmployeeCode,ei.EmployeeName,format(sum(apd.OverStay),'N2') Minute
+                    sql = @"select CheckBoxSelect=cast(case when z.Id is null then 0 else 1 end as bit),ei.SystemId EmpSystemId,z.Id,ei.EmployeeCode,ei.EmployeeName,format(sum(apd.OverStay),'N2') Minute
                                 ,format((sum(apd.OverStay)/60),'N2') Hour
                                 ,format(g.Gross,'N2') Gross
                                 ,format(g.RatePerHour,'N2') Rate 
@@ -968,14 +971,14 @@ namespace Aplos.Areas.Attendances.Controllers
                                                                       FROM SalaryInfoDefine SID 
 								                                  LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                                                     WHERE SH.HeadCategory='Gross')g ON g.SalaryID=SIDM.SystemID
-                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND OverStay<>0 AND apd.IsOTEntitled=1 and SIDM.IsApproved=1
-                                and apd.EmpSystemID not in (select EmpSystemId
+								left join (select gwpad.EmpSystemId,gwpad.Id
 									                                from GoodWorkPaymentAdvise gwpa
 									                                left join GoodWorkPaymentAdviseDetail gwpad on gwpad.PaymentAdviseId=gwpa.Id
 									                                where convert( DateTime, gwpa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, gwpa.ToDate) between '" + fromDate + @"' and '" + toDate + @"'
-									                                )
-                                --and apd.EmpSystemID=2010692
-                                group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId ";
+									                                )z on z.EmpSystemId=apd.EmpSystemID
+                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND OverStay<>0 AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 
+                                group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id
+                                order by ei.EmployeeCode";
                 }
                 else
                 {
@@ -1250,7 +1253,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster, dsDetail, dsGWPayable, dsExtraOT);
-                return Json(new { Error = false, Message = AplosMessage.Updated });
+                return Json(new { Error = false,Data=data, Message = AplosMessage.Updated });
             }
             catch (Exception ex)
             {

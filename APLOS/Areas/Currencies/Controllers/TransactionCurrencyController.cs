@@ -41,7 +41,14 @@ namespace Aplos.Areas.Currencies.Controllers
             {
                 companyId = identity.CompanyId;
             }
-            return Json(_currencyTransactionService.GetCboCurrencyTransaction(companyId), JsonRequestBehavior.AllowGet);
+
+            var sql = @"SELECT CT.CurrencyId AS Value, C.Code AS Text, CT.CurrencyId, C.Code, IsBaseCurrency=CASE WHEN CT.CurrencyId=CO.BaseCurrencyId THEN 1 ELSE 0 END
+                            FROM [SCS].[CurrencyTransaction] AS CT
+                            LEFT JOIN [SCS].[Currency] AS C ON CT.CurrencyId=C.Id
+                            LEFT JOIN [ORG].[Company] AS CO ON CO.Id=CT.CompanyId
+                            WHERE CT.CompanyId='" + companyId + "' ORDER BY C.Code";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

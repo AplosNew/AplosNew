@@ -1129,7 +1129,7 @@ Where A.EmployeeId='" + EmpSystemID+"'"
             }
         }
 
-        public IEnumerable<ComboModel> LoadLeaveTypeCbo(string sPlantID, string employeeId)
+        public IEnumerable<object> LoadLeaveTypeCbo(string sPlantID, string employeeId)
         {
             var CompanyGroupId = _employeeinformationService.Query(t => t.SystemId == employeeId).Select(t => t.GroupID).FirstOrDefault();
 
@@ -1141,8 +1141,9 @@ Where A.EmployeeId='" + EmpSystemID+"'"
             {
                 if (esic.Tables[0].Rows.Count > 0)
                 {
-                    _sql = @"SELECT LT.ID, LT.UserName,LT.IsESIC,LT.IsGeneral, EPLT.ESICPolicyMasterID FROM dbo.ESICPolicyLeaveType AS EPLT
+                    _sql = @"SELECT DISTINCT LT.ID, LT.UserName,LT.IsESIC,LT.IsGeneral, EPLT.ESICPolicyMasterID,LPD.IsAvailExceptionAllowedOnSpecialAppeal FROM dbo.ESICPolicyLeaveType AS EPLT
                   LEFT JOIN dbo.LeaveType AS LT ON LT.Id = EPLT.LeaveTypeID
+                  LEFT JOIN LeavePolicyDetail LPD ON LPD.LTSystemID=LT.Id
                   WHERE
                   EPLT.LeaveTypeID IN
                    (
@@ -1164,7 +1165,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                 }
                 else
                 {
-                    _sql = @"SELECT LT.ID, LT.UserName FROM LeaveType LT
+                    _sql = @"SELECT LT.ID, LT.UserName,LPD.IsAvailExceptionAllowedOnSpecialAppeal FROM LeaveType LT
                                     LEFT JOIN LeavePolicyDetail LPD ON LPD.LTSystemID=LT.Id
                                     LEFT JOIN LeavePolicyMaster LPM ON LPM.SystemID=LPD.LPMSystemID
                                     LEFT JOIN (SELECT DC.LeavePolicyMasterId,DM.DesignationId FROM MST.DesignationMaster DM
@@ -1175,7 +1176,8 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                                     WHERE EI.SystemID='" + employeeId + @"' AND EI.GroupID='" + CompanyGroupId + @"' AND EI.PlantID='" + sPlantID + @"' AND LT.IsGeneral = 1 AND LT.UserName NOT like'%Maternity%'";
                 }
 
-                return _sqlRepository.GetCombo(_sql, "ID", "UserName");
+                //return _sqlRepository.GetCombo(_sql, "ID", "UserName");
+                return _sqlRepository.GetDataCollection(_sql, null);
             }
             catch (Exception)
             {
@@ -2518,7 +2520,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
             {
                 ExportType = "DATASET",
                 CmdText = @"SELECT ISNULL(IsExcessAllow,0) IsExcessAllow, ISNULL(IsSubjectToApproval,0)IsSubjectToApproval, ISNULL(MaxAllocationLimit,0)MaxAllocationLimit, ISNULL(MinAllocationLimit,0)MinAllocationLimit
-                            ,LvAvailedOnDOC IsAllowed,IsAllowedonspecialappeal,AllowedAfterDays,IsPostApplicationAllowed,isnull(IsAvailExceptionAllowedOnSpecialAppeal,0) IsAvailExceptionAllowedOnSpecialAppeal
+                            ,LvAvailedOnDOC IsAllowed,IsAllowedonspecialappeal,AllowedAfterDays,IsPostApplicationAllowed,isnull(IsAvailExceptionAllowedOnSpecialAppeal,0) IsAvailExceptionAllowedOnSpecialAppeal,IsExceptionAllowed
                             FROM dbo.LeavePolicyDetail
                             WHERE  (LPMSystemID = '" + strLPMSystemID + @"') AND (LTSystemID = '" + strLvTypeId + @"')"
             };
