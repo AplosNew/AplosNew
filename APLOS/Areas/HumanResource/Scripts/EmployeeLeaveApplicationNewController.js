@@ -71,7 +71,6 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
         $http.get($scope.path + 'GetLeaveTypeCbo?EmpsystemId=' + $scope.leaveApplicationNew.EmpSystemID)
             .then(function (response) {
                 $scope.leaveTypelist = response.data;
-
             });
     };
 
@@ -299,6 +298,8 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
         }
     };
 
+    $scope.IsExceptionAllowed = false;
+
     function ValidationLeave() {
         var fd = $filter('dateFiltering')($scope.leaveApplicationNew.FromDate, 'dd-MM-yyyy');
         var td = $filter('dateFiltering')($scope.leaveApplicationNew.ToDate, 'dd-MM-yyyy');
@@ -320,24 +321,29 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
         var timeDiff = Math.abs(dateOut2.getTime() - dateOut1.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24) + 1);
         //alert(diffDays);
+        if ($scope.leaveApplicationNew.LeaveDayType != 'FullDay') {
+            diffDays = 0.5;
+        }
 
-        for (var i = 0; i < $scope.LeaveBalanceList.length; i++) {
-            if ($scope.LeaveBalanceList[i].LTSystemID === $scope.leaveApplicationNew.LTSystemID) {
+        $scope.IsAvailExceptionAllowedOnSpecialAppeal = $.grep($scope.leaveTypelist, function (item) {
+            return item.ID === $scope.leaveApplicationNew.LTSystemID;
+        })[0].IsAvailExceptionAllowedOnSpecialAppeal;
 
-                if ($scope.leaveApplicationNew.LeaveDayType != 'FullDay') {
-                    diffDays = 0.5;
-                }
+        if ($scope.IsAvailExceptionAllowedOnSpecialAppeal == false) {
+            for (var i = 0; i < $scope.LeaveBalanceList.length; i++) {
+                if ($scope.LeaveBalanceList[i].LTSystemID === $scope.leaveApplicationNew.LTSystemID) {
 
-                if ($scope.LeaveBalanceList[i].Balance < diffDays && $scope.LeaveBalanceList[i].IsExceptionAllowed == false) {
-                    throw 'Leave Duration is greater then balance.';
-                    ShowResult('Leave Duration is greater then balance.', 'failure');
-                }
+                    if ($scope.LeaveBalanceList[i].Balance < diffDays && $scope.LeaveBalanceList[i].IsExceptionAllowed == false) {
+                        throw 'Leave Duration is greater then balance.';
+                        ShowResult('Leave Duration is greater then balance.', 'failure');
+                    }
 
-                //if ($scope.LeaveBalanceList[i].LeaveDays - (($scope.LeaveBalanceList[i].Applied - $scope.LeaveBalanceList[i].Rejected) + diffDays) < 0) {
-                //    throw 'Leave Duration is greater then balance.';
-                //}
-                if ($scope.LeaveBalanceList[i].LeaveDays - (($scope.LeaveBalanceList[i].Applied - $scope.LeaveBalanceList[i].Rejected) + diffDays) >= $scope.LeaveBalanceList[i].Balance) {
-                    throw 'Leave Duration is greater then balance.';
+                    //if ($scope.LeaveBalanceList[i].LeaveDays - (($scope.LeaveBalanceList[i].Applied - $scope.LeaveBalanceList[i].Rejected) + diffDays) < 0) {
+                    //    throw 'Leave Duration is greater then balance.';
+                    //}
+                    if ($scope.LeaveBalanceList[i].LeaveDays - (($scope.LeaveBalanceList[i].Applied - $scope.LeaveBalanceList[i].Rejected) + diffDays) >= $scope.LeaveBalanceList[i].Balance) {
+                        throw 'Leave Duration is greater then balance.';
+                    }
                 }
             }
         }

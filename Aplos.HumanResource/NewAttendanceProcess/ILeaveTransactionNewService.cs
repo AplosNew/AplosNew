@@ -14,7 +14,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         void SaveAndUpdateData(LeaveTransaction leaveTransaction, string yearId);
         GridModel Query(GridParameter parameters, string companyGroupId, string companyId, string plantId, string employeeId, string yearNo);
         GridModel QueryGetLeaveListForDelete(GridParameter parameters, string companyGroupId, string companyId, string plantId, string employeeId, string yearNo);
-        IEnumerable<ComboModel> LoadLeaveTypeCbo(string sPlantID, string employeeId);
+        IEnumerable<object> LoadLeaveTypeCbo(string sPlantID, string employeeId);
 
         IEnumerable<object> EmployeeInfo();
 

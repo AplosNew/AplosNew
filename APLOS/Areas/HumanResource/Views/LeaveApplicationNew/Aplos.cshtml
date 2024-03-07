@@ -114,7 +114,7 @@
                 <div class="select-style">
                     <select id="ID" class="form-control" ng-model="leaveApplicationNew.LTSystemID" name="Leave Type" required tabindex="1">
                         <option value="">--Select--</option>
-                        <option ng-repeat="option in leaveTypelist" value="{{option.Value}}">{{option.Text}}</option>
+                        <option ng-repeat="option in leaveTypelist" value="{{option.ID}}">{{option.UserName}}</option>
                     </select>
                 </div>
             </div>
