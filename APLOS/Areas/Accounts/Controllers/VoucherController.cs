@@ -2215,7 +2215,7 @@ namespace Aplos.Areas.Accounts.Controllers
 											LEFT JOIN [HKP].PartyPlant AS PP ON PP.Id=VD.PartyPlantId
                                             WHERE v.PostingDate < '" + fromDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"'
                                             AND  v.IsPark=0
-                                            AND V.Id NOT IN (	SELECT VD.VoucherId FROM  TRN.VoucherDetail AS VD 
+                                            AND VDC.VoucherDetailId NOT IN ( SELECT VD.Id FROM  TRN.VoucherDetail AS VD  
 																INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
 																LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
 																LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
@@ -2340,7 +2340,7 @@ namespace Aplos.Areas.Accounts.Controllers
                                                     	LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId = BM.Id
                                                     	LEFT JOIN [HKP].[Budget] AS BUD ON BM.BudgetId = BUD.Id
                                                     	WHERE v.PostingDate < '" + fromDate + @"' AND v.CompanyId = '" + companyId + @"' AND V.PlantId = '" + plantId + @"' AND v.IsPark = 0 
-                                                        AND V.Id NOT IN (	SELECT VD.VoucherId FROM  TRN.VoucherDetail AS VD 
+                                                        AND VDC.VoucherDetailId NOT IN ( SELECT VD.Id FROM  TRN.VoucherDetail AS VD 
 																INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
 																LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
 																LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
@@ -2453,7 +2453,7 @@ namespace Aplos.Areas.Accounts.Controllers
 											LEFT JOIN [HKP].PartyPlant AS PP ON PP.Id=VD.PartyPlantId
                                             WHERE v.PostingDate < '" + fromDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"'
                                             AND  v.IsPark=0
-                                            AND V.Id NOT IN (	SELECT VD.VoucherId FROM  TRN.VoucherDetail AS VD 
+                                            AND VDC.VoucherDetailId NOT IN ( SELECT VD.Id FROM  TRN.VoucherDetail AS VD  
 																INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
 																LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
 																LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
@@ -2591,7 +2591,7 @@ namespace Aplos.Areas.Accounts.Controllers
 	                                                LEFT JOIN SCS.Currency AS CU ON CU.Id = VDC.ParallelCurrencyId
 	                                               
                                                     WHERE v.PostingDate < '" + fromDate + @"' AND v.CompanyId = '" + companyId + @"' AND V.PlantId = '" + plantId + @"' AND v.IsPark = 0
-                                                    AND V.Id NOT IN (	SELECT VD.VoucherId FROM  TRN.VoucherDetail AS VD 
+                                                    AND VDC.VoucherDetailId NOT IN ( SELECT VD.Id FROM  TRN.VoucherDetail AS VD  
 																INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
 																LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
 																LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
