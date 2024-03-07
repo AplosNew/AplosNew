@@ -196,16 +196,6 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
                 {
                     fromDate = dsFromTo.Tables[0].Rows[0]["Fromdate"].ToString();
                     toDate = dsFromTo.Tables[0].Rows[0]["Todate"].ToString();
-
-                    DateTime date = Convert.ToDateTime(fromDate);
-                    DateTime date2 = Convert.ToDateTime(toDate);
-                    int fyear = date.Year;
-                    var fmonth = date.Month;
-                    int tyear = date2.Year;
-                    var tmonth = date2.Month;
-
-                    _fromDate = "01-" + fmonth + "-" + fyear + "";
-                    _toDate = "01-" + tmonth + "-" + tyear + "";
                 }
                 string sql = @"select e.SystemID,e.EmployeeCode,e.EmployeeName,t.UserName LeaveType,t.Id LeaveTypeId,S.BroughtForward,CONVERT(NUMERIC(10,2),count(CONVERT(NUMERIC(10,2),a.WorkDate))/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty)) DaysCanBeSanctioned
 ,ISNULL(B.Availed,0)AvailedLeave,Balance=(CONVERT(NUMERIC(10,2),count(CONVERT(NUMERIC(10,2),a.WorkDate))/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty))+S.BroughtForward-ISNULL(B.Availed,0))
@@ -224,14 +214,14 @@ where a.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND EmpSystem
 Group By a.EmpSystemID
 ) B ON a.EmpSystemID=B.EmpSystemID
 LEFT JOIN(
-select top(1) BroughtForward=isnull(a.BroughtForward,0)+isnull(a.CarryForwardOpeningBalance,0),a.EmployeeId,a.EncashedInbetween 
-from trn.EmployeeLeaveSummary a
-		LEFT JOIN LeaveType t on t.Id=a.LeaveTypeID 
-		where EmployeeId='" + EmpSystemId + @"' AND t.LeaveType='Earn' 
-		order by fromdate desc
---select top(1) ISNULL(A.Opening,0) BroughtForward,A.EmployeeId,0 EncashedInbetween from dbo.AnnualLeaveDataCurrent A
---left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
---Where A.AddedDate between '" + _fromDate + @"' AND '" + _toDate + @"' AND EmployeeId='" + EmpSystemId + @"' order by A.AddedDate desc
+--select top(1) BroughtForward=isnull(a.BroughtForward,0)+isnull(a.CarryForwardOpeningBalance,0),a.EmployeeId,a.EncashedInbetween 
+--from trn.EmployeeLeaveSummary a
+--		LEFT JOIN LeaveType t on t.Id=a.LeaveTypeID 
+--		where EmployeeId='" + EmpSystemId + @"' AND t.LeaveType='Earn' 
+--		order by fromdate desc
+select top(1) ISNULL(A.Opening,0) BroughtForward,A.EmployeeId,0 EncashedInbetween from dbo.AnnualLeaveDataPast A
+left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+Where EmployeeId='" + EmpSystemId + @"' order by A.AddedDate desc
 ) S ON a.EmpSystemID=S.EmployeeId
 where a.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and e.SystemID='" + EmpSystemId + @"' and t.LeaveType='Earn'
 group by E.SystemID,e.EmployeeCode,e.EmployeeName,t.UserName,t.id,dp.EncashWorkingDaysQty,B.Availed,S.BroughtForward,S.EncashedInbetween";
