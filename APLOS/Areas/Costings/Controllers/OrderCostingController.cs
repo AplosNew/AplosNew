@@ -124,8 +124,6 @@ namespace Aplos.Areas.Costings.Controllers
                                 LEFT JOIN [TRN].[ProductDefinition] PD ON pd.MaterialMasterId=mm.Id
                                 LEFT JOIN mst.ProductMaster AS pm ON pm.Id=pd.ProductMasterId
                                 LEFT JOIN hkp.Product AS p ON p.Id=pm.ProductId
-
-
                                 WHERE ii.InquiryMasterId='" + Id + @"' AND ii.CostingRequired=1";
 
 
@@ -135,8 +133,27 @@ namespace Aplos.Areas.Costings.Controllers
             return Json(new { DATA = data }, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult getFilters()
+        {
+            try
+            {
+                var sql = @"SELECT distinct MO.PartyId,P.UserName Customer,MO.BuyerReferenceNo,MO.OwnReferenceNo,MO.Id MasterOrderId
+FROM TRN.MasterOrder AS mo 
+LEFT JOIN HKP.Party P ON P.Id=MO.PartyId
+WHERE mo.Id IN(SELECT MasterOrderId FROM TRN.MasterOrderItem Where OrderCostingMasterTemplateId IS NULL)";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+
+
         [HttpPost, Authorize]
-        public ActionResult GetMasterOrderList(string column, string value)
+        public ActionResult GetMasterOrderList(string column, string value, Dictionary<string, string> parameters)
 
         {
             string strkey = "1=1";
@@ -167,9 +184,8 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.SalesOrder SO
     LEFT OUTER JOIN hkp.Season AS s ON s.Id=im.SeasonId
     LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=im.ResponsiblePersonId
     LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=im.TotalQtyUOMId
-    WHERE im.id IN (SELECT ii.MasterOrderId FROM trn.MasterOrderItem AS ii WHERE isnull(ii.Id,'') NOT IN (SELECT isnull(MasterOrderItemId,'')
-                                                                                                                    FROM OrderCostingMasterTemplate))
-   AND im.PlantId='" + identity.PlantId + @"'
+    WHERE im.id IN (SELECT ii.MasterOrderId FROM trn.MasterOrderItem AS ii WHERE isnull(ii.Id,'') NOT IN (SELECT isnull(MasterOrderItemId,'') FROM OrderCostingMasterTemplate))
+   AND im.PlantId='" + identity.PlantId + @"' and im.PartyId IN(" + parameters["PartyId"] + @") 
                             ) AS TEMP WHERE 1=1 AND " + strkey + @" ORDER BY convert(datetime,MasterOrderDate) DESC";
 
 
@@ -470,7 +486,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
                                 SELECT convert(bit,0) AS isChecked,MOI.Id AS MasterOrderItemId,
                                 convert(bit,CASE WHEN isnull(MOI.OrderCostingMasterTemplateId,'')='' THEN 0 ELSE 1 END) AS TakenForCosting,mm.UserName AS Material,mma.StandardName AS Article,
                                   moi.MasterOrderId,p.Id AS PartyId,pm.UserName AS Product, p.UserName AS Customer, 
-                                pm.Id
+                               pm.Id,moi.BuyerReferenceNo,moi.OwnReferenceNo,moi.ProductionGrouping,PL.UserName ProductLibrary,AA.ArticlePartyName CustomerArticle
                                   FROM trn.MasterOrder AS mo
                                 INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
                                 left outer join mst.MaterialMaster mm on mm.id=moi.MaterialMasterId
@@ -478,17 +494,18 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
                                 left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
                                 left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                                 left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
-
+                                LEFT JOIN dbo.ProductLibrary PL ON PL.Id=moi.ProductLibraryId
+								LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=moi.ArticleId AND AA.MasterOrderItemId=moi.Id
                                 left outer join hkp.Party AS p ON p.Id=mo.PartyId 
                                where  " + MasterOrderItemId + @"
                                
                             ) AS TEMP WHERE 1=1 AND " + strkey + " ORDER BY TEMP.MasterOrderId, TEMP.Product";
 
 
-            List<Dictionary<string, object>> data = _sqlRepository.GetDataCollection(sql, null);
-
-
-            return Json(data, JsonRequestBehavior.AllowGet);
+           // List<Dictionary<string, object>> data = _sqlRepository.GetDataCollection(sql, null);
+            var jsondata = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
 
@@ -498,7 +515,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT convert(bit,0) AS isChecked,MOI.Id AS MasterOrderItemId ,mm.UserName AS Material,mma.StandardName AS Article, moi.MasterOrderId,p.Id AS                                      PartyId,pm.UserName AS Product, p.UserName AS Customer, pm.Id
-                                 ,ISNULL(moi.TotalQty,0) TotalQty,moi.BuyerReferenceNo,moi.OwnReferenceNo
+                                 ,ISNULL(moi.TotalQty,0) TotalQty,moi.BuyerReferenceNo,moi.OwnReferenceNo,moi.ProductionGrouping,PL.UserName ProductLibrary,AA.ArticlePartyName CustomerArticle
 									
                                  FROM trn.MasterOrder AS mo
                                 INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
@@ -508,7 +525,8 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
                                 left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                                 left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
                                 left outer join hkp.Party AS p ON p.Id=mo.PartyId
-
+                                LEFT JOIN dbo.ProductLibrary PL ON PL.Id=moi.ProductLibraryId
+								LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=moi.ArticleId AND AA.MasterOrderItemId=moi.Id
                                 WHERE isnull(moi.OrderCostingMasterTemplateId,'')='" + TemplateId + @"'
                                 ORDER BY mo.Id,pm.UserName
                             ";
