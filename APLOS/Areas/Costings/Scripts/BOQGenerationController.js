@@ -29,6 +29,21 @@ function BOQGenerationController(cboService, commonMessage, $scope, $rootScope, 
     }
 
 
+    function containsSpecialChars(str) {
+        const specialChars = /[@!#$%^&*()_+\=\[\]{};':"|,.<>\?`~]/;
+        return specialChars.test(str);
+    }
+
+    $scope.CheckSpecialCharecter = function () {
+        try {
+            if (containsSpecialChars($scope.Model.UserName)) {
+                $scope.Model.UserName = $scope.Model.UserName.substring(0, $scope.Model.UserName.length - 1);
+                throw "No special characters allowed for User Name.";
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 
 
     $scope.SalesOrderList = [];

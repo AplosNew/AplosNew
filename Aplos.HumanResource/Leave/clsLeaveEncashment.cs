@@ -179,42 +179,33 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
         public void GetLeaveBalanceFinalSettlement(string EmpSystemId, string DOS, out System.Data.DataSet dsRef)
         {
             string strSQL;
-            string fromDate=null;
-            string toDate=null;
+            string fromDate = null;
+            string toDate = null;
+
+            string _fromDate = null;
+            string _toDate = null;
             DataSet dsFromTo;
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-         //       strSQL = @"select 
-         //                    E.SystemId, e.EmployeeCode,e.EmployeeName,t.UserName LeaveType,s.LeaveTypeId,e.LegalDesignationId
-         //                   ,BroughtForward=isnull(s.BroughtForward,0)+isnull(s.CarryForwardOpeningBalance,0)
-         //                   ,s.CarryForward
-         //                   ,s.DaysCanBeSanctioned
-         //                   ,s.CurrentYearAllocation
-         //                   ,s.IsYearlyProcessed,s.EncashedInbetween ,s.YearEndEncash
-         //                   ,LeaveDaysAllowed=isnull(s.BroughtForward,0)+isnull(s.DaysCanBeSanctioned,0)
-         //                   ,ISNULL( (SELECT sum(d.LeaveDuration) FROM [dbo].[LeaveTransaction] m 
-         //                               INNER JOIN  [dbo].[LeaveTransactionDetails] D ON d.LvTrnsSystemID=m.SystemID 
-         //                               where D.WorkDate BETWEEN S.FromDate and S.ToDate
-         //                       AND m.EmpSystemID=S.EmployeeId AND m.LTSystemID=S.LeaveTypeId ),0) AS AvailedLeave
 
-            
-         //   				,Balance=ISNULL(s.CurrentYearAllocation,0)+ISNULL(s.BroughtForward,0)+ISNULL(s.CarryForwardOpeningBalance,0)
-         //                   from trn.EmployeeLeaveSummary s 
-         //                   INNER JOIN LeaveType t on s.LeaveTypeId=t.Id AND t.LeaveType='Earn'
-         //                   INNER JOIN EmployeeInformation e on e.SystemId=s.EmployeeId AND s.PlantId=e.PlantId
-                            
-						   //--------------------------------------------------------------------------
-         //                   where  E.SystemId ='" + EmpSystemId + @"' AND e.DOS BETWEEN s.FromDate AND s.ToDate
-         //                   ORDER BY  e.EmployeeCodePreFix,e.EmployeeCodeNumeric
-         //                   ";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter("select top(1) a.Fromdate,a.Todate from trn.EmployeeLeaveSummary a LEFT JOIN LeaveType t on t.Id=a.LeaveTypeID where EmployeeId='" + EmpSystemId + @"' AND t.LeaveType='Earn' order by fromdate desc", out dsFromTo, false, "1");
-                if (dsFromTo.Tables[0].Rows.Count>0)
+                if (dsFromTo.Tables[0].Rows.Count > 0)
                 {
                     fromDate = dsFromTo.Tables[0].Rows[0]["Fromdate"].ToString();
                     toDate = dsFromTo.Tables[0].Rows[0]["Todate"].ToString();
+
+                    DateTime date = Convert.ToDateTime(fromDate);
+                    DateTime date2 = Convert.ToDateTime(toDate);
+                    int fyear = date.Year;
+                    var fmonth = date.Month;
+                    int tyear = date2.Year;
+                    var tmonth = date2.Month;
+
+                    _fromDate = "01-" + fmonth + "-" + fyear + "";
+                    _toDate = "01-" + tmonth + "-" + tyear + "";
                 }
                 string sql = @"select e.SystemID,e.EmployeeCode,e.EmployeeName,t.UserName LeaveType,t.Id LeaveTypeId,S.BroughtForward,CONVERT(NUMERIC(10,2),count(CONVERT(NUMERIC(10,2),a.WorkDate))/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty)) DaysCanBeSanctioned
 ,ISNULL(B.Availed,0)AvailedLeave,Balance=(CONVERT(NUMERIC(10,2),count(CONVERT(NUMERIC(10,2),a.WorkDate))/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty))+S.BroughtForward-ISNULL(B.Availed,0))
@@ -229,7 +220,7 @@ left join LeaveType t on t.Id=dp.LTSystemID
 LEFT JOIN(
 Select COUNT(a.EmpSystemID)Availed,a.EmpSystemID from AttdnProcessData a  
 LEFT JOIN LeaveType t on t.Id=a.LTSystemID 
-where a.WorkDate between '"+fromDate+ @"' and '" + toDate + @"' AND EmpSystemID='" + EmpSystemId + @"' AND t.LeaveType='Earn'
+where a.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND EmpSystemID='" + EmpSystemId + @"' AND t.LeaveType='Earn'
 Group By a.EmpSystemID
 ) B ON a.EmpSystemID=B.EmpSystemID
 LEFT JOIN(
@@ -238,6 +229,9 @@ from trn.EmployeeLeaveSummary a
 		LEFT JOIN LeaveType t on t.Id=a.LeaveTypeID 
 		where EmployeeId='" + EmpSystemId + @"' AND t.LeaveType='Earn' 
 		order by fromdate desc
+--select top(1) ISNULL(A.Opening,0) BroughtForward,A.EmployeeId,0 EncashedInbetween from dbo.AnnualLeaveDataCurrent A
+--left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+--Where A.AddedDate between '" + _fromDate + @"' AND '" + _toDate + @"' AND EmployeeId='" + EmpSystemId + @"' order by A.AddedDate desc
 ) S ON a.EmpSystemID=S.EmployeeId
 where a.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and e.SystemID='" + EmpSystemId + @"' and t.LeaveType='Earn'
 group by E.SystemID,e.EmployeeCode,e.EmployeeName,t.UserName,t.id,dp.EncashWorkingDaysQty,B.Availed,S.BroughtForward,S.EncashedInbetween";
