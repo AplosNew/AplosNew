@@ -26,7 +26,7 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
                 <div class="col-sm-6">
-                    <input type="text" name="SalesOrder" ng-model="Model.UserName" class="form-control">
+                    <input type="text" name="SalesOrder" ng-model="Model.UserName" ng-keyup="CheckSpecialCharecter();" class="form-control">
                 </div>
                 <div class="col-sm-2">
                     <input type="text" name="BOM Id" ng-disabled="true" ng-model="Model.Id" class="form-control">

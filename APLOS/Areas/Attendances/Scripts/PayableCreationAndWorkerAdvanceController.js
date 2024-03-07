@@ -477,7 +477,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
                 }
             }
             angular.element(document.querySelector("#dialogEmployeeInfo")).modal("hide");
-            $scope.getCalulationAmount();
+            //$scope.getCalulationAmount();
         } catch (e) {
             ShowResult(e, "failure");
         }
@@ -485,20 +485,20 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
 
     function checkItemExist(list, SystemId) {
         for (var i = 0; i < list.length; i++) {
-            if (list[i].SystemId === SystemId) {
+            if (list[i].EmpSystemId === SystemId) {
                 return true;
             }
         }
         return false;
     }
 
-    $scope.getCalulationAmount = function () {
-        for (var i = 0; i < $scope.EmployeeMainList.length; i++) {
-            $scope.EmployeeMainList[i].Amount = Math.floor($scope.EmployeeMainList[i].Basic / 26 * $scope.EmployeeMainList[i].PayDays * $scope.ModelNew.Percentage / 100);
-            $scope.EmployeeMainList[i].NetPayable = $scope.EmployeeMainList[i].Amount - $scope.EmployeeMainList[i].AdvanceGiven;
+    //$scope.getCalulationAmount = function () {
+    //    for (var i = 0; i < $scope.EmployeeMainList.length; i++) {
+    //        $scope.EmployeeMainList[i].Amount = Math.floor($scope.EmployeeMainList[i].Basic / 26 * $scope.EmployeeMainList[i].PayDays * $scope.ModelNew.Percentage / 100);
+    //        $scope.EmployeeMainList[i].NetPayable = $scope.EmployeeMainList[i].Amount - $scope.EmployeeMainList[i].AdvanceGiven;
 
-        }
-    }
+    //    }
+    //}
     //*********************************** Worker Advance End********************************************************//
 
     //***********************************Payable Creation Start*******************************************************//
