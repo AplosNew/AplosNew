@@ -122,6 +122,7 @@ namespace Library.Service.Materials
         GridModel GetFixedAssetMasterBudgetTagForRegister(GridParameter parameters, string BudgetMasterId, string activityId);
         void MaterialMasterReport2(string MaterialTypeId,bool Article);
         IWorkbook CreateRequisitionRegisterReport(string fromDate,string toDate, string employeeId);
+        string PurchaseOrderReportxlx(List<Dictionary<string, object>> data, string ReportHeader, string reportFileName);
 
     }
 }

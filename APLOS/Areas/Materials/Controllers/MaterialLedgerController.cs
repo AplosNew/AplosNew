@@ -1332,6 +1332,23 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
         #endregion
+
+        #region Material Ledger report
+        [HttpPost, Authorize]
+        public ActionResult GetPurchaseOrderReport(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                string fileName = "";
+                fileName = _materialMasterService.PurchaseOrderReportxlx(data, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion Material Ledger report
     }
 
 

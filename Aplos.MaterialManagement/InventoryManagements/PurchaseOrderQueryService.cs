@@ -1580,7 +1580,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						,ROUND(Isnull(IM.TransactionAmount,0),2) TransactionAmount
 						,ROUND(Isnull(IM.TotalTaxAmount,0),2) TotalTaxAmount
 						,ROUND(Isnull(IM.ChargesAmount,0),2) ServiceCharge
-						,servicetax.TaxAmount ServiceChargeTax
+                        ,Isnull(servicetax.TaxAmount,0) ServiceChargeTax
 						,ROUND(Isnull(IM.BaseAmount,0),2) BaseAmount
 						,IR.AddedBy
 						,CASE
@@ -1597,12 +1597,12 @@ namespace Library.MaterialManagement.InventoryManagements
 
 						,EI1.EmployeeName CheckedBY
 						,EI2.EmployeeName AuthorizedBy
-						,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer
-						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
-						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
-						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
-						,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
-                        ,PLC.LCANo,PLC.LCRef,IR.ContractId,IM.RefferenceNo
+						,round(isnull(TAxInfo.TaxAmount,0),2) CGST,isnull(TAxInfo.Percentage,0) CGSTTaxPercentage--MaterialTaxPer
+						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,isnull(TAxInfo2.Percentage,0) SGSTTaxPercentage
+						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,isnull(TAxInfo1.Percentage,0) IGSTTaxPercentage
+						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,isnull(TAxInfo3.Percentage,0) TDSTaxPercentage
+						,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,isnull(TAxInfo6.Percentage,0) TCSTaxPercentage
+                        ,isnull(PLC.LCANo,'') LCANo,isnull(PLC.LCRef,'')LCRef,isnull(IR.ContractId,'')ContractId,isnull(IM.RefferenceNo,'')RefferenceNo
 						from TRN.PurchaseOrderDetail AS IM
 						LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
 						left JOIN MST.MaterialMaster AS MM ON ART.MaterialMasterId=MM.Id
