@@ -757,10 +757,14 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
 
 
     $scope.detailPOSaveForBOQ = function () {
-        ;
         try {
             $scope.UOMValidation();
-
+            for (var i = 0; i < $scope.poBoqItemListNew.length; i++) {
+                if ($scope.poBoqItemListNew[i].DeliveryDate == null || $scope.poBoqItemListNew[i].DeliveryDate == "undefined") {
+                    ShowResult("Delivery Date is required", 'failure');
+                    throw "";
+                }
+            }
             if ($scope.ActionPOBOQ === 'Save') {
                 if (!$scope.UOMValidation() && !$scope.Validation()) {//$scope.invalid &&
 
@@ -1644,5 +1648,31 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         else
             ShowResult('First delete all line item.', 'failure');
     };
+
+    $scope.refreshTemplatePOBOQ = function (args) {
+        $("#headchk111").ejCheckBox({ "change": CheckBoxSelectAllPOBOQ });
+    };
+
+    function CheckBoxSelectAllPOBOQ(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridPrint").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.poBoqItemList.length; i++) {
+                $scope.poBoqItemList[i].CheckedStatus = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckedStatus = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridPrint").data("ejGrid");
+        gridObj.refreshContent();
+    };
+ 
 }//End Of main
 

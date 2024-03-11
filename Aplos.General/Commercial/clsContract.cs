@@ -1645,7 +1645,7 @@ Order By SO.DeliveryDate";
                 if (dtOrderMaster.Rows.Count == 0)
                     throw new Exception("No data found");
 
-                DataTable dataDetails = ContractSummaryDetailsSQL(ContractId); 
+                DataTable dataDetails = ContractSummaryDetailSQL(ContractId);
                  
                 worksheet.Name = "ContractSummaryReport";
 
@@ -1771,9 +1771,19 @@ Order By SO.DeliveryDate";
                 worksheet[ROW, 1].Text = "Total:";
                 worksheet.Range[ROW, 1].CellStyle.Font.Bold = true;
 
-                worksheet.Range[ROW, ColPO, ROW, ColUnitPrice].Merge();
+                worksheet.Range[ROW, ColPO, ROW, ColStyleNo].Merge();
+                worksheet.Range[ROW, ColOrderQuantity, ROW, ColOrderQuantity].Formula = "SUM(" + reportUtility.GetColumnNameForXls(ColOrderQuantity) + CostingComponentStartRow + ":" + reportUtility.GetColumnNameForXls(ColOrderQuantity) + CostingComponentEndRow + ")";
+                worksheet.Range[ROW, ColOrderQuantity].CellStyle.Font.Bold = true;
+
+                worksheet.Range[ROW, ColShippedQuantity, ROW, ColShippedQuantity].Formula = "SUM(" + reportUtility.GetColumnNameForXls(ColShippedQuantity) + CostingComponentStartRow + ":" + reportUtility.GetColumnNameForXls(ColShippedQuantity) + CostingComponentEndRow + ")";
+                worksheet.Range[ROW, ColShippedQuantity].CellStyle.Font.Bold = true;
+
                 worksheet.Range[ROW, ColAmount, ROW, ColAmount].Formula = "SUM(" + reportUtility.GetColumnNameForXls(ColAmount) + CostingComponentStartRow + ":" + reportUtility.GetColumnNameForXls(ColAmount) + CostingComponentEndRow + ")";
                 worksheet.Range[ROW, ColAmount].CellStyle.Font.Bold = true;
+                double totalAmount= clsStaticInfo.dbl(dtOrderMaster.Compute("SUM(Amount)","")); 
+
+                worksheet.Range[ROW, ColExportValues, ROW, ColExportValues].Formula = "SUM(" + reportUtility.GetColumnNameForXls(ColExportValues) + CostingComponentStartRow + ":" + reportUtility.GetColumnNameForXls(ColExportValues) + CostingComponentEndRow + ")";
+                worksheet.Range[ROW, ColExportValues].CellStyle.Font.Bold = true;
 
                 worksheet.Range[CostingComponentStartRow, 1, CostingComponentEndRow + 1, endCols].NumberFormat = clsStaticInfo.NumberFormat(4);
 
@@ -1798,14 +1808,19 @@ Order By SO.DeliveryDate";
                 int ColLCStatus = COL;
                 COL++;
 
+                worksheet[ROW, COL].Text = "LC Date";
+                worksheet[ROW, COL].ColumnWidth = 12;
+                int ColLCDate = COL;
+                COL++;
+
                 worksheet[ROW, COL].Text = "TTL LC Value";
                 worksheet[ROW, COL].ColumnWidth = 12;
                 int ColTTLLCValue = COL;
                 COL++;
 
-                worksheet[ROW, COL].Text = "LC Value$";
+                worksheet[ROW, COL].Text = "Budget Value $";
                 worksheet[ROW, COL].ColumnWidth = 20;
-                int ColLCValue = COL;
+                int ColBudgetValue = COL;
                 COL++;
 
                 worksheet[ROW, COL].Text = "Actual Cost";
@@ -1839,31 +1854,39 @@ Order By SO.DeliveryDate";
 
                 int startRow = ROW;
 
-                //for (int i = 0; i < dataDetails.Rows.Count; i++)
-                //{
-                //    worksheet[ROW, ColItem].Text = dataDetails.Rows[i]["Date"].ToString();
-                //    worksheet[ROW, ColSupplier].Text = dataDetails.Rows[i]["Time"].ToString();
-                //    worksheet[ROW, ColLCStatus].Text = dataDetails.Rows[i]["Category"].ToString();
-                //    worksheet[ROW, ColTTLLCValue].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["Quantity"].ToString());
-                //    worksheet[ROW, ColTTLLCValue].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                //    worksheet[ROW, ColLCValue].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["FinalQuantity"].ToString());
-                //    worksheet[ROW, ColLCValue].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                //    worksheet[ROW, ColActualCost].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["MultiplyingFactor"].ToString());
-                //    worksheet[ROW, ColActualCost].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                     
-                //    worksheet[ROW, ColShortExcess].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["Reading"].ToString());
-                //    worksheet[ROW, ColShortExcess].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                //    worksheet[ROW, ColBTBPending].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["Amount"].ToString());
-                //    worksheet[ROW, ColBTBPending].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                //    worksheet[ROW, ColPercentage].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["Amount"].ToString());
-                //    worksheet[ROW, ColPercentage].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                     
-                //    worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-                //    worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-                //    worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
-                //    ROW++;
-                //}
-                 
+                for (int i = 0; i < dataDetails.Rows.Count; i++)
+                {
+                    worksheet[ROW, ColItem].Text = dataDetails.Rows[i]["Item"].ToString();
+                    worksheet[ROW, ColSupplier].Text = dataDetails.Rows[i]["Supplier"].ToString();
+                    worksheet[ROW, ColLCStatus].Text = dataDetails.Rows[i]["LCStatus"].ToString();
+                    worksheet[ROW, ColLCDate].Text = dataDetails.Rows[i]["LCDate"].ToString();
+                    worksheet[ROW, ColTTLLCValue].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["TotalLCValue"].ToString());
+                    worksheet[ROW, ColTTLLCValue].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    worksheet[ROW, ColBudgetValue].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["BudgetValue"].ToString());
+                    worksheet[ROW, ColBudgetValue].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    worksheet[ROW, ColActualCost].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["ActualCost"].ToString());
+                    worksheet[ROW, ColActualCost].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    worksheet[ROW, ColShortExcess].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["ShortExcess"].ToString());
+                    worksheet[ROW, ColShortExcess].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    worksheet[ROW, ColBTBPending].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["BTBPending"].ToString());
+                    worksheet[ROW, ColBTBPending].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    double totalPer = clsStaticInfo.dbl(dataDetails.Rows[i]["BudgetValue"].ToString()) / totalAmount * 100;
+                    worksheet[ROW, ColPercentage].Number = totalPer;
+                    worksheet[ROW, ColPercentage].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                    worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+                }
+
                 worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                 worksheet.UsedRange.CellStyle.Font.Size = 8f; 
 
@@ -1890,7 +1913,13 @@ Order By SO.DeliveryDate";
             string strSQL;
             try
             {
-                strSQL = @"select P.UserName Customer,ContractNo= c.ContractNo+' '+ISNULL(format(c.ContractDate,'dd-MMM-yyyy'),''),moi.OwnReferenceNo PO,moi.BuyerReferenceNo StyleNo,sm.TransactionQty ShippedQty,so.Qty OrderQty,so.Description,so.Rate UnitPrice,Amount= so.Qty*so.Rate,sm.NetAmount ExportValue,so.DeliveryDate ShipDate,c.ContractDate
+                strSQL = @"select P.UserName Customer,ContractNo= c.ContractNo+' '+ISNULL(format(c.ContractDate,'dd-MMM-yyyy'),'')
+                    ,PO=isnull(STUFF((select distinct ','+XMOI.PONumber from 
+                    TRN.CustomerPO XMOI 
+                    where so.CustomerPOId=XMOI.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+                    ,so.CustomerPOId
+                    ,moi.BuyerReferenceNo StyleNo,sm.TransactionQty ShippedQty,so.Qty OrderQty,so.Description,so.Rate UnitPrice
+                    ,Amount= so.Qty*so.Rate,sm.NetAmount ExportValue,format(so.DeliveryDate,'dd-MMM-yyyy') ShipDate,format(c.ContractDate,'dd-MMM-yyyy')ContractDate
                     from Contract c
                     left join trn.SalesOrder so on so.ContractId=c.Id
                     left join trn.MasterOrderItem moi on moi.Id=so.MasterOrderItemId
@@ -1907,17 +1936,38 @@ Order By SO.DeliveryDate";
             finally
             {}
         }
-        public DataTable ContractSummaryDetailsSQL(string ContractId)
+        public DataTable ContractSummaryDetailSQL(string ContractId)
         {
             string strSQL;
             try
             {
-                strSQL = @"select moi.OwnReferenceNo PO,moi.BuyerReferenceNo StyleNo,so.Qty OrderQuantity,so.Description,so.Rate UnitPrice
-                    ,Amount= so.Qty*so.Rate,so.DeliveryDate ShipDate 
-                    from Contract c
+                strSQL = @"select x.Item,x.Supplier,x.LCStatus,x.LCDate,sum(x.TotalLCValue) TotalLCValue,sum(x.BudgetValue)BudgetValue,x.ActualCost,x.ShortExcess,x.BTBPending from
+                (select ci.UserName Item,P.UserName Supplier
+                ,LCStatus=isnull(STUFF((select distinct ','+XMOI.LCRef from 
+                PurchaseLC XMOI 
+                where c.Id=XMOI.ContractId and XMOI.VendorId=opc.VendorId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+                ,LCDate=STUFF((SELECT DISTINCT ','+FORMAT(XSO.LCDate,'dd-MMM-yyyy') from 
+	                                                                    PurchaseLC XSO 
+			                                                                WHERE c.Id=XSO.ContractId and XSO.VendorId=opc.VendorId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+                ,TotalLCValue=(select Sum(XMOI.Amount) from 
+                PurchaseLC XMOI 
+                where c.Id=XMOI.ContractId and XMOI.VendorId=opc.VendorId
+                group by XMOI.ContractId)										                  	
+                ,BudgetValue=ISNULL(opc.GrossAmount,0)*sum(moi.TotalQty),0 as ActualCost
+                ,ShortExcess=ISNULL(opc.GrossAmount,0)*sum(moi.TotalQty)- 0
+                ,0 as BTBPending
+                 from Contract c
                     left join trn.SalesOrder so on so.ContractId=c.Id
                     left join trn.MasterOrderItem moi on moi.Id=so.MasterOrderItemId
-                    where c.Id='" + ContractId + "'";
+					left join dbo.OrderProcurementCostingDirectMaterial opc on opc.OrderCostingMasterTemplateId=moi.OrderCostingMasterTemplateId
+					left join HKP.CostingItem ci on ci.Id=opc.CostingItemId
+					left join HKP.party p on p.Id=opc.VendorId
+                    where c.Id='" + ContractId +@"'
+                    group by ci.UserName,P.UserName,c.Id,opc.VendorId,opc.GrossAmount
+					)x
+                    group by x.Item,x.Supplier,x.LCStatus,x.LCDate,x.ActualCost,x.ShortExcess,x.BTBPending
+                    order by x.Item";
 
                 return _sqlRepository.GetDataTable(strSQL);
             }
@@ -1928,6 +1978,7 @@ Order By SO.DeliveryDate";
             finally
             { }
         }
+
     }
 }
 
