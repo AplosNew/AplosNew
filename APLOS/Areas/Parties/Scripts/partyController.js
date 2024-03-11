@@ -56,6 +56,15 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
         {
             'name': 'Party Group',
             'value': 'PartyGroup'
+        },
+        {
+            'name': 'TAXID/No',
+            'value': 'TINNO'
+        }
+        ,
+        {
+            'name': 'VAT Reg. No/PAN',
+            'value': 'VATResistrationNo'
         }
     ];
 

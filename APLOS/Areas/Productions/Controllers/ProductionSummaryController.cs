@@ -806,13 +806,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             //}
             return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
         }
-        //[HttpPost]
-        //public JsonResult CreateWC(List<Dictionary<string, object>> DataList)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    _ProductionSummaryService.SaveMasterWC(DataList);
-        //    return Json(new { Message = AplosMessage.Success });
-        //}
+       
         [HttpPost]
         public JsonResult CreateWC(ProductionSummary ps, string ProcessId)
         {

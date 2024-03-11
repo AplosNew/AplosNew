@@ -23,6 +23,7 @@ using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -1868,7 +1869,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                         sheet[ROW, colArticleName].Text = dtMaterialMaster.Rows[i]["MaterialArticle"].ToString();
 
                         sheet[ROW, colHSNCode].Text = dtMaterialMaster.Rows[i]["HSNCode"].ToString();
-                        sheet[ROW, colTaxPercentage].Number =clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["TaxPercentage"].ToString());
+                        sheet[ROW, colTaxPercentage].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["TaxPercentage"].ToString());
                     }
                     if (MaterialTypeId != null && Article == true)
                     {
@@ -8930,7 +8931,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             sheet1[_row, 12].Text = "Sku3:";
             sheet1[_row, 12].CellStyle.Font.Size = 10;
             sheet1[_row, 12].CellStyle.Font.Bold = true;
-            sheet1[_row, 13].Text =Sku3;
+            sheet1[_row, 13].Text = Sku3;
             sheet1.Range[_row, 13, _row, 14].Merge();
             sheet1.Range[_row, 12, _row, 14].BorderAround(ExcelLineStyle.Thin);
             sheet1.Range[_row, 12, _row, 14].BorderInside(ExcelLineStyle.Thin);
@@ -8962,16 +8963,16 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 
 
 
-            sheet1[_row,9].Text = "PURCHASE RETURN";
-            sheet1[_row,9].CellStyle.Font.Size = 10;
-            sheet1[_row,9].CellStyle.Font.Bold = true;
+            sheet1[_row, 9].Text = "PURCHASE RETURN";
+            sheet1[_row, 9].CellStyle.Font.Size = 10;
+            sheet1[_row, 9].CellStyle.Font.Bold = true;
             //sheet1.UsedRange.WrapText = true;
             sheet1[_row, 9].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             //sheet1[_row, 1].CellStyle.Interior.Color = System.Drawing.Color.GreenYellow;
-            sheet1.Range[_row,9, _row, 13].BorderAround(ExcelLineStyle.Thick);
-            sheet1.Range[_row,9, _row, 13].BorderInside(ExcelLineStyle.Hair);
-            sheet1.Range[_row,9, _row, 13].CellStyle.FillBackground = ExcelKnownColors.Tan;
-            sheet1.Range[_row,9, _row, 13].Merge();
+            sheet1.Range[_row, 9, _row, 13].BorderAround(ExcelLineStyle.Thick);
+            sheet1.Range[_row, 9, _row, 13].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 9, _row, 13].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1.Range[_row, 9, _row, 13].Merge();
 
 
             sheet1[_row, 14].Text = "ISSUE";
@@ -9046,16 +9047,16 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 
 
 
-            sheet1[_row,44].Text = "STOCK BALANCE";
-            sheet1[_row,44].CellStyle.Font.Size = 10;
-            sheet1[_row,44].CellStyle.Font.Bold = true;
+            sheet1[_row, 44].Text = "STOCK BALANCE";
+            sheet1[_row, 44].CellStyle.Font.Size = 10;
+            sheet1[_row, 44].CellStyle.Font.Bold = true;
             //sheet1.UsedRange.WrapText = true;
             sheet1[_row, 44].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             //sheet1[_row, 11].CellStyle.Interior.Color = System.Drawing.Color.HotPink;
-            sheet1.Range[_row,44, _row, 46].BorderAround(ExcelLineStyle.Thick);
-            sheet1.Range[_row,44, _row, 46].BorderInside(ExcelLineStyle.Hair);
-            sheet1.Range[_row,44, _row, 46].CellStyle.FillBackground = ExcelKnownColors.Tan;
-            sheet1.Range[_row,44, _row, 46].Merge();
+            sheet1.Range[_row, 44, _row, 46].BorderAround(ExcelLineStyle.Thick);
+            sheet1.Range[_row, 44, _row, 46].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 44, _row, 46].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1.Range[_row, 44, _row, 46].Merge();
 
             var _rowL = _row;
             var row = _row + 1;
@@ -9630,7 +9631,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                     report.SetText(ref sheet1, _rowL, colRCVMRNo, rcvid);
                     report.SetText(ref sheet1, _rowL, colIsAssetStatus, inventoryMaterialList.Rows[n]["IsAssetStatus"].ToString());
                     report.SetText(ref sheet1, _rowL, colStorageLocation, inventoryMaterialList.Rows[n]["MaterialStorage"].ToString());
-                    
+
                     report.SetText(ref sheet1, _rowL, colUOM, inventoryMaterialList.Rows[n]["UOM"].ToString());
                     report.SetText(ref sheet1, _rowL, colRCVQuantity, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RcvQty"].ToString()));
                     report.SetText(ref sheet1, _rowL, colRCVRate, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RcvRate"].ToString()));
@@ -9652,7 +9653,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                     //end
 
                     //balanceQty = clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RcvQty"].ToString()) - clsStaticInfo.dbl(inventoryMaterialList.Compute("SUM(IssueQty)", "Id = '" + rcvid + "'").ToString());
-                    balanceQty = RcvQty - IssueQty - AdjustmentQty - PurchaseReturnQty + IssueReturnQty - Salesqty + SalesReturnQty- InventoryTransferQty;
+                    balanceQty = RcvQty - IssueQty - AdjustmentQty - PurchaseReturnQty + IssueReturnQty - Salesqty + SalesReturnQty - InventoryTransferQty;
                     report.SetText(ref sheet1, _rowL, colBalanceQty, balanceQty);
                     report.SetText(ref sheet1, _rowL, colBalanceQty, balanceQty);
                     if (balanceQty == 0)
@@ -9734,12 +9735,12 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 
                 //InventoryTransfer
                 if (Convert.ToDecimal(inventoryMaterialList.Rows[n]["InventoryTransferQty"].ToString()) > 0)
-                {            
-                report.SetText(ref sheet1, _rowL, colInventoryTransferDate, inventoryMaterialList.Rows[n]["TransferDate"].ToString());
-                report.SetText(ref sheet1, _rowL, colcolInventoryTransfernQty, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferQty"].ToString()));
-                report.SetText(ref sheet1, _rowL, colcolInventoryTransferRate, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransferRate"].ToString()));
-                sheet1.Range[_rowL, colcolInventoryTransferRate].NumberFormat = report.NumberFormatDecimalFour();
-                report.SetText(ref sheet1, _rowL, colcolInventoryTransferAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransferAmount"].ToString()));
+                {
+                    report.SetText(ref sheet1, _rowL, colInventoryTransferDate, inventoryMaterialList.Rows[n]["TransferDate"].ToString());
+                    report.SetText(ref sheet1, _rowL, colcolInventoryTransfernQty, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferQty"].ToString()));
+                    report.SetText(ref sheet1, _rowL, colcolInventoryTransferRate, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransferRate"].ToString()));
+                    sheet1.Range[_rowL, colcolInventoryTransferRate].NumberFormat = report.NumberFormatDecimalFour();
+                    report.SetText(ref sheet1, _rowL, colcolInventoryTransferAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransferAmount"].ToString()));
                 }
 
             }
@@ -9782,7 +9783,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             report.SetText(ref sheet1, _rowL, 1, "Total :", true);
             report.SetText(ref sheet2, _rowL, 1, "Total :", true);
             sheet1.Range[_rowL, 1, _rowL, 2].CellStyle.Font.Underline = ExcelUnderline.Double;
-          
+
 
             sheet1.Range[_rowL, colRCVQuantity].Formula = "=SUM(" + report.GetColumnNameForXls(colRCVQuantity) + Row_Total_Start + ":" + report.GetColumnNameForXls(colRCVQuantity) + (_rowL - 1) + ")";
             sheet1.Range[_rowL, colRCVQuantity].NumberFormat = report.NumberFormatDecimalTwo();
@@ -9825,7 +9826,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             sheet1.Range[_rowL, colBalanceQty].Formula = "=SUM(" + report.GetColumnNameForXls(colBalanceQty) + Row_Total_Start + ":" + report.GetColumnNameForXls(colBalanceQty) + (_rowL - 1) + ")";
             sheet1.Range[_rowL, colBalanceQty].NumberFormat = report.NumberFormatDecimalTwo();
             sheet1.Range[_rowL, colBalanceQty].CellStyle.Font.Bold = true;
-            sheet1.Range[_rowL, colBalanceQty, _rowL, colBalanceQty].CellStyle.Font.Underline = ExcelUnderline.Double; 
+            sheet1.Range[_rowL, colBalanceQty, _rowL, colBalanceQty].CellStyle.Font.Underline = ExcelUnderline.Double;
 
             sheet1.Range[_rowL, colBalanceAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colBalanceAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colBalanceAmount) + (_rowL - 1) + ")";
             sheet1.Range[_rowL, colBalanceAmount].NumberFormat = report.NumberFormatDecimalTwo();
@@ -9886,7 +9887,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             sheet1.Range[_rowL, colcolInventoryTransferAmount].NumberFormat = report.NumberFormatDecimalTwo();
             sheet1.Range[_rowL, colcolInventoryTransferAmount].CellStyle.Font.Bold = true;
             sheet1.Range[_rowL, colcolInventoryTransferAmount, _rowL, colcolInventoryTransferAmount].CellStyle.Font.Underline = ExcelUnderline.Double;
-            sheet1.Range[_rowL, 1, _rowL, colcolInventoryTransferAmount+3].CellStyle.Font.Size = 9;
+            sheet1.Range[_rowL, 1, _rowL, colcolInventoryTransferAmount + 3].CellStyle.Font.Size = 9;
 
             #endregion sumCalc
 
@@ -18409,7 +18410,7 @@ SELECT --ROW_NUMBER() Over(Order by  MM.Id) As[S.N],
             var temp = "";
             var Servicetemp = "";
 
-            if (employeeId=="null")
+            if (employeeId == "null")
             {
                 employeeId = null;
             }
@@ -18419,7 +18420,7 @@ SELECT --ROW_NUMBER() Over(Order by  MM.Id) As[S.N],
                 Servicetemp = " and SRm.ReqEmpId= '" + employeeId + @"'";
             }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-             return @"SELECT IM.MaterialReqqusitionMasterId AS RequisitionMasterId
+            return @"SELECT IM.MaterialReqqusitionMasterId AS RequisitionMasterId
 						,IM.Id	as RequisitionDetailId		
 						,Types='Purchase Requisition'
 						,REPLACE(CONVERT(CHAR(11), IR.RequisitionDate, 106),' ','-') AS RequisitionDate
@@ -18481,7 +18482,7 @@ SELECT --ROW_NUMBER() Over(Order by  MM.Id) As[S.N],
 						LEFT JOIN [HKP].[Activity] As Act On ACT.Id=IM.ActivityId
 						left JOIN (select sum(BaseAmount) BaseAmount,RequisitionDetailId from trn.PurchaseOrderDetail group by RequisitionDetailId)POD ON POD.RequisitionDetailId=IM.Id
 
-						where IR.RequisitionDate between '" + fromDate + @"' and '" + toDate + @"' "+temp+@"
+						where IR.RequisitionDate between '" + fromDate + @"' and '" + toDate + @"' " + temp + @"
 
 						union ALL
 						SELECT
@@ -18539,7 +18540,7 @@ SELECT --ROW_NUMBER() Over(Order by  MM.Id) As[S.N],
 
 						left outer join ORG.Entity as EN on EN.Id=SRM.EntityId
 
-						where Srm.RequisitionDate between '" + fromDate + @"' and '" + toDate + @"' "+Servicetemp+@"";
+						where Srm.RequisitionDate between '" + fromDate + @"' and '" + toDate + @"' " + Servicetemp + @"";
 
 
         }
@@ -20716,6 +20717,434 @@ SELECT --ROW_NUMBER() Over(Order by  MM.Id) As[S.N],
                                    LEFT JOIN [HKP].[MaterialMasterType] MMT ON MMT.Id=MM.MaterialMasterTypeId
                                    WHERE MM.CompanyGroupId = '" + groupId + "' AND MM.Archive = 0 and MM.GLControlMasterId is null ";
             return _sqlRepository.GetGridData(parameters);
+        }
+
+        public string PurchaseOrderReportxlx(List<Dictionary<string, object>> data, string ReportHeader, string reportFileName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Purchase Order Report";
+                sheet = workbook.Worksheets[0];
+                int ROW = 6; int COL = 1;
+
+                #region columns
+                sheet[ROW, COL].Text = "PO No";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColPONo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PO Type";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColPOType = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "HSN Code";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColHSNCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PO Row No";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColPORowId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PO Date";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColPODate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Doc RefNo";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int ColDocRefNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Doc Date";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColDocDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Party Name";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int ColPartyName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Invoicing Party Plant";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int ColInvoicingPartyPlant = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Delivery Party Plant";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int ColDeliveryPartyPlant = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Material Type";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int ColMaterialType = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Material Group Master Name";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int ColMaterialGroupMasterName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Material Master Name";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int ColMaterialMasterName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Article Name";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int ColArticleName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "First Characteristics Value";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColFirstCharacteristicsValue = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Second Characteristics Value";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColSecondCharacteristicsValue = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Third Characteristics Value";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColThirdCharacteristicsValue = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "UOM";
+                sheet[ROW, COL].ColumnWidth = 8;
+                int ColUOM = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "CredtibleStatus";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColCredtibleStatus = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Transaction Qty";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColTransactionQty = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Receipt Qty";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColReceiptQty = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Rejection Qty";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColRejectionQty = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Balance Qty";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColBalanceQty = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Tolerance";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColTolerance = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Transaction Rate";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColTransactionRate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Transaction Amount";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColTransactionAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Total Tax Amount";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColTotalTaxAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Service Charge";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColServiceCharge = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Service Charge Tax";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColServiceChargeTax = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Base Amount";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColBaseAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Added By";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColAddedBy = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "GRN Check Status";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColGRNCheckStatus = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Checked BY";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColCheckedBY = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Authorized By";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColAuthorizedBy = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "CGST";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColCGST = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "CGST Tax Percentage";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColCGSTTaxPercentage = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "SGST";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColSGST = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "SGST Tax Percentage";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColSGSTTaxPercentage = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "IGST";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColIGST = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "IGST Tax Percentage";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColIGSTTaxPercentage = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "TDS";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColTDS = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "TDS Tax Percentage";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColTDSTaxPercentage = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "TCS";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColTCS = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "TCS Tax Percentage";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColTCSTaxPercentage = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "LCA No";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColLCANo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "LC Ref";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColLCRef = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Contract No";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColContractId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Refference No";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColRefferenceNo = COL;
+                 
+                #endregion columns
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                ROW++;
+
+                int startRow = ROW;
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    sheet[ROW, ColPONo].Text = data[i]["PONo"].ToString();
+                    sheet[ROW, ColPOType].Text = data[i]["POType"].ToString();
+                    sheet[ROW, ColHSNCode].Text = data[i]["HSNCode"].ToString();
+                    sheet[ROW, ColPORowId].Text = data[i]["PORowId"].ToString();
+                    sheet[ROW, ColPODate].Text = data[i]["PODate"].ToString();
+                    sheet[ROW, ColDocRefNo].Text = data[i]["DocRefNo"].ToString();
+                    sheet[ROW, ColDocDate].Text = data[i]["DocDate"].ToString();
+                    sheet[ROW, ColPartyName].Text = data[i]["PartyName"].ToString();
+                    sheet[ROW, ColInvoicingPartyPlant].Text = data[i]["InvoicingPartyPlant"].ToString();
+                    sheet[ROW, ColDeliveryPartyPlant].Text = data[i]["DeliveryPartyPlant"].ToString();
+                    sheet[ROW, ColMaterialType].Text = data[i]["MaterialType"].ToString();
+                    sheet[ROW, ColMaterialGroupMasterName].Text = data[i]["MaterialGroupMasterName"].ToString();
+                    sheet[ROW, ColMaterialMasterName].Text = data[i]["MaterialMasterName"].ToString();
+                    sheet[ROW, ColArticleName].Text = data[i]["ArticleName"].ToString();
+                    sheet[ROW, ColFirstCharacteristicsValue].Text = data[i]["FirstCharacteristicsValue"].ToString();
+                    sheet[ROW, ColSecondCharacteristicsValue].Text = data[i]["SecondCharacteristicsValue"].ToString();
+                    sheet[ROW, ColThirdCharacteristicsValue].Text = data[i]["ThirdCharacteristicsValue"].ToString();
+                    sheet[ROW, ColUOM].Text = data[i]["UOM"].ToString();
+                    sheet[ROW, ColCredtibleStatus].Text = data[i]["CredtibleStatus"].ToString();
+
+                    sheet[ROW, ColTransactionQty].Number = clsStaticInfo.dbl(data[i]["TransactionQty"].ToString());
+                    sheet[ROW, ColTransactionQty].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColReceiptQty].Number = clsStaticInfo.dbl(data[i]["ReceiptQty"].ToString());
+                    sheet[ROW, ColReceiptQty].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    sheet[ROW, ColRejectionQty].Number = clsStaticInfo.dbl(data[i]["RejectionQty"].ToString());
+                    sheet[ROW, ColRejectionQty].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColBalanceQty].Number = clsStaticInfo.dbl(data[i]["BalanceQty"].ToString());
+                    sheet[ROW, ColBalanceQty].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    sheet[ROW, ColTolerance].Number = clsStaticInfo.dbl(data[i]["Tolerance"].ToString());
+                    sheet[ROW, ColTolerance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    sheet[ROW, ColTransactionRate].Number = clsStaticInfo.dbl(data[i]["TransactionRate"].ToString());
+                    sheet[ROW, ColTransactionRate].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColTransactionAmount].Number = clsStaticInfo.dbl(data[i]["TransactionAmount"].ToString());
+                    sheet[ROW, ColTransactionAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    sheet[ROW, ColTotalTaxAmount].Number = clsStaticInfo.dbl(data[i]["TotalTaxAmount"].ToString());
+                    sheet[ROW, ColTotalTaxAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColServiceCharge].Number = clsStaticInfo.dbl(data[i]["ServiceCharge"].ToString());
+                    sheet[ROW, ColServiceCharge].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    sheet[ROW, ColServiceChargeTax].Number = clsStaticInfo.dbl(data[i]["ServiceChargeTax"].ToString());
+                    sheet[ROW, ColServiceChargeTax].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    sheet[ROW, ColBaseAmount].Number = clsStaticInfo.dbl(data[i]["BaseAmount"].ToString());
+                    sheet[ROW, ColBaseAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    sheet[ROW, ColAddedBy].Text = data[i]["AddedBy"].ToString();
+                    if (data[i]["GRNCheckStatus"] == null)
+                    {
+                        sheet[ROW, ColGRNCheckStatus].Text = "";
+                    }
+                    else
+                    {
+                        sheet[ROW, ColGRNCheckStatus].Text = data[i]["GRNCheckStatus"].ToString();
+                    }
+                    sheet[ROW, ColCheckedBY].Text = data[i]["CheckedBY"].ToString();
+                    if (data[i]["AuthorizedBy"] == null)
+                    {
+                        sheet[ROW, ColAuthorizedBy].Text = "";
+                    }
+                    else
+                    {
+                        sheet[ROW, ColAuthorizedBy].Text = data[i]["AuthorizedBy"].ToString();
+                    }
+
+                    sheet[ROW, ColCGST].Number = clsStaticInfo.dbl(data[i]["CGST"].ToString());
+                    sheet[ROW, ColCGST].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    if (data[i]["CGSTTaxPercentage"] != null)
+                    {
+                        sheet[ROW, ColCGSTTaxPercentage].Number = clsStaticInfo.dbl(data[i]["CGSTTaxPercentage"].ToString());
+                        sheet[ROW, ColCGSTTaxPercentage].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    }
+
+                    sheet[ROW, ColSGST].Number = clsStaticInfo.dbl(data[i]["SGST"].ToString());
+                    sheet[ROW, ColSGST].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    if (data[i]["SGSTTaxPercentage"] != null)
+                    {
+                        sheet[ROW, ColSGSTTaxPercentage].Number = clsStaticInfo.dbl(data[i]["SGSTTaxPercentage"].ToString());
+                        sheet[ROW, ColSGSTTaxPercentage].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    }
+
+                    sheet[ROW, ColIGST].Number = clsStaticInfo.dbl(data[i]["IGST"].ToString());
+                    sheet[ROW, ColIGST].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    if (data[i]["IGSTTaxPercentage"] != null)
+                    {
+                        sheet[ROW, ColIGSTTaxPercentage].Number = clsStaticInfo.dbl(data[i]["IGSTTaxPercentage"].ToString());
+                        sheet[ROW, ColIGSTTaxPercentage].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    }
+                    sheet[ROW, ColTDS].Number = clsStaticInfo.dbl(data[i]["TDS"].ToString());
+                    sheet[ROW, ColTDS].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    if (data[i]["TDSTaxPercentage"] != null)
+                    {
+                        sheet[ROW, ColTDSTaxPercentage].Number = clsStaticInfo.dbl(data[i]["TDSTaxPercentage"].ToString());
+                        sheet[ROW, ColTDSTaxPercentage].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    }
+                    sheet[ROW, ColTCS].Number = clsStaticInfo.dbl(data[i]["TCS"].ToString());
+                    sheet[ROW, ColTCS].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    if (data[i]["TCSTaxPercentage"] != null)
+                    {
+                        sheet[ROW, ColTCSTaxPercentage].Number = clsStaticInfo.dbl(data[i]["TCSTaxPercentage"].ToString());
+                        sheet[ROW, ColTCSTaxPercentage].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    }
+
+                    sheet[ROW, ColLCANo].Text = data[i]["LCANo"].ToString();
+                    sheet[ROW, ColLCRef].Text = data[i]["LCRef"].ToString();
+                    sheet[ROW, ColContractId].Text = data[i]["ContractId"].ToString();
+                    sheet[ROW, ColRefferenceNo].Text = data[i]["RefferenceNo"].ToString();
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+                }
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Purchase Order Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //#endregion ******************Report Header******************
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
     }

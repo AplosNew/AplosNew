@@ -685,14 +685,12 @@ namespace Aplos.Areas.Attendances.Controllers
         public ActionResult GetWorkerAdvanceList()
         {
             string sql = @"select wa.Id,FORMAT(FromDate,'dd-MMM-yy')FromDate,FORMAT(ToDate,'dd-MMM-yy')ToDate,UserRef,wa.YearNo,wa.MonthNo
-						        ,wa.PayDaysType,NoOfDays,Percentage,wa.Remarks
+						        ,wa.PayDaysType,wa.Remarks
                                 ,ei.SystemId PreparedById,ei.EmployeeName PreparedBy
 						        ,ei2.SystemId CheckedById,ei2.EmployeeName CheckedBy
-						        ,ei3.SystemId ApprovedById,ei3.EmployeeName ApprovedBy
                                   from [dbo].[WorkerAdvance] wa
                                   LEFT JOIN dbo.EmployeeInformation AS ei ON ei.SystemId=wa.PreparedById
-                                  LEFT JOIN dbo.EmployeeInformation AS ei2 ON ei2.SystemId=wa.CheckedById
-                                  LEFT JOIN dbo.EmployeeInformation AS ei3 ON ei3.SystemId=wa.ApprovedById";
+                                  LEFT JOIN dbo.EmployeeInformation AS ei2 ON ei2.SystemId=wa.CheckedById";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -700,22 +698,15 @@ namespace Aplos.Areas.Attendances.Controllers
         public ActionResult GetWorkerAdvanceDetailCenter(string workAdvanceId)
         {
             string str = @"select ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,s.UserName Section,ss.UserName SubSection,wad.Id
-							,wa.Id workAdvanceId,gwpd.Id GoodWorkPaymentDetailId,d.UserName Department,wad.PayDays,wad.Amount,x.[Basic]
-                            ,wad.RatePerDay,wad.RatePerHour,wad.AdvanceGiven,wad.NetPayable
+							,wa.Id workAdvanceId,d.UserName Department,wad.Minute,wad.Hour,wad.Rate,wad.Amount 
                             from [dbo].[WorkerAdvanceDetail] wad
                             left join [dbo].[WorkerAdvance] wa on wa.Id=wad.WorkerAdvanceId
                             left join EmployeeInformation ei on ei.SystemId=wad.EmpSystemId
                             left join org.Section AS s ON s.Id=ei.SectionId
                             left join org.SubSection AS ss ON ss.Id=ei.SubSectionId
                             left join org.Department d on d.Id=ei.DepartmentId
-                            LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = ei.SystemId
-                            left join GoodWorkPaymentDetail gwpd on gwpd.WorkerAdvanceId=wa.Id and gwpd.EmpSystemId=wad.EmpSystemId
-                            LEFT JOIN (SELECT SID.DefineAmount Basic,SH.SalaryHead,SID.SalaryID
-                                      FROM SalaryInfoDefine SID 
-                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
-                                      WHERE SH.HeadCategory='Basic')x ON x.SalaryID = SIDM.SystemID
+                            
                             where wad.WorkerAdvanceId in ('" + workAdvanceId + "')";
-
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
@@ -789,18 +780,17 @@ namespace Aplos.Areas.Attendances.Controllers
                             item["Id"] = detailId;
                             item["WorkerAdvanceId"] = _MasterId;
                             item["EmpSystemId"] = item["SystemId"];
-                            item["GoodWorkPaymentDetailId"] = item["GoodWorkPaymentDetailId"];
-                            item["PayDays"] = item["PayDays"];
+                            //item["GoodWorkPaymentDetailId"] = item["GoodWorkPaymentDetailId"];
                             //item["Amount"] = item["Amount"];
 
                             materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
                         }
                         if (dv.Count > 0)
                         {
-                            if (item["PayDays"] == null)
-                            {
-                                item["PayDays"] = 0;
-                            }
+                            //if (item["PayDays"] == null)
+                            //{
+                            //    item["PayDays"] = 0;
+                            //}
                             ccount++;
                             string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
                             DataRow drmo = dv[0].Row;
@@ -808,9 +798,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
                             drmo["WorkerAdvanceId"] = _MasterId;
                             drmo["EmpSystemId"] = item["EmpSystemId"];
-                            item["GoodWorkPaymentDetailId"] = item["GoodWorkPaymentDetailId"];
-                            drmo["PayDays"] = item["PayDays"];
-                            drmo["Amount"] = item["Amount"];
+                            //item["GoodWorkPaymentDetailId"] = item["GoodWorkPaymentDetailId"];
 
                             drmo.EndEdit();
                         }
@@ -836,68 +824,19 @@ namespace Aplos.Areas.Attendances.Controllers
             string sql = string.Empty;
             try
             {
-                string pDays = null;
-                if (payDaysType == "ExtraOT")
-                {
-                    pDays = @"LEFT JOIN(select isnull(SUM(PresentValue),0) PayDays,isnull(SUM(StandardOT),0) StandardOT,isnull(SUM(AdditionalOT),0) AdditionalOT,0 GoodWork,EmpSystemID,OverStay    
-							from AttdnProcessData 
-                            where WorkDate between '" + fromDate + @"' and '" + toDate + @"'
-                            GROUP BY EmpSystemID,OverStay)y on y.EmpSystemID = EI.SystemId ";
-                }
-                else
-                {
-                    pDays = @"LEFT JOIN(select (SUM(cast(gwd.Minute as decimal)/1440)) PayDays,0 AdditionalOT,0 StandardOT,isnull(sum(gwd.Minute),0) GoodWork,EmpSystemID  
-							from GoodWorkDetail gwd
-							LEFT JOIN GoodWork AS gw ON gw.Id=gwd.GoodWorkId
-                            where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and gw.ApprovedStatus='Approved'
-                            GROUP BY EmpSystemID)y on y.EmpSystemID = EI.SystemId ";
-                }
-
-                sql = @"SELECT '' Id,0 CheckBoxSelect, EI.SystemId
-                         ,EI.EmployeeCode
-                         ,EI.EmployeeName,ei.EmployeeCodePreFix,ei.EmployeeCodeNumeric
-                         , FORMAT(EI.DOB,'dd-MMM-yyyy') DOB
-                         , FORMAT(EI.DOJ,'dd-MMM-yyyy') DOJ
-                         , FORMAT(EI.DOS,'dd-MMM-yyyy') DOS
-                         , DG.UserName LegalDesignation
-                         ,S.UserName Section,SS.UserName SubSection, DP.UserName Department
-                         , PMB.Code,PR.UserName PositionName
-                         ,EI.EmployeeStatus
-						 ,OTTitle = case when EI.ExcludeOT=0 then 'Yes' else 'No' END
-						,convert(numeric(10,2),x.DefineAmount) Basic,x.SalaryHead,convert(numeric(10,2),y.PayDays)PayDays,y.StandardOT,y.AdditionalOT,y.GoodWork
-                         ,convert(numeric(10,2),g.RatePerHour)RatePerHour,convert(numeric(10,2),g.RatePerDay)RatePerDay,0 AdvanceGiven,'' GoodWorkPaymentDetailId
-						 ,convert(numeric(10,2),g.Gross) Gross
-                         FROM dbo.Employeeinformation EI
-                         LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id							 
-                         LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
-                         LEFT JOIN ORG.Company COM ON EI.CompanyId=COM.Id
-                         LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
-                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
-                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id                       
-                         LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
-                         LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId	
-                         LEFT join MST.DesignationMaster DM on DM.DesignationId=EI.GivenDesignationId
-						 LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
-                         LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-                         LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-                         LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = EI.SystemId
-                         LEFT JOIN (SELECT SID.DefineAmount,SH.SalaryHead,SID.SalaryID
-                                      FROM SalaryInfoDefine SID 
-                         LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
-                                    WHERE SH.HeadCategory='Basic')x ON x.SalaryID = SIDM.SystemID
-                        LEFT JOIN(SELECT ((SID.DefineAmount/208)*2) RatePerHour,(((SID.DefineAmount/208)*2)*2) RatePerDay,SH.SalaryHead,SID.SalaryID,SID.DefineAmount Gross
-                                      FROM SalaryInfoDefine SID 
-                         LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
-                                    WHERE SH.HeadCategory='Gross')g ON g.SalaryID=SIDM.SystemID
-                         " + pDays + @"
-                         where EI.employeeCode<>''  and EI.EmployeeStatus='Active' and y.PayDays<>0
-                         and isnull(ei.SystemId,'') not in (select wad.EmpSystemId 
-						 from WorkerAdvance wa
-						 left join WorkerAdvanceDetail wad on wad.WorkerAdvanceId=wa.Id
-						 where wa.FromDate between '" + fromDate + @"' and '" + toDate + @"'
-						 and wa.ToDate between '" + fromDate + @"' and '" + toDate + @"'
-						 )
-                         ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
+                 sql = @"select '' Id,gwpa.Id GoodWorkPaymentAdviseId,gwpad.Id GoodWorkPaymentAdviseDetailId,gwpa.PaymentSource,(gwpad.Hour*60) Minute,gwpad.Hour,gwpad.Rate,gwpad.Amount
+						,0 CheckBoxSelect,EI.SystemId,EI.EmployeeCode,EI.EmployeeName,FORMAT(EI.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(EI.DOS,'dd-MMM-yyyy') DOS,DG.UserName LegalDesignation
+						,DP.UserName Department,S.UserName Section,SS.UserName SubSection,EI.EmployeeStatus,OTTitle = case when EI.ExcludeOT=0 then 'Yes' else 'No' END
+						 
+						from GoodWorkPaymentAdvise gwpa
+						left join GoodWorkPaymentAdviseDetail gwpad on gwpa.Id=gwpad.PaymentAdviseId
+						left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
+						LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
+						LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+						LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
+                        LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            where gwpa.FromDate between '" + fromDate + @"' and '" + toDate + @"' and gwpa.ToDate between '" + fromDate + @"' and '" + toDate + @"'
+                        and gwpa.PaymentSource='" + payDaysType + @"'";
             }
             catch (Exception ex)
             {
