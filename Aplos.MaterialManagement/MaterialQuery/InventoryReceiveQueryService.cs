@@ -3927,8 +3927,8 @@ namespace Aplos.MaterialManagement
 						   --, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
 						   ,IR.DocRefNo,   REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
 						   ,DATEDIFF(day, IR.DocDate,IR.GRNDate) AS 'GrnInvoiceDateDifference'
-						  ,NULL MaterialType
-						  ,NULL MaterialGroupMasterName
+						  ,'' MaterialType
+						  ,'' MaterialGroupMasterName
 						    ,'' MaterialMasterName
 						, '' ArticleName, SM.UserName ServiceName
 						, NULL FirstCharacteristicsValue
