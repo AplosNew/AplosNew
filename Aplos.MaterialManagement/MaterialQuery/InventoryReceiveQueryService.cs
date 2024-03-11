@@ -3655,8 +3655,8 @@ namespace Aplos.MaterialManagement
 						   ,IR.DocRefNo
 						   ,   REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
 						   ,DATEDIFF(day, IR.DocDate,IR.GRNDate) AS 'GrnInvoiceDateDifference'
-						   ,MT.UserName MaterialType
-						  ,MGM.UserName AS MaterialGroupMasterName
+						   ,ISNULL(MT.UserName,'') MaterialType
+						  ,ISNULL(MGM.UserName,'') AS MaterialGroupMasterName
 						  ,MM.UserName MaterialMasterName
 						, ART.StandardName ArticleName, '' ServiceName
 						, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
@@ -3714,11 +3714,11 @@ namespace Aplos.MaterialManagement
 						,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo when IR.VoucherId<>'' Then VN.VoucherNo else V.VoucherNo END
 						,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
 						,IGL.AccountCode GLCode
-						,IGL.UserName AS GL
+						,ISNULL(IGL.UserName,'') AS GL
 						,IBM.RefNo BudgetrefNo
-						,B.UserName AS Budget
+						,ISNULL(B.UserName,'') AS Budget
 						,IA.Id ActivityId
-						,IA.Code ActivityCode
+						,ISNULL(IA.Code,'') ActivityCode
 						,IA.UserName Activity
 						,IGL1.AccountCode CGLCode
                         ,IGL1.UserName AS CGL
