@@ -666,7 +666,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
 							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=I.ArticleId
 							LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id AND AA.MasterOrderItemId=I.Id
                             LEFT JOIN HKP.Party AAP ON AAP.Id=AA.Partyid
-                            WHERE  A.PartyId='"+customerId+@"' AND I.Id IN(Select MasterOrderItemId From TRN.SalesOrder Where ContractId "+contractId+")";
+                            WHERE  A.PartyId='" + customerId + @"' AND I.Id IN(Select MasterOrderItemId From TRN.SalesOrder Where ContractId " + contractId + ")";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -886,7 +886,7 @@ Order By B.AccountTitle";
                 xlsRow = 5;
 
                 #region ColumnHeaderVariables              
-                int cFileNo,cBuyer = 0; int cTQ = 0; int cA = 0; int cSV; int cSQ; int cBQ = 0; int cBLV = 0; int cR = 0; int cBN = 0; int cSSD = 0; int cCN = 0; int cSED = 0;
+                int cFileNo, cBuyer = 0; int cTQ = 0; int cA = 0; int cSV; int cSQ; int cBQ = 0; int cBLV = 0; int cR = 0; int cBN = 0; int cSSD = 0; int cCN = 0; int cSED = 0;
                 #endregion
                 #region ColumnHeaders
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Bank Name", 14, ExcelHAlign.HAlignCenter); cBN = xlsCol; xlsCol++;
@@ -1013,7 +1013,7 @@ Order By B.AccountTitle";
                         xlsRow++;
                     }
                     //  xlsRow += 1;
-                   // sheet1.AutoFilters.FilterRange = sheet1.Range[catFRow - 1, 1, xlsRow, endXlsCol];
+                    // sheet1.AutoFilters.FilterRange = sheet1.Range[catFRow - 1, 1, xlsRow, endXlsCol];
 
 
                     oRU.SetHeadText(sheet1, xlsRow, 1, "Grand Total:");
@@ -1050,7 +1050,7 @@ Order By B.AccountTitle";
                     sheet1.FirstVisibleRow = 6;
 
                     #endregion
-                    
+
                 }
                 ReportUtility reportUtility = new ReportUtility();
                 reportUtility.CompanyPlantHeaderNew(ref sheet1, 2, "BANK LIEN REPORT", identity.CompanyId, identity.CompanyName, "");
@@ -1146,7 +1146,7 @@ FROM [dbo].[LCClauses] CT
         public IEnumerable<object> GetGoodWorkBudgetCodeSetupData(string goodWorkSetupId)
         {
             try
-            { 
+            {
                 var sql = @"SELECT GWB.*,E.Id EntityId,E.UserName EntityName,MB.IsOTEntitled,D.Id DivisionId,D.UserName Division,DP.Id DepartmentId
 					,DP.UserName Department,S.Id SectionId,S.UserName Section,SS.Id SubSectionId,SS.UserName SubSection
 					,DE.Id DesignationId,DE.UserName Designation,P.Activity,P.UserReportGroup UserGroup,PR.Id ProcessId
@@ -1632,9 +1632,9 @@ Order By SO.DeliveryDate";
 
         public IWorkbook GetContractSummaryReportXlx(string ContractId)
         {
-            ExcelEngine excelEngine = new ExcelEngine(); 
-            IApplication application = excelEngine.Excel; 
-            application.DefaultVersion = ExcelVersion.Excel2013; 
+            ExcelEngine excelEngine = new ExcelEngine();
+            IApplication application = excelEngine.Excel;
+            application.DefaultVersion = ExcelVersion.Excel2013;
             IWorkbook workbook = application.Workbooks.Create(1);
             IWorksheet worksheet = workbook.Worksheets[0];
 
@@ -1646,7 +1646,7 @@ Order By SO.DeliveryDate";
                     throw new Exception("No data found");
 
                 DataTable dataDetails = ContractSummaryDetailSQL(ContractId);
-                 
+
                 worksheet.Name = "ContractSummaryReport";
 
                 int ROW = 5; int COL = 1;
@@ -1655,10 +1655,11 @@ Order By SO.DeliveryDate";
                 worksheet[ROW, COL].Text = dtOrderMaster.Rows[0]["Customer"].ToString();
                 worksheet[ROW, COL].CellStyle.Font.Bold = true;
 
-                COL = COL+8; 
+                COL = COL + 8;
                 worksheet[ROW, COL].Text = "Date: ";
-                worksheet[ROW, COL+1].Text = dtOrderMaster.Rows[0]["ContractDate"].ToString();
-                worksheet[ROW, COL+1].CellStyle.Font.Bold = true;
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                worksheet[ROW, COL].CellStyle.Font.Bold = true;
+                worksheet[ROW, COL + 1].Text = dtOrderMaster.Rows[0]["ContractDate"].ToString();
                 ROW++;
 
                 //COL = COL + 8;
@@ -1705,7 +1706,7 @@ Order By SO.DeliveryDate";
                 COL++;
 
                 worksheet[ROW, COL].Text = "Unit Price";
-                worksheet[ROW, COL].ColumnWidth = 20;
+                worksheet[ROW, COL].ColumnWidth = 15;
                 int ColUnitPrice = COL;
                 COL++;
 
@@ -1754,11 +1755,12 @@ Order By SO.DeliveryDate";
 
                     worksheet[ROW, ColAmount].Number = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["Amount"].ToString());
                     worksheet[ROW, ColAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
                     worksheet[ROW, ColExportValues].Number = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["ExportValue"].ToString());
                     worksheet[ROW, ColExportValues].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                     worksheet[ROW, ColShipDate].Text = dtOrderMaster.Rows[i]["ShipDate"].ToString();
                     worksheet[ROW, ColRemarks].Text = "";
-                
+
                     worksheet.Range[ROW, 1, ROW, endCols].BorderAround(ExcelLineStyle.Hair);
                     worksheet.Range[ROW, 1, ROW, endCols].BorderInside(ExcelLineStyle.Hair);
                     worksheet.Range[ROW, 1, ROW, endCols].CellStyle.Font.Size = 8f;
@@ -1780,7 +1782,7 @@ Order By SO.DeliveryDate";
 
                 worksheet.Range[ROW, ColAmount, ROW, ColAmount].Formula = "SUM(" + reportUtility.GetColumnNameForXls(ColAmount) + CostingComponentStartRow + ":" + reportUtility.GetColumnNameForXls(ColAmount) + CostingComponentEndRow + ")";
                 worksheet.Range[ROW, ColAmount].CellStyle.Font.Bold = true;
-                double totalAmount= clsStaticInfo.dbl(dtOrderMaster.Compute("SUM(Amount)","")); 
+                double totalAmount = clsStaticInfo.dbl(dtOrderMaster.Compute("SUM(Amount)", ""));
 
                 worksheet.Range[ROW, ColExportValues, ROW, ColExportValues].Formula = "SUM(" + reportUtility.GetColumnNameForXls(ColExportValues) + CostingComponentStartRow + ":" + reportUtility.GetColumnNameForXls(ColExportValues) + CostingComponentEndRow + ")";
                 worksheet.Range[ROW, ColExportValues].CellStyle.Font.Bold = true;
@@ -1789,7 +1791,17 @@ Order By SO.DeliveryDate";
 
                 worksheet.Range[ROW, 1, ROW, endCols].BorderAround(ExcelLineStyle.Hair);
                 worksheet.Range[ROW, 1, ROW, endCols].BorderInside(ExcelLineStyle.Hair);
-                
+
+                ROW++;
+                worksheet[ROW, COL - 5].Text = "BTB FUND 75% = ";
+                worksheet[ROW, COL - 5].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                worksheet[ROW, COL - 5].CellStyle.Font.Bold = true;
+                worksheet[ROW, COL - 4].Number = totalAmount / 100 * 75;
+                worksheet[ROW, COL - 4].CellStyle.Font.Bold = true;
+                worksheet.Range[ROW, ColPO, ROW, ColShippedQuantity].Merge();
+                worksheet.Range[ROW, 1, ROW, endCols].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, 1, ROW, endCols].BorderInside(ExcelLineStyle.Hair);
+
                 ROW += 2;
                 COL = 1;
                 #region columns
@@ -1837,7 +1849,7 @@ Order By SO.DeliveryDate";
                 worksheet[ROW, COL].ColumnWidth = 15;
                 int ColBTBPending = COL;
                 COL++;
-                 
+
                 worksheet[ROW, COL].Text = "Percentage";
                 worksheet[ROW, COL].ColumnWidth = 15;
                 int ColPercentage = COL;
@@ -1880,19 +1892,58 @@ Order By SO.DeliveryDate";
                     worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                     worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                     ROW++;
-
-                    worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-                    worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-                    worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
-                    ROW++;
                 }
+                int EndRow = ROW - 1;
+                worksheet.Range[ROW, ColItem, ROW, ColLCDate].Merge();
+                worksheet[ROW, ColTTLLCValue].Text = "Total Expendeture:";
+                worksheet.Range[ROW, ColTTLLCValue].CellStyle.Font.Bold = true;
+
+                worksheet.Range[ROW, ColBudgetValue, ROW, ColBudgetValue].Formula = "SUM(" + reportUtility.GetColumnNameForXls(ColBudgetValue) + startRow + ":" + reportUtility.GetColumnNameForXls(ColBudgetValue) + EndRow + ")";
+                worksheet.Range[ROW, ColBudgetValue].CellStyle.Font.Bold = true;
+                double totalBgd = clsStaticInfo.dbl(dataDetails.Compute("SUM(BudgetValue)", ""));
+
+                worksheet.Range[ROW, ColShortExcess, ROW, ColShortExcess].Formula = "SUM(" + reportUtility.GetColumnNameForXls(ColShortExcess) + startRow + ":" + reportUtility.GetColumnNameForXls(ColShortExcess) + EndRow + ")";
+                worksheet.Range[ROW, ColShortExcess].CellStyle.Font.Bold = true;
+
+                worksheet.Range[ROW, ColPercentage, ROW, ColPercentage].Formula = "SUM(" + reportUtility.GetColumnNameForXls(ColPercentage) + startRow + ":" + reportUtility.GetColumnNameForXls(ColPercentage) + EndRow + ")";
+                worksheet[ROW, ColPercentage].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                worksheet.Range[ROW, ColPercentage].CellStyle.Font.Bold = true;
+                double totalPrtg = clsStaticInfo.dbl(dataDetails.Compute("SUM(BudgetValue)", ""));
+                double totalPrt = totalPrtg / totalAmount * 100;
+
+                worksheet.Range[startRow, 1, EndRow + 1, endCols].NumberFormat = clsStaticInfo.NumberFormat(4);
+                worksheet.Range[ROW, 1, ROW, endCols].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, 1, ROW, endCols].BorderInside(ExcelLineStyle.Hair);
+
+                ROW++;
+                worksheet.Range[ROW, ColItem, ROW, ColLCDate].Merge();
+                worksheet[ROW, 5].Text = "Reserve";
+                worksheet[ROW, 5].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                worksheet[ROW, 5].CellStyle.Font.Bold = true;
+                worksheet[ROW, 6].Number = totalAmount - totalBgd;
+                worksheet[ROW, 6].CellStyle.Font.Bold = true;
+               
+                worksheet.Range[ROW, ColActualCost, ROW, ColBTBPending].Merge();
+                worksheet[ROW, ColBTBPending+1].Number = 100 - totalPrt;
+                worksheet[ROW, ColBTBPending+1].CellStyle.Font.Bold = true;
+
+                worksheet.Range[ROW, 1, ROW, endCols].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, 1, ROW, endCols].BorderInside(ExcelLineStyle.Hair);
+
+
+                ROW+=2;
+                worksheet[ROW, 8].Text = "APPROVED BY";
+                worksheet[ROW, 8].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                worksheet.Range[ROW, 8, ROW, 10].Merge();
+                worksheet[ROW, 8].CellStyle.Font.Bold = true;
+                worksheet.Range[ROW, 8, ROW, 10].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, 8, ROW, 10].BorderInside(ExcelLineStyle.Hair);
 
                 worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-                worksheet.UsedRange.CellStyle.Font.Size = 8f; 
+                worksheet.UsedRange.CellStyle.Font.Size = 8f;
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                reportUtility.PlantHeader(ref worksheet, endCol, "Contract Summary" /*+ dtOrderMaster.Rows[0]["ContractNo"].ToString()*/, identity.PlantId);
-                // reportUtility.PlantHeader(ref worksheet, endCol, "Contract NO#" + ContractId, identity.PlantId);
+                reportUtility.PlantHeader(ref worksheet, endCol, "Contract Summary Report", identity.PlantId);
                 reportUtility.PageSetup(ref worksheet, 5, ExcelPageOrientation.Landscape);
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 worksheet.Range[1, 1, 5, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -1900,12 +1951,12 @@ Order By SO.DeliveryDate";
                 worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                 worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 worksheet.IsGridLinesVisible = false;
-                return workbook; 
+                return workbook;
             }
             catch (Exception ex)
             {
-                throw (ex); 
-            } 
+                throw (ex);
+            }
         }
 
         public DataTable ContractSummaryHeaderSQL(string ContractId)
@@ -1934,7 +1985,7 @@ Order By SO.DeliveryDate";
                 throw (ex);
             }
             finally
-            {}
+            { }
         }
         public DataTable ContractSummaryDetailSQL(string ContractId)
         {
@@ -1963,7 +2014,7 @@ Order By SO.DeliveryDate";
 					left join dbo.OrderProcurementCostingDirectMaterial opc on opc.OrderCostingMasterTemplateId=moi.OrderCostingMasterTemplateId
 					left join HKP.CostingItem ci on ci.Id=opc.CostingItemId
 					left join HKP.party p on p.Id=opc.VendorId
-                    where c.Id='" + ContractId +@"'
+                    where c.Id='" + ContractId + @"'
                     group by ci.UserName,P.UserName,c.Id,opc.VendorId,opc.GrossAmount
 					)x
                     group by x.Item,x.Supplier,x.LCStatus,x.LCDate,x.ActualCost,x.ShortExcess,x.BTBPending
