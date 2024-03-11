@@ -299,6 +299,50 @@ namespace Aplos.Areas.HumanResource.Controllers
                 objCon = null;
             }
         }//End Function
+
+        public void GetSalaryProcDataForControl(string EmpIdLoop, string Month, string Year, out System.Data.DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"
+select DBMA.Id DrControlId,CBMA.Id CrControlId,SL.Id SsalaryLockId,C.* from dbo.SalaryProcChild C
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=C.EmpInfoSystemID
+LEFT JOIN ORG.Position PO ON PO.Id=E.PositionID
+LEFT JOIN MST.ManpowerBudget DMB ON DMB.Id=E.BudgetCode
+left join MST.SalaryHeadGL DGL ON  DGL.SalaryHeadId=C.SalaryHeadID AND DMB.AccountsGroupId=DGL.AccountsGroupId
+LEFT JOIN MST.BudgetMasterActivity DBMA ON DBMA.BudgetMasterId=DGL.DrDirectBudgetMasterId AND DBMA.ActivityId=DGL.DrDirectActivityId
+left join MST.SalaryHeadGL CGL ON  CGL.SalaryHeadId=C.SalaryHeadID AND DMB.AccountsGroupId=CGL.AccountsGroupId
+LEFT JOIN MST.BudgetMasterActivity CBMA ON DBMA.BudgetMasterId=CGL.CrDirectBudgetMasterId AND CBMA.ActivityId=CGL.CrDirectActivityId
+JOIN dbo.SalaryLock SL ON SL.EmpSystemId=E.SystemId AND MonthNo=1 AND YearNo=2024
+Where C.EmpInfoSystemID IN (" + EmpIdLoop + @")) AND PO.DirectManpowerCost=1 AND C.SlrProcMstSystemID IN(Select SystemID  from dbo.SalaryProcMaster Where MonthNo='" + Month + @"' AND YearNo='" + Year + @"') 
+UNION 
+select DBMA.Id DrControlId,CBMA.Id CrControlId,SL.Id SsalaryLockId,C.* from dbo.SalaryProcChild C
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=C.EmpInfoSystemID
+LEFT JOIN ORG.Position PO ON PO.Id=E.PositionID
+LEFT JOIN MST.ManpowerBudget DMB ON DMB.Id=E.BudgetCode
+left join MST.SalaryHeadGL DGL ON  DGL.SalaryHeadId=C.SalaryHeadID AND DMB.AccountsGroupId=DGL.AccountsGroupId
+LEFT JOIN MST.BudgetMasterActivity DBMA ON DBMA.BudgetMasterId=DGL.DrInDirectBudgetMasterId AND DBMA.ActivityId=DGL.DrInDirectActivityId
+left join MST.SalaryHeadGL CGL ON  CGL.SalaryHeadId=C.SalaryHeadID AND DMB.AccountsGroupId=CGL.AccountsGroupId
+LEFT JOIN MST.BudgetMasterActivity CBMA ON CBMA.BudgetMasterId=CGL.CrInDirectBudgetMasterId AND CBMA.ActivityId=CGL.CrInDirectActivityId
+JOIN dbo.SalaryLock SL ON SL.EmpSystemId=E.SystemId AND MonthNo=1 AND YearNo=2024
+Where C.EmpInfoSystemID IN (" + EmpIdLoop + @")) AND PO.DirectManpowerCost=0 AND C.SlrProcMstSystemID IN(Select SystemID  from dbo.SalaryProcMaster Where MonthNo='" + Month + @"' AND YearNo='" + Year + @"') 
+";//eee
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+
         private void DetailRow(string OPN_FLAG, int pkCount, string pk_seed, SalaryLock sps, ref DataRow dr)
         {
             string systemID = "";
@@ -352,6 +396,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         private void SaveSalaryLock(List<SalaryLock> EmployeeList, string Month, string Year)
         {
             DataSet dsSaveSalaryLocked = null;
+            DataSet dsSalaryProcData = null;
             DataTable dtLocal = null;
             DataRow drLocal = null;
             DataView dvLocal = null;
@@ -382,33 +427,14 @@ namespace Aplos.Areas.HumanResource.Controllers
                     }
 
                     GetLoadSalaryLock(EmpIdLoop, Month, Year, out dsSaveSalaryLocked);
-
                     dsSaveSalaryLocked.Tables[0].DefaultView.RowFilter = "PayableVoucherId <> '' ";
-                    //while (dsSaveSalaryLocked.Tables[0].DefaultView.Count > 0)
-                    //{
-                    //    for (int i = 0; i < EmployeeList.Count; i++)
-                    //    {
-                    //        if (EmployeeList[i].EmpSystemId == dsSaveSalaryLocked.Tables[0].DefaultView[0]["EmpSystemId"].ToString() && EmployeeList[i].IsLocked == false)
-                    //        {
-                    //            //if (EmpCodeLoop == "")
-                    //            //{
-                    //            //    EmpCodeLoop = "" + EmployeeList[i].EmployeeCode + "";
-                    //            //}
-                    //            //else
-                    //            //{
-                    //            //    EmpCodeLoop += "," + EmployeeList[i].EmployeeCode + "";
-                    //            //}
-                    //            //throw new Exception("Cannot Unlock Salary for Employee [" + EmployeeList[i].EmployeeCode + "]");
-                    //        }
-                    //    }
-                    //    //if (!string.IsNullOrEmpty(EmpIdLoop))
-                    //        //throw new Exception("Cannot Unlock Salary for Employee [" + EmpIdLoop + "]");
-                    //}
-                    
-
                     dtLocal = dsSaveSalaryLocked.Tables[0];
                     dvLocal = new DataView();
                     dvLocal.Table = dtLocal;
+
+                    GetSalaryProcDataForControl(EmpIdLoop, Month, Year, out dsSalaryProcData);
+
+
                     int _pk_count = 0;
                     string idFromDB = string.Empty;
                     clsGenID objGenID = new bplib.clsGenID();
