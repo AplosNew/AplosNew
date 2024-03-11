@@ -402,7 +402,9 @@ namespace Library.OrderManagement.Costing
 
                 ConnectionManager.clsConnectionManager ConManager = new ConnectionManager.clsConnectionManager();
                 ConManager.getDataSet("select * from CostingBOQMaster where Id='" + MasterData["Id"] + "'", out DataSet dsMaster);
-                ConManager.getDataSet("select TOP(1)* from CostingBOQMaster where Id<>'" + MasterData["Id"] + "' and UserName='" + MasterData["UserName"] + "' ", out DataSet dsValid);
+                string sql = @"select TOP(1)* from CostingBOQMaster where Id<>'" + MasterData["Id"] + "' and UserName='" + MasterData["UserName"] + "' ";
+
+                ConManager.getDataSet(sql, out DataSet dsValid);
                 string _masterId = "";
                 if (dsValid.Tables[0].Rows.Count > 0)
                 {

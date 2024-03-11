@@ -513,6 +513,8 @@ namespace Aplos.Areas.Accounts.Controllers
 
         #endregion ExchangeVoucher
 
+
+       
         [Authorize]
         public ActionResult IntSalesOrderInvoice()
         {
@@ -2213,7 +2215,7 @@ namespace Aplos.Areas.Accounts.Controllers
 											LEFT JOIN [HKP].PartyPlant AS PP ON PP.Id=VD.PartyPlantId
                                             WHERE v.PostingDate < '" + fromDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"'
                                             AND  v.IsPark=0
-                                            AND V.Id NOT IN (	SELECT VD.VoucherId FROM  TRN.VoucherDetail AS VD 
+                                            AND VDC.VoucherDetailId NOT IN ( SELECT VD.Id FROM  TRN.VoucherDetail AS VD  
 																INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
 																LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
 																LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
@@ -2338,7 +2340,7 @@ namespace Aplos.Areas.Accounts.Controllers
                                                     	LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId = BM.Id
                                                     	LEFT JOIN [HKP].[Budget] AS BUD ON BM.BudgetId = BUD.Id
                                                     	WHERE v.PostingDate < '" + fromDate + @"' AND v.CompanyId = '" + companyId + @"' AND V.PlantId = '" + plantId + @"' AND v.IsPark = 0 
-                                                        AND V.Id NOT IN (	SELECT VD.VoucherId FROM  TRN.VoucherDetail AS VD 
+                                                        AND VDC.VoucherDetailId NOT IN ( SELECT VD.Id FROM  TRN.VoucherDetail AS VD 
 																INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
 																LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
 																LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
@@ -2451,7 +2453,7 @@ namespace Aplos.Areas.Accounts.Controllers
 											LEFT JOIN [HKP].PartyPlant AS PP ON PP.Id=VD.PartyPlantId
                                             WHERE v.PostingDate < '" + fromDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"'
                                             AND  v.IsPark=0
-                                            AND V.Id NOT IN (	SELECT VD.VoucherId FROM  TRN.VoucherDetail AS VD 
+                                            AND VDC.VoucherDetailId NOT IN ( SELECT VD.Id FROM  TRN.VoucherDetail AS VD  
 																INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
 																LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
 																LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
@@ -2589,7 +2591,7 @@ namespace Aplos.Areas.Accounts.Controllers
 	                                                LEFT JOIN SCS.Currency AS CU ON CU.Id = VDC.ParallelCurrencyId
 	                                               
                                                     WHERE v.PostingDate < '" + fromDate + @"' AND v.CompanyId = '" + companyId + @"' AND V.PlantId = '" + plantId + @"' AND v.IsPark = 0
-                                                    AND V.Id NOT IN (	SELECT VD.VoucherId FROM  TRN.VoucherDetail AS VD 
+                                                    AND VDC.VoucherDetailId NOT IN ( SELECT VD.Id FROM  TRN.VoucherDetail AS VD  
 																INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
 																LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
 																LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
@@ -6949,6 +6951,61 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
         //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
         //    return Json(new { DATA = _accountVoucherReportService.GetFixedArticalListData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, materialMasterId), Error = false }, JsonRequestBehavior.AllowGet);
         //}
+        #endregion
+
+        #region Round Off Journal
+       
+        public ActionResult RoundOffJournal()
+        {
+            return View("~/Areas/Accounts/Views/RoundOffJournal.cshtml");
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult GetTrailBalanceRoundOffList(string trnType)
+        {
+            AccountsGLService accountsGLService = new AccountsGLService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var res = accountsGLService.GetTrailBalanceRoundOffList(identity.PlantId, trnType);
+            var jsondata = Json(res, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+        [HttpPost]
+        public JsonResult ParkRoundOffJournal(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            if (voucherDetailVMList == null)
+                throw new CustomException("Please Add GL.");
+            if (voucherDetailVMList.Sum(r => r.DrAmount) != voucherDetailVMList.Sum(r => r.CrAmount))
+                throw new CustomException("Dr Cr not match!");
+            foreach (var item in voucherDetailVMList)
+            {
+                if ((item.DrAmount + item.CrAmount == 0) || (item.DrAmount + item.CrAmount < 0))
+                    throw new CustomException("Please input amount !");
+                if (string.IsNullOrEmpty(item.EntityId))
+                {
+                    item.EntityId = voucherVM.EntityId;
+                }
+            }
+            voucherVM.IsPark = true;
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _voucharService.InsertVoucher(voucherVM, voucherDetailVMList)) });
+        }
+        [HttpPost]
+        public JsonResult PostRoundOffJournal(string id)
+        {
+            _voucharService.PostJournalVoucher(id);
+            return Json(new { Message = AplosMessage.Posted });
+        }
+
+        [HttpPost]
+        public ActionResult DeleteRoundOffJV(string voucherId)
+        {
+            _voucharService.DeleteJV(voucherId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
         #endregion
     }
 

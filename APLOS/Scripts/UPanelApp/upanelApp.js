@@ -1258,7 +1258,9 @@ upanelApp.controller("masterOrderCheckByController", masterOrderCheckByControlle
 upanelApp.controller("masterOrderApproveByController", masterOrderApproveByController)
 upanelApp.controller("BalanceSheetSchedulingReportController", BalanceSheetSchedulingReportController)
 upanelApp.controller("ContractSummaryController", ContractSummaryController)
+upanelApp.controller("roundOffJournalController", roundOffJournalController)
 
+upanelApp.controller("BarcodeGeneratorSettingController", BarcodeGeneratorSettingController)
           
 
 

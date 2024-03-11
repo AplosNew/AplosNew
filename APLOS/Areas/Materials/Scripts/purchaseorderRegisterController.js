@@ -9,7 +9,7 @@ function purchaseorderRegisterController(fileReader, commonMessage, $scope, $roo
 	$scope.path1 = 'Accounts/InventoryPayable/';
     $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
-
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
 	$scope.RowColor = "";
@@ -203,25 +203,19 @@ function purchaseorderRegisterController(fileReader, commonMessage, $scope, $roo
             ShowResult('Select To Date', 'failure');
             return false;
         }
-
         var dataList = [];
         var g = $("#GridPrint").data("ejGrid");
         dataList = g.getFilteredRecords();
-
         if (dataList.length == 0) {
             dataList = $scope.PurchaseRegisterLst;
         }
-
         try {
-            $scope.fileName = 'Purchase Order Register';
+            $scope.fileName = 'Purchase Order Register.xlsx';
 
             $http({
                 method: 'POST',
-                //url: $scope.path + "StockRegisterReport",
-                url: $scope.exportgriddataUrl,
-                data: {
-                    'data': dataList,
-                    'reportFileName': $scope.fileName,
+                url: $scope.path + "GetPurchaseOrderReport",
+                data: {'data': dataList,'reportFileName': $scope.fileName,
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -229,13 +223,12 @@ function purchaseorderRegisterController(fileReader, commonMessage, $scope, $roo
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    //$rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
-                    $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                    //$window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
                 }
             }, function errorCallback(response) {
                 ShowResult(response.data.Message, 'failure');
             });
-
         } catch (e) {
 
         }

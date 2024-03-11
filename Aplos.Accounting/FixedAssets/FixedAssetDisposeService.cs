@@ -651,6 +651,7 @@ namespace Library.Accounting.FixedAssets
                     DocRefNo = voucherVM.DocRefNo,
                     Narration = "Posting",//voucherVM.Narration,
                     PostingDate = voucherVM.PostingDate,
+                    EntityId = voucherVM.EntityId,
                     SourceType = SourceType.FixedAssetDisposeJournal.ToString(),
                     VoucherTypeId = voucherVM.VoucherTypeId
                 };
@@ -658,42 +659,18 @@ namespace Library.Accounting.FixedAssets
 
                 var currentVoucherDetaiRecord = 0;
                 var currentInvoiceDetail = 0;
+                string AdvanceDetailId = null;
+                string EmployeeId = null;
+                
 
                 foreach (var voucherDetailVM in voucherDetailVMList)
                 {
 
                     if (voucherDetailVM.TrnType == "Dr" && voucherDetailVM.Amount > 0)
                     {
-
-                        // INSERT INTO InvoiceDetail
-
-
-                        if (string.IsNullOrEmpty(voucherDetailVM.GLGeneralInfoId))
-                            throw new CustomException("Without GL can not post.");
-                        // in libility side Dr.
-                        var voucherDr = new VoucherDetail
-                        {
-                            GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
-                            BudgetMasterId = voucherDetailVM.BudgetMasterId,
-                            ActivityId = voucherDetailVM.ActivityId,
-                            DrAmount = voucherDetailVM.Amount,
-                            DocRefNo = voucherVM.DocRefNo,
-                            Narration = voucherDetailVM.Narration,
-                            EmployeeId = voucherVM.EmployeeId,
-                        };
-                        currentVoucherDetaiRecord++;
-                        _accountsCommonService.InsertVoucherDetail(voucher, voucherDr, currentVoucherDetaiRecord, ref _drvDetailData);
-
-                        _accountsCommonService.InsertVoucherDetailCompanyCurrency(voucherDr, new VoucherDetailCurrency
-                        {
-                            ParallelCurrencyId = companyCurrencyId,
-                            FromCurrencyId = companyCurrencyId,
-                            ToCurrencyId = companyCurrencyId,
-                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
-                            ToCurrencyConversion = 1,
-                            DrAmount = voucherDr.DrAmount
-                        }, ref _drvDetailCurrencyData);
-                        if(voucherDetailVM.OtherName == "Advance")
+                         AdvanceDetailId = null;
+                         EmployeeId = null;
+                        if (voucherDetailVM.OtherName == "Advance")
                         {
                             var advance = new Advance
                             {
@@ -725,7 +702,7 @@ namespace Library.Accounting.FixedAssets
                                 PaymentSource = voucherVM.PaymentSource,
                                 BankMasterId = voucherVM.BankMasterId,
                                 CashMasterId = voucherVM.CashMasterId,
-                                JournalId =  voucherVM.JournalId,
+                                JournalId = voucherVM.JournalId,
                                 BankAmount = voucherVM.BankAmount,
                                 EmployeeTransactionTypeId = voucherVM.EmployeeTransactionTypeId,
                                 IsInterTransaction = voucherVM.IsInterTransaction,
@@ -735,6 +712,7 @@ namespace Library.Accounting.FixedAssets
                                 SettlementType = voucherVM.SettlementType,
                                 RequisitionId = voucherVM.RequisitionId,
                                 CompanyCurrencyRate = 1,
+                                IsPosted = true,
                                 POId = voucherVM.POId,
                                 ContractId = voucherVM.ContractId,
                                 MasterOrderId = voucherVM.MasterOrderId,
@@ -763,10 +741,10 @@ namespace Library.Accounting.FixedAssets
                                 Amount = voucherDetailVM.Amount,
                                 NetAmount = voucherDetailVM.Amount,
                                 BooksAmount = voucherDetailVM.Amount
-                                
-                        };
+
+                            };
                             InsertAdvanceDetail(advance, advanceDetail, ref _advanceDetailData);
-                            
+
                             var employeeSubsequentTransaction = new EmployeeSubsequentTransaction
                             {
                                 Id = "ES" + _accountsCommonService.GetAutoNumber(nameof(EmployeeSubsequentTransaction), PKGeneratorEnum.Yearly, null, DateTime.Now),
@@ -793,11 +771,43 @@ namespace Library.Accounting.FixedAssets
                                 SourceType = voucher.SourceType,
                                 IsPark = voucherVM.IsPark,
                                 VoucherId = voucher.Id,
-                                VoucherDetailId = voucherDr.Id,
+                                VoucherDetailId = null,
                                 PaymentSource = voucherVM.PaymentSource
                             };
                             InsertEmployeeSubsequentTransaction(advance, employeeSubsequentTransaction, ref _employeeSubsequentTransactionData);
+                            AdvanceDetailId = advanceDetail.Id;
+                            EmployeeId = advance.EmployeeId;
                         }
+                        // INSERT INTO InvoiceDetail
+
+
+                        if (string.IsNullOrEmpty(voucherDetailVM.GLGeneralInfoId))
+                            throw new CustomException("Without GL can not post.");
+                        // in libility side Dr.
+                        var voucherDr = new VoucherDetail
+                        {
+                            GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                            BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                            ActivityId = voucherDetailVM.ActivityId,
+                            DrAmount = voucherDetailVM.Amount,
+                            DocRefNo = voucherVM.DocRefNo,
+                            Narration = voucherDetailVM.Narration,
+                            EmployeeId = EmployeeId,
+                            AdvanceDetailId= AdvanceDetailId
+                        };
+                        currentVoucherDetaiRecord++;
+                        _accountsCommonService.InsertVoucherDetail(voucher, voucherDr, currentVoucherDetaiRecord, ref _drvDetailData);
+
+                        _accountsCommonService.InsertVoucherDetailCompanyCurrency(voucherDr, new VoucherDetailCurrency
+                        {
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = companyCurrencyId,
+                            ToCurrencyId = companyCurrencyId,
+                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                            ToCurrencyConversion = 1,
+                            DrAmount = voucherDr.DrAmount
+                        }, ref _drvDetailCurrencyData);
+                        
                     }
                     else if (voucherDetailVM.TrnType == "Cr" && voucherDetailVM.Amount > 0)
                     {
@@ -829,7 +839,7 @@ namespace Library.Accounting.FixedAssets
                 }
                 
                 clsStaticInfo objApp = new clsStaticInfo();
-                objApp.SaveDataSets(_vdataset, _crvDetailData, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData, _advanceData, _advanceDetailData, _employeeSubsequentTransactionData);
+                objApp.SaveDataSets(_vdataset, _advanceData, _advanceDetailData, _employeeSubsequentTransactionData, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData);
                 if (farDisposeDetailList != null)
                 {
                     foreach (var item in farDisposeDetailList)

@@ -80,8 +80,9 @@
 
                             <div id="GridGWChildEdit" ej-grid e-datasource="PCEmployeeList" e-allowfiltering="true" e-allowpaging="true"
                                  e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-allowselection="true"
-                                 e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                                 e-filtersettings-filterType="excel" e-allowtextwrap="true" e-templaterefresh="refreshTemplateGWemployees">
                                 <div e-columns>
+                                    <div e-column e-headertext="All" e-headertemplateid="#CheckGWTemplate" e-template="#checkboxGWTemplate" e-textalign="center" e-width="30"></div>
                                     <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="60"></div>
                                     <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
                                     <div e-column e-field="Minute" e-headertext="Minute" e-width="60"></div>
@@ -91,6 +92,13 @@
                                     <div e-column e-headertext="Remarks" e-template="#remarks" e-textalign="center" e-width="100"></div>
                                 </div>
                             </div>
+                            <script type="text/x-jsrender" id="CheckGWTemplate">
+                                <input type="checkbox" id="GWheadchk" />
+                            </script>
+                            <script type="text/template" id="checkboxGWTemplate">
+                                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+                            </script>
+
                             <script type="text/template" id="remarks">
                                 <input type="text" class="form-control" name="Remarks" ng-model="data.Remarks" e-width="90" />
                             </script>
@@ -121,8 +129,7 @@
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(2), active: isSet2(2) }">
-                    <togglable name="{{titleTab4}}"></togglable>
-
+                    <togglable name="{{titleTab4}}"></togglable> 
                     <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
                         <input type="hidden" ng-model="ModelOTNew.Id">
                         <div class="col-xs-12 col-sm-6 col-md-6">
@@ -180,8 +187,9 @@
 
                             <div id="GridChildEdit" ej-grid e-datasource="PCOTEmployeeList" e-allowfiltering="true" e-allowpaging="true"
                                  e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-allowselection="true"
-                                 e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                                 e-filtersettings-filterType="excel" e-allowtextwrap="true" e-templaterefresh="refreshTemplateemployees">
                                 <div e-columns>
+                                    <div e-column e-headertext="All" e-headertemplateid="#CheckTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
                                     <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="60"></div>
                                     <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
                                     <div e-column e-field="Minute" e-headertext="Minute" e-width="60"></div>
@@ -191,9 +199,16 @@
                                     <div e-column e-headertext="Remarks" e-template="#remarks" e-textalign="center" e-width="100"></div>
                                 </div>
                             </div>
+                            <script type="text/x-jsrender" id="CheckTemplate">
+                                <input type="checkbox" id="headchk" />
+                            </script>
+                            <script type="text/template" id="checkboxTemplate">
+                                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+                            </script>
+
                             <script type="text/template" id="remarks">
                                 <input type="text" class="form-control" name="Remarks" ng-model="data.Remarks" e-width="90" />
-                            </script>
+                            </script> 
                         </div>
 
                         <div class="common-btn">
@@ -241,7 +256,7 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" id="GFG" name="FromDate" ng-model="ModelNew.FromDate" class="form-control datepic" ng-change="getPayDaysAmount();" datepic placeholder="dd-mmm-yyyy" tabindex="3">
+                            <input type="text" id="GFG" name="FromDate" ng-model="ModelNew.FromDate" @*class="form-control datepic"*@ ng-change="getPayDaysAmount();" datepicker placeholder="dd-mmm-yyyy" tabindex="3">
                         </div>
                     </div>
                     <div class="form-group" show-errors>
@@ -250,12 +265,12 @@
                             <input type="text" class="form-control" name="UserRef" ng-model="ModelNew.UserRef" e-width="100" />
                         </div>
                     </div>
-                    <div class="form-group" show-errors>
+                    @*<div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Percentage<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="number" class="form-control" name="Percentage" ng-model="ModelNew.Percentage" ng-change="getCalulationAmount();" e-width="100" />
+                            <input type="number" class="form-control" name="Percentage" ng-model="ModelNew.Percentage" e-width="100" />
                         </div>
-                    </div>
+                    </div>*@
                      
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Prepared By<sup>*</sup></label>
@@ -289,7 +304,7 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" id="GFG" name="ToDate" ng-model="ModelNew.ToDate" class="form-control datepic" ng-change="getPayDaysAmount();" datepic placeholder="dd-mmm-yyyy" tabindex="3">
+                            <input type="text" id="GFG" name="ToDate" ng-model="ModelNew.ToDate" @*class="form-control datepic"*@ ng-change="getPayDaysAmount();" datepicker placeholder="dd-mmm-yyyy" tabindex="3">
                         </div>
                     </div>
                     <div class="form-group" show-errors ng-hide="true">
@@ -315,7 +330,7 @@
                             <div class="select-style">
                                 <select name="PayDaysType" ng-model="ModelNew.PayDaysType">
                                     <option value="">--Select--</option>
-                                    <option value="ExtraOT">Extra OT</option>
+                                    <option value="Attendance">Extra OT</option>
                                     <option value="GoodWork">Good Work</option>
                                     @*<option value="Attendance">Attendance</option>*@
                                 </select>
@@ -344,16 +359,10 @@
                                 <th>Section</th>
                                 <th>SubSection</th>
                                 <th>Department</th>
-                                <th title="SUM(CalculatedMinute/1440)">Pay Days</th>
-                                <th>Extra OT</th>
-                                <th>Standard OT</th>
-                                <th>Additional OT</th>
-                                <th>Good Work</th>
-                                <th title="(((Gross/208)*2)*2)">Rate Per Day</th>
-                                <th title="((Gross/208)*2)">Rate Per Hour</th>
-                                <th title="Basic/26*PayDays*Percentage">Amount</th>
-                                <th>AdvanceGiven</th>
-                                <th title="(Basic/26*PayDays*Percentage)-AdvanceGiven">NetPayable</th>
+                                <th>Minute</th>
+                                <th>Hour</th>
+                                <th>Rate</th>
+                                <th>Amount</th> 
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -363,19 +372,11 @@
                                 <td>{{x.EmployeeName}}</td>
                                 <td>{{x.Section}}</td>
                                 <td>{{x.SubSection}}</td>
-                                <td>{{x.Department}}</td>
-                                <td>
-                                    <label>{{x.PayDays}}</label>
-                                </td>
-                                <td><input type="number" class="form-control" name="Extra OT" ng-model="x.OverStay" e-width="100" ng-disabled="true" /></td>
-                                <td><input type="number" class="form-control" name="Standard OT" ng-model="x.StandardOT" e-width="100" ng-disabled="true" /></td>
-                                <td><input type="number" class="form-control" name="Additional OT" ng-model="x.AdditionalOT" e-width="100" ng-disabled="true" /></td>
-                                <td><input type="number" class="form-control" name="Good Work" ng-model="x.GoodWork" e-width="100" ng-disabled="true" /></td>
-                                <td><input type="number" class="form-control" title="Gross: {{x.Gross}}" name="Rate Per Day" ng-model="x.RatePerDay" e-width="100" ng-disabled="true" /></td>
-                                <td><input type="number" class="form-control" title="Gross: {{x.Gross}}" name="Rate Per Hour" ng-model="x.RatePerHour" e-width="100" ng-disabled="true" /></td>
-                                <td><input type="number" class="form-control" title="Basic: {{x.Basic}}" name="Amount" ng-model="x.Amount" e-width="100" ng-disabled="true" /></td>
-                                <td><input type="number" class="form-control" name="AdvanceGiven" ng-model="x.AdvanceGiven" e-width="100" ng-disabled="true" /></td>
-                                <td><input type="number" class="form-control" name="NetPayable" ng-model="x.NetPayable" e-width="100" ng-disabled="true" /></td>
+                                <td>{{x.Department}}</td> 
+                                <td><input type="number" class="form-control" name="Minute" ng-model="x.Minute" e-width="100" ng-disabled="true" /></td>
+                                <td><input type="number" class="form-control" name="Hour" ng-model="x.Hour" e-width="100" ng-disabled="true" /></td>
+                                <td><input type="number" class="form-control" name="Rate" ng-model="x.Rate" e-width="100" ng-disabled="true" /></td>
+                                <td><input type="number" class="form-control" name="Amount" ng-model="x.Amount" e-width="100" ng-disabled="true" /></td> 
                                 <td class="text-right">
                                     <button ng-click="$parent.removeRow(x)" @*data-toggle="modal"*@ ng-="currencyDisable" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
                                         <i class="glyphicon glyphicon-remove"></i>
@@ -402,11 +403,13 @@
                         <div e-column e-field="FromDate" e-headertext="From Date" e-width="2" e-isprimarykey="true"></div>
                         <div e-column e-field="ToDate" e-headertext="To Date" e-width="2" e-isprimarykey="true"></div>
                         <div e-column e-field="UserRef" e-headertext="User Ref" e-width="3"></div>
-                        <div e-column e-field="NoOfDays" e-headertext="No Of Days" e-width="3"></div>
-                        <div e-column e-field="Percentage" e-headertext="Percentage" e-width="3"></div>
+                        <div e-column e-field="PayDaysType" e-headertext="Pay Days Type" e-width="3"></div>
+                        @*<div e-column e-field="Minute" e-headertext="Minute" e-width="3"></div>
+                        <div e-column e-field="Hour" e-headertext="Hour" e-width="3"></div>
+                        <div e-column e-field="Rate" e-headertext="Rate" e-width="3"></div>
+                        <div e-column e-field="Amount" e-headertext="Amount" e-width="3"></div>*@
                         <div e-column e-field="PreparedBy" e-headertext="Prepared By" e-width="3"></div>
                         <div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="3"></div>
-                        <div e-column e-field="ApprovedBy" e-headertext="Approved By" e-width="3"></div>
                         <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
                     </div>
                 </div>

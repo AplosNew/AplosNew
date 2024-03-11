@@ -2807,10 +2807,36 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
     $scope.SetPrOData = function () {
         var gridObj = $("#GridPO").data("ejGrid");
         $scope.selectedProductionOrder.push(gridObj.getSelectedRecords()[0]);
+        $scope.GetProductionOrderSOList(gridObj.getSelectedRecords()[0].POId);
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
     }
 
     $scope.removeSelectedPO = function (x, index) {
         $scope.selectedProductionOrder.splice(index, 1);
+    }
+
+    $scope.ProductionOrderSOList = [];
+    $scope.GetProductionOrderSOList = function (productionOrderId) {
+        $scope.tempPOSOList = [];
+            $http({
+                method: 'POST',
+                data: { 'productionOrderId': productionOrderId },
+                url: 'Productions/PackingInvoice/GetProductionOrderSOList'
+            }).then(function successCallback(response) {
+                $scope.tempPOSOList = response.data
+                for (var i = 0; i < $scope.tempPOSOList.length; i++) {
+                    $scope.ProductionOrderSOList.push($scope.tempPOSOList[i]);
+                }
+            });
+    };
+
+    $scope.calculateAmounts = function (data) {
+        if (data.Balance < data.TransactionQty) {
+            data.TransactionQty = '';
+            ShowResult("Receive Qty can not greater than Balance Qty", 'failure', 'GridPOSO');
+        }
+        var gridObj = $("#GridPOSO").data("ejGrid");
+        data.Amount = parseFloat(data.TransactionQty * data.TransactionRate).toFixed(2);
+        gridObj.refreshContent();
     }
 }

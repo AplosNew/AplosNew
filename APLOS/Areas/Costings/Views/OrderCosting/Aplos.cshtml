@@ -970,38 +970,6 @@
 
             </div>
 
-            @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                                <div class="row">
-                                    <div class="col-sm-12 col-sm-12 col-md-12">
-
-                                        <div class="common-btn">
-                                            <ul class="list-inline text-left">
-                                                <li><button ng-click="AddNewBuyer();" class="btn" ><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i> </button></li>
-                                            </ul>
-                                        </div>
-                                        <div class="content-container-fluid" style="color:black;">
-                                            <div style="        color: black;" id="GridBuyer" ej-grid e-datasource="buyerList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                                                 e-pageSettings-pageSize="10" e-allowselection="true" e-filtersettings-filterType="excel">
-                                                <div e-columns>
-                                                    <div e-column e-type="string" e-field="Id" e-headertext="id" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
-                                                    <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer Name" e-width="80"></div>
-                                                    <div e-column e-type="string" e-field="BuyerStyleRefNo" e-headertext="Buyer Style Ref No" e-width="80"></div>
-                                                    <div e-column e-type="string" e-field="OwnStyleRefNo" e-headertext="Own Style Ref No" e-width="60"></div>
-                                                    <div e-column e-type="string" e-headertext="Actions" e-width="50">
-                                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.EditBuyer($event);" style="margin: -6px;"></i></button>
-                                                        <button style=" color: #f3f3ec; background-color: #1c1f32; height: 20px; " class="btn">
-                                                            <i class="glyphicon glyphicon-trash" ng-click="$parent.removeBuyer($event);" style="        margin: -6px;
-                "></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div>
-
-                            </div>*@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                 <div class="row">
 
@@ -1024,8 +992,11 @@
                                     <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="140"></div>
                                     <div e-column e-type="string" e-field="BuyerReferenceNo" e-headertext="Buyer Reference No" e-width="120"></div>
                                     <div e-column e-type="string" e-field="OwnReferenceNo" e-headertext="Own Reference No" e-width="120"></div>
+                                    <div e-column e-type="string" e-field="ProductionGrouping" e-headertext="Production Grouping" e-width="120"></div>
+                                    <div e-column e-type="string" e-field="ProductLibrary" e-headertext="Product Library" e-width="120"></div>
+                                    <div e-column e-type="string" e-field="CustomerArticle" e-headertext="Customer Article" e-width="120"></div>
                                     <div e-column e-type="string" e-field="TotalQty" e-headertext="Total Qty" e-width="120"></div>
-                                   @*<div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="DeliveryDate" e-headertext="Delivery Date" e-width="80"></div>*@
+                                    @*<div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="DeliveryDate" e-headertext="Delivery Date" e-width="80"></div>*@
                                     <div e-column e-template="#deleteTemplateSO" e-width="32" e-textalign="center"></div>
 
                                 </div>
@@ -1052,27 +1023,6 @@
 
 </div>
 
-@*<div class="row text-right aplos-grid-toggle">
-        <div class="col-xs-12 col-sm-12 col-sm-12">
-            <div class="search-form">
-                <div class="row">
-                    <div class="col-xs-12 col-sm-3 col-md-3">
-                        <div class="select-style">
-                            <select ng-model="searchBy">
-                                <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-xs-12 col-sm-7 col-md-7">
-                        <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
-                    </div>
-                    <div class="col-xs-12 col-sm-2 col-md-2">
-                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>*@
 
 <!--Add Direct Meterial with item PopUp-->
 <div class="modal fade site-modal in" id="DirectMaterialWithItemPopUp" role="dialog" data-backdrop="static">
@@ -1603,6 +1553,13 @@
 
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="col-xs-12 col-sm-9 col-sm-9" id="filters">
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" class="btn single-btn" ng-click="getMasterOrderData()"><i class="glyphicon glyphicon-send"></i>GO</button>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-sm-12">
                     <div class="search-form">
                         <div class="row">
                             <div class="col-xs-12 col-sm-3 col-md-3">
@@ -1818,7 +1775,12 @@
                                 <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
                                 <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="140"></div>
                                 <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="140"></div>
-                                <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="140"></div> 
+                                <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="140"></div>
+                                <div e-column e-type="string" e-field="BuyerReferenceNo" e-headertext="Buyer Ref#" e-width="120"></div>
+                                <div e-column e-type="string" e-field="OwnReferenceNo" e-headertext="Own Ref#" e-width="120"></div>
+                                <div e-column e-type="string" e-field="ProductionGrouping" e-headertext="Production Grouping" e-width="120"></div>
+                                <div e-column e-type="string" e-field="ProductLibrary" e-headertext="Product Library" e-width="120"></div>
+                                <div e-column e-type="string" e-field="CustomerArticle" e-headertext="Customer Article" e-width="120"></div>
                             </div>
                         </div>
                         <script type="text/template" id="checkedSOItem">

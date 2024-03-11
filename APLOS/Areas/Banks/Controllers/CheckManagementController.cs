@@ -2098,9 +2098,12 @@ namespace Aplos.Areas.Banks.Controllers
                     objCon = new ConnectionManager.DAL.ConManager("1");
                     objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
 
-                    DataView DvMaster = new DataView(dsMaster.Tables[0]);
+                DataView DvMaster = new DataView(dsMaster.Tables[0]);
+                DateTime eDate = Convert.ToDateTime(Pdc["PostingDate"]);
+                double addedDays = Convert.ToDouble(Pdc["RemainderDays"]);
+                DateTime EffectiveDate = eDate.AddDays(addedDays);
 
-                    if (DvMaster.Count == 0)
+                if (DvMaster.Count == 0)
                     {
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
@@ -2123,7 +2126,7 @@ namespace Aplos.Areas.Banks.Controllers
                         dr["ResponsiblePersonId"] = Pdc["ResponsiblePersonId"];
                         dr["POId"] = Pdc["POId"];
                         dr["RemainderDays"] = Pdc["RemainderDays"];
-                        dr["EffectiveDate"] = Pdc["PostingDate"]+Pdc["RemainderDays"].ToString();
+                        dr["EffectiveDate"] = EffectiveDate;
                         dr["Days"] = Pdc["Days"];
                         dr["Remarks"] = Pdc["Remarks"];
 
@@ -2150,7 +2153,7 @@ namespace Aplos.Areas.Banks.Controllers
                         dr["ResponsiblePersonId"] = Pdc["ResponsiblePersonId"];
                         dr["POId"] = Pdc["POId"];
                         dr["RemainderDays"] = Pdc["RemainderDays"];
-                    dr["EffectiveDate"] = Pdc["PostingDate"] + Pdc["RemainderDays"].ToString();
+                    dr["EffectiveDate"] = EffectiveDate;
                     dr["Days"] = Pdc["Days"];
                         dr["Remarks"] = Pdc["Remarks"];
 

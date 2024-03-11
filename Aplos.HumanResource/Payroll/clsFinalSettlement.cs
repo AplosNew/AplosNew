@@ -83,7 +83,6 @@ namespace OTSBD
                 GetSalaryHead(out dsSalHd);
                 dtSlrHd = dsSalHd.Tables[0];
 
-
                 GetSalaryDataEmpWise(sEmpSystemId, Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).ToString("dd-MMM-yyyy"), out dsSalaryData);
                 if (dsSalaryData.Tables[0].Rows.Count == 0)
                 {
@@ -96,11 +95,6 @@ namespace OTSBD
                 {
                     IsMLVApplicable = true;
                 }
-
-
-
-
-
 
                 DataTable dtValue = new DataTable();
                 dtValue.TableName = "TempTable";
@@ -120,10 +114,7 @@ namespace OTSBD
                 obSSrecal.ReLoadFormulaWithValue(dsSeparationType.Tables[0].Rows[0]["FormulaDesID"].ToString(), ref dtValue, dsSalaryData.Tables[0].Rows[0]["EntryCurrencyID"].ToString().Trim(), "0", out _formulaValue, ref dtSlrHd);
                 sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString();
 
-
                 sSalaryRate = Convert.ToDecimal(string.Format("{0:F2}", sFormulaResult));
-
-
 
                 #region NoticePeriod
                 sFormulaResult = string.Empty;
@@ -134,295 +125,6 @@ namespace OTSBD
                 obj.NoticePeriodRate = Convert.ToDecimal(string.Format("{0:F2}", sFormulaResult));
 
                 #endregion
-
-
-                //calculation
-
-                //if (dsTenure.Tables[0].Rows.Count > 0)
-                //{
-                //    DataView dvSeparationTypeDetails = new DataView(dsSeparationTypeDetails.Tables[0]);
-                //    TimeSpan DaysNo = TimeSpan.FromDays(Convert.ToInt32(dsTenure.Tables[0].Rows[0]["TenureInDays"].ToString()));
-                //    DateTime zeroTime = new DateTime(1, 1, 1);
-                //    //int years = (zeroTime + DaysNo).Year - 1;
-                //    //int month = (zeroTime + DaysNo).Month - 1;
-                //    //int days = (zeroTime + DaysNo).Day-1;
-
-                //    DateTime _DOS = Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"].ToString());
-                //    int years = new DateTime(_DOS.Subtract(Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOJ"].ToString())).Ticks).Year - 1;
-
-                //    TimeSpan ts = _DOS.Subtract(Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOJ"].ToString()));
-
-                //    int TotalServiceYear =(int)Math.Round( (double)ts.Days / 365.00,0);
-                //    double TotalServiceYears =(double)Math.Round( (double)ts.Days / 365.00,0);
-                //    DateTime PastYearDate = (Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOJ"].ToString())).AddYears(years);
-                //    int month = 0;
-                //    for (int i = 1; i <= 12; i++)
-                //    {
-                //        if (PastYearDate.AddMonths(i) == _DOS)
-                //        {
-                //            month = i;
-                //            break;
-                //        }
-                //        else if (PastYearDate.AddMonths(i) >= _DOS)
-                //        {
-                //            month = i - 1;
-                //            break;
-                //        }
-                //    }
-                //    int days = _DOS.Subtract(PastYearDate.AddMonths(month)).Days + 1;
-                //    int Hours = _DOS.Subtract(PastYearDate).Hours;
-                //    int Minutes = _DOS.Subtract(PastYearDate).Minutes;
-                //    int Seconds = _DOS.Subtract(PastYearDate).Seconds;
-
-
-
-
-
-
-
-
-                //    obj.TenureDayNo = days;
-                //    obj.TenureMonthNo = month;
-                //    obj.TenureYearNo = years;
-                //    obj.OTRate = Convert.ToDecimal(string.Format("{0:F2}", dsTenure.Tables[0].Rows[0]["OTRate"].ToString()));
-                //    obj.LastMonthProcDay = Convert.ToDecimal(string.Format("{0:F2}", dsTenure.Tables[0].Rows[0]["TotalProcDate"].ToString()));
-                //    obj.LastMonthAbsentDay = Convert.ToDecimal(string.Format("{0:F2}", dsTenure.Tables[0].Rows[0]["TotalAbsent"].ToString()));
-                //    obj.LastMonthOTHour = Convert.ToDecimal(string.Format("{0:F2}", dsTenure.Tables[0].Rows[0]["TotalOTHr"].ToString()));
-                //    obj.EmpDOS = dsTenure.Tables[0].Rows[0]["DOS"].ToString();
-
-                //    //Count Days
-                //    if (TotalServiceYear > 0)
-                //    {
-                //        dvSeparationTypeDetails.RowFilter = "Convert(Yearno,'System.Decimal')=" + TotalServiceYear + "";
-                //        if (dvSeparationTypeDetails.Count > 0)
-                //        {
-                //            if (Convert.ToBoolean(dvSeparationTypeDetails[0]["RoundUp"]) == true)
-                //            {
-
-                //                if (month > 6)
-                //                {
-                //                    NumberOfYears = years + 1;
-                //                }
-                //                else if (month == 6 && days > 0)
-                //                {
-                //                    NumberOfYears = years + 1;
-                //                }
-                //                else
-                //                {
-                //                    NumberOfYears = years;
-                //                }
-                //                dvSeparationTypeDetails.RowFilter = null;
-                //                dvSeparationTypeDetails.RowFilter = "Yearno='" + NumberOfYears + "'";
-                //                if (dvSeparationTypeDetails.Count > 0)
-                //                {
-                //                    NumberOfDays = Convert.ToInt32(dvSeparationTypeDetails[0]["DayNo"]);
-                //                }
-                //                else
-                //                {
-                //                    throw new Exception("Policy  was not defined for this year.");
-                //                }
-
-                //            }
-                //            else
-                //            {
-                //                NumberOfYears = years;
-                //                NumberOfDays = Convert.ToInt32(dvSeparationTypeDetails[0]["DayNo"]);
-                //            }
-                //        }
-                //        else
-                //        {
-                //            //throw new Exception("Policy  was not defined for this year.");
-                //            sFormulaResult = "0";
-                //        }
-                //    }
-                //    // calculate total
-                //    sTotalAmount = (Convert.ToDecimal(string.Format("{0:F2}", sFormulaResult))) * NumberOfDays * NumberOfYears;
-
-
-
-
-
-                //    //Calculate Gratuity
-                //    if (isGratuityApplicable)
-                //    {
-                //        string _formulaValueG = "0";
-                //        int GratuityNumberOfYears = 0;
-                //        DataSet dsGratuityPolicy = null;
-                //        GetGratuityPolicy(plantId, out dsGratuityPolicy);
-
-                //        DataView dvGratuityPolicy = new DataView(dsGratuityPolicy.Tables[0]);
-                //        dvGratuityPolicy.RowFilter = "MaturityFromYear<= " + years + " and " + years + "<= MaturityToYear";
-                //        if (dvGratuityPolicy.Count > 0)
-                //        {
-                //            if (Convert.ToBoolean(dvGratuityPolicy[0]["IsRoudingSixMonth"]))
-                //            {
-                //                if (month > 6)
-                //                {
-                //                    GratuityNumberOfYears = years + 1;
-                //                }
-                //                else if (month == 6 && days > 0)
-                //                {
-                //                    GratuityNumberOfYears = years + 1;
-                //                }
-                //                else
-                //                {
-                //                    GratuityNumberOfYears = years;
-                //                }
-                //            }
-                //            else
-                //            {
-                //                GratuityNumberOfYears = years;
-                //            }
-
-                //            DataView dvGratuityPolicyTemp = new DataView(dsGratuityPolicy.Tables[0]);
-                //            dvGratuityPolicyTemp.RowFilter = "MaturityFromYear<= " + GratuityNumberOfYears + " and " + GratuityNumberOfYears + "<= MaturityToYear";
-                //            if (dvGratuityPolicy.Count > 0)
-                //            {
-                //                obSSrecal.ReLoadFormulaWithValue(dvGratuityPolicyTemp[0]["MaturityFormulaDesID"].ToString(), ref dtValue, dsSalaryData.Tables[0].Rows[0]["EntryCurrencyID"].ToString().Trim(), "0", out _formulaValueG, ref dtSlrHd);
-                //                sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValueG).ToString();
-                //                obj.GratuityDaysOrYear = dvGratuityPolicyTemp[0]["YearOrDayBasis"].ToString();
-                //                if (!string.IsNullOrEmpty(dvGratuityPolicyTemp[0]["NoOfDays"].ToString()))
-                //                {
-                //                    NoOfDays = Convert.ToDecimal(dvGratuityPolicyTemp[0]["NoOfDays"].ToString());
-                //                }
-                //            }
-
-                //        }
-                //        dvGratuityPolicy.RowFilter = null;
-
-                //        sGratuityAmount = Convert.ToDecimal(string.Format("{0:F2}", sFormulaResult)) * GratuityNumberOfYears;
-                //        sGratuityRate = Convert.ToDecimal(string.Format("{0:F2}", sFormulaResult));
-                //        sGratuityYearNo = GratuityNumberOfYears;
-                //        //DataView dvSalaryData = new DataView(dsSalaryData.Tables[0]);
-
-                //        //dvSalaryData.RowFilter = "HeadCategory='Basic'";
-                //        //if (dvSalaryData.Count > 0)
-                //        //{
-                //        //    int GratuityNumberOfYears = 0;
-                //        //    if (month > 6)
-                //        //    {
-                //        //        GratuityNumberOfYears = years + 1;
-                //        //    }
-                //        //    else if (month == 6 && days > 0)
-                //        //    {
-                //        //        GratuityNumberOfYears = years + 1;
-                //        //    }
-                //        //    else
-                //        //    {
-                //        //        GratuityNumberOfYears = years;
-                //        //    }
-                //        //    if (GratuityNumberOfYears >= 5 && GratuityNumberOfYears < 10)
-                //        //    {
-                //        //        sGratuityAmount = (Convert.ToDecimal(string.Format("{0:F2}", dvSalaryData[0]["EntryAmount"].ToString())) / 2) * GratuityNumberOfYears;
-                //        //        sGratuityRate = (Convert.ToDecimal(string.Format("{0:F2}", dvSalaryData[0]["EntryAmount"].ToString())) / 2);
-
-                //        //    }
-                //        //    if (GratuityNumberOfYears >= 10)
-                //        //    {
-                //        //        sGratuityAmount = Convert.ToDecimal(string.Format("{0:F2}", dvSalaryData[0]["EntryAmount"].ToString())) * GratuityNumberOfYears;
-                //        //        sGratuityRate = Convert.ToDecimal(string.Format("{0:F2}", dvSalaryData[0]["EntryAmount"].ToString()));
-                //        //    }
-
-                //        //    sGratuityYearNo = GratuityNumberOfYears;
-                //        //}
-                //    }
-
-
-                //    if (isFixedDayAmountApplicable)// Fixed Day Amount
-                //    {
-                //        DataSet dsSeparationTypeFixedDayAmount = null;
-                //        GetSeparationTypeFixedDayAmountById(dsSeparationType.Tables[0].Rows[0]["Id"].ToString(), out dsSeparationTypeFixedDayAmount);
-                //        DataView dv = new DataView(dsSeparationTypeFixedDayAmount.Tables[0]);
-                //        dv.RowFilter = "EmploymentType='" + dsTenure.Tables[0].Rows[0]["EmploymentType"].ToString() + "'";
-
-                //        if (dv.Count > 0)
-                //        {
-                //            sFixedDayAmount = (Convert.ToDecimal(string.Format("{0:F2}", sFormulaResult)) / 30) * Convert.ToDecimal(dv[0]["DayNo"].ToString());
-                //            NumberOfFixedDays = Convert.ToDecimal(dv[0]["DayNo"].ToString());
-                //        }
-
-                //    }
-
-
-
-
-                //    //Salary Info
-
-                //    //ss basd
-                //    DataView dvBasicData = new DataView(dsSalaryData.Tables[0]);
-                //    dvBasicData.RowFilter = "HeadCategory='Basic'";
-                //    if (dvBasicData.Count > 0)
-                //    {
-                //        sBasicAmount = Convert.ToDecimal(dvBasicData[0]["EntryAmount"].ToString());
-                //    }
-
-                //    DataView dvGrossData = new DataView(dsSalaryData.Tables[0]);
-                //    dvGrossData.RowFilter = "HeadCategory='GROSS'";
-                //    if (dvGrossData.Count > 0)
-                //    {
-                //        sGrossAmount = Convert.ToDecimal(dvGrossData[0]["EntryAmount"].ToString());
-                //    }
-
-
-                //    // proc data
-
-
-                //    if (IsMLVApplicable == false)//MLV leave is not applicable
-                //    {
-                //        GetLastMonthSalaryInfoByEmpId(sEmpSystemId, Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).ToString("dd-MMM-yyyy"), out dsProcSalaryData);
-                //        if (dsProcSalaryData.Tables[0].Rows.Count > 0)
-                //        {
-                //            DataView dvSPAprovedData = new DataView(dsProcSalaryData.Tables[0]);
-                //            dvSPAprovedData.RowFilter = "IsLocked=" + true;
-                //            if (dvSPAprovedData.Count == 0)
-                //            {
-                //                throw new Exception("Salary of [" + Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).ToString("MMMM") + "] is not Locked.");
-                //            }
-
-
-
-                //            DataView dvSPGData = new DataView(dsProcSalaryData.Tables[0]);
-                //            dvSPGData.RowFilter = "HeadCategory='GROSS'";
-                //            if (dvSPGData.Count > 0)
-                //            {
-                //                obj.LastMonthGrossAmount = Convert.ToDecimal(dvSPGData[0]["DisbusmentAmount"].ToString());
-                //            }
-
-
-                //            DataView dvSPAData = new DataView(dsProcSalaryData.Tables[0]);
-                //            dvSPAData.RowFilter = "HeadCategory='Absenteeism'";
-                //            if (dvSPAData.Count > 0)
-                //            {
-                //                obj.LastMonthAbsenteeismAmount = Convert.ToDecimal(dvSPAData[0]["DisbusmentAmount"].ToString()) * (-1);
-                //            }
-
-                //            DataView dvSPNPData = new DataView(dsProcSalaryData.Tables[0]);
-                //            dvSPNPData.RowFilter = "HeadCategory='Net Payable'";
-                //            if (dvSPNPData.Count > 0)
-                //            {
-                //                obj.LastMonthNetPayAmount = Convert.ToDecimal(dvSPNPData[0]["DisbusmentAmount"].ToString());
-                //            }
-
-                //            DataView dvSPOTData = new DataView(dsProcSalaryData.Tables[0]);
-                //            dvSPOTData.RowFilter = "HeadCategory='OverTime'";
-                //            if (dvSPOTData.Count > 0)
-                //            {
-                //                obj.LastMonthOTAmount = Convert.ToDecimal(dvSPOTData[0]["DisbusmentAmount"].ToString());
-                //            }
-
-                //        }
-                //        else
-                //        {
-                //            throw new Exception("Salary [ of " + Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).ToString("MMMM") + "] is not processed. ");
-                //        }
-
-                //    }
-
-
-
-
-
-                //}
 
                 if (dsTenure.Tables[0].Rows.Count > 0)
                 {
@@ -454,13 +156,6 @@ namespace OTSBD
                     int Hours = _DOS.Subtract(PastYearDate).Hours;
                     int Minutes = _DOS.Subtract(PastYearDate).Minutes;
                     int Seconds = _DOS.Subtract(PastYearDate).Seconds;
-
-
-
-
-
-
-
 
                     obj.TenureDayNo = days;
                     obj.TenureMonthNo = month;
@@ -660,8 +355,6 @@ namespace OTSBD
                                 throw new Exception("Salary of [" + Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).ToString("MMMM") + "] is not Locked.");
                             }
 
-
-
                             DataView dvSPGData = new DataView(dsProcSalaryData.Tables[0]);
                             dvSPGData.RowFilter = "HeadCategory='GROSS'";
                             if (dvSPGData.Count > 0)
@@ -690,19 +383,12 @@ namespace OTSBD
                             {
                                 obj.LastMonthOTAmount = Convert.ToDecimal(dvSPOTData[0]["DisbusmentAmount"].ToString());
                             }
-
                         }
                         else
                         {
                             throw new Exception("Salary [ of " + Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).ToString("MMMM") + "] is not processed. ");
                         }
-
                     }
-
-
-
-
-
                 }
 
                 DataSet dsBonusRetainedBalance;
@@ -710,20 +396,8 @@ namespace OTSBD
 
                 if (dsBonusRetainedBalance.Tables[0].Rows.Count > 0)
                 {
-                    //CustomParaBonusRetained cp = new CustomParaBonusRetained();
-                    //cp.Description = "Final Settlement Bonus Retained Disbusment";
-                    //cp.DisbursementDate = "";
-                    //List<BonusRetainedModel> br = new List<BonusRetainedModel>();
-                    //BonusRetainedModel ob = new BonusRetainedModel();
-                    //ob.EmpInfoSystemID = sEmpSystemId;
-                    //ob.DisbusmentAmount = dsBonusRetainedBalance.Tables[0].Rows[0]["DisbusmentAmount"].ToString();
-                    //br.Add(ob);
-                    //SaveBonusRetainedData(cp, br);
-
                     obj.BonusRetainedAmount = Convert.ToDecimal(string.Format("{0:F2}", dsBonusRetainedBalance.Tables[0].Rows[0]["DisbusmentAmount"].ToString()));
-
                 }
-
 
 
                 obj.EmpSystemId = sEmpSystemId;

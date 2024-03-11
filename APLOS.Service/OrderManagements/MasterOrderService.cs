@@ -2439,16 +2439,35 @@ WHERE MOI.MasterOrderId='" + id + "'";
             }
         }
 
-        public void ApproveSOGraph(SalesOrderMaster salesOrderMaster)
+        public DataSet GetMasterOrderStatus(string moItemId)
+        {
+            GridParameter parameters = null;
+            parameters = new GridParameter
+            {
+                ExportType = "DATASET",
+                CmdText = @"Select distinct MA.OrderStatusId from  TRN.SalesOrder S 
+left  join TRN.MasterOrderItem M ON M.Id=S.MasterOrderItemId
+left  join TRN.MasterOrder MA ON MA.Id=M.MasterOrderId
+Where S.MasterOrderItemId='"+ moItemId + "'"
+            };
+            return _sqlRepository.GetGridData(parameters).Source;
+        }
+
+        public void ApproveSOGraph(MasterOrder entity,SalesOrderMaster salesOrderMaster)
         {
             try
             {
-
+                var masterOrderStatus = "";
+                var dsOrderStatus = GetMasterOrderStatus(salesOrderMaster.MasterOrderItemId);
+                if (dsOrderStatus.Tables[0].Rows.Count > 0)
+                {
+                    masterOrderStatus = dsOrderStatus.Tables[0].Rows[0]["OrderStatusId"].ToString();
+                }
                 if (!string.IsNullOrEmpty(salesOrderMaster.Id))
                 {
                     AuditService.UpdatedLog(salesOrderMaster);
                     salesOrderMaster.ApproveByDate = DateTime.Now;
-                    salesOrderMaster.OrderStatusId = "Active";
+                    salesOrderMaster.OrderStatusId = masterOrderStatus;
 
                     _salesOrderRepository.Update(salesOrderMaster);
                 }
