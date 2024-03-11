@@ -6,9 +6,11 @@ using Library.Data;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
 using Library.Model.Enums;
+using Library.Service.Extension.Accounts;
 using Library.Service.Vouchers;
 using Library.ViewModel.Vouchers;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -19,13 +21,16 @@ namespace Aplos.Areas.Accounts.Controllers
         private readonly IVoucherService _voucharService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
+        private readonly IVoucherService _voucherService;
         public VoucherGlUpdateController(
              IUnitOfWork unitOfWork
             , ISqlRepository sqlRepository
+            , IVoucherService voucherService
             )
         {
             _unitOfWork = unitOfWork;
             _sqlRepository = sqlRepository;
+            _voucherService = voucherService;
         }
 
         public ActionResult Aplos()
@@ -57,6 +62,9 @@ namespace Aplos.Areas.Accounts.Controllers
         public JsonResult UpdateVoucherGl(IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
         {
             AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
+            AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+            var voucher = _voucherService.FindVoucher(voucherDetailVMList.FirstOrDefault().VoucherId);
+            _accountsCommonService.CheckingFiscalYearClose(voucher);
             accountsCommonService.UpdateVoucherGl(voucherDetailVMList);
 
             return Json(new { Message = AplosMessage.Updated });
