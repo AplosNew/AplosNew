@@ -7844,7 +7844,7 @@ left outer join trn.MasterOrderItem MOI on moi.Id = so.MasterOrderItemId
 left outer join[MST].[MaterialMasterArticle] MA ON ma.Id = moi.ArticleId
 where Pod.ProductionOrderId = QC.ProductionOrderId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 (select UserName from MST.QualityManagementMaster where Id=QC.IssueId) as IssueName,
-(select top 1 Finalreport from [TRN].[CustomerQualityReportDetails] where CQRHeaderId=CQH.Id and ParameterId=QMP.Id and UOMId=QMP.UOMId) Finalreport,
+(select top 1 Finalreport from [TRN].[CustomerQualityReportDetails] where CQRHeaderId=CQH.Id and ParameterId=QMP.Id and UOMId=QMP.UOMId) FinalReport,
 QMP.Id ParameterId,CQH.Id CQRHeaderId,CQH.UserName,CQH.Remarks,CQH.ByWhomId,
 (select EmployeeName from EmployeeInformation where systemId=CQH.ByWhomId) as ByWhom,
 (select top 1 Id from [TRN].[CustomerQualityReportDetails] where CQRHeaderId=CQH.Id and ParameterId=QMP.Id and UOMId=QMP.UOMId) as Id,

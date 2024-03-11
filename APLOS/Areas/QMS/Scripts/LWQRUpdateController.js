@@ -184,7 +184,7 @@ function LWQRUpdateController(cboService, commonMessage, $scope, $rootScope, bas
         try {
             $scope.SaveList = [];
             for (var i = 0; i < $scope.LWQRList.length; i++) {
-                if ($scope.LWQRList[i].Finalreport === true) {
+                if ($scope.LWQRList[i].FinalReport === true) {
                     if (checkExists($scope.SaveList, $scope.LWQRList[i].Parameter) == false) {
                         $scope.SaveList.push($scope.LWQRList[i]);
                     }
