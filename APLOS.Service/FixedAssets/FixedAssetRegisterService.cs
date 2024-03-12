@@ -3036,7 +3036,7 @@ GROUP BY FAR.FABudgetMasterId
 									LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId= VD.EmployeeId
 									LEFT JOIN ORG.Entity EN  ON EN.Id=VD.EntityId
 									LEFT JOIN [ORG].[CostCenter] CC ON CC.Id=VD.CostCenterId
-                                   WHERE V.IsPark=0 AND VD.DrAmount>0 AND BM.IsCapital=1
+                                   WHERE V.IsPark=0 AND VD.DrAmount>0 AND BM.IsCapital=1 
                                    AND VD.Id NOT IN (Select ISNULL([VoucherDetailId],'') from [TRN].[CapitalizationMasterDetail])) AS TEMP WHERE " + strkey + " order by FiscalYearName";
                 }
 

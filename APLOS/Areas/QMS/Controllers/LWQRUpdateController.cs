@@ -47,7 +47,7 @@ namespace Aplos.Areas.QMS.Controllers
 
         #region -- Operations
 
-        
+
 
         [Authorize, HttpGet]
         public ActionResult GetUpdateCustomerList()
@@ -74,7 +74,7 @@ namespace Aplos.Areas.QMS.Controllers
         }
 
         [Authorize, HttpGet]
-        public ActionResult LoadLWQRUpdate(string POId, string LotNumber,string CustomerId, string InvoiceId)
+        public ActionResult LoadLWQRUpdate(string POId, string LotNumber, string CustomerId, string InvoiceId)
         {
             return Json(_productionSummaryData.LoadLWQRUpdate(POId, LotNumber, CustomerId, InvoiceId), JsonRequestBehavior.AllowGet);
         }
@@ -157,10 +157,18 @@ namespace Aplos.Areas.QMS.Controllers
                         item["CQRHeaderId"] = masterId;
                         AddNewRow(dsDetail.Tables[0], item);
                     }
+
                     else
                     {
                         DataRow drmo = dv[0].Row;
-                        EditRow(drmo, item);
+                        //if (drmo["Id"].ToString() != null && Convert.ToBoolean(drmo["FinalReport"].ToString()) == false)
+                        //{
+                        //    drmo.Delete();
+                        //}
+                        //else
+                        //{
+                        //}
+                            EditRow(drmo, item);
                     }
                 }
 
@@ -181,7 +189,7 @@ namespace Aplos.Areas.QMS.Controllers
             {
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                 conC.BeginTransaction();
-                conC.executeQuery("Update [TRN].[CustomerQualityReportDetails] set SpecialRemarks='"+ SpecialRemarks + "' where Id='"+ ParameterChildId + "'");
+                conC.executeQuery("Update [TRN].[CustomerQualityReportDetails] set SpecialRemarks='" + SpecialRemarks + "' where Id='" + ParameterChildId + "'");
                 conC.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Updated }, JsonRequestBehavior.AllowGet);

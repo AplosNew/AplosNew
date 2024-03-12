@@ -1344,5 +1344,19 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
         #endregion PaymentStatus
+        #region Quality Acion 
+        public List<QualityControll> GetQualityControll(string FromDate, string ToDate, string ResponsiblePersonId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetQualityControll(out List<QualityControll> activelists, FromDate, ToDate, ResponsiblePersonId);
+            return activelists;
+        }
+        public List<QualityControllUpdate> GetQualityActionUpdateParameter(string HeaderId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetQualityActionUpdateParameter(out List<QualityControllUpdate> activelists, HeaderId);
+            return activelists;
+        }
+        #endregion Quality Acion 
     }
 }

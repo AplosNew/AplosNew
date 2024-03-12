@@ -10092,6 +10092,139 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
             }
         }
         #endregion payment Receive
+        #region Quality Action 
+        public void GetQualityControll(out List<QualityControll> DataList, string FromDate, string ToDate, string ResponsiblePersonId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<QualityControll>();
+            string FilterDate = string.Empty;
+            string ResponsiblePerson = string.Empty;
+            System.Data.DataSet dsRef;
+            if (FromDate != null && ToDate != null && FromDate != "undefined" && ToDate != "undefined")
+            {
+                FilterDate = " and convert(Date,QCD.AddedDate) between '" + FromDate + "' and '" + ToDate + "'";
+            }
+
+            if (ResponsiblePersonId != "null" && ResponsiblePersonId != "undefined")
+            {
+                ResponsiblePerson = " and ResponsiblePersonId = '" + ResponsiblePersonId + "'";
+            }
+            try 
+            { 
+            strSQL = @"select distinct QC.Id as HeaderId,format(QC.AddedDate,'dd-MMM-yyyy') as Date,DATEDIFF(Hour,QC.AddedDate,GETDATE()) PendingTime,E.Id EntityId,E.UserName Entity,P.Id ProcessId,P.UserName Process,
+QC.IssueId,QMM.UserName Issue,EI.SystemId CheckedById,EI.EmployeeName CheckedBy,QC.ProductionOrderId PONo,QC.LotNumber,
+Article=STUFF((select distinct ','+MA.StandardName from trn.ProductionOrderDetail Pod 
+left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId=so.Id
+left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
+left outer join [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
+where Pod.ProductionOrderId=QC.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+PS.UserName POStatus from TRN.QualityControlDetails QCD
+left join TRN.QualityControl QC on QC.Id=QCD.QCId
+left join ORG.Entity E on E.Id=QC.EntityId
+left join hkp.Process P on P.Id=QC.ProcessId
+left join MST.QualityManagementMaster QMM on QMM.Id=QC.IssueId
+left join EmployeeInformation EI on EI.SystemId=QC.ProductionInchargeId
+left join TRN.ProductionOrder PO on PO.Id=QC.ProductionOrderId
+left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
+where QCD.Status not in ('Close','Complete') and PS.UserName in ('Running','To Close') and QCD.GradeId in (select Id from MST.QualityGradeDetails where ActionApplicable=1) " + FilterDate + @" " + ResponsiblePerson + @" order by DATEDIFF(Hour,QC.AddedDate,GETDATE()) desc";
+            objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new QualityControll
+                    {
+                        HeaderId = dsRef.Tables[0].Rows[i]["HeaderId"].ToString(),
+                        Date = dsRef.Tables[0].Rows[i]["Date"].ToString(),
+                        PendingTime = dsRef.Tables[0].Rows[i]["PendingTime"].ToString(),
+                        EntityId = dsRef.Tables[0].Rows[i]["EntityId"].ToString(),
+                        Entity = dsRef.Tables[0].Rows[i]["Entity"].ToString(),
+                        ProcessId = dsRef.Tables[0].Rows[i]["ProcessId"].ToString(),
+                        Process = dsRef.Tables[0].Rows[i]["Process"].ToString(),
+                        IssueId = dsRef.Tables[0].Rows[i]["IssueId"].ToString(),
+                        Issue = dsRef.Tables[0].Rows[i]["Issue"].ToString(),
+                        CheckedById = dsRef.Tables[0].Rows[i]["CheckedById"].ToString(),
+                        CheckedBy = dsRef.Tables[0].Rows[i]["CheckedBy"].ToString(),
+                        PONo = dsRef.Tables[0].Rows[i]["PONo"].ToString(),
+                        LotNumber = dsRef.Tables[0].Rows[i]["LotNumber"].ToString(),
+                        Article = dsRef.Tables[0].Rows[i]["Article"].ToString(),
+                        POStatus = dsRef.Tables[0].Rows[i]["POStatus"].ToString(),
+
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetQualityActionUpdateParameter(out List<QualityControllUpdate> DataList, string HeaderId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<QualityControllUpdate>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select QCD.Id ParameterId,PM.UserName Parameter,QCD.Status,UOM.UserName UOM,QCD.Value,QMP.Max,QMP.Min,WC.UserName WorkCenter,QGD.GradeName,
+QAD.ActionToBeTakenName,EI.EmployeeName ResponsiblePerson,QCD.Remarks,QCD.ItemId,format(QCD.AddedDate,'dd-MMM-yyyy') as AddedDate,format(QCD.AddedDate,'hh:mm tt') as AddedTime  from TRN.QualityControlDetails QCD
+left join MST.QualityManagementParameterItem QMP on QMP.Id=QCD.ItemId
+left join hkp.ParameterMaster PM on PM.Id=QMP.ParameterId
+left join SCS.UnitOfMeasurement UOM on UOM.Id=QMP.UOMId
+left join SCS.WorkCenterMaster WC on WC.Id=QCD.WorkCenterId
+left join MST.QualityGradeDetails QGD on QGD.Id=QCD.GradeId
+left join MST.QualityActionToBeTakenDetails QAD on QAD.Id=QCD.ActionToBeTaken
+left join EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
+where QCD.Status not in ('Close','Complete') and QCD.GradeId in (select Id from MST.QualityGradeDetails where ActionApplicable=1)
+and QCD.QCId='" + HeaderId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new QualityControllUpdate
+                    {
+                        ParameterId = dsRef.Tables[0].Rows[i]["ParameterId"].ToString(),
+                        Parameter = dsRef.Tables[0].Rows[i]["Parameter"].ToString(),
+                        Status = dsRef.Tables[0].Rows[i]["Status"].ToString(),
+                        UOM = dsRef.Tables[0].Rows[i]["UOM"].ToString(),
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Max = dsRef.Tables[0].Rows[i]["Max"].ToString(),
+                        Min = dsRef.Tables[0].Rows[i]["Min"].ToString(),
+                        WorkCenter = dsRef.Tables[0].Rows[i]["WorkCenter"].ToString(),
+                        GradeName = dsRef.Tables[0].Rows[i]["GradeName"].ToString(),
+                        ActionToBeTakenName = dsRef.Tables[0].Rows[i]["ActionToBeTakenName"].ToString(),
+                        ResponsiblePerson = dsRef.Tables[0].Rows[i]["ResponsiblePerson"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+                        ItemId = dsRef.Tables[0].Rows[i]["ItemId"].ToString(),
+                        AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
+                        AddedTime = dsRef.Tables[0].Rows[i]["AddedTime"].ToString(),
+
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        #endregion Quality Action 
     }
 
 
@@ -11334,4 +11467,44 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
         public string AddRemarks { get; set; }
 
     }
+
+    public class QualityControll
+    {
+        public string HeaderId { get; set; }
+        public string Date { get; set; }
+        public string PendingTime { get; set; }
+        public string EntityId { get; set; }
+        public string Entity { get; set; }
+        public string ProcessId { get; set; }
+        public string Process { get; set; }
+        public string IssueId { get; set; }
+        public string Issue { get; set; }
+        public string CheckedById { get; set; }
+        public string CheckedBy { get; set; }
+        public string PONo { get; set; }
+        public string LotNumber { get; set; }
+        public string Article { get; set; }
+        public string POStatus { get; set; }
+
+    }
+
+    public class QualityControllUpdate
+    {
+        public string ParameterId { get; set; }
+        public string Parameter { get; set; }
+        public string Status { get; set; }
+        public string UOM { get; set; }
+        public string Value { get; set; }
+        public string Max { get; set; }
+        public string Min { get; set; }
+        public string WorkCenter { get; set; }
+        public string GradeName { get; set; }
+        public string ActionToBeTakenName { get; set; }
+        public string ResponsiblePerson { get; set; }
+        public string Remarks { get; set; }
+        public string ItemId { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedTime { get; set; }
+    }
+
 }
