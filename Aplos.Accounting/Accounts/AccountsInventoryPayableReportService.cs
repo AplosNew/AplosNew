@@ -3183,7 +3183,7 @@ namespace Library.Accounting.Accounts
 							, BC.UserName AS BudgetCategory,BSC.UserName AS BudgetSubCategory, B.UserName AS Budget, BM.RefNo
 							,A.UserName AS Activity, R.UserName AS Register,BMA.BalanceSheetSchedulingId,ISNULL(BMA.TaxApplicable,'No')TaxApplicable
 							,BMA.TaxType,BMA.UserCategory,BMA.UserSubCategory,BMA.UserItem,ISNULL(BMA.UserReport,'No')UserReport
-                            ,ISNULL(BMA.IsAllowed,'No')IsAllowed,ISNULL(BMA.AllowedDays,0) AllowedDays,ISNULL(BMA.MonthDay,0) MonthDay
+                            ,ISNULL(BMA.IsAllowed,'No')IsAllowed,ISNULL(BMA.AllowedDays,0) AllowedDays,ISNULL(BMA.MonthDay,0) MonthDay,BMA.UserGroup,ISNULL(BMA.Sequence,0) Sequence,ISNULL(BMA.UserCategorySequence,0) UserCategorySequence,ISNULL(BMA.UserSubCategorySequence,0) UserSubCategorySequence,ISNULL(BMA.UserItemSequence,0) UserItemSequence,ISNULL(BMA.Remark,'') Remark
                             FROM  [MST].[BudgetMasterActivity] AS BMA
 							LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=BMA.BudgetMasterId
 							LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
