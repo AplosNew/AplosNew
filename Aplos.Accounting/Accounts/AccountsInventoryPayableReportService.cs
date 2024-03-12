@@ -3086,7 +3086,13 @@ namespace Library.Accounting.Accounts
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "UserReport"); int colUserReport = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Is Allowed"); int colIsAllowed = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Allowed Days"); int colAllowedDays = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Month Day"); int colMonthDay = xlsCol;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Month Day"); int colMonthDay = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "User Group"); int colUserGroup = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sequence"); int colSequence = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "User Category Sequence"); int colUserCategorySequence = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "User SubCategory Sequence"); int colUserSubCategorySequence = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "User Item Sequence"); int colUserItemSequence = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remark"); int colRemark = xlsCol;
 
                 endXlsCol = xlsCol;
 
@@ -3126,7 +3132,12 @@ namespace Library.Accounting.Accounts
                     sheet1[xlsRow, colUserReport].Text = dtBudgetMaster.Rows[i]["UserReport"].ToString();
                     sheet1[xlsRow, colIsAllowed].Text = dtBudgetMaster.Rows[i]["IsAllowed"].ToString();
                     sheet1[xlsRow, colAllowedDays].Text = dtBudgetMaster.Rows[i]["AllowedDays"].ToString();
-                    sheet1[xlsRow, colMonthDay].Text = dtBudgetMaster.Rows[i]["MonthDay"].ToString();
+                    sheet1[xlsRow, colUserGroup].Text = dtBudgetMaster.Rows[i]["UserGroup"].ToString();
+                    sheet1[xlsRow, colSequence].Text = dtBudgetMaster.Rows[i]["Sequence"].ToString();
+                    sheet1[xlsRow, colUserCategorySequence].Text = dtBudgetMaster.Rows[i]["UserCategorySequence"].ToString();
+                    sheet1[xlsRow, colUserSubCategorySequence].Text = dtBudgetMaster.Rows[i]["UserSubCategorySequence"].ToString();
+                    sheet1[xlsRow, colUserItemSequence].Text = dtBudgetMaster.Rows[i]["UserItemSequence"].ToString();
+                    sheet1[xlsRow, colRemark].Text = dtBudgetMaster.Rows[i]["Remark"].ToString();
                     xlsRow++;
                 }
 
