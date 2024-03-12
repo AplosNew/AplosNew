@@ -1525,6 +1525,7 @@ namespace Library.Accounting.Accounts
                                     ,BMA.UserCategory= '" + item.UserCategory + "',BMA.UserSubCategory= '" + item.UserSubCategory + @"'
                                     ,BMA.UserItem= '" + item.UserItem + "',BMA.UserReport= '" + item.UserReport + @"'
                                     ,BMA.IsAllowed='" + item.IsAllowed + "',BMA.AllowedDays=" + item.AllowedDays + ",BMA.MonthDay=" + item.MonthDay + @"
+,BMA.UserGroup='" + item.UserGroup + "',BMA.Sequence='" + item.Sequence + "',BMA.UserCategorySequence='" + item.UserCategorySequence + "',BMA.UserSubCategorySequence='" + item.UserSubCategorySequence + "',BMA.UserItemSequence='" + item.UserItemSequence + "',BMA.Remark='" + item.Remark + @"'
                                     FROM [MST].[BudgetMasterActivity] BMA
                                     WHERE BMA.Id='" + item.BudgetMasterActivityId + @"'";
                         uploadedData.Append(uploadedDatasql);
@@ -1535,6 +1536,7 @@ namespace Library.Accounting.Accounts
                                     ,BMA.UserCategory= '" + item.UserCategory + "',BMA.UserSubCategory= '" + item.UserSubCategory + @"'
                                     ,BMA.UserItem= '" + item.UserItem + "',BMA.UserReport= '" + item.UserReport + @"'
                                     ,BMA.IsAllowed='" + item.IsAllowed + "',BMA.AllowedDays=" + item.AllowedDays + ",BMA.MonthDay=" + item.MonthDay + @"
+,BMA.UserGroup='" + item.UserGroup + "',BMA.Sequence='" + item.Sequence + "',BMA.UserCategorySequence='" + item.UserCategorySequence + "',BMA.UserSubCategorySequence='" + item.UserSubCategorySequence + "',BMA.UserItemSequence='" + item.UserItemSequence + "',BMA.Remark='" + item.Remark + @"'
                                     FROM [MST].[BudgetMasterActivity] BMA
                                     WHERE BMA.Id='" + item.BudgetMasterActivityId + @"'";
                         uploadedData.Append(uploadedDatasql);

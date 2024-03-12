@@ -58,7 +58,12 @@ namespace Library.Model.Accounts
         public string IsAllowed { get; set; }
         public int AllowedDays { get; set; }
         public int MonthDay { get; set; }
-
+        public string UserGroup { get; set; }
+        public decimal Sequence { get; set; }
+        public decimal UserCategorySequence { get; set; }
+        public decimal UserSubCategorySequence { get; set; }
+        public decimal UserItemSequence { get; set; }
+        public string Remark { get; set; }
         #endregion Navigation Properties
     }
 }

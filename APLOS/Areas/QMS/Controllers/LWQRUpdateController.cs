@@ -105,9 +105,9 @@ namespace Aplos.Areas.QMS.Controllers
                 con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[CustomerQualityReportHeader] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
-                conC.BeginTransaction();
-                conC.executeQuery("Update [TRN].[CustomerQualityReportDetails] set FinalReport=0 where CQRHeaderId = '" + data["Id"] + "'");
-                conC.CommitTransaction();
+                // conC.BeginTransaction();
+                //// conC.executeQuery("Update [TRN].[CustomerQualityReportDetails] set FinalReport=0 where CQRHeaderId = '" + data["Id"] + "'");
+                // conC.CommitTransaction();
 
                 string _Id = "";
 
@@ -140,6 +140,14 @@ namespace Aplos.Areas.QMS.Controllers
                 con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[CustomerQualityReportDetails] WHERE CQRHeaderId ='" + masterId + "'", out dsDetail, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT COUNT(Id)Id FROM [TRN].[CustomerQualityReportDetails] WHERE CQRHeaderId ='" + masterId + "'", out dsId, false, "1");
 
+                for (int i = 0; i < dsDetail.Tables[0].Rows.Count; i++)
+                {
+                    if (Convert.ToBoolean(dsDetail.Tables[0].Rows[i]["FinalReport"])==false)
+                    {
+                        dsDetail.Tables[0].Rows[i].Delete();
+                    }
+                }
+
                 int count = Convert.ToInt32(dsId.Tables[0].Rows[0]["Id"].ToString());
 
 
@@ -161,14 +169,14 @@ namespace Aplos.Areas.QMS.Controllers
                     else
                     {
                         DataRow drmo = dv[0].Row;
-                        //if (drmo["Id"].ToString() != null && Convert.ToBoolean(drmo["FinalReport"].ToString()) == false)
-                        //{
-                        //    drmo.Delete();
-                        //}
-                        //else
-                        //{
-                        //}
+                        if (drmo["Id"].ToString() != null && Convert.ToBoolean(drmo["FinalReport"].ToString()) == false)
+                        {
+                            drmo.Delete();
+                        }
+                        else
+                        {
                             EditRow(drmo, item);
+                        }
                     }
                 }
 
