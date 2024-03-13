@@ -17,6 +17,7 @@ function SalesOrderStatusReportController(commonMessage, $scope, $rootScope, bas
             var columnList = [
                 { field: 'SOId', width: 20, headerText: "SO Id", type: "string" },
                 { field: 'OrderStatus', width: 20, headerText: "Order Status", type: "string" },
+                { field: 'OrderCategory', width: 20, headerText: "Order Category", type: "string" },
                 { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
                 { field: 'ResponsiblePerson', width: 20, headerText: "Responsible Person", type: "string" },
 
@@ -53,6 +54,7 @@ function SalesOrderStatusReportController(commonMessage, $scope, $rootScope, bas
         parameters.push({ "Key": "SOId", "Value": getString(fl, "SOId") });
         parameters.push({ "Key": "OrderStatus", "Value": getString(fl, "OrderStatus") });
         parameters.push({ "Key": "CustomerId", "Value": getString(fl, "CustomerId") });
+        parameters.push({ "Key": "OrderCategoryId", "Value": getString(fl, "OrderCategoryId") });
         parameters.push({ "Key": "ResponsiblePersonId", "Value": getString(fl, "ResponsiblePersonId") });
 
 
@@ -100,17 +102,9 @@ function SalesOrderStatusReportController(commonMessage, $scope, $rootScope, bas
     $scope.GetReport = function (reportType) {
         try {
             $scope.filterComplete();
-
-            //var DropDownJobLocationListObjE = $("#selOS").data("ejDropDownList");
-            //var osLists = DropDownJobLocationListObjE.getSelectedValue();
-            //if (angular.isUndefinedOrNull(osLists)) {
-            //    throw "Select Order Status.";
-            //}
-            // The Report Code
             $http({
                 method: 'POST',
                 url: $scope.path + 'XlsSalesOrderStatusReport',
-                //data: { 'orderStatusId': osLists },
                 data: { 'parameters': $scope.parameters },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
