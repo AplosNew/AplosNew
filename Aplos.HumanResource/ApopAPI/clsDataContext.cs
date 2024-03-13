@@ -10317,7 +10317,22 @@ where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QCD.Status=
                         dsMaster.Tables[0].Rows.Add(dr);
 
                     }
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
 
+                        dr["ActionTaken"] = item.ActionTaken;
+                        dr["ActionById"] = item.ActionById;
+                        dr["Remarks"] = item.Remarks;
+                        dr["ParameterId"] = item.ParameterId;
+                        dr["ReasonName"] = item.ReasonName;
+
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedFromIP"] = "192.168.137.44";
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    }
 
                 }
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
