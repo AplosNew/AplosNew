@@ -10338,6 +10338,57 @@ where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QCD.Status=
             }
 
         }
+
+        public void GetQualityActionUpdate(out List<QualityActionUpdate> DataList, string ParameterId, string SNO)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<QualityActionUpdate>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                if(SNO != null)
+                {
+                    strSQL = @"select * from [TRN].[QualityActionTakenUpdate] where ParameterId = '" + ParameterId + "' and SNO = '" + SNO + "'";
+                }
+                else
+                {
+                    strSQL = @"select * from [TRN].[QualityActionTakenUpdate] where ParameterId = '" + ParameterId + "'";
+                }
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new QualityActionUpdate
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        SNO = dsRef.Tables[0].Rows[i]["SNO"].ToString(),
+                        ReasonId = dsRef.Tables[0].Rows[i]["ReasonId"].ToString(),
+                        ActionTaken = dsRef.Tables[0].Rows[i]["ActionTaken"].ToString(),
+                        ActionById = dsRef.Tables[0].Rows[i]["ActionById"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+                        ParameterId = dsRef.Tables[0].Rows[i]["ParameterId"].ToString(),
+                        ReasonName = dsRef.Tables[0].Rows[i]["ReasonName"].ToString(),
+                        ConfirmRemarks = dsRef.Tables[0].Rows[i]["ConfirmRemarks"].ToString(),
+                        AddedBy = dsRef.Tables[0].Rows[i]["AddedBy"].ToString(),
+                        AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
+
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
         #endregion Quality Action 
     }
 

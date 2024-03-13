@@ -1376,6 +1376,13 @@ namespace Aplos.Controllers.ApopAPIHR
                 return ex.ToString();
             }
         }
+
+        public List<QualityActionUpdate> GetQualityActionUpdate(string ParameterId , string SNO)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetQualityActionUpdate(out List<QualityActionUpdate> activelists, ParameterId, SNO);
+            return activelists;
+        }
         #endregion Quality Acion 
     }
 }
