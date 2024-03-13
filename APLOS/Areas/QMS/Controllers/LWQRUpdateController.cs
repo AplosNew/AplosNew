@@ -47,7 +47,7 @@ namespace Aplos.Areas.QMS.Controllers
 
         #region -- Operations
 
-        
+
 
         [Authorize, HttpGet]
         public ActionResult GetUpdateCustomerList()
@@ -74,7 +74,7 @@ namespace Aplos.Areas.QMS.Controllers
         }
 
         [Authorize, HttpGet]
-        public ActionResult LoadLWQRUpdate(string POId, string LotNumber,string CustomerId, string InvoiceId)
+        public ActionResult LoadLWQRUpdate(string POId, string LotNumber, string CustomerId, string InvoiceId)
         {
             return Json(_productionSummaryData.LoadLWQRUpdate(POId, LotNumber, CustomerId, InvoiceId), JsonRequestBehavior.AllowGet);
         }
@@ -105,9 +105,9 @@ namespace Aplos.Areas.QMS.Controllers
                 con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[CustomerQualityReportHeader] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
-                conC.BeginTransaction();
-                conC.executeQuery("Update [TRN].[CustomerQualityReportDetails] set FinalReport=0 where CQRHeaderId = '" + data["Id"] + "'");
-                conC.CommitTransaction();
+                // conC.BeginTransaction();
+                //// conC.executeQuery("Update [TRN].[CustomerQualityReportDetails] set FinalReport=0 where CQRHeaderId = '" + data["Id"] + "'");
+                // conC.CommitTransaction();
 
                 string _Id = "";
 
@@ -140,6 +140,14 @@ namespace Aplos.Areas.QMS.Controllers
                 con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[CustomerQualityReportDetails] WHERE CQRHeaderId ='" + masterId + "'", out dsDetail, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT COUNT(Id)Id FROM [TRN].[CustomerQualityReportDetails] WHERE CQRHeaderId ='" + masterId + "'", out dsId, false, "1");
 
+                for (int i = 0; i < dsDetail.Tables[0].Rows.Count; i++)
+                {
+                    if (Convert.ToBoolean(dsDetail.Tables[0].Rows[i]["FinalReport"])==false)
+                    {
+                        dsDetail.Tables[0].Rows[i].Delete();
+                    }
+                }
+
                 int count = Convert.ToInt32(dsId.Tables[0].Rows[0]["Id"].ToString());
 
 
@@ -157,10 +165,18 @@ namespace Aplos.Areas.QMS.Controllers
                         item["CQRHeaderId"] = masterId;
                         AddNewRow(dsDetail.Tables[0], item);
                     }
+
                     else
                     {
                         DataRow drmo = dv[0].Row;
-                        EditRow(drmo, item);
+                        if (drmo["Id"].ToString() != null && Convert.ToBoolean(drmo["FinalReport"].ToString()) == false)
+                        {
+                            drmo.Delete();
+                        }
+                        else
+                        {
+                            EditRow(drmo, item);
+                        }
                     }
                 }
 
@@ -181,7 +197,7 @@ namespace Aplos.Areas.QMS.Controllers
             {
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                 conC.BeginTransaction();
-                conC.executeQuery("Update [TRN].[CustomerQualityReportDetails] set SpecialRemarks='"+ SpecialRemarks + "' where Id='"+ ParameterChildId + "'");
+                conC.executeQuery("Update [TRN].[CustomerQualityReportDetails] set SpecialRemarks='" + SpecialRemarks + "' where Id='" + ParameterChildId + "'");
                 conC.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Updated }, JsonRequestBehavior.AllowGet);

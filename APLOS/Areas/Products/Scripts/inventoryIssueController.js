@@ -491,7 +491,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 	//$scope.setMaterialMasterData
 	$scope.selectMaterialByType = function (ob) {
 		//debugger;
-		if (ob.IsAsset) return ShowResult('Fixed Asset  can not Issue through this Screen .', '', 'materialMasterbyTypePopup');
+		//if (ob.IsAsset) return ShowResult('Fixed Asset  can not Issue through this Screen .', '', 'materialMasterbyTypePopup');
 		if (!ob.hasInventory) return ShowResult('Material stock does not exist.', '', 'materialMasterbyTypePopup');
 		$scope.detailModel.MaterialMasterId = ob.Id;
 		$scope.detailModel.MaterialMasterName = ob.UserName;
@@ -1517,7 +1517,8 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 
 		});
 	}
-	$scope.CostCenterLoadNew();
+	//$scope.CostCenterLoadNew();
+
 	baseService.getCompanyConfiguration(function (result) {
 		$scope.companyConfig = result;
 
@@ -2043,7 +2044,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 
 		});
 	}
-	$scope.POListDetails();
+	/*$scope.POListDetails();*/
 
 
 	$scope.data1 = $scope.lst;
@@ -2076,7 +2077,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 
 		});
 	}
-	$scope.POListDetailsReturn();
+	//$scope.POListDetailsReturn();
 
 
 	$scope.data1 = $scope.lst;

@@ -3908,7 +3908,7 @@ CQD.ParameterId,CQH.Id CQRHeaderId,CQH.UserName,CQH.Remarks,CQH.ByWhomId,
 (select EmployeeName from EmployeeInformation where systemId=CQH.ByWhomId) as ByWhom,
 CQD.Id,CQD.ParaRemarks,CQD.Value,PM.UserName Parameter,CQD.UOMId,UM.UserName UOM
 from TRN.CustomerQualityReportHeader CQH
-left Join TRN.CustomerQualityReportDetails CQD on CQD.CQRHeaderId=CQH.Id
+left Join (Select * from TRN.CustomerQualityReportDetails Where FinalReport=1) CQD on CQD.CQRHeaderId=CQH.Id 
 left join HKP.ParameterMaster PM on PM.Id=(select ParameterId from MST.QualityManagementParameterItem where id=CQD.ParameterId)
 left join [MST].[QualityManagementCPSequence] CPS on CPS.ParameterId=PM.Id and CPS.QMPId=CQD.ParameterId
 left join SCS.UnitOfMeasurement UM on UM.Id=CQD.UOMId

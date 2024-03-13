@@ -1680,14 +1680,14 @@ Order By SO.DeliveryDate";
                 int RightColumnValue = RightColumnCaption + 1;
 
                 //Contract Summary header.............................................................
-                worksheet[ROW, COL].Text = "PO#";
-                worksheet[ROW, COL].ColumnWidth = 10;
-                int ColPO = COL;
-                COL++;
-
                 worksheet[ROW, COL].Text = "Style No";
                 worksheet[ROW, COL].ColumnWidth = 10;
                 int ColStyleNo = COL;
+                COL++;
+
+                worksheet[ROW, COL].Text = "PO#";
+                worksheet[ROW, COL].ColumnWidth = 10;
+                int ColPO = COL;
                 COL++;
 
                 worksheet[ROW, COL].Text = "Order Quantity";
@@ -1743,8 +1743,8 @@ Order By SO.DeliveryDate";
 
                 for (int i = 0; i < dtOrderMaster.Rows.Count; i++)
                 {
-                    worksheet[ROW, ColPO].Text = dtOrderMaster.Rows[i]["PO"].ToString();
                     worksheet[ROW, ColStyleNo].Text = dtOrderMaster.Rows[i]["StyleNo"].ToString();
+                    worksheet[ROW, ColPO].Text = dtOrderMaster.Rows[i]["PO"].ToString();
                     worksheet[ROW, ColOrderQuantity].Number = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["OrderQty"].ToString());
                     worksheet[ROW, ColOrderQuantity].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                     worksheet[ROW, ColShippedQuantity].Number = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["ShippedQty"].ToString());
@@ -1773,7 +1773,7 @@ Order By SO.DeliveryDate";
                 worksheet[ROW, 1].Text = "Total:";
                 worksheet.Range[ROW, 1].CellStyle.Font.Bold = true;
 
-                worksheet.Range[ROW, ColPO, ROW, ColStyleNo].Merge();
+                worksheet.Range[ROW, ColStyleNo, ROW, ColStyleNo].Merge();
                 worksheet.Range[ROW, ColOrderQuantity, ROW, ColOrderQuantity].Formula = "SUM(" + reportUtility.GetColumnNameForXls(ColOrderQuantity) + CostingComponentStartRow + ":" + reportUtility.GetColumnNameForXls(ColOrderQuantity) + CostingComponentEndRow + ")";
                 worksheet.Range[ROW, ColOrderQuantity].CellStyle.Font.Bold = true;
 
@@ -1798,7 +1798,7 @@ Order By SO.DeliveryDate";
                 worksheet[ROW, COL - 5].CellStyle.Font.Bold = true;
                 worksheet[ROW, COL - 4].Number = totalAmount / 100 * 75;
                 worksheet[ROW, COL - 4].CellStyle.Font.Bold = true;
-                worksheet.Range[ROW, ColPO, ROW, ColShippedQuantity].Merge();
+                worksheet.Range[ROW, ColStyleNo, ROW, ColShippedQuantity].Merge();
                 worksheet.Range[ROW, 1, ROW, endCols].BorderAround(ExcelLineStyle.Hair);
                 worksheet.Range[ROW, 1, ROW, endCols].BorderInside(ExcelLineStyle.Hair);
 
@@ -1920,12 +1920,13 @@ Order By SO.DeliveryDate";
                 worksheet[ROW, 5].Text = "Reserve";
                 worksheet[ROW, 5].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 worksheet[ROW, 5].CellStyle.Font.Bold = true;
-                worksheet[ROW, 6].Number = totalAmount - totalBgd;
-                worksheet[ROW, 6].CellStyle.Font.Bold = true;
+                worksheet.Range[ROW, 5, ROW, 6].Merge();
+                worksheet[ROW, 7].Number = totalAmount - totalBgd;
+                worksheet[ROW, 7].CellStyle.Font.Bold = true;
                
                 worksheet.Range[ROW, ColActualCost, ROW, ColBTBPending].Merge();
                 worksheet[ROW, ColBTBPending+1].Number = 100 - totalPrt;
-                worksheet[ROW, ColBTBPending+1].CellStyle.Font.Bold = true;
+                 worksheet[ROW, ColBTBPending+1].CellStyle.Font.Bold = true;
 
                 worksheet.Range[ROW, 1, ROW, endCols].BorderAround(ExcelLineStyle.Hair);
                 worksheet.Range[ROW, 1, ROW, endCols].BorderInside(ExcelLineStyle.Hair);
@@ -1969,14 +1970,21 @@ Order By SO.DeliveryDate";
                     TRN.CustomerPO XMOI 
                     where so.CustomerPOId=XMOI.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
                     ,so.CustomerPOId
-                    ,moi.BuyerReferenceNo StyleNo,sm.TransactionQty ShippedQty,so.Qty OrderQty,so.Description,so.Rate UnitPrice
-                    ,Amount= so.Qty*so.Rate,sm.NetAmount ExportValue,format(so.DeliveryDate,'dd-MMM-yyyy') ShipDate,format(c.ContractDate,'dd-MMM-yyyy')ContractDate
+                    ,moi.BuyerReferenceNo StyleNo
+					,sum(sm.TransactionQty) ShippedQty
+					,sum(so.Qty) OrderQty,so.Description,so.Rate UnitPrice
+                    ,Amount= sum(so.Qty)*so.Rate
+					,sum(sm.NetAmount) ExportValue
+					,format(so.DeliveryDate,'dd-MMM-yyyy') ShipDate,format(c.ContractDate,'dd-MMM-yyyy')ContractDate
                     from Contract c
                     left join trn.SalesOrder so on so.ContractId=c.Id
                     left join trn.MasterOrderItem moi on moi.Id=so.MasterOrderItemId
                     left join trn.SalesMaterial sm on sm.SalesOrderId=so.Id
                     left join hkp.Party P on P.Id=c.CustomerId
-                    where c.Id='" + ContractId + "'";
+                    where c.Id='" + ContractId +@"'
+
+                    group by moi.BuyerReferenceNo,P.UserName,c.ContractNo,c.ContractDate,so.CustomerPOId,so.Description,so.Rate
+					,so.DeliveryDate";
 
                 return _sqlRepository.GetDataTable(strSQL);
             }

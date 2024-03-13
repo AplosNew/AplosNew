@@ -3086,7 +3086,13 @@ namespace Library.Accounting.Accounts
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "UserReport"); int colUserReport = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Is Allowed"); int colIsAllowed = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Allowed Days"); int colAllowedDays = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Month Day"); int colMonthDay = xlsCol;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Month Day"); int colMonthDay = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "User Group"); int colUserGroup = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sequence"); int colSequence = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "User Category Sequence"); int colUserCategorySequence = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "User SubCategory Sequence"); int colUserSubCategorySequence = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "User Item Sequence"); int colUserItemSequence = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remark"); int colRemark = xlsCol;
 
                 endXlsCol = xlsCol;
 
@@ -3126,7 +3132,12 @@ namespace Library.Accounting.Accounts
                     sheet1[xlsRow, colUserReport].Text = dtBudgetMaster.Rows[i]["UserReport"].ToString();
                     sheet1[xlsRow, colIsAllowed].Text = dtBudgetMaster.Rows[i]["IsAllowed"].ToString();
                     sheet1[xlsRow, colAllowedDays].Text = dtBudgetMaster.Rows[i]["AllowedDays"].ToString();
-                    sheet1[xlsRow, colMonthDay].Text = dtBudgetMaster.Rows[i]["MonthDay"].ToString();
+                    sheet1[xlsRow, colUserGroup].Text = dtBudgetMaster.Rows[i]["UserGroup"].ToString();
+                    sheet1[xlsRow, colSequence].Text = dtBudgetMaster.Rows[i]["Sequence"].ToString();
+                    sheet1[xlsRow, colUserCategorySequence].Text = dtBudgetMaster.Rows[i]["UserCategorySequence"].ToString();
+                    sheet1[xlsRow, colUserSubCategorySequence].Text = dtBudgetMaster.Rows[i]["UserSubCategorySequence"].ToString();
+                    sheet1[xlsRow, colUserItemSequence].Text = dtBudgetMaster.Rows[i]["UserItemSequence"].ToString();
+                    sheet1[xlsRow, colRemark].Text = dtBudgetMaster.Rows[i]["Remark"].ToString();
                     xlsRow++;
                 }
 
@@ -3172,7 +3183,7 @@ namespace Library.Accounting.Accounts
 							, BC.UserName AS BudgetCategory,BSC.UserName AS BudgetSubCategory, B.UserName AS Budget, BM.RefNo
 							,A.UserName AS Activity, R.UserName AS Register,BMA.BalanceSheetSchedulingId,ISNULL(BMA.TaxApplicable,'No')TaxApplicable
 							,BMA.TaxType,BMA.UserCategory,BMA.UserSubCategory,BMA.UserItem,ISNULL(BMA.UserReport,'No')UserReport
-                            ,ISNULL(BMA.IsAllowed,'No')IsAllowed,ISNULL(BMA.AllowedDays,0) AllowedDays,ISNULL(BMA.MonthDay,0) MonthDay
+                            ,ISNULL(BMA.IsAllowed,'No')IsAllowed,ISNULL(BMA.AllowedDays,0) AllowedDays,ISNULL(BMA.MonthDay,0) MonthDay,BMA.UserGroup,ISNULL(BMA.Sequence,0) Sequence,ISNULL(BMA.UserCategorySequence,0) UserCategorySequence,ISNULL(BMA.UserSubCategorySequence,0) UserSubCategorySequence,ISNULL(BMA.UserItemSequence,0) UserItemSequence,ISNULL(BMA.Remark,'') Remark
                             FROM  [MST].[BudgetMasterActivity] AS BMA
 							LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=BMA.BudgetMasterId
 							LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id

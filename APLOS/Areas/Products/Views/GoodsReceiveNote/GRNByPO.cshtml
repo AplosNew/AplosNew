@@ -3391,14 +3391,14 @@
                                 <td>{{x.Material}}</td>
                                 <td>{{x.Articel}}</td>
                                 <td>{{x.Qty}}{{x.UOM}}</td>
-                                <td><input type="text" n-decimals="2" class="form-control text-right" ng-model="x.TransactionQty"></td>
+                                <td><input type="text" n-decimals="3" class="form-control text-right" ng-model="x.TransactionQty"></td>
                                 <td>{{x.RequisitionBy}}</td>
                                 <td></td>
                             </tr>
                             <tr>
                                 <td colspan="4">Total</td>
-                                <td class="text-right"><strong>{{requisitionDetailList | sumByKey : 'Qty'| setDecimal:2| number:2 }}</strong></td>
-                                <td class="text-right"><strong>{{requisitionDetailList | sumByKey : 'TransactionQty'| setDecimal:2| number:2 }}</strong></td>
+                                <td class="text-right"><strong>{{requisitionDetailList | sumByKey : 'Qty'| setDecimal:3| number:3 }}</strong></td>
+                                <td class="text-right"><strong>{{requisitionDetailList | sumByKey : 'TransactionQty'| setDecimal:3| number:3 }}</strong></td>
                                 <td></td>
                             </tr>
 
