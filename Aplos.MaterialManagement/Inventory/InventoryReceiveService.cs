@@ -9146,15 +9146,15 @@ namespace Library.MaterialManagement.Inventory
                 foreach (DataColumn item in dtOrderMaster.Columns)
                     columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
 
-                var dsServiceItems = loadIssueServiceMaster(grnId);
+               // var dsServiceItems = loadIssueServiceMaster(grnId);
                 var materialTotal = makeIssueOrderDetailsTable(document, dtOrderMaster, grnId);                //Material Details 
 
                 var serviceTotal = 0.00;
-                if (dsServiceItems.Rows.Count > 0)
-                {
-                    serviceTotal = makeIssueOrderServiceTable(document, dsServiceItems, grnId);                //Service Details 
-                    document.Replace("{ServiceDetails}", "Service Details", true, true);
-                }
+                //if (dsServiceItems.Rows.Count > 0)
+                //{
+                //    serviceTotal = makeIssueOrderServiceTable(document, dsServiceItems, grnId);                //Service Details 
+                //    document.Replace("{ServiceDetails}", "Service Details", true, true);
+                //}
 
                 //{ TotalInWords}
 
