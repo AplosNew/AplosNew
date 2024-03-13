@@ -1661,7 +1661,7 @@ Order By SO.DeliveryDate";
 
                 COL = COL + 7;
                 worksheet[ROW, COL].Text = "Date: ";
-                worksheet[ROW, 8].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                worksheet[ROW, 8].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 worksheet[ROW, COL].CellStyle.Font.Bold = true;
                 worksheet[ROW, COL + 1].Text = dtOrderMaster.Rows[0]["ContractDate"].ToString();
                 ROW++;
@@ -1669,7 +1669,7 @@ Order By SO.DeliveryDate";
                 COL = 1;
                 worksheet[ROW, COL].Text = "Contract No: ";
                 worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 worksheet[ROW, COL + 1].Text = dtOrderMaster.Rows[0]["ContractNo"].ToString();
                 worksheet[ROW, COL + 1].CellStyle.Font.Bold = true;
                 ROW++;
@@ -1688,8 +1688,8 @@ Order By SO.DeliveryDate";
                 worksheet[ROW, COL].Text = "Style No";
                 worksheet[ROW, COL].ColumnWidth = 20;
                 int ColStyleNo = COL;
-                worksheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignJustify;
-                worksheet.Range[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignTop;
+                //worksheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignJustify;
+                //worksheet.Range[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignTop;
                 //worksheet.Range[ROW, ColStyleNo, ROW - 1, ColStyleNo].Merge();
                 //worksheet.Range[dicGroup["StyleNo"].Row, ColStyleNo].HorizontalAlignment = ExcelHAlign.HAlignJustify;
                 //worksheet.Range[dicGroup["StyleNo"].Row, ColStyleNo].VerticalAlignment = ExcelVAlign.VAlignTop;
@@ -1702,11 +1702,13 @@ Order By SO.DeliveryDate";
 
                 worksheet[ROW, COL].Text = "Order Quantity";
                 worksheet[ROW, COL].ColumnWidth = 12;
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColOrderQuantity = COL;
                 COL++;
 
                 worksheet[ROW, COL].Text = "Shipped Quantity";
                 worksheet[ROW, COL].ColumnWidth = 12;
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColShippedQuantity = COL;
                 COL++;
 
@@ -1716,17 +1718,20 @@ Order By SO.DeliveryDate";
                 COL++;
 
                 worksheet[ROW, COL].Text = "Unit Price";
-                worksheet[ROW, COL].ColumnWidth = 15;
+                worksheet[ROW, COL].ColumnWidth = 12;
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColUnitPrice = COL;
                 COL++;
 
                 worksheet[ROW, COL].Text = "Order Amount";
                 worksheet[ROW, COL].ColumnWidth = 20;
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColAmount = COL;
                 COL++;
 
                 worksheet[ROW, COL].Text = "Export Values";
                 worksheet[ROW, COL].ColumnWidth = 20;
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColExportValues = COL;
                 COL++;
 
@@ -1756,7 +1761,7 @@ Order By SO.DeliveryDate";
                 double _OrderQty = 0;
                 double _ShippedQty = 0;
                 string _Description = string.Empty;
-                string _UnitPrice = string.Empty;
+                double _UnitPrice = 0;
                 double _Amount = 0;
                 double _ExportValue = 0;
                 string _ShipDate = string.Empty;
@@ -1826,6 +1831,8 @@ Order By SO.DeliveryDate";
 
                             _StyleNo = dtOrderMaster.Rows[i]["StyleNo"].ToString();
                             SetCellText(sheet1, xlsRow, ColStyleNo, _StyleNo);
+                            worksheet.Range[xlsRow, ColStyleNo, xlsRow, ColStyleNo].Merge();
+                            //worksheet.Range[xlsRow, ColStyleNo, xlsRow, ColStyleNo].BorderNone();
 
                             _PO = dtOrderMaster.Rows[i]["PO"].ToString();
                             SetCellText(sheet1, xlsRow, ColPO, _PO);
@@ -1840,8 +1847,8 @@ Order By SO.DeliveryDate";
                             _Description = dtOrderMaster.Rows[i]["Description"].ToString();
                             SetCellText(sheet1, xlsRow, ColDescription, _Description);
 
-                            _UnitPrice = dtOrderMaster.Rows[i]["UnitPrice"].ToString();
-                            SetCellText(sheet1, xlsRow, ColUnitPrice, _UnitPrice);
+                            _UnitPrice = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["UnitPrice"]);
+                            SetCellNumber(sheet1, xlsRow, ColUnitPrice, _UnitPrice);
 
                             _Amount = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["Amount"]);
                             SetCellNumber(sheet1, xlsRow, ColAmount, _Amount);
@@ -1873,7 +1880,7 @@ Order By SO.DeliveryDate";
                             _OrderQty = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["OrderQty"]); SetCellNumber(sheet1, xlsRow, ColOrderQuantity, _OrderQty);
                             _ShippedQty = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["ShippedQty"]); SetCellNumber(sheet1, xlsRow, ColShippedQuantity, _ShippedQty);
                             _Description = dtOrderMaster.Rows[i]["Description"].ToString(); SetCellText(sheet1, xlsRow, ColDescription, _Description);
-                            _UnitPrice = dtOrderMaster.Rows[i]["UnitPrice"].ToString(); SetCellText(sheet1, xlsRow, ColUnitPrice, _UnitPrice);
+                            _UnitPrice = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["UnitPrice"]); SetCellNumber(sheet1, xlsRow, ColUnitPrice, _UnitPrice);
                             _Amount = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["Amount"]); SetCellNumber(sheet1, xlsRow, ColAmount, _Amount);
                             _ExportValue = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["ExportValue"]); SetCellNumber(sheet1, xlsRow, ColExportValues, _ExportValue);
                             _ShipDate = dtOrderMaster.Rows[i]["ShipDate"].ToString(); SetCellText(sheet1, xlsRow, ColShipDate, _ShipDate);
@@ -1885,7 +1892,7 @@ Order By SO.DeliveryDate";
                             _OrderQty = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["OrderQty"]); SetCellNumber(sheet1, xlsRow, ColOrderQuantity, _OrderQty);
                             _ShippedQty = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["ShippedQty"]); SetCellNumber(sheet1, xlsRow, ColShippedQuantity, _ShippedQty);
                             _Description = dtOrderMaster.Rows[i]["Description"].ToString(); SetCellText(sheet1, xlsRow, ColDescription, _Description);
-                            _UnitPrice = dtOrderMaster.Rows[i]["UnitPrice"].ToString(); SetCellText(sheet1, xlsRow, ColUnitPrice, _UnitPrice);
+                            _UnitPrice = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["UnitPrice"]); SetCellNumber(sheet1, xlsRow, ColUnitPrice, _UnitPrice);
                             _Amount = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["Amount"]); SetCellNumber(sheet1, xlsRow, ColAmount, _Amount);
                             _ExportValue = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["ExportValue"]); SetCellNumber(sheet1, xlsRow, ColExportValues, _ExportValue);
                             _ShipDate = dtOrderMaster.Rows[i]["ShipDate"].ToString(); SetCellText(sheet1, xlsRow, ColShipDate, _ShipDate);
@@ -1895,7 +1902,7 @@ Order By SO.DeliveryDate";
                         {
                             _ShippedQty = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["ShippedQty"]); SetCellNumber(sheet1, xlsRow, ColShippedQuantity, _ShippedQty);
                             _Description = dtOrderMaster.Rows[i]["Description"].ToString(); SetCellText(sheet1, xlsRow, ColDescription, _Description);
-                            _UnitPrice = dtOrderMaster.Rows[i]["UnitPrice"].ToString(); SetCellText(sheet1, xlsRow, ColUnitPrice, _UnitPrice);
+                            _UnitPrice = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["UnitPrice"]); SetCellNumber(sheet1, xlsRow, ColUnitPrice, _UnitPrice);
                             _Amount = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["Amount"]); SetCellNumber(sheet1, xlsRow, ColAmount, _Amount);
                             _ExportValue = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["ExportValue"]); SetCellNumber(sheet1, xlsRow, ColExportValues, _ExportValue);
                             _ShipDate = dtOrderMaster.Rows[i]["ShipDate"].ToString(); SetCellText(sheet1, xlsRow, ColShipDate, _ShipDate);
@@ -1905,16 +1912,16 @@ Order By SO.DeliveryDate";
                         if (_Description != dtOrderMaster.Rows[i]["Description"].ToString())
                         {
                             _Description = dtOrderMaster.Rows[i]["Description"].ToString(); SetCellText(sheet1, xlsRow, ColDescription, _Description);
-                            _UnitPrice = dtOrderMaster.Rows[i]["UnitPrice"].ToString(); SetCellText(sheet1, xlsRow, ColUnitPrice, _UnitPrice);
+                            _UnitPrice = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["UnitPrice"]); SetCellNumber(sheet1, xlsRow, ColUnitPrice, _UnitPrice);
                             _Amount = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["Amount"]); SetCellNumber(sheet1, xlsRow, ColAmount, _Amount);
                             _ExportValue = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["ExportValue"]); SetCellNumber(sheet1, xlsRow, ColExportValues, _ExportValue);
                             _ShipDate = dtOrderMaster.Rows[i]["ShipDate"].ToString(); SetCellText(sheet1, xlsRow, ColShipDate, _ShipDate);
                             _Remarks = ""; SetCellText(sheet1, xlsRow, ColRemarks, _Remarks);
                         }
 
-                        if (_UnitPrice != dtOrderMaster.Rows[i]["UnitPrice"].ToString())
+                        if (_UnitPrice != clsStaticInfo.dbl(dtOrderMaster.Rows[i]["UnitPrice"]))
                         {
-                            _UnitPrice = dtOrderMaster.Rows[i]["UnitPrice"].ToString(); SetCellText(sheet1, xlsRow, ColUnitPrice, _UnitPrice);
+                            _UnitPrice = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["UnitPrice"]); SetCellNumber(sheet1, xlsRow, ColUnitPrice, _UnitPrice);
                             _Amount = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["Amount"]); SetCellNumber(sheet1, xlsRow, ColAmount, _Amount);
                             _ExportValue = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["ExportValue"]); SetCellNumber(sheet1, xlsRow, ColExportValues, _ExportValue);
                             _ShipDate = dtOrderMaster.Rows[i]["ShipDate"].ToString(); SetCellText(sheet1, xlsRow, ColShipDate, _ShipDate);
@@ -2011,7 +2018,7 @@ Order By SO.DeliveryDate";
                 COL++;
 
                 worksheet[ROW, COL].Text = "Supplier";
-                worksheet[ROW, COL].ColumnWidth = 10;
+                worksheet[ROW, COL].ColumnWidth = 20;
                 int ColSupplier = COL;
                 COL++;
 
@@ -2027,31 +2034,37 @@ Order By SO.DeliveryDate";
 
                 worksheet[ROW, COL].Text = "TTL LC Value";
                 worksheet[ROW, COL].ColumnWidth = 12;
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColTTLLCValue = COL;
                 COL++;
 
                 worksheet[ROW, COL].Text = "Budget Value $";
-                worksheet[ROW, COL].ColumnWidth = 20;
+                worksheet[ROW, COL].ColumnWidth = 12;
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColBudgetValue = COL;
                 COL++;
 
                 worksheet[ROW, COL].Text = "Actual Cost";
                 worksheet[ROW, COL].ColumnWidth = 12;
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColActualCost = COL;
                 COL++;
 
                 worksheet[ROW, COL].Text = "Short / Excess";
                 worksheet[ROW, COL].ColumnWidth = 15;
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColShortExcess = COL;
                 COL++;
 
                 worksheet[ROW, COL].Text = "BTB Pending";
                 worksheet[ROW, COL].ColumnWidth = 15;
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColBTBPending = COL;
                 COL++;
 
                 worksheet[ROW, COL].Text = "Percentage";
                 worksheet[ROW, COL].ColumnWidth = 15;
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColPercentage = COL;
 
                 #endregion columns
@@ -2175,7 +2188,7 @@ Order By SO.DeliveryDate";
             //if (string.IsNullOrEmpty(Text) == false)
             //{
             sheet.Range[xlsRow, xlsCol].Number = Text;
-            sheet.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
             sheet.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet.Range[xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
             //}
@@ -2229,7 +2242,7 @@ Order By SO.DeliveryDate";
             string strSQL;
             try
             {
-                strSQL = @"select x.Item,x.Supplier,x.LCStatus,x.LCDate,sum(x.TotalLCValue) TotalLCValue,sum(x.BudgetValue)BudgetValue,x.ActualCost,x.ShortExcess,x.BTBPending from
+                strSQL = @"select x.Item,x.Supplier,x.LCStatus,x.LCDate,x.TotalLCValue,sum(x.BudgetValue)BudgetValue,sum(x.ActualCost) ActualCost,sum(x.ShortExcess)ShortExcess,sum(x.BTBPending)BTBPending from
                 (select ci.UserName Item,P.UserName Supplier
                 ,LCStatus=isnull(STUFF((select distinct ','+XMOI.LCRef from 
                 PurchaseLC XMOI 
@@ -2254,7 +2267,7 @@ Order By SO.DeliveryDate";
                     where c.Id='" + ContractId + @"'
                     group by ci.UserName,P.UserName,c.Id,opc.VendorId,opc.GrossAmount
 					)x
-                    group by x.Item,x.Supplier,x.LCStatus,x.LCDate,x.ActualCost,x.ShortExcess,x.BTBPending
+                    group by x.Item,x.Supplier,x.LCStatus,x.LCDate,x.TotalLCValue
                     order by x.Item";
 
                 return _sqlRepository.GetDataTable(strSQL);
