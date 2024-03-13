@@ -37,6 +37,7 @@ function AdditionalInfoController(cboService, commonMessage, $scope, $rootScope,
         UserName: null,
         Description: null,
         Remarks: null,
+        Mandatory: false,
         Active: true
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
@@ -44,6 +45,7 @@ function AdditionalInfoController(cboService, commonMessage, $scope, $rootScope,
     $scope.CategoryList = [
         { Value: 'GRN', Text: 'GRN' },
         { Value: 'SalesOrder', Text: 'Sales Order' },
+        { Value: 'LineItem', Text: 'Line Item' },
         { Value: 'SalesInvoice', Text: 'Sales Invoice' }
     ];
     $scope.charecterTypeList = [

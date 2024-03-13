@@ -376,6 +376,7 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColBal].Number = clsStaticInfo.dbl(data.Rows[i]["BalanceToDispatch"].ToString());
                 sheet[ROW, ColAll].Number = clsStaticInfo.dbl(data.Rows[i]["AllotedStock"].ToString());
                 sheet[ROW, ColResponsiblePerson].Text = data.Rows[i]["ResponsiblePerson"].ToString();
+                sheet[ROW, ColItem].Text = data.Rows[i]["ItemId"].ToString();
                 sheet[ROW, ColOrderStatus].Text = data.Rows[i]["OrderStatus"].ToString();
                 sheet[ROW, ColLCNumber].Text = data.Rows[i]["LC Number"].ToString();
                 //sheet[ROW, ColLCShipmentDate].DateTime = Convert.ToDateTime(data.Rows[i]["LCShipmentDate"].ToString());   
@@ -487,6 +488,7 @@ namespace Aplos.Areas.Productions.Controllers
 
                             where SO.Id in(" + parameters["SOId"] + @")
                             AND OS.UserName in(" + parameters["OrderStatus"] + @")
+                            AND SO.OrderCategoryId in(" + parameters["OrderCategoryId"] + @")
                             AND SO.ResponsiblePersonId in(" + parameters["ResponsiblePersonId"] + @")
                             AND p.Id in(" + parameters["CustomerId"] + @")";
 

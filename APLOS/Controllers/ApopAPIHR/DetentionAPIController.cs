@@ -1357,6 +1357,25 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetQualityActionUpdateParameter(out List<QualityControllUpdate> activelists, HeaderId);
             return activelists;
         }
+
+        public List<Default2> GetEmployeeQualityUpdate()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetEmployeeQualityUpdate(out List<Default2> activelists);
+            return activelists;
+        }
+        public string PostQualityActionUpdate([FromBody] IEnumerable<QualityActionUpdate> DataToSave, string PId, string Status)
+        {
+            try
+            {
+                string Id = clsData.PostQualityActionUpdate(DataToSave , PId , Status);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
         #endregion Quality Acion 
     }
 }

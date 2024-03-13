@@ -1922,6 +1922,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
                 pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
                 //Closes the instance of document objects
                 pdfDocument.Close(true);*/
+                fileName = "CommercialInvoice-" + salesId + ".docx";
                 document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
                 document.Close();
             }
@@ -2131,6 +2132,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
                  pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
                  //Closes the instance of document objects
                  pdfDocument.Close(true);*/
+                fileName = "BL-LR Draft-" + salesId + ".docx";
                 document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
                 document.Close();
             }
@@ -2267,6 +2269,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
                  pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
                  //Closes the instance of document objects
                  pdfDocument.Close(true);*/
+                fileName = "BeneficiaryCertificate-" + salesId + ".docx";
                 document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
                 document.Close();
             }
@@ -3524,7 +3527,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
                 //Closes the instance of document objects
                 pdfDocument.Close(true);*/
 
-                fileName = "BillofExchange " + salesId + ".docx";
+                fileName = "BillofExchange-" + salesId + ".docx";
                 document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
                 document.Close();
             }
@@ -3733,6 +3736,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
                 pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
                 //Closes the instance of document objects
                 pdfDocument.Close(true);*/
+                fileName = "CertificateofOrigin-" + salesId + ".docx";
                 document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
                 document.Close();
             }
@@ -3865,6 +3869,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
                 pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
                 //Closes the instance of document objects
                 pdfDocument.Close(true);*/
+                fileName = "REQUEST-LETTER-" + salesId + ".docx";
                 document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
                 document.Close();
             }
@@ -3978,6 +3983,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
                 pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
                 //Closes the instance of document objects
                 pdfDocument.Close(true);*/
+                fileName = "Insurance-" + salesId + ".docx";
                 document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
                 document.Close();
             }
@@ -4091,6 +4097,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
                 pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
                 //Closes the instance of document objects
                 pdfDocument.Close(true);*/
+                fileName = "ANNEXURE-" + salesId + ".docx";
                 document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
                 document.Close();
             }
@@ -4232,6 +4239,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
     ,PSI.PreCarriageBy,PSI.PlaceOfReceiptByPreCarriage,PSI.CNFContainerNo,PSI.CNFVesselName,PSI.CNFVesselTrackingNo,CRNC.Code AS CurrencyName,IR.ToCurrencyRate
     ,BASECRNC.Code AS BaseCurrencyName,PayTerm.UserName PaymentTerm,MM.UserName MaterialMaster,MGM.UserName MaterialGroupMaster
     ,Article=CASE WHEN ISNULL(moi.LCArticle,'')<>'' THEN moi.LCArticle WHEN ISNULL(AA.ArticlePartyName,'')<>'' THEN AA.ArticlePartyName ELSE MMA.StandardName END
+    ,ArticleWithBuyer=CASE WHEN ISNULL(moi.LCArticle,'')<>'' THEN moi.LCArticle WHEN ISNULL(AA.ArticlePartyName,'')<>'' THEN AA.ArticlePartyName ELSE MMA.StandardName END + '  ' + moi.BuyerReferenceNo
      ,POTransactionQty=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.TransactionQty ELSE SCN.NetWeight END) 
     ,POTransactionQtyGWT=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.GWeight,0)=0 THEN IRD.TransactionQty ELSE SCN.GWeight END)
     ,CONVERT(NUMERIC(10,4),IRD.TransactionRate, 4) TransactionRate
@@ -4595,7 +4603,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
                     FOR XML PATH('')
                     ), 1, 1, '')
 ,case when isnull(PTD.NoOfDay,0) > 0 then  (convert(varchar(10), PTD.NoOfDay) + ' ' + 'DAYS AFTER THE DATE OF LORRY RECEIPT ') 
- else 'AT SIGHT' end PaymentTermDays
+ else ' SIGHT' end PaymentTermDays
 ,SwiftCode =Stuff((
                     SELECT distinct',' + NB.SWIFTCode
                     FROM dbo.MasterLC LC 
@@ -7452,7 +7460,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
                 //TROW.Cells[colMaterialGroup].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialMaster"].ToString());
-                TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ArticleWithBuyer"].ToString()).ApplyCharacterFormat(DFontSize);
                 TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ProdDetails"].ToString()).ApplyCharacterFormat(DFontSize);
                 //TROW.Cells[colStyle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["BuyertemRef"].ToString());
                 TROW.Cells[colLot].AddParagraph().AppendText(dsOrderMaster.Rows[i]["LotNo"].ToString()).ApplyCharacterFormat(DFontSize);
@@ -7598,7 +7606,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
             int colHSN = COL; COL++;
             wTable.Rows[ROW].Cells[colHSN].Width = 60;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("NET WEIGHT(KGS.)");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("NET WEIGHT (KGS.)");
             range.ApplyCharacterFormat(FontBold);
             int colQty = COL; COL++;
             wTable.Rows[ROW].Cells[colQty].Width = 60;
@@ -7609,7 +7617,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
             wTable.Rows[ROW].Cells[colCartons].Width = 50;
 
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("GROSS WEIGHT(KGS.)");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("GROSS WEIGHT (KGS.)");
             range.ApplyCharacterFormat(FontBold);
             range.ApplyCharacterFormat(DFontSize);
             int colGW = COL;

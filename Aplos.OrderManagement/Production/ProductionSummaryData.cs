@@ -4631,14 +4631,14 @@ Where C.Sequence=2";
         {
             try
             {
-                var sql = @"SELECT SO.Id SOId,OS.UserName OrderStatus,SO.ResponsiblePersonId,EI.EmployeeName ResponsiblePerson
-                                        ,P.Id CustomerId,P.UserName Customer                                             
-
-                                        from TRN.SalesOrder SO
+                var sql = @"SELECT DISTINCT SO.Id SOId,OS.UserName OrderStatus,SO.ResponsiblePersonId,EI.EmployeeName ResponsiblePerson
+                                        ,P.Id CustomerId,P.UserName Customer,OC.UserName OrderCategory,SO.OrderCategoryId                                          
+										from TRN.SalesOrder SO
 		                                left outer join trn.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
 		                                left outer join trn.MasterOrder MO on mo.Id=MOI.MasterOrderId
 		                                left outer join [HKP].[Party] P on P.Id=MO.PartyId
 										left join [HKP].[OrderStatus] OS on OS.Id=SO.OrderStatusId
+										left join [HKP].[OrderCategory] OC on OC.Id=SO.OrderCategoryId
 										left join dbo.EmployeeInformation EI ON EI.SystemId=SO.ResponsiblePersonId";
                 return _sqlRepository.GetDataCollection(sql);
             }
