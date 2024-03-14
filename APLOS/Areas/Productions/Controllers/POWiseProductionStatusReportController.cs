@@ -2028,7 +2028,9 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, COL].Text = "PO Status"; sheet[ROW, COL].ColumnWidth = 16; int colPOStatus = COL; COL++;
                 sheet[ROW, COL].Text = "Customer"; sheet[ROW, COL].ColumnWidth = 16; int colCustomer = COL; COL++;
                 sheet[ROW, COL].Text = "Article"; sheet[ROW, COL].ColumnWidth = 16; int colArticle = COL; COL++;
+                sheet[ROW, COL].Text = "MO No"; sheet[ROW, COL].ColumnWidth = 16; int colMONO = COL; COL++;
                 sheet[ROW, COL].Text = "SO No"; sheet[ROW, COL].ColumnWidth = 16; int colSONO = COL; COL++;
+                sheet[ROW, COL].Text = "Responsible Person"; sheet[ROW, COL].ColumnWidth = 16; int colRP = COL; COL++;
                 sheet[ROW, COL].Text = "Added By"; sheet[ROW, COL].ColumnWidth = 16; int colAddedBy = COL; COL++;
                 sheet[ROW, COL].Text = "Added Date"; sheet[ROW, COL].ColumnWidth = 16; int colAddedDate = COL; COL++;
                 sheet[ROW, COL].Text = "Updated By"; sheet[ROW, COL].ColumnWidth = 16; int colUpdatedBy = COL; COL++;
@@ -2110,6 +2112,8 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colCustomer].Text = data.Rows[i]["Customer"].ToString();
                     sheet[ROW, colArticle].Text = data.Rows[i]["Article"].ToString();
                     sheet[ROW, colSONO].Text = data.Rows[i]["SONo"].ToString();
+                    sheet[ROW, colMONO].Text = data.Rows[i]["MasterOrderNo"].ToString();
+                    sheet[ROW, colRP].Text = data.Rows[i]["ResponsiblePerson"].ToString();
                     sheet[ROW, colPOStatus].Text = data.Rows[i]["POStatus"].ToString();
                     sheet[ROW, colAddedBy].Text = data.Rows[i]["AddedBy"].ToString();
                     sheet[ROW, colAddedDate].Text = data.Rows[i]["AddedDate"].ToString();
@@ -2237,6 +2241,8 @@ namespace Aplos.Areas.Productions.Controllers
                
                 pivotTable.Fields[colSequence - 1].Axis = PivotAxisTypes.Row;//7
                 pivotTable.Fields[colProcess - 1].Axis = PivotAxisTypes.Row;//8
+                pivotTable.Fields[colMONO - 1].Axis = PivotAxisTypes.Row;//8
+                pivotTable.Fields[colRP - 1].Axis = PivotAxisTypes.Row;//8
                 pivotTable.Fields[colSONO - 1].Axis = PivotAxisTypes.Row;//9
                 pivotTable.Fields[colSOQty - 1].Axis = PivotAxisTypes.Row;//9
                 pivotTable.Fields[colProcessPlanPercent - 1].Axis = PivotAxisTypes.Row;//10

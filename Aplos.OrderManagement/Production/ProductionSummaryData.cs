@@ -6423,7 +6423,7 @@ Order by PV.ProductionSummaryId,PB.Sequence";
                             where X.POId=xp.ProductionOrderId for xml path('') ), 1, 1, ''),'-')
                             ,ISNULL(X.InputRecoveryPercentage,0)InputRecoveryPercentage,ActualInputPlanPercentage=ISNULL(ROUND((X.FirstProcessProQty/NULLIF(X.ActualPlanScheduleQty,0))*100,0),0)
                             ,LatestProcessProdBookDays=CASE WHEN DATEDIFF(day,X.ProcessLatestBookDate,GETDATE()) IS NULL THEN 'Entry Missing' ELSE CONVERT(Varchar(100),DATEDIFF(day,X.ProcessLatestBookDate,GETDATE())) END
-                            ,ProcessReviewStatus=CASE WHEN DATEDIFF(day,X.ProcessLatestBookDate,GETDATE())>2 THEN 'To Review' ELSE  'NA' END,ProcessBalanceProd=ISNULL(X.ProcessPlannedQty-X.ProcProdQty,0)
+                            ,ProcessReviewStatus=CASE WHEN DATEDIFF(day,X.ProcessLatestBookDate,GETDATE())>2 THEN 'To Review' ELSE  'NA' END,ProcessBalanceProd=ISNULL(X.ProcessPlannedQty-X.ProcProdQty,0),X.MasterOrderNo,X.ResponsiblePerson
                             FROM(
                             SELECT 
                             T1.*,ISNULL(T2.ProcProdQty,0) PreProcProdQty,WIP=case when T1.Sequence=1 then 0 else ISNULL(ISNULL(T2.ProcProdQty,0)-ISNULL(T1.ProcProdQty,0),0) end, ProcLossPercent=ISNULL(t2.PercentQty-t1.PercentQty,0)
@@ -6504,6 +6504,19 @@ Order by PV.ProductionSummaryId,PB.Sequence";
 							,SONo=STUFF((select distinct ','+XSO.Id from 
 		                                      trn.SalesOrder XSO 
 		                                      JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id		                                      
+		                                      where P.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                            ,MasterOrderNo=STUFF((select distinct ','+XMO.Id from 
+		                                      trn.SalesOrder XSO 
+		                                      JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                      left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                      left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                      where P.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							,ResponsiblePerson=STUFF((select distinct ','+EI.EmployeeName from 
+		                                      trn.SalesOrder XSO 
+		                                      JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                      left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                      left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+											  LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=XMO.ResponsiblePersonId
 		                                      where P.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                             ,IC.RequestedQty,IC.IssueQty,IC.TotalQty
                             FROM TRN.ProductionOrder P
