@@ -3986,20 +3986,20 @@ namespace Aplos.MaterialManagement
 						,PostedBy=CASE WHEN IR.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,IR.EmployeeId
 						,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
 						,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
-						,Null GLCode
-						,Null AS GL
-						,Null BudgetrefNo
-						,Null AS Budget
-						,Null ActivityId
-						,Null ActivityCode
-						,Null Activity
-						,Null CGLCode
-                        ,Null AS CGL
-						,Null CBudgetrefNo
-						,NULL AS CBUdget
-						,Null CActivityId
-						,Null CActivityCode
-						,Null AS CActivity
+						,'' GLCode
+						,'' AS GL
+						,'' BudgetrefNo
+						,'' AS Budget
+						,'' ActivityId
+						,'' ActivityCode
+						,'' Activity
+						,'' CGLCode
+                        ,'' AS CGL
+						,'' CBudgetrefNo
+						,'' AS CBUdget
+						,'' CActivityId
+						,'' CActivityCode
+						,'' AS CActivity
 						,POId= STUFF((select distinct ','+PG.POId
 			                            FROM TRN.POGGRNMap PG 
                                         LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  

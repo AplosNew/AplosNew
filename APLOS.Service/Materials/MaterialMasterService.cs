@@ -8650,32 +8650,17 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 					,isnull(Round(main.SalesReturnRate,4),0) SalesReturnRate
 					,isnull(Round(main.SalesReturnAmount,2),0) SalesReturnAmount
 
-
-
---InventoryTrans
-					
-	               ,REPLACE(CONVERT(CHAR(11),IR.GRNDate, 106),' ','-') TransferDate
+                    --Asset Capitalize
+	               ,REPLACE(CONVERT(CHAR(11),CMD.CapitalizationDate, 106),' ','-') CapitalizeDate
 					--,'' InventoryTransferNo
-					,isnull(Round(IRD.InventoryTransferQty,2),0) InventoryTransferQty
-					,isnull(Round(IRD.BooksCurrencyBaseRate,4),0) TransferRate
-					,Isnull(Round((Round(IRD.InventoryTransferQty,2)*Round(IRD.BooksCurrencyBaseRate,4)),2),0) TransferAmount	
+					,isnull(Round(CMD.TransactionQty,2),0) CapitalizeQty
+					,isnull(Round(CMD.Rate,4),0) CapitalizeRate
+					,Isnull(Round(CMD.Amount,2),0) CapitalizeAmount	
 
-
-
-					,Round(((((IRD.BaseQty-isnull(Round(main.PurchaseReturnQty,2),0))-isnull(Round(main.IssueQty,2),0))+isnull(Round(main.IssueReturnQty,2),0))-isnull(Round(main.Salesqty,2),0)+isnull(Round(main.SalesReturnQty,2),0)-Isnull(Round(IRD.InventoryTransferQty,2),0)),2) BalanceQty
-
-					,CASE WHEN Round((IRD.BaseQty- isnull(main.IssueQty,0)),2)>0 then Round(IRD.BooksCurrencyBaseRate,4) else 0 END BalanceRate
-					,Round((((((IRD.BaseQty-isnull(Round(main.PurchaseReturnQty,2),0))-isnull(Round(main.IssueQty,2),0))+isnull(Round(main.IssueReturnQty,2),0))-isnull(Round(main.PhysicalStockAdjustmentqty,2),0)-isnull(Round(main.Salesqty,2),0)+isnull(Round(main.SalesReturnQty,2),0) )* Round(IRD.BooksCurrencyBaseRate,4)),2)-ISNULL(Round((Round(IRD.InventoryTransferQty,2)*Round(IRD.BooksCurrencyBaseRate,4)),2),0) BalanceAmount
-
-					,IRD.IsAsset						
-					,CASE WHEN IRD.IsAsset=1 THEN 'Asset' ELSE 'Inventory' END IsAssetStatus
-					--select x.InventoryReceiveDetailId,x.IssueDate,x.IssueNo,x.IssueType,x.PurchaseReturnNo,x.POReturnDate,x.ReturnIssueDate,x.ReturnIssueReturnNo,x.PhysicalIssueDate,x.PhysicalIssueNo,
-
-					-- x.IssueAmount,x.IssueQty,x.Rate,x.PurchaseReturnQty,x.PurchaseReturnRate,x.PurchaseReturnAmount,x.IssueReturnQty,x.IssueReturnRate
-
-					-- ,x.IssueReturnAmount,x.PhysicalStockAdjustmentqty,x.PhysicalStockAdjustmentRate,x.PhysicalStockAdjustmentAmount
- 
-					--from (
+					,Round(((((IRD.BaseQty-isnull(Round(main.PurchaseReturnQty,2),0))-isnull(Round(main.IssueQty,2),0))+isnull(Round(main.IssueReturnQty,2),0))-isnull(Round(main.Salesqty,2),0)+isnull(Round(main.SalesReturnQty,2),0)-Isnull(Round(CMD.TransactionQty,2),0)),2) BalanceQty
+					,CASE WHEN Round((IRD.BaseQty- isnull(main.IssueQty,0)-isnull(CMD.TransactionQty,0)),2)>0 then Round(IRD.BooksCurrencyBaseRate,4) else 0 END BalanceRate
+					,Round((((((IRD.BaseQty-isnull(Round(main.PurchaseReturnQty,2),0))-isnull(Round(main.IssueQty,2),0))+isnull(Round(main.IssueReturnQty,2),0))-isnull(Round(main.PhysicalStockAdjustmentqty,2),0)-isnull(Round(main.Salesqty,2),0)+isnull(Round(main.SalesReturnQty,2),0) )* Round(IRD.BooksCurrencyBaseRate,4)),2)-ISNULL(Round(CMD.Amount,2),0) BalanceAmount
+					,IRD.IsAsset ,CASE WHEN IRD.IsAsset=1 THEN 'Asset' ELSE 'Inventory' END IsAssetStatus
 					FROM TRN.InventoryMaterial AS IM
 						LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
 						left JOIN MST.MaterialMaster AS MM ON ART.MaterialMasterId=MM.Id
@@ -8687,6 +8672,10 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 						LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
 						LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
 						LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
+						LEFT JOIN (SELECT CMD.InventoryReceiveDetailId,IRD.TransactionQty,IRD.BooksCurrencyBaseRate Rate,CMD.Amount,CM.CapitalizationDate 
+							FROM  [TRN].[CapitalizationMasterDetail] CMD JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=CMD.InventoryReceiveDetailId 
+							JOIN [TRN].[CapitalizationMaster] CM ON CM.Id=CMD.CapitalizationMasterId
+							where CMD.InventoryIssueHistoryId IS NULL) CMD ON CMD.InventoryReceiveDetailId=IRD.Id  
 	                    LEFT JOIN HKP.MaterialStorage AS MS ON MS.Id=IRD.MaterialStorageId	
 						left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.BaseUOMId=TUoM.Id
 						left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -8881,27 +8870,6 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             sheet1.Range[_row, 1, _row, 5].BorderAround(ExcelLineStyle.Thin);
             sheet1.Range[_row, 1, _row, 2].BorderInside(ExcelLineStyle.Thin);
 
-
-            //if (inventoryMaterialList.Rows[0]["IsAsset"].ToString() == "False")
-            //{
-            //    sheet1[_row - 1, 16].Text = "Of Inventory";
-            //    sheet1.UsedRange.CellStyle.Font.Size = 15;
-            //    sheet1.UsedRange.CellStyle.Font.Bold = true;
-            //    sheet1.UsedRange.WrapText = true;
-            //    sheet1.Range[_row, 1].BorderAround(ExcelLineStyle.Thick);
-
-
-            //}
-            //else
-            //{
-            //    sheet1[_row - 1, 16].Text = "Of Fixed Asset";
-            //    sheet1.UsedRange.CellStyle.Font.Size = 15;
-            //    sheet1.UsedRange.CellStyle.Font.Bold = true;
-            //    sheet1.UsedRange.WrapText = true;
-            //    sheet1.Range[_row, 1].BorderAround(ExcelLineStyle.Thick);
-
-
-            //}
             _row++;
 
             sheet1[_row, 1].Text = "Article";
@@ -9034,7 +9002,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             sheet1.Range[_row, 35, _row, 39].Merge();
 
 
-            sheet1[_row, 40].Text = "INVENTORY TRANSFER";
+            sheet1[_row, 40].Text = "ASSET CAPITALIZED";
             sheet1[_row, 40].CellStyle.Font.Size = 10;
             sheet1[_row, 40].CellStyle.Font.Bold = true;
             //sheet1.UsedRange.WrapText = true;
@@ -9648,12 +9616,12 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                     var IssueReturnQty = clsStaticInfo.dbl(inventoryMaterialList.Compute("SUM(IssueReturnQty)", "Id = '" + rcvid + "'").ToString());
                     var Salesqty = clsStaticInfo.dbl(inventoryMaterialList.Compute("SUM(Salesqty)", "Id = '" + rcvid + "'").ToString());
                     var SalesReturnQty = clsStaticInfo.dbl(inventoryMaterialList.Compute("SUM(SalesReturnQty)", "Id = '" + rcvid + "'").ToString());
-                    var InventoryTransferQty = clsStaticInfo.dbl(inventoryMaterialList.Compute("SUM(InventoryTransferQty)", "Id = '" + rcvid + "'").ToString());
+                    var CapitalizeQty = clsStaticInfo.dbl(inventoryMaterialList.Compute("SUM(CapitalizeQty)", "Id = '" + rcvid + "'").ToString());
 
                     //end
 
                     //balanceQty = clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RcvQty"].ToString()) - clsStaticInfo.dbl(inventoryMaterialList.Compute("SUM(IssueQty)", "Id = '" + rcvid + "'").ToString());
-                    balanceQty = RcvQty - IssueQty - AdjustmentQty - PurchaseReturnQty + IssueReturnQty - Salesqty + SalesReturnQty - InventoryTransferQty;
+                    balanceQty = RcvQty - IssueQty - AdjustmentQty - PurchaseReturnQty + IssueReturnQty - Salesqty + SalesReturnQty - CapitalizeQty;
                     report.SetText(ref sheet1, _rowL, colBalanceQty, balanceQty);
                     report.SetText(ref sheet1, _rowL, colBalanceQty, balanceQty);
                     if (balanceQty == 0)
@@ -9734,13 +9702,13 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                 report.SetText(ref sheet1, _rowL, colInventorySalesReturnAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SalesReturnAmount"].ToString()));
 
                 //InventoryTransfer
-                if (Convert.ToDecimal(inventoryMaterialList.Rows[n]["InventoryTransferQty"].ToString()) > 0)
+                if (Convert.ToDecimal(inventoryMaterialList.Rows[n]["CapitalizeQty"].ToString()) > 0)
                 {
-                    report.SetText(ref sheet1, _rowL, colInventoryTransferDate, inventoryMaterialList.Rows[n]["TransferDate"].ToString());
-                    report.SetText(ref sheet1, _rowL, colcolInventoryTransfernQty, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferQty"].ToString()));
-                    report.SetText(ref sheet1, _rowL, colcolInventoryTransferRate, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransferRate"].ToString()));
+                    report.SetText(ref sheet1, _rowL, colInventoryTransferDate, inventoryMaterialList.Rows[n]["CapitalizeDate"].ToString());
+                    report.SetText(ref sheet1, _rowL, colcolInventoryTransfernQty, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CapitalizeQty"].ToString()));
+                    report.SetText(ref sheet1, _rowL, colcolInventoryTransferRate, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CapitalizeRate"].ToString()));
                     sheet1.Range[_rowL, colcolInventoryTransferRate].NumberFormat = report.NumberFormatDecimalFour();
-                    report.SetText(ref sheet1, _rowL, colcolInventoryTransferAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransferAmount"].ToString()));
+                    report.SetText(ref sheet1, _rowL, colcolInventoryTransferAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CapitalizeAmount"].ToString()));
                 }
 
             }

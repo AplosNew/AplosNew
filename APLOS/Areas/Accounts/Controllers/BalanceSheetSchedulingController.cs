@@ -366,6 +366,12 @@ namespace Aplos.Areas.Accounts.Controllers
                                 vm.IsAllowed = dsExcel.Tables[0].Rows[i][21].ToString().Trim();
                                 vm.AllowedDays = Convert.ToInt32(dsExcel.Tables[0].Rows[i][22]);
                                 vm.MonthDay = Convert.ToInt32(dsExcel.Tables[0].Rows[i][23]);
+                                vm.UserGroup = dsExcel.Tables[0].Rows[i][24].ToString().Trim();
+                                vm.Sequence = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][25]);
+                                vm.UserCategorySequence = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][26]);
+                                vm.UserSubCategorySequence = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][27]);
+                                vm.UserItemSequence = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][28]);
+                                vm.Remark = dsExcel.Tables[0].Rows[i][29].ToString().Trim();
                                 data.Add(vm);
 
                             }

@@ -54,10 +54,19 @@
 
         <div class="form-group">
             <label class="col-sm-4 control-label">Active</label>
-            <div class="col-sm-8">
+            <div class="col-sm-2">
                 <div class="checkbox-site">
                     <label>
                         <input type="checkbox" ng-model="ModelNew.Active" tabindex="8">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+            <label class="col-sm-4 control-label">Mandatory</label>
+            <div class="col-sm-2">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="ModelNew.Mandatory" tabindex="8">
                         <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                     </label>
                 </div>
@@ -123,6 +132,7 @@
             <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
             <div e-column e-field="Category" e-headertext="Category" e-width="5"></div>
             <div e-column e-field="CharecterType" e-headertext="Type" e-width="5"></div>
+            <div e-column e-field="Mandatory" e-headertext="Mandatory" e-width="2"></div>
             <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
         </div>
     </div>
