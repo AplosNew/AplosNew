@@ -3563,7 +3563,19 @@ Union All
 select 'LeaveCount' AS Name , Count(SystemID) As Value from dbo.LeaveTransaction   WHERE  IsNull(IsApproved,0) = 0
                              AND ISNULL(SystemID,'')<> ''
                              AND IsCancel=0
-                             AND FirstApprovingStatus = 0  AND FirstApprovingAuthority = '" + UserId + @"'";
+                             AND FirstApprovingStatus = 0  AND FirstApprovingAuthority = '" + UserId + @"'
+
+Union All 
+select 'QualityAction' , Count(distinct QC.Id) Value from TRN.QualityControlDetails QCD
+left join TRN.QualityControl QC on QC.Id=QCD.QCId
+left join ORG.Entity E on E.Id=QC.EntityId
+left join hkp.Process P on P.Id=QC.ProcessId 
+left join MST.QualityManagementMaster QMM on QMM.Id=QC.IssueId
+left join EmployeeInformation EI on EI.SystemId=QC.ProductionInchargeId
+left join TRN.ProductionOrder PO on PO.Id=QC.ProductionOrderId
+left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
+where QCD.Status not in ('Close','Complete') and PS.UserName in ('Running','To Close') and 
+QCD.GradeId in (select Id from MST.QualityGradeDetails where ActionApplicable=1)   and ResponsiblePersonId = '" + UserId + @"'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -10317,7 +10329,22 @@ where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QCD.Status=
                         dsMaster.Tables[0].Rows.Add(dr);
 
                     }
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
 
+                        dr["ActionTaken"] = item.ActionTaken;
+                        dr["ActionById"] = item.ActionById;
+                        dr["Remarks"] = item.Remarks;
+                        dr["ParameterId"] = item.ParameterId;
+                        dr["ReasonName"] = item.ReasonName;
+
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedFromIP"] = "192.168.137.44";
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    }
 
                 }
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
@@ -10337,6 +10364,57 @@ where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QCD.Status=
                 return ex.ToString();
             }
 
+        }
+
+        public void GetQualityActionUpdate(out List<QualityActionUpdate> DataList, string ParameterId, string SNO)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<QualityActionUpdate>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                if(SNO != null)
+                {
+                    strSQL = @"select * from [TRN].[QualityActionTakenUpdate] where ParameterId = '" + ParameterId + "' and SNO = '" + SNO + "'";
+                }
+                else
+                {
+                    strSQL = @"select * from [TRN].[QualityActionTakenUpdate] where ParameterId = '" + ParameterId + "'";
+                }
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new QualityActionUpdate
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        SNO = dsRef.Tables[0].Rows[i]["SNO"].ToString(),
+                        ReasonId = dsRef.Tables[0].Rows[i]["ReasonId"].ToString(),
+                        ActionTaken = dsRef.Tables[0].Rows[i]["ActionTaken"].ToString(),
+                        ActionById = dsRef.Tables[0].Rows[i]["ActionById"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+                        ParameterId = dsRef.Tables[0].Rows[i]["ParameterId"].ToString(),
+                        ReasonName = dsRef.Tables[0].Rows[i]["ReasonName"].ToString(),
+                        ConfirmRemarks = dsRef.Tables[0].Rows[i]["ConfirmRemarks"].ToString(),
+                        AddedBy = dsRef.Tables[0].Rows[i]["AddedBy"].ToString(),
+                        AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
+
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
         }
         #endregion Quality Action 
     }

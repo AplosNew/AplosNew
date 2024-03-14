@@ -7643,7 +7643,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
                     }
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
-                TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ArticleWithBuyer"].ToString()).ApplyCharacterFormat(DFontSize);
                 TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ProdDetails"].ToString()).ApplyCharacterFormat(DFontSize);
                 TROW.Cells[colLot].AddParagraph().AppendText(dsOrderMaster.Rows[i]["LotNo"].ToString()).ApplyCharacterFormat(DFontSize);
                 TROW.Cells[colCartons].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Cartons"].ToString()).ApplyCharacterFormat(DFontSize);
