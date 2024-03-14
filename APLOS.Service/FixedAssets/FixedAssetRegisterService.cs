@@ -5012,6 +5012,11 @@ GROUP BY FAR.FABudgetMasterId
                     Status = fixedAssetDisposed.Status,
                     Remarks = fixedAssetDisposed.Remarks,
                     EmployeeId = fixedAssetDisposed.EmployeeId,
+                    PartyId = fixedAssetDisposed.PartyId,
+                    PartyPlantId = fixedAssetDisposed.PartyPlantId,
+                    DeliveryPartyPlantId = fixedAssetDisposed.DeliveryPartyPlantId,
+                    InvoicingByAddress = fixedAssetDisposed.InvoicingByAddress,
+                    DeliveryByAddress = fixedAssetDisposed.DeliveryByAddress,
                     Id = "RD" + _id,
                     IsPark = true,
                     DocDate = fixedAssetDisposed.DocDate

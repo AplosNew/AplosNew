@@ -180,6 +180,9 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
         $scope.voucher.Remarks = null;
         $scope.voucher.PartyId = null;
         $scope.voucher.PartyPlantId = null;
+        $scope.voucher.DeliveryPartyPlantId = null;
+        $scope.voucher.InvoicingByAddress = null;
+        $scope.voucher.DeliveryByAddress = null;
         $scope.voucher.ToCurrencyRate = null;
         $scope.voucher.CurrencyId = null;
         $scope.voucher.PartyName = null;
@@ -266,7 +269,7 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
         $scope.voucher.PartyPlantId = $scope.voucher.InvoicingPartyPlantId;
         $scope.$broadcast("show-errors-check-validity");
         if ($scope.form0.$valid && !$scope.validation()) {
-            if ($scope.Action === "Save" && $scope.voucher.Status == 'CompensateByEmployee') {
+            if ($scope.Action === "Save") {
                 $http({
                     method: "POST",
                     url: "fixedassets/fixedassetregister/CreateCapitalizeAssetLost",
@@ -290,126 +293,126 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
                 });
                 return true;
             }
-            if ($scope.Action === "Save" && $scope.voucher.Status == 'Sales') {
-                $http({
-                    method: "POST",
-                    url: "fixedassets/fixedassetregister/CreateFixedAssetSales",
-                    data: {
-                        "fixedAssetDisposed": $scope.voucher,
-                        "fixedAssetRegister": $scope.voucherDetailList
+            //if ($scope.Action === "Save" && $scope.voucher.Status == 'Sales') {
+            //    $http({
+            //        method: "POST",
+            //        url: "fixedassets/fixedassetregister/CreateFixedAssetSales",
+            //        data: {
+            //            "fixedAssetDisposed": $scope.voucher,
+            //            "fixedAssetRegister": $scope.voucherDetailList
                        
-                    },
-                    dataType: "JSON"
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, "failure");
-                    }
-                    else {
-                        ShowResult(response.data.Message, "success");
-                        $scope.getData();
-                        $scope.Clear();
-                    }
-                }, function errorCallback(response) {
-                    ShowResult(response.status.Message, "failure");
-                });
-                return true;
-            }
-            if ($scope.Action === "Save" && ($scope.voucher.Status == 'Scrap' || $scope.voucher.Status == 'Theft')) {
-                $http({
-                    method: "POST",
-                    url: "fixedassets/fixedassetregister/CreateFixedAssetScrap",
-                    data: {
-                        "fixedAssetDisposed": $scope.voucher,
-                        "fixedAssetRegister": $scope.voucherDetailList
+            //        },
+            //        dataType: "JSON"
+            //    }).then(function successCallback(response) {
+            //        if (response.data.Error === true) {
+            //            ShowResult(response.data.Message, "failure");
+            //        }
+            //        else {
+            //            ShowResult(response.data.Message, "success");
+            //            $scope.getData();
+            //            $scope.Clear();
+            //        }
+            //    }, function errorCallback(response) {
+            //        ShowResult(response.status.Message, "failure");
+            //    });
+            //    return true;
+            //}
+            //if ($scope.Action === "Save" && ($scope.voucher.Status == 'Scrap' || $scope.voucher.Status == 'Theft')) {
+            //    $http({
+            //        method: "POST",
+            //        url: "fixedassets/fixedassetregister/CreateFixedAssetScrap",
+            //        data: {
+            //            "fixedAssetDisposed": $scope.voucher,
+            //            "fixedAssetRegister": $scope.voucherDetailList
                         
-                    },
-                    dataType: "JSON"
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, "failure");
-                    }
-                    else {
-                        ShowResult(response.data.Message, "success");
-                        $scope.getData();
-                        $scope.Clear();
-                    }
-                }, function errorCallback(response) {
-                    ShowResult(response.status.Message, "failure");
-                });
-                return true;
-            }
-            if ($scope.Action === "Update" && $scope.voucher.Status == 'CompensateByEmployee' ) {
-                $http({
-                    method: "POST",
-                    url: "fixedassets/fixedassetregister/UpdateFixedAssetLost",
-                    data: {
-                        "fixedAssetDisposed": $scope.voucher,
-                        "fixedAssetRegister": $scope.voucherDetailList
+            //        },
+            //        dataType: "JSON"
+            //    }).then(function successCallback(response) {
+            //        if (response.data.Error === true) {
+            //            ShowResult(response.data.Message, "failure");
+            //        }
+            //        else {
+            //            ShowResult(response.data.Message, "success");
+            //            $scope.getData();
+            //            $scope.Clear();
+            //        }
+            //    }, function errorCallback(response) {
+            //        ShowResult(response.status.Message, "failure");
+            //    });
+            //    return true;
+            //}
+            //if ($scope.Action === "Update" && $scope.voucher.Status == 'CompensateByEmployee' ) {
+            //    $http({
+            //        method: "POST",
+            //        url: "fixedassets/fixedassetregister/UpdateFixedAssetLost",
+            //        data: {
+            //            "fixedAssetDisposed": $scope.voucher,
+            //            "fixedAssetRegister": $scope.voucherDetailList
 
-                    },
-                    dataType: "JSON"
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, "failure");
-                    }
-                    else {
-                        ShowResult(response.data.Message, "success");
-                        $scope.getData();
-                        $scope.Clear();
-                    }
-                }, function errorCallback(response) {
-                    ShowResult(response.status.Message, "failure");
-                });
-                return true;
-            }
-            if ($scope.Action === "Update" && ($scope.voucher.Status == 'Scrap' || $scope.voucher.Status == 'Theft')) {
-                $http({
-                    method: "POST",
-                    url: "fixedassets/fixedassetregister/UpdateFixedAssetScrap",
-                    data: {
-                        "fixedAssetDisposed": $scope.voucher,
-                        "fixedAssetRegister": $scope.voucherDetailList
+            //        },
+            //        dataType: "JSON"
+            //    }).then(function successCallback(response) {
+            //        if (response.data.Error === true) {
+            //            ShowResult(response.data.Message, "failure");
+            //        }
+            //        else {
+            //            ShowResult(response.data.Message, "success");
+            //            $scope.getData();
+            //            $scope.Clear();
+            //        }
+            //    }, function errorCallback(response) {
+            //        ShowResult(response.status.Message, "failure");
+            //    });
+            //    return true;
+            //}
+            //if ($scope.Action === "Update" && ($scope.voucher.Status == 'Scrap' || $scope.voucher.Status == 'Theft')) {
+            //    $http({
+            //        method: "POST",
+            //        url: "fixedassets/fixedassetregister/UpdateFixedAssetScrap",
+            //        data: {
+            //            "fixedAssetDisposed": $scope.voucher,
+            //            "fixedAssetRegister": $scope.voucherDetailList
                         
-                    },
-                    dataType: "JSON"
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, "failure");
-                    }
-                    else {
-                        ShowResult(response.data.Message, "success");
-                        $scope.getData();
-                        $scope.Clear();
-                    }
-                }, function errorCallback(response) {
-                    ShowResult(response.status.Message, "failure");
-                });
-                return true;
-            }
-            else if ($scope.Action === "Update" && $scope.voucher.Status == 'Sales') {
-                $http({
-                    method: "POST",
-                    url: "fixedassets/fixedassetregister/UpdateFixedAssetSales",
-                    data: {
-                        "status": $scope.voucher.Status,
-                        "disposeVM": $scope.voucher,
-                        "fixedAssetRegister": $scope.voucherDetailList,
-                    },
-                    dataType: 'JSON'
-                    , contentType: "application/json charset=utf-8"
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, "failure");
-                    }
-                    else {
-                        ShowResult(response.data.Message, "success");
-                        $scope.getData();
-                        $scope.Clear();
-                    }
-                }, function errorCallback(response) {
-                    ShowResult(response.status.Message, "failure");
-                });
-            }
+            //        },
+            //        dataType: "JSON"
+            //    }).then(function successCallback(response) {
+            //        if (response.data.Error === true) {
+            //            ShowResult(response.data.Message, "failure");
+            //        }
+            //        else {
+            //            ShowResult(response.data.Message, "success");
+            //            $scope.getData();
+            //            $scope.Clear();
+            //        }
+            //    }, function errorCallback(response) {
+            //        ShowResult(response.status.Message, "failure");
+            //    });
+            //    return true;
+            //}
+            //else if ($scope.Action === "Update" && $scope.voucher.Status == 'Sales') {
+            //    $http({
+            //        method: "POST",
+            //        url: "fixedassets/fixedassetregister/UpdateFixedAssetSales",
+            //        data: {
+            //            "status": $scope.voucher.Status,
+            //            "disposeVM": $scope.voucher,
+            //            "fixedAssetRegister": $scope.voucherDetailList,
+            //        },
+            //        dataType: 'JSON'
+            //        , contentType: "application/json charset=utf-8"
+            //    }).then(function successCallback(response) {
+            //        if (response.data.Error === true) {
+            //            ShowResult(response.data.Message, "failure");
+            //        }
+            //        else {
+            //            ShowResult(response.data.Message, "success");
+            //            $scope.getData();
+            //            $scope.Clear();
+            //        }
+            //    }, function errorCallback(response) {
+            //        ShowResult(response.status.Message, "failure");
+            //    });
+            //}
             return true;
         }
     };
@@ -491,9 +494,10 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
                             $scope.voucherDetail.DepreciationAmount = a.DepreciationAmount;
                             $scope.voucherDetail.NetAmount = a.NetAmount;
                             $scope.voucherDetail.AdjustmentDepreciationAmount = 0;
+                            $scope.voucherDetail.NegotiationValue = 0;
 
                             if ($scope.voucher.Status == 'Scrap') {
-                                $scope.voucherDetail.NegotiationValue = a.NetBookValue;
+                                $scope.voucherDetail.NegotiationValue = a.NetAmount;
                             }
                   
                             $scope.voucherDetail.PartyType = 'Capitalize Asset';
