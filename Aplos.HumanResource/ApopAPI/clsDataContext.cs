@@ -3563,7 +3563,19 @@ Union All
 select 'LeaveCount' AS Name , Count(SystemID) As Value from dbo.LeaveTransaction   WHERE  IsNull(IsApproved,0) = 0
                              AND ISNULL(SystemID,'')<> ''
                              AND IsCancel=0
-                             AND FirstApprovingStatus = 0  AND FirstApprovingAuthority = '" + UserId + @"'";
+                             AND FirstApprovingStatus = 0  AND FirstApprovingAuthority = '" + UserId + @"'
+
+Union All 
+select 'QualityAction' , Count(distinct QC.Id) Value from TRN.QualityControlDetails QCD
+left join TRN.QualityControl QC on QC.Id=QCD.QCId
+left join ORG.Entity E on E.Id=QC.EntityId
+left join hkp.Process P on P.Id=QC.ProcessId 
+left join MST.QualityManagementMaster QMM on QMM.Id=QC.IssueId
+left join EmployeeInformation EI on EI.SystemId=QC.ProductionInchargeId
+left join TRN.ProductionOrder PO on PO.Id=QC.ProductionOrderId
+left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
+where QCD.Status not in ('Close','Complete') and PS.UserName in ('Running','To Close') and 
+QCD.GradeId in (select Id from MST.QualityGradeDetails where ActionApplicable=1)   and ResponsiblePersonId = '" + UserId + @"'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
