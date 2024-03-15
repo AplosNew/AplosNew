@@ -4776,6 +4776,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
     ,PSI.PreCarriageBy,PSI.PlaceOfReceiptByPreCarriage,PSI.CNFContainerNo,PSI.CNFVesselName,PSI.CNFVesselTrackingNo,CRNC.Code AS CurrencyName,IR.ToCurrencyRate
     ,BASECRNC.Code AS BaseCurrencyName,PayTerm.UserName PaymentTerm,MM.UserName MaterialMaster,MGM.UserName MaterialGroupMaster
     ,Article=CASE WHEN ISNULL(moi.LCArticle,'')<>'' THEN moi.LCArticle WHEN ISNULL(AA.ArticlePartyName,'')<>'' THEN AA.ArticlePartyName ELSE MMA.StandardName END
+    ,ArticleWithBuyer=CASE WHEN ISNULL(moi.LCArticle,'')<>'' THEN moi.LCArticle WHEN ISNULL(AA.ArticlePartyName,'')<>'' THEN AA.ArticlePartyName ELSE MMA.StandardName END + '  ' + moi.BuyerReferenceNo
      ,POTransactionQty=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.TransactionQty ELSE SCN.NetWeight END) 
     ,CONVERT(NUMERIC(10,4),IRD.TransactionRate, 4) TransactionRate
 	,TrnAmount=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN ROUND((IRD.TransactionQty * IRD.TransactionRate), 2) ELSE ROUND((SCN.NetWeight * IRD.TransactionRate), 2) END)
