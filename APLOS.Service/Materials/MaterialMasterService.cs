@@ -8600,12 +8600,12 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 					, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 	
 					,TUoM.UserName UOM,main.IssueType
 					,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') RcvDate
-					,Round(IRD.BaseQty,2) RcvQty
+					,Round(IRD.BaseQty-ISNULL(IRD.ShortageQty,0),2) RcvQty
 					,Round(IRD.BooksCurrencyBaseRate,4) RcvRate
 					--,Round(IRD.TotalMaterialBooksCurrencyAmount,2) RcvAmount	
-					,Round((Round(IRD.BaseQty,2)*Round(IRD.BooksCurrencyBaseRate,4)),2) RcvAmount	
+					,Round((Round(IRD.BaseQty-ISNULL(IRD.ShortageQty,0),2)*Round(IRD.BooksCurrencyBaseRate,4)),2) RcvAmount	
 
-					,Round(IRD.TotalMaterialBooksCurrencyAmount,2) TotalRcvAmount	
+					,Round(IRD.TotalMaterialBooksCurrencyAmount,2)-(ISNULL(IRD.ShortageQty,0)*Round(IRD.BooksCurrencyBaseRate,4)) TotalRcvAmount	
 	
 					,REPLACE(CONVERT(CHAR(11), main.IssueDate, 106),' ','-') IssueDate
 					,main.IssueNo IssueNo
@@ -8657,9 +8657,9 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 					,isnull(Round(CMD.Rate,4),0) CapitalizeRate
 					,Isnull(Round(CMD.Amount,2),0) CapitalizeAmount	
 
-					,Round(((((IRD.BaseQty-isnull(Round(main.PurchaseReturnQty,2),0))-isnull(Round(main.IssueQty,2),0))+isnull(Round(main.IssueReturnQty,2),0))-isnull(Round(main.Salesqty,2),0)+isnull(Round(main.SalesReturnQty,2),0)-Isnull(Round(CMD.TransactionQty,2),0)),2) BalanceQty
+					,Round(((((IRD.BaseQty-ISNULL(IRD.ShortageQty,0)-isnull(Round(main.PurchaseReturnQty,2),0))-isnull(Round(main.IssueQty,2),0))+isnull(Round(main.IssueReturnQty,2),0))-isnull(Round(main.Salesqty,2),0)+isnull(Round(main.SalesReturnQty,2),0)-Isnull(Round(CMD.TransactionQty,2),0)),2) BalanceQty
 					,CASE WHEN Round((IRD.BaseQty- isnull(main.IssueQty,0)-isnull(CMD.TransactionQty,0)),2)>0 then Round(IRD.BooksCurrencyBaseRate,4) else 0 END BalanceRate
-					,Round((((((IRD.BaseQty-isnull(Round(main.PurchaseReturnQty,2),0))-isnull(Round(main.IssueQty,2),0))+isnull(Round(main.IssueReturnQty,2),0))-isnull(Round(main.PhysicalStockAdjustmentqty,2),0)-isnull(Round(main.Salesqty,2),0)+isnull(Round(main.SalesReturnQty,2),0) )* Round(IRD.BooksCurrencyBaseRate,4)),2)-ISNULL(Round(CMD.Amount,2),0) BalanceAmount
+					,Round((((((IRD.BaseQty-ISNULL(IRD.ShortageQty,0)-isnull(Round(main.PurchaseReturnQty,2),0))-isnull(Round(main.IssueQty,2),0))+isnull(Round(main.IssueReturnQty,2),0))-isnull(Round(main.PhysicalStockAdjustmentqty,2),0)-isnull(Round(main.Salesqty,2),0)+isnull(Round(main.SalesReturnQty,2),0) )* Round(IRD.BooksCurrencyBaseRate,4)),2)-ISNULL(Round(CMD.Amount,2),0) BalanceAmount
 					,IRD.IsAsset ,CASE WHEN IRD.IsAsset=1 THEN 'Asset' ELSE 'Inventory' END IsAssetStatus
 					FROM TRN.InventoryMaterial AS IM
 						LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
