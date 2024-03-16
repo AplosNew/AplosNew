@@ -403,7 +403,8 @@ namespace Library.Service.SalesManagements
                 _salesRepository.Update(sales);
 
                 var currentSalesMaterialId = _salesMaterialRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 4) AS INT)), 0) Id FROM TRN.SalesMaterial WHERE SalesId='{sales.Id}'").First();
-                var currentSalesTaxId = _salesMaterialRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 4) AS INT)), 0) Id FROM TRN.SalesTax WHERE SalesId='{sales.Id}'").First();
+                var currentSalesTaxId = _salesMaterialRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 4) AS INT)), 0) Id FROM TRN.SalesTax WHERE SalesId='{sales.Id}' AND SalesServiceId IS NULL" ).First();
+                var currentServiceSalesTaxId = _salesMaterialRepository.SqlQuery<int>($"SELECT Count(Id) Id FROM TRN.SalesTax WHERE SalesId='{sales.Id}' AND SalesmaterialId IS NULL" ).First();
 
                 var currentSalesServiceId = 0;
                 if (salesMaterialVMList != null)
@@ -655,10 +656,10 @@ namespace Library.Service.SalesManagements
                                         if (taxVM.TaxCategoryId == null)
                                             throw new CustomException("Please Selete Tax Category !");
 
-                                        currentSalesTaxId++;
+                                        currentServiceSalesTaxId++;
                                         var salesTax = new SalesTax
                                         {
-                                            Id = _pkGeneratorService.MakePK(salesServiceVM.Id, currentSalesTaxId, 2),
+                                            Id = _pkGeneratorService.MakePK("S"+salesService.Id, currentServiceSalesTaxId, 2),
                                             AddedBy = sales.AddedBy,
                                             AddedDate = sales.AddedDate,
                                             AddedFromIP = sales.AddedFromIP,
