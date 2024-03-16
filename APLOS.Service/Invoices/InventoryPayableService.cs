@@ -472,9 +472,6 @@ namespace Library.Service.Invoices
                                 DocRefNo = voucher.DocRefNo,
                                 Narration = invoice.Narration,
                                 EmployeeId = invoice.EmployeeId,
-                                PartyId = invoice.PartyId,
-                                PartyPlantId = invoice.PartyPlantId,
-                                PartyType = invoice.PartyType,
                                 PostingWithoutTaxAllow = invoice.IsExcludingTax
                             };
                             voucherDetailVM.Id = voucherCr.Id;
@@ -484,8 +481,11 @@ namespace Library.Service.Invoices
                                 // _invoiceDetailRepository.Insert(invoiceDetail);
                               _invoiceService.InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
                                 voucherCr.InvoiceDetailId = invoiceDetail.Id;
-
+                                voucherCr.PartyId = invoice.PartyId;
+                                voucherCr.PartyPlantId = invoice.PartyPlantId;
+                                voucherCr.PartyType = invoice.PartyType;
                             }
+
                             currentVoucherDetaiRecord++;
                             _voucherService.InsertVoucherDetail(voucher, voucherCr, currentVoucherDetaiRecord);
 
