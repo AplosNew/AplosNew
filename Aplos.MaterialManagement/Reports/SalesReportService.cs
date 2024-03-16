@@ -4722,7 +4722,9 @@ left join [TRN].[MasterOrder] MO on MO.Id = MOI.MasterOrderId
 left join ProductLibrary PLA on PLA.Id = MOI.ProductLibraryId
 LEFT JOIN (SELECT distinct LotNo, SalesId,SalesMaterialId,  COUNT(RefNo) Bags, 
             SUM(NetWeight)NetWeight,SUM(GWeight)GWeight FROM ItemScanChild 
-			group by SalesId ,SalesMaterialId, LotNo) SCN on SCN.SalesId = IR.Id AND SCN.SalesMaterialId=IRD.Id
+			group by SalesId ,SalesMaterialId, LotNo
+            Having COUNT(RefNo)>0
+) SCN on SCN.SalesId = IR.Id AND SCN.SalesMaterialId=IRD.Id
 
 LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
 LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
@@ -4744,7 +4746,7 @@ left join MST.AddressMaster NEGADD on NEGADD.Id = NEGBB.AddressMasterId
 left join SalesAdditionalInfo SAI on SAI.SalesId = IR.Id 
 left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName = 'Advance'
 
-                       WHERE IR.Id ='" + SalesId + "' AND SCN.Bags<>''";
+                       WHERE IR.Id ='" + SalesId + "'";
 
                 return _sqlRepository.GetDataTable(strSQL);
             }

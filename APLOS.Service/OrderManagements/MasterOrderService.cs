@@ -1768,7 +1768,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
                         {
                             count++;
                             item.ProductionGrouping = RemoveSpace(item.ProductionGrouping);
-                            item.Id ="I"+ MakePK(masterId, count, 2);
+                            item.Id =MakePK(masterId, count, 2);
                             item.MasterOrderId = masterId;
                             AuditService.AddedLog(item);
                             _itemRepository.Insert(item);
