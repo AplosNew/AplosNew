@@ -12104,7 +12104,6 @@ namespace Library.MaterialManagement.Inventory
         #endregion
 
 
-
         #region IssueRequestReport
 
         public void IssueRequestReport(string CompanyId, string CompanyGroupID, string plantId, string UserId, string issueId)
@@ -12799,7 +12798,6 @@ namespace Library.MaterialManagement.Inventory
 
 
         #endregion
-
 
 
         #region Issue UI or IssueWithReqPOGRN Report
@@ -13792,9 +13790,6 @@ namespace Library.MaterialManagement.Inventory
         #endregion
 
 
-
-
-
         #region Asset Issue  Wise Issue Slip
         public IEnumerable<object> GetAssetIssueSlipFilterData()
         {
@@ -13880,8 +13875,6 @@ namespace Library.MaterialManagement.Inventory
             }
         }
         #endregion
-
-
 
 
         public IEnumerable<object> GetSupervisorCbo()
