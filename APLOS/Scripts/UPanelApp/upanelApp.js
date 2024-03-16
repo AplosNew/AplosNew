@@ -695,6 +695,7 @@ upanelApp.controller('SalaryHeadWiseAmountTransactionController', SalaryHeadWise
 upanelApp.controller('salaryJournalController', salaryJournalController);
 upanelApp.controller('salaryPayableController', salaryPayableController);
 upanelApp.controller('salaryPayableDisbursementController', salaryPayableDisbursementController);
+upanelApp.controller('finalSettlementPostController', finalSettlementPostController);
 upanelApp.controller('salaryPaymentStatementsController', salaryPaymentStatementsController);
 upanelApp.controller('salaryProcessedReportComplianceController', salaryProcessedReportComplianceController);
 upanelApp.controller('salaryProcessedReportController', salaryProcessedReportController);
