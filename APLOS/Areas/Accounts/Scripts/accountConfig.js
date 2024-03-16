@@ -847,6 +847,10 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/SalaryDisbursement/salaryPayableDisbursement",
             controller: "salaryPayableDisbursementController"
         })
+        .when("/finalSettlement-posting", {
+            templateUrl: "Accounts/SalaryDisbursement/FinalSettlementPost",
+            controller: "finalSettlementPostController"
+        })
         .when("/bonus-disbursement", {
             templateUrl: "Accounts/SalaryDisbursement/BonusDisbursement",
             controller: "bonusDisbursementController"

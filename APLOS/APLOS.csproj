@@ -1840,6 +1840,7 @@
     <Content Include="Areas\Accounts\Scripts\InvoiceStatusController.js" />
     <Content Include="Areas\Accounts\Scripts\PaymentAdviceController.js" />
     <Content Include="Areas\Accounts\Scripts\InvestmentSettelmentController.js" />
+    <Content Include="Areas\Accounts\Scripts\finalSettlementPostController.js" />
     <Content Include="Areas\Accounts\Scripts\SubsequentInvestmentController.js" />
     <Content Include="Areas\Accounts\Scripts\PaymentAdviseReportController.js" />
     <Content Include="Areas\Accounts\Scripts\ChartAccountSetupController.js" />
@@ -4925,6 +4926,7 @@
     <Content Include="Areas\Commercial\Views\Contract\ContractSummary.cshtml" />
     <Content Include="Areas\Accounts\Views\RoundOffJournal.cshtml" />
     <Content Include="Areas\Materials\Views\BarcodeGeneratorSetting\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\SalaryDisbursement\FinalSettlementPost.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
