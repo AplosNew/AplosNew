@@ -117,7 +117,10 @@ namespace Aplos.Areas.Payrolls.Controllers
                          , DP.UserName Department
                          , PMB.Code,PR.UserName PositionName
                          , E.UserName EntityName
-                        
+                        ,SepType=STUFF((select distinct ','+ST.UserName from [HKP].[SeparationType] ST	  
+											    LEFT JOIN [TRN].[Resignation] R ON R.SeparationTypeId=ST.Id
+												AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC)
+							                    where EI.SystemId=R.EmployeeId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                          FROM dbo.Employeeinformation EI
                          LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id							 
                          LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
@@ -128,7 +131,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                          LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
                          LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId				
                               WHERE EI.SystemId IN (SELECT EmployeeId FROM TRN.Resignation WHERE ApprovalStatus='Approved' ) AND EI.SystemId NOT IN (SELECT EmpSystemId FROM EmployeeFinalSettlement ) AND
-                                    EI.PlantId='" + identity.PlantId + @"' and isnull(DOSDate,'')<>''    ORDER BY  ei.DOS DESC";
+                                    EI.PlantId='" + identity.PlantId + @"' and isnull(DOSDate,'')<>'' ORDER BY  ei.DOS DESC";
 
             }
             catch (Exception ex)
