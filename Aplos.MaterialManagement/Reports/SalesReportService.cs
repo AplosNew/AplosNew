@@ -4280,14 +4280,14 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
                     FOR XML PATH('')
                     ), 1, 1, '')
 ,LcAmount= (
-                    SELECT CONVERT(NUMERIC(10,2) , LC.Amount)
+                    SELECT Top 1 CONVERT(NUMERIC(10,2) , LC.Amount)
                     FROM dbo.MasterLC LC 
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
                     LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
 					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
                     WHERE SM.SalesId=IR.Id)
 ,LcAmountBL = (
-                    SELECT CONVERT(NUMERIC(10,2) , LC.Amount)
+                    SELECT Top 1 CONVERT(NUMERIC(10,2) , LC.Amount)
                     FROM dbo.MasterLC LC 
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
                     LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
@@ -4826,14 +4826,14 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
                     FOR XML PATH('')
                     ), 1, 1, '')
 ,LcAmount= (
-                    SELECT sum(CONVERT(NUMERIC(10,2) , LC.Amount))
+                    SELECT Top 1 CONVERT(NUMERIC(10,2) , LC.Amount)
                     FROM dbo.MasterLC LC 
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
                     LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
 					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
                     WHERE SM.SalesId=IR.Id)
 ,LcAmountBL = (
-                    SELECT sum(CONVERT(NUMERIC(10,2) , LC.Amount))
+                    SELECT Top 1 CONVERT(NUMERIC(10,2) , LC.Amount)
                     FROM dbo.MasterLC LC 
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
                     LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
