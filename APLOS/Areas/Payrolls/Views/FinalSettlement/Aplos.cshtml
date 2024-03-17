@@ -134,13 +134,39 @@
 
 
             <fieldset class="scheduler-border">
-                <legend class="scheduler-border">Last Month Salary Info</legend>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Salary Amount ({{FinalSettlementModel.LastMonthProcDay}} Days)</label>
-                    <div class="col-sm-8 show-message">
-                        <input type="number" ng-model="FinalSettlementModel.LastMonthNetPayAmount" class="form-control" required tabindex="1">
-                    </div>
+                <legend class="scheduler-border">Undisbursed Salary Info</legend>
+                @*<div class="form-group">
+            <label class="col-sm-4 control-label">Salary Amount ({{FinalSettlementModel.LastMonthProcDay}} Days)</label>
+            <div class="col-sm-8 show-message">
+                <input type="number" ng-model="FinalSettlementModel.LastMonthNetPayAmount" class="form-control" required tabindex="1">
+            </div>
+        </div>*@
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>YearNo</th>
+                                <th>Month Name</th>
+                                <th>Amount</th>
+                            </tr>
+
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in FinalSettlementUndisbursedEarningList">
+                                <td>{{x.YearNo}}</td>
+                                <td>{{x.MonthName}}</td>
+                                <td class="text-right">{{x.DisbusmentAmount}}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Total</td>
+                                <td class="text-right">
+                                    {{FinalSettlementUndisbursedEarningList | sumByKey : 'DisbusmentAmount'|number:0}}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
+                Salary Amount: {{FinalSettlementModel.LastMonthNetPayAmount}}
             </fieldset>
 
             <fieldset class="scheduler-border">
