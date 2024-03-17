@@ -1200,7 +1200,7 @@ FROM [dbo].[LCClauses] CT
         }
 
         public IEnumerable<object> GetGoodWorkCheckByData(string goodWorkSetupId)
-        {
+        { 
             try
             {
                 var sql = @"SELECT GWC.*,ei.SystemId EmployeeId,ei.EmployeeCode,ei.EmployeeName,C.Id CompanyId,C.UserName Company
