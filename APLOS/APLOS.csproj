@@ -355,6 +355,7 @@
     <Compile Include="Areas\Accounts\Controllers\BalanceSheetSchedulingController.cs" />
     <Compile Include="Areas\Accounts\Controllers\CommonAccountsController.cs" />
     <Compile Include="Areas\Accounts\Controllers\AdjustmentNoteController.cs" />
+    <Compile Include="Areas\Accounts\Controllers\GLManagementController.cs" />
     <Compile Include="Areas\Accounts\Controllers\PettyCashMasterController.cs" />
     <Compile Include="Areas\Accounts\Controllers\FiscalYearCloseController.cs" />
     <Compile Include="Areas\Accounts\Controllers\ManagementChartAccountSetupController.cs" />
@@ -1828,6 +1829,7 @@
     <Compile Include="SqlServerTypes\Loader.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Areas\Accounts\Scripts\GLManagementController.js" />
     <Content Include="Areas\Accounts\Scripts\roundOffJournalController.js" />
     <Content Include="Areas\Accounts\Scripts\PettyCashMasterController.js" />
     <Content Include="Areas\Accounts\Scripts\pfesiDisbursementController.js" />
@@ -4926,6 +4928,7 @@
     <Content Include="Areas\Commercial\Views\Contract\ContractSummary.cshtml" />
     <Content Include="Areas\Accounts\Views\RoundOffJournal.cshtml" />
     <Content Include="Areas\Materials\Views\BarcodeGeneratorSetting\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\GLManagement\GLManagement.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\FinalSettlementPost.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />

@@ -1638,7 +1638,7 @@ Order By SO.DeliveryDate";
             IWorkbook workbook = application.Workbooks.Create(1);
             IWorksheet worksheet = workbook.Worksheets[0];
             ReportUtility reportUtility = new ReportUtility();
-            Dictionary<string, Combination> dicGroup = new Dictionary<string, Combination>();
+            //Dictionary<string, Combination> dicGroup = new Dictionary<string, Combination>();
 
             try
             {
@@ -2079,34 +2079,169 @@ Order By SO.DeliveryDate";
 
                 int startRow = ROW;
 
-                for (int i = 0; i < dataDetails.Rows.Count; i++)
+                if (dataDetails.Rows.Count > 0)
                 {
-                    worksheet[ROW, ColItem].Text = dataDetails.Rows[i]["Item"].ToString();
-                    worksheet[ROW, ColSupplier].Text = dataDetails.Rows[i]["Supplier"].ToString();
-                    worksheet[ROW, ColLCStatus].Text = dataDetails.Rows[i]["LCStatus"].ToString();
-                    worksheet[ROW, ColLCDate].Text = dataDetails.Rows[i]["LCDate"].ToString();
-                    worksheet[ROW, ColTTLLCValue].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["TotalLCValue"].ToString());
-                    worksheet[ROW, ColTTLLCValue].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    //worksheet[ROW, ColItem].Text = dataDetails.Rows[i]["Item"].ToString();
+                    //worksheet[ROW, ColSupplier].Text = dataDetails.Rows[i]["Supplier"].ToString();
+                    //worksheet[ROW, ColLCStatus].Text = dataDetails.Rows[i]["LCStatus"].ToString();
+                    //worksheet[ROW, ColLCDate].Text = dataDetails.Rows[i]["LCDate"].ToString();
+                    //worksheet[ROW, ColTTLLCValue].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["TotalLCValue"].ToString());
+                    //worksheet[ROW, ColTTLLCValue].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
 
-                    worksheet[ROW, ColBudgetValue].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["BudgetValue"].ToString());
-                    worksheet[ROW, ColBudgetValue].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    worksheet[ROW, ColActualCost].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["ActualCost"].ToString());
-                    worksheet[ROW, ColActualCost].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    //worksheet[ROW, ColBudgetValue].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["BudgetValue"].ToString());
+                    //worksheet[ROW, ColBudgetValue].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    //worksheet[ROW, ColActualCost].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["ActualCost"].ToString());
+                    //worksheet[ROW, ColActualCost].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
 
-                    worksheet[ROW, ColShortExcess].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["ShortExcess"].ToString());
-                    worksheet[ROW, ColShortExcess].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    worksheet[ROW, ColBTBPending].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["BTBPending"].ToString());
-                    worksheet[ROW, ColBTBPending].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    double totalPer = clsStaticInfo.dbl(dataDetails.Rows[i]["BudgetValue"].ToString()) / totalAmount * 100;
-                    worksheet[ROW, ColPercentage].Number = totalPer;
-                    worksheet[ROW, ColPercentage].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    //worksheet[ROW, ColShortExcess].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["ShortExcess"].ToString());
+                    //worksheet[ROW, ColShortExcess].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    //worksheet[ROW, ColBTBPending].Number = clsStaticInfo.dbl(dataDetails.Rows[i]["BTBPending"].ToString());
+                    //worksheet[ROW, ColBTBPending].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    //double totalPer = clsStaticInfo.dbl(dataDetails.Rows[i]["BudgetValue"].ToString()) / totalAmount * 100;
+                    //worksheet[ROW, ColPercentage].Number = totalPer;
+                    //worksheet[ROW, ColPercentage].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
 
-                    worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-                    worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-                    worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
-                    ROW++;
+                    //worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    //worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    //worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    //ROW++;
+
+                    #region New
+
+                    string _cgrp1 = string.Empty;
+                    string _grp1 = string.Empty;
+                    string _grp2 = string.Empty;
+                    string _grp3 = string.Empty;
+                    string _sgrp3 = string.Empty;
+                    string _grp4 = string.Empty;
+                    string _grp5 = string.Empty;
+
+
+
+                    xlsRow = ROW;
+                    //var catcGrp2FRow = xlsRow;
+                    //var catGrp2FRow = xlsRow;
+                    //var catsGrp3FRow = xlsRow;
+                    //var catGrp3FRow = xlsRow;
+                    //var catGrp4FRow = xlsRow;
+                    //var catGrp5FRow = xlsRow;
+
+                    ArrayList rowList = new ArrayList();
+                    var lastMPGroup = string.Empty;
+
+                    Dictionary<string, Combination> dicGroup = new Dictionary<string, Combination>();
+
+                    string strItem = dataDetails.Rows[0]["Item"].ToString();
+                    string strSupplier = strItem + dataDetails.Rows[0]["Supplier"].ToString();
+                    string strLCStatus = strSupplier + dataDetails.Rows[0]["LCStatus"].ToString();
+                    string strLCDate = strLCStatus + dataDetails.Rows[0]["LCDate"].ToString();
+                    //string strGroupSectionName = strLCDate + dataDetails.Rows[0]["SectionName"].ToString();
+                    //string strGroupSubSectionName = strGroupSectionName + dataDetails.Rows[0]["SubSectionName"].ToString();
+
+
+
+                    dicGroup.Add("Item", new Combination { GroupKey = strItem, Row = xlsRow });
+                    dicGroup.Add("Supplier", new Combination { GroupKey = strSupplier, Row = xlsRow });
+                    dicGroup.Add("LCStatus", new Combination { GroupKey = strLCStatus, Row = xlsRow });
+                    dicGroup.Add("LCDate", new Combination { GroupKey = strLCDate, Row = xlsRow });
+                    //dicGroup.Add("SectionName", new Combination { GroupKey = strGroupSectionName, Row = xlsRow });
+                    //dicGroup.Add("SubSectionName", new Combination { GroupKey = strGroupSubSectionName, Row = xlsRow });
+
+
+                    DataRow dr = dataDetails.NewRow();
+                    dataDetails.Rows.Add(dr);
+                    for (int i = 0; i < dataDetails.Rows.Count; i++)
+                    {
+                        var catLRow = ROW;
+                        if (i == 100)
+                        {
+
+                        }
+                        strItem = dataDetails.Rows[i]["Item"].ToString();
+                        strSupplier = strItem + dataDetails.Rows[i]["Supplier"].ToString();
+                        strLCStatus = strSupplier + dataDetails.Rows[i]["LCStatus"].ToString();
+                        strLCDate = strLCStatus + dataDetails.Rows[i]["LCDate"].ToString();
+                        //strGroupSectionName = strLCDate + dataDetails.Rows[i]["SectionName"].ToString();
+                        //strGroupSubSectionName = strGroupSectionName + dataDetails.Rows[i]["SubSectionName"].ToString();
+
+                        if (dicGroup["Item"].GroupKey != strItem)
+                        {
+                            rowList.Add(xlsRow);
+                            //SetHeadText(sheet1, xlsRow, 6, " Subtotal:");
+                            //sheet1.Range[xlsRow, ColTTLLCValue].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(ColTTLLCValue) + catFRow + ":" + reportUtility.GetColumnNameForXls(ColTTLLCValue) + (xlsRow - 1) + ")";
+                            //sheet1.Range[xlsRow, ColTTLLCValue].BorderAround(ExcelLineStyle.Hair);
+
+                            //sheet1.Range[xlsRow, ColBudgetValue].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(ColBudgetValue) + catFRow + ":" + reportUtility.GetColumnNameForXls(ColBudgetValue) + (xlsRow - 1) + ")";
+                            //sheet1.Range[xlsRow, ColBudgetValue].BorderAround(ExcelLineStyle.Hair);
+
+                            //sheet1.Range[xlsRow, ColShortExcess].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(ColShortExcess) + catFRow + ":" + reportUtility.GetColumnNameForXls(ColShortExcess) + (xlsRow - 1) + ")";
+                            //sheet1.Range[xlsRow, ColShortExcess].BorderAround(ExcelLineStyle.Hair);
+
+                            //sheet1.Range[xlsRow, ColPercentage].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(ColPercentage) + catFRow + ":" + reportUtility.GetColumnNameForXls(ColPercentage) + (xlsRow - 1) + ")";
+                            //sheet1.Range[xlsRow, ColPercentage].BorderAround(ExcelLineStyle.Hair); 
+
+                            xlsRow++;
+
+                            sheet1.Range[dicGroup["Item"].Row, ColItem, xlsRow - 1, ColItem].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[dicGroup["Item"].Row, ColItem].HorizontalAlignment = ExcelHAlign.HAlignJustify;
+                            sheet1.Range[dicGroup["Item"].Row, ColItem].VerticalAlignment = ExcelVAlign.VAlignTop;
+                            sheet1.Range[dicGroup["Item"].Row, ColItem, xlsRow - 1, ColItem].Merge();
+
+
+                            dicGroup["Item"].Row = xlsRow;
+                            dicGroup["Item"].GroupKey = strItem;
+                        }
+
+
+
+                        sheet1.Range[xlsRow, ColSupplier].Text = dataDetails.Rows[i]["Supplier"].ToString();
+                        //if (dicGroup["Supplier"].GroupKey != strSupplier)
+                        //{
+                        //    sheet1.Range[dicGroup["Supplier"].Row, ColSupplier, xlsRow - 1, ColSupplier].BorderAround(ExcelLineStyle.Hair);
+                        //    sheet1.Range[dicGroup["Supplier"].Row, ColSupplier].HorizontalAlignment = ExcelHAlign.HAlignJustify;
+                        //    sheet1.Range[dicGroup["Supplier"].Row, ColSupplier].VerticalAlignment = ExcelVAlign.VAlignTop;
+                        //    sheet1.Range[dicGroup["Supplier"].Row, ColSupplier, xlsRow - 1, ColSupplier].Merge();
+                        //    dicGroup["Supplier"].Row = xlsRow;
+                        //    dicGroup["Supplier"].GroupKey = strSupplier;
+                        //}
+                        sheet1.Range[xlsRow, ColLCStatus].Text = dataDetails.Rows[i]["LCStatus"].ToString();
+                        //if (dicGroup["LCStatus"].GroupKey != strLCStatus)
+                        //{
+                        //    sheet1.Range[dicGroup["LCStatus"].Row, ColLCStatus, xlsRow - 1, ColLCStatus].BorderAround(ExcelLineStyle.Hair);
+                        //    sheet1.Range[dicGroup["LCStatus"].Row, ColLCStatus].HorizontalAlignment = ExcelHAlign.HAlignJustify;
+                        //    sheet1.Range[dicGroup["LCStatus"].Row, ColLCStatus].VerticalAlignment = ExcelVAlign.VAlignTop;
+                        //    sheet1.Range[dicGroup["LCStatus"].Row, ColLCStatus, xlsRow - 1, ColLCStatus].Merge();
+                        //    dicGroup["LCStatus"].Row = xlsRow;
+                        //    dicGroup["LCStatus"].GroupKey = strLCStatus;
+                        //}
+
+                        sheet1.Range[xlsRow, ColLCDate].Text = dataDetails.Rows[i]["LCDate"].ToString();
+                        //if (dicGroup["LCDate"].GroupKey != strLCDate)
+                        //{
+                        //    sheet1.Range[dicGroup["LCDate"].Row, ColLCDate, xlsRow - 1, ColLCDate].BorderAround(ExcelLineStyle.Hair);
+                        //    sheet1.Range[dicGroup["LCDate"].Row, ColLCDate].HorizontalAlignment = ExcelHAlign.HAlignJustify;
+                        //    sheet1.Range[dicGroup["LCDate"].Row, ColLCDate].VerticalAlignment = ExcelVAlign.VAlignTop;
+                        //    sheet1.Range[dicGroup["LCDate"].Row, ColLCDate, xlsRow - 1, ColLCDate].Merge();
+                        //    dicGroup["LCDate"].Row = xlsRow;
+                        //    dicGroup["LCDate"].GroupKey = strLCDate;
+                        //}
+
+                        sheet1.Range[xlsRow, ColItem].Text = dataDetails.Rows[i]["Item"].ToString();
+                        #endregion
+                        reportUtility.SetTextDecimalThree(ref sheet1, xlsRow, ColTTLLCValue, clsStaticInfo.dbl(dataDetails.Rows[i]["TotalLCValue"]));//
+                        reportUtility.SetTextDecimalThree(ref sheet1, xlsRow, ColBudgetValue, clsStaticInfo.dbl(dataDetails.Rows[i]["BudgetValue"]));//
+
+                        reportUtility.SetTextDecimalThree(ref sheet1, xlsRow, ColActualCost, clsStaticInfo.dbl(dataDetails.Rows[i]["ActualCost"].ToString()));
+                        reportUtility.SetTextDecimalThree(ref sheet1, xlsRow, ColShortExcess, clsStaticInfo.dbl(dataDetails.Rows[i]["ShortExcess"].ToString()));
+                        reportUtility.SetTextDecimalThree(ref sheet1, xlsRow, ColBTBPending, clsStaticInfo.dbl(dataDetails.Rows[i]["BTBPending"].ToString()));//LegalDesignation
+                        double totalPer = clsStaticInfo.dbl(dataDetails.Rows[i]["BudgetValue"].ToString()) / totalAmount * 100;
+                        reportUtility.SetTextDecimalThree(ref sheet1, xlsRow, ColPercentage, totalPer);
+                        xlsRow++;
+                    }
                 }
-                int EndRow = ROW - 1;
+                //int EndRow = ROW - 1;
+                int EndRow = xlsRow;
+                ROW = xlsRow;
                 worksheet.Range[ROW, ColItem, ROW, ColLCDate].Merge();
                 worksheet[ROW, ColTTLLCValue].Text = "Total Expendeture:";
                 worksheet.Range[ROW, ColTTLLCValue].CellStyle.Font.Bold = true;

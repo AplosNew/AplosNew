@@ -1074,5 +1074,9 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/Voucher/RoundOffJournal",
             controller: "roundOffJournalController"
         })
+        .when("/gl-management", {
+            templateUrl: "Accounts/GLManagement/GLManagement",
+            controller: "GLManagementController"
+        })
         ;
 } 
