@@ -2927,7 +2927,7 @@
                                     <tr ng-repeat="x in costingSOFormulaList">
                                         <td>{{x.UserName}}</td>
                                         <td>{{x.EntryState}} ({{x.ValueIN}})</td>
-                                        <td><input class="form-control text-right" ng-disabled="x.FormulaId!=null" type="text" n-decimals="4" ng-model="x.Value" /></td>
+                                        <td><input class="form-control text-right" ng-disabled="x.FormulaId!=null" type="text" n-decimals="6" ng-model="x.Value" /></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -2977,8 +2977,8 @@
                                     <tr ng-repeat="x in costingSOConfirmList">
                                         <td>{{x.UserName}}</td>
                                         <td><input class="form-control text-right" ng-disabled="true" type="text" ng-model="x.ItemValue" /></td>
-                                        <td><input class="form-control text-right" ng-disabled="x.FormulaId!=null" type="text" n-decimals="4" ng-model="x.SOValue" ng-keyup="calculateDiffValue(x);" /></td>
-                                        <td><input class="form-control text-right" ng-disabled="true" type="text" n-decimals="4" ng-model="x.ValueDiff" /></td>
+                                        <td><input class="form-control text-right" ng-disabled="x.FormulaId!=null" type="text" n-decimals="6" ng-model="x.SOValue" ng-keyup="calculateDiffValue(x);" /></td>
+                                        <td><input class="form-control text-right" ng-disabled="true" type="text" n-decimals="6" ng-model="x.ValueDiff" /></td>
                                         <td><input class="form-control" type="text" ng-model="x.Remark" ng-maxlength="250" /></td>
                                     </tr>
                                 </tbody>
