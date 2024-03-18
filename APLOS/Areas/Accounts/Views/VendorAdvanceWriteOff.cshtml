@@ -144,6 +144,24 @@
                 <input type="text" maxlength="50" name="Doc Ref" ng-model="advance.DocRefNo" class="form-control" tabindex="4" required autocomplete="off" capitalize>
             </div>
         </div>
+
+        <div class="form-group" ng-show="advance.SettlementType=='@Library.Model.Payments.SettlementType.Return.ToString()'">
+            <label class="col-sm-3 control-label">Rounding<sup>*</sup></label>
+            <div class="col-sm-9 show-message">
+                <div class="select-style">
+                    <select class="form-control" name="RoundingType" ng-model="advance.RoundingType" tabindex="3">
+                        <option ng-repeat="option in roundingTypeList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" ng-show="advance.SettlementType=='@Library.Model.Payments.SettlementType.Return.ToString()'">
+            <label class="col-sm-3 control-label">Rounding Amount<sup>*</sup></label>
+            <div class="col-sm-9 ">
+                <input type="text" ng-disabled="advance.RoundingType=='None'" n-decimals="4" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="RoundingAmount" ng-model="advance.RoundingAmount">
+            </div>
+        </div>
+
     </div>
     <div class="col-xs-12 col-sm-8 col-md-8">
         <div class="form-group" show-errors>

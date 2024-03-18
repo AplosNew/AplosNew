@@ -847,6 +847,10 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/SalaryDisbursement/salaryPayableDisbursement",
             controller: "salaryPayableDisbursementController"
         })
+        .when("/finalSettlement-posting", {
+            templateUrl: "Accounts/SalaryDisbursement/FinalSettlementPost",
+            controller: "finalSettlementPostController"
+        })
         .when("/bonus-disbursement", {
             templateUrl: "Accounts/SalaryDisbursement/BonusDisbursement",
             controller: "bonusDisbursementController"
@@ -1069,6 +1073,14 @@ function accountConfig($routeProvider) {
         .when("/roundoff-journal", {
             templateUrl: "Accounts/Voucher/RoundOffJournal",
             controller: "roundOffJournalController"
+        })
+        .when("/gl-management", {
+            templateUrl: "Accounts/GLManagement/GLManagement",
+            controller: "GLManagementController"
+        })
+        .when("/budget-control", {
+            templateUrl: "Accounts/BudgetMaster/BudgetControl",
+            controller: "BudgetControlController"
         })
         ;
 } 

@@ -2481,8 +2481,12 @@ namespace Library.Service.Advances
                     CashMasterId = voucherVM.CashMasterId,
                     PaymentSource = voucherVM.PaymentSource
                 };
+                    if (voucherVM.RoundingType == RoundingType.RoundDown.ToString())
+                        voucherDetailDr.DrAmount -= voucherVM.RoundingAmount;
+                    if (voucherVM.RoundingType == RoundingType.RoundUp.ToString())
+                        voucherDetailDr.DrAmount += voucherVM.RoundingAmount;
 
-                currentVoucherDetailId++;
+                    currentVoucherDetailId++;
                 _voucherService.InsertVoucherDetail(voucher, voucherDetailDr, currentVoucherDetailId);
                 totalAmountDr += voucherDetailDr.DrAmount;
                 totalAmountCr += voucherDetailDr.CrAmount;
@@ -2588,6 +2592,10 @@ namespace Library.Service.Advances
                         CashMasterId = voucherVM.CashMasterId,
                         PaymentSource = voucherVM.PaymentSource
                     };
+                    if (voucherVM.RoundingType == RoundingType.RoundDown.ToString())
+                        voucherDetailDr.DrAmount -= voucherVM.RoundingAmount;
+                    if (voucherVM.RoundingType == RoundingType.RoundUp.ToString())
+                        voucherDetailDr.DrAmount += voucherVM.RoundingAmount;
 
                     currentVoucherDetailId++;
                     _voucherService.InsertVoucherDetail(voucher, voucherDetailDr, currentVoucherDetailId);
@@ -2668,6 +2676,71 @@ namespace Library.Service.Advances
                     }
                 }
 
+                if (!string.IsNullOrEmpty(voucherVM.RoundingType))
+                {
+                    if (voucherVM.RoundingType == RoundingType.RoundDown.ToString() || voucherVM.RoundingType == RoundingType.RoundUp.ToString())
+                    {
+                        var gl = _financingTypeGLService.GetRoundingGL(voucherVM.CompanyId);
+                        if (voucherVM.RoundingType == RoundingType.RoundUp.ToString())
+                        {
+                            var voucherDetailRoundingCr = new VoucherDetail
+                            {
+                                GLGeneralInfoId = gl.ExpensesGLId,
+                                BudgetMasterId = gl.ExpensesBudgetMasterId,
+                                ActivityId = gl.ExpensesActivityId,
+                                EntityId = voucher.EntityId,
+                                CrAmount = voucherVM.RoundingAmount,
+                                DocDate = voucherVM.DocDate,
+                                DocRefNo = voucherVM.DocRefNo,
+                                Narration = voucherVM.Narration,
+                                PartyType = voucherVM.PartyType
+                            };
+                            currentVoucherDetailId++;
+                            totalAmountCr += voucherDetailRoundingCr.CrAmount;
+                            _voucherService.InsertVoucherDetail(voucher, voucherDetailRoundingCr, currentVoucherDetailId);
+
+                            var voucherDetailCurrencyRoundingDr = _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailRoundingCr, new VoucherDetailCurrency
+                            {
+                                ParallelCurrencyId = companyCurrencyId,
+                                FromCurrencyId = voucherDetailRoundingCr.CurrencyId,
+                                ToCurrencyId = companyCurrencyId,
+                                ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                                ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailRoundingCr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                                CrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailRoundingCr.CrAmount), 3, MidpointRounding.AwayFromZero)
+                            });
+                            totalCurrencyAmountCr += voucherDetailCurrencyRoundingDr.CrAmount;
+                        }
+                        if (voucherVM.RoundingType == RoundingType.RoundDown.ToString())
+                        {
+                            var voucherDetailRoundingDr = new VoucherDetail
+                            {
+                                GLGeneralInfoId = gl.ExpensesGLId,
+                                BudgetMasterId = gl.ExpensesBudgetMasterId,
+                                ActivityId = gl.ExpensesActivityId,
+                                EntityId = voucher.EntityId,
+                                DrAmount = voucherVM.RoundingAmount,
+                                DocDate = voucherVM.DocDate,
+                                DocRefNo = voucherVM.DocRefNo,
+                                Narration = voucherVM.Narration,
+                                PartyType = voucherVM.PartyType
+                            };
+                            currentVoucherDetailId++;
+                            totalAmountDr += voucherDetailRoundingDr.DrAmount;
+                            _voucherService.InsertVoucherDetail(voucher, voucherDetailRoundingDr, currentVoucherDetailId);
+
+                            var voucherDetailCurrencyRoundingDr = _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailRoundingDr, new VoucherDetailCurrency
+                            {
+                                ParallelCurrencyId = companyCurrencyId,
+                                FromCurrencyId = voucherDetailRoundingDr.CurrencyId,
+                                ToCurrencyId = companyCurrencyId,
+                                ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                                ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailRoundingDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                                DrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailRoundingDr.DrAmount), 3, MidpointRounding.AwayFromZero)
+                            });
+                            totalCurrencyAmountDr += voucherDetailCurrencyRoundingDr.DrAmount;
+                        }
+                    }
+                }
                 if (totalAmountDr != totalAmountCr)
                     throw new CustomException("Dr and Cr amount is not equal.");
                 if (totalCurrencyAmountDr != totalCurrencyAmountCr)

@@ -197,9 +197,9 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
                     fromDate = dsFromTo.Tables[0].Rows[0]["Fromdate"].ToString();
                     toDate = dsFromTo.Tables[0].Rows[0]["Todate"].ToString();
                 }
-                string sql = @"select e.SystemID,e.EmployeeCode,e.EmployeeName,t.UserName LeaveType,t.Id LeaveTypeId,S.BroughtForward,CONVERT(NUMERIC(10,2),count(CONVERT(NUMERIC(10,2),a.WorkDate))/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty)) DaysCanBeSanctioned
-,ISNULL(B.Availed,0)AvailedLeave,Balance=(CONVERT(NUMERIC(10,2),count(CONVERT(NUMERIC(10,2),a.WorkDate))/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty))+S.BroughtForward-ISNULL(B.Availed,0))
-,S.EncashedInbetween EncashedInbetween,LeaveDaysAllowed=(CONVERT(NUMERIC(10,2),count(CONVERT(NUMERIC(10,2),a.WorkDate))/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty))+S.BroughtForward-ISNULL(B.Availed,0))
+                string sql = @"select e.SystemID,e.EmployeeCode,e.EmployeeName,t.UserName LeaveType,t.Id LeaveTypeId,ISNULL(S.BroughtForward,0)BroughtForward,CONVERT(NUMERIC(10,2),count(CONVERT(NUMERIC(10,2),a.WorkDate))/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty)) DaysCanBeSanctioned
+,ISNULL(B.Availed,0)AvailedLeave,Balance=ISNULL((CONVERT(NUMERIC(10,2),count(CONVERT(NUMERIC(10,2),a.WorkDate))/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty))+S.BroughtForward-ISNULL(B.Availed,0)),0)
+,ISNULL(S.EncashedInbetween,0) EncashedInbetween,LeaveDaysAllowed=ISNULL((CONVERT(NUMERIC(10,2),count(CONVERT(NUMERIC(10,2),a.WorkDate))/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty))+S.BroughtForward-ISNULL(B.Availed,0)),0)
 from AttdnProcessData a
 left join EmployeeInformation e on e.SystemId=a.EmpSystemID
 left join mst.DesignationMasterLegalDesignation d on d.LegalDesignationId=e.LegalDesignationId

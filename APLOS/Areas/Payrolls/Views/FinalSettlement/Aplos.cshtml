@@ -28,13 +28,13 @@
         <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Employee Code<sup>*</sup></label>
-                <div class="col-sm-6 show-message">
-                    <input type="text" min="1" name="Sequence" ng-model="EmployeeModel.EmployeeCode" class="form-control" ng-disabled="true" required tabindex="1">
-
-                </div>
-                <div class="col-sm-2 show-message" style="margin-left:0px;padding-left:0px">
-
-                    <button style="color: #f3f3ec;background-color: #1c1f32; " class="btn"><i class="glyphicon glyphicon-search" ng-click="LoadEmployeeList()" style="margin: -4px;"></i></button>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+                        <input tabindex="1" type="text" name="EmployeeCode" ng-model="EmployeeModel.EmployeeCode" class="form-control" readonly required>
+                        <span class="input-group-btn">
+                            <button ng-click="LoadEmployeeList();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
                 </div>
             </div>
             <div class="form-group" show-errors>
@@ -134,13 +134,39 @@
 
 
             <fieldset class="scheduler-border">
-                <legend class="scheduler-border">Last Month Salary Info</legend>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Salary Amount ({{FinalSettlementModel.LastMonthProcDay}} Days)</label>
-                    <div class="col-sm-8 show-message">
-                        <input type="number" ng-model="FinalSettlementModel.LastMonthNetPayAmount" class="form-control" required tabindex="1">
-                    </div>
+                <legend class="scheduler-border">Undisbursed Salary Info</legend>
+                @*<div class="form-group">
+            <label class="col-sm-4 control-label">Salary Amount ({{FinalSettlementModel.LastMonthProcDay}} Days)</label>
+            <div class="col-sm-8 show-message">
+                <input type="number" ng-model="FinalSettlementModel.LastMonthNetPayAmount" class="form-control" required tabindex="1">
+            </div>
+        </div>*@
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>YearNo</th>
+                                <th>Month Name</th>
+                                <th>Amount</th>
+                            </tr>
+
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in FinalSettlementUndisbursedEarningList">
+                                <td>{{x.YearNo}}</td>
+                                <td>{{x.MonthName}}</td>
+                                <td class="text-right">{{x.DisbusmentAmount}}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Total</td>
+                                <td class="text-right">
+                                    {{FinalSettlementUndisbursedEarningList | sumByKey : 'DisbusmentAmount'|number:0}}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
+                Salary Amount: {{FinalSettlementModel.LastMonthNetPayAmount}}
             </fieldset>
 
             <fieldset class="scheduler-border">
@@ -602,6 +628,7 @@
                             <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
                             <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
                             <div e-column e-field="EntityName" e-headertext="Entity" e-width="80"></div>
+                            <div e-column e-field="SepType" e-headertext="Separation Type" e-width="80"></div>
                         </div>
                     </div>
                 </div>

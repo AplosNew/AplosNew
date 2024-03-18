@@ -159,6 +159,8 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $window,$sco
         }
     }
 
+    
+
     $scope.advance = {
         Id: null,
         CompanyGroupId: null,
@@ -240,7 +242,10 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $window,$sco
         CrAmount: 0,
         Type: null
     };
-
+    cboService.getEnumCbo("Enum/GetCboRoundingType", function (result) {
+        $scope.roundingTypeList = result;
+        $scope.advance.RoundingType = $scope.roundingTypeList[0].Value;
+    });
     $scope.searchVendorInvoiceList = [
         {
             'name': 'Posting Date',

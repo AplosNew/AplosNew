@@ -117,7 +117,10 @@ namespace Aplos.Areas.Payrolls.Controllers
                          , DP.UserName Department
                          , PMB.Code,PR.UserName PositionName
                          , E.UserName EntityName
-                        
+                        ,SepType=STUFF((select distinct ','+ST.UserName from [HKP].[SeparationType] ST	  
+											    LEFT JOIN [TRN].[Resignation] R ON R.SeparationTypeId=ST.Id
+												AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC)
+							                    where EI.SystemId=R.EmployeeId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                          FROM dbo.Employeeinformation EI
                          LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id							 
                          LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
@@ -128,7 +131,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                          LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
                          LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId				
                               WHERE EI.SystemId IN (SELECT EmployeeId FROM TRN.Resignation WHERE ApprovalStatus='Approved' ) AND EI.SystemId NOT IN (SELECT EmpSystemId FROM EmployeeFinalSettlement ) AND
-                                    EI.PlantId='" + identity.PlantId + @"' and isnull(DOSDate,'')<>''    ORDER BY  ei.DOS DESC";
+                                    EI.PlantId='" + identity.PlantId + @"' and isnull(DOSDate,'')<>'' ORDER BY  ei.DOS DESC";
 
             }
             catch (Exception ex)
@@ -222,11 +225,23 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                             and ISNULL(sd.Id,'')= ''
                             group by TC.Id,tc.StartDate,tc.EndDate,spc.EmpInfoSystemID ,sh.SalaryHead,spc.SalaryHeadID";
-
             var FinalSettlementRetainedHead = _sqlRepository.GetDataCollection(sqlRetained);
 
+            string sqlundisbursed = @"SELECT sl.Id,sl.YearNo,sl.MonthNo
+,[MonthName]=CASE WHEN sl.MonthNo=1 THEN 'Jan' WHEN sl.MonthNo=2 THEN 'Feb' WHEN sl.MonthNo=3 THEN 'Mar'
+WHEN sl.MonthNo=4 THEN 'Apr' WHEN sl.MonthNo=5 THEN 'May' WHEN sl.MonthNo=6 THEN 'Jun'
+WHEN sl.MonthNo=7 THEN 'Jul' WHEN sl.MonthNo=8 THEN 'Aug' WHEN sl.MonthNo=9 THEN 'Sep'
+WHEN sl.MonthNo=10 THEN 'Oct' WHEN sl.MonthNo=11 THEN 'Nov' ELSE 'Dec' END
+,spc.DisbusmentAmount FROM SalaryProcChild AS spc
+LEFT JOIN SalaryProcMaster AS spm ON spm.SystemID = spc.SlrProcMstSystemID 
+LEFT JOIN SalaryHead AS sh ON sh.SalaryHeadID = spc.SalaryHeadID
+LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
+WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND ISNULL(sl.IsDisbursed,0)=0  AND sh.SalaryHead='Net Pay'";
 
-            return Json(new { data, FinalSettlementDeduction, FinalSettlementEarning, FinalSettlementRetainedHead }, JsonRequestBehavior.AllowGet);
+            var FinalSettlementUndisbursedEarning = _sqlRepository.GetDataCollection(sqlundisbursed);
+
+
+            return Json(new { data, FinalSettlementDeduction, FinalSettlementEarning, FinalSettlementRetainedHead, FinalSettlementUndisbursedEarning }, JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public ActionResult SeparationTypeSelectedChangeNew(string EmpSystemId)
@@ -871,7 +886,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
         [HttpPost]
-        public JsonResult SaveFinalSettlementNew(EmployeeFinalSettlement FinalSettlementData, List<DeductionModel> DeductionData, List<DeductionModel> EarningData, List<FinalSettlementRetainedHeadModel> FinalSettlementRetainedHead)
+        public JsonResult SaveFinalSettlementNew(EmployeeFinalSettlement FinalSettlementData, List<DeductionModel> DeductionData, List<DeductionModel> EarningData, List<FinalSettlementRetainedHeadModel> FinalSettlementRetainedHead, List<Dictionary<string, object>> UndisbursedEarningList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string YearlyCalendarId = string.Empty;
@@ -1408,17 +1423,55 @@ namespace Aplos.Areas.Payrolls.Controllers
                     }
 
                 }
+                string lid = string.Empty;
+                DataSet dsSL = null;
+                if (UndisbursedEarningList!=null)
+                {
+                    foreach (var item in UndisbursedEarningList)
+                    {
+                        if (lid == "")
+                            lid = "'" + item["Id"] + "'";
+                        else
+                            lid = lid + ",'" + item["Id"] + "'";
+                    }
+
+                    string mosql = "SELECT * FROM dbo.SalaryLock WHERE Id IN (" + lid + ")";
+                    objCon = new ConnectionManager.DAL.ConManager("1");
+                    objCon.OpenDataSetThroughAdapter(mosql, out dsSL, false, "1");
+                    foreach (var item in UndisbursedEarningList)
+                    {
+                        DataView dv = new DataView(dsSL.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        
+                        if (dv.Count > 0)
+                        {
+                            DataRow drmo = dv[0].Row;
+
+                            drmo.BeginEdit();
+
+                            drmo["IsDisbursed"] = true;
+                            drmo["UpdatedBy"] = identity.Name;
+                            drmo["UpdatedDate"] = DateTime.Now.ToString();
+                            drmo["UpdatedFromIP"] = identity.IPAddress;
+
+                            drmo.EndEdit();
+
+                        }
+
+                    }
+                }
+
 
                 clsStaticInfo obj = new clsStaticInfo();
 
 
                 if (FinalSettlementData.LvEncashmentDayNo > 0)
                 {
-                    obj.SaveDataSets(dsEmployeeFinalSettlement, dsleaveEncashment, dsFinalSettlementDeductionDetails, dsFinalSettlementRetainedDetails);
+                    obj.SaveDataSets(dsEmployeeFinalSettlement, dsleaveEncashment, dsFinalSettlementDeductionDetails, dsFinalSettlementRetainedDetails, dsSL);
                 }
                 else
                 {
-                    obj.SaveDataSets(dsEmployeeFinalSettlement, dsFinalSettlementDeductionDetails, dsFinalSettlementRetainedDetails);
+                    obj.SaveDataSets(dsEmployeeFinalSettlement, dsFinalSettlementDeductionDetails, dsFinalSettlementRetainedDetails, dsSL);
                 }
             }
             catch (Exception ex)
