@@ -12,16 +12,164 @@ function BudgetControlController(commonMessage, $scope, $rootScope, baseService,
         return $scope.tab === tabNum;
     };
     // #endregion TAB CHANGE
-
+    $scope.ModelList = [];
     $scope.path = 'accounts/BudgetMaster/';
     $scope.getListUrl = $scope.path + 'getlist';
-    $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
+
+    $scope.ModelTemp = {
+        Id: null,
+        Code: null,
+        RefNo: null,
+        StandardName: null,
+        UserName: null,
+        MonthNo: null,
+        FromDate: null,
+        ToDate: null,
+        WorkingDays: 0,
+        BudgetDays: 0,
+        BudgetType: null,
+        BudgetCategory: null,
+        Remaks: null,
+        ApproveBy: null,
+        ApproveById: null,
+    };
+    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
 
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
 
+    $scope.monthList = [
+        {
+            Value: 1,
+            Text: 'January'
+        },
+        {
+            Value: 2,
+            Text: 'February'
+        },
+        {
+            Value: 3,
+            Text: 'March'
+        },
+        {
+            Value: 4,
+            Text: 'April'
+        },
+        {
+            Value: 5,
+            Text: 'May'
+        },
+        {
+            Value: 6,
+            Text: 'June'
+        },
+        {
+            Value: 7,
+            Text: 'July'
+        },
+        {
+            Value: 8,
+            Text: 'August'
+        },
+        {
+            Value: 9,
+            Text: 'September'
+        },
+        {
+            Value: 10,
+            Text: 'October'
+        },
+        {
+            Value: 11,
+            Text: 'November'
+        },
+        {
+            Value: 12,
+            Text: 'December'
+        }
+    ];
+    $scope.year = new Date().getFullYear().toString();
+    $scope.ModelNew.MonthNo = (new Date().getMonth() + 1).toString();
+   
+
+    $scope.budgetTypeList = [
+        {
+            Value: "Regular",
+            Text: 'Regular'
+        },
+        {
+            Value: "Additional",
+            Text: 'Additional'
+        }
+    ]
+    $scope.budgetCategoryList = [
+        {
+            Value: "Monthly",
+            Text: 'Monthly'
+        },
+        {
+            Value: "Quartly",
+            Text: 'Quartly'
+        },
+        {
+            Value: "SixMonthly",
+            Text: 'Six Monthly'
+        },
+        {
+            Value: "Annually",
+            Text: 'Annually'
+        }
+    ]
+
+    $scope.CalenderFunc = function () {
+
+        $scope._firstDay = $filter('dateFiltering')(new Date($scope.year, $scope.ModelNew.MonthNo - 1, 1), 'dd-MM-yyyy');
+        $scope._lastDay = $filter('dateFiltering')(new Date($scope.year, $scope.ModelNew.MonthNo, 0), 'dd-MM-yyyy');
+
+        $('.datepic').datepicker({
+            startDate: $scope._firstDay,
+            endDate: $scope._lastDay,
+            datesDisabled: $scope.DisabledDates,
+            format: 'dd-MM-yyyy',
+            todayHighlight: true,
+            autoclose: true,
+            inline: true,
+            changeMonth: true
+        });
+
+    };
+    $scope.CalenderFunc();
+    $scope.popUpDataList = [];
+    $scope.showApproveByPopUp = function () {
+        try {
+            $scope.popUpDataList = [];
+            $http({
+                method: 'GET',
+                url: 'employees/leaveApplication/getemployeelist'
+            }).then(function successCallback(response) {
+                $scope.popUpDataList = response.data;
+            });
+            angular.element(document.querySelector('#popUp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.SelectEmployee = function (arg) {
+        var data = arg.data;
+
+        $scope.ModelNew.ApproveById = data.SystemID;
+        $scope.ModelNew.ApproveBy = data.EmployeeName;
+
+        $scope.closePopUp();
+    }
+
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#popUp')).modal('hide');
+    }
 
     $scope.getData = function () {
         $http({
@@ -31,35 +179,14 @@ function BudgetControlController(commonMessage, $scope, $rootScope, baseService,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
-            ClearFields(response.data.Sequence);
-            $scope.GetSequence();
+            ClearFields();
         });
     }
-    $scope.getData();
+   // $scope.getData();
 
-    $scope.ModelTemp = {
-        Id: null,
-        Sequence: 0,
-        Code: null,
-        ShortName: null,
-        StandardName: null,
-        UserName: null,
-        Description: null,
-        Remarks: null,
-        Active: true
-    };
-    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-
-    $scope.GetSequence = function () {
-        cboService.getSequence($scope.getSeqUrl, function (data) {
-            $scope.ModelTemp.Sequence = data;
-            $scope.ModelNew.Sequence = data;
-        });
-    };
-    $scope.GetSequence();
+  
 
     $scope.Get = function (args) {
-
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
@@ -81,8 +208,8 @@ function BudgetControlController(commonMessage, $scope, $rootScope, baseService,
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
-                    $scope.getData();
+                    ClearFields();
+                  //  $scope.getData();
 
                 }
             }), function errorCallBack(response) {
@@ -104,7 +231,7 @@ function BudgetControlController(commonMessage, $scope, $rootScope, baseService,
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
+                    ClearFields();
                     $scope.getData();
                 }
                 function errorCallBack(response) {
@@ -115,13 +242,12 @@ function BudgetControlController(commonMessage, $scope, $rootScope, baseService,
     };
 
     $scope.Clear = function () {
-        ClearFields($scope.GetSequence());
+        ClearFields();
         return true;
     };
 
     function ClearFields(seq) {
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-        $scope.ModelNew.Sequence = seq;
     }
 }

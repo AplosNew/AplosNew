@@ -13,26 +13,64 @@
                 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
                     <input type="hidden" ng-model="ModelNew.Id">
                     <div class="col-xs-12 col-sm-6 col-md-6">
-                        
                         <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
+                                <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required tabindex="2" maxlength="10">
                             </div>
                         </div>
+
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Ref No<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <input type="text" name="Ref No" ng-model="ModelNew.RefNo" class="form-control" required tabindex="4" maxlength="50">
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Budget Type</label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select name="Budget Type" class="form-control" ng-model="ModelNew.BudgetType" ng-options="item.Value as item.Text for item in budgetTypeList" tabindex="1">
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Month No</label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select name="Month No" class="form-control" ng-model="ModelNew.MonthNo" ng-options="item.Value as item.Text for item in monthList" tabindex="1" ng-change="CalenderFunc();">
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
 
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="FromDate" ng-model="ModelNew.FromDate" datepic class="form-control datepicker" placeholder="dd-mmm-yyyy" tabindex="3">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Budgeted Days<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="number" class="form-control" name="Budgeted Days" ng-model="ModelNew.BudgetedDays" e-width="100" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required tabindex="2" maxlength="10">
+                                <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
                             </div>
                         </div>
                         <div class="form-group" show-errors>
@@ -42,22 +80,40 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Remarks</label>
+                            <label class="col-sm-4 control-label">Budget Category</label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Active</label>
-                            <div class="col-sm-8">
-                                <div class="checkbox-site">
-                                    <label>
-                                        <input type="checkbox" ng-model="ModelNew.Active" tabindex="8">
-                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                    </label>
+                                <div class="select-style">
+                                    <select name="Budget Category" class="form-control" ng-model="ModelNew.BudgetCategory" ng-options="item.Value as item.Text for item in budgetCategoryList" tabindex="1">
+                                        <option value="">--Select--</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Approve By<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group">
+                                    <input tabindex="1" type="text" name="Approve By" ng-model="ModelNew.ApproveBy" class="form-control" readonly required>
+                                    <span class="input-group-btn">
+                                        <button ng-click="showApproveByPopUp();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="ToDate" ng-model="ModelNew.ToDate" datepic class="form-control datepicker" placeholder="dd-mmm-yyyy" tabindex="3">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Working Days<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="number" class="form-control" name="Working Days" ng-model="ModelNew.WorkingDays" e-width="100%" />
+                            </div>
+                        </div>
+                        
+
                     </div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
@@ -71,7 +127,7 @@
 
             @*   TAB -2  *@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                @Html.Partial("~/Areas/Accounts/Views/BalanceSheetScheduling/_BalanceSheetSchedulingDataUploadDownload.cshtml")
+                
             </div>
 
         </div>
@@ -114,4 +170,40 @@
             <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
         </div>
     </div>
+</div>
+<div class="modal fade site-modal in" id="popUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <disv class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridPopUp" ej-grid e-datasource="popUpDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="SelectEmployee" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="SystemId" e-headertext="SystemId" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="Company" e-headertext="Company" e-width="80"></div>
+                            <div e-column e-field="Plant" e-headertext="Plant" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                        </div>
+                    </div>
+                </disv>
+            </div>
+            <div class="modal-footer">
+                <ul class="common-btn list-inline text-right" style="padding: 20px;">
+                    <li><button ng-click="closePopUp();" class="btn" tabindex="10"><i class="glyphicon glyphicon-info-sign right"></i> Close</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script type="text/x-jsrender" id="empimage">
+        <img src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:48px;width:48px;" />
+    </script>
 </div>
