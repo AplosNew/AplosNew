@@ -9534,6 +9534,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
             {
                 CusAll = "where X.PartyId = '" + PartyId + "'";
             }
+            
 
             System.Data.DataSet dsRef;
             try
@@ -9892,7 +9893,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
                 objCon = null;
             }
         }
-        public void GetPaymentstatusInvoiceWise(out List<INvoiceWiseAccount> DataList, string PartyId)
+        public void GetPaymentstatusInvoiceWise(out List<INvoiceWiseAccount> DataList, string PartyId , string RespId , string CustomerType )
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -9900,9 +9901,49 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
             var CusAll = "";
             if (PartyId != null)
             {
-                CusAll = "where X.PartyId = '" + PartyId + "'";
+                CusAll = "AND IV.PartyId in(" + PartyId + @")";
             }
-
+            if(PartyId == null)
+            {
+                if(RespId != null && CustomerType == null)
+                {
+                    CusAll = "and EI.SystemId = '" + RespId + @"'";
+                }
+                if (RespId == null && CustomerType != null)
+                {
+                    if (CustomerType != null)
+                    {
+                        if (CustomerType == "Export")
+                        {
+                            CusAll = " and PAG.StandardName = 'Customer Export'";
+                        }
+                        if (CustomerType == "Local")
+                        {
+                            CusAll = " and PAG.StandardName = 'Customer Local'";
+                        }
+                        if (CustomerType == "Both")
+                        {
+                            CusAll = null;
+                        }
+                    }
+                }
+                if(RespId != null && CustomerType != null)
+                {
+                    if (CustomerType == "Export")
+                    {
+                        CusAll = " and PAG.StandardName = 'Customer Export' and EI.SystemId = '" + RespId + @"'"; 
+                    }
+                    if (CustomerType == "Local")
+                    {
+                        CusAll = " and PAG.StandardName = 'Customer Local' and EI.SystemId = '" + RespId + @"'";
+                    }
+                    if (CustomerType == "Both")
+                    {
+                        CusAll = "and EI.SystemId = '" + RespId + @"'";
+                    }
+                }
+                
+            }
             System.Data.DataSet dsRef;
             try
             {
@@ -9941,7 +9982,9 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
 										,0  BooksDebitNoteAmount,0  BooksTaxAmount,
                                          BooksReceipt=Convert(decimal(30,3),ISNULL(IVD.SetOffBooksAmount, 0) )
 										 ,Convert(decimal(30,3),ISNULL(IVD.InvoiceBooksAmount,0))-Convert(decimal(30,3),ISNULL(IVD.SetOffBooksAmount,0)) AS BooksBalance
-										 ,ss.Id INVS, AddRemarks = 'AddRemarks'
+										 ,case when ss.Id is null then V.DocRefNo else ss.Id end INVS, AddRemarks = 'AddRemarks'
+										 ,EI.EmployeeName Resp
+										 ,PAG.StandardName CustomerType
                                         FROM  [TRN].[Invoice] AS IV 
 										 JOIN (select IDE.InvoiceId,VD.PartyId,SUM(VDC.DrAmount) InvoiceBooksAmount ,SUM(IwV.SetOffBooksAmount) SetOffBooksAmount
 											FROM  [TRN].[InvoiceDetail] IDE
@@ -9969,12 +10012,20 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
 									    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
                                         LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
 										left join trn.Sales ss on ss.VoucherId  = V.Id
+										LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = ss.Id
+										LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
+										LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+										left join [TRN].[MasterOrder] MO on MO.Id = MOI.MasterOrderId
+										left join EmployeeInformation EI on EI.SystemId = MO.ResponsiblePersonId
+										
+										left join HKP.CompanyParty CP on CP.PartyId = P.Id and CP.PartyType = 'Customer'
+										left join HKP.PartyAccountGroup PAG on PAG.Id = CP.PartyAccountGroupId 
                                         LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                                         LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
                                         WHERE IV.Archive=0 AND V.IsPark=0  AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice','InventorySales')
 										AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
                                         AND IV.CompanyGroupId='CG20181' AND IV.CompanyId='C20201' AND IV.PlantId='202034' AND ( convert(Date,IV.PostingDate) <= convert(date, getdate()) )
-                                        AND IV.PartyId in(" + PartyId + @")
+                                      " + CusAll + @"
 
 								    UNION ALL
                                     SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,EN.UserName Entity,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
@@ -10010,7 +10061,9 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
 										 ,Convert(decimal(30,3),ISNULL(IVD.Amount *CC.CompanyCurrencyRate,0)) AS BooksGrossSales,0  BooksDebitNoteAmount,0  BooksTaxAmount,
                                          BooksReceipt=Convert(decimal(30,3),ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)) 
 										 ,Convert(decimal(30,3),ISNULL(IVD.Amount * CC.CompanyCurrencyRate,0)) - Convert(decimal(30,3),ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)) AS BooksBalance
-										 ,ss.Id INVS, AddRemarks = 'AddRemarks'
+										 ,case when ss.Id is null then V.DocRefNo else ss.Id end INVS, AddRemarks = 'AddRemarks'
+										 ,EI.EmployeeName Resp
+										 ,PAG.StandardName CustomerType
                                         FROM [TRN].[AdjustmentNoteDetail] AS IVD
 										LEFT JOIN [TRN].[AdjustmentNote] AS IV ON IVD.AdjustmentNoteId=IV.Id
 										LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
@@ -10022,6 +10075,14 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
 										LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=IVD.Id
 										LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
 										left join trn.Sales ss on ss.VoucherId  = V.Id
+										LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = ss.Id
+										LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
+										LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+										left join [TRN].[MasterOrder] MO on MO.Id = MOI.MasterOrderId
+										left join EmployeeInformation EI on EI.SystemId = MO.ResponsiblePersonId
+										
+										left join HKP.CompanyParty CP on CP.PartyId = P.Id and CP.PartyType = 'Customer'
+										left join HKP.PartyAccountGroup PAG on PAG.Id = CP.PartyAccountGroupId 
 										LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
 										LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
 										LEFT JOIN (select SUM(ISNULL(VDCW.CrAmount,0))AdjustmentNoteWriteOffBooksAmount,AdjustmentNoteId from [TRN].[InvoiceWriteOffDetail] IWD
@@ -10041,7 +10102,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
                                         WHERE IV.Archive=0 AND V.IsPark=0  AND IV.PartyType='Customer' AND IV.SourceType in ('DebitNote','CustomerReceipt')
 										AND ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)>0
                                         AND IV.CompanyGroupId='CG20181' AND IV.CompanyId='C20201' AND IV.PlantId='202034' AND ( convert(Date,IV.PostingDate) <= convert(date, getdate()) )
-                                        AND IV.PartyId in(" + PartyId + @")
+                                       " + CusAll + @"
 									
 
 										) x
@@ -10090,6 +10151,8 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
                         BooksBalance = dsRef.Tables[0].Rows[i]["BooksBalance"].ToString(),
                         INVS = dsRef.Tables[0].Rows[i]["INVS"].ToString(),
                         AddRemarks = dsRef.Tables[0].Rows[i]["AddRemarks"].ToString(),
+                        Resp = dsRef.Tables[0].Rows[i]["Resp"].ToString(),
+                        CustomerType = dsRef.Tables[0].Rows[i]["CustomerType"].ToString(),
 
                     });
                 }
@@ -11657,6 +11720,8 @@ where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QCD.Status=
         public string BooksBalance { get; set; }
         public string INVS { get; set; }
         public string AddRemarks { get; set; }
+        public string Resp { get; set; }
+        public string CustomerType { get; set; }
 
     }
 

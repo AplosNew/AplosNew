@@ -4677,7 +4677,11 @@ Where S.MasterOrderItemId='"+ moItemId + "'"
                     AuditService.UpdatedLog(salesOrderMaster);
                     sodata.DeliveryDate = salesOrderMaster.DeliveryDate;
                     sodata.DeliveryDate = salesOrderMaster.DeliveryDate;
-
+                    sodata.CheckByStatus = salesOrderMaster.CheckByStatus;
+                    sodata.CheckByDate = salesOrderMaster.CheckByDate;
+                    sodata.ApproveBy = salesOrderMaster.ApproveBy;
+                    sodata.ApprovedStatus = salesOrderMaster.ApprovedStatus;
+                    sodata.ApproveByDate = salesOrderMaster.ApproveByDate;
 
 
                     _salesOrderRepository.Update(sodata);
@@ -4715,7 +4719,11 @@ Where S.MasterOrderItemId='"+ moItemId + "'"
                     sodata.PlanExFactoryDate = salesOrderMaster.PlanExFactoryDate;
                     sodata.OtherRawMaterialInhouseDate = salesOrderMaster.OtherRawMaterialInhouseDate;
                     sodata.LSD = salesOrderMaster.LSD;
-
+                    sodata.CheckByStatus = salesOrderMaster.CheckByStatus;
+                    sodata.CheckByDate = salesOrderMaster.CheckByDate;
+                    sodata.ApproveBy = salesOrderMaster.ApproveBy;
+                    sodata.ApprovedStatus = salesOrderMaster.ApprovedStatus;
+                    sodata.ApproveByDate = salesOrderMaster.ApproveByDate;
                     _salesOrderRepository.Update(sodata);
 
                 }
@@ -4747,6 +4755,11 @@ Where S.MasterOrderItemId='"+ moItemId + "'"
                     sodata.UpCharge = salesOrderMaster.UpCharge;
                     sodata.Discount = salesOrderMaster.Discount;
                     sodata.SalesExpense = salesOrderMaster.SalesExpense;
+                    sodata.CheckByStatus = salesOrderMaster.CheckByStatus;
+                    sodata.CheckByDate = salesOrderMaster.CheckByDate;
+                    sodata.ApproveBy = salesOrderMaster.ApproveBy;
+                    sodata.ApprovedStatus = salesOrderMaster.ApprovedStatus;
+                    sodata.ApproveByDate = salesOrderMaster.ApproveByDate;
                     _salesOrderRepository.Update(sodata);
 
                 }
@@ -4777,7 +4790,11 @@ Where S.MasterOrderItemId='"+ moItemId + "'"
                     AuditService.UpdatedLog(salesOrderMaster);
                     sodata.Qty = salesOrderMaster.Qty;
                     sodata.ProductionBookingLevel = salesOrderMaster.ProductionBookingLevel;
-
+                    sodata.CheckByStatus = salesOrderMaster.CheckByStatus;
+                    sodata.CheckByDate = salesOrderMaster.CheckByDate;
+                    sodata.ApproveBy = salesOrderMaster.ApproveBy;
+                    sodata.ApprovedStatus = salesOrderMaster.ApprovedStatus;
+                    sodata.ApproveByDate = salesOrderMaster.ApproveByDate;
                     _salesOrderRepository.Update(sodata);
 
                 }
@@ -4814,6 +4831,11 @@ Where S.MasterOrderItemId='"+ moItemId + "'"
                         sodata.OrderStatusChangedDate = salesOrderMaster.UpdatedDate;
                         sodata.OrderStatusChangedFromIP = salesOrderMaster.UpdatedFromIP;
                         sodata.ProductionBookedQty = salesOrderMaster.ProductionBookedQty;
+                        sodata.CheckByStatus = salesOrderMaster.CheckByStatus;
+                        sodata.CheckByDate = salesOrderMaster.CheckByDate;
+                        sodata.ApproveBy = salesOrderMaster.ApproveBy;
+                        sodata.ApprovedStatus = salesOrderMaster.ApprovedStatus;
+                        sodata.ApproveByDate  = salesOrderMaster.ApproveByDate;
 
                     }
 

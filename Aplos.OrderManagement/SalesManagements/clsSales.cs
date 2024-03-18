@@ -249,7 +249,7 @@ namespace Library.OrderManagement.Sales
                 string sql = @"SELECT Flag=CAST(CASE WHEN SA.Id IS NULL THEN 0 ELSE 1 END AS bit),A.UserName,SA.Id,SA.SalesId
 ,A.Id AdditionalInfoId,SA.Value,SA.Remarks,A.CharecterType,'' CharType,''datepic
 FROM [HKP].[AdditionalInfo] A
-OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.Id AND SalesId='" + salesId + @"') SA Order By A.sequence";
+OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.Id AND SalesId='" + salesId + @"') SA  Where A.Category='SalesInvoice' Order By A.sequence";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

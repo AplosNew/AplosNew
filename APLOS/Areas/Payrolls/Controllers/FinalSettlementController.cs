@@ -1449,6 +1449,7 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
 
                             drmo.BeginEdit();
 
+                            drmo["EmployeeFinalSettlementId"] = FinalSettlementId;
                             drmo["IsDisbursed"] = true;
                             drmo["UpdatedBy"] = identity.Name;
                             drmo["UpdatedDate"] = DateTime.Now.ToString();

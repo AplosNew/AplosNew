@@ -800,7 +800,7 @@ upanelApp.controller("inventoryTransferJournalController", inventoryTransferJour
 upanelApp.controller("checkVoidController", checkVoidController);
 upanelApp.controller("checkManagementReportController", checkManagementReportController);
 upanelApp.controller("wipReportController", wipReportController);
-upanelApp.controller("recipeOperationController", recipeOperationController); 
+upanelApp.controller("recipeOperationController", recipeOperationController);
 upanelApp.controller("utilityController", UtilityController);
 upanelApp.controller("UtilityTransactionController", UtilityTransactionController);
 upanelApp.controller("UtilityTransactionReportController", UtilityTransactionReportController);
@@ -1075,7 +1075,7 @@ upanelApp.controller("BOQStatusReportController", BOQStatusReportController);
 upanelApp.controller("FuguaiTransactionController", FuguaiTransactionController);
 upanelApp.controller("FuguaiReportController", FuguaiReportController);
 upanelApp.controller("TaskManagementReportController", TaskManagementReportController);
-upanelApp.controller("salesRegisterController",salesRegisterController);
+upanelApp.controller("salesRegisterController", salesRegisterController);
 upanelApp.controller("EmployeeSkillMatrixController", EmployeeSkillMatrixController);
 upanelApp.controller("OTControlLimitController", OTControlLimitController);
 upanelApp.controller("OTControlLimitReportController", OTControlLimitReportController);
@@ -1262,7 +1262,9 @@ upanelApp.controller("ContractSummaryController", ContractSummaryController)
 upanelApp.controller("roundOffJournalController", roundOffJournalController)
 
 upanelApp.controller("BarcodeGeneratorSettingController", BarcodeGeneratorSettingController)
-          
+upanelApp.controller("GLManagementController", GLManagementController)
+upanelApp.controller("BudgetControlController", BudgetControlController)
+
 
 
 
