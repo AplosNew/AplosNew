@@ -1078,5 +1078,9 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/GLManagement/GLManagement",
             controller: "GLManagementController"
         })
+        .when("/budget-control", {
+            templateUrl: "Accounts/BudgetMaster/BudgetControl",
+            controller: "BudgetControlController"
+        })
         ;
 } 
