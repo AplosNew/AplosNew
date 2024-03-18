@@ -10151,6 +10151,8 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
                         BooksBalance = dsRef.Tables[0].Rows[i]["BooksBalance"].ToString(),
                         INVS = dsRef.Tables[0].Rows[i]["INVS"].ToString(),
                         AddRemarks = dsRef.Tables[0].Rows[i]["AddRemarks"].ToString(),
+                        Resp = dsRef.Tables[0].Rows[i]["Resp"].ToString(),
+                        CustomerType = dsRef.Tables[0].Rows[i]["CustomerType"].ToString(),
 
                     });
                 }
@@ -11718,6 +11720,8 @@ where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QCD.Status=
         public string BooksBalance { get; set; }
         public string INVS { get; set; }
         public string AddRemarks { get; set; }
+        public string Resp { get; set; }
+        public string CustomerType { get; set; }
 
     }
 
