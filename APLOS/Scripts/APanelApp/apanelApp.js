@@ -531,7 +531,6 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("RemarksControlController", RemarksControlController)
     .controller("TermsandConditionGroupController", TermsandConditionGroupController)
     .controller("DependantTaskController", DependantTaskController)
-    .controller("BudgetControlController", BudgetControlController)
 
     
 
