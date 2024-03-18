@@ -55,7 +55,7 @@
                         <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                     </label>
                 </div>
-                
+
             </div>
 
         </div>
@@ -88,7 +88,7 @@
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Employee Category<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
+                            <div class="col-sm-6 show-message">
                                 <div class="select-style">
                                     <select class="form-control" id="employeeTypeId" ng-model="EmpCatNew.EmployeeCategoryId" ng-options="item.Value as item.Text for item in employeeTypeList"
                                             name="Employee Type" tabindex="4" required>
@@ -96,152 +96,118 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="col-sm-2 show-message">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li> <button ng-click="SaveEmployeeCategory();" class="btn" tabindex="9"><i class="fa fa-plus" style="font-size:18px"></i></button></li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
-                     </div>
-                     <div class="common-btn">
-                        <ul class="list-inline text-left">
-                            <li> <button ng-click="SaveEmployeeCategory();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                        </ul>
                     </div>
+                    
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="table-responsive modal-table" ng-show="EmployeeCategoryList.length>0">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Employee Category</th>
+                                            @*<th>Action</th>*@
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in EmployeeCategoryList" ng-class="{selected : x.Id==null}">
+                                            <td>{{x.EmployeeCategory}}</td>
+                                            @*<td>
+                                                    <div class="col-sm-12" id="stopageId">
+                                                        <div class="common-btn">
+                                                            <ul class="list-inline text-left">
+                                                                <li> <button ng-click="GetRouteSheduleChildData(x.Id);" class="btn"><i class="glyphicon glyphicon-th-list" tabindex="1011"></i></button></li>
+                                                                <li>
+                                                                    <button ng-click="removeRouteScheduleRowModal(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove" tabindex="214"></i></button>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </td>*@
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
                 <confirm-archive-generic data-modalid="confirmMaterialPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="RemoveMaterialRow()"></confirm-archive-generic>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                <div class="form-elements form-horizontal" ng-form="from1">
-                    <div class="common-btn">
-                        <ul class="list-inline text-left">
-                            <li>
-                                <button ng-click="GetCOAICodeList('inventoryTab');" class="btn single-small-btn"><i class="glyphicon glyphicon-search">GL</i></button>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="row ">
-                        <div class="col-xs-12 col-sm-12 col-sm-12">
-                            <div class="table-responsive modal-table">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>GL</th>
-                                            <th>Budget</th>
-                                            <th>Activity</th>
-                                            <th>Remove</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr ng-repeat="x in InventoryGLList">
-                                            <td>{{x.GLGeneralInfoName}}</td>
-                                            <td>{{x.BudgetName}}</td>
-                                            <td>{{x.ActivityName}}</td>
-                                            <td class="text-right table-td">
-                                                <ul class="list-inline action-list">
-                                                    <li>
-                                                        <button ng-click="$parent.RemoveExpense(x,$index,'inventoryTabDel')" class="btn-action tooltip-here" data-placement="top" title="Remove" tabindex="1011">
-                                                            <i class="glyphicon glyphicon-remove"></i>
-                                                        </button>
-                                                    </li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                <div class="form-elements">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Designation<sup>*</sup></label>
+                            <div class="col-sm-8 input-group show-message" style="padding-left: 15px;padding-right: 14px;">
+                                <input type="hidden" name="Legal Designation" ng-model="designationNew.DesignationId" class="form-control">
+                                <input type="text" name="Legal Designation" ng-model="designationNew.Designation" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button ng-click="popUpLD();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="clearDesignaitonCode()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                </span>
                             </div>
                         </div>
                     </div>
-
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li> <button ng-click="SaveDesignation();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                        </ul>
+                    </div>
                 </div>
-
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
-                <div class="form-elements form-horizontal" ng-form="from2">
-                    <div class="common-btn">
-                        <ul class="list-inline text-left">
-                            <li>
-                                <button ng-click="GetCOAICodeList('inventoryCapitalTab');" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i>GL</button>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="row ">
-                        <div class="col-xs-12 col-sm-12 col-sm-12">
-                            <div class="table-responsive modal-table">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>GL</th>
-                                            <th>Budget</th>
-                                            <th>Activity</th>
-                                            <th>Remove</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr ng-repeat="x in InventoryCapitalGLList">
-                                            <td>{{x.GLGeneralInfoName}}</td>
-                                            <td>{{x.BudgetName}}</td>
-                                            <td>{{x.ActivityName}}</td>
-                                            <td class="text-right table-td">
-                                                <ul class="list-inline action-list">
-                                                    <li>
-                                                        <button ng-click="$parent.RemoveExpense(x,$index,'inventoryCapitalTabDel')" class="btn-action tooltip-here" data-placement="top" title="Remove" tabindex="1011">
-                                                            <i class="glyphicon glyphicon-remove"></i>
-                                                        </button>
-                                                    </li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                <div class="form-elements">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Position Code<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="col-sm-10" style="padding:0px;">
+                                    <input type="text" name="Position Code" ng-disabled="true" ng-model="positionNew.PositionCode" class="form-control" maxlength="100" required autocomplete="off">
+                                </div>
+                                <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                                    <button ng-click="selectPositionCode();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                </div>
                             </div>
                         </div>
                     </div>
-
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li> <button ng-click="SavePositionCode();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                        </ul>
+                    </div>
                 </div>
-
             </div>
 
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
-                <div class="form-elements form-horizontal" ng-form="from0">
-                    <div class="common-btn">
-                        <ul class="list-inline text-left">
-                            <li>
-                                <button ng-click="GetCOAICodeList('consumableTab');" class="btn single-small-btn"><i class="glyphicon glyphicon-search">GL</i></button>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="row ">
-                        <div class="col-xs-12 col-sm-12 col-sm-12">
-                            <div class="table-responsive modal-table">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>GL</th>
-                                            <th>Budget</th>
-                                            <th>Activity</th>
-                                            <th>Remove</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr ng-repeat="x in ExpenseGLList">
-                                            <td>{{x.GLGeneralInfoName}}</td>
-                                            <td>{{x.BudgetName}}</td>
-                                            <td>{{x.ActivityName}}</td>
-                                            <td class="text-right table-td">
-                                                <ul class="list-inline action-list">
-                                                    <li>
-                                                        <button ng-click="$parent.RemoveExpense(x,$index,'consumableTabDel')" class="btn-action tooltip-here" data-placement="top" title="Remove" tabindex="1011">
-                                                            <i class="glyphicon glyphicon-remove"></i>
-                                                        </button>
-                                                    </li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                <div class="form-elements">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Budget Code<sup>*</sup></label>
+                            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                                <input type="hidden" name="Budget Code" ng-model="BudgetCodeNew.BudgetCodeId" class="form-control">
+                                <input type="text" name="Code" ng-model="BudgetCodeNew.Code" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button ng-click="BudgetCodepopUp();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="clearCode()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                </span>
                             </div>
                         </div>
                     </div>
-
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li> <button ng-click="SaveBudgetCode();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                        </ul>
+                    </div>
                 </div>
-
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
                 <div class="form-elements form-horizontal" ng-form="from5">
@@ -302,8 +268,120 @@
             </div>
         </div>
     </div>
-
 </div>
+<div class="modal fade site-modal in" id="LDPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Designation<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="popUpParameters.searchBy">
+                                            <option ng-repeat="option in popUpList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search" ng-enter="getPopUpData();">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getPopUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+
+                                <th>Sequence</th>
+                                <th>Code</th>
+                                <th>Short Name</th>
+                                <th>Standard Name</th>
+                                <th>User Define Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in popUpDataList|itemsPerPage:popUpParameters.pageSize" pagination-id="metaData.name + 'popUpDataList'" total-items="popUpParameters.total_count" ng-dblclick="selectDesignationDoubleClick(x)">
+
+                                <td>{{x.Sequence}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.UserName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls pagination-id="metaData.name + 'popUpDataList'"
+                                             max-size="10"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getPopUpData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="PositionCodePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Position Code <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Position Code</p>
+                        <div style="color:black;" id="GridPositionCode" ej-grid e-datasource="PositionCodeList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doublePositionCode">
+                            <div e-columns>
+                                <div e-column e-type="Number" e-field="Id" e-headertext="Id" e-visible="false" e-width="30"></div>
+                                <div e-column e-type="Number" e-field="Code" e-headertext="Code" e-width="30"></div>
+                                <div e-column e-type="String" e-field="Position" e-headertext="Position" e-width="30"></div>
+                                <div e-column e-type="String" e-field="Department" e-headertext="Department" e-width="30"></div>
+                                <div e-column e-type="String" e-field="Section" e-headertext="Section" e-width="30"></div>
+                                <div e-column e-type="String" e-field="SubSection" e-headertext="Sub Section" e-width="30"></div>
+                                <div e-column e-type="String" e-field="Activity" e-headertext="Activity" e-width="30"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closePositionCodePopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<modal-table modalid="BudgetCodepopUpId"
+             data-title={{BCpopUpTitle}}
+             data-search-parameters="budgetpopUpParameters"
+             data-exclued-column-list="Code"
+             data-field-list="BudgetCodepopUpList"
+             data-data-list="BudgetCodepopUpDataList"
+             data-search-function="BudgetCodegetPopUpData"
+             data-single-click="selectSingleClick(data)"
+             data-double-click="selectDoubleClick(data)"
+             data-right-button="true"
+             data-left-button="true"
+             data-ng-click-left-button="selectByButton()"
+             data-ng-click-cancel="closePopUp()">
+</modal-table>
 
 
 <div class="row text-right aplos-grid-toggle">

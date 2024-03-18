@@ -264,7 +264,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 if (dsEmpCat.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "RouteScheduleChild", out Id);
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementEmployeeCategory", out Id);
 
                     var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                     DataRow dr;
@@ -296,6 +296,153 @@ namespace Aplos.Areas.Accounts.Controllers
             catch (Exception ex)
             {
                 return Json(new { Error = true, Message = ex.Message }); 
+            }
+        }
+        [HttpPost, Authorize]
+        public JsonResult CreateGlManagementDesignation(Dictionary<string, object> data, string GlManagementId)
+        {
+            try
+            {
+                DataSet dsEmpCat;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementDesignation] where Id='" + data["Id"] + "'", out dsEmpCat, false, "1");
+
+                string Id = "";
+
+                #region data update
+                if (dsEmpCat.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementDesignation", out Id);
+
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                    DataRow dr;
+                    dr = dsEmpCat.Tables[0].NewRow();
+
+                    dr["Id"] = Id;
+                    dr["DesignationId"] = data["DesignationId"];
+                    dr["GlManagementId"] = GlManagementId;
+
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+                    dsEmpCat.Tables[0].Rows.Add(dr);
+                }
+                else
+                {
+                    Id = data["Id"].ToString();
+                    EditRow(dsEmpCat.Tables[0].Rows[0], data);
+                }
+
+                #endregion data update 
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsEmpCat);
+                return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        [HttpPost, Authorize]
+        public JsonResult CreateGlManagementPositionCode(Dictionary<string, object> data, string GlManagementId)
+        {
+            try
+            {
+                DataSet dsEmpCat;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementPositionCode] where Id='" + data["Id"] + "'", out dsEmpCat, false, "1");
+
+                string Id = "";
+
+                #region data update
+                if (dsEmpCat.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementPositionCode", out Id);
+
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                    DataRow dr;
+                    dr = dsEmpCat.Tables[0].NewRow();
+
+                    dr["Id"] = Id;
+                    dr["PositionCodeId"] = data["PositionCodeId"];
+                    dr["GlManagementId"] = GlManagementId;
+
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+                    dsEmpCat.Tables[0].Rows.Add(dr);
+                }
+                else
+                {
+                    Id = data["Id"].ToString();
+                    EditRow(dsEmpCat.Tables[0].Rows[0], data);
+                }
+
+                #endregion data update 
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsEmpCat);
+                return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        [HttpPost, Authorize]
+        public JsonResult CreateGlManagementBudgetCode(Dictionary<string, object> data, string GlManagementId)
+        {
+            try
+            {
+                DataSet dsEmpCat;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementPositionCode] where Id='" + data["Id"] + "'", out dsEmpCat, false, "1");
+
+                string Id = "";
+
+                #region data update
+                if (dsEmpCat.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementPositionCode", out Id);
+
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                    DataRow dr;
+                    dr = dsEmpCat.Tables[0].NewRow();
+
+                    dr["Id"] = Id;
+                    dr["PositionCodeId"] = data["PositionCodeId"];
+                    dr["GlManagementId"] = GlManagementId;
+
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+                    dsEmpCat.Tables[0].Rows.Add(dr);
+                }
+                else
+                {
+                    Id = data["Id"].ToString();
+                    EditRow(dsEmpCat.Tables[0].Rows[0], data);
+                }
+
+                #endregion data update 
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsEmpCat);
+                return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
             }
         }
 
@@ -391,7 +538,73 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+        [Authorize]
+        public ActionResult GetDesignationData(string glManagementId)
+        {
+            try
+            {
+                var sql = @"select D.UserName as Designation,GLMD.DesignationId
+                            from [HKP].[GLManagementDesignation] GLMD 
+                            left join [HKP].[Designation] D on D.Id=GLMD.DesignationId
+							where GLMD.GLManagementId = '" + glManagementId + "' ";
 
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [Authorize]
+        public ActionResult GetPositionCodeData(string glManagementId)
+        {
+            try
+            {
+                var sql = @"select P.Code,P.UserName as Position,PC.PositionCodeId
+                            from [HKP].[GLManagementPositionCode] PC
+                            left join [ORG].[Position] P on P.Id=PC.PositionCodeId
+							where PC.GLManagementId = '" + glManagementId + "' ";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [Authorize]
+        public ActionResult GetBudgetCodeData(string glManagementId)
+        {
+            try
+            {
+                var sql = @"select MPB.Code,MPB.UserName as BudgetCode,BC.BudgetCodeId
+                            from [HKP].[GLManagementBudgetCode] BC
+                            left join [MST].[ManpowerBudget] MPB on MPB.Id=BC.BudgetCodeId
+							where PC.GLManagementId = '" + glManagementId + "' ";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult GetPositionCode()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select P.Id,P.Code,P.UserName Position,P.Activity,
+                        DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection
+                        from ORG.Position P	
+                        LEFT JOIN ORG.Department AS DEP ON DEP.Id=P.DepartmentId
+                        LEFT OUTER JOIN ORG.Section S ON S.Id=P.SectionId
+                        LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
+                        left outer join MST.DesignationMaster DM ON DM.DesignationId=P.DesignationId
+                        where P.Active = 1";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
         [Authorize]
         public ActionResult GetExpenseGLData(string glId, string budgetId, string activityId)
         {
