@@ -227,6 +227,39 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
         $scope.selectedInvoiceList.splice(index, 1);
     };
     //#endregion
+    $scope.untag = function () {
+        $http({
+            method: "POST",
+            url: 'accounts/Invoice/DeleteInventoryPayable',
+            data: {
+                "grnId": gRNId
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                $scope.deletedRemarks = "";
+                $scope.closeconfirmDeletePopUp_Remarks();
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.Clear();
+                $scope.GRNId = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+    $scope.deletedRemarks = "";
+    $scope.onClickUnTaggLCPopUp = function (x) {
+        var data = x;
+        $scope.GRNId = data.Id;
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector('#confirmUntagPopUp')).modal('show');
+    };
 
 }
 
