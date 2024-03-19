@@ -741,6 +741,8 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
                     $scope.newList[i].ActivityId = data[0].PayableActivityId;
                     $scope.newList[i].ActivityCode = data[0].PayableActivityCode;
                     $scope.newList[i].ActivityName = data[0].PayableActivityName;
+                    $scope.newList[i].BudgetActive = data[0].PayableBudgetActive;
+                    $scope.newList[i].BudgetMasterActivityActive = data[0].PayableBudgetMasterActivityActive;
                 }
                 else {
                     if ($scope.modelNew.EmployeeTransactionTypeId != null) {

@@ -1383,7 +1383,7 @@ UNION
                             , IM.ThirdCharacteristicsId, TC.UserName AS ThirdCharacteristics
                             , IM.ThirdCharacteristicsValueId, TCV.UserName AS ThirdCharacteristicsValue                         
                             , IRD.TransactionUoMId, TUoM.UserName AS TransactionUoM
-                            , IRD.MaterialTranRate AS TransactionRate
+                            , ROUND(IRD.TotalMaterialTranAmount/IRD.TransactionQty,4) AS TransactionRate
                             , CU.Code AS CurrencyName, IR.ToCurrencyRate
                             , IRD.TotalMaterialTranAmount AS TrnAmount
                               , IRD.TotalMaterialBooksCurrencyAmount AS BaseAmount

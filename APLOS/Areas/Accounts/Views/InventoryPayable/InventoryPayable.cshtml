@@ -350,7 +350,7 @@
                                 <td>{{x.HSNCode}}</td>
                                 <td>{{x.IsAsset?'Yes':'No'}}</td>
                                 <td class="text-right">{{x.TransactionQty}}  {{x.TransactionUoM}}</td>
-                                <td class="text-right">{{x.TransactionRate | number| setDecimal:2}}  {{x.CurrencyName}}</td>
+                                <td class="text-right">{{x.TransactionRate | number:4}}  {{x.CurrencyName}}</td>
                                 <td class="text-right">{{x.TrnAmount | number| setDecimal:2}}</td>
                                 <td class="text-right">{{x.TaxAmount | number| setDecimal:2}}</td>
                                 <td class="text-right">{{x.BaseAmount | number| setDecimal:2}}</td>
