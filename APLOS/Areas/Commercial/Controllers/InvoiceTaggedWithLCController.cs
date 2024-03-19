@@ -894,5 +894,23 @@ namespace Aplos.Areas.Commercial.Controllers
 		}
 		#endregion
 
+		public void UntagLC(string untageId)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+				var rdBuilder = new System.Text.StringBuilder();
+				var builderSqlDetail = @"DELETE InvoiceTaggingWithLCDetail where InvoiceTaggingWithLCMasterId='"+ untageId + "'";
+				var builderSql = @"DELETE InvoiceTaggingWithLCMaster where Id='" + untageId + "'";
+				rdBuilder.Append(builderSql);
+				_sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+			}
+			catch (CustomException)
+			{
+				throw;
+			}
+			
+		}
 	}
 }
