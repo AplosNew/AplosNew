@@ -89,6 +89,13 @@ namespace Aplos.Areas.OrderManagements.Controllers
         #endregion
 
         #region -- Operations
+
+        [HttpGet, Authorize]
+        public ActionResult GetLineItemAdditionalInfoData(string lineItemId)
+        {
+            return Json(MasterOrder.GetLineItemAdditionalInfoData(lineItemId), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetUoMCboByProductMaster()
         {

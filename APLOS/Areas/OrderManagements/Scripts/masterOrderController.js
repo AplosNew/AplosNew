@@ -3902,13 +3902,13 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             }).then(function successCallback(response) {
                 $scope.costingSOConfirmList = response.data.NewData;
                 for (var i = 0; i < $scope.costingSOConfirmList.length; i++) {
-                    $scope.costingSOConfirmList[i].ItemValue = parseFloat($scope.costingSOConfirmList[i].ItemValue).toFixed(4);
-                    $scope.costingSOConfirmList[i].SOValue = parseFloat($scope.costingSOConfirmList[i].SOValue).toFixed(4);
+                    $scope.costingSOConfirmList[i].ItemValue = parseFloat($scope.costingSOConfirmList[i].ItemValue).toFixed(6);
+                    $scope.costingSOConfirmList[i].SOValue = parseFloat($scope.costingSOConfirmList[i].SOValue).toFixed(6);
                 }
 
                 for (var j = 0; j < $scope.costingSOConfirmList.length; j++) {
-                    $scope.costingSOConfirmList[j].ValueDiff = parseFloat($scope.costingSOConfirmList[j].ItemValue).toFixed(4) - parseFloat($scope.costingSOConfirmList[j].SOValue).toFixed(4);
-                    $scope.costingSOConfirmList[j].ValueDiff = parseFloat($scope.costingSOConfirmList[j].ValueDiff).toFixed(4);
+                    $scope.costingSOConfirmList[j].ValueDiff = parseFloat($scope.costingSOConfirmList[j].ItemValue).toFixed(6) - parseFloat($scope.costingSOConfirmList[j].SOValue).toFixed(6);
+                    $scope.costingSOConfirmList[j].ValueDiff = parseFloat($scope.costingSOConfirmList[j].ValueDiff).toFixed(6);
                 }
 
             }, function errorCallback(response) {
@@ -3923,7 +3923,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.calculateDiffValue = function (data) {
         data.ValueDiff = 0;
         data.ValueDiff = data.ItemValue - data.SOValue;
-        data.ValueDiff = parseFloat(data.ValueDiff).toFixed(4);
+        data.ValueDiff = parseFloat(data.ValueDiff).toFixed(6);
     }
 
     $scope.TempList = [];

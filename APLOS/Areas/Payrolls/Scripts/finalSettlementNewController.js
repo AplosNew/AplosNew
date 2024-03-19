@@ -57,6 +57,7 @@ function finalSettlementNewController(commonMessage, $scope, $rootScope, baseSer
         SeparationTypeId: null,
         EmpSystemId: null
     };
+    $scope.FinalSettlementUndisbursedEarningList = [];
     $scope.FinalSettlementEarningHeadList = [];
     $scope.FinalSettlementDeductionHeadList = [];
     $scope.SeparationTypeDetails = {};
@@ -69,6 +70,7 @@ function finalSettlementNewController(commonMessage, $scope, $rootScope, baseSer
                         ShowResult(response.Message, 'failure');
                     }
                     else {
+                    
                         $scope.FinalSettlementModel = response.data[0];
                         $scope.FinalSettlementDeductionHeadList = response.FinalSettlementDeduction[0];
                         $scope.FinalSettlementEarningHeadList = response.FinalSettlementEarning[0];
@@ -123,7 +125,13 @@ function finalSettlementNewController(commonMessage, $scope, $rootScope, baseSer
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'FinalSettlementData': $scope.FinalSettlementModel, 'DeductionData': $scope.FinalSettlementDeductionHeadList, 'EarningData': $scope.FinalSettlementEarningHeadList, 'FinalSettlementRetainedHead': $scope.FinalSettlementRetainedHeadList },
+                data: {
+                    'FinalSettlementData': $scope.FinalSettlementModel
+                    , 'DeductionData': $scope.FinalSettlementDeductionHeadList
+                    , 'EarningData': $scope.FinalSettlementEarningHeadList
+                    , 'FinalSettlementRetainedHead': $scope.FinalSettlementRetainedHeadList
+                    , 'UndisbursedEarningList': $scope.FinalSettlementUndisbursedEarningList
+                },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
@@ -239,10 +247,17 @@ function finalSettlementNewController(commonMessage, $scope, $rootScope, baseSer
                         $scope.FinalSettlementEarningHeadList = [];
                         $scope.FinalSettlementDeductionHeadList = [];
                         $scope.FinalSettlementModel = {};
+                        $scope.FinalSettlementUndisbursedEarningList = response.data.FinalSettlementUndisbursedEarning;
                         $scope.FinalSettlementModel = response.data.data;
                         $scope.FinalSettlementDeductionHeadList = response.data.FinalSettlementDeduction;
                         $scope.FinalSettlementEarningHeadList = response.data.FinalSettlementEarning;
                         $scope.FinalSettlementRetainedHeadList = response.data.FinalSettlementRetainedHead;
+                        $scope.FinalSettlementModel.LastMonthNetPayAmount = 0;
+                        if (baseService.arrayLength($scope.FinalSettlementUndisbursedEarningList)>0) {
+                            for (var i = 0; i < $scope.FinalSettlementUndisbursedEarningList.length; i++) {
+                                $scope.FinalSettlementModel.LastMonthNetPayAmount += $scope.FinalSettlementUndisbursedEarningList[i].DisbusmentAmount;
+                            }
+                        }
                         $scope.btnSave = true;
                         $scope.AddRetained();
                     }

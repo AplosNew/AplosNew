@@ -2035,5 +2035,23 @@ Where SO.CheckByStatus = 'Checked' AND ApprovedStatus='To Be Approve' AND SO.App
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
+
+        public IEnumerable<object> GetLineItemAdditionalInfoData(string lineItemId)
+        {
+            try
+            {
+                string sql = @"SELECT Flag=CAST(CASE WHEN SA.Id IS NULL THEN 0 ELSE 1 END AS bit),A.UserName,SA.Id,SA.LineItemId
+,A.Id AdditionalInfoId,SA.Value,SA.Remarks,A.CharecterType,'' CharType,''datepic
+FROM [HKP].[AdditionalInfo] A
+OUTER APPLY(Select * from [dbo].[LineItemAdditionalInfo] Where AdditionalInfoId=A.Id AND LineItemId='"+ lineItemId + @"') SA
+Where A.Category='LineItem'
+Order By A.sequence";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

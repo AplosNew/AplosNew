@@ -266,6 +266,12 @@ namespace Aplos.Areas.Accounts.Controllers
             return View();
         }
 
+        [HttpGet, Authorize]
+        public ActionResult BudgetControl()
+        {
+            return View();
+        }
+
         [HttpPost]
         public JsonResult FARegisterUpdate(BudgetMaster budgetMaster, IEnumerable<ActivityViewModel> budgetActivities)
         {

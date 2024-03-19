@@ -9534,6 +9534,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
             {
                 CusAll = "where X.PartyId = '" + PartyId + "'";
             }
+            
 
             System.Data.DataSet dsRef;
             try
@@ -9892,7 +9893,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
                 objCon = null;
             }
         }
-        public void GetPaymentstatusInvoiceWise(out List<INvoiceWiseAccount> DataList, string PartyId)
+        public void GetPaymentstatusInvoiceWise(out List<INvoiceWiseAccount> DataList, string PartyId , string RespId , string CustomerType )
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -9900,9 +9901,49 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
             var CusAll = "";
             if (PartyId != null)
             {
-                CusAll = "where X.PartyId = '" + PartyId + "'";
+                CusAll = "AND IV.PartyId in(" + PartyId + @")";
             }
-
+            if(PartyId == null)
+            {
+                if(RespId != null && CustomerType == null)
+                {
+                    CusAll = "and EI.SystemId = '" + RespId + @"'";
+                }
+                if (RespId == null && CustomerType != null)
+                {
+                    if (CustomerType != null)
+                    {
+                        if (CustomerType == "Export")
+                        {
+                            CusAll = " and PAG.StandardName = 'Customer Export'";
+                        }
+                        if (CustomerType == "Local")
+                        {
+                            CusAll = " and PAG.StandardName = 'Customer Local'";
+                        }
+                        if (CustomerType == "Both")
+                        {
+                            CusAll = null;
+                        }
+                    }
+                }
+                if(RespId != null && CustomerType != null)
+                {
+                    if (CustomerType == "Export")
+                    {
+                        CusAll = " and PAG.StandardName = 'Customer Export' and EI.SystemId = '" + RespId + @"'"; 
+                    }
+                    if (CustomerType == "Local")
+                    {
+                        CusAll = " and PAG.StandardName = 'Customer Local' and EI.SystemId = '" + RespId + @"'";
+                    }
+                    if (CustomerType == "Both")
+                    {
+                        CusAll = "and EI.SystemId = '" + RespId + @"'";
+                    }
+                }
+                
+            }
             System.Data.DataSet dsRef;
             try
             {
@@ -9941,7 +9982,9 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
 										,0  BooksDebitNoteAmount,0  BooksTaxAmount,
                                          BooksReceipt=Convert(decimal(30,3),ISNULL(IVD.SetOffBooksAmount, 0) )
 										 ,Convert(decimal(30,3),ISNULL(IVD.InvoiceBooksAmount,0))-Convert(decimal(30,3),ISNULL(IVD.SetOffBooksAmount,0)) AS BooksBalance
-										 ,ss.Id INVS, AddRemarks = 'AddRemarks'
+										 ,case when ss.Id is null then V.DocRefNo else ss.Id end INVS, AddRemarks = 'AddRemarks'
+										 ,EI.EmployeeName Resp
+										 ,PAG.StandardName CustomerType
                                         FROM  [TRN].[Invoice] AS IV 
 										 JOIN (select IDE.InvoiceId,VD.PartyId,SUM(VDC.DrAmount) InvoiceBooksAmount ,SUM(IwV.SetOffBooksAmount) SetOffBooksAmount
 											FROM  [TRN].[InvoiceDetail] IDE
@@ -9969,12 +10012,20 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
 									    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
                                         LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
 										left join trn.Sales ss on ss.VoucherId  = V.Id
+										LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = ss.Id
+										LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
+										LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+										left join [TRN].[MasterOrder] MO on MO.Id = MOI.MasterOrderId
+										left join EmployeeInformation EI on EI.SystemId = MO.ResponsiblePersonId
+										
+										left join HKP.CompanyParty CP on CP.PartyId = P.Id and CP.PartyType = 'Customer'
+										left join HKP.PartyAccountGroup PAG on PAG.Id = CP.PartyAccountGroupId 
                                         LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                                         LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
                                         WHERE IV.Archive=0 AND V.IsPark=0  AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice','InventorySales')
 										AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
                                         AND IV.CompanyGroupId='CG20181' AND IV.CompanyId='C20201' AND IV.PlantId='202034' AND ( convert(Date,IV.PostingDate) <= convert(date, getdate()) )
-                                        AND IV.PartyId in(" + PartyId + @")
+                                      " + CusAll + @"
 
 								    UNION ALL
                                     SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,EN.UserName Entity,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
@@ -10010,7 +10061,9 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
 										 ,Convert(decimal(30,3),ISNULL(IVD.Amount *CC.CompanyCurrencyRate,0)) AS BooksGrossSales,0  BooksDebitNoteAmount,0  BooksTaxAmount,
                                          BooksReceipt=Convert(decimal(30,3),ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)) 
 										 ,Convert(decimal(30,3),ISNULL(IVD.Amount * CC.CompanyCurrencyRate,0)) - Convert(decimal(30,3),ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)) AS BooksBalance
-										 ,ss.Id INVS, AddRemarks = 'AddRemarks'
+										 ,case when ss.Id is null then V.DocRefNo else ss.Id end INVS, AddRemarks = 'AddRemarks'
+										 ,EI.EmployeeName Resp
+										 ,PAG.StandardName CustomerType
                                         FROM [TRN].[AdjustmentNoteDetail] AS IVD
 										LEFT JOIN [TRN].[AdjustmentNote] AS IV ON IVD.AdjustmentNoteId=IV.Id
 										LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
@@ -10022,6 +10075,14 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
 										LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=IVD.Id
 										LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
 										left join trn.Sales ss on ss.VoucherId  = V.Id
+										LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = ss.Id
+										LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
+										LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+										left join [TRN].[MasterOrder] MO on MO.Id = MOI.MasterOrderId
+										left join EmployeeInformation EI on EI.SystemId = MO.ResponsiblePersonId
+										
+										left join HKP.CompanyParty CP on CP.PartyId = P.Id and CP.PartyType = 'Customer'
+										left join HKP.PartyAccountGroup PAG on PAG.Id = CP.PartyAccountGroupId 
 										LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
 										LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
 										LEFT JOIN (select SUM(ISNULL(VDCW.CrAmount,0))AdjustmentNoteWriteOffBooksAmount,AdjustmentNoteId from [TRN].[InvoiceWriteOffDetail] IWD
@@ -10041,7 +10102,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
                                         WHERE IV.Archive=0 AND V.IsPark=0  AND IV.PartyType='Customer' AND IV.SourceType in ('DebitNote','CustomerReceipt')
 										AND ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)>0
                                         AND IV.CompanyGroupId='CG20181' AND IV.CompanyId='C20201' AND IV.PlantId='202034' AND ( convert(Date,IV.PostingDate) <= convert(date, getdate()) )
-                                        AND IV.PartyId in(" + PartyId + @")
+                                       " + CusAll + @"
 									
 
 										) x
@@ -10090,6 +10151,8 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
                         BooksBalance = dsRef.Tables[0].Rows[i]["BooksBalance"].ToString(),
                         INVS = dsRef.Tables[0].Rows[i]["INVS"].ToString(),
                         AddRemarks = dsRef.Tables[0].Rows[i]["AddRemarks"].ToString(),
+                        Resp = dsRef.Tables[0].Rows[i]["Resp"].ToString(),
+                        CustomerType = dsRef.Tables[0].Rows[i]["CustomerType"].ToString(),
 
                     });
                 }
@@ -10402,6 +10465,183 @@ where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QCD.Status=
                         ConfirmRemarks = dsRef.Tables[0].Rows[i]["ConfirmRemarks"].ToString(),
                         AddedBy = dsRef.Tables[0].Rows[i]["AddedBy"].ToString(),
                         AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
+
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetQualityConfirmControll(out List<QualityControll> DataList, string ResponsiblePersonId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<QualityControll>();
+            string FilterDate = string.Empty;
+            string ResponsiblePerson = string.Empty;
+            System.Data.DataSet dsRef;
+            
+            if (ResponsiblePersonId != null && ResponsiblePersonId != "undefined")
+            {
+                ResponsiblePerson = " and ResponsiblePersonId = '" + ResponsiblePersonId + "'";
+            }
+            try
+            {
+                strSQL = @"select distinct QC.Id as HeaderId,format(QC.AddedDate,'dd-MMM-yyyy') as Date,DATEDIFF(Hour,QC.AddedDate,GETDATE()) PendingTime,E.Id EntityId,E.UserName Entity,P.Id ProcessId,P.UserName Process,
+QC.IssueId,QMM.UserName Issue,EI.SystemId CheckedById,EI.EmployeeName CheckedBy,QC.ProductionOrderId PONo,QC.LotNumber,
+Article=STUFF((select distinct ','+MA.StandardName from trn.ProductionOrderDetail Pod 
+left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId=so.Id
+left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
+left outer join [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
+where Pod.ProductionOrderId=QC.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+PS.UserName POStatus from TRN.QualityControlDetails QCD
+left join TRN.QualityControl QC on QC.Id=QCD.QCId
+left join ORG.Entity E on E.Id=QC.EntityId
+left join hkp.Process P on P.Id=QC.ProcessId
+left join MST.QualityManagementMaster QMM on QMM.Id=QC.IssueId
+left join EmployeeInformation EI on EI.SystemId=QC.ProductionInchargeId
+left join TRN.ProductionOrder PO on PO.Id=QC.ProductionOrderId
+left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
+where QCD.Status in ('Close') and PS.UserName in ('Running','To Close') and QCD.GradeId in (select Id from MST.QualityGradeDetails where ActionApplicable=1) " + ResponsiblePerson + @" order by DATEDIFF(Hour,QC.AddedDate,GETDATE()) desc";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new QualityControll
+                    {
+                        HeaderId = dsRef.Tables[0].Rows[i]["HeaderId"].ToString(),
+                        Date = dsRef.Tables[0].Rows[i]["Date"].ToString(),
+                        PendingTime = dsRef.Tables[0].Rows[i]["PendingTime"].ToString(),
+                        EntityId = dsRef.Tables[0].Rows[i]["EntityId"].ToString(),
+                        Entity = dsRef.Tables[0].Rows[i]["Entity"].ToString(),
+                        ProcessId = dsRef.Tables[0].Rows[i]["ProcessId"].ToString(),
+                        Process = dsRef.Tables[0].Rows[i]["Process"].ToString(),
+                        IssueId = dsRef.Tables[0].Rows[i]["IssueId"].ToString(),
+                        Issue = dsRef.Tables[0].Rows[i]["Issue"].ToString(),
+                        CheckedById = dsRef.Tables[0].Rows[i]["CheckedById"].ToString(),
+                        CheckedBy = dsRef.Tables[0].Rows[i]["CheckedBy"].ToString(),
+                        PONo = dsRef.Tables[0].Rows[i]["PONo"].ToString(),
+                        LotNumber = dsRef.Tables[0].Rows[i]["LotNumber"].ToString(),
+                        Article = dsRef.Tables[0].Rows[i]["Article"].ToString(),
+                        POStatus = dsRef.Tables[0].Rows[i]["POStatus"].ToString(),
+
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetQualityConfirmActionUpdateParameter(out List<QualityControllUpdate> DataList, string HeaderId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<QualityControllUpdate>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select QCD.Id ParameterId,PM.UserName Parameter,QCD.Status,UOM.UserName UOM,QCD.Value,QMP.Max,QMP.Min,WC.UserName WorkCenter,QGD.GradeName,
+QAD.ActionToBeTakenName,EI.EmployeeName ResponsiblePerson,QCD.Remarks,QCD.ItemId,format(QCD.AddedDate,'dd-MMM-yyyy') as AddedDate,format(QCD.AddedDate,'hh:mm tt') as AddedTime  from TRN.QualityControlDetails QCD
+left join MST.QualityManagementParameterItem QMP on QMP.Id=QCD.ItemId
+left join hkp.ParameterMaster PM on PM.Id=QMP.ParameterId
+left join SCS.UnitOfMeasurement UOM on UOM.Id=QMP.UOMId
+left join SCS.WorkCenterMaster WC on WC.Id=QCD.WorkCenterId
+left join MST.QualityGradeDetails QGD on QGD.Id=QCD.GradeId
+left join MST.QualityActionToBeTakenDetails QAD on QAD.Id=QCD.ActionToBeTaken
+left join EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
+where QCD.Status in ('Close') and QCD.GradeId in (select Id from MST.QualityGradeDetails where ActionApplicable=1)
+and QCD.QCId='" + HeaderId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new QualityControllUpdate
+                    {
+                        ParameterId = dsRef.Tables[0].Rows[i]["ParameterId"].ToString(),
+                        Parameter = dsRef.Tables[0].Rows[i]["Parameter"].ToString(),
+                        Status = dsRef.Tables[0].Rows[i]["Status"].ToString(),
+                        UOM = dsRef.Tables[0].Rows[i]["UOM"].ToString(),
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Max = dsRef.Tables[0].Rows[i]["Max"].ToString(),
+                        Min = dsRef.Tables[0].Rows[i]["Min"].ToString(),
+                        WorkCenter = dsRef.Tables[0].Rows[i]["WorkCenter"].ToString(),
+                        GradeName = dsRef.Tables[0].Rows[i]["GradeName"].ToString(),
+                        ActionToBeTakenName = dsRef.Tables[0].Rows[i]["ActionToBeTakenName"].ToString(),
+                        ResponsiblePerson = dsRef.Tables[0].Rows[i]["ResponsiblePerson"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+                        ItemId = dsRef.Tables[0].Rows[i]["ItemId"].ToString(),
+                        AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
+                        AddedTime = dsRef.Tables[0].Rows[i]["AddedTime"].ToString(),
+
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        public void GetQualityConfirmActionUpdate(out List<QualityActionUpdate> DataList, string ParameterId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<QualityActionUpdate>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                
+                strSQL = @"select QAT.Id,isnull(QAT.SNO,QPR.SNO) SNO,QPR.Id ReasonId,isnull(QRM.UserName,QAT.ReasonName) ReasonName,QAT.ActionTaken,QAT.ActionById,EI.EmployeeName ActionBy,QAT.Remarks, 'OK' Saved 
+,  QAT.ParameterId , null ConfirmRemarks 
+from [TRN].[QualityActionTakenUpdate]  QAT
+left join [MST].[QualityManagementParameterReason] QPR on QPR.Id=QAT.ReasonId and QPR.IsActive=1
+left join [HKP].[QualityManagementReasonMaster] QRM on QRM.Id=QPR.ReasonId
+left join EmployeeInformation EI on EI.SystemId=QAT.ActionById
+where QAT.ParameterId='" + ParameterId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new QualityActionUpdate
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        SNO = dsRef.Tables[0].Rows[i]["SNO"].ToString(),
+                        ReasonId = dsRef.Tables[0].Rows[i]["ReasonId"].ToString(),
+                        ActionTaken = dsRef.Tables[0].Rows[i]["ActionTaken"].ToString(),
+                        ActionById = dsRef.Tables[0].Rows[i]["ActionById"].ToString(),
+                        ActionBy = dsRef.Tables[0].Rows[i]["ActionBy"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+                        ParameterId = dsRef.Tables[0].Rows[i]["ParameterId"].ToString(),
+                        ReasonName = dsRef.Tables[0].Rows[i]["ReasonName"].ToString(),
+                        ConfirmRemarks = dsRef.Tables[0].Rows[i]["ConfirmRemarks"].ToString(),
+                        Saved = dsRef.Tables[0].Rows[i]["Saved"].ToString(),
 
 
                     });
@@ -11657,6 +11897,8 @@ where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QCD.Status=
         public string BooksBalance { get; set; }
         public string INVS { get; set; }
         public string AddRemarks { get; set; }
+        public string Resp { get; set; }
+        public string CustomerType { get; set; }
 
     }
 
@@ -11715,6 +11957,27 @@ where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QCD.Status=
         public string UpdatedBy { get; set; }
         public string UpdatedDate { get; set; }
         public string UpdatedFromIP { get; set; }
+        public string ActionBy { get; set; }
+        public string Saved { get; set; }
     }
+    public class QualityConfirmssControll
+    {
+        public string HeaderId { get; set; }
+        public string Date { get; set; }
+        public string PendingTime { get; set; }
+        public string EntityId { get; set; }
+        public string Entity { get; set; }
+        public string ProcessId { get; set; }
+        public string Process { get; set; }
+        public string IssueId { get; set; }
+        public string Issue { get; set; }
+        public string CheckedById { get; set; }
+        public string CheckedBy { get; set; }
+        public string PONo { get; set; }
+        public string LotNumber { get; set; }
+        public string Article { get; set; }
+        public string POStatus { get; set; }
 
+
+    }
 }

@@ -1337,10 +1337,10 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetPaymentStatus(out List<PaymentStatus> activelists, PartyId);
             return activelists;
         }
-        public List<INvoiceWiseAccount> GetPaymentstatusInvoiceWise(string PartyId)
+        public List<INvoiceWiseAccount> GetPaymentstatusInvoiceWise(string PartyId, string RespId, string CustomerType)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetPaymentstatusInvoiceWise(out List<INvoiceWiseAccount> activelists, PartyId);
+            clsData.GetPaymentstatusInvoiceWise(out List<INvoiceWiseAccount> activelists, PartyId , RespId , CustomerType);
             return activelists;
         }
         #endregion PaymentStatus
@@ -1381,6 +1381,25 @@ namespace Aplos.Controllers.ApopAPIHR
         {
             clsDataContext clsData = new clsDataContext();
             clsData.GetQualityActionUpdate(out List<QualityActionUpdate> activelists, ParameterId, SNO);
+            return activelists;
+        }
+
+        public List<QualityControll> GetQualityConfirmControll(string ResponsiblePersonId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetQualityConfirmControll(out List<QualityControll> activelists, ResponsiblePersonId);
+            return activelists;
+        }
+        public List<QualityControllUpdate> GetQualityConfirmActionUpdateParameter(string HeaderId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetQualityConfirmActionUpdateParameter(out List<QualityControllUpdate> activelists, HeaderId);
+            return activelists;
+        }
+        public List<QualityActionUpdate> GetQualityConfirmActionUpdate(string ParameterId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetQualityConfirmActionUpdate(out List<QualityActionUpdate> activelists, ParameterId);
             return activelists;
         }
         #endregion Quality Acion 
