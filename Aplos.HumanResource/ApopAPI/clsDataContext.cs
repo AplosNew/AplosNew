@@ -10698,17 +10698,7 @@ where QAT.ParameterId='" + ParameterId + "'";
 
 
                 }
-                if (items[0].Id.ToString().Contains("QAT"))
-                {
-                   
-                }
-                else
-                {
-                    ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
-                    conC.BeginTransaction();
-                    conC.executeQuery("Update TRN.QualityControlDetails set Status='" + Status + "',ConfirmBy='" + ConfirmBy + "',ConfirmationRemarks='" + ConfirmationRemarks + "' where Id='" + PId + @"'");
-                    conC.CommitTransaction();
-                }
+                
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
                 string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
@@ -10722,6 +10712,61 @@ where QAT.ParameterId='" + ParameterId + "'";
             }
 
         }
+        public string PostQualityConfirmationMasterUpdate(IEnumerable<QualityConfirmssControllMaster> DataToSave, string PId, string Status, string ConfirmationRemarks, string ConfirmBy)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string Id = "''";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<QualityConfirmssControllMaster> items = DataToSave.ToList();
+
+                foreach (QualityConfirmssControllMaster item in DataToSave)
+                {
+                    Id += ",'" + item.Id + "'";
+                }
+
+                con.OpenDataSetThroughAdapter("select * from [TRN].[QualityControlDetails] where Id='" + PId + "'", out dsMaster, false, "1");
+
+
+                foreach (QualityConfirmssControllMaster item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                        // DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["Status"] = Status;
+                        dr["ConfirmBy"] = ConfirmBy;
+                        dr["ConfirmationRemarks"] = ConfirmationRemarks;
+
+
+                        dr.EndEdit();
+
+                    }
+
+
+                }
+                
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+        }
+
         #endregion Quality Action 
     }
 
@@ -12045,5 +12090,13 @@ where QAT.ParameterId='" + ParameterId + "'";
         public string POStatus { get; set; }
 
 
+    }
+
+    public class QualityConfirmssControllMaster
+    {
+        public string Status { get; set; }
+        public string ConfirmBy { get; set; }
+        public string ConfirmationRemarks { get; set; }
+       
     }
 }
