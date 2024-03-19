@@ -1383,6 +1383,25 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetQualityActionUpdate(out List<QualityActionUpdate> activelists, ParameterId, SNO);
             return activelists;
         }
+
+        public List<QualityControll> GetQualityConfirmControll(string ResponsiblePersonId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetQualityConfirmControll(out List<QualityControll> activelists, ResponsiblePersonId);
+            return activelists;
+        }
+        public List<QualityControllUpdate> GetQualityConfirmActionUpdateParameter(string HeaderId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetQualityConfirmActionUpdateParameter(out List<QualityControllUpdate> activelists, HeaderId);
+            return activelists;
+        }
+        public List<QualityActionUpdate> GetQualityConfirmActionUpdate(string ParameterId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetQualityConfirmActionUpdate(out List<QualityActionUpdate> activelists, ParameterId);
+            return activelists;
+        }
         #endregion Quality Acion 
     }
 }

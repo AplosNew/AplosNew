@@ -83,7 +83,13 @@ namespace Aplos.Areas.Employees.Controllers
            // return Json(_bloodGroupService.Query(parameters), JsonRequestBehavior.AllowGet);
             return Json(_preRecruitmentEmployee.GetLegalDesignationCbo(parameters,companyGroupId, identity.PlantId, BudgetCode), JsonRequestBehavior.AllowGet);
 		}
-        [HttpGet, Authorize]
+		[HttpGet, Authorize]
+		public JsonResult GetDesignationCbo(GridParameter parameters, string companyGroupId, string BudgetCode)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			return Json(_preRecruitmentEmployee.GetDesignationCbo(parameters, companyGroupId, identity.PlantId, BudgetCode), JsonRequestBehavior.AllowGet);
+		}
+		[HttpGet, Authorize]
         public JsonResult GetLegalDesignationCbobyGivenDesignation(string givenDesignationpId)
         {
             return Json(_preRecruitmentEmployee.GetLegalDesignationCbobyGivenDesignation(givenDesignationpId), JsonRequestBehavior.AllowGet);

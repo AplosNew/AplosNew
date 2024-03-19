@@ -18,5 +18,6 @@ namespace Library.Service.Employees
 
         IEnumerable<object> GetGivenDesignationCbo(string GroupId);
         GridModel GetLegalDesignationCbo(GridParameter parameters, string companyGroupId, string plantId, string BudgetCode);
+        GridModel GetDesignationCbo(GridParameter parameters, string companyGroupId, string plantId, string BudgetCode);
     }
 }
