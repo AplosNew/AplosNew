@@ -10656,6 +10656,66 @@ where QAT.ParameterId='" + ParameterId + "'";
                 objCon = null;
             }
         }
+        public string PostQualityConfirmationUpdate(IEnumerable<QualityActionUpdate> DataToSave, string PId, string Status , string ConfirmationRemarks , string ConfirmBy)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "[TRN].[QualityActionTakenUpdate]";
+                string Id = "''";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<QualityActionUpdate> items = DataToSave.ToList();
+
+                foreach (QualityActionUpdate item in DataToSave)
+                {
+                    Id += ",'" + item.Id + "'";
+                }
+
+                con.OpenDataSetThroughAdapter("select * from [TRN].[QualityActionTakenUpdate] where Id='" + items[0].Id + "' and ParameterId='" + PId + "'", out dsMaster, false, "1");
+
+
+                foreach (QualityActionUpdate item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                        // DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["ConfirmRemarks"] = item.ConfirmRemarks;
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedFromIP"] = "192.168.137.44";
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+
+                        dr.EndEdit();
+
+                    }
+                    
+
+                }
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("Update TRN.QualityControlDetails set Status='" + Status + "',ConfirmBy='" + ConfirmBy + "',ConfirmationRemarks='" + ConfirmationRemarks + "' where Id='" + PId + @"'");
+                conC.CommitTransaction();
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+        }
         #endregion Quality Action 
     }
 

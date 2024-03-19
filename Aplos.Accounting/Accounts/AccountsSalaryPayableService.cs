@@ -2353,6 +2353,48 @@ namespace Library.Accounting.Accounts
                 throw new CustomException(ex.Message, ex);
             }
         }
+        public GridModel GetFinalSettlementDisbursementVoucherList(GridParameter parameters)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                parameters.CmdText = @"SELECT V.Id PayableVoucherId, V.VoucherDate, V.PostingDate, V.DocRefNo, V.VoucherTypeId, V.CurrencyId, V.DocDate, V.EntityId, C.Code AS CurrencyCode
+                                    , VD.DrAmount, V.VoucherNo,ISNULL(BM.AccountTitle,CM.UserName) PaymentBank
+                                    ,V.IsPark,Status= case when V.IsPark=0 then 'Posted' else 'Parked' end, V.Narration
+									,[Month]=case when sl.MonthNo=1 then 'January'
+                                    when sl.MonthNo=2 then 'February'
+                                    when sl.MonthNo=3 then 'March'
+                                    when sl.MonthNo=4 then 'April'
+                                    when sl.MonthNo=5 then 'May'
+                                    when sl.MonthNo=6 then 'June'
+                                    when sl.MonthNo=7 then 'July'
+                                    when sl.MonthNo=8 then 'August'
+                                    when sl.MonthNo=9 then 'September'
+                                    when sl.MonthNo=10 then 'October'
+                                    when sl.MonthNo=11 then 'November'
+                                    when sl.MonthNo=12 then 'December' end,sl.MonthNo ,sl.YearNo
+                                    FROM TRN.[Voucher] AS V
+                                    LEFT JOIN SCS.Currency AS C ON C.Id = V.CurrencyId
+                                    LEFT JOIN (SELECT SUM(VD.DrAmount) AS DrAmount, VD.VoucherId,VD.BankMasterId FROM [TRN].[VoucherDetail] AS VD WHERE VD.DrAmount <> 0 
+									GROUP BY VD.VoucherId,VD.BankMasterId
+                                    ) AS VD ON VD.VoucherId=V.Id
+									left join (select distinct sl.DisbursementVoucherId,sl.MonthNo,sl.YearNo
+									from dbo.SalaryLock sl
+									where sl.DisbursementVoucherId<>'' and sl.IsDisbursed=1 
+									) sl on sl.DisbursementVoucherId=v.Id
+									LEFT JOIN TRN.VoucherDetail XVD ON XVD.VoucherId=V.Id AND XVD.BankMasterId<>''
+									LEFT JOIN TRN.VoucherDetail XVDC ON XVDC.VoucherId=V.Id AND  XVDC.CashMasterId<>''
+									left join MST.BankMaster BM ON BM.Id=XVD.BankMasterId
+									left join MST.CashMaster CM ON CM.Id=XVDC.CashMasterId
+                                    WHERE  V.Archive=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + "'AND V.CompanyId='" + identity.CompanyId + "' AND V.PlantId='" + identity.PlantId + "' AND V.SourceType='" + SourceType.SalaryDisbursement + "'";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex);
+            }
+        }
         public GridModel GetBonusDisbursementVoucherList(GridParameter parameters)
         {
             try

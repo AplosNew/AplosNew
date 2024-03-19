@@ -11,7 +11,7 @@ function finalSettlementPostController(cboService, commonMessage, $scope, $rootS
     $scope.transactionTypeList = [];
     $scope.salaryPayables = [];
     $scope.path = "accounts/salarydisbursement/";
-    $scope.getListUrl = $scope.path + "GetSalaryPayableDisbursementVoucherList";
+    $scope.getListUrl = $scope.path + "GetFinalSettlementDisbursementVoucherList";
     $scope.saveUrl = $scope.path + "ParkSalaryPayableDisbursement";
     $scope.postUrl = $scope.path + "PostSalarydisbursement";
     $scope.hideSource = true;
@@ -140,13 +140,13 @@ function finalSettlementPostController(cboService, commonMessage, $scope, $rootS
     };
 
     // #region TAB CHANGE Main
-    $scope.tabMain = 1;
-    $scope.setTabMain = function (newTab) {
-        $scope.tabMain = newTab;
-    };
-    $scope.isSetMain = function (tabNum) {
-        return $scope.tabMain === tabNum;
-    };
+    //$scope.tabMain = 2;
+    //$scope.setTabMain = function (newTab) {
+    //    $scope.tabMain = newTab;
+    //};
+    //$scope.isSetMain = function (tabNum) {
+    //    return $scope.tabMain === tabNum;
+    //};
     // #endregion TAB CHANGE Main
 
     $scope.GetCurrencyExchangeRateList = function () {
@@ -178,64 +178,64 @@ function finalSettlementPostController(cboService, commonMessage, $scope, $rootS
     baseService.getCompanyConfiguration(function (result) {
         $scope.companyConfig = result;
     });
-    cboService.getCboLeaveYear(function (result) {
-        $scope.yearList = result;
-    });
-    $scope.monthList = [
-        {
-            Value: 1,
-            Text: 'January'
-        },
-        {
-            Value: 2,
-            Text: 'February'
-        },
-        {
-            Value: 3,
-            Text: 'March'
-        },
-        {
-            Value: 4,
-            Text: 'April'
-        },
-        {
-            Value: 5,
-            Text: 'May'
-        },
-        {
-            Value: 6,
-            Text: 'June'
-        },
-        {
-            Value: 7,
-            Text: 'July'
-        },
-        {
-            Value: 8,
-            Text: 'August'
-        },
-        {
-            Value: 9,
-            Text: 'September'
-        },
-        {
-            Value: 10,
-            Text: 'October'
-        },
-        {
-            Value: 11,
-            Text: 'November'
-        },
-        {
-            Value: 12,
-            Text: 'December'
-        }
-    ];
-    $scope.changeMonth = function () {
-        $scope.monthName = $.grep($scope.monthList, function (item) {
-            return item.Value == $scope.voucher.MonthNo;
-        })[0].Text;
-    }
+    //cboService.getCboLeaveYear(function (result) {
+    //    $scope.yearList = result;
+    //});
+    //$scope.monthList = [
+    //    {
+    //        Value: 1,
+    //        Text: 'January'
+    //    },
+    //    {
+    //        Value: 2,
+    //        Text: 'February'
+    //    },
+    //    {
+    //        Value: 3,
+    //        Text: 'March'
+    //    },
+    //    {
+    //        Value: 4,
+    //        Text: 'April'
+    //    },
+    //    {
+    //        Value: 5,
+    //        Text: 'May'
+    //    },
+    //    {
+    //        Value: 6,
+    //        Text: 'June'
+    //    },
+    //    {
+    //        Value: 7,
+    //        Text: 'July'
+    //    },
+    //    {
+    //        Value: 8,
+    //        Text: 'August'
+    //    },
+    //    {
+    //        Value: 9,
+    //        Text: 'September'
+    //    },
+    //    {
+    //        Value: 10,
+    //        Text: 'October'
+    //    },
+    //    {
+    //        Value: 11,
+    //        Text: 'November'
+    //    },
+    //    {
+    //        Value: 12,
+    //        Text: 'December'
+    //    }
+    //];
+    //$scope.changeMonth = function () {
+    //    $scope.monthName = $.grep($scope.monthList, function (item) {
+    //        return item.Value == $scope.voucher.MonthNo;
+    //    })[0].Text;
+    //}
     $scope.getFiscalYearPeriod = function (date) {
         if (!baseService.isUndefinedOrNull(date)) {
             $http({
@@ -279,24 +279,24 @@ function finalSettlementPostController(cboService, commonMessage, $scope, $rootS
         }
     };
 
-    $scope.takeAwaylist = [];
-    $scope.cTClist = [];
-    $scope.take = {};
-    $scope.take.TakeAway = 'TakeAway';
-    $scope.CT = {};
-    $scope.CT.CTC = 'CTC';
-    $scope.takeAwaylist.push($scope.take);
-    $scope.cTClist.push($scope.CT);
+    //$scope.takeAwaylist = [];
+    //$scope.cTClist = [];
+    //$scope.take = {};
+    //$scope.take.TakeAway = 'TakeAway';
+    //$scope.CT = {};
+    //$scope.CT.CTC = 'CTC';
+    //$scope.takeAwaylist.push($scope.take);
+    //$scope.cTClist.push($scope.CT);
 
     $scope.salaryLockPayableGLData = [];
-    $scope.EmployeeListNew = [];
+    //$scope.EmployeeListNew = [];
     $scope.getSalaryLockPayableGL = function () {
 
         $scope.salaryLockPayableGLData = [];
         $http({
             method: "POST",
-            url: "Accounts/SalaryDisbursement/GetDirectSalaryPayableDisbursementDataList",
-            data: { 'yearNo': $scope.voucher.YearNo, 'monthNo': $scope.voucher.MonthNo, 'disbursementAdviceId': $scope.voucher.DisbursementAdviceId, 'employeeListNew': $scope.EmployeeListNew },
+            url: "Accounts/SalaryDisbursement/GetFinalSettlementDisbursementJVDataList",
+            data: { 'voucherVM': $scope.voucher, 'disbursementAdviceId': $scope.voucher.DisbursementAdviceId },
             dataType: 'JSON'
             , contentType: "application/json charset=utf-8"
         }).then(function successCallback(response) {
@@ -304,27 +304,27 @@ function finalSettlementPostController(cboService, commonMessage, $scope, $rootS
         });
     };
 
-    $scope.employeeDisbursementDataList = [];
-    $scope.GetemployeeDisbursement = function () {
-        $scope.employeeDisbursementDataList = [];
-        $http({
-            method: "GET",
-            dataType: 'JSON',
-            url: 'Accounts/SalaryDisbursement/GetEmployeeDisbursementDataList?yearNo=' + $scope.voucher.YearNo + '&monthNo=' + $scope.voucher.MonthNo + '&disbursementAdviceId=' + $scope.voucher.DisbursementAdviceId,
+    //$scope.employeeDisbursementDataList = [];
+    //$scope.GetemployeeDisbursement = function () {
+    //    $scope.employeeDisbursementDataList = [];
+    //    $http({
+    //        method: "GET",
+    //        dataType: 'JSON',
+    //        url: 'Accounts/SalaryDisbursement/GetEmployeeDisbursementDataList?yearNo=' + $scope.voucher.YearNo + '&monthNo=' + $scope.voucher.MonthNo + '&disbursementAdviceId=' + $scope.voucher.DisbursementAdviceId,
             
-        }).then(function successCallback(response) {
-            if (response.data.length > 0) {
-                $scope.empGrid = true;
-                $scope.employeeDisbursementDataList = response.data;
-                $scope.EmployeeListNew = $scope.employeeDisbursementDataList;
-                $scope.getSalaryLockPayableGL();
-            }
-            else {
-                ShowResult("No Data Found", 'failure');
-                $scope.empGrid = false;
-            }
-        });
-    };
+    //    }).then(function successCallback(response) {
+    //        if (response.data.length > 0) {
+    //            $scope.empGrid = true;
+    //            $scope.employeeDisbursementDataList = response.data;
+    //            $scope.EmployeeListNew = $scope.employeeDisbursementDataList;
+    //            $scope.getSalaryLockPayableGL();
+    //        }
+    //        else {
+    //            ShowResult("No Data Found", 'failure');
+    //            $scope.empGrid = false;
+    //        }
+    //    });
+    //};
 
     $scope.removeRow = function (index) {
         var row = $scope.voucherDetailList[index];
@@ -474,7 +474,7 @@ function finalSettlementPostController(cboService, commonMessage, $scope, $rootS
 
     }
 
-    $scope.tab = 1;
+    $scope.tab = 2;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
     };
@@ -500,22 +500,22 @@ function finalSettlementPostController(cboService, commonMessage, $scope, $rootS
         $scope.paymentModeList = response.data;
         });
 
-    $scope.bankList = [];
-    $scope.getBank = function () {
-        $http({
-            method: 'GET',
-            url: 'Accounts/salarydisbursement/GetBankList?yearNo=' + $scope.voucher.YearNo + '&monthNo=' + $scope.voucher.MonthNo
-        }).then(function successCallback(response) {
-            $scope.bankList = response.data;
-        });
-    }
+    //$scope.bankList = [];
+    //$scope.getBank = function () {
+    //    $http({
+    //        method: 'GET',
+    //        url: 'Accounts/salarydisbursement/GetBankList?yearNo=' + $scope.voucher.YearNo + '&monthNo=' + $scope.voucher.MonthNo
+    //    }).then(function successCallback(response) {
+    //        $scope.bankList = response.data;
+    //    });
+    //}
     $scope.changePaymentMode = function () {
         if ($scope.voucher.PaymentMode == 'Bank') {
             $scope.voucher.PaymentSource = $scope.voucher.PaymentMode;
             $scope.voucher.CashMasterId = null;
             $scope.voucher.CashCurrencyId = null;
             $scope.voucher.CashName = null;
-            $scope.getBank();
+            //$scope.getBank();
         }
         else {
             $scope.voucher.PaymentSource = $scope.voucher.PaymentMode;
@@ -602,12 +602,15 @@ function finalSettlementPostController(cboService, commonMessage, $scope, $rootS
                 $scope.voucher.CashMasterId = cash.Id;
                 $scope.voucher.CashCurrencyId = cash.CurrencyId;
                 $scope.voucher.CashName = cash.CashName;
+                $scope.voucher.GLGeneralInfoCode = cash.GLGeneralInfoCode;
                 $scope.voucher.GLGeneralInfoId = cash.GLGeneralInfoId;
-                $scope.voucher.GLGeneralInfoName = cash.GLItem;
+                $scope.voucher.GLGeneralInfoName = cash.GLGeneralInfoCode + "-" + cash.GLGeneralInfoName;
                 $scope.voucher.BudgetName = cash.BudgetName;
                 $scope.voucher.BudgetMasterId = cash.BudgetMasterId;
                 $scope.voucher.ActivityId = cash.ActivityId;
                 $scope.voucher.ActivityName = cash.ActivityName;
+
+                $scope.getSalaryLockPayableGL();
                 $scope.checkCashAmount();
             }
         }
@@ -623,12 +626,15 @@ function finalSettlementPostController(cboService, commonMessage, $scope, $rootS
                 $scope.voucher.BankMasterId = bank.BankMasterId;
                 $scope.voucher.BankCurrencyId = bank.CurrencyId;
 
+                $scope.voucher.GLGeneralInfoCode = bank.GLGeneralInfoCode;
                 $scope.voucher.GLGeneralInfoId = bank.GLGeneralInfoId;
-                $scope.voucher.GLGeneralInfoName = bank.GLGeneralInfoName;
+                $scope.voucher.GLGeneralInfoName = bank.GLGeneralInfoCode + "-" + bank.GLGeneralInfoName;
                 $scope.voucher.BudgetMasterId = bank.BudgetMasterId;
                 $scope.voucher.BudgetName = bank.BudgetName;
                 $scope.voucher.ActivityId = bank.ActivityId;
                 $scope.voucher.ActivityName = bank.ActivityName;
+
+                $scope.getSalaryLockPayableGL();
                 $scope.checkBankAmount();
         }
         $scope.hideBankPopUp();
@@ -744,7 +750,7 @@ function finalSettlementPostController(cboService, commonMessage, $scope, $rootS
     $scope.masterList = [];
     $scope.getMasterData = function () {
         $scope.masterList = [];
-        $http.get("Accounts/SalaryDisbursement/GetDisbursementAdviceData")
+        $http.get("Accounts/SalaryDisbursement/GetFinalSettlementDataForDisbursement")
             .then(
                 function successCallback(response) {
                     $scope.masterList = response.data;
@@ -762,166 +768,165 @@ function finalSettlementPostController(cboService, commonMessage, $scope, $rootS
     $scope.SelectMaster = function (x) {
         var data = x.data;
         $scope.voucher.DisbursementAdviceId = data.Id;
-        $scope.voucher.YearNo = data.YearNo;
-        $scope.voucher.MonthNo = data.MonthNo;
-        $scope.voucher.MonthName = data.MonthName;
+        $scope.voucher.EmpSystemId = data.EmpSystemId;
+        $scope.voucher.EmployeeId = data.EmpSystemId;
+        $scope.voucher.EmployeeCode = data.EmployeeCode;
+        $scope.voucher.EmployeeName = data.EmployeeName;
         $scope.voucher.PaymentMode = data.PaymentMode;
         $scope.voucher.PaymentSource = data.PaymentMode;
-
-        $scope.GetemployeeDisbursement();
-        
+        $scope.getSalaryLockPayableGL();
         
         angular.element(document.querySelector('#DisbursementAdvicepopUp')).modal('hide');
     };
-    $scope.EmployeeListNew = [];
-    $scope.pushInTempListforProcess = function (event, data) {
-        try {
-            if (event.currentTarget.checked) {
-                if (checkExistTempListforConfirm($scope.EmployeeListNew, data.EmpSystemId) === false) {
-                    $scope.EmployeeListNew.push(data);
-                }
-                else {
-                    for (var i = 0; i < baseService.arrayLength($scope.EmployeeListNew); i++) {
-                        if ($scope.EmployeeListNew[i].EmpSystemId === data.EmpSystemId) {
-                            $scope.EmployeeListNew.splice(i, 1);
-                            break;
-                        }
-                    }
+    //$scope.EmployeeListNew = [];
+    //$scope.pushInTempListforProcess = function (event, data) {
+    //    try {
+    //        if (event.currentTarget.checked) {
+    //            if (checkExistTempListforConfirm($scope.EmployeeListNew, data.EmpSystemId) === false) {
+    //                $scope.EmployeeListNew.push(data);
+    //            }
+    //            else {
+    //                for (var i = 0; i < baseService.arrayLength($scope.EmployeeListNew); i++) {
+    //                    if ($scope.EmployeeListNew[i].EmpSystemId === data.EmpSystemId) {
+    //                        $scope.EmployeeListNew.splice(i, 1);
+    //                        break;
+    //                    }
+    //                }
 
-                    $scope.EmployeeListNew.push(data);
-                }
-            }
-            else {
-                for (var t = 0; t < baseService.arrayLength($scope.EmployeeListNew); t++) {
-                    if ($scope.EmployeeListNew[t].EmpSystemId === data.EmpSystemId) {
-                        $scope.EmployeeListNew.splice(t, 1);
-                        break;
-                    }
-                }
-            }
-            $scope.getSalaryLockPayableGL();
-        } catch (e) {
-            event.currentTarget.checked = false;
-            ShowResult(e, "failure");
-        }
-    }
+    //                $scope.EmployeeListNew.push(data);
+    //            }
+    //        }
+    //        else {
+    //            for (var t = 0; t < baseService.arrayLength($scope.EmployeeListNew); t++) {
+    //                if ($scope.EmployeeListNew[t].EmpSystemId === data.EmpSystemId) {
+    //                    $scope.EmployeeListNew.splice(t, 1);
+    //                    break;
+    //                }
+    //            }
+    //        }
+    //        $scope.getSalaryLockPayableGL();
+    //    } catch (e) {
+    //        event.currentTarget.checked = false;
+    //        ShowResult(e, "failure");
+    //    }
+    //}
 
-    function checkExistTempListforConfirm(list, empSystemId) {
-        for (var i = 0; i < baseService.arrayLength(list); i++) {
-            if (list[i].EmpSystemId === empSystemId) {
-                return true;
-            }
-        }
-        return false;
-    }
-    $scope.refreshTemplateEmployee = function (args) {
-        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmployee });
-    };
+    //function checkExistTempListforConfirm(list, empSystemId) {
+    //    for (var i = 0; i < baseService.arrayLength(list); i++) {
+    //        if (list[i].EmpSystemId === empSystemId) {
+    //            return true;
+    //        }
+    //    }
+    //    return false;
+    //}
+    //$scope.refreshTemplateEmployee = function (args) {
+    //    $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmployee });
+    //};
 
-    function CheckBoxSelectAllEmployee(e) {
-        var ChkOrUnchk = false;
-        if (e.model.checkState === "check") {
-            ChkOrUnchk = true;
+    //function CheckBoxSelectAllEmployee(e) {
+    //    var ChkOrUnchk = false;
+    //    if (e.model.checkState === "check") {
+    //        ChkOrUnchk = true;
 
-        }
+    //    }
 
-        var filtered = $("#empInfoGrid").data("ejGrid").getFilteredRecords();
-        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.employeeDisbursementDataList.length; i++) {
-                $scope.employeeDisbursementDataList[i].isSelected = ChkOrUnchk;
-            }
-        }
-        else {
+    //    var filtered = $("#empInfoGrid").data("ejGrid").getFilteredRecords();
+    //    if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+    //        for (var i = 0; i < $scope.employeeDisbursementDataList.length; i++) {
+    //            $scope.employeeDisbursementDataList[i].isSelected = ChkOrUnchk;
+    //        }
+    //    }
+    //    else {
 
-            for (var j = 0; j < filtered.length; j++) {
+    //        for (var j = 0; j < filtered.length; j++) {
 
-                filtered[j].isSelected = ChkOrUnchk;
-            }
-        }
-        var gridObj = $("#empInfoGrid").data("ejGrid");
-        gridObj.refreshContent();
-        $scope.EmployeeListNew = [];
-        for (var i = 0; i < $scope.employeeDisbursementDataList.length; i++) {
-            if ($scope.employeeDisbursementDataList[i].isSelected) {
-                $scope.EmployeeListNew.push($scope.employeeDisbursementDataList[i]);
-            }
-        }
-        $scope.getSalaryLockPayableGL();
-    };
+    //            filtered[j].isSelected = ChkOrUnchk;
+    //        }
+    //    }
+    //    var gridObj = $("#empInfoGrid").data("ejGrid");
+    //    gridObj.refreshContent();
+    //    $scope.EmployeeListNew = [];
+    //    for (var i = 0; i < $scope.employeeDisbursementDataList.length; i++) {
+    //        if ($scope.employeeDisbursementDataList[i].isSelected) {
+    //            $scope.EmployeeListNew.push($scope.employeeDisbursementDataList[i]);
+    //        }
+    //    }
+    //    $scope.getSalaryLockPayableGL();
+    //};
 
-    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    //$scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
-    $scope.XlsSalaryDisbursement = function () {
-        var dataList = [];
-        var newDataList = [];
-        var g = $("#empInfoGrid").data("ejGrid");
-        dataList = g.getFilteredRecords();
-        var obj = {};
+    //$scope.XlsSalaryDisbursement = function () {
+    //    var dataList = [];
+    //    var newDataList = [];
+    //    var g = $("#empInfoGrid").data("ejGrid");
+    //    dataList = g.getFilteredRecords();
+    //    var obj = {};
 
-        if (dataList.length == 0) {
+    //    if (dataList.length == 0) {
 
-            dataList = $scope.employeeDisbursementDataList;
-        }
+    //        dataList = $scope.employeeDisbursementDataList;
+    //    }
 
-        for (let i = 0; i < dataList.length; i++) {
-            obj.DisbursementAdviceId = dataList[i].DisbursementAdviceId;
-            obj.AdviceDate = dataList[i].AdviceDate;
-            obj.Remarks = dataList[i].Remarks;
-            obj.AddedBy = dataList[i].AddedBy;
-            obj.Year = dataList[i].YearNo;
-            obj.Month = dataList[i].MonthName;
-            obj.EmployeeCode = dataList[i].EmployeeCode;
-            obj.EmployeeName = dataList[i].EmployeeName;
-            obj.Designation = dataList[i].Designation;
-            obj.Department = dataList[i].Department;
-            obj.EmployeeCategory = dataList[i].EmployeeCategory;
-            obj.Plant = dataList[i].Plant;
-            obj.Section = dataList[i].Section;
-            obj.SubSection = dataList[i].SubSection;
-            obj.Unit = dataList[i].Unit;
-            obj.DOJ = dataList[i].DOJ;
-            obj.DOS = dataList[i].DOS;
-            obj.CurrentMonthEmployeeStatus = dataList[i].CurrentMonthEmployeeStatus;
-            obj.EmployeeStatus = dataList[i].EmployeeStatus;
-            obj.PaymentMode = dataList[i].PaymentMode;
-            obj.BankName = dataList[i].BankName;
-            obj.BankAccNo = dataList[i].BankAccNo;
-            obj.IFSCCode = dataList[i].IFSCCode;
-            obj.VoucherNo = dataList[i].VoucherNo;
-            obj.PayableVoucherNo = dataList[i].PayableVoucherNo;
-            obj.NetPayment = dataList[i].Amount;
-            newDataList.push(obj);
-            obj = {};
-        }
-        $scope.fileName = 'SalaryDisbursement';
-        $http({
-            method: "POST",
-            url: $scope.exportgriddataUrl,
-            data: {
-                'data': newDataList,
-                'reportFileName': $scope.fileName,
+    //    for (let i = 0; i < dataList.length; i++) {
+    //        obj.DisbursementAdviceId = dataList[i].DisbursementAdviceId;
+    //        obj.AdviceDate = dataList[i].AdviceDate;
+    //        obj.Remarks = dataList[i].Remarks;
+    //        obj.AddedBy = dataList[i].AddedBy;
+    //        obj.Year = dataList[i].YearNo;
+    //        obj.Month = dataList[i].MonthName;
+    //        obj.EmployeeCode = dataList[i].EmployeeCode;
+    //        obj.EmployeeName = dataList[i].EmployeeName;
+    //        obj.Designation = dataList[i].Designation;
+    //        obj.Department = dataList[i].Department;
+    //        obj.EmployeeCategory = dataList[i].EmployeeCategory;
+    //        obj.Plant = dataList[i].Plant;
+    //        obj.Section = dataList[i].Section;
+    //        obj.SubSection = dataList[i].SubSection;
+    //        obj.Unit = dataList[i].Unit;
+    //        obj.DOJ = dataList[i].DOJ;
+    //        obj.DOS = dataList[i].DOS;
+    //        obj.CurrentMonthEmployeeStatus = dataList[i].CurrentMonthEmployeeStatus;
+    //        obj.EmployeeStatus = dataList[i].EmployeeStatus;
+    //        obj.PaymentMode = dataList[i].PaymentMode;
+    //        obj.BankName = dataList[i].BankName;
+    //        obj.BankAccNo = dataList[i].BankAccNo;
+    //        obj.IFSCCode = dataList[i].IFSCCode;
+    //        obj.VoucherNo = dataList[i].VoucherNo;
+    //        obj.PayableVoucherNo = dataList[i].PayableVoucherNo;
+    //        obj.NetPayment = dataList[i].Amount;
+    //        newDataList.push(obj);
+    //        obj = {};
+    //    }
+    //    $scope.fileName = 'SalaryDisbursement';
+    //    $http({
+    //        method: "POST",
+    //        url: $scope.exportgriddataUrl,
+    //        data: {
+    //            'data': newDataList,
+    //            'reportFileName': $scope.fileName,
 
-            },
+    //        },
 
-            dataType: 'JSON',
+    //        dataType: 'JSON',
 
-        })
-            .then(function successCallback(response) {
+    //    })
+    //        .then(function successCallback(response) {
 
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
+    //            if (response.data.Error === true) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            }
+    //            else {
 
-                    $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+    //                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
 
-                }
-            }, function errorCallback(response) {
-                ShowResult(response.data.Message, 'failure');
-            });
+    //            }
+    //        }, function errorCallback(response) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        });
 
-    };
+    //};
 
     $scope.summaryfileName = "Salary Disbursement.xlsx"
     $scope.XlsSalaryDisbursementVoucherWiseReport = function (PayableVoucherId) {
