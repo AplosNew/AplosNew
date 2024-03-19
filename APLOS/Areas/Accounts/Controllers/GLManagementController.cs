@@ -49,7 +49,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         #endregion Constructor
 
- 
+
         public ActionResult GLManagement()
         {
             return View();
@@ -216,10 +216,10 @@ namespace Aplos.Areas.Accounts.Controllers
             try
             {
                 DataSet dsMaster;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1"); 
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagement] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-                  
-                string _detaliId = null; 
+
+                string _detaliId = null;
                 string _Id = "";
                 bplib.clsGenID genid = new bplib.clsGenID();
 
@@ -248,7 +248,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
- 
+
         [HttpPost, Authorize]
         public JsonResult CreateGlManagementEmployeeCategory(Dictionary<string, object> data, string GlManagementId)
         {
@@ -256,10 +256,10 @@ namespace Aplos.Areas.Accounts.Controllers
             {
                 DataSet dsEmpCat;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementEmployeeCategory] where Id='" + data["Id"] + "'", out dsEmpCat, false, "1");
-                 
-                string Id = "";
 
+                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementEmployeeCategory] where Id='" + data["Id"] + "'", out dsEmpCat, false, "1");
+
+                string Id = "";
                 #region data update
                 if (dsEmpCat.Tables[0].Rows.Count == 0)
                 {
@@ -271,56 +271,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     dr = dsEmpCat.Tables[0].NewRow();
 
                     dr["Id"] = Id;
-                    dr["EmployeeCategoryId"] = data["EmployeeCategoryId"]; 
-                    dr["GlManagementId"] = GlManagementId; 
-
-                    dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = System.DateTime.Now.ToString();
-                    dr["AddedFromIP"] = identity.IPAddress;
-                    dr["UpdatedBy"] = identity.Name;
-                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                    dr["UpdatedFromIP"] = identity.IPAddress;
-                    dsEmpCat.Tables[0].Rows.Add(dr); 
-                }
-                else
-                {
-                    Id = data["Id"].ToString();
-                    EditRow(dsEmpCat.Tables[0].Rows[0], data);
-                }
-                
-                #endregion data update 
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsEmpCat); 
-                return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated }); 
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }); 
-            }
-        }
-        [HttpPost, Authorize]
-        public JsonResult CreateGlManagementDesignation(Dictionary<string, object> data, string GlManagementId)
-        {
-            try
-            {
-                DataSet dsEmpCat;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementDesignation] where Id='" + data["Id"] + "'", out dsEmpCat, false, "1");
-
-                string Id = "";
-
-                #region data update
-                if (dsEmpCat.Tables[0].Rows.Count == 0)
-                {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementDesignation", out Id);
-
-                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                    DataRow dr;
-                    dr = dsEmpCat.Tables[0].NewRow();
-
-                    dr["Id"] = Id;
-                    dr["DesignationId"] = data["DesignationId"];
+                    dr["EmployeeCategoryId"] = data["EmployeeCategoryId"];
                     dr["GlManagementId"] = GlManagementId;
 
                     dr["AddedBy"] = identity.Name;
@@ -335,6 +286,57 @@ namespace Aplos.Areas.Accounts.Controllers
                 {
                     Id = data["Id"].ToString();
                     EditRow(dsEmpCat.Tables[0].Rows[0], data);
+                }
+
+                #endregion data update 
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsEmpCat);
+                return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        [HttpPost, Authorize]
+        public JsonResult CreateGlManagementDesignation(List<Dictionary<string, object>> data, string GlManagementId)
+        {
+            try
+            {
+                DataSet dsEmpCat;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementDesignation] where GlManagementId='" + GlManagementId + "'", out dsEmpCat, false, "1");
+
+                string Id = "";
+
+                #region data update
+                foreach (var item in data)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementDesignation", out Id);
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                     
+                    //DataRow dr;
+                    //dr = dsEmpCat.Tables[0].NewRow();
+                    DataView dv = new DataView(dsEmpCat.Tables[0]);
+                    dv.RowFilter = "Id='" + item["DesignationId"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+
+                        item["Id"] = Id;
+                        //item["DesignationId"] = item["Id"];
+                        item["GlManagementId"] = GlManagementId;
+                         
+                        AddNewRow(dsEmpCat.Tables[0], item);
+                    }
+                    else
+                    { 
+                        DataRow drmo = dv[0].Row;
+                        item["Id"] = dv[0].Row["Id"].ToString();
+                        EditRow(drmo, item);
+                    }
+
                 }
 
                 #endregion data update 
@@ -526,7 +528,7 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             try
             {
-                var sql = @"select ec.UserName as EmployeeCategory,glmec.EmployeeCategoryId as EmployeeCategoryId
+                var sql = @"select ec.UserName as EmployeeCategory,glmec.EmployeeCategoryId
                             from [HKP].[GLManagementEmployeeCategory] glmec 
                             left join [HKP].[EmployeeCategory] ec on ec.Id=glmec.EmployeeCategoryId
 							where glmec.GLManagementId = '" + glManagementId + "' ";
@@ -538,12 +540,21 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+        [HttpGet, Authorize]
+        public ActionResult GetDesignationInformation()
+        {
+            string sql = @"SELECT Id DesignationId, Sequence,Code,ShortName,StandardName,UserName FROM [HKP].[Designation]                            
+                         WHERE Active=1";
+            var data = _sqlRepository.GetDataCollection(sql);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize]
         public ActionResult GetDesignationData(string glManagementId)
         {
             try
             {
-                var sql = @"select D.UserName as Designation,GLMD.DesignationId
+                var sql = @"select D.UserName as Designation,GLMD.DesignationId,D.Sequence,D.Code
                             from [HKP].[GLManagementDesignation] GLMD 
                             left join [HKP].[Designation] D on D.Id=GLMD.DesignationId
 							where GLMD.GLManagementId = '" + glManagementId + "' ";
