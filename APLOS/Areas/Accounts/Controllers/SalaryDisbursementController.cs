@@ -650,6 +650,111 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 
         }
+        [HttpGet, Authorize]
+        public JsonResult GetFinalSettlementDataForDisbursement()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sql = @"SELECT  [Id], [EmpSystemId], [SeparationTypeId], FORMAT([FinalSettlementDate],'dd-MMM-yyyy')[FinalSettlementDate], [FormulaDes], [PolicyYearNo], [PolicyDayNo], [SeparationTypeAmount], 
+	                    [GratuityAmount], [LvEncashmentAmount], [EarningAmount], [DeductionAmount], [GrossAmount], [BasicAmount], [OTRate], [SalaryRate], [TenureDayNo]
+	                    , [TenureMonthNo], [TenureYearNo], [Remarks], [EarnLvDeductionDayNo], [EarnLvDeductionAmount], [TotalRetainedAmount], [NoticePeriodDayNo]
+	                    , [NoticePeriodAmount], [NoticePeriodRate], [NoticePeriodType], [PolicyFixedDayNo], [FixedDayAmount], [LvEncashmentDayNo], [LvEncashmentRateAmount]
+	                    , [LastMonthProcDay], [LastMonthNetPayAmount], [LastMonthAbsentDay], [LastMonthOTHour], [StampAmount], [LastMonthGrossAmount], [LastMonthAbsenteeismAmount], [LastMonthOTAmount]
+	                    , [TotalPayableAmount], [TotalDeductionAmount], [NetPayAmount], [GratuityDayOrYear], [GratuityNoOfDaysOrYear], [GratuityRate], [DisbursementVoucherId]
+	                    , ISNULL(E.EmployeeCode,'') EmployeeCode ,ISNULL(E.EmployeeName,'') EmployeeName	
+	                    FROM [dbo].[EmployeeFinalSettlement] EFS
+	                    LEFT JOIN EmployeeInformation E on E.SystemId= EFS.EmpSystemId
+	                    WHERE  DisbursementVoucherId IS NULL ";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+
+        }
+        [Authorize, HttpPost]
+        public JsonResult GetFinalSettlementDisbursementJVDataList(VoucherViewModel voucherVM,string disbursementAdviceId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+           
+            string sql = null;
+            sql = @"SELECT
+                OtherName,TrnType,X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAmount) CrAmount,SUM(X.Amount) Amount,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
+                FROM
+                (
+                select 'Salary' AS OtherName, 'Dr' AS TrnType
+                , DrAmount =case when SUM(spc.DisbusmentAmount) < 0 then SUM(spc.DisbusmentAmount) * -1 else SUM(spc.DisbusmentAmount) end
+                , 0 CrAmount 
+                , SUM(spc.DisbusmentAmount) Amount
+                ,vd.GLGeneralInfoId , vd.BudgetMasterId,vd.ActivityId, CDGL.AccountCode + ' - ' + CDGL.UserName GLName
+                , CDB.UserName BudgetName, CDA.UserName ActivityName
+                from[dbo].[SalaryLock] sl
+                left join dbo.SalaryProcMaster spm on   spm.MonthNo = sl.MonthNo and spm.YearNo = sl.YearNo
+                left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID = spm.SystemID and sl.EmpSystemId = spc.EmpInfoSystemID
+                left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
+                left join dbo.SalaryHead sh on sh.SalaryHeadID = spc.SalaryHeadID
+                left join trn.Voucher v on v.Id=sl.PayableVoucherId
+				left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Net Pay' and vd.SalaryHeadId=sh.SalaryHeadID and Vd.AccountsGroupId=sl.AccountsGroupId
+				LEFT JOIN HKP.GLGeneralInfo CDGL ON CDGL.Id=vd.GLGeneralInfoId
+                LEFT JOIN MST.BudgetMaster CDBM ON CDBM.Id=vd.BudgetMasterId
+                LEFT JOIN HKP.Budget CDB ON CDB.Id=CDBM.BudgetId
+                LEFT JOIN HKP.Activity CDA ON CDA.Id=vd.ActivityId
+                where sl.EmpSystemId = '" + voucherVM.EmployeeId + @"'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL 
+                and sl.EmployeeFinalSettlementId = '" + disbursementAdviceId + @"'
+                and ISNULL(sh.SalaryHead, '')  in ('Net Pay') and spc.DisbusmentAmount != 0     
+                group by sh.SalaryHead, sl.YearNo, sl.MonthNo, sh.HeadType, sh.[Sequence]
+                ,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId
+                , CDGL.AccountCode, CDGL.UserName, CDB.UserName, CDA.UserName
+
+                Union All
+				SELECT  'FinalSettlementAdjustment' AS OtherName, 'Dr' AS TrnType
+                , CASE WHEN (NetPayAmount-LastMonthNetPayAmount)>0 THEN (NetPayAmount-LastMonthNetPayAmount) ELSE 0 END DrAmount 
+                , 0 CrAmount 
+                , (NetPayAmount-LastMonthNetPayAmount) Amount
+                ,GAD.GLGeneralInfoId  ,GAD.BudgetMasterId,GAD.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
+                , B.UserName BudgetName,A.UserName ActivityName 
+				FROM [dbo].[EmployeeFinalSettlement] EFS
+				LEFT JOIN HKP.GeneralAccountDeterminate GAD ON  GAD.Id='FinalSettlementAdjustment'
+				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON GAD.GLGeneralInfoId=GL.Id
+				LEFT JOIN[MST].[BudgetMaster] AS BM ON GAD.BudgetMasterId= BM.Id
+				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+				LEFT JOIN [HKP].[Activity] AS A ON GAD.ActivityId= A.Id
+				WHERE  EFS.Id = '" + disbursementAdviceId + @"'
+
+				Union All
+				SELECT  'FinalSettlementAdjustment' AS OtherName, 'Cr' AS TrnType
+                , 0 DrAmount 
+                , CASE WHEN (LastMonthNetPayAmount-NetPayAmount)>0 THEN (LastMonthNetPayAmount-NetPayAmount) ELSE 0 END CrAmount 
+                , (LastMonthNetPayAmount-NetPayAmount) Amount
+                ,GAD.GLGeneralInfoId  ,GAD.BudgetMasterId,GAD.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
+                , B.UserName BudgetName,A.UserName ActivityName 
+				FROM [dbo].[EmployeeFinalSettlement] EFS
+				LEFT JOIN HKP.GeneralAccountDeterminate GAD ON  GAD.Id='FinalSettlementAdjustment'
+				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON GAD.GLGeneralInfoId=GL.Id
+				LEFT JOIN[MST].[BudgetMaster] AS BM ON GAD.BudgetMasterId= BM.Id
+				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+				LEFT JOIN [HKP].[Activity] AS A ON GAD.ActivityId= A.Id
+				WHERE  EFS.Id = '" + disbursementAdviceId + @"'
+
+                Union All
+				SELECT  'Bank/Cash' AS OtherName, 'Cr' AS TrnType
+                , 0 DrAmount 
+                , NetPayAmount CrAmount 
+                , NetPayAmount Amount
+                ,'" + voucherVM.GLGeneralInfoId + @"' GLGeneralInfoId ,'" + voucherVM.BudgetMasterId + @"' BudgetMasterId,'" + voucherVM.ActivityId + @"' ActivityId
+                , '" + voucherVM.GLGeneralInfoName + @"' GLName , '" + voucherVM.BudgetName + @"' BudgetName,'" + voucherVM.ActivityName + @"' ActivityName 
+				FROM [dbo].[EmployeeFinalSettlement] 
+				WHERE  Id = '" + disbursementAdviceId + @"'
+                        
+                )X
+                WHERE X.Amount>0
+                GROUP BY
+                OtherName,TrnType,X.GLName,X.BudgetName,X.ActivityName,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
+                ORDER BY TrnType DESC";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public JsonResult GetFinalSettlementDisbursementVoucherList(GridParameter parameters)
+        {
+            AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
+            return Json(accountsSalaryPayableService.GetFinalSettlementDisbursementVoucherList(parameters), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public JsonResult GetSalaryPayableDisbursementVoucherList(GridParameter parameters)
