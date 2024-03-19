@@ -1,6 +1,6 @@
 ﻿'use strict';
-GLManagementController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller', 'accountService'];
-function GLManagementController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller, accountService) {
+GLManagementController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller', 'accountService', '$window'];
+function GLManagementController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller, accountService, $window) {
     $rootScope.title = 'GL Management';
     $scope.Action = 'Save';
     $scope.ModelList = [];
@@ -9,6 +9,9 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'CreateGlManagementHeader';
     $scope.saveEmpCatUrl = $scope.path + 'CreateGlManagementEmployeeCategory';
+    $scope.saveDesignationUrl = $scope.path + 'CreateGlManagementDesignation';
+    $scope.savePositionCodeUrl = $scope.path + 'CreateGlManagementPositionCode';
+    $scope.saveBudgetCodeUrl = $scope.path + 'CreateGlManagementBudgetCode';
     $scope.deleteUrl = $scope.path + 'DeleteGlControl/';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
@@ -85,8 +88,8 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.GetEmployeeCategory(args.data.Id);
-        //$scope.selectExpenseGL(args.data.Id);
-        //$scope.GetInventoryGL(args.data.Id);
+        $scope.GetDesignationData(args.data.Id);
+        $scope.GetPositionCodeData(args.data.Id);
         //$scope.GetInventoryCapitalGL(args.data.Id);
         //$scope.GetCapitalGL(args.data.Id);
         $scope.Action = 'Update';
@@ -178,7 +181,8 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    ShowResult(response.data.Message, 'success'); 
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetEmployeeCategory(data);
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -198,174 +202,297 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             }
         })
     }
+    //#region LegalDesignation
 
-    $scope.searchbyMaterialMasterDatalist = [
+    $scope.designation = {
+        Id: null,
+        DesignationId: null,
+        Designation: null
+    };
+    $scope.designationNew = angular.copy($scope.designation);
+     
+    $scope.popUpParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'asc',
+        sort: 'Sequence',
+        searchBy: "UserName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+    $scope.searchByUserList = [
         {
-            'name': 'Material Type',
-            'value': 'MaterialTypeName'
+            'Text': 'Sequence',
+            'Value': 'Sequence'
         },
         {
-            'name': 'Material Group',
-            'value': 'MaterialGroupMasterName'
+            'Text': 'Code',
+            'Value': 'Code'
         },
         {
-            'name': 'Code',
-            'value': 'Code'
+            'Text': 'Short Name',
+            'Value': 'ShortName'
         },
         {
-            'name': 'Product',
-            'value': 'ProductMasterName'
+            'Text': 'Standard Name',
+            'Value': 'StandardName'
         },
         {
-            'name': 'User Name',
-            'value': 'UserName'
-        },
-        {
-            'name': 'Standard Name',
-            'value': 'StandardName'
-        },
-        {
-            'name': 'Short Name',
-            'value': 'ShortName'
-        },
-        {
-            'name': 'IsAsset',
-            'value': 'Asset'
-        },
-        {
-            'name': 'Asset Master',
-            'value': 'AssetMasterName'
-        },
-        {
-            'name': 'Budget Code',
-            'value': 'AssetBudgetCode'
-        },
-        {
-            'name': 'Activity',
-            'value': 'ActivityName'
-        },
-        {
-            'name': 'Id',
-            'value': 'Id'
+            'Text': 'User Name',
+            'Value': 'UserName'
         }
     ];
 
-    $scope.columnExcluedList = ['WithSKU', 'Description', 'Active', 'IsInventory', 'IsExpenseOut', 'IsAsset	', 'AssetMasterName', 'AssetType', 'IsRevenue'];
-    $scope.popUpList = [];
-    $scope.valueData = '';
-    $scope.popUpParameters = {
-        limit: 10
-        , offset: 0
-        , order: 'asc'
-        , sort: 'UserName'
-        , searchBy: "UserName"
-        , pageSize: 10
-        , total_count: 0
-        , search: null
-        , serverPagination: true
-    };
-    $scope.popUp = function () {
-        $scope.popUpUrl = $scope.path + 'GetMaterialList';
+    $scope.flg = null;
+    $scope.popUpLD = function (flg) {
+        $scope.flg = flg;
+        $scope.popUpDataList = [];
+        $scope.popUpList = [];
+        $scope.popUpParameters.sort = 'Sequence';
+        $scope.popUpParameters.searchBy = 'UserName';
+        $scope.popUpUrl = 'employees/RecruitmentApproval/GetDesignationCbo?companyGroupId=' + $window.companyGroupId;
         $scope.getPopUpData = function (pageno) {
             baseService.paginationBase($scope.popUpUrl, pageno, $scope.popUpParameters)
                 .then(function (result) {
                     $scope.popUpDataList = result.Rows;
                     $scope.popUpParameters.total_count = result.Total;
-                    for (var i = 0; i < $scope.popUpDataList.length; i++) {
-                        $scope.ModelNewMat.MaterialTypeId = $scope.popUpDataList[i].MaterialTypeId;
-                        $scope.ModelNewMat.MaterialGroupMasterId = $scope.popUpDataList[i].MaterialGroupMasterId;
-                        $scope.ModelNewMat.MaterialMasterId = $scope.popUpDataList[i].Id;
+                    if (baseService.arrayLength($scope.popUpList) === 0) {
+                        for (var i = 0; i < $scope.searchByUserList.length; i++) {
+                            $scope.popUpList.push($scope.searchByUserList[i]);
+                        } 
                     }
+                    $scope.popUpParameters.sort = 'Sequence';
+                    $scope.popUpParameters.searchBy = 'UserName';
                 }, function () {
                     ShowResult(commonMessage.NetworkError, 'failure', 'popUpId');
                 }).finally(function () {
                 });
         };
-        angular.element(document.querySelector('#popUpId')).modal('show');
+        angular.element(document.querySelector('#LDPopUp')).modal('show');
         $scope.getPopUpData();
+    };
+
+
+    $scope.selectDesignationDoubleClick = function (data) {
+        $scope.designationNew.DesignationId = data.Id;
+        $scope.designationNew.Designation = data.UserName;
+        angular.element(document.querySelector('#LDPopUp')).modal('hide');
     };
 
     $scope.closePopUp = function () {
         $scope.valueData = '';
         angular.element(document.querySelector('#popUpId')).modal('hide');
+        angular.element(document.querySelector('#LDPopUp')).modal('hide');
     };
 
+    $scope.clearDesignaitonCode = function () {
+        $scope.designationNew.DesignationId = null;
+        $scope.designationNew.Designation = null;
+    };
 
-    function checkItemExist(list, Id) {
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].MaterialMasterId === Id) {
-                return true;
-            }
+    $scope.SaveDesignation = function () {
+        if (baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+            return ShowResult('Please select GL Management!', 'failure');
         }
-        return false;
+        $http({
+            method: 'POST',
+            url: $scope.saveDesignationUrl,
+            data: { 'data': $scope.designationNew, 'GlManagementId': $scope.ModelNew.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+    $scope.DesignationList = [];
+    $scope.GetDesignationData = function (data) {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetDesignationData",
+            data: { 'glManagementId': data },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.DesignationList = response.data;
+            for (var i = 0; i < $scope.DesignationList.length; i++) {
+                $scope.designationNew.Designation = $scope.DesignationList[i].Designation;
+            }
+        })
     }
+    //#endregion LegalDesignation
+
+    //#region position
+    $scope.position = {
+        Id: null
+        , PositionCodeId: null
+        , PositionCode: null 
+    };
+    $scope.positionNew = Object.assign({}, $scope.position);
+
+    $scope.selectPositionCode = function () {
+        $scope.getPositionCode();
+        angular.element(document.querySelector('#PositionCodePopUp')).modal('show');
+    }
+
+    $scope.PositionCodeList = [];
+    $scope.getPositionCode = function () {
+        $http({
+            method: 'Get',
+            url: $scope.path + 'GetPositionCode',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.PositionCodeList = resp.data;
+        });
+    }
+
+    $scope.doublePositionCode = function (e) {
+        $scope.positionNew.PositionCodeId = e.data.Id;
+        $scope.positionNew.PositionCode = e.data.Code;
+        angular.element(document.querySelector('#PositionCodePopUp')).modal('hide');
+    }
+
+    $scope.closePositionCodePopUp = function () {
+        angular.element(document.querySelector('#PositionCodePopUp')).modal('hide');
+    }
+
+    $scope.SavePositionCode = function () {
+        if (baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+            return ShowResult('Please select GL Management!', 'failure');
+        }
+        $http({
+            method: 'POST',
+            url: $scope.savePositionCodeUrl,
+            data: { 'data': $scope.positionNew, 'GlManagementId': $scope.ModelNew.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+    $scope.PositionCodeList = [];
+    $scope.GetPositionCodeData = function (data) {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetPositionCodeData",
+            data: { 'glManagementId': data },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.PositionCodeList = response.data;
+            for (var i = 0; i < $scope.PositionCodeList.length; i++) {
+                $scope.positionNew.PositionCode = $scope.PositionCodeList[i].Code;
+            }
+        })
+    }
+     //#endregion position
+
+     //#region BudgetCode
+    $scope.BudgetCode = {
+        Id: null,
+        BudgetCodeId: null,
+        Code: null 
+    };
+    $scope.BudgetCodeNew = angular.copy($scope.BudgetCode);
+
+    $scope.budgetpopUpParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'asc',
+        sort: 'Code',
+        searchBy: "Code",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+    $scope.BCpopUpTitle = "Manpower Budget";
+    $scope.BudgetCodepopUpDataList = [];
+    $scope.BudgetCodepopUp = function () {
+        $scope.BudgetCodepopUpDataList = [];
+        $scope.BudgetCodepopUpList = [];
+        $scope.popUpUrl = 'employees/recruitment/getbudgetcodelist';
+        //baseService.setCurrentPage('dataList');
+        $scope.BudgetCodegetPopUpData = function (pageno) {
+            baseService.paginationBase($scope.popUpUrl, pageno, $scope.budgetpopUpParameters)
+                .then(function (result) {
+                    $scope.BudgetCodepopUpDataList = result.Rows;
+                    $scope.budgetpopUpParameters.total_count = result.Total;
+                    if (baseService.arrayLength($scope.BudgetCodepopUpList) === 0) {
+                        baseService.getDDLSearchColumn(result.Rows, $scope.BudgetCodepopUpList);
+                    } 
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure', 'BudgetCodepopUpId');
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector('#BudgetCodepopUpId')).modal('show');
+        $scope.BudgetCodegetPopUpData();
+    };
 
     $scope.selectDoubleClick = function (data) {
-        $scope.Type = "Material";
-        if (checkItemExist($scope.MaterialDataList, data.Id) === false) {
-            $scope.MaterialDataList.push({
-                GLControlMasterId: $scope.ModelNew.Id,
-                MaterialMasterId: data.Id,
-                MaterialMaster: data.UserName,
-                Type: $scope.Type
-            });
+        $scope.BudgetCodeNew.BudgetCodeId = data.Id;
+        $scope.BudgetCodeNew.Code = data.Code;
+
+        angular.element(document.querySelector('#BudgetCodepopUpId')).modal('hide');
+    };
+
+    $scope.clearCode = function () {
+        $scope.BudgetCodeNew.BudgetCodeId = null;
+        $scope.BudgetCodeNew.Code = null;
+
+    };
+
+    $scope.SaveBudgetCode = function () {
+        if (baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+            return ShowResult('Please select GL Management!', 'failure');
         }
-        $scope.closePopUp();
-    };
-
-    $scope.selectByButton = function () {
-        if (baseService.isUndefinedOrNull($scope.valueData))
-            return ShowResult('Please at first select row', 'failure', 'popUpId');
-        $scope.selectDoubleClick($scope.valueData);
-        $scope.closePopUp();
-    };
-
-    // #region ---------------------------------      MATERIAL ALLOCACTION GRID      -----------------------------------//
-
-    $scope.MaterialDataList = [];
-    $scope.selectIDs = function (data) {
         $http({
             method: 'POST',
-            url: $scope.path + "selectIDs",
-            data: {
-                'materialType': data.MaterialTypeId,
-                'materialGroup': data.MaterialGroupMasterId,
-                'materialMasterId': data.Id
-            },
+            url: $scope.saveBudgetCodeUrl,
+            data: { 'data': $scope.BudgetCodeNew, 'GlManagementId': $scope.ModelNew.Id },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.MaterialDataList = response.data;
-            //$scope.selectBinIDs();
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+    $scope.BudgetCodeList = [];
+    $scope.GetBudgetCodeData = function (data) {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetBudgetCodeData",
+            data: { 'glManagementId': data },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.BudgetCodeList = response.data;
+            for (var i = 0; i < $scope.BudgetCodeList.length; i++) {
+                $scope.BudgetCodeNew.Code = $scope.BudgetCodeList[i].Code;
+            }
         })
     }
 
-
-    $scope.GetMaterialData = function (data) {
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetMaterialData",
-            data: { 'glControlDetailId': data },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.MaterialDataList = response.data;
-        })
-    }
-
-    $scope.tempIndex = [];
-    $scope.RemoveMaterial = function (data, index) {
-        $scope.tempIndex = index;
-        $scope.materialId = data.MaterialMasterId;
-        $scope.materialMasterDataList = data;
-        if (baseService.isUndefinedOrNull(data.UserName))
-            $scope.message_confirmation = 'Are you sure want to remove this data....';
-        else
-            $scope.message_confirmation = 'Are you sure want to remove ?';
-        angular.element(document.querySelector('#confirmMaterialPopUp')).modal('show');
-    };
-    $scope.RemoveMaterialRow = function () {
-        $scope.MaterialDataList.splice($scope.tempIndex, 1);
-        $scope.DeleteMaterial($scope.materialId, $scope.materialMasterDataList);
-    };
+    //#endregion BudgetCode
 
     $scope.DeleteMaterial = function () {
 

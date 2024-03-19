@@ -448,7 +448,7 @@ namespace Library.Accounting.Accounts
 						, T.ActivityId, T.ActivityCode, T.ActivityName
 						, T.Dr
 						
-						, T.Cr, T.Amount, T.IsAsset,T.InventoryReceiveDetailId
+						, T.Cr, T.Amount, T.IsAsset,T.InventoryReceiveDetailId,T.BudgetActive,T.BudgetMasterActivityActive
 					FROM (
 						SELECT  'Material' AS OtherName, 'Dr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId, NULL AS TaxCodeId,MM.FixedAssetMasterId
 
@@ -464,7 +464,7 @@ namespace Library.Accounting.Accounts
 							
 							, SUM(IRD.TotalMaterialTranAmount ) AS Dr, NULL Cr
 							, SUM(IRD.TotalMaterialTranAmount ) AS Amount
-                            ,MM.IsAsset,IRD.Id AS  InventoryReceiveDetailId
+                            ,MM.IsAsset,IRD.Id AS  InventoryReceiveDetailId,BM.Active BudgetActive,BMA.Active BudgetMasterActivityActive
 						FROM [TRN].[InventoryReceiveDetail] AS IRD
 						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
 						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
@@ -482,14 +482,15 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN[MST].[BudgetMaster] AS BMF ON FAG.AssetUnderConstructionBudgetMasterId= BMF.Id
 						LEFT JOIN [HKP].[Budget] AS BF ON BMF.BudgetId= BF.Id
 						LEFT JOIN [HKP].[Activity] AS AF ON FAG.AssetUnderConstructionActivityId= AF.Id
+						LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.BudgetMasterId=BM.Id AND A.Id=BMA.ActivityId
 						WHERE IRD.InventoryReceiveId=@receiveId
 						GROUP BY MM.MaterialGroupMasterId, MGGL.InventoryGLId, GL.AccountCode, GL.UserName, MGGL.InventoryBudgetMasterId, B.Code, B.UserName, MGGL.InventoryActivityId, A.Code, A.UserName
 					    ,MM.IsAsset,MM.FixedAssetMasterId,FAG.AssetUnderConstructionGLId,GLF.AccountCode,GLF.UserName
 						,FAG.AssetUnderConstructionBudgetMasterId,BF.Code,BF.UserName
-						,FAG.AssetUnderConstructionActivityId,AF.Code,AF.UserName,IRD.Id
+						,FAG.AssetUnderConstructionActivityId,AF.Code,AF.UserName,IRD.Id,BM.Active,BMA.Active
                     ) AS T
 					GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId
-                    , T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId,T.IsAsset, T.InventoryReceiveDetailId
+                    , T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId,T.IsAsset, T.InventoryReceiveDetailId,T.BudgetActive,T.BudgetMasterActivityActive
 					
                    UNION
 				   
@@ -499,7 +500,7 @@ namespace Library.Accounting.Accounts
 						, TCGL.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
 						, SUM(IRT.TaxAmount) AS  Dr, NULL Cr
 						, SUM(IRT.TaxAmount) AS Amount
-                        ,0 IsAsset, NULL InventoryReceiveDetailId
+                        ,0 IsAsset, NULL InventoryReceiveDetailId,BM.Active BudgetActive,BMA.Active BudgetMasterActivityActive
 					FROM [TRN].[InventoryReceiveTax] AS IRT
 					LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRT.InventoryReceiveDetailId=IRD.Id
                     LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -513,8 +514,9 @@ namespace Library.Accounting.Accounts
 					LEFT JOIN [MST].[BudgetMaster] AS BM ON TCGL.BudgetMasterId= BM.Id
 					LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 					LEFT JOIN [HKP].[Activity] AS A ON TCGL.ActivityId= A.Id
+					LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.BudgetMasterId=BM.Id AND A.Id=BMA.ActivityId
 					WHERE IRD.InventoryReceiveId=@receiveId AND TCGL.InputTaxOutPutTax='Input' AND ISNULL(TCGL.TaxType,'')<>'RCM' AND IRT.InventoryReceiveDetailId<>'' AND IR.PurchaseDocumentAcceptanceId IS NULL
-					GROUP BY  IRT.TaxCategoryId, TCGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, TCGL.BudgetMasterId, B.Code, B.UserName, TCGL.ActivityId, A.Code, A.UserName
+					GROUP BY  IRT.TaxCategoryId, TCGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, TCGL.BudgetMasterId, B.Code, B.UserName, TCGL.ActivityId, A.Code, A.UserName,BM.Active ,BMA.Active 
 					UNION
 					SELECT 'TCS' AS OtherName, 'Dr' AS TrnType, NULL MaterialGroupMasterId, TC.TaxCategoryId,IRT.TaxCodeId
 						, TCGL.CreditableGLId  GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
@@ -522,7 +524,7 @@ namespace Library.Accounting.Accounts
 						, TCGL.CreditableGLActivityId ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
 						, SUM(IRT.TaxAmount) AS  Dr, NULL Cr
 						, SUM(IRT.TaxAmount) AS Amount
-                        ,0 IsAsset, NULL InventoryReceiveDetailId
+                        ,0 IsAsset, NULL InventoryReceiveDetailId,BM.Active BudgetActive,BMA.Active BudgetMasterActivityActive
 					FROM [TRN].[InventoryReceiveAdditionalTax] AS IRT
 					LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRT.InventoryReceiveId
 					LEFT JOIN [MST].[TaxCodeGL] AS TCGL ON TCGL.TaxCodeId=IRT.TaxCodeId
@@ -531,9 +533,10 @@ namespace Library.Accounting.Accounts
 					LEFT JOIN [MST].[BudgetMaster] AS BM ON TCGL.CreditableGLBudgetMasterId= BM.Id
 					LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 					LEFT JOIN [HKP].[Activity] AS A ON TCGL.CreditableGLActivityId= A.Id
+					LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.BudgetMasterId=BM.Id AND A.Id=BMA.ActivityId
 					WHERE IR.Id=@receiveId  AND IR.PurchaseDocumentAcceptanceId IS NULL
 					GROUP BY  TC.TaxCategoryId, TCGL.CreditableGLId, GL.AccountCode, GL.UserName, TCGL.CreditableGLBudgetMasterId
-					, B.Code, B.UserName, TCGL.CreditableGLActivityId, A.Code, A.UserName,IRT.TaxCodeId
+					, B.Code, B.UserName, TCGL.CreditableGLActivityId, A.Code, A.UserName,IRT.TaxCodeId,BM.Active ,BMA.Active 
 					UNION
 					SELECT 'Tax' AS OtherName, 'Dr' AS TrnType, NULL AS MaterialGroupMasterId, IRTS.TaxCategoryId, NULL AS TaxCodeId
 						, TCGL.GLGeneralInfoId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
@@ -541,7 +544,7 @@ namespace Library.Accounting.Accounts
 						, TCGL.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
 						, SUM(IRTS.TaxAmount) AS  Dr, NULL Cr
 						, SUM(IRTS.TaxAmount) AS Amount
-                       ,0 IsAsset, NULL InventoryReceiveDetailId
+                       ,0 IsAsset, NULL InventoryReceiveDetailId,BM.Active BudgetActive,BMA.Active BudgetMasterActivityActive
 					--, IRTS.TaxAmount
 					--, IRTS.TaxAmount
 					FROM [TRN].[InventoryReceiveTax] AS IRTS
@@ -553,9 +556,10 @@ namespace Library.Accounting.Accounts
 					LEFT JOIN [MST].[BudgetMaster] AS BM ON TCGL.BudgetMasterId= BM.Id
 					LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 					LEFT JOIN [HKP].[Activity] AS A ON TCGL.ActivityId= A.Id
+					LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.BudgetMasterId=BM.Id AND A.Id=BMA.ActivityId
 					WHERE INS.InventoryReceiveId=@receiveId --AND IR.IsNonCreditable=0 
 					AND IRTS.InventoryServiceId<>'' and INS.IsOtherVendor=0 AND TCGL.InputTaxOutPutTax='Input' AND ISNULL(TCGL.TaxType,'')<>'RCM' AND IR.PurchaseDocumentAcceptanceId IS NULL
-					GROUP BY IRTS.TaxCategoryId, TCGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, TCGL.BudgetMasterId, B.Code, B.UserName, TCGL.ActivityId, A.Code, A.UserName
+					GROUP BY IRTS.TaxCategoryId, TCGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, TCGL.BudgetMasterId, B.Code, B.UserName, TCGL.ActivityId, A.Code, A.UserName,BM.Active ,BMA.Active 
 					UNION
 					SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId, NULL AS TaxCodeId
 						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
@@ -564,7 +568,7 @@ namespace Library.Accounting.Accounts
 						, T.Dr, T.Cr 
                             --+ (ISNULL((SELECT SUM(IRTS.TaxAmount) AS Amount FROM [TRN].[InventoryReceiveTax] AS IRTS JOIN [TRN].[InventoryReceive] AS IR ON IRTS.InventoryReceiveId=IR.Id
 							--WHERE IRTS.InventoryReceiveId=@receiveId AND IRTS.InventoryServiceId<>''),0)/COUNT(*) OVER ()) AS Cr
-						, T.Amount ,T.IsAsset, NULL InventoryReceiveDetailId
+						, T.Amount ,T.IsAsset, NULL InventoryReceiveDetailId,T.BudgetActive,T.BudgetMasterActivityActive
                             --+ (ISNULL((SELECT SUM(IRTS.TaxAmount) AS Amount FROM [TRN].[InventoryReceiveTax] AS IRTS JOIN [TRN].[InventoryReceive] AS IR ON IRTS.InventoryReceiveId=IR.Id
 							--WHERE IRTS.InventoryReceiveId=@receiveId AND IRTS.InventoryServiceId<>''),0)/COUNT(*) OVER ())AS Amount
 					FROM (
@@ -574,7 +578,7 @@ namespace Library.Accounting.Accounts
 							, MAT.ActivityId, MAT.ActivityCode, MAT.ActivityName,NULL Dr
 						,SUM(MAT.Cr) +ISNULL(TCS.TCSAmount,0) AS Cr,--+SUM(ISNULL(SRV.TotalTaxAmount,0))
 						SUM(MAT.Cr) +ISNULL(TCS.TCSAmount,0) AS Amount --+SUM(ISNULL(SRV.TotalTaxAmount,0))
-                        ,0 IsAsset
+                        ,0 IsAsset,MAT.BudgetActive,MAT.BudgetMasterActivityActive
 						FROM (
 							SELECT IR.Id, 'Vendor' AS OtherName, 'Cr' AS TrnType, NULL MaterialGroupMasterId, NULL AS TaxCategoryId
 							,GLGeneralInfoId =  CPGL.GLGeneralInfoId     
@@ -587,7 +591,7 @@ namespace Library.Accounting.Accounts
 							,ActivityCode = A.Code
 							,ActivityName =A.UserName
 							, NULL Dr, SUM(IRD.TotalMaterialTranAmount) + SUM(IRD.TotalTaxAmount)+ SUM(IRD.ChargesTaxTranAmount)  AS  Cr
-							, SUM(IRD.TotalMaterialTranAmount) + SUM(IRD.TotalTaxAmount)+ SUM(IRD.ChargesTaxTranAmount) AS Amount
+							, SUM(IRD.TotalMaterialTranAmount) + SUM(IRD.TotalTaxAmount)+ SUM(IRD.ChargesTaxTranAmount) AS Amount,BM2.Active BudgetActive,BMA.Active BudgetMasterActivityActive
 						FROM [TRN].[InventoryReceiveDetail] AS IRD 
 						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
 						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
@@ -601,9 +605,10 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON CPGL.BudgetMasterId= BM2.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM2.BudgetId= B.Id
 						LEFT JOIN [HKP].[Activity] AS A ON CPGL.ActivityId= A.Id
+						LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.BudgetMasterId=BM2.Id AND A.Id=BMA.ActivityId
 						WHERE IRD.InventoryReceiveId=@receiveId
-						GROUP BY  IR.Id, CPGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, CPGL.BudgetMasterId, B.Code, B.UserName, CPGL.ActivityId, A.Code, A.UserName
-						,MM.IsAsset
+						GROUP BY  IR.Id, CPGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, CPGL.BudgetMasterId, B.Code, B.UserName, CPGL.ActivityId, A.Code, A.UserName,BM2.Active ,BMA.Active 
+						,MM.IsAsset,BM2.Active ,BMA.Active 
 						) AS MAT
 						LEFT OUTER JOIN (
 						SELECT INS.InventoryReceiveId, sum(INS.Amount) AS Amount,sum(INS.TotalTaxAmount) AS TotalTaxAmount
@@ -619,16 +624,18 @@ namespace Library.Accounting.Accounts
 						) AS TCS on TCS.InventoryReceiveId=MAT.Id
 
 						GROUP BY  MAT.Id,MAT.GLGeneralInfoId, MAT.GLGeneralInfoCode, MAT.GLGeneralInfoName , MAT.BudgetMasterId, MAT.BudgetCode, MAT.BudgetName
-							, MAT.ActivityId, MAT.ActivityCode, MAT.ActivityName,TCS.TCSAmount
+							, MAT.ActivityId, MAT.ActivityCode, MAT.ActivityName,TCS.TCSAmount,MAT.BudgetActive,MAT.BudgetMasterActivityActive
 					) AS T
-					GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId, T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId, T.IsAsset
+					GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName
+					, T.ActivityId, T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId, T.IsAsset,T.BudgetActive,T.BudgetMasterActivityActive
+					
 					UNION
-SELECT T.OtherName, T.TrnType, NULL MaterialGroupMasterId, NULL TaxCategoryId, NULL AS TaxCodeId
+					SELECT T.OtherName, T.TrnType, NULL MaterialGroupMasterId, NULL TaxCategoryId, NULL AS TaxCodeId
 						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
 						, T.BudgetMasterId, T.BudgetCode, T.BudgetName
 						, T.ActivityId, T.ActivityCode, T.ActivityName
 						, T.Dr, T.Cr 
-						, T.Amount ,0 IsAsset, NULL InventoryReceiveDetailId
+						, T.Amount ,0 IsAsset, NULL InventoryReceiveDetailId,T.BudgetActive,T.BudgetMasterActivityActive
 					FROM (
 						
 							SELECT IR.Id, 'Acceptance' AS OtherName, 'Cr' AS TrnType, NULL MaterialGroupMasterId, NULL AS TaxCategoryId
@@ -645,7 +652,7 @@ SELECT T.OtherName, T.TrnType, NULL MaterialGroupMasterId, NULL TaxCategoryId, N
 
 							, NULL Dr, SUM(IRD.TotalMaterialTranAmount)   AS  Cr
 							, SUM(IRD.TotalMaterialTranAmount)  AS Amount
-							,0 IsAsset
+							,0 IsAsset,BM2.Active BudgetActive,BMA.Active BudgetMasterActivityActive
 						FROM TRN.PurchaseDocAcceptance PDA
 						LEFT JOIN TRN.PurchaseDocAcceptanceDetail PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.Id
 						LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.PurchaseDocumentAcceptanceDetailId=PDAD.Id
@@ -655,17 +662,18 @@ SELECT T.OtherName, T.TrnType, NULL MaterialGroupMasterId, NULL TaxCategoryId, N
 						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON PDAD.BudgetMasterId= BM2.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM2.BudgetId= B.Id
 						LEFT JOIN [HKP].[Activity] AS A ON PDAD.ActivityId= A.Id
+						LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.BudgetMasterId=BM2.Id AND A.Id=BMA.ActivityId
 						WHERE IR.Id=@receiveId
-						GROUP BY  IR.Id, PDAD.GLGeneralInfoId, GL.AccountCode, GL.UserName, PDAD.BudgetMasterId, B.Code, B.UserName, PDAD.ActivityId, A.Code, A.UserName
+						GROUP BY  IR.Id, PDAD.GLGeneralInfoId, GL.AccountCode, GL.UserName, PDAD.BudgetMasterId, B.Code, B.UserName, PDAD.ActivityId, A.Code, A.UserName,BM2.Active ,BMA.Active 
 					) AS T
-					GROUP BY  T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId, T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType--,T.TaxCategoryId, T.IsAsset
+					GROUP BY  T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId, T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,t.BudgetActive,T.BudgetMasterActivityActive--,T.TaxCategoryId, T.IsAsset
 					UNION
-SELECT T.OtherName, T.TrnType, NULL MaterialGroupMasterId, NULL TaxCategoryId, NULL AS TaxCodeId
+					SELECT T.OtherName, T.TrnType, NULL MaterialGroupMasterId, NULL TaxCategoryId, NULL AS TaxCodeId
 						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
 						, T.BudgetMasterId, T.BudgetCode, T.BudgetName
 						, T.ActivityId, T.ActivityCode, T.ActivityName
 						, T.Dr, T.Cr 
-						, T.Amount ,0 IsAsset, NULL InventoryReceiveDetailId
+						, T.Amount ,0 IsAsset, NULL InventoryReceiveDetailId,T.BudgetActive,T.BudgetMasterActivityActive
 					FROM (
 						
 							SELECT IR.Id, 'LCBase' AS OtherName, 'Cr' AS TrnType, NULL MaterialGroupMasterId, NULL AS TaxCategoryId
@@ -682,7 +690,7 @@ SELECT T.OtherName, T.TrnType, NULL MaterialGroupMasterId, NULL TaxCategoryId, N
 
 							, NULL Dr, SUM(IRD.TotalMaterialTranAmount)+ SUM(IRD.TotalTaxAmount)+ SUM(IRD.ChargesTaxTranAmount)   AS  Cr
 							, SUM(IRD.TotalMaterialTranAmount)+ SUM(IRD.TotalTaxAmount)+ SUM(IRD.ChargesTaxTranAmount)  AS Amount
-							,0 IsAsset
+							,0 IsAsset,BM2.Active BudgetActive,BMA.Active BudgetMasterActivityActive
 						FROM TRN.InventoryReceiveDetail IRD
 						LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
 						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
@@ -693,10 +701,11 @@ SELECT T.OtherName, T.TrnType, NULL MaterialGroupMasterId, NULL TaxCategoryId, N
 						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON MGGL.ClearingAccountBudgetMasterId= BM2.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM2.BudgetId= B.Id
 						LEFT JOIN [HKP].[Activity] AS A ON MGGL.ClearingAccountActivityId= A.Id
+						LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.BudgetMasterId=BM2.Id AND A.Id=BMA.ActivityId
 						WHERE IR.Id=@receiveId
-						GROUP BY  IR.Id, MGGL.ClearingAccountGLId, GL.AccountCode, GL.UserName, MGGL.ClearingAccountBudgetMasterId, B.Code, B.UserName, MGGL.ClearingAccountActivityId, A.Code, A.UserName
+						GROUP BY  IR.Id, MGGL.ClearingAccountGLId, GL.AccountCode, GL.UserName, MGGL.ClearingAccountBudgetMasterId, B.Code, B.UserName, MGGL.ClearingAccountActivityId, A.Code, A.UserName,BM2.Active ,BMA.Active 
 					) AS T
-					GROUP BY  T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId, T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType--,T.TaxCategoryId, T.IsAsset
+					GROUP BY  T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId, T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,t.BudgetActive,T.BudgetMasterActivityActive--,T.TaxCategoryId, T.IsAsset
 					ORDER BY T.TrnType DESC ";
                     return _sqlRepository.GetDataCollection(sql);
                 }
@@ -859,12 +868,12 @@ UNION
                 {
                     var sql = @"DECLARE @receiveId varchar(10)='" + inveReveiveId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"', @countryId varchar(10)
                     SET @countryId =(SELECT AD.CountryId FROM MST.AddressMaster AS AD JOIN ORG.Plant AS PLNT ON AD.Id=PLNT.AddressMasterId WHERE PLNT.Id=@plantId)
-                    SELECT  'Material' AS OtherName, 'Dr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId
+                     SELECT  'Material' AS OtherName, 'Dr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId
 	                        , MGGL.InventoryGLId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
 	                        , MGGL.InventoryBudgetMasterId AS BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
                             , MGGL.InventoryActivityId AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
 	                        , SUM(IRD.TotalMaterialTranAmount) AS Dr, NULL Cr
-		                    , SUM(IRD.TotalMaterialTranAmount) AS Amount,IRD.Id AS  InventoryReceiveDetailId
+		                    , SUM(IRD.TotalMaterialTranAmount) AS Amount,IRD.Id AS  InventoryReceiveDetailId,BM.Active BudgetActive,BMA.Active BudgetMasterActivityActive
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
                     JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
                     JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
@@ -875,15 +884,16 @@ UNION
                     LEFT JOIN[MST].[BudgetMaster] AS BM ON MGGL.InventoryBudgetMasterId= BM.Id
                     LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
                     LEFT JOIN [HKP].[Activity] AS A ON MGGL.InventoryActivityId= A.Id
+					LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.BudgetMasterId=BM.Id AND A.Id=BMA.ActivityId
                     WHERE IRD.InventoryReceiveId=@receiveId
-                    GROUP BY MM.MaterialGroupMasterId, MGGL.InventoryGLId, GL.AccountCode, GL.UserName, MGGL.InventoryBudgetMasterId, B.Code, B.UserName, MGGL.InventoryActivityId, A.Code, A.UserName,IRD.Id
+                    GROUP BY MM.MaterialGroupMasterId, MGGL.InventoryGLId, GL.AccountCode, GL.UserName, MGGL.InventoryBudgetMasterId, B.Code, B.UserName, MGGL.InventoryActivityId, A.Code, A.UserName,IRD.Id,BM.Active,BMA.Active
                     UNION
                     SELECT 'Tax' AS OtherName, 'Dr' AS TrnType, MM.MaterialGroupMasterId, IRT.TaxCategoryId
 	                        , TCGL.GLGeneralInfoId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
 	                        , TCGL.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
                             , TCGL.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
 	                        , SUM(IRT.TaxAmount) AS  Dr, NULL Cr
-		                    , SUM(IRT.TaxAmount) AS Amount,NULL  InventoryReceiveDetailId
+		                    , SUM(IRT.TaxAmount) AS Amount,NULL  InventoryReceiveDetailId,BM.Active BudgetActive,BMA.Active BudgetMasterActivityActive
                     FROM [TRN].[InventoryReceiveTax] AS IRT
                     JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRT.InventoryReceiveDetailId=IRD.Id
                     JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
@@ -896,15 +906,17 @@ UNION
                     LEFT JOIN [MST].[BudgetMaster] AS BM ON TCGL.BudgetMasterId= BM.Id
                     LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
                     LEFT JOIN [HKP].[Activity] AS A ON TCGL.ActivityId= A.Id
+					LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.BudgetMasterId=BM.Id AND A.Id=BMA.ActivityId
                     WHERE IRT.InventoryReceiveId=@receiveId AND TCGL.InputTaxOutPutTax='Input' AND TCGL.TaxType='RCM'
-                    GROUP BY MM.MaterialGroupMasterId, IRT.TaxCategoryId, TCGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, TCGL.BudgetMasterId, B.Code, B.UserName, TCGL.ActivityId, A.Code, A.UserName
+                    GROUP BY MM.MaterialGroupMasterId, IRT.TaxCategoryId, TCGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, TCGL.BudgetMasterId
+					, B.Code, B.UserName, TCGL.ActivityId, A.Code, A.UserName,BM.Active ,BMA.Active 
                     UNION
 					SELECT 'Tax' AS OtherName, 'Dr' AS TrnType, NULL AS MaterialGroupMasterId, IRTS.TaxCategoryId
 						, TCGL.GLGeneralInfoId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
 						, TCGL.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
 						, TCGL.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
 						, SUM(IRTS.TaxAmount) AS  Dr, NULL Cr
-						, SUM(IRTS.TaxAmount) AS Amount,NULL  InventoryReceiveDetailId
+						, SUM(IRTS.TaxAmount) AS Amount,NULL  InventoryReceiveDetailId,BM.Active BudgetActive,BMA.Active BudgetMasterActivityActive
 						--, IRTS.TaxAmount
 						--, IRTS.TaxAmount
 					FROM [TRN].[InventoryReceiveTax] AS IRTS
@@ -915,15 +927,17 @@ UNION
 					LEFT JOIN [MST].[BudgetMaster] AS BM ON TCGL.BudgetMasterId= BM.Id
 					LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 					LEFT JOIN [HKP].[Activity] AS A ON TCGL.ActivityId= A.Id
+					LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.BudgetMasterId=BM.Id AND A.Id=BMA.ActivityId
 					WHERE IRTS.InventoryReceiveId=@receiveId AND IR.IsNonCreditable=1 AND IRTS.InventoryServiceId<>'' AND TCGL.InputTaxOutPutTax='Input' AND TCGL.TaxType='RCM'
-					GROUP BY IRTS.TaxCategoryId, TCGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, TCGL.BudgetMasterId, B.Code, B.UserName, TCGL.ActivityId, A.Code, A.UserName                        
+					GROUP BY IRTS.TaxCategoryId, TCGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, TCGL.BudgetMasterId, B.Code, B.UserName, TCGL.ActivityId
+					, A.Code, A.UserName ,BM.Active ,BMA.Active                        
 					UNION
-SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
+					SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
 						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
 						, T.BudgetMasterId, T.BudgetCode, T.BudgetName
 						, T.ActivityId, T.ActivityCode, T.ActivityName
 						, T.Dr, T.Cr 
-						, T.Amount, NULL InventoryReceiveDetailId
+						, T.Amount, NULL InventoryReceiveDetailId,T.BudgetActive,T.BudgetMasterActivityActive
 					FROM (
 					SELECT 'Vendor' AS OtherName,'Cr' AS TrnType, NULL MaterialGroupMasterId, NULL AS TaxCategoryId
 						, MAT.GLGeneralInfoId, MAT.GLGeneralInfoCode, MAT.GLGeneralInfoName
@@ -931,14 +945,14 @@ SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
 							, MAT.ActivityId, MAT.ActivityCode, MAT.ActivityName,NULL Dr
 						,SUM(MAT.Cr) +SUM(ISNULL(TCS.TCSAmount,0)) AS Cr,--+SUM(ISNULL(SRV.TotalTaxAmount,0))
 						SUM(MAT.Cr) +SUM(ISNULL(TCS.TCSAmount,0))  AS Amount --+SUM(ISNULL(SRV.TotalTaxAmount,0))
-                        ,0 IsAsset,MAT.Id
+                        ,0 IsAsset,MAT.Id,MAT.BudgetActive,MAT.BudgetMasterActivityActive
 						FROM (
                     SELECT 'Vendor' AS OtherName, 'Cr' AS TrnType, NULL MaterialGroupMasterId, NULL AS TaxCategoryId
 	                    , MGPGL.GLGeneralInfoId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
 	                    , MGPGL.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
 	                    , MGPGL.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
                         , NULL Dr, SUM(IRD.TotalMaterialTranAmount) AS  Cr
-	                    , SUM(IRD.TotalMaterialTranAmount) AS Amount,NULL  InventoryReceiveDetailId,IR.Id
+	                    , SUM(IRD.TotalMaterialTranAmount) AS Amount,NULL  InventoryReceiveDetailId,IR.Id,BM2.Active BudgetActive,BMA.Active BudgetMasterActivityActive
                     FROM [TRN].[InventoryMaterial] AS IM
                     JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
                     LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON IM.ArticleId=ART.Id
@@ -955,8 +969,9 @@ SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
                     LEFT JOIN [MST].[BudgetMaster] AS BM2 ON MGPGL.BudgetMasterId= BM2.Id
                     LEFT JOIN [HKP].[Budget] AS B ON BM2.BudgetId= B.Id
                     LEFT JOIN [HKP].[Activity] AS A ON MGPGL.ActivityId= A.Id
+					LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.BudgetMasterId=BM2.Id AND A.Id=BMA.ActivityId
                     WHERE IRD.InventoryReceiveId=@receiveId
-                    GROUP BY  MGPGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, MGPGL.BudgetMasterId, B.Code, B.UserName, MGPGL.ActivityId, A.Code, A.UserName,IR.Id)
+                    GROUP BY  MGPGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, MGPGL.BudgetMasterId, B.Code, B.UserName, MGPGL.ActivityId, A.Code, A.UserName,IR.Id,bm2.Active,bma.Active)
 					MAT
 					LEFT OUTER JOIN (
 						SELECT INS.InventoryReceiveId, sum(INS.TaxAmount) AS TCSAmount
@@ -966,9 +981,9 @@ SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
 						) AS TCS on TCS.InventoryReceiveId=MAT.Id
 
 					GROUP BY  MAT.Id,MAT.GLGeneralInfoId, MAT.GLGeneralInfoCode, MAT.GLGeneralInfoName , MAT.BudgetMasterId, MAT.BudgetCode, MAT.BudgetName
-							, MAT.ActivityId, MAT.ActivityCode, MAT.ActivityName
+							, MAT.ActivityId, MAT.ActivityCode, MAT.ActivityName,MAT.BudgetActive,MAT.BudgetMasterActivityActive
 					) AS T
-					GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId, T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId, T.IsAsset
+					GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId, T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId, T.IsAsset,T.BudgetActive,T.BudgetMasterActivityActive
 					
                     UNION
                     SELECT 'Tax' AS OtherName, 'Cr' AS TrnType, MM.MaterialGroupMasterId, IRT.TaxCategoryId
@@ -976,7 +991,7 @@ SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
 	                        , TCGL.LiabilityBudgetMasterId AS BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
                             , TCGL.LiabilityActivityId AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
 	                        , NULL AS  Dr, SUM(IRT.TaxAmount) Cr
-		                    , SUM(IRT.TaxAmount) AS Amount,NULL  InventoryReceiveDetailId
+		                    , SUM(IRT.TaxAmount) AS Amount,NULL  InventoryReceiveDetailId,BM.Active BudgetActive,BMA.Active BudgetMasterActivityActive
                     FROM [TRN].[InventoryReceiveTax] AS IRT
                     JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRT.InventoryReceiveDetailId=IRD.Id
                     JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
@@ -989,15 +1004,17 @@ SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
                     LEFT JOIN [MST].[BudgetMaster] AS BM ON TCGL.LiabilityBudgetMasterId= BM.Id
                     LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
                     LEFT JOIN [HKP].[Activity] AS A ON TCGL.LiabilityActivityId= A.Id
+					LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.BudgetMasterId=BM.Id AND A.Id=BMA.ActivityId
                     WHERE IRT.InventoryReceiveId=@receiveId AND TCGL.InputTaxOutPutTax='Input' AND TCGL.TaxType='RCM'
-                    GROUP BY MM.MaterialGroupMasterId, IRT.TaxCategoryId, TCGL.LiabilityGLId, GL.AccountCode, GL.UserName, TCGL.LiabilityBudgetMasterId, B.Code, B.UserName, TCGL.LiabilityActivityId, A.Code, A.UserName
+                    GROUP BY MM.MaterialGroupMasterId, IRT.TaxCategoryId, TCGL.LiabilityGLId, GL.AccountCode, GL.UserName, TCGL.LiabilityBudgetMasterId
+					, B.Code, B.UserName, TCGL.LiabilityActivityId, A.Code, A.UserName,BM.Active ,BMA.Active 
 					UNION
 					SELECT 'Tax' AS OtherName, 'Cr' AS TrnType, NULL AS MaterialGroupMasterId, IRTS.TaxCategoryId
 						, TCGL.LiabilityGLId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
 						, TCGL.LiabilityBudgetMasterId AS BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
 						, TCGL.LiabilityActivityId AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
 						, NULL AS Dr, SUM(IRTS.TaxAmount) AS Cr
-						, SUM(IRTS.TaxAmount) AS Amount,NULL  InventoryReceiveDetailId
+						, SUM(IRTS.TaxAmount) AS Amount,NULL  InventoryReceiveDetailId,BM.Active BudgetActive,BMA.Active BudgetMasterActivityActive
 					FROM [TRN].[InventoryReceiveTax] AS IRTS
 					JOIN [TRN].[InventoryReceive] AS IR ON IRTS.InventoryReceiveId=IR.Id
 					JOIN [MST].[TaxCategoryGL] AS TCGL ON TCGL.TaxCategoryId=IRTS.TaxCategoryId
@@ -1006,15 +1023,17 @@ SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
 					LEFT JOIN [MST].[BudgetMaster] AS BM ON TCGL.BudgetMasterId= BM.Id
 					LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 					LEFT JOIN [HKP].[Activity] AS A ON TCGL.ActivityId= A.Id
+					LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.BudgetMasterId=BM.Id AND A.Id=BMA.ActivityId
 					WHERE IRTS.InventoryReceiveId=@receiveId AND IR.IsNonCreditable=1 AND IRTS.InventoryServiceId<>'' AND TCGL.InputTaxOutPutTax='Input' AND TCGL.TaxType='RCM'
-					GROUP BY IRTS.TaxCategoryId, TCGL.LiabilityGLId, GL.AccountCode, GL.UserName, TCGL.LiabilityBudgetMasterId, B.Code, B.UserName, TCGL.LiabilityActivityId, A.Code, A.UserName
+					GROUP BY IRTS.TaxCategoryId, TCGL.LiabilityGLId, GL.AccountCode, GL.UserName, TCGL.LiabilityBudgetMasterId, B.Code, B.UserName
+					, TCGL.LiabilityActivityId, A.Code, A.UserName,BM.Active ,BMA.Active 
 				UNION
 					SELECT 'Tax' AS OtherName, 'Cr' AS TrnType, NULL AS MaterialGroupMasterId, IRTS.TaxCategoryId
 						, TCGL.LiabilityGLId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
 						, TCGL.LiabilityBudgetMasterId AS BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
 						, TCGL.LiabilityActivityId AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
 						, NULL AS Dr, SUM(IRTS.TaxAmount) AS Cr
-						, SUM(IRTS.TaxAmount) AS Amount, NULL  InventoryReceiveDetailId
+						, SUM(IRTS.TaxAmount) AS Amount, NULL  InventoryReceiveDetailId,BM.Active BudgetActive,BMA.Active BudgetMasterActivityActive
 					 FROM[TRN].[InventoryReceiveTax] AS IRTS
 					JOIN[TRN].[InventoryReceive] AS IR ON IRTS.InventoryReceiveId = IR.Id
 					JOIN[MST].[TaxCategoryGL] AS TCGL ON TCGL.TaxCategoryId = IRTS.TaxCategoryId
@@ -1023,9 +1042,11 @@ SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
 					LEFT JOIN[MST].[BudgetMaster] AS BM ON TCGL.LiabilityBudgetMasterId = BM.Id
 					LEFT JOIN[HKP].[Budget] AS B ON BM.BudgetId = B.Id
 					LEFT JOIN[HKP].[Activity] AS A ON TCGL.LiabilityActivityId = A.Id
+					LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.BudgetMasterId=BM.Id AND A.Id=BMA.ActivityId
 					WHERE IRTS.InventoryReceiveId = @receiveId AND IR.IsNonCreditable = 0
 					AND IRTS.InventoryServiceId <> '' AND TCGL.InputTaxOutPutTax = 'Input' AND TCGL.TaxType = 'RCM'
-					GROUP BY IRTS.TaxCategoryId, TCGL.LiabilityGLId, GL.AccountCode, GL.UserName, TCGL.LiabilityBudgetMasterId, B.Code, B.UserName, TCGL.LiabilityActivityId, A.Code, A.UserName
+					GROUP BY IRTS.TaxCategoryId, TCGL.LiabilityGLId, GL.AccountCode, GL.UserName, TCGL.LiabilityBudgetMasterId, B.Code, B.UserName
+					, TCGL.LiabilityActivityId, A.Code, A.UserName,BM.Active ,BMA.Active 
 					UNION
 					SELECT 'TCS' AS OtherName, 'Dr' AS TrnType, NULL MaterialGroupMasterId, TC.TaxCategoryId
 						, TCGL.CreditableGLId  GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
@@ -1033,7 +1054,7 @@ SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
 						, TCGL.CreditableGLActivityId ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
 						, SUM(IRT.TaxAmount) AS  Dr, NULL Cr
 						, SUM(IRT.TaxAmount) AS Amount
-                        , NULL InventoryReceiveDetailId
+                        , NULL InventoryReceiveDetailId,BM.Active BudgetActive,BMA.Active BudgetMasterActivityActive
 					FROM [TRN].[InventoryReceiveAdditionalTax] AS IRT
 					LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRT.InventoryReceiveId
 					LEFT JOIN [MST].[TaxCodeGL] AS TCGL ON TCGL.TaxCodeId=IRT.TaxCodeId
@@ -1042,17 +1063,18 @@ SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
 					LEFT JOIN [MST].[BudgetMaster] AS BM ON TCGL.CreditableGLBudgetMasterId= BM.Id
 					LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 					LEFT JOIN [HKP].[Activity] AS A ON TCGL.CreditableGLActivityId= A.Id
+					LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.BudgetMasterId=BM.Id AND A.Id=BMA.ActivityId
 					WHERE IR.Id=@receiveId  AND IR.PurchaseDocumentAcceptanceId IS NULL
 					GROUP BY  TC.TaxCategoryId, TCGL.CreditableGLId, GL.AccountCode, GL.UserName, TCGL.CreditableGLBudgetMasterId
-					, B.Code, B.UserName, TCGL.CreditableGLActivityId, A.Code, A.UserName
+					, B.Code, B.UserName, TCGL.CreditableGLActivityId, A.Code, A.UserName,BM.Active ,BMA.Active 
 
-UNION
+					UNION
 					SELECT 'Tax' AS OtherName, 'Dr' AS TrnType, NULL AS MaterialGroupMasterId, IRTS.TaxCategoryId
 						, TCGL.GLGeneralInfoId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
 						, TCGL.BudgetMasterId AS BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
 						, TCGL.ActivityId AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
 					    , SUM(IRTS.TaxAmount) AS Dr, NULL AS Cr
-						, SUM(IRTS.TaxAmount) AS Amount,NULL  InventoryReceiveDetailId
+						, SUM(IRTS.TaxAmount) AS Amount,NULL  InventoryReceiveDetailId,BM.Active BudgetActive,BMA.Active BudgetMasterActivityActive
 					FROM [TRN].[InventoryReceiveTax] AS IRTS
 					JOIN [TRN].[InventoryReceive] AS IR ON IRTS.InventoryReceiveId=IR.Id
 					JOIN [MST].[TaxCategoryGL] AS TCGL ON TCGL.TaxCategoryId=IRTS.TaxCategoryId
@@ -1061,9 +1083,10 @@ UNION
 					LEFT JOIN [MST].[BudgetMaster] AS BM ON TCGL.BudgetMasterId= BM.Id
 					LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 					LEFT JOIN [HKP].[Activity] AS A ON TCGL.ActivityId= A.Id
+					LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.BudgetMasterId=BM.Id AND A.Id=BMA.ActivityId
 					WHERE IRTS.InventoryReceiveId=@receiveId AND IR.IsNonCreditable=0
 					AND IRTS.InventoryServiceId<>'' AND TCGL.InputTaxOutPutTax='Input' AND TCGL.TaxType='RCM'
-					GROUP BY IRTS.TaxCategoryId, TCGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, TCGL.BudgetMasterId, B.Code, B.UserName, TCGL.ActivityId, A.Code, A.UserName";
+					GROUP BY IRTS.TaxCategoryId, TCGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, TCGL.BudgetMasterId, B.Code, B.UserName, TCGL.ActivityId, A.Code, A.UserName,BM.Active ,BMA.Active ";
                     return _sqlRepository.GetDataCollection(sql);
 
                 }
@@ -1179,7 +1202,8 @@ UNION
 	                    , T.Cr, T.Amount + (ISNULL((SELECT SUM(IRTS.TaxAmount) AS Amount 
                         FROM [TRN].[InventoryReceiveTax] AS IRTS 
 		                    JOIN [TRN].[InventoryReceive] AS IR ON IRTS.InventoryReceiveId=IR.Id
-		                    WHERE IRTS.InventoryReceiveId=@receiveId AND IR.IsNonCreditable=1 AND IRTS.InventoryServiceId<>''),0)/COUNT(*) OVER ())AS Amount,T.InventoryReceiveDetailId,T.IsAsset
+		                    WHERE IRTS.InventoryReceiveId=@receiveId AND IR.IsNonCreditable=1 AND IRTS.InventoryServiceId<>''),0)/COUNT(*) OVER ())AS Amount,T.InventoryReceiveDetailId,T.IsAsset,T.BudgetActive,T.BudgetMasterActivityActive
+
                     FROM (
 	                    SELECT  'Material' AS OtherName, 'Dr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId,MM.IsAsset,MM.FixedAssetMasterId
 
@@ -1195,7 +1219,8 @@ UNION
 							
 							, SUM(IRD.TotalMaterialBooksCurrencyAmount) AS Dr, NULL Cr
 							, SUM(IRD.TotalMaterialBooksCurrencyAmount) AS Amount
-                            ,IRD.Id AS  InventoryReceiveDetailId        
+                            ,IRD.Id AS  InventoryReceiveDetailId ,BudgetActive=case when MM.IsAsset=0 THEN BM.Active ELSE BMF.Active END
+							,BudgetMasterActivityActive=CASE WHEN MM.IsAsset=0 THEN BMA.Active ELSE BMAF.Active END       
 						FROM [TRN].[InventoryReceiveDetail] AS IRD
 						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
 						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
@@ -1206,8 +1231,7 @@ UNION
 						LEFT JOIN[MST].[BudgetMaster] AS BM ON MGGL.InventoryBudgetMasterId= BM.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 						LEFT JOIN [HKP].[Activity] AS A ON MGGL.InventoryActivityId= A.Id
-                        --LEFT JOIN (SELECT FixedAssetMasterId,AssetUnderConstructionGLId ,AssetUnderConstructionBudgetMasterId,AssetUnderConstructionActivityId
-						 --FROM HKP.FixedAssetMasterGL) AS FAG ON FAG.FixedAssetMasterId=MM.FixedAssetMasterId
+						LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.BudgetMasterId=BM.Id AND A.Id=BMA.ActivityId
 						LEFT JOIN (SELECT FAMBT.BudgetMasterId,FAMG.AssetUnderConstructionGLId ,FAMG.AssetUnderConstructionBudgetMasterId,FAMG.AssetUnderConstructionActivityId 
 						FROM HKP.FixedAssetMasterBudgetTag FAMBT LEFT JOIN HKP.FixedAssetMasterGL FAMG ON FAMBT.FixedAssetMasterId=FAMG.FixedAssetMasterId) AS FAG 
 						ON FAG.BudgetMasterId=MM.BudgetMasterId
@@ -1215,21 +1239,23 @@ UNION
 						LEFT JOIN[MST].[BudgetMaster] AS BMF ON FAG.AssetUnderConstructionBudgetMasterId= BMF.Id
 						LEFT JOIN [HKP].[Budget] AS BF ON BMF.BudgetId= BF.Id
 						LEFT JOIN [HKP].[Activity] AS AF ON FAG.AssetUnderConstructionActivityId= AF.Id
+						LEFT JOIN [MST].[BudgetMasterActivity] BMAF ON BMAF.BudgetMasterId=BMF.Id AND AF.Id=BMAF.ActivityId
 						WHERE IRD.InventoryReceiveId=@receiveId
 						GROUP BY MM.MaterialGroupMasterId, MGGL.InventoryGLId, GL.AccountCode, GL.UserName, MGGL.InventoryBudgetMasterId, B.Code, B.UserName, MGGL.InventoryActivityId, A.Code, A.UserName
 					    ,MM.IsAsset,MM.FixedAssetMasterId,FAG.AssetUnderConstructionGLId,GLF.AccountCode,GLF.UserName
 						,FAG.AssetUnderConstructionBudgetMasterId,BF.Code,BF.UserName
-						,FAG.AssetUnderConstructionActivityId,AF.Code,AF.UserName,IRD.Id
+						,FAG.AssetUnderConstructionActivityId,AF.Code,AF.UserName,IRD.Id,BM.Active,BMF.Active,BMA.Active,BMAF.Active
                     ) AS T
                     GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode
-                    , T.BudgetName, T.ActivityId, T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId,T.InventoryReceiveDetailId,T.IsAsset
+                    , T.BudgetName, T.ActivityId, T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId,T.InventoryReceiveDetailId
+					,T.IsAsset,T.BudgetActive,T.BudgetMasterActivityActive
                     UNION
                     SELECT 'Tax' AS OtherName, 'Dr' AS TrnType, MM.MaterialGroupMasterId, IRT.TaxCategoryId
 						, TCGL.GLGeneralInfoId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
 						, TCGL.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
 						, TCGL.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
 						, SUM(IRT.TaxAmount * IR.ToCurrencyRate) AS  Dr, NULL Cr
-						, SUM(IRT.TaxAmount * IR.ToCurrencyRate) AS Amount,NULL InventoryReceiveDetailId,0 IsAsset
+						, SUM(IRT.TaxAmount * IR.ToCurrencyRate) AS Amount,NULL InventoryReceiveDetailId,0 IsAsset,BM.Active BudgetActive,BMA.Active BudgetMasterActivityActive
 					FROM [TRN].[InventoryReceiveTax] AS IRT
 					LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRT.InventoryReceiveDetailId=IRD.Id
                     LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -1243,15 +1269,17 @@ UNION
 					LEFT JOIN [MST].[BudgetMaster] AS BM ON TCGL.BudgetMasterId= BM.Id
 					LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 					LEFT JOIN [HKP].[Activity] AS A ON TCGL.ActivityId= A.Id
+					LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.BudgetMasterId=BM.Id AND A.Id=BMA.ActivityId
 					WHERE IRD.InventoryReceiveId=@receiveId AND TCGL.InputTaxOutPutTax='Input' AND ISNULL(TCGL.TaxType,'')<>'RCM' AND IRT.InventoryReceiveDetailId<>''
-					GROUP BY MM.MaterialGroupMasterId, IRT.TaxCategoryId, TCGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, TCGL.BudgetMasterId, B.Code, B.UserName, TCGL.ActivityId, A.Code, A.UserName
+					GROUP BY MM.MaterialGroupMasterId, IRT.TaxCategoryId, TCGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, TCGL.BudgetMasterId, B.Code, B.UserName, TCGL.ActivityId, A.Code, A.UserName,BM.Active ,BMA.Active 
+					
 					UNION
 					SELECT 'Svc' AS OtherName, 'Dr' AS TrnType, NULL AS MaterialGroupMasterId, IRTS.TaxCategoryId
 						, TCGL.GLGeneralInfoId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
 						, TCGL.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
 						, TCGL.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
 						, SUM(IRTS.TaxAmount * IR.ToCurrencyRate) AS  Dr, NULL Cr
-						, SUM(IRTS.TaxAmount * IR.ToCurrencyRate) AS Amount,NULL InventoryReceiveDetailId,0 IsAsset
+						, SUM(IRTS.TaxAmount * IR.ToCurrencyRate) AS Amount,NULL InventoryReceiveDetailId,0 IsAsset,BM.Active BudgetActive,BMA.Active BudgetMasterActivityActive
 						--, IRTS.TaxAmount
 						--, IRTS.TaxAmount
 					FROM [TRN].[InventoryReceiveTax] AS IRTS
@@ -1263,9 +1291,10 @@ UNION
 					LEFT JOIN [MST].[BudgetMaster] AS BM ON TCGL.BudgetMasterId= BM.Id
 					LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 					LEFT JOIN [HKP].[Activity] AS A ON TCGL.ActivityId= A.Id
+					LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.BudgetMasterId=BM.Id AND A.Id=BMA.ActivityId
 					WHERE INS.InventoryReceiveId=@receiveId --AND IR.IsNonCreditable=0 
 					AND IRTS.InventoryServiceId<>'' AND TCGL.InputTaxOutPutTax='Input' AND ISNULL(TCGL.TaxType,'')<>'RCM'
-					GROUP BY IRTS.TaxCategoryId, TCGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, TCGL.BudgetMasterId, B.Code, B.UserName, TCGL.ActivityId, A.Code, A.UserName
+					GROUP BY IRTS.TaxCategoryId, TCGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, TCGL.BudgetMasterId, B.Code, B.UserName, TCGL.ActivityId, A.Code, A.UserName,BM.Active ,BMA.Active 
 					
 					UNION
 					SELECT 'TCS' AS OtherName, 'Dr' AS TrnType, NULL MaterialGroupMasterId, TC.TaxCategoryId
@@ -1274,7 +1303,7 @@ UNION
 						, TCGL.CreditableGLActivityId ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
 						, SUM(IRT.TaxAmount) AS  Dr, NULL Cr
 						, SUM(IRT.TaxAmount) AS Amount
-                        , NULL InventoryReceiveDetailId,0 IsAsset
+                        , NULL InventoryReceiveDetailId,0 IsAsset,BM.Active BudgetActive,BMA.Active BudgetMasterActivityActive
 					FROM [TRN].[InventoryReceiveAdditionalTax] AS IRT
 					LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRT.InventoryReceiveId
 					LEFT JOIN [MST].[TaxCodeGL] AS TCGL ON TCGL.TaxCodeId=IRT.TaxCodeId
@@ -1283,9 +1312,10 @@ UNION
 					LEFT JOIN [MST].[BudgetMaster] AS BM ON TCGL.CreditableGLBudgetMasterId= BM.Id
 					LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 					LEFT JOIN [HKP].[Activity] AS A ON TCGL.CreditableGLActivityId= A.Id
+					LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.BudgetMasterId=BM.Id AND A.Id=BMA.ActivityId
 					WHERE IR.Id=@receiveId  AND IR.PurchaseDocumentAcceptanceId IS NULL
 					GROUP BY  TC.TaxCategoryId, TCGL.CreditableGLId, GL.AccountCode, GL.UserName, TCGL.CreditableGLBudgetMasterId
-					, B.Code, B.UserName, TCGL.CreditableGLActivityId, A.Code, A.UserName
+					, B.Code, B.UserName, TCGL.CreditableGLActivityId, A.Code, A.UserName,BM.Active ,BMA.Active 
 					UNION
                     SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
 	                    , T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
@@ -1295,7 +1325,7 @@ UNION
 		                    WHERE IRTS.InventoryReceiveId=@receiveId AND IRTS.InventoryServiceId<>''),0)/COUNT(*) OVER ()) AS Cr
 	                    , T.Amount + (ISNULL((SELECT SUM(IRTS.TaxAmount) AS Amount 
                         FROM [TRN].[InventoryReceiveTax] AS IRTS JOIN [TRN].[InventoryReceive] AS IR ON IRTS.InventoryReceiveId=IR.Id
-		                    WHERE IRTS.InventoryReceiveId=@receiveId AND IRTS.InventoryServiceId<>''),0)/COUNT(*) OVER ())AS Amount,NULL InventoryReceiveDetailId,0 IsAsset
+		                    WHERE IRTS.InventoryReceiveId=@receiveId AND IRTS.InventoryServiceId<>''),0)/COUNT(*) OVER ())AS Amount,NULL InventoryReceiveDetailId,0 IsAsset,0 BudgetActive,0 BudgetMasterActivityActive
                     FROM (
 	                    SELECT 'Vendor' AS OtherName, 'Cr' AS TrnType, NULL MaterialGroupMasterId, NULL AS TaxCategoryId
 		                    , NULL AS GLGeneralInfoId, NULL AS GLGeneralInfoCode, NULL AS GLGeneralInfoName

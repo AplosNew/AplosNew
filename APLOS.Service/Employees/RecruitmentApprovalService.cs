@@ -735,8 +735,24 @@ namespace Library.Service.Employees
             }
         }
 
+        public GridModel GetDesignationCbo(GridParameter parameters, string companyGroupId, string plantId, string BudgetCode)
+        {
+            try
+            { 
+                parameters.CmdText = @"SELECT Id, Sequence,Code,ShortName,StandardName,UserName FROM [HKP].[Designation]                            
+                         WHERE Active=1";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name,
+                                null, ErrorType.ServiceError, null,
+                                ex.Message, ex.GetType().Name, false, ModuleEnum.Addresse.ToString()));
+            }
+        }
 
-       
+
         public IEnumerable<object> GetLegalDesignationCbobyGivenDesignation(string givenDesignationpId)
         {
             try
