@@ -10723,17 +10723,14 @@ where QAT.ParameterId='" + ParameterId + "'";
                     return "";
                 List<QualityConfirmssControllMaster> items = DataToSave.ToList();
 
-                foreach (QualityConfirmssControllMaster item in DataToSave)
-                {
-                    Id += ",'" + item.Id + "'";
-                }
+                
 
                 con.OpenDataSetThroughAdapter("select * from [TRN].[QualityControlDetails] where Id='" + PId + "'", out dsMaster, false, "1");
 
 
                 foreach (QualityConfirmssControllMaster item in DataToSave)
                 {
-                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                    //dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
                     if (dsMaster.Tables[0].Rows.Count > 0)
                     {
                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
