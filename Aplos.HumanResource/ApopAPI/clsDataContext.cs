@@ -10489,7 +10489,7 @@ where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QCD.Status=
             string ResponsiblePerson = string.Empty;
             System.Data.DataSet dsRef;
             
-            if (ResponsiblePersonId != "null" && ResponsiblePersonId != "undefined")
+            if (ResponsiblePersonId != null && ResponsiblePersonId != "undefined")
             {
                 ResponsiblePerson = " and ResponsiblePersonId = '" + ResponsiblePersonId + "'";
             }
