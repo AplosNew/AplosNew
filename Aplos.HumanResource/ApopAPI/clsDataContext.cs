@@ -10700,7 +10700,10 @@ where QAT.ParameterId='" + ParameterId + "'";
                 }
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                 conC.BeginTransaction();
-                conC.executeQuery("Update TRN.QualityControlDetails set Status='" + Status + "',ConfirmBy='" + ConfirmBy + "',ConfirmationRemarks='" + ConfirmationRemarks + "' where Id='" + PId + @"'");
+                if(items[0].Id == null)
+                {
+                    conC.executeQuery("Update TRN.QualityControlDetails set Status='" + Status + "',ConfirmBy='" + ConfirmBy + "',ConfirmationRemarks='" + ConfirmationRemarks + "' where Id='" + PId + @"'");
+                }
                 conC.CommitTransaction();
 
                 clsStaticInfo _info = new clsStaticInfo();
