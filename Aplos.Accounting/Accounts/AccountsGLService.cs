@@ -612,7 +612,7 @@ namespace Library.Accounting.Accounts
                             , EGL.PayableGLId, EGL.PayableGLCode, EGL.PayableGLName
                             , EGL.PayableBudgetMasterId, EGL.PayableBudgetCode, EGL.PayableBudgetName
                             , EGL.PayableActivityId, EGL.PayableActivityCode, EGL.PayableActivityName
-                            , ETT.AdvanceType
+                            , ETT.AdvanceType,EGL.PayableBudgetActive,EGL.PayableBudgetMasterActivityActive,EGL.AdvanceBudgetActive,EGL.AdvanceBudgetMasterActivityActive
                             FROM [HKP].[EmployeeTransactionType] ETT
                             LEFT JOIN(
 	                        SELECT ETTGL.EmployeeTransactionTypeId, ETTGL.AdvanceGLId, AGGI.AccountCode AS AdvanceGLCode, AGGI.UserName AS AdvanceGLName
@@ -621,6 +621,7 @@ namespace Library.Accounting.Accounts
 	                        , ETTGL.PayableGLId, PGGI.AccountCode AS PayableGLCode, PGGI.UserName AS PayableGLName
 	                        , ETTGL.PayableBudgetMasterId, PB.Code AS PayableBudgetCode, PB.UserName AS PayableBudgetName
 	                        , ETTGL.PayableActivityId, PA.Code AS PayableActivityCode, PA.UserName AS PayableActivityName, ETTGL.IsExpensesBooking
+                            ,PBM.Active PayableBudgetActive,BMA.Active PayableBudgetMasterActivityActive,ABM.Active AdvanceBudgetActive,ABMA.Active AdvanceBudgetMasterActivityActive
 	                        FROM [HKP].[EmployeeTransactionTypeGL] AS ETTGL
 	                        LEFT JOIN [HKP].[GLGeneralInfo] AS AGGI ON AGGI.Id=ETTGL.AdvanceGLId
 	                        LEFT JOIN [MST].[BudgetMaster] AS ABM ON ABM.Id=ETTGL.AdvanceBudgetMasterId
@@ -630,6 +631,8 @@ namespace Library.Accounting.Accounts
 	                        LEFT JOIN [MST].[BudgetMaster] AS PBM ON PBM.Id=ETTGL.PayableBudgetMasterId
 	                        LEFT JOIN [HKP].[Budget] AS PB ON PB.Id=PBM.BudgetId
 	                        LEFT JOIN [HKP].[Activity] AS PA ON PA.Id=ETTGL.PayableActivityId
+							LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.BudgetMasterId=PBM.Id AND BMA.ActivityId=PA.Id
+                            LEFT JOIN [MST].[BudgetMasterActivity] ABMA ON ABMA.BudgetMasterId=ABM.Id AND ABMA.ActivityId=AA.Id
 	                        LEFT JOIN [ORG].[Company] AS C ON C.COAId=ETTGL.COAId
 	                        WHERE C.Id='" + companyId + @"'
                         )AS EGL ON EGL.EmployeeTransactionTypeId=ETT.Id

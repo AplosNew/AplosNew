@@ -65,6 +65,10 @@ namespace Aplos.Areas.Accounts.Controllers
             {
                 foreach (var item in voucherDetailVMList)
                 {
+                    if(item.BudgetActive==false || item.BudgetMasterActivityActive == false)
+                    {
+                        throw new CustomException(item.ActivityName+" Budget Or Activity is not Active");
+                    }
                     if (item.IsAsset)
                     {
                         if (item.GLGeneralInfoId == null)
