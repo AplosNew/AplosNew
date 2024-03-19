@@ -1402,6 +1402,18 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetQualityConfirmActionUpdate(out List<QualityActionUpdate> activelists, ParameterId);
             return activelists;
         }
+        public string PostQualityConfirmationUpdate([FromBody] IEnumerable<QualityActionUpdate> DataToSave, string PId, string Status , string ConfirmationRemarks , string ConfirmBy)
+        {
+            try
+            {
+                string Id = clsData.PostQualityConfirmationUpdate(DataToSave, PId, Status , ConfirmationRemarks , ConfirmBy);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
         #endregion Quality Acion 
     }
 }
