@@ -10686,7 +10686,7 @@ where QAT.ParameterId='" + ParameterId + "'";
                         // DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
 
-                        dr["CloseRemarks"] = item.ConfirmRemarks;
+                        dr["ConfirmRemarks"] = item.ConfirmRemarks;
                         dr["UpdatedBy"] = item.UpdatedBy;
                         dr["UpdatedFromIP"] = "192.168.137.44";
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
