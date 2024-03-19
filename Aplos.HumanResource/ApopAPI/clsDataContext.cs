@@ -10616,7 +10616,8 @@ and QCD.QCId='" + HeaderId + "'";
             try
             {
                 
-                strSQL = @"select QAT.Id,isnull(QAT.SNO,QPR.SNO) SNO,QPR.Id ReasonId,isnull(QRM.UserName,QAT.ReasonName) ReasonName,QAT.ActionTaken,QAT.ActionById,EI.EmployeeName ActionBy,QAT.Remarks, 'OK' Saved
+                strSQL = @"select QAT.Id,isnull(QAT.SNO,QPR.SNO) SNO,QPR.Id ReasonId,isnull(QRM.UserName,QAT.ReasonName) ReasonName,QAT.ActionTaken,QAT.ActionById,EI.EmployeeName ActionBy,QAT.Remarks, 'OK' Saved 
+,  QAT.ParameterId , null ConfirmRemarks 
 from [TRN].[QualityActionTakenUpdate]  QAT
 left join [MST].[QualityManagementParameterReason] QPR on QPR.Id=QAT.ReasonId and QPR.IsActive=1
 left join [HKP].[QualityManagementReasonMaster] QRM on QRM.Id=QPR.ReasonId
@@ -10640,8 +10641,6 @@ where QAT.ParameterId='" + ParameterId + "'";
                         ParameterId = dsRef.Tables[0].Rows[i]["ParameterId"].ToString(),
                         ReasonName = dsRef.Tables[0].Rows[i]["ReasonName"].ToString(),
                         ConfirmRemarks = dsRef.Tables[0].Rows[i]["ConfirmRemarks"].ToString(),
-                        AddedBy = dsRef.Tables[0].Rows[i]["AddedBy"].ToString(),
-                        AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
                         Saved = dsRef.Tables[0].Rows[i]["Saved"].ToString(),
 
 
