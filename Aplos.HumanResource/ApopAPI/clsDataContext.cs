@@ -10181,7 +10181,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
                 FilterDate = " and convert(Date,QCD.AddedDate) between '" + FromDate + "' and '" + ToDate + "'";
             }
 
-            if (ResponsiblePersonId != "null" && ResponsiblePersonId != "undefined")
+            if (ResponsiblePersonId != null && ResponsiblePersonId != "undefined")
             {
                 ResponsiblePerson = " and ResponsiblePersonId = '" + ResponsiblePersonId + "'";
             }
