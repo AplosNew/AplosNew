@@ -253,11 +253,16 @@ function finalSettlementNewController(commonMessage, $scope, $rootScope, baseSer
                         $scope.FinalSettlementEarningHeadList = response.data.FinalSettlementEarning;
                         $scope.FinalSettlementRetainedHeadList = response.data.FinalSettlementRetainedHead;
                         $scope.FinalSettlementModel.LastMonthNetPayAmount = 0;
-                        $scope.FinalSettlementModel.AdvanceAmount = response.data.avdanceData[0].Balance;
+                        $scope.FinalSettlementModel.AdvanceAmount = 0;
+                        if (baseService.arrayLength(response.data.avdanceData) > 0) {
+                            $scope.FinalSettlementModel.AdvanceAmount = response.data.avdanceData[0].Balance;
+                        }
                         if (baseService.arrayLength($scope.FinalSettlementUndisbursedEarningList) > 0) {
                             for (var i = 0; i < $scope.FinalSettlementUndisbursedEarningList.length; i++) {
                                 $scope.FinalSettlementModel.LastMonthNetPayAmount += $scope.FinalSettlementUndisbursedEarningList[i].DisbusmentAmount;
                             }
+                        } else {
+                            $scope.FinalSettlementModel.LastMonthNetPayAmount = response.data.data.LastMonthNetPayAmount;
                         }
                         $scope.btnSave = true;
                         $scope.AddRetained();
