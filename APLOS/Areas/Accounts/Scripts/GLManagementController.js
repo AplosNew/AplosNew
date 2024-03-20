@@ -230,8 +230,8 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         try {
             for (var i = 0; i < $scope.popUpDataList.length; i++) {
                 if ($scope.popUpDataList[i].CheckBoxSelect == true) {
-                    if (checkDoubleDesignationInformation($scope.DesignationListNew, $scope.popUpDataList[i].DesignationId) === false) {
-                        $scope.DesignationListNew.push($scope.popUpDataList[i]);
+                    if (checkDoubleDesignationInformation($scope.DesignationList, $scope.popUpDataList[i].DesignationId) === false) {
+                        $scope.DesignationList.push($scope.popUpDataList[i]);
                     }
                 }
             } 
@@ -267,7 +267,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         $http({
             method: 'POST',
             url: $scope.saveDesignationUrl,
-            data: { 'data': $scope.DesignationListNew, 'GlManagementId': $scope.ModelNew.Id },
+            data: { 'data': $scope.DesignationList, 'GlManagementId': $scope.ModelNew.Id },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {

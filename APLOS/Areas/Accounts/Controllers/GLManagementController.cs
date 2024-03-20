@@ -319,7 +319,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     //DataRow dr;
                     //dr = dsEmpCat.Tables[0].NewRow();
                     DataView dv = new DataView(dsEmpCat.Tables[0]);
-                    dv.RowFilter = "Id='" + item["DesignationId"] + "'";
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
 
                     if (dv.Count == 0)
                     {
@@ -543,7 +543,7 @@ namespace Aplos.Areas.Accounts.Controllers
         [HttpGet, Authorize]
         public ActionResult GetDesignationInformation()
         {
-            string sql = @"SELECT Id DesignationId, Sequence,Code,ShortName,StandardName,UserName FROM [HKP].[Designation]                            
+            string sql = @"SELECT '' Id,Id DesignationId, Sequence,Code,ShortName,StandardName,UserName FROM [HKP].[Designation]                            
                          WHERE Active=1";
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
@@ -554,7 +554,7 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             try
             {
-                var sql = @"select D.UserName as Designation,GLMD.DesignationId,D.Sequence,D.Code
+                var sql = @"select GLMD.Id,D.UserName as Designation,GLMD.DesignationId,D.Sequence,D.Code
                             from [HKP].[GLManagementDesignation] GLMD 
                             left join [HKP].[Designation] D on D.Id=GLMD.DesignationId
 							where GLMD.GLManagementId = '" + glManagementId + "' ";
