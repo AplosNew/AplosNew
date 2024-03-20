@@ -10712,7 +10712,7 @@ where QAT.ParameterId='" + ParameterId + "'";
             }
 
         }
-        public string PostQualityConfirmationMasterUpdate(IEnumerable<QualityConfirmssControllMaster> DataToSave, string PId, string Status, string ConfirmationRemarks, string ConfirmBy)
+        public string PostQualityConfirmationMasterUpdate(IEnumerable<QualityConfirmssControllMaster> DataToSave)
         {
             try
             {
@@ -10723,14 +10723,17 @@ where QAT.ParameterId='" + ParameterId + "'";
                     return "";
                 List<QualityConfirmssControllMaster> items = DataToSave.ToList();
 
-                
+                foreach (QualityConfirmssControllMaster item in DataToSave)
+                {
+                    Id += ",'" + item.PID + "'";
+                }
 
-                con.OpenDataSetThroughAdapter("select * from [TRN].[QualityControlDetails] where Id='" + PId + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from [TRN].[QualityControlDetails] where Id='" + items[0].PID + "'", out dsMaster, false, "1");
 
 
                 foreach (QualityConfirmssControllMaster item in DataToSave)
                 {
-                    //dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.PID + "' ";
                     if (dsMaster.Tables[0].Rows.Count > 0)
                     {
                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
@@ -10738,9 +10741,9 @@ where QAT.ParameterId='" + ParameterId + "'";
                         // DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
 
-                        dr["Status"] = Status;
-                        dr["ConfirmBy"] = ConfirmBy;
-                        dr["ConfirmationRemarks"] = ConfirmationRemarks;
+                        dr["Status"] = item.Status;
+                        dr["ConfirmBy"] = item.ConfirmBy;
+                        dr["ConfirmationRemarks"] = item.ConfirmationRemarks;
 
 
                         dr.EndEdit();
@@ -12091,6 +12094,7 @@ where QAT.ParameterId='" + ParameterId + "'";
 
     public class QualityConfirmssControllMaster
     {
+        public string PID { get; set; }
         public string Status { get; set; }
         public string ConfirmBy { get; set; }
         public string ConfirmationRemarks { get; set; }

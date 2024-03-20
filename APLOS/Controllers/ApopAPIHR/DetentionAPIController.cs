@@ -1414,11 +1414,11 @@ namespace Aplos.Controllers.ApopAPIHR
                 return ex.ToString();
             }
         }
-        public string PostQualityConfirmationMasterUpdate([FromBody] IEnumerable<QualityConfirmssControllMaster> DataToSave, string PId, string Status, string ConfirmationRemarks, string ConfirmBy)
+        public string PostQualityConfirmationMasterUpdate([FromBody] IEnumerable<QualityConfirmssControllMaster> DataToSave)
         {
             try
             {
-                string Id = clsData.PostQualityConfirmationMasterUpdate(DataToSave, PId, Status, ConfirmationRemarks, ConfirmBy);
+                string Id = clsData.PostQualityConfirmationMasterUpdate(DataToSave);
                 return Id;
             }
             catch (Exception ex)
