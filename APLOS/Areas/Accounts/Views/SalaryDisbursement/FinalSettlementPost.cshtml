@@ -218,8 +218,8 @@
                     <th>Doc Ref</th>
                     <th>Doc Date</th>
                     <th>Posting Date</th>
-                    <th>Month</th>
-                    <th>Year</th>
+                    <th>Employee Code</th>
+                    <th>Employee Name</th>
                     <th>Payment Bank/Cash</th>
                     <th>Amount</th>
                     <th>Status</th>
@@ -232,14 +232,13 @@
                     <td>{{x.DocRefNo}}</td>
                     <td>{{x.DocDate | dateFiltering}}</td>
                     <td>{{x.PostingDate | dateFiltering}}</td>
-                    <td>{{x.Month}}</td>
-                    <td>{{x.YearNo}}</td>
+                    <td>{{x.EmployeeCode}}</td>
+                    <td>{{x.EmployeeName}}</td>
                     <td>{{x.PaymentBank}}</td>
                     <td class="text-right">{{x.DrAmount | number:2}}</td>
                     <td>{{x.IsPark?'Parked':'Posted'}}</td>
                     <td class="text-right">
                         <ul class="list-inline action-list">
-                            <li><a ng-click="XlsSalaryDisbursementVoucherWiseReport(x.PayableVoucherId);" class="btn btn-action" title="Salary Disbursement Report"><i class="fa fa-file-excel-o"></i></a></li>
                             <li ng-show="x.IsPark"><a ng-click="confirmPost(x.PayableVoucherId);" href="" class="btn btn-action tooltip-here">Post</a></li>
                             <li ng-show="x.IsPark"><a ng-click="confirmDelete(x);" href="" class="btn btn-action tooltip-here">Delete</a></li>
                             <li><a class="btn btn-action" href="Accounts/SalaryDisbursement/GetSalaryDisbursementVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.PayableVoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
@@ -279,7 +278,7 @@
     </div>
 </div>
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(voucherId)"></confirm-archive-generic>
-<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="deleteSalaryDisbursement(voucherId,DelMonthNo,DelYearNo)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="deleteSalaryDisbursement(voucherId)"></confirm-archive-generic>
 
 @Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_GLBudgetActivityPopUp.cshtml")
