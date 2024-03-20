@@ -305,25 +305,11 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.entityList = [];
     $scope.getEntityCbo = function () {
-        //cboService.getCboProductionEntityByPlant(null, null, $scope.fileNew.PlantId, function (result) {
-        //    $scope.entityList = result;
-        //    $scope.GetResponsiblePersonList();
-        //});
         cboService.getCboProductionEntitiesByPlant($scope.fileNew.PlantId, function (result) {
             $scope.entityList = result;
         });
     };
 
-    //$scope.getAllEntities = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: "OrderManagements/productionOrderSchedulingParametersType1/GetEntity"
-    //    }).then(function successCallback(response) {
-    //        $scope.entityList = response.data;
-    //        //$scope.GetResponsiblePersonList();
-    //    });
-    //}
-    //$scope.getAllEntities();
 
 
     $scope.getPlantConfigByPlant = function () {

@@ -316,7 +316,7 @@ LEFT JOIN MST.BudgetMasterActivity DBMA ON DBMA.BudgetMasterId=DGL.DrDirectBudge
 left join MST.SalaryHeadGL CGL ON  CGL.SalaryHeadId=C.SalaryHeadID AND DMB.AccountsGroupId=CGL.AccountsGroupId
 LEFT JOIN MST.BudgetMasterActivity CBMA ON DBMA.BudgetMasterId=CGL.CrDirectBudgetMasterId AND CBMA.ActivityId=CGL.CrDirectActivityId
 JOIN dbo.SalaryLock SL ON SL.EmpSystemId=E.SystemId AND MonthNo=1 AND YearNo=2024
-Where C.EmpInfoSystemID IN (" + EmpIdLoop + @")) AND PO.DirectManpowerCost=1 AND C.SlrProcMstSystemID IN(Select SystemID  from dbo.SalaryProcMaster Where MonthNo='" + Month + @"' AND YearNo='" + Year + @"') 
+Where C.EmpInfoSystemID IN (" + EmpIdLoop + @") AND PO.DirectManpowerCost=1 AND C.SlrProcMstSystemID IN(Select SystemID  from dbo.SalaryProcMaster Where MonthNo='" + Month + @"' AND YearNo='" + Year + @"') 
 UNION 
 select DBMA.Id DrControlId,CBMA.Id CrControlId,SL.Id SsalaryLockId,C.* from dbo.SalaryProcChild C
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=C.EmpInfoSystemID
@@ -327,7 +327,7 @@ LEFT JOIN MST.BudgetMasterActivity DBMA ON DBMA.BudgetMasterId=DGL.DrInDirectBud
 left join MST.SalaryHeadGL CGL ON  CGL.SalaryHeadId=C.SalaryHeadID AND DMB.AccountsGroupId=CGL.AccountsGroupId
 LEFT JOIN MST.BudgetMasterActivity CBMA ON CBMA.BudgetMasterId=CGL.CrInDirectBudgetMasterId AND CBMA.ActivityId=CGL.CrInDirectActivityId
 JOIN dbo.SalaryLock SL ON SL.EmpSystemId=E.SystemId AND MonthNo=1 AND YearNo=2024
-Where C.EmpInfoSystemID IN (" + EmpIdLoop + @")) AND PO.DirectManpowerCost=0 AND C.SlrProcMstSystemID IN(Select SystemID  from dbo.SalaryProcMaster Where MonthNo='" + Month + @"' AND YearNo='" + Year + @"') 
+Where C.EmpInfoSystemID IN (" + EmpIdLoop + @") AND PO.DirectManpowerCost=0 AND C.SlrProcMstSystemID IN(Select SystemID  from dbo.SalaryProcMaster Where MonthNo='" + Month + @"' AND YearNo='" + Year + @"') 
 ";//eee
 
                 objCon = new ConnectionManager.DAL.ConManager("1");

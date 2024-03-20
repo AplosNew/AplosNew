@@ -703,9 +703,9 @@ namespace Aplos.Areas.Accounts.Controllers
 
                 Union All
 				SELECT  'FinalSettlementAdjustment' AS OtherName, 'Dr' AS TrnType
-                , CASE WHEN (NetPayAmount-LastMonthNetPayAmount)>0 THEN (NetPayAmount-LastMonthNetPayAmount) ELSE 0 END DrAmount 
+                , CASE WHEN (NetPayAmount+AdvanceAmount-LastMonthNetPayAmount)>0 THEN (NetPayAmount+AdvanceAmount-LastMonthNetPayAmount) ELSE 0 END DrAmount 
                 , 0 CrAmount 
-                , (NetPayAmount-LastMonthNetPayAmount) Amount
+                , (NetPayAmount+AdvanceAmount-LastMonthNetPayAmount) Amount
                 ,GAD.GLGeneralInfoId  ,GAD.BudgetMasterId,GAD.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
                 , B.UserName BudgetName,A.UserName ActivityName 
 				FROM [dbo].[EmployeeFinalSettlement] EFS
@@ -719,8 +719,8 @@ namespace Aplos.Areas.Accounts.Controllers
 				Union All
 				SELECT  'FinalSettlementAdjustment' AS OtherName, 'Cr' AS TrnType
                 , 0 DrAmount 
-                , CASE WHEN (LastMonthNetPayAmount-NetPayAmount)>0 THEN (LastMonthNetPayAmount-NetPayAmount) ELSE 0 END CrAmount 
-                , (LastMonthNetPayAmount-NetPayAmount) Amount
+                , CASE WHEN (LastMonthNetPayAmount-(NetPayAmount+AdvanceAmount))>0 THEN (LastMonthNetPayAmount-(NetPayAmount+AdvanceAmount)) ELSE 0 END CrAmount 
+                , (LastMonthNetPayAmount-(NetPayAmount+AdvanceAmount)) Amount
                 ,GAD.GLGeneralInfoId  ,GAD.BudgetMasterId,GAD.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
                 , B.UserName BudgetName,A.UserName ActivityName 
 				FROM [dbo].[EmployeeFinalSettlement] EFS
@@ -755,6 +755,34 @@ namespace Aplos.Areas.Accounts.Controllers
             AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
             return Json(accountsSalaryPayableService.GetFinalSettlementDisbursementVoucherList(parameters), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        public JsonResult ParkFinalSettlementDisbursement(VoucherViewModel voucherVM, string pMode, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.IsPark = true;
+            voucherVM.Amount = directJVList.Sum(r => r.CrAmount);
+            voucherVM.SourceType = SourceType.FinalSettlementJournal.ToString();
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _salaryDisbursementService.ParkFinalSettlementDisbursement(voucherVM, directJVList, disbursementAdviceId)) });
+        }
+        [HttpPost]
+        public JsonResult PostFinalSettlementdisbursement(string voucherId)
+        {
+            _salaryDisbursementService.PostSalarydisbursement(voucherId);
+            return Json(new { Message = AplosMessage.Posted });
+        }
+        [HttpPost]
+        public ActionResult DeleteFinalSettlementDisbursementVoucher(string voucherId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _salaryDisbursementService.DeleteFinalSettlementDisbursementVoucher(identity.PlantId, voucherId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
 
         [HttpGet, Authorize]
         public JsonResult GetSalaryPayableDisbursementVoucherList(GridParameter parameters)
