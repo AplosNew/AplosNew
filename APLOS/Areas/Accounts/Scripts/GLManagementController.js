@@ -203,16 +203,50 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.EmployeeCategoryList = response.data;
-            for (var i = 0; i < $scope.EmployeeCategoryList.length; i++) {
-                $scope.EmpCatNew.EmployeeCategoryId = $scope.EmployeeCategoryList[i].EmployeeCategoryId;
-            }
+                $scope.EmpCatNew.EmployeeCategoryId = $scope.EmployeeCategoryList[0].EmployeeCategoryId;
         })
     }
+
+    $scope.RemoveEmployeeCategory = function (data) {
+        $scope.EmployeeCategoryId = data.EmployeeCategoryId;
+        if (baseService.isUndefinedOrNull(data.EmployeeCategoryId))
+            $scope.message_confirmation = 'Are you sure want to delete this data....';
+        else
+            $scope.message_confirmation = 'Are you sure want to delete.....';
+        angular.element(document.querySelector('#EmpCategoryPopUp')).modal('show');
+    };
+
+    $scope.DeleteRowEmpCategory = function () {
+            if (baseService.isUndefinedOrNull($scope.EmployeeCategoryList[0].EmployeeCategoryId)) {
+                if ($scope.EmployeeCategoryList[0].EmployeeCategoryId === $scope.EmployeeCategoryId) {
+                    $scope.EmployeeCategoryList.splice(0, 1);
+                } 
+            }
+            else {
+                $scope.DeleteEmployeeCategory()
+            }
+    };
+    $scope.DeleteEmployeeCategory = function () { 
+        $http.get('Accounts/GLManagement/DeleteEmployeeCategory?Id=' + $scope.EmployeeCategoryId)
+                .then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.GetEmployeeCategory($scope.ModelNew.Id);
+                    }
+                    function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                }); 
+    };
+
     //#region LegalDesignation
 
     $scope.popUpDataList = [];
     $scope.GetDesignationInformation = function () {
-        try { 
+        try {
             $http({
                 method: 'GET',
                 url: 'Accounts/GLManagement/GetDesignationInformation'
@@ -225,6 +259,31 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         }
     };
 
+    $scope.refreshTemplateDesignation = function (args) {
+        $("#Designationheadchk").ejCheckBox({ "change": CheckBoxSelectAllDesignation });
+    };
+
+    function CheckBoxSelectAllDesignation(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#desInfoGrid").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.popUpDataList.length; i++) {
+                $scope.popUpDataList[i].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#desInfoGrid").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
     $scope.OK = function () {
         try {
             for (var i = 0; i < $scope.popUpDataList.length; i++) {
@@ -233,7 +292,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
                         $scope.DesignationList.push($scope.popUpDataList[i]);
                     }
                 }
-            } 
+            }
             angular.element(document.querySelector('#LDPopUp')).modal('hide');
             $scope.SaveDesignation();
         } catch (e) {
@@ -256,8 +315,8 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         Designation: null
     };
     $scope.designationNew = angular.copy($scope.designation);
-     
- 
+
+
     $scope.SaveDesignation = function () {
         if (baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
             return ShowResult('Please select GL Management!', 'failure');
@@ -288,8 +347,11 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             data: { 'glManagementId': data },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.DesignationList = response.data; 
+            $scope.DesignationList = response.data;
         })
+    }
+    $scope.closeDesignationCodePopUp = function () {
+        angular.element(document.querySelector('#LDPopUp')).modal('hide');
     }
     //#endregion LegalDesignation
 
@@ -321,6 +383,30 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         angular.element(document.querySelector('#PositionCodePopUp')).modal('hide');
     }
 
+    $scope.refreshTemplatePC = function (args) {
+        $("#PCheadchk").ejCheckBox({ "change": CheckBoxSelectAllPC });
+    };
+
+    function CheckBoxSelectAllPC(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridPositionCode").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.PositionCodeList.length; i++) {
+                $scope.PositionCodeList[i].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridPositionCode").data("ejGrid");
+        gridObj.refreshContent();
+    };
 
     $scope.OKPositionCode = function () {
         try {
@@ -378,7 +464,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             data: { 'glManagementId': data },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.PositionCodeListData = response.data; 
+            $scope.PositionCodeListData = response.data;
         })
     }
     //#endregion position
@@ -391,43 +477,100 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     };
     $scope.BudgetCodeNew = angular.copy($scope.BudgetCode);
 
-     
+
     $scope.BCpopUpTitle = "Manpower Budget";
+    //$scope.BudgetCodepopUpDataList = [];
+    //$scope.BudgetCodepopUp = function () {
+    //    $scope.BudgetCodepopUpDataList = [];
+    //    $scope.BudgetCodepopUpList = [];
+    //    $scope.popUpUrl = 'employees/recruitment/getbudgetcodelist';
+    //    //baseService.setCurrentPage('dataList');
+    //    $scope.BudgetCodegetPopUpData = function (pageno) {
+    //        baseService.paginationBase($scope.popUpUrl, pageno, $scope.budgetpopUpParameters)
+    //            .then(function (result) {
+    //                $scope.BudgetCodepopUpDataList = result.Rows;
+    //                $scope.budgetpopUpParameters.total_count = result.Total;
+    //                if (baseService.arrayLength($scope.BudgetCodepopUpList) === 0) {
+    //                    baseService.getDDLSearchColumn(result.Rows, $scope.BudgetCodepopUpList);
+    //                }
+    //            }, function () {
+    //                ShowResult(commonMessage.NetworkError, 'failure', 'BudgetCodepopUpId');
+    //            }).finally(function () {
+    //            });
+    //    };
+    //    angular.element(document.querySelector('#BudgetCodepopUpId')).modal('show');
+    //    $scope.BudgetCodegetPopUpData();
+    //};
+
     $scope.BudgetCodepopUpDataList = [];
-    $scope.BudgetCodepopUp = function () {
-        $scope.BudgetCodepopUpDataList = [];
-        $scope.BudgetCodepopUpList = [];
-        $scope.popUpUrl = 'employees/recruitment/getbudgetcodelist';
-        //baseService.setCurrentPage('dataList');
-        $scope.BudgetCodegetPopUpData = function (pageno) {
-            baseService.paginationBase($scope.popUpUrl, pageno, $scope.budgetpopUpParameters)
-                .then(function (result) {
-                    $scope.BudgetCodepopUpDataList = result.Rows;
-                    $scope.budgetpopUpParameters.total_count = result.Total;
-                    if (baseService.arrayLength($scope.BudgetCodepopUpList) === 0) {
-                        baseService.getDDLSearchColumn(result.Rows, $scope.BudgetCodepopUpList);
-                    }
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, 'failure', 'BudgetCodepopUpId');
-                }).finally(function () {
-                });
-        };
-        angular.element(document.querySelector('#BudgetCodepopUpId')).modal('show');
-        $scope.BudgetCodegetPopUpData();
+    $scope.GetBudgetCodeInformation = function () {
+        try {
+            $http({
+                method: 'GET',
+                url: 'employees/recruitment/getbudgetcodelist'
+            }).then(function successCallback(response) {
+                $scope.BudgetCodepopUpDataList = response.data.Rows;
+            });
+            angular.element(document.querySelector('#BudgetCodepopUpId')).modal('show');
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
     };
 
-    $scope.selectDoubleClick = function (data) {
-        $scope.BudgetCodeNew.BudgetCodeId = data.Id;
-        $scope.BudgetCodeNew.Code = data.Code;
-
+    $scope.closeBudgetCodePopUp = function () {
         angular.element(document.querySelector('#BudgetCodepopUpId')).modal('hide');
+    }
+
+    $scope.OKBudgetCode = function () {
+        try {
+            for (var i = 0; i < $scope.BudgetCodepopUpDataList.length; i++) {
+                if ($scope.BudgetCodepopUpDataList[i].CheckBoxSelect == true) {
+                    if (checkDoubleBudgetCodeInformation($scope.BudgetCodeList, $scope.BudgetCodepopUpDataList[i].Id) === false) {
+                        $scope.BudgetCodeList.push($scope.BudgetCodepopUpDataList[i]);
+                    }
+                }
+            }
+            angular.element(document.querySelector('#PositionCodePopUp')).modal('hide');
+            $scope.SaveBudgetCode();
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
     };
 
-    $scope.clearCode = function () {
-        $scope.BudgetCodeNew.BudgetCodeId = null;
-        $scope.BudgetCodeNew.Code = null;
+    function checkDoubleBudgetCodeInformation(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].BudgetCodeId === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
 
+    $scope.refreshTemplateBC = function (args) {
+        $("#BCheadchk").ejCheckBox({ "change": CheckBoxSelectAllBC });
     };
+
+    function CheckBoxSelectAllBC(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridBudgetCode").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.BudgetCodepopUpDataList.length; i++) {
+                $scope.BudgetCodepopUpDataList[i].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridBudgetCode").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
 
     $scope.SaveBudgetCode = function () {
         if (baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
@@ -436,7 +579,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         $http({
             method: 'POST',
             url: $scope.saveBudgetCodeUrl,
-            data: { 'data': $scope.BudgetCodeNew, 'GlManagementId': $scope.ModelNew.Id },
+            data: { 'data': $scope.BudgetCodeList, 'GlManagementId': $scope.ModelNew.Id },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -444,6 +587,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             }
             else {
                 ShowResult(response.data.Message, 'success');
+                $scope.GetBudgetCodeData($scope.ModelNew.Id);
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -459,9 +603,6 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.BudgetCodeList = response.data;
-            for (var i = 0; i < $scope.BudgetCodeList.length; i++) {
-                $scope.BudgetCodeNew.Code = $scope.BudgetCodeList[i].Code;
-            }
         })
     }
 

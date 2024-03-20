@@ -113,24 +113,21 @@
                                     <thead>
                                         <tr>
                                             <th>Employee Category</th>
-                                            @*<th>Action</th>*@
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr ng-repeat="x in EmployeeCategoryList" ng-class="{selected : x.Id==null}">
                                             <td>{{x.EmployeeCategory}}</td>
-                                            @*<td>
-                                                    <div class="col-sm-12" id="stopageId">
-                                                        <div class="common-btn">
-                                                            <ul class="list-inline text-left">
-                                                                <li> <button ng-click="GetRouteSheduleChildData(x.Id);" class="btn"><i class="glyphicon glyphicon-th-list" tabindex="1011"></i></button></li>
-                                                                <li>
-                                                                    <button ng-click="removeRouteScheduleRowModal(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove" tabindex="214"></i></button>
-                                                                </li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </td>*@
+                                            <td class="text-right table-td">
+                                                <ul class="list-inline action-list">
+                                                    <li>
+                                                        <button ng-click="RemoveEmployeeCategory(x)" class="btn-action tooltip-here" data-placement="top" title="Remove" tabindex="1011">
+                                                            <i class="glyphicon glyphicon-remove"></i>
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -140,7 +137,7 @@
 
                 </div>
 
-                <confirm-archive-generic data-modalid="confirmMaterialPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="RemoveMaterialRow()"></confirm-archive-generic>
+                <confirm-archive-generic data-modalid="EmpCategoryPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteRowEmpCategory()"></confirm-archive-generic>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                 <div class="row">
@@ -185,10 +182,10 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
                 <div class="form-elements">
                     <div class="col-xs-12 col-sm-6 col-md-6">
-                        <button ng-click="BudgetCodepopUp();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-plus">Budget Code</i></button>
+                        <button ng-click="GetBudgetCodeInformation();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-plus">Budget Code</i></button>
                     </div>
                     <div class="col-xs-12 col-sm-12 col-md-12">
-                        <div id="GridEdit" ng-init="chkPC()" ej-grid e-datasource="PositionCodeListData" e-allowfiltering="true"
+                        <div id="GridEdit" ng-init="chkPC()" ej-grid e-datasource="BudgetCodeList" e-allowfiltering="true"
                              e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                             <div e-columns>
@@ -333,7 +330,7 @@
         <div class="modal-content">
             <div class="modal-header">Designation<button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body">
-                <div id="desInfoGrid" ej-grid e-datasource="popUpDataList" e-gridlines="vertical"
+                <div id="desInfoGrid" ej-grid e-datasource="popUpDataList" e-gridlines="vertical" e-templaterefresh="refreshTemplateDesignation"
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                      e-allowselection="true" e-filtersettings-filterType="excel">
                     <div e-columns>
@@ -346,6 +343,9 @@
                         @*<div e-column e-field="Active" e-headertext="Active" e-allowediting="false" e-width="80"></div>*@
                     </div>
                 </div>
+                <script type="text/x-jsrender" id="headerTemplate">
+                    <input type="checkbox" id="Designationheadchk" />
+                </script>
                 <script type="text/template" id="checkboxTemplate">
                     <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
                 </script>
@@ -354,6 +354,9 @@
                 <div class="common-btn">
                     <ul class="list-inline text-right" ng-show="true">
                         <li><button ng-click="OK();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Ok </button></li>
+                        <li>
+                            <button ng-click="closeDesignationCodePopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -366,10 +369,10 @@
         <div class="modal-content">
             <div class="modal-header">Position Code <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
-                <div class="col-md-12">
+                <div class="col-md-12 row">
                     <div class="content-container-fluid" style="color:black;overflow:scroll">
                         <p>Double click to Select an Position Code</p>
-                        <div style="color:black;" id="GridPositionCode" ej-grid e-datasource="PositionCodeList"
+                        <div style="color:black;" id="GridPositionCode" ej-grid e-datasource="PositionCodeList" e-templaterefresh="refreshTemplatePC"
                              e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true">
                             <div e-columns>
@@ -383,45 +386,100 @@
                                 <div e-column e-type="String" e-field="Activity" e-headertext="Activity" e-width="30"></div>
                             </div>
                         </div>
+                        <script type="text/x-jsrender" id="headerTemplatePC">
+                            <input type="checkbox" id="PCheadchk" />
+                        </script>
                         <script type="text/template" id="checkboxTemplatePC">
                             <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
                         </script>
                     </div>
-                    <div class="modal-footer">
-                        <div class="common-btn">
-                            <ul class="list-inline text-right" ng-show="true">
-                                <li><button ng-click="OKPositionCode();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Ok </button></li>
-                            </ul>
-                        </div>
-                    </div>
                 </div>
+            </div>
+            <div class="modal-footer">
                 <div class="common-btn">
-                    <ul class="list-inline text-right">
+                    <ul class="list-inline text-right" ng-show="true">
+                        <li><button ng-click="OKPositionCode();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Ok </button></li>
                         <li>
                             <button ng-click="closePositionCodePopUp();" class="btn"><i class=""></i> Close</button>
                         </li>
                     </ul>
-
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<modal-table modalid="BudgetCodepopUpId"
-             data-title={{BCpopUpTitle}}
-             data-search-parameters="budgetpopUpParameters"
-             data-exclued-column-list="Code"
-             data-field-list="BudgetCodepopUpList"
-             data-data-list="BudgetCodepopUpDataList"
-             data-search-function="BudgetCodegetPopUpData"
-             data-single-click="selectSingleClick(data)"
-             data-double-click="selectDoubleClick(data)"
-             data-right-button="true"
-             data-left-button="true"
-             data-ng-click-left-button="selectByButton()"
-             data-ng-click-cancel="closePopUp()">
-</modal-table>
+@*<modal-table modalid="BudgetCodepopUpId"
+                 data-title={{BCpopUpTitle}}
+                 data-search-parameters="budgetpopUpParameters"
+                 data-exclued-column-list="Code"
+                 data-field-list="BudgetCodepopUpList"
+                 data-data-list="BudgetCodepopUpDataList"
+                 data-search-function="BudgetCodegetPopUpData"
+                 data-single-click="selectSingleClick(data)"
+                 data-double-click="selectDoubleClick(data)"
+                 data-right-button="true"
+                 data-left-button="true"
+                 data-ng-click-left-button="selectByButton()"
+                 data-ng-click-cancel="closePopUp()">
+    </modal-table>*@
+
+<div class="modal fade site-modal in" id="BudgetCodepopUpId" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Budget Code <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12" row>
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select Budget Code</p>
+                        <div style="color:black;" id="GridBudgetCode" ej-grid e-datasource="BudgetCodepopUpDataList" e-templaterefresh="refreshTemplateBC"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true">
+                            <div e-columns>
+                                <div e-column e-headertext="" e-headertemplateid="#headerTemplateBC" e-template="#checkboxTemplateBC" e-textalign="center" e-width="30"></div>
+                                <div e-column e-type="Number" e-field="Id" e-headertext="Id" e-visible="false" e-width="30"></div>
+                                <div e-column e-type="Number" e-field="Code" e-headertext="Code" e-width="50"></div>
+                                <div e-column e-type="String" e-field="EntityName" e-headertext="Entity Name" e-width="100"></div>
+                                <div e-column e-type="String" e-field="PositionName" e-headertext="Position Name" e-width="100"></div>
+                                <div e-column e-type="String" e-field="PositionCode" e-headertext="Position Code" e-width="60"></div>
+                                <div e-column e-type="String" e-field="EntityCode" e-headertext="Entity Code" e-width="60"></div>
+                                <div e-column e-type="String" e-field="IsOTEntitled" e-headertext="Is OT Entitled" e-width="50"></div>
+                                <div e-column e-type="String" e-field="Deployment" e-headertext="Deployment" e-width="100"></div>
+                                <div e-column e-type="String" e-field="IsDirect" e-headertext="Is Direct" e-width="50"></div>
+                                <div e-column e-type="String" e-field="Plant" e-headertext="Plant" e-width="100"></div>
+                                <div e-column e-type="String" e-field="Division" e-headertext="Division" e-width="100"></div>
+                                <div e-column e-type="String" e-field="SubDivision" e-headertext="Sub Division" e-width="100"></div>
+                                <div e-column e-type="String" e-field="Unit" e-headertext="Unit" e-width="100"></div>
+                                <div e-column e-type="String" e-field="Department" e-headertext="Department" e-width="100"></div>
+                                <div e-column e-type="String" e-field="Section" e-headertext="Section" e-width="100"></div>
+                                <div e-column e-type="String" e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
+                                <div e-column e-type="String" e-field="Line" e-headertext="Line" e-width="100"></div>
+                                <div e-column e-type="String" e-field="ShiftDefination" e-headertext="Shift Defination" e-width="100"></div>
+                                <div e-column e-type="String" e-field="Designation" e-headertext="Designation" e-width="100"></div>
+                            </div>
+                        </div>
+                        <script type="text/x-jsrender" id="headerTemplateBC">
+                            <input type="checkbox" id="BCheadchk" />
+                        </script>
+                        <script type="text/template" id="checkboxTemplateBC">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right" ng-show="true">
+                        <li><button ng-click="OKBudgetCode();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Ok </button></li>
+                        <li>
+                            <button ng-click="closeBudgetCodePopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <div class="row text-right aplos-grid-toggle">
