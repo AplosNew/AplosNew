@@ -225,13 +225,12 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         }
     };
 
-    $scope.DesignationListNew = [];
     $scope.OK = function () {
         try {
             for (var i = 0; i < $scope.popUpDataList.length; i++) {
                 if ($scope.popUpDataList[i].CheckBoxSelect == true) {
-                    if (checkDoubleDesignationInformation($scope.DesignationListNew, $scope.popUpDataList[i].DesignationId) === false) {
-                        $scope.DesignationListNew.push($scope.popUpDataList[i]);
+                    if (checkDoubleDesignationInformation($scope.DesignationList, $scope.popUpDataList[i].DesignationId) === false) {
+                        $scope.DesignationList.push($scope.popUpDataList[i]);
                     }
                 }
             } 
@@ -251,7 +250,6 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         return false;
     }
 
-
     $scope.designation = {
         Id: null,
         DesignationId: null,
@@ -267,7 +265,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         $http({
             method: 'POST',
             url: $scope.saveDesignationUrl,
-            data: { 'data': $scope.DesignationListNew, 'GlManagementId': $scope.ModelNew.Id },
+            data: { 'data': $scope.DesignationList, 'GlManagementId': $scope.ModelNew.Id },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -319,15 +317,36 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         });
     }
 
-    $scope.doublePositionCode = function (e) {
-        $scope.positionNew.PositionCodeId = e.data.Id;
-        $scope.positionNew.PositionCode = e.data.Code;
-        angular.element(document.querySelector('#PositionCodePopUp')).modal('hide');
-    }
-
     $scope.closePositionCodePopUp = function () {
         angular.element(document.querySelector('#PositionCodePopUp')).modal('hide');
     }
+
+
+    $scope.OKPositionCode = function () {
+        try {
+            for (var i = 0; i < $scope.PositionCodeList.length; i++) {
+                if ($scope.PositionCodeList[i].CheckBoxSelect == true) {
+                    if (checkDoublePositionCodeInformation($scope.PositionCodeListData, $scope.PositionCodeList[i].PositionCodeId) === false) {
+                        $scope.PositionCodeListData.push($scope.PositionCodeList[i]);
+                    }
+                }
+            }
+            angular.element(document.querySelector('#PositionCodePopUp')).modal('hide');
+            $scope.SavePositionCode();
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    function checkDoublePositionCodeInformation(list, PositionCodeId) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].PositionCodeId === PositionCodeId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     $scope.SavePositionCode = function () {
         if (baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
@@ -336,7 +355,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         $http({
             method: 'POST',
             url: $scope.savePositionCodeUrl,
-            data: { 'data': $scope.positionNew, 'GlManagementId': $scope.ModelNew.Id },
+            data: { 'data': $scope.PositionCodeListData, 'GlManagementId': $scope.ModelNew.Id },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -344,13 +363,14 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             }
             else {
                 ShowResult(response.data.Message, 'success');
+                $scope.GetPositionCodeData($scope.ModelNew.Id);
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
         }
     };
 
-    $scope.PositionCodeList = [];
+    $scope.PositionCodeListData = [];
     $scope.GetPositionCodeData = function (data) {
         $http({
             method: 'POST',
@@ -358,10 +378,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             data: { 'glManagementId': data },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.PositionCodeList = response.data;
-            for (var i = 0; i < $scope.PositionCodeList.length; i++) {
-                $scope.positionNew.PositionCode = $scope.PositionCodeList[i].Code;
-            }
+            $scope.PositionCodeListData = response.data; 
         })
     }
     //#endregion position
@@ -374,17 +391,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     };
     $scope.BudgetCodeNew = angular.copy($scope.BudgetCode);
 
-    $scope.budgetpopUpParameters = {
-        limit: 10,
-        offset: 0,
-        order: 'asc',
-        sort: 'Code',
-        searchBy: "Code",
-        pageSize: 10,
-        total_count: 0,
-        search: null,
-        serverPagination: true
-    };
+     
     $scope.BCpopUpTitle = "Manpower Budget";
     $scope.BudgetCodepopUpDataList = [];
     $scope.BudgetCodepopUp = function () {
