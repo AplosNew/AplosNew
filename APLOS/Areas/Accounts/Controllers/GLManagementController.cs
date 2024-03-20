@@ -303,9 +303,9 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             try
             {
-                DataSet dsEmpCat;
+                DataSet dsDesignation;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementDesignation] where GlManagementId='" + GlManagementId + "'", out dsEmpCat, false, "1");
+                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementDesignation] where GlManagementId='" + GlManagementId + "'", out dsDesignation, false, "1");
 
                 string Id = "";
 
@@ -315,10 +315,8 @@ namespace Aplos.Areas.Accounts.Controllers
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementDesignation", out Id);
                     var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                     
-                    //DataRow dr;
-                    //dr = dsEmpCat.Tables[0].NewRow();
-                    DataView dv = new DataView(dsEmpCat.Tables[0]);
+                      
+                    DataView dv = new DataView(dsDesignation.Tables[0]);
                     dv.RowFilter = "Id='" + item["Id"] + "'";
 
                     if (dv.Count == 0)
@@ -328,7 +326,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         //item["DesignationId"] = item["Id"];
                         item["GlManagementId"] = GlManagementId;
                          
-                        AddNewRow(dsEmpCat.Tables[0], item);
+                        AddNewRow(dsDesignation.Tables[0], item);
                     }
                     else
                     { 
@@ -341,7 +339,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
                 #endregion data update 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsEmpCat);
+                _info.SaveDataSets(dsDesignation);
                 return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
             }
             catch (Exception ex)
@@ -350,47 +348,43 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
         [HttpPost, Authorize]
-        public JsonResult CreateGlManagementPositionCode(Dictionary<string, object> data, string GlManagementId)
+        public JsonResult CreateGlManagementPositionCode(List<Dictionary<string, object>> data, string GlManagementId)
         {
             try
             {
-                DataSet dsEmpCat;
+                DataSet dsPCode;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementPositionCode] where Id='" + data["Id"] + "'", out dsEmpCat, false, "1");
-
-                string Id = "";
-
+                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementPositionCode] where GlManagementId='" + GlManagementId + "'", out dsPCode, false, "1");
+                string Id = "";  
+               
                 #region data update
-                if (dsEmpCat.Tables[0].Rows.Count == 0)
+                foreach (var item in data)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementPositionCode", out Id);
-
                     var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                    DataRow dr;
-                    dr = dsEmpCat.Tables[0].NewRow();
+                     
+                    DataView dv = new DataView(dsPCode.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
 
-                    dr["Id"] = Id;
-                    dr["PositionCodeId"] = data["PositionCodeId"];
-                    dr["GlManagementId"] = GlManagementId;
+                    if (dv.Count == 0)
+                    { 
+                        item["Id"] = Id;
+                        item["GlManagementId"] = GlManagementId;
 
-                    dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = System.DateTime.Now.ToString();
-                    dr["AddedFromIP"] = identity.IPAddress;
-                    dr["UpdatedBy"] = identity.Name;
-                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                    dr["UpdatedFromIP"] = identity.IPAddress;
-                    dsEmpCat.Tables[0].Rows.Add(dr);
-                }
-                else
-                {
-                    Id = data["Id"].ToString();
-                    EditRow(dsEmpCat.Tables[0].Rows[0], data);
-                }
-
+                        AddNewRow(dsPCode.Tables[0], item);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        item["Id"] = dv[0].Row["Id"].ToString();
+                        EditRow(drmo, item);
+                    } 
+                } 
                 #endregion data update 
+
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsEmpCat);
+                _info.SaveDataSets(dsPCode);
                 return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
             }
             catch (Exception ex)
@@ -571,7 +565,7 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             try
             {
-                var sql = @"select P.Code,P.UserName as Position,PC.PositionCodeId
+                var sql = @"select PC.Id,P.Code,P.UserName as Position,PC.PositionCodeId
                             from [HKP].[GLManagementPositionCode] PC
                             left join [ORG].[Position] P on P.Id=PC.PositionCodeId
 							where PC.GLManagementId = '" + glManagementId + "' ";
@@ -605,7 +599,7 @@ namespace Aplos.Areas.Accounts.Controllers
         public ActionResult GetPositionCode()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select P.Id,P.Code,P.UserName Position,P.Activity,
+            string str = @"select '' Id,P.Id PositionCodeId,P.Code,P.UserName Position,P.Activity,
                         DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection
                         from ORG.Position P	
                         LEFT JOIN ORG.Department AS DEP ON DEP.Id=P.DepartmentId
