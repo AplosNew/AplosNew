@@ -70,26 +70,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
     };
 
-
-    //$scope.getData = function () {
-    //    baseService.setCurrentPage('files');
-    //    $rootScope.parameters.companyId = $scope.fileNew.CompanyId;
-    //    // baseService.init($scope.getListUrl, null, null, null, 'CONVERT(int,MasterOrderNo)', 'MasterOrderNo');
-    //    baseService.init($scope.getListUrl, null, null, "DESC", 'AddedDate', 'MasterOrderNo');
-    //    $scope.loadMasterData = function (pageno) {
-    //        baseService.pagination(pageno)
-    //            .then(function (result) {
-    //                $scope.files = result.Rows;
-    //                if (baseService.arrayLength($scope.searchMasterFilterList) === 0)
-    //                    baseService.getDDLSearchColumn(result.Rows, $scope.searchMasterFilterList);
-
-    //            }, function () {
-    //                ShowResult(commonMessage.NetworkError, 'failure');
-    //            }).finally(function () {
-    //            });
-    //    }; $scope.loadMasterData();
-    //};
-
     $scope.file = {
         Id: null
         , CompanyId: null
@@ -137,7 +117,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         , ExceptionalProcessId: null
         , ExceptionalSubProcessId: null
         , DefaultPaymentTermId: null
-        ,IsPaymentTermChangeable: false
+        , IsPaymentTermChangeable: false
     };
     $scope.fileNew = Object.assign({}, $scope.file);
     $scope.isBuyerApplicable = false;
@@ -155,7 +135,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.searchByRCList = [{ value: 'Id', name: "Id" }, { value: 'Process', name: "Process" }];
 
 
-    $scope.RemarksControlmodel = { Id:null,MasterOrderId: null, RemarkControlId: null, RemarksControl: null, UserRemarks:null};
+    $scope.RemarksControlmodel = { Id: null, MasterOrderId: null, RemarkControlId: null, RemarksControl: null, UserRemarks: null };
     $scope.RemarksControlList = [];
     $scope.GetRemarksControlList = function () {
         $http({
@@ -992,7 +972,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         if (!baseService.isUndefinedOrNull($scope.fileNew.PaymentTermId)) {
             var paymentTerm = $.grep($scope.paymentTermList, function (item) { return item.Value === $scope.fileNew.PaymentTermId; })[0];
             $scope.fileNew.PaymentTermDays = paymentTerm.NoOfDay;
-            
+
         }
     };
 
@@ -2032,6 +2012,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 , PackingTypeId: null
                 , ContractId: null
                 , ContractNo: null
+                , CheckByDate: null, CheckByStatus: null, ApproveBy: null, ApproveByDate: null, ApprovedStatus: null
             };
             getSalesOrderList();
             $scope.getDestination();
@@ -2496,6 +2477,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , PackingTypeId: null
             , ContractId: null
             , ContractNo: null
+            , CheckByDate: null, CheckByStatus: null, ApproveBy: null, ApproveByDate: null, ApprovedStatus: null
         };
     }
 
