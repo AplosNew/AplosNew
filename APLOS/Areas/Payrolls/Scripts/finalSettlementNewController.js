@@ -15,17 +15,17 @@ function finalSettlementNewController(commonMessage, $scope, $rootScope, baseSer
     $scope.getDataForEditUrl = $scope.path + 'GetDataForEdit';
 
     $scope.getETListUrl = $scope.path + 'GetEmploymentTypelist';
- 
+
     $scope.getListUrl = $scope.path + 'GetSeparationTypelist';
     $scope.getUrl = $scope.path + 'get';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
-   
+
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
-    
+
     $scope.salaryRuleGeneral = {
-        FormulaDescription : null,
-        FormulaIDDescription : null
+        FormulaDescription: null,
+        FormulaIDDescription: null
     };
     //$scope.getData();
     $scope.btnSave = false;
@@ -51,7 +51,7 @@ function finalSettlementNewController(commonMessage, $scope, $rootScope, baseSer
             ShowResult(e, "failure");
         }
     };
-    $scope.getSeparationType();  
+    $scope.getSeparationType();
 
     $scope.CustomPara = {
         SeparationTypeId: null,
@@ -70,7 +70,7 @@ function finalSettlementNewController(commonMessage, $scope, $rootScope, baseSer
                         ShowResult(response.Message, 'failure');
                     }
                     else {
-                    
+
                         $scope.FinalSettlementModel = response.data[0];
                         $scope.FinalSettlementDeductionHeadList = response.FinalSettlementDeduction[0];
                         $scope.FinalSettlementEarningHeadList = response.FinalSettlementEarning[0];
@@ -152,7 +152,7 @@ function finalSettlementNewController(commonMessage, $scope, $rootScope, baseSer
 
 
 
-       
+
     };
     $scope.EditFinalSettlement = function (obj) {
         var gridObj = $("#GridFinalSettlementList").data("ejGrid");
@@ -178,7 +178,7 @@ function finalSettlementNewController(commonMessage, $scope, $rootScope, baseSer
                         $scope.FinalSettlementModel = response.data.FinalSettlement[0];
                         $scope.EmployeeModel = response.data.EmployeeInfo[0];
                         $scope.btnSave = true;
-                       
+
                     }
                 },
 
@@ -199,7 +199,7 @@ function finalSettlementNewController(commonMessage, $scope, $rootScope, baseSer
     $scope.EmployeeInformationList = [];
     $scope.LoadEmployeeList = function () {
         try {
-           
+
             //var eDialog = $("#dialogEmployeeInfo").data("ejDialog");
             //eDialog.open();
             angular.element(document.querySelector('#dialogEmployeeInfo')).modal('show');
@@ -228,8 +228,8 @@ function finalSettlementNewController(commonMessage, $scope, $rootScope, baseSer
     $scope.EmployeeModel = {};
     $scope.SelectEmployee = function (obj) {
         try {
-           
-           // var gridObj = $("#GridEmployeeInfoList").data("ejGrid");
+
+            // var gridObj = $("#GridEmployeeInfoList").data("ejGrid");
             $scope.EmployeeModel = obj.data;
 
             //var eDialog = $("#dialogEmployeeInfo").data("ejDialog");
@@ -253,7 +253,8 @@ function finalSettlementNewController(commonMessage, $scope, $rootScope, baseSer
                         $scope.FinalSettlementEarningHeadList = response.data.FinalSettlementEarning;
                         $scope.FinalSettlementRetainedHeadList = response.data.FinalSettlementRetainedHead;
                         $scope.FinalSettlementModel.LastMonthNetPayAmount = 0;
-                        if (baseService.arrayLength($scope.FinalSettlementUndisbursedEarningList)>0) {
+                        $scope.FinalSettlementModel.AdvanceAmount = response.data.avdanceData[0].Balance;
+                        if (baseService.arrayLength($scope.FinalSettlementUndisbursedEarningList) > 0) {
                             for (var i = 0; i < $scope.FinalSettlementUndisbursedEarningList.length; i++) {
                                 $scope.FinalSettlementModel.LastMonthNetPayAmount += $scope.FinalSettlementUndisbursedEarningList[i].DisbusmentAmount;
                             }
@@ -266,23 +267,6 @@ function finalSettlementNewController(commonMessage, $scope, $rootScope, baseSer
                     function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure');
                     });
-
-
-
-
-            //$http.get($scope.getEmployeeListUrl)
-            //    .then(function successCallback(response) {
-            //        if (response.data.Error === true) {
-            //            ShowResult(response.data.Message, 'failure');
-            //        }
-            //        else {
-            //            $scope.EmployeeInformationList = response.data;
-            //        }
-            //    },
-
-            //        function errorCallBack(response) {
-            //            ShowResult(response.data.Message, 'failure');
-            //        });
 
 
         } catch (e) {
@@ -313,16 +297,16 @@ function finalSettlementNewController(commonMessage, $scope, $rootScope, baseSer
         }
     };
     $scope.getEmploymentType();
-    
+
     $scope.AddDeduction = function () {
         try {
-            
+
             var total = 0;
-            for (var i = 0; i < $scope.FinalSettlementDeductionHeadList.length; i++) { 
+            for (var i = 0; i < $scope.FinalSettlementDeductionHeadList.length; i++) {
                 if (!baseService.isUndefinedOrNull($scope.FinalSettlementDeductionHeadList[i].DeductionAmount)) {
                     total += parseInt($scope.FinalSettlementDeductionHeadList[i].DeductionAmount);
                 }
-               
+
             }
             $scope.FinalSettlementModel.DeductionAmount = total;
 
@@ -349,27 +333,27 @@ function finalSettlementNewController(commonMessage, $scope, $rootScope, baseSer
 
     $scope.AddNoticePeriodAmount = function () {
         try {
-            
-           
+
+
             if ($scope.FinalSettlementModel.NoticePeriodType == 'Deduction') {
-                $scope.FinalSettlementModel.TotalPayableAmount =$scope.FinalSettlementModel.EarningAmount +
+                $scope.FinalSettlementModel.TotalPayableAmount = $scope.FinalSettlementModel.EarningAmount +
                     $scope.FinalSettlementModel.LastMonthNetPayAmount +
                     $scope.FinalSettlementModel.LvEncashmentAmount +
                     $scope.FinalSettlementModel.FixedDayAmount +
                     $scope.FinalSettlementModel.SeparationTypeAmount;
 
-                $scope.FinalSettlementModel.NetPayAmount =$scope.FinalSettlementModel.DeductionAmount + $scope.FinalSettlementModel.EarnLvDeductionAmount + $scope.FinalSettlementModel.NoticePeriodAmount;
+                $scope.FinalSettlementModel.NetPayAmount = $scope.FinalSettlementModel.DeductionAmount + $scope.FinalSettlementModel.EarnLvDeductionAmount + $scope.FinalSettlementModel.NoticePeriodAmount;
 
 
             } else {
-                $scope.FinalSettlementModel.TotalPayableAmount =$scope.FinalSettlementModel.EarningAmount +
+                $scope.FinalSettlementModel.TotalPayableAmount = $scope.FinalSettlementModel.EarningAmount +
                     $scope.FinalSettlementModel.LastMonthNetPayAmount +
                     $scope.FinalSettlementModel.LvEncashmentAmount +
                     $scope.FinalSettlementModel.FixedDayAmount +
                     $scope.FinalSettlementModel.SeparationTypeAmount +
                     $scope.FinalSettlementModel.NoticePeriodAmount;
 
-                $scope.FinalSettlementModel.NetPayAmount =$scope.FinalSettlementModel.DeductionAmount + $scope.FinalSettlementModel.EarnLvDeductionAmount;
+                $scope.FinalSettlementModel.NetPayAmount = $scope.FinalSettlementModel.DeductionAmount + $scope.FinalSettlementModel.EarnLvDeductionAmount;
             }
 
         } catch (e) {
@@ -456,10 +440,10 @@ function finalSettlementNewController(commonMessage, $scope, $rootScope, baseSer
 
     $scope.GetSequence();
 
-  
 
-    
-    
+
+
+
 
     $scope.EditSeparationType = function (obj) {
         var gridObj = $("#GridSeparationTypesList").data("ejGrid");
@@ -512,7 +496,7 @@ function finalSettlementNewController(commonMessage, $scope, $rootScope, baseSer
         $scope.Action = 'Save';
         $scope.FinalSettlementModel = {};
         $scope.EmployeeModel = {};
-      
+
         $scope.CreateTempList();
     }
 };

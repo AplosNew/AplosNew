@@ -2102,6 +2102,7 @@ namespace OTSBD
         public decimal TotalNetPayAmount { get; set; } = 0;
         public string GratuityDaysOrYear { get; set; }
         public decimal GratuityEligibleYearOrDays { get; set; }
+        public decimal AdvanceAmount { get; set; }
     }
 
 

@@ -1414,6 +1414,18 @@ namespace Aplos.Controllers.ApopAPIHR
                 return ex.ToString();
             }
         }
+        public string PostQualityConfirmationMasterUpdate([FromBody] IEnumerable<QualityConfirmssControllMaster> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostQualityConfirmationMasterUpdate(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
         #endregion Quality Acion 
     }
 }
