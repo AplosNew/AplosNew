@@ -4394,7 +4394,7 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
                             )X";
                 if (CustomerId != null && POId == null && POStatusId == null)
                 {
-                   strSQL =  strSQL1 + " Where x.CustomerId = '" + CustomerId + "' Order By X.POId,X.ProcessIndex,X.Sequence,X.Process";  
+                    strSQL = strSQL1 + " Where x.CustomerId = '" + CustomerId + "' Order By X.POId,X.ProcessIndex,X.Sequence,X.Process";
                 }
                 if (CustomerId == null && POId != null && POStatusId == null)
                 {
@@ -4589,7 +4589,7 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
         }
 
         #region Attendance
-        public void GetUserGroup(out List<Default2> DataList , string EmpsysId)
+        public void GetUserGroup(out List<Default2> DataList, string EmpsysId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -4798,7 +4798,7 @@ where Emp.EmployeeCode = '" + Empcode + "'";
             }
         }
 
-        public void GetAttdnreport(out List<AttendanceReport> DataList, string date, string shiftid, string groupid , string inmis,string locations,string entityid , string tbs , string longabsent)
+        public void GetAttdnreport(out List<AttendanceReport> DataList, string date, string shiftid, string groupid, string inmis, string locations, string entityid, string tbs, string longabsent)
         {
             if (inmis == "IN" || inmis == "IM" || inmis == "W")
             {
@@ -4918,7 +4918,7 @@ and emp.employeecode NOT IN (2222229, 2222230)  and apd.WorkDate = '" + date + "
                         strSQL = strSQL + " and Emp.EmployeeCurrentStatus is null  ) a order by a.SrNo";
                     }
 
-                    
+
 
 
                     #endregion Sql
@@ -4975,7 +4975,7 @@ and emp.employeecode NOT IN (2222229, 2222230)  and apd.WorkDate = '" + date + "
                     objCon = null;
                 }
             }
-            else if(inmis == "LateIn")
+            else if (inmis == "LateIn")
             {
                 clsConnectionManager objCon = null;
                 string strSQL = "";
@@ -5275,7 +5275,7 @@ and emp.employeecode NOT IN (2222229, 2222230)   and MBGT.Active = 1  and Hg.Id 
                     {
                         DataList.Add(new AttendanceReport
                         {
-                            
+
                             Section = dsRef.Tables[0].Rows[i]["Section"].ToString(),
                             SubSection = dsRef.Tables[0].Rows[i]["SubSection"].ToString(),
                             Designation = dsRef.Tables[0].Rows[i]["Designation"].ToString(),
@@ -5304,7 +5304,7 @@ and emp.employeecode NOT IN (2222229, 2222230)   and MBGT.Active = 1  and Hg.Id 
         }
         #endregion Attendance
 
-      
+
 
         public class ProcessServiceTest
         {
@@ -5361,7 +5361,7 @@ and emp.employeecode NOT IN (2222229, 2222230)   and MBGT.Active = 1  and Hg.Id 
 
         #endregion Sales Return
 
-      
+
         #region seven days attendance
         public string PostPlantinoutcontrl(IEnumerable<Plantcontrol> DataToSave)
         {
@@ -5408,24 +5408,24 @@ and emp.employeecode NOT IN (2222229, 2222230)   and MBGT.Active = 1  and Hg.Id 
                         dsMaster.Tables[0].Rows.Add(dr);
 
                     }
-                   /* else
-                    {
-                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-                        dr.BeginEdit();
+                    /* else
+                     {
+                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                         dr.BeginEdit();
 
-                        dr["Date"] = item.Date;
-                        dr["Time"] = item.Time;
-                        dr["EmployeeCode"] = item.EmployeeCode;
-                        dr["InandOut"] = item.InandOut;
-
-
-                        dr["UpdatedBy"] = item.UpdatedBy;
-                        dr["UpdatedDate"] = item.UpdatedDate;
-                        dr["UpdatedFromIP"] = item.UpdatedFromIP;
+                         dr["Date"] = item.Date;
+                         dr["Time"] = item.Time;
+                         dr["EmployeeCode"] = item.EmployeeCode;
+                         dr["InandOut"] = item.InandOut;
 
 
-                        dr.EndEdit();
-                    }*/
+                         dr["UpdatedBy"] = item.UpdatedBy;
+                         dr["UpdatedDate"] = item.UpdatedDate;
+                         dr["UpdatedFromIP"] = item.UpdatedFromIP;
+
+
+                         dr.EndEdit();
+                     }*/
 
                 }
                 clsStaticInfo _info = new clsStaticInfo();
@@ -5529,7 +5529,7 @@ and EmployeeCode = '" + EmpSysId + "' order by AddedDate Desc ";
                         dsMaster.Tables[0].Rows.Add(dr);
 
                     }
-                   
+
 
                 }
                 clsStaticInfo _info = new clsStaticInfo();
@@ -5585,7 +5585,7 @@ and EmployeeCode = '" + EmpSysId + "' order by AddedDate Desc ";
             }
         }
 
-       
+
 
 
 
@@ -5594,7 +5594,7 @@ and EmployeeCode = '" + EmpSysId + "' order by AddedDate Desc ";
             try
             {
                 DataSet dsMaster;
-              //  string TableName = "dbo.AttdnProcessData";
+                //  string TableName = "dbo.AttdnProcessData";
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 if (DataToSave.Count() == 0)
@@ -5627,7 +5627,7 @@ and EmployeeCode = '" + EmpSysId + "' order by AddedDate Desc ";
                     }
                 }
 
-              
+
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
                 string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
@@ -6097,7 +6097,7 @@ where isnull(MP.IsInventoryOut,0) = 0 and mm.ToStorageLocId is not null";
 
 
         #endregion commit
-        public void GetVehicleLocation(out List<Default2> DataList , string ID)
+        public void GetVehicleLocation(out List<Default2> DataList, string ID)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -6165,7 +6165,7 @@ where isnull(MP.IsInventoryOut,0) = 0 and mm.ToStorageLocId is not null";
             }
         }
 
-        public void GetPurposeResponsible(out List<Default3> DataList , string PurposeId)
+        public void GetPurposeResponsible(out List<Default3> DataList, string PurposeId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -6461,7 +6461,7 @@ where VIO.OutReading is not null and VIO.InReading is null and VA.Id is not null
         }
 
 
-        public void GetVehicleCreationDetail(out List<Vehiclecreationdetails> DataList ,string MasterId)
+        public void GetVehicleCreationDetail(out List<Vehiclecreationdetails> DataList, string MasterId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -6505,7 +6505,7 @@ where  vr.AppliedId = '" + MasterId + "'";
             }
         }
 
-        public string PostVehicleInOutEntry(IEnumerable<VehicleInout> DataToSave , string VInOutId)
+        public string PostVehicleInOutEntry(IEnumerable<VehicleInout> DataToSave, string VInOutId)
         {
             try
             {
@@ -6704,7 +6704,7 @@ and VMR.VehiclePurposeResponsiblePersonId = '" + EmpSystemId + "'";
                     return "";
                 List<Vehicle> items = DataToSave.ToList();
 
-                
+
                 con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisition where Id='" + VehicleId + "'", out dsMaster, false, "1");
 
                 foreach (Vehicle item in DataToSave)
@@ -7134,7 +7134,7 @@ where EI.EmployeeStatus = 'Active' and MB.ROBudgetCode = '" + Id + "'";
         #endregion Attdn Lock
 
         #region Quality Control
-        public void GetQualityGeneraWiseIssue(out List<QualityGenaralIssue> DataList , string ResposibleId)
+        public void GetQualityGeneraWiseIssue(out List<QualityGenaralIssue> DataList, string ResposibleId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -7201,7 +7201,7 @@ left join hkp.Process P on P.Id=QID.ProcessId) GI
             }
         }
 
-        public void GetQualityPOWiseIssue(out List<QualityPOIssue> DataList , string POIssueDate , string ResponsibleId)
+        public void GetQualityPOWiseIssue(out List<QualityPOIssue> DataList, string POIssueDate, string ResponsibleId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -7714,7 +7714,7 @@ where WTD.IssueId='" + IssueId + "'";
             }
         }
 
-        public void GetQualityWorkCenter(out List<Default> DataList, string IssueId,string EntityId,string ProcessId)
+        public void GetQualityWorkCenter(out List<Default> DataList, string IssueId, string EntityId, string ProcessId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -7936,7 +7936,7 @@ left join dbo.EmployeeInformation EI on QAP.QualityActionResponsiblePersonId = E
             }
         }
 
-        public void GetProductionBookingLevel(out List<Default2> DataList,string ProcessId ,string EntityId)
+        public void GetProductionBookingLevel(out List<Default2> DataList, string ProcessId, string EntityId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -7945,7 +7945,7 @@ left join dbo.EmployeeInformation EI on QAP.QualityActionResponsiblePersonId = E
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select Id Value , ProductionBookingLevel Name from hkp.EntityProcessTag where ProcessId = '" + ProcessId + "' and EntityId = '" + EntityId +  "'";
+                strSQL = @"select Id Value , ProductionBookingLevel Name from hkp.EntityProcessTag where ProcessId = '" + ProcessId + "' and EntityId = '" + EntityId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -8218,7 +8218,7 @@ left join dbo.EmployeeInformation EI on QAP.QualityActionResponsiblePersonId = E
                         _ToDate = dtCalendar.Rows[0]["ToDate"].ToString();
                     }
                 }
-             
+
                 string _sql = @"Select * from (SELECT ei.SystemId,lt.Id LeaveTypeId,ei.EmployeeCode,ei.EmployeeName,FORMAT(ei.DOJ,'dd-MMM-yyyy') AS DOJ,p.UserName AS PlantName,D.UserName AS Designation,
 DEPT.UserName AS Department,ct.UserName AS EmployeeCategory, lt.UserName LeaveName
 										 ,	DaysCanBeSanctioned=case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
@@ -8367,7 +8367,7 @@ LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
 
                     });
                 }
-                
+
 
             }
             catch (System.Exception ex)
@@ -8486,7 +8486,7 @@ left join EmployeeInformation EI on EI.SystemId  = US.EmployeeId where US.UserId
             }
         }
 
-        public void GetBankName(out List<Default2> DataList , string categoryId , string subcategoryId)
+        public void GetBankName(out List<Default2> DataList, string categoryId, string subcategoryId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -8522,18 +8522,18 @@ where BM.BankCategoryId = '" + categoryId + "' and BM.BankSubCategoryId = '" + s
             }
         }
 
-        public void GetBankAccount(out List<Default2> DataList, string bankId, string categoryId, string subcategoryId) 
+        public void GetBankAccount(out List<Default2> DataList, string bankId, string categoryId, string subcategoryId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
-            DataList = new List<Default2>(); 
+            DataList = new List<Default2>();
 
-            System.Data.DataSet dsRef; 
+            System.Data.DataSet dsRef;
             try
             {
                 strSQL = @"select Distinct BM.AccountNumber Name , BM.Id Value from mst.BankMaster BM 
 left join HKP.Bank BK on BK.Id = BM.BankId 
-where BM.BankCategoryId = '" + categoryId + "' and BM.BankSubCategoryId = '" + subcategoryId + "' and BM.BankId = '"  + bankId + "'"; 
+where BM.BankCategoryId = '" + categoryId + "' and BM.BankSubCategoryId = '" + subcategoryId + "' and BM.BankId = '" + bankId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -8589,7 +8589,7 @@ where BM.BankCategoryId = '" + categoryId + "' and BM.BankSubCategoryId = '" + s
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID(TableName, out string _Id);
 
-                        dr["Id"] =  _Id;
+                        dr["Id"] = _Id;
                         dr["BankMasterId"] = item.BankMasterId;
                         dr["ClosingDate"] = item.ClosingDate;
                         dr["ClosingBalence"] = item.ClosingBalence;
@@ -8936,7 +8936,7 @@ Where EMP.EmployeeStatus = 'Active' and x.UserName <> 'Associate'";
             }
         }
 
-        public void GetLeaveApprovestatus(out List<Default2> DataList , string Fmdate, string Todate)
+        public void GetLeaveApprovestatus(out List<Default2> DataList, string Fmdate, string Todate)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -9011,7 +9011,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null";
             }
         }
 
-        public void GetInvoiceCustomen(out List<Default2> DataList , string Respr , string Type)
+        public void GetInvoiceCustomen(out List<Default2> DataList, string Respr, string Type)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -9083,7 +9083,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
             }
         }
 
-        public void GetInvoiceNumber(out List<Default2> DataList, string Respr, string Type , string Customer)
+        public void GetInvoiceNumber(out List<Default2> DataList, string Respr, string Type, string Customer)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -9104,7 +9104,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
                     Type = null;
                 }
             }
-            if (Respr != null && Type == null && Customer == null )
+            if (Respr != null && Type == null && Customer == null)
             {
                 CusAll = " and EI.SystemId = '" + Respr + "'";
             }
@@ -9116,7 +9116,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
             {
                 CusAll = " and EI.SystemId = '" + Respr + "' and PAG.StandardName = '" + Type + "' and PT.Id = '" + Customer + "'";
             }
-           
+
             if (Respr == null && Type != null && Customer == null)
             {
                 CusAll = " and PAG.StandardName = '" + Type + "'";
@@ -9177,17 +9177,17 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
             string strSQL = "";
             DataList = new List<InvoiceDataGetset>();
             var CusAll = "";
-            if(Type != null)
+            if (Type != null)
             {
-                if(Type == "Export")
+                if (Type == "Export")
                 {
                     Type = "Customer Export";
                 }
-                if(Type == "Local")
+                if (Type == "Local")
                 {
                     Type = "Customer Local";
                 }
-                if(Type == "Both")
+                if (Type == "Both")
                 {
                     Type = null;
                 }
@@ -9198,7 +9198,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
             }
             if (ResPer != null && Type != null && Customer == null && InvoiceNo == null)
             {
-                CusAll = " and EI.SystemId = '" + ResPer + "' and PAG.StandardName = '" +Type + "'";
+                CusAll = " and EI.SystemId = '" + ResPer + "' and PAG.StandardName = '" + Type + "'";
             }
             if (ResPer != null && Type != null && Customer != null && InvoiceNo == null)
             {
@@ -9232,7 +9232,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
             {
                 CusAll = " and PAG.StandardName = '" + Type + "' and PT.Id = '" + Customer + "'";
             }
-            
+
             if (ResPer == null && Type == null && Customer != null && InvoiceNo != null)
             {
                 CusAll = " and PT.Id = = '" + Customer + "' and IR.InvoiceNo = '" + InvoiceNo + "'";
@@ -9302,7 +9302,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
             clsConnectionManager objCon = null;
             string strSQL = "";
             DataList = new List<InvoiceDataEntry>();
-            
+
             System.Data.DataSet dsRef;
             try
             {
@@ -9446,7 +9446,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID(TableName, out string _Id);
                         string year = DateTime.Now.ToString("yyyy");
-                        dr["Id"] = year + "-" +  _Id;
+                        dr["Id"] = year + "-" + _Id;
                         dr["SalesId"] = item.SalesId;
                         dr["Status"] = item.Status;
                         dr["ActionToBeTakenId"] = item.ActionToBeTakenId;
@@ -9530,11 +9530,11 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
             string strSQL = "";
             DataList = new List<PaymentStatus>();
             var CusAll = "";
-            if(PartyId != null)
+            if (PartyId != null)
             {
                 CusAll = "where X.PartyId = '" + PartyId + "'";
             }
-            
+
 
             System.Data.DataSet dsRef;
             try
@@ -9893,7 +9893,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
                 objCon = null;
             }
         }
-        public void GetPaymentstatusInvoiceWise(out List<INvoiceWiseAccount> DataList, string PartyId , string RespId , string CustomerType )
+        public void GetPaymentstatusInvoiceWise(out List<INvoiceWiseAccount> DataList, string PartyId, string RespId, string CustomerType)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -9903,9 +9903,9 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
             {
                 CusAll = "AND IV.PartyId in(" + PartyId + @")";
             }
-            if(PartyId == null)
+            if (PartyId == null)
             {
-                if(RespId != null && CustomerType == null)
+                if (RespId != null && CustomerType == null)
                 {
                     CusAll = "and EI.SystemId = '" + RespId + @"'";
                 }
@@ -9927,11 +9927,11 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
                         }
                     }
                 }
-                if(RespId != null && CustomerType != null)
+                if (RespId != null && CustomerType != null)
                 {
                     if (CustomerType == "Export")
                     {
-                        CusAll = " and PAG.StandardName = 'Customer Export' and EI.SystemId = '" + RespId + @"'"; 
+                        CusAll = " and PAG.StandardName = 'Customer Export' and EI.SystemId = '" + RespId + @"'";
                     }
                     if (CustomerType == "Local")
                     {
@@ -9942,7 +9942,7 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
                         CusAll = "and EI.SystemId = '" + RespId + @"'";
                     }
                 }
-                
+
             }
             System.Data.DataSet dsRef;
             try
@@ -10181,13 +10181,13 @@ where Invoicestatus <> 'Closed' and EI.SystemId is not null and IRS.SalesId = '"
                 FilterDate = " and convert(Date,QCD.AddedDate) between '" + FromDate + "' and '" + ToDate + "'";
             }
 
-            if (ResponsiblePersonId != "null" && ResponsiblePersonId != "undefined")
+            if (ResponsiblePersonId != null && ResponsiblePersonId != "undefined")
             {
                 ResponsiblePerson = " and ResponsiblePersonId = '" + ResponsiblePersonId + "'";
             }
-            try 
-            { 
-            strSQL = @"select distinct QC.Id as HeaderId,format(QC.AddedDate,'dd-MMM-yyyy') as Date,DATEDIFF(Hour,QC.AddedDate,GETDATE()) PendingTime,E.Id EntityId,E.UserName Entity,P.Id ProcessId,P.UserName Process,
+            try
+            {
+                strSQL = @"select distinct QC.Id as HeaderId,format(QC.AddedDate,'dd-MMM-yyyy') as Date,DATEDIFF(Hour,QC.AddedDate,GETDATE()) PendingTime,E.Id EntityId,E.UserName Entity,P.Id ProcessId,P.UserName Process,
 QC.IssueId,QMM.UserName Issue,EI.SystemId CheckedById,EI.EmployeeName CheckedBy,QC.ProductionOrderId PONo,QC.LotNumber,
 Article=STUFF((select distinct ','+MA.StandardName from trn.ProductionOrderDetail Pod 
 left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId=so.Id
@@ -10203,7 +10203,7 @@ left join EmployeeInformation EI on EI.SystemId=QC.ProductionInchargeId
 left join TRN.ProductionOrder PO on PO.Id=QC.ProductionOrderId
 left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
 where QCD.Status not in ('Close','Complete') and PS.UserName in ('Running','To Close') and QCD.GradeId in (select Id from MST.QualityGradeDetails where ActionApplicable=1) " + FilterDate + @" " + ResponsiblePerson + @" order by DATEDIFF(Hour,QC.AddedDate,GETDATE()) desc";
-            objCon = new clsConnectionManager();
+                objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
                 objCon.CommitTransaction();
@@ -10438,7 +10438,7 @@ where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QCD.Status=
             System.Data.DataSet dsRef;
             try
             {
-                if(SNO != null)
+                if (SNO != null)
                 {
                     strSQL = @"select * from [TRN].[QualityActionTakenUpdate] where ParameterId = '" + ParameterId + "' and SNO = '" + SNO + "'";
                 }
@@ -10488,7 +10488,7 @@ where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QCD.Status=
             string FilterDate = string.Empty;
             string ResponsiblePerson = string.Empty;
             System.Data.DataSet dsRef;
-            
+
             if (ResponsiblePersonId != null && ResponsiblePersonId != "undefined")
             {
                 ResponsiblePerson = " and ResponsiblePersonId = '" + ResponsiblePersonId + "'";
@@ -10615,7 +10615,7 @@ and QCD.QCId='" + HeaderId + "'";
             System.Data.DataSet dsRef;
             try
             {
-                
+
                 strSQL = @"select QAT.Id,isnull(QAT.SNO,QPR.SNO) SNO,QPR.Id ReasonId,isnull(QRM.UserName,QAT.ReasonName) ReasonName,QAT.ActionTaken,QAT.ActionById,EI.EmployeeName ActionBy,QAT.Remarks, 'OK' Saved 
 ,  QAT.ParameterId , null ConfirmRemarks 
 from [TRN].[QualityActionTakenUpdate]  QAT
@@ -10656,6 +10656,117 @@ where QAT.ParameterId='" + ParameterId + "'";
                 objCon = null;
             }
         }
+        public string PostQualityConfirmationUpdate(IEnumerable<QualityActionUpdate> DataToSave, string PId, string Status, string ConfirmationRemarks, string ConfirmBy)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "[TRN].[QualityActionTakenUpdate]";
+                string Id = "''";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<QualityActionUpdate> items = DataToSave.ToList();
+
+                foreach (QualityActionUpdate item in DataToSave)
+                {
+                    Id += ",'" + item.Id + "'";
+                }
+
+                con.OpenDataSetThroughAdapter("select * from [TRN].[QualityActionTakenUpdate] where Id='" + items[0].Id + "' and ParameterId='" + PId + "'", out dsMaster, false, "1");
+
+
+                foreach (QualityActionUpdate item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                        // DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["ConfirmRemarks"] = item.ConfirmRemarks;
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedFromIP"] = "192.168.137.44";
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+
+                        dr.EndEdit();
+
+                    }
+
+
+                }
+                
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+        }
+        public string PostQualityConfirmationMasterUpdate(IEnumerable<QualityConfirmssControllMaster> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string Id = "''";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<QualityConfirmssControllMaster> items = DataToSave.ToList();
+
+                foreach (QualityConfirmssControllMaster item in DataToSave)
+                {
+                    Id += ",'" + item.PID + "'";
+                }
+
+                con.OpenDataSetThroughAdapter("select * from [TRN].[QualityControlDetails] where Id='" + items[0].PID + "'", out dsMaster, false, "1");
+
+
+                foreach (QualityConfirmssControllMaster item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.PID + "' ";
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                        // DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["Status"] = item.Status;
+                        dr["ConfirmBy"] = item.ConfirmBy;
+                        dr["ConfirmationRemarks"] = item.ConfirmationRemarks;
+
+
+                        dr.EndEdit();
+
+                    }
+
+
+                }
+                
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+        }
+
         #endregion Quality Action 
     }
 
@@ -11224,7 +11335,7 @@ where QAT.ParameterId='" + ParameterId + "'";
         public string DifferenceColor { get; set; }
         public string LateInTime { get; set; }
         public string LateInStatus { get; set; }
-       
+
     }
 
     public class Locations
@@ -11773,7 +11884,7 @@ where QAT.ParameterId='" + ParameterId + "'";
         public string PayAdbisNo { get; set; }
         public string PayResDate { get; set; }
         public string InvoiceAmount { get; set; }
-        
+
     }
 
     public class InvoiceDataEntry
@@ -11794,7 +11905,7 @@ where QAT.ParameterId='" + ParameterId + "'";
 
     public class InvoiceRemarksDataInvoice
     {
-       
+
         public string InvoiceRemarksId { get; set; }
         public string Status { get; set; }
         public string ActionToBeTakenId { get; set; }
@@ -11979,5 +12090,14 @@ where QAT.ParameterId='" + ParameterId + "'";
         public string POStatus { get; set; }
 
 
+    }
+
+    public class QualityConfirmssControllMaster
+    {
+        public string PID { get; set; }
+        public string Status { get; set; }
+        public string ConfirmBy { get; set; }
+        public string ConfirmationRemarks { get; set; }
+       
     }
 }

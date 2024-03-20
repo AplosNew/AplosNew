@@ -227,6 +227,39 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
         $scope.selectedInvoiceList.splice(index, 1);
     };
     //#endregion
+    $scope.UntagInvoiceWithLC = function () {
+        $http({
+            method: "POST",
+            url: 'Commercial/InvoiceTaggedWithLC/UntagInvoiceWithLC',
+            data: {
+                "untageId": $scope.UntageId, "voucherId": $scope.VoucherId, "VoucherNo": $scope.VoucherNo
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.untageId = null;
+                $scope.VoucherId = null;
+                $scope.VoucherNo = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+    $scope.onClickUnTaggLCPopUp = function (x) {
+        var data = x;
+        $scope.UntageId = data.Id;
+        $scope.VoucherId = data.VoucherId;
+        $scope.VoucherNo = data.VoucherNo;
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector('#confirmUntagPopUp')).modal('show');
+    };
 
 }
 

@@ -3312,7 +3312,102 @@ namespace Library.Accounting.Accounts
             }
         }
 
+        public IWorkbook GetSampleFileBudgetControlChild(string Name, string CompanyGroupId, string PlantId, string CompanyId, string PlantName)
+        {
+            #region declare
+            clsReport objRpt = null;
+            clsStaticInfo objStatic = null;
+            objStatic = new clsStaticInfo();
+            string OTConsiderOn = string.Empty;
 
+            #endregion
+            try
+            {
+                ReportUtility ru = new ReportUtility();
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                var workbook = ru.GetWorkbook(ref excelEngine, 1);
+                workbook.Version = ExcelVersion.Excel2013;
+
+                objRpt = new clsReport();
+                string toDay = DateTime.Now.ToString("dd-MMM-yyyy");
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(2);
+
+                int xlsRow = 1, xlsCol = 1;
+                int endXlsCol = 1;
+
+                #region Lunch Out
+                IWorksheet sheet1 = null;
+                sheet1 = workbook.Worksheets[0];
+                IWorksheet sheetSource = null;
+                sheetSource = workbook.Worksheets[1];
+                xlsRow = 1;
+
+                #region ------------------Column Header------------------
+
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Budget ControlId"); int colBCId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetMasterActivityId"); int colCId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IsLinear"); int colIsLinear = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Current Value"); int colCurrentValue = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Last Value"); int colLastValue = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "UoMId"); int colUoMId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ResponsiblePersonId"); int colResponsiblePersonId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ActionById"); int colActionById = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remark"); int colRemark = xlsCol;
+
+                endXlsCol = xlsCol;
+
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
+
+                xlsRow++;
+
+                #endregion ------------------Column Header------------------
+
+
+                #region UsedRange Alignment
+
+                sheet1.UsedRange.WrapText = true;
+                sheet1.UsedRange.CellStyle.Font.Size = 10;
+                sheet1.Range["A1"].CellStyle.Font.Size = 10;
+                sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+
+                #endregion UsedRange Alignment
+
+                #region Page Setup
+                sheet1.PageSetup.TopMargin = 0.5;
+                sheet1.PageSetup.BottomMargin = 0.7;
+                sheet1.PageSetup.PrintTitleRows = "$1:$5";
+                sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + Name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                sheet1.PageSetup.LeftMargin = 0.5;
+                sheet1.PageSetup.RightMargin = 0.2;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet1.PageSetup.FitToPagesTall = 0;
+                sheet1.PageSetup.FitToPagesWide = 1;
+                sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet1.IsDisplayZeros = false;
+                sheet1.Name = "Sheet1";
+                #endregion Page Setup
+
+                #endregion  Lunch Out
+
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion
     }
 }
