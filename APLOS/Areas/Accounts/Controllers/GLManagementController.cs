@@ -467,6 +467,96 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
+        public JsonResult CreateGlManagementEmployee(List<Dictionary<string, object>> data, string GlManagementId)
+        {
+            try
+            {
+                DataSet dsEmp;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementEmployee] where GlManagementId='" + GlManagementId + "'", out dsEmp, false, "1");
+
+                string Id = "";
+                #region data update
+                foreach (var item in data)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementEmployee", out Id);
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                    DataView dv = new DataView(dsEmp.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        item["Id"] = Id;
+                        item["EmpSystemId"] = item["SystemID"];
+                        item["GlManagementId"] = GlManagementId;
+
+                        AddNewRow(dsEmp.Tables[0], item);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        item["Id"] = dv[0].Row["Id"].ToString();
+                        EditRow(drmo, item);
+                    }
+                }
+                #endregion data update 
+                
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsEmp);
+                return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        public JsonResult CreateGlManagementResponsiblePersosn(List<Dictionary<string, object>> data, string GlManagementId)
+        {
+            try
+            {
+                DataSet dsEmp;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementEmployee] where GlManagementId='" + GlManagementId + "'", out dsEmp, false, "1");
+
+                string Id = "";
+                #region data update
+                foreach (var item in data)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementEmployee", out Id);
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                    DataView dv = new DataView(dsEmp.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        item["Id"] = Id;
+                        item["EmpSystemId"] = item["SystemID"];
+                        item["GlManagementId"] = GlManagementId;
+
+                        AddNewRow(dsEmp.Tables[0], item);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        item["Id"] = dv[0].Row["Id"].ToString();
+                        EditRow(drmo, item);
+                    }
+                }
+                #endregion data update 
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsEmp);
+                return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
 
         private double GetSequence()
         {
@@ -606,7 +696,86 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+        [HttpGet]
+        public ActionResult DeleteDesignationData(string Id)
+        {
+            string sql = @"select * from [HKP].[GLManagementDesignation] where DesignationId = '" + Id + @"'";
+            try
+            {
+                if (string.IsNullOrEmpty(Id))
+                    throw new Exception("Select entry first");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from [HKP].[GLManagementDesignation] where DesignationId = '" + Id + @"'");
+                con.CommitTransaction();
 
+                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [HttpGet]
+        public ActionResult DeletePositionCodeData(string Id)
+        {
+            string sql = @"select * from [HKP].[GLManagementPositionCode] where PositionCodeId = '" + Id + @"'";
+            try
+            {
+                if (string.IsNullOrEmpty(Id))
+                    throw new Exception("Select entry first");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from [HKP].[GLManagementPositionCode] where PositionCodeId = '" + Id + @"'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [HttpGet]
+        public ActionResult DeleteBudgetCodeData(string Id)
+        {
+            string sql = @"select * from [HKP].[GLManagementBudgetCode] where BudgetCodeId = '" + Id + @"'";
+            try
+            {
+                if (string.IsNullOrEmpty(Id))
+                    throw new Exception("Select entry first");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from [HKP].[GLManagementBudgetCode] where BudgetCodeId = '" + Id + @"'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [HttpGet]
+        public ActionResult DeleteEmployeeData(string Id)
+        {
+            string sql = @"select * from [HKP].[GLManagementEmployee] where EmpSystemId = '" + Id + @"'";
+            try
+            {
+                if (string.IsNullOrEmpty(Id))
+                    throw new Exception("Select entry first");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from [HKP].[GLManagementEmployee] where EmpSystemId = '" + Id + @"'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
         [Authorize]
         public ActionResult GetPositionCodeData(string glManagementId)
         {
@@ -656,6 +825,40 @@ namespace Aplos.Areas.Accounts.Controllers
                         where P.Active = 1";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize]
+        public ActionResult GetEmployeeData(string glManagementId)
+        {
+            try
+            {
+                var sql = @"select GLME.Id,GLME.EmpSystemId,EI.EmployeeCode,EI.EmployeeName
+                            from [HKP].[GLManagementEmployee] GLME
+                            left join dbo.EmployeeInformation EI on EI.SystemId=GLME.EmpSystemId
+							where GLME.GLManagementId = '" + glManagementId + "' ";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [Authorize]
+        public ActionResult GetResPersonData(string glManagementId)
+        {
+            try
+            {
+                var sql = @"select GLME.Id,GLME.EmpSystemId,EI.EmployeeCode,EI.EmployeeName
+                            from [HKP].[GLManagementEmployee] GLME
+                            left join dbo.EmployeeInformation EI on EI.SystemId=GLME.EmpSystemId
+							where GLME.GLManagementId = '" + glManagementId + "' ";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
         [Authorize]
         public ActionResult GetExpenseGLData(string glId, string budgetId, string activityId)
