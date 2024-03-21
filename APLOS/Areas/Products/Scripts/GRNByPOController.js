@@ -333,6 +333,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         getPartyPlantList();
         getInventoryMaterialList($scope.productNew.Id);
         getServiceChargeList($scope.productNew.Id);
+       
         $scope.productId = $scope.productNew.Id;
         //$scope.getToCurrencyRate();
         if (!baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
@@ -2324,6 +2325,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                 $scope.chargesList[i].ServiceTaxList = list11;
             }
         });
+        
     }
 
     $scope.getServiceTaxListPOPOP1 = function (data, flag, Id, index) {
@@ -3034,7 +3036,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 
         $scope.GetCheckedByAndApprovedBy1();
 
-
+        $scope.GetGRNAdditionalInfoList();
         if (baseService.isUndefinedOrNull(x.data.CheckedById) && !baseService.isUndefinedOrNull(x.data.ApprovedById)) {
 
             $scope.productNew.CheckedBy = x.data.ApprovedById;
@@ -4598,6 +4600,36 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                 ShowResult(response.data.Message, 'failure');
             });
 
+    };
+
+
+    $scope.GRNAdditionalInfoDataList = [];
+    $scope.GetGRNAdditionalInfoList = function () {
+        $http({
+            method: 'GET',
+            url: 'Products/GoodsReceiveNote/GetGRNAdditionalInfoData?grnId=' + $scope.productNew.Id
+        }).then(function successCallback(response) {
+            $scope.GRNAdditionalInfoDataList = response.data;
+        });
+    }
+
+    $scope.SaveAddInfo = function () {
+        $http({
+            method: 'POST',
+            url: 'Products/GoodsReceiveNote/CreateGRNAdditionalInfo',
+            data: { 'data': $scope.GRNAdditionalInfoDataList, 'grnId': $scope.productNew.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetGRNAdditionalInfoList();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
     };
 
 }

@@ -610,169 +610,169 @@
                                 </div>
                             </div>
                         </div>
-                        </div>
-                        <div class="col-xs-12">
-                            <fieldset class="scheduler-border">
-                                <legend class="scheduler-border">Basic Info</legend>
-                                <div class="col-xs-12 col-sm-5 col-md-5">
-                                    <div id="div_DocDate" class="form-group" show-errors>
-                                        <label class="col-sm-4 control-label">Invoice Date<sup>*</sup></label>
-                                        <div class="col-sm-8 show-message">
-                                            <input type="text" name="Invoice Date" ng-model="PISVM.InvoiceDate" datepicker="checkInvoiceDate();changePaymentTerm();" required class="form-control" tabindex="3">
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="col-sm-4 control-label">Comercial Invoice No</label>
-                                        <div class="col-sm-8">
-                                            <input type="text" ng-maxlength="25" name="Comercial Invoice No" ng-model="PISVM.ComercialInvoiceNo" class="form-control" tabindex="4" capitalize autocomplete="off">
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="col-sm-4 control-label" tilte="EXP Form No">EXP Form No</label>
-                                        <div class="col-sm-2" style="width: 30%;">
-                                            <input type="text" ng-maxlength="25" name="EXP Form No" ng-model="PISVM.EXPFromNo" class="form-control" tabindex="4" capitalize autocomplete="off">
-                                        </div>
-                                        <label class="col-sm-3 control-label" style="margin-left: -30px;" title="EXP Date">EXP Dt</label>
-                                        <div class="col-sm-3" style="margin-left: -15%;width: 30%;">
-                                            <input type="text" name="EXP Date" ng-model="PISVM.EXPDate" datepicker class="form-control">
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="col-sm-8 control-label">Is Additional Info Applicable</label>
-                                        <div class="col-sm-2" style="padding-top: 8px;margin-left:-125px;">
-                                            <div class="checkbox-site">
-                                                <label>
-                                                    <input type="checkbox" ng-model="PISVM.IsAdditionalInfoApplicable" tabindex="8">
-                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                </label>
-                                            </div>
-                                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <fieldset class="scheduler-border">
+                            <legend class="scheduler-border">Basic Info</legend>
+                            <div class="col-xs-12 col-sm-5 col-md-5">
+                                <div id="div_DocDate" class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Invoice Date<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="Invoice Date" ng-model="PISVM.InvoiceDate" datepicker="checkInvoiceDate();changePaymentTerm();" required class="form-control" tabindex="3">
                                     </div>
                                 </div>
-                                <div class="col-xs-12 col-sm-3 col-md-3">
-                                    <div class="form-group" show-errors>
-                                        <label class="col-sm-4 control-label">Entry Date<sup>*</sup></label>
-                                        <div class="col-sm-8 show-message">
-                                            <input type="text" name="Entry Date" ng-model="PISVM.VoucherDate" datepicker class="form-control" disabled required>
-                                        </div>
-                                    </div>
-                                    <div class="form-group" show-errors>
-                                        <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
-                                        <div class="col-sm-5 show-message" style="padding-right:0px;">
-                                            <div class="select-style">
-                                                <select id="currency" class="form-control" tabindex="5" name="Currency" ng-model="PISVM.CurrencyId" ng-change="GetCurrencyExchangeRateList();" required>
-                                                    <option value="">--Select--</option>
-                                                    <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-3 show-message" style="padding-left:0px;">
-                                            <input type="text" maxlength="50" id="Rate" name="Company Currency Rate" ng-model="PISVM.CompanyCurrencyRate" ng-disabled="PISVM.CurrencyId==PISVM.BaseCurrencyId" class="form-control text-right" tabindex="5" required autocomplete="off">
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="col-sm-3 control-label" title="BL Number">BL No.</label>
-                                        <div class="col-sm-3" style="width: 115px;margin-left: -33px;">
-                                            <input type="text" ng-maxlength="50" name="BL Number" ng-model="PISVM.BLNumber" class="form-control" tabindex="4" capitalize autocomplete="off">
-                                        </div>
-                                        <label class="col-sm-2 control-label" style="margin-left: -30px;" title="BL Date">BL Dt</label>
-                                        <div class="col-sm-4" style="margin-left: -12px;width: 42%;">
-                                            <input type="text" name="BL Date" ng-model="PISVM.BLDate" datepicker class="form-control">
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="col-sm-8 control-label">Incentive Applicable</label>
-                                        <div class="col-sm-4" style="padding-top: 8px;">
-                                            <div class="checkbox-site">
-                                                <label>
-                                                    <input type="checkbox" ng-model="PISVM.IsIncentiveApplicable" tabindex="8">
-                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                </label>
-                                            </div>
-                                        </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Comercial Invoice No</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" ng-maxlength="25" name="Comercial Invoice No" ng-model="PISVM.ComercialInvoiceNo" class="form-control" tabindex="4" capitalize autocomplete="off">
                                     </div>
                                 </div>
-                                <div class="col-xs-12 col-sm-4 col-md-4">
-                                    <div class="form-group">
-                                        <label class="col-sm-2 control-label">Narration</label>
-                                        <div class="col-sm-10">
-                                            <textarea rows="2" type="text" ng-maxlength="250" name="Narration" tabindex="8" class="form-control" ng-model="PISVM.Narration" capitalize></textarea>
-                                        </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" tilte="EXP Form No">EXP Form No</label>
+                                    <div class="col-sm-2" style="width: 30%;">
+                                        <input type="text" ng-maxlength="25" name="EXP Form No" ng-model="PISVM.EXPFromNo" class="form-control" tabindex="4" capitalize autocomplete="off">
                                     </div>
-                                    <div class="form-group">
-                                        <label class="col-sm-2 control-label" title="Item Description">Description</label>
-                                        <div class="col-sm-10">
-                                            <textarea rows="2" type="text" ng-maxlength="250" name="Item Description" tabindex="8" class="form-control" ng-model="PISVM.ItemDescription"></textarea>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="col-sm-4 control-label" title="Payment To Receive Bank">Payment To Receive Bank<sup>*</sup></label>
-                                        <div class="col-sm-8">
-                                            <div class="select-style">
-                                                <select name="Payment To Receive Bank" id="OB" class="form-control" ng-model="PISVM.PaymentToReceiveBankId" ng-options="item.Id as item.AccountTitle for item in PaymentToReceiveBankList" tabindex="3">
-                                                    <option value="">--Select--</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="col-sm-4 control-label" title="Additional Frieght">Additional Frieght</label>
-                                        <div class="col-sm-4">
-                                            <div class="select-style">
-                                                <select class="form-control" ng-model="PISVM.AdditionalFrieght" name="AdditionalFrieght" id="AdditionalFrieght"
-                                                        ng-options="item.Value as item.Text for item in AdditionalFreightList" tabindex="6">
-                                                    <option value="">--Select--</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-4">
-                                            <input type="text" n-decimals="3" name="Value" ng-model="PISVM.AdditionalFrieghtValue" class="form-control" tabindex="7">
-                                        </div>
+                                    <label class="col-sm-3 control-label" style="margin-left: -30px;" title="EXP Date">EXP Dt</label>
+                                    <div class="col-sm-3" style="margin-left: -15%;width: 30%;">
+                                        <input type="text" name="EXP Date" ng-model="PISVM.EXPDate" datepicker class="form-control">
                                     </div>
                                 </div>
-                            </fieldset>
-                        </div>
-                        <div class="clearfix"></div>
-                        <div class="row" ng-show="ProductionOrderSOList.length">
-                            <div class="col-xs-12">
-                                <div class="content-container-fluid" style="color:black;">
-                                    <div style="color:black;" id="GridPOSO" ej-grid e-datasource="ProductionOrderSOList" e-allowscrolling="true"
-                                         e-allowfiltering="true" e-allowpaging="false" e-allowsorting="true"
-                                         e-allowselection="true" e-filtersettings-filterType="excel">
-
-                                        <div e-columns>
-                                            <div e-column e-type="string" e-field="MaterialMasterName" e-headertext="Material" e-width="120"></div>
-                                            <div e-column e-type="string" e-field="ArticleName" e-headertext="Article" e-width="120"></div>
-                                            <div e-column e-type="string" e-field="SalesOrderId" e-headertext="SONo" e-width="120"></div>
-                                            <div e-column e-type="number" e-format="{0:0.00}" e-field="Rate" e-headertext="Rate" e-width="80" e-textalign="right"></div>
-                                            <div e-column e-type="number" e-format="{0:0.00}" e-field="Qty" e-headertext="SOQty" e-width="60" e-textalign="right"></div>
-                                            <div e-column e-type="number" e-format="{0:0.00}" e-field="SoldQty" e-headertext="Sold" e-width="60" e-textalign="right"></div>
-                                            <div e-column e-type="number" e-format="{0:0.00}" e-field="BalanceQty" e-headertext="Balance" e-width="60" e-textalign="right"></div>
-                                            <div e-column e-template="#CurrentTextTRNQty" e-field="TransactionQty" e-textalign="right" e-headertext="CurrentQty" e-width="100"></div>
-                                            <div e-column e-type="number" e-format="{0:0.00}" e-field="Amount" e-headertext="Amount" e-width="60" e-textalign="right"></div>
-
-                                            <div e-column e-headertext=" Action " e-template="#DeleteDetailTemplate" e-width="120"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-8 control-label">Is Additional Info Applicable</label>
+                                    <div class="col-sm-2" style="padding-top: 8px;margin-left:-125px;">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="PISVM.IsAdditionalInfoApplicable" tabindex="8">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
                                         </div>
                                     </div>
-                                    <script id="DeleteDetailTemplate" type="text/template">
-                                        <div class="common-btn" ng-disabled="productNew.Id">
-                                            <ul class="common-btn list-inline text-center">
-                                                <li>
-                                                    <button ng-click="$parent.removeSelectedPO(data,$index);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
-                                                        <i class="glyphicon glyphicon-trash" style="color:orangered;"></i>
-                                                    </button>
-
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </script>
-                                    <script type="text/template" id="CurrentTextTRNQty">
-                                        <input type="text" n-decimals="2" class="form-control text-right" ng-blur="$parent.calculateAmounts(data);" width="200" ng-model="data.TransactionQty">
-                                    </script>
                                 </div>
                             </div>
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Entry Date<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="Entry Date" ng-model="PISVM.VoucherDate" datepicker class="form-control" disabled required>
+                                    </div>
+                                </div>
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
+                                    <div class="col-sm-5 show-message" style="padding-right:0px;">
+                                        <div class="select-style">
+                                            <select id="currency" class="form-control" tabindex="5" name="Currency" ng-model="PISVM.CurrencyId" ng-change="GetCurrencyExchangeRateList();" required>
+                                                <option value="">--Select--</option>
+                                                <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3 show-message" style="padding-left:0px;">
+                                        <input type="text" maxlength="50" id="Rate" name="Company Currency Rate" ng-model="PISVM.CompanyCurrencyRate" ng-disabled="PISVM.CurrencyId==PISVM.BaseCurrencyId" class="form-control text-right" tabindex="5" required autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label" title="BL Number">BL No.</label>
+                                    <div class="col-sm-3" style="width: 115px;margin-left: -33px;">
+                                        <input type="text" ng-maxlength="50" name="BL Number" ng-model="PISVM.BLNumber" class="form-control" tabindex="4" capitalize autocomplete="off">
+                                    </div>
+                                    <label class="col-sm-2 control-label" style="margin-left: -30px;" title="BL Date">BL Dt</label>
+                                    <div class="col-sm-4" style="margin-left: -12px;width: 42%;">
+                                        <input type="text" name="BL Date" ng-model="PISVM.BLDate" datepicker class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-8 control-label">Incentive Applicable</label>
+                                    <div class="col-sm-4" style="padding-top: 8px;">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="PISVM.IsIncentiveApplicable" tabindex="8">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-4 col-md-4">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">Narration</label>
+                                    <div class="col-sm-10">
+                                        <textarea rows="2" type="text" ng-maxlength="250" name="Narration" tabindex="8" class="form-control" ng-model="PISVM.Narration" capitalize></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" title="Item Description">Description</label>
+                                    <div class="col-sm-10">
+                                        <textarea rows="2" type="text" ng-maxlength="250" name="Item Description" tabindex="8" class="form-control" ng-model="PISVM.ItemDescription"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" title="Payment To Receive Bank">Payment To Receive Bank<sup>*</sup></label>
+                                    <div class="col-sm-8">
+                                        <div class="select-style">
+                                            <select name="Payment To Receive Bank" id="OB" class="form-control" ng-model="PISVM.PaymentToReceiveBankId" ng-options="item.Id as item.AccountTitle for item in PaymentToReceiveBankList" tabindex="3">
+                                                <option value="">--Select--</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" title="Additional Frieght">Additional Frieght</label>
+                                    <div class="col-sm-4">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="PISVM.AdditionalFrieght" name="AdditionalFrieght" id="AdditionalFrieght"
+                                                    ng-options="item.Value as item.Text for item in AdditionalFreightList" tabindex="6">
+                                                <option value="">--Select--</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <input type="text" n-decimals="3" name="Value" ng-model="PISVM.AdditionalFrieghtValue" class="form-control" tabindex="7">
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="row" ng-show="ProductionOrderSOList.length">
+                        <div class="col-xs-12">
+                            <div class="content-container-fluid" style="color:black;">
+                                <div style="color:black;" id="GridPOSO" ej-grid e-datasource="ProductionOrderSOList" e-allowscrolling="true"
+                                     e-allowfiltering="true" e-allowpaging="false" e-allowsorting="true"
+                                     e-allowselection="true" e-filtersettings-filterType="excel">
+
+                                    <div e-columns>
+                                        <div e-column e-type="string" e-field="MaterialMasterName" e-headertext="Material" e-width="120"></div>
+                                        <div e-column e-type="string" e-field="ArticleName" e-headertext="Article" e-width="120"></div>
+                                        <div e-column e-type="string" e-field="SalesOrderId" e-headertext="SONo" e-width="120"></div>
+                                        <div e-column e-type="number" e-format="{0:0.00}" e-field="Rate" e-headertext="Rate" e-width="80" e-textalign="right"></div>
+                                        <div e-column e-type="number" e-format="{0:0.00}" e-field="Qty" e-headertext="SOQty" e-width="60" e-textalign="right"></div>
+                                        <div e-column e-type="number" e-format="{0:0.00}" e-field="SoldQty" e-headertext="Sold" e-width="60" e-textalign="right"></div>
+                                        <div e-column e-type="number" e-format="{0:0.00}" e-field="BalanceQty" e-headertext="Balance" e-width="60" e-textalign="right"></div>
+                                        <div e-column e-template="#CurrentTextTRNQty" e-field="TransactionQty" e-textalign="right" e-headertext="CurrentQty" e-width="100"></div>
+                                        <div e-column e-type="number" e-format="{0:0.00}" e-field="Amount" e-headertext="Amount" e-width="60" e-textalign="right"></div>
+
+                                        <div e-column e-headertext=" Action " e-template="#DeleteDetailTemplate" e-width="120"></div>
+                                    </div>
+                                </div>
+                                <script id="DeleteDetailTemplate" type="text/template">
+                                    <div class="common-btn" ng-disabled="productNew.Id">
+                                        <ul class="common-btn list-inline text-center">
+                                            <li>
+                                                <button ng-click="$parent.removeSelectedPO(data,$index);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
+                                                    <i class="glyphicon glyphicon-trash" style="color:orangered;"></i>
+                                                </button>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </script>
+                                <script type="text/template" id="CurrentTextTRNQty">
+                                    <input type="text" n-decimals="2" class="form-control text-right" ng-blur="$parent.calculateAmounts(data);" width="200" ng-model="data.TransactionQty">
+                                </script>
+                            </div>
                         </div>
-                        </div>
+                    </div>
+                </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(3), active: isSet2(3) }">
                 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
@@ -1242,7 +1242,6 @@
                             <thead>
                                 <tr>
                                     <th>Select</th>
-                                    <th>InvoiceNo</th>
                                     <th>User Name</th>
                                     <th>Value</th>
                                     <th>Remark</th>
@@ -1258,7 +1257,6 @@
                                             </label>
                                         </div>
                                     </td>
-                                    <td>{{x.SalesId}}</td>
                                     <td>{{x.UserName}}</td>
                                     <td>
                                         <div class="col-sm-10" style="padding:0px; width:100%;" ng-hide="x.datepic == 'datepicker'">
