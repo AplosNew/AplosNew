@@ -10417,7 +10417,7 @@ where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QCD.Status=
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
-                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                string MasterId = "QATM";
 
                 return MasterId;
 
