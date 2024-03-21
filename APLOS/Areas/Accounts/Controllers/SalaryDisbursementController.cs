@@ -732,6 +732,22 @@ namespace Aplos.Areas.Accounts.Controllers
 				WHERE  EFS.Id = '" + disbursementAdviceId + @"'
 
                 Union All
+				SELECT  'Advance' AS OtherName, 'Cr' AS TrnType
+                , 0 DrAmount 
+                , AdvanceAmount CrAmount 
+                , AdvanceAmount Amount
+                ,AD.GLGeneralInfoId  ,AD.BudgetMasterId,AD.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
+                , B.UserName BudgetName,A.UserName ActivityName 
+				FROM [dbo].[EmployeeFinalSettlement] EFS
+				LEFT JOIN (select EmployeeId,GLGeneralInfoId  ,BudgetMasterId,ActivityId 
+									FROM [TRN].[AdvanceDetail] group by EmployeeId,GLGeneralInfoId  ,BudgetMasterId,ActivityId) AD	ON AD.EmployeeId=EFS.EmpSystemId
+				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON AD.GLGeneralInfoId=GL.Id
+				LEFT JOIN[MST].[BudgetMaster] AS BM ON AD.BudgetMasterId= BM.Id
+				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+				LEFT JOIN [HKP].[Activity] AS A ON AD.ActivityId= A.Id
+				WHERE  EFS.Id = '" + disbursementAdviceId + @"'
+
+                Union All
 				SELECT  'Bank/Cash' AS OtherName, 'Cr' AS TrnType
                 , 0 DrAmount 
                 , NetPayAmount CrAmount 
