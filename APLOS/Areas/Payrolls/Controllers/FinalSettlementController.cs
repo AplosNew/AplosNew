@@ -237,11 +237,36 @@ LEFT JOIN SalaryProcMaster AS spm ON spm.SystemID = spc.SlrProcMstSystemID
 LEFT JOIN SalaryHead AS sh ON sh.SalaryHeadID = spc.SalaryHeadID
 LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
 WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND ISNULL(sl.IsDisbursed,0)=0  AND sh.SalaryHead='Net Pay'";
-
             var FinalSettlementUndisbursedEarning = _sqlRepository.GetDataCollection(sqlundisbursed);
 
+            string sqlavdance = @"SELECT * FROM 
+(SELECT AD.CompanyId, AD.PlantId,AD.CurrencyId, C.Code AS CurrencyCode, (select TOP 1 GLGeneralInfoId from [TRN].[AdvanceDetail] 
+							        where EmployeeId=AD.EmployeeId) GLGeneralInfoId, AD.EmployeeId, EI.EmployeeCode, EI.EmployeeName
+                                , DP.UserName Department,LD.UserName Designation
+								,  (select TOP 1 BudgetMasterId from [TRN].[AdvanceDetail] 
+							        where EmployeeId=AD.EmployeeId)BudgetMasterId,  (select TOP 1 ActivityId from [TRN].[AdvanceDetail] 
+							        where EmployeeId=AD.EmployeeId)ActivityId
+								, SUM(AD.Amount) AS Receivable, ISNULL((select SUM(Amount)WrittenOffAmount 
+								from TRN.EmployeeSubsequentTransaction where SourceType='EmployeeAdvanceWriteOff' AND  EmployeeId=AD.EmployeeId AND ISNULL(JournalType,'')<>'Salary'),0)  AS Received
+                                , SUM(AD.Amount)-ISNULL((select SUM(Amount)WrittenOffAmount 
+								from TRN.EmployeeSubsequentTransaction where SourceType='EmployeeAdvanceWriteOff' AND  EmployeeId=AD.EmployeeId AND ISNULL(JournalType,'')<>'Salary'),0) AS Balance
+                                FROM TRN.EmployeeSubsequentTransaction AS AD
+                                INNER JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=AD.EmployeeId
+                                LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                                LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+								LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
+								LEFT JOIN [HKP].[LegalDesignation] LD ON LD.Id=EI.LegalDesignationId
+                                LEFT JOIN [SCS].[Currency] AS C ON C.Id=AD.CurrencyId
+                                WHERE    AD.EmployeeId<>'' AND ISNULL(AD.AdvanceId,'') <>'' 
+                                AND AD.SourceType in ('EmployeeAdvance', 'InterTransaction') AND AD.EmployeeId='" + EmpSystemId + @"' AND AD.PlantId='" + identity.PlantId+@"'
+                                GROUP BY AD.CompanyId, AD.PlantId, AD.CurrencyId, C.Code , AD.EmployeeId, EI.EmployeeCode, EI.EmployeeName, DP.UserName,LD.UserName)X
+                                WHERE X.Balance > 0";
 
-            return Json(new { data, FinalSettlementDeduction, FinalSettlementEarning, FinalSettlementRetainedHead, FinalSettlementUndisbursedEarning }, JsonRequestBehavior.AllowGet);
+           
+
+            var avdanceData = _sqlRepository.GetDataCollection(sqlavdance);
+
+            return Json(new { data, FinalSettlementDeduction, FinalSettlementEarning, FinalSettlementRetainedHead, FinalSettlementUndisbursedEarning, avdanceData }, JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public ActionResult SeparationTypeSelectedChangeNew(string EmpSystemId)
@@ -1040,6 +1065,7 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
                     dr["GratuityDayOrYear"] = FinalSettlementData.GratuityDaysOrYear;
                     dr["GratuityNoOfDaysOrYear"] = FinalSettlementData.GratuityEligibleYearOrDays;
                     dr["GratuityRate"] = FinalSettlementData.GratuityRate;
+                    dr["AdvanceAmount"] = FinalSettlementData.AdvanceAmount;
 
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -1105,7 +1131,7 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
                     dr["GratuityDaysOrYear"] = FinalSettlementData.GratuityDaysOrYear;
                     dr["GratuityNoOfDaysOrYear"] = FinalSettlementData.GratuityEligibleYearOrDays;
                     dr["GratuityRate"] = FinalSettlementData.GratuityRate;
-
+                    dr["AdvanceAmount"] = FinalSettlementData.AdvanceAmount;
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = System.DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
@@ -1450,7 +1476,6 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
                             drmo.BeginEdit();
 
                             drmo["EmployeeFinalSettlementId"] = FinalSettlementId;
-                            drmo["IsDisbursed"] = true;
                             drmo["UpdatedBy"] = identity.Name;
                             drmo["UpdatedDate"] = DateTime.Now.ToString();
                             drmo["UpdatedFromIP"] = identity.IPAddress;

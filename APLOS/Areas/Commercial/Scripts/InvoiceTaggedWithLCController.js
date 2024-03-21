@@ -227,12 +227,12 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
         $scope.selectedInvoiceList.splice(index, 1);
     };
     //#endregion
-    $scope.untag = function () {
+    $scope.UntagInvoiceWithLC = function () {
         $http({
             method: "POST",
-            url: 'accounts/Invoice/DeleteInventoryPayable',
+            url: 'Commercial/InvoiceTaggedWithLC/UntagInvoiceWithLC',
             data: {
-                "grnId": gRNId
+                "untageId": $scope.UntageId, "voucherId": $scope.VoucherId, "VoucherNo": $scope.VoucherNo
             },
             dataType: "JSON"
         }).then(function successCallback(response) {
@@ -240,12 +240,11 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
                 ShowResult(response.data.Message, "failure");
             }
             else {
-                $scope.deletedRemarks = "";
-                $scope.closeconfirmDeletePopUp_Remarks();
                 ShowResult(response.data.Message, "success");
                 $scope.getData();
-                $scope.Clear();
-                $scope.GRNId = null;
+                $scope.untageId = null;
+                $scope.VoucherId = null;
+                $scope.VoucherNo = null;
             }
         }, function errorCallback(response) {
             ShowResult(response.status.Message, "failure");
@@ -253,10 +252,11 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
         return true;
     };
 
-    $scope.deletedRemarks = "";
     $scope.onClickUnTaggLCPopUp = function (x) {
         var data = x;
-        $scope.GRNId = data.Id;
+        $scope.UntageId = data.Id;
+        $scope.VoucherId = data.VoucherId;
+        $scope.VoucherNo = data.VoucherNo;
         $scope.message_delete_confirmation = "Are you sure to Delete?";
         angular.element(document.querySelector('#confirmUntagPopUp')).modal('show');
     };

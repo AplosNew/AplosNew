@@ -893,18 +893,28 @@ namespace Aplos.Areas.Commercial.Controllers
 			return _sqlRepository.GetDataTable(sql);
 		}
 		#endregion
-
-		public void UntagLC(string untageId)
+		[HttpPost]
+		public ActionResult UntagInvoiceWithLC(string untageId,string voucherId,string VoucherNo)
 		{
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-				var rdBuilder = new System.Text.StringBuilder();
-				var builderSqlDetail = @"DELETE InvoiceTaggingWithLCDetail where InvoiceTaggingWithLCMasterId='"+ untageId + "'";
-				var builderSql = @"DELETE InvoiceTaggingWithLCMaster where Id='" + untageId + "'";
-				rdBuilder.Append(builderSql);
-				_sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                if (voucherId == null)
+                {
+					var rdBuilder = new System.Text.StringBuilder();
+					var builderSqlDetail = @"DELETE InvoiceTaggingWithLCDetail where InvoiceTaggingWithLCMasterId='" + untageId + "'";
+					var builderSql = @"DELETE InvoiceTaggingWithLCMaster where Id='" + untageId + "'";
+					rdBuilder.Append(builderSqlDetail);
+					rdBuilder.Append(builderSql);
+					_sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+					return Json(new { Message = "Please Delete VoucherNo " + VoucherNo + " first !" });
+				}
+                else
+                {
+					return Json(new { Error = true, Message = "Please Delete VoucherNo " + VoucherNo + " first !" });
+					 
+				}
+				
 			}
 			catch (CustomException)
 			{

@@ -484,18 +484,9 @@ namespace Library.MaterialManagement.Material
             try
             {
                 string strSQL = string.Empty;
-                strSQL = @"SELECT m.Id
-										,pl.LCRef
-										,p.UserName Vendor
-										,FORMAT(m.LoanDate, 'dd-MMM-yyyy') LoanDate
-										,m.LoanNo
-										,c.Code Currency
-										,ITLC.Amount
-										,CASE 
-											WHEN ISNULL(m.VoucherId, '') = ''
-												THEN 'Park'
-											ELSE 'Post'
-											END [Status]
+                strSQL = @"SELECT m.Id ,pl.LCRef,p.UserName Vendor ,FORMAT(m.LoanDate, 'dd-MMM-yyyy') LoanDate
+										,m.LoanNo ,c.Code Currency ,ITLC.Amount,m.VoucherId,V.VoucherNo
+										,CASE WHEN ISNULL(m.VoucherId, '') = '' THEN 'Park' ELSE 'Post' END [Status]
 									FROM InvoiceTaggingWithLCMaster m
 									LEFT JOIN (SELECT InvoiceTaggingWithLCMasterId,SUM(Amount)Amount FROM InvoiceTaggingWithLCDetail Group By InvoiceTaggingWithLCMasterId) ITLC ON m.Id=ITLC.InvoiceTaggingWithLCMasterId
 									LEFT JOIN SCS.Currency AS c ON c.Id = m.CurrencyId

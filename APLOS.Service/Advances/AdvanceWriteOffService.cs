@@ -324,7 +324,7 @@ namespace Library.Service.Advances
                     PartyId = advanceDetail.PartyId,
                     PartyPlantId = advanceDetail.PartyPlantId,
                     Amount = advanceWriteOff.Amount,
-                    BooksAmount = Math.Round(advanceWriteOff.Amount * voucherVM.CompanyCurrencyRate, 2, MidpointRounding.AwayFromZero)
+                    BooksAmount = Math.Round(advanceWriteOff.Amount * advance.CompanyCurrencyRate, 2, MidpointRounding.AwayFromZero)
                 };
                 InsertAdvanceWriteOffDetail(advanceWriteOff, advanceWriteOffDetail, 1);
 
@@ -354,10 +354,10 @@ namespace Library.Service.Advances
                     ToCurrencyId = companyCurrencyId,
                     ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                     ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                    DrAmount = Math.Round(voucherDetailDr.DrAmount * voucherVM.CompanyCurrencyRate, 2, MidpointRounding.AwayFromZero),
-                    CrAmount = Math.Round(voucherDetailDr.CrAmount * voucherVM.CompanyCurrencyRate, 2, MidpointRounding.AwayFromZero)
+                    DrAmount = Math.Round(voucherDetailDr.DrAmount * advance.CompanyCurrencyRate, 2, MidpointRounding.AwayFromZero),
+                    CrAmount = Math.Round(voucherDetailDr.CrAmount * advance.CompanyCurrencyRate, 2, MidpointRounding.AwayFromZero)
                 });
-                totalCurrencyAmountDr += Math.Round(voucherDetailDr.DrAmount * voucherVM.CompanyCurrencyRate, 2, MidpointRounding.AwayFromZero);
+                totalCurrencyAmountDr += Math.Round(voucherDetailDr.DrAmount * advance.CompanyCurrencyRate, 2, MidpointRounding.AwayFromZero);
 
                 if (voucherVM.SettlementType == SettlementType.SetOff.ToString() && voucherVM.PaymentSource==PaymentSource.Invoice.ToString())
                 {
@@ -574,7 +574,7 @@ namespace Library.Service.Advances
                         CrAmount = Math.Round(voucherDetailCr.CrAmount * voucherVM.CompanyCurrencyRate, 2, MidpointRounding.AwayFromZero)
                     });
                     totalCurrencyAmountCr += Math.Round(voucherDetailCr.CrAmount * voucherVM.CompanyCurrencyRate, 2, MidpointRounding.AwayFromZero);
-                    if (voucherVM.CompanyCurrencyRate > advance.CompanyCurrencyRate)
+                    if (voucherVM.CompanyCurrencyRate < advance.CompanyCurrencyRate)
                     {
                         var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
                         var voucherDetailGain = new VoucherDetail
@@ -594,11 +594,11 @@ namespace Library.Service.Advances
                             ToCurrencyId = companyCurrencyId,
                             ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                             ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailGain.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                            CrAmount = Math.Round(voucherDetailCr.CrAmount * (voucherVM.CompanyCurrencyRate - advance.CompanyCurrencyRate), 2, MidpointRounding.AwayFromZero)
+                            CrAmount = Math.Round(voucherDetailCr.CrAmount * (advance.CompanyCurrencyRate - voucherVM.CompanyCurrencyRate), 2, MidpointRounding.AwayFromZero)
                         });
-                        totalCurrencyAmountCr += Math.Round(voucherDetailCr.CrAmount * (voucherVM.CompanyCurrencyRate - advance.CompanyCurrencyRate), 2, MidpointRounding.AwayFromZero);
+                        totalCurrencyAmountCr += Math.Round(voucherDetailCr.CrAmount * (advance.CompanyCurrencyRate-voucherVM.CompanyCurrencyRate), 2, MidpointRounding.AwayFromZero);
                     }
-                    else if (voucherVM.CompanyCurrencyRate < advance.CompanyCurrencyRate)
+                    else if (voucherVM.CompanyCurrencyRate > advance.CompanyCurrencyRate)
                     {
                         var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
                         var voucherDetailLoss = new VoucherDetail
@@ -618,10 +618,12 @@ namespace Library.Service.Advances
                             ToCurrencyId = companyCurrencyId,
                             ToCurrencyRate = voucherVM.OtherCompanyCurrencyRate,
                             ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailLoss.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                            DrAmount = Math.Round(voucherDetailCr.CrAmount * (advance.CompanyCurrencyRate - voucherVM.CompanyCurrencyRate), 2, MidpointRounding.AwayFromZero)
+                            DrAmount = Math.Round(voucherDetailCr.CrAmount * (voucherVM.CompanyCurrencyRate - advance.CompanyCurrencyRate), 2, MidpointRounding.AwayFromZero)
                         });
-                        totalCurrencyAmountDr += Math.Round(voucherDetailCr.CrAmount * (advance.CompanyCurrencyRate - voucherVM.CompanyCurrencyRate), 2, MidpointRounding.AwayFromZero);
+                        totalCurrencyAmountDr += Math.Round(voucherDetailCr.CrAmount * (voucherVM.CompanyCurrencyRate-advance.CompanyCurrencyRate), 2, MidpointRounding.AwayFromZero);
                     }
+
+                   
                 }
                 else if (voucherVM.SettlementType == SettlementType.SetOff.ToString() && voucherVM.PaymentSource == PaymentSource.Bank.ToString())
                 {

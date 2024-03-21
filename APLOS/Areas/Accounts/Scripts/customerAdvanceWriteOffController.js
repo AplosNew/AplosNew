@@ -687,6 +687,7 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         $scope.advance.PartyType = data.PartyType;
         $scope.advance.PaymentAmount = data.Balance;
         $scope.advance.CompanyCurrencyRate = data.CompanyCurrencyRate;
+        $scope.advance.NewCompanyCurrencyRate = data.CompanyCurrencyRate;
         $scope.advance.PaymentPostingDate = data.PostingDate;
         $scope.totalAdvanceVendorWise($scope.advance.PartyId);
 
@@ -862,7 +863,8 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         $scope.advance.InvoiceDetailId = bank.BankMasterId;
         $scope.advanceNew.BankCurrencyId = bank.CurrencyId;
         $scope.advance.TrnType = "Cr";
-        $scope.advance.CompanyCurrencyRate = 1;
+        //if ($scope.advance == $scope.advanceNew.BankCurrencyId)
+        //$scope.advance.CompanyCurrencyRate = 1;
     }
 
     $scope.clearBankPopUp = function () {

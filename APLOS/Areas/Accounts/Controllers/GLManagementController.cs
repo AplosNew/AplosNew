@@ -393,47 +393,73 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
         [HttpPost, Authorize]
-        public JsonResult CreateGlManagementBudgetCode(Dictionary<string, object> data, string GlManagementId)
+        public JsonResult CreateGlManagementBudgetCode(List<Dictionary<string, object>> data, string GlManagementId)
         {
             try
             {
-                DataSet dsEmpCat;
+                DataSet dsBudCode;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementPositionCode] where Id='" + data["Id"] + "'", out dsEmpCat, false, "1");
+                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementBudgetCode] where GlManagementId='" + GlManagementId + "'", out dsBudCode, false, "1");
 
-                string Id = "";
-
+                string Id = ""; 
                 #region data update
-                if (dsEmpCat.Tables[0].Rows.Count == 0)
+                foreach (var item in data)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementPositionCode", out Id);
-
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementBudgetCode", out Id);
                     var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                    DataRow dr;
-                    dr = dsEmpCat.Tables[0].NewRow();
 
-                    dr["Id"] = Id;
-                    dr["PositionCodeId"] = data["PositionCodeId"];
-                    dr["GlManagementId"] = GlManagementId;
+                    DataView dv = new DataView(dsBudCode.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
 
-                    dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = System.DateTime.Now.ToString();
-                    dr["AddedFromIP"] = identity.IPAddress;
-                    dr["UpdatedBy"] = identity.Name;
-                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                    dr["UpdatedFromIP"] = identity.IPAddress;
-                    dsEmpCat.Tables[0].Rows.Add(dr);
+                    if (dv.Count == 0)
+                    {
+                        item["Id"] = Id;
+                        item["GlManagementId"] = GlManagementId;
+
+                        AddNewRow(dsBudCode.Tables[0], item);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        item["Id"] = dv[0].Row["Id"].ToString();
+                        EditRow(drmo, item);
+                    }
                 }
-                else
-                {
-                    Id = data["Id"].ToString();
-                    EditRow(dsEmpCat.Tables[0].Rows[0], data);
-                }
-
                 #endregion data update 
+                //#region data update
+                //if (dsBudCode.Tables[0].Rows.Count == 0)
+                //{
+                //    bplib.clsGenID genid = new bplib.clsGenID();
+                //    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementBudgetCode", out Id);
+
+                //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                //    DataRow dr;
+                //    dr = dsBudCode.Tables[0].NewRow();
+
+                //    dr["Id"] = Id;
+                //    dr["GlManagementId"] = GlManagementId;
+                //    dr["BudgetCodeId"] = data.BudgetCodeId; 
+
+                //    dr["AddedBy"] = identity.Name;
+                //    dr["AddedDate"] = System.DateTime.Now.ToString();
+                //    dr["AddedFromIP"] = identity.IPAddress;
+                //    dr["UpdatedBy"] = identity.Name;
+                //    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                //    dr["UpdatedFromIP"] = identity.IPAddress;
+
+                //    dsBudCode.Tables[0].Rows.Add(dr);
+                //    //AddNewRow(dsRouteShChild.Tables[0], RouteShChild);
+                //}
+                //else
+                //{
+                //    Id = data["Id"].ToString();
+                //    EditRow(dsBudCode.Tables[0].Rows[0], data);
+                //}
+                //#endregion data update
+
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsEmpCat);
+                _info.SaveDataSets(dsBudCode);
                 return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
             }
             catch (Exception ex)
@@ -560,6 +586,27 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+        [HttpGet]
+         public ActionResult DeleteEmployeeCategory(string Id)
+        {
+            string sql = @"select * from [HKP].[GLManagementEmployeeCategory] where EmployeeCategoryId = '" + Id + @"'";
+            try
+            {
+                if (string.IsNullOrEmpty(Id))
+                    throw new Exception("Select entry first");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from [HKP].[GLManagementEmployeeCategory] where EmployeeCategoryId = '" + Id + @"'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         [Authorize]
         public ActionResult GetPositionCodeData(string glManagementId)
         {

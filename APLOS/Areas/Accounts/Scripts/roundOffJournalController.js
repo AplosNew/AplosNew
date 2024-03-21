@@ -143,7 +143,6 @@ function roundOffJournalController(accountService, cboService, commonMessage, $s
             for (var i = 0; i < $scope.trailBalanceRoundOffList.length; i++) {
                 if ($scope.trailBalanceRoundOffList[i].Active) {
                     $scope.voucherDetailList.push($scope.trailBalanceRoundOffList[i]);
-
                 }
             }
             angular.element(document.querySelector('#trailBalanceRoundOffListPopUp')).modal('hide');

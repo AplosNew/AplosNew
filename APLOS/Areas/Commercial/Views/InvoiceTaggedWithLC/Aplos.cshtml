@@ -217,31 +217,34 @@
              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
             <div e-columns>
                 <div e-column e-field="LCRef" e-headertext="LC Ref" e-width="80"></div>
-                <div e-column e-field="Vendor" e-headertext="Vendor" e-width="80"></div>
+                <div e-column e-field="Vendor" e-headertext="Vendor" e-width="120"></div>
                 <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LoanDate" e-headertext="Loan Date" e-textalign="right" e-width="80"></div>
                 <div e-column e-field="LoanNo" e-headertext="LoanNo" e-textalign="right" e-width="80"></div>
                 <div e-column e-field="Currency" e-headertext="Currency" e-width="80"></div>
                 <div e-column e-field="Amount" e-headertext="Amount" e-width="80"></div>
+                <div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="80"></div>
                 <div e-column e-field="Status" e-headertext="Status" e-width="80"></div>
-                <div e-column e-headertext=" Action " e-template="#InvoiceTWLCTemplate" e-width="80"></div>
+                <div e-column e-headertext=" Action " e-template="#InvoiceTWLCTemplate" e-width="160"></div>
             </div>
             <script id="InvoiceTWLCTemplate" type="text/template">
                 <div class="common-btn">
                     <ul class="common-btn list-inline text-center">
+
+                        <li><a class="btn btn-action" href="Commercial/InvoiceTaggedWithLC/GetInvoiceTaggedWithLCReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&LCId={{data.Id}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                        <li><a class="btn btn-action" href="Commercial/InvoiceTaggedWithLC/GetInvoiceTaggedWithLCReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&LCId={{data.Id}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
+                        <li><a class="btn btn-action" ng-hide="data.VoucherId==null" href="Accounts/Loan/AutoLoanReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{data.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                        <li><a class="btn btn-action" ng-hide="data.VoucherId==null" href="Accounts/Loan/AutoLoanReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{data.VoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
                         <li>
-                            <button ng-disabled="data.IsPark==false" ng-click="$parent.onClickUnTaggLCPopUp(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
+                            <button ng-show="data.VoucherId==null" ng-click="$parent.onClickUnTaggLCPopUp(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
                                 <i class="glyphicon glyphicon-trash" style="color:orangered;"></i>
                             </button>
                         </li>
-                        <li><a class="btn btn-action" href="Commercial/InvoiceTaggedWithLC/GetInvoiceTaggedWithLCReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&LCId={{data.Id}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
-                        <li><a class="btn btn-action" href="Commercial/InvoiceTaggedWithLC/GetInvoiceTaggedWithLCReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&LCId={{data.Id}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
                     </ul>
                 </div>
             </script>
         </div>
     </div>
 </div>
-
 
 
 <div class="modal fade site-modal in" id="PurchaseLCPopUp" role="dialog" data-backdrop="static">
@@ -275,5 +278,5 @@
     </div>
 </div>
 
-<confirm-archive-generic modalid="confirmUntagPopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="untag(untagId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmUntagPopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="UntagInvoiceWithLC()"></confirm-archive-generic>
 

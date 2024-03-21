@@ -12,8 +12,8 @@ function finalSettlementPostController(cboService, commonMessage, $scope, $rootS
     $scope.salaryPayables = [];
     $scope.path = "accounts/salarydisbursement/";
     $scope.getListUrl = $scope.path + "GetFinalSettlementDisbursementVoucherList";
-    $scope.saveUrl = $scope.path + "ParkSalaryPayableDisbursement";
-    $scope.postUrl = $scope.path + "PostSalarydisbursement";
+    $scope.saveUrl = $scope.path + "ParkFinalSettlementDisbursement";
+    $scope.postUrl = $scope.path + "PostFinalSettlementdisbursement";
     $scope.hideSource = true;
     $scope.isWriteOff = true;
     $controller("currencyBaseController", { $scope: $scope, $http: $http });
@@ -46,12 +46,12 @@ function finalSettlementPostController(cboService, commonMessage, $scope, $rootS
             "value": "DocRefNo"
         },
         {
-            "name": "MonthNo",
-            "value": "MonthNo"
+            "name": "EmployeeCode",
+            "value": "EmployeeCode"
         },
         {
-            "name": "Year No",
-            "value": "Year No"
+            "name": "EmployeeName",
+            "value": "EmployeeName"
         },
         {
             "name": "Payment Bank",
@@ -165,8 +165,8 @@ function finalSettlementPostController(cboService, commonMessage, $scope, $rootS
         }
     };
     
-    $scope.getCboVoucherTypeSalaryDisbursementList = function () {
-        cboService.getCboVoucherTypeSalaryDisbursementList(function (result) {
+    $scope.getCboVoucherTypeFinalSettlementDisbursementList = function () {
+        cboService.getCboVoucherTypeFinalSettlementDisbursementList(function (result) {
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
@@ -174,7 +174,7 @@ function finalSettlementPostController(cboService, commonMessage, $scope, $rootS
             }
         });
     }
-    $scope.getCboVoucherTypeSalaryDisbursementList();
+    $scope.getCboVoucherTypeFinalSettlementDisbursementList();
     baseService.getCompanyConfiguration(function (result) {
         $scope.companyConfig = result;
     });
@@ -362,7 +362,7 @@ function finalSettlementPostController(cboService, commonMessage, $scope, $rootS
     };
     $scope.saveBtnDisable = false;
     $scope.Save = function () {
-        if ($scope.EmployeeListNew.length === 0) {
+        if (baseService.isUndefinedOrNull($scope.voucher.EmployeeId)) {
             ShowResult("Please select Employee!", "failure");
             return true;
         }
@@ -393,13 +393,9 @@ function finalSettlementPostController(cboService, commonMessage, $scope, $rootS
                         url: $scope.saveUrl,
                         data: {
                             "voucherVM": $scope.voucher,
-                            "yearNo": $scope.voucher.YearNo,
-                            "monthNo": $scope.voucher.MonthNo,
-                            "monthName": $scope.voucher.MonthName,
                             "pMode": $scope.voucher.PaymentMode,
                             "directJVList": $scope.salaryLockPayableGLData,
-                            "disbursementAdviceId": $scope.voucher.DisbursementAdviceId,
-                            "employeeListNew": $scope.EmployeeListNew
+                            "disbursementAdviceId": $scope.voucher.DisbursementAdviceId
                         },
                         dataType: "JSON"
                     }).then(function successCallback(response) {
@@ -463,13 +459,11 @@ function finalSettlementPostController(cboService, commonMessage, $scope, $rootS
         $scope.voucher = {};
         $scope.voucher.PaymentMode ='';
         $scope.voucher.EmployeeId = null;
-        $scope.getCboVoucherTypeSalaryDisbursementList();
+        $scope.getCboVoucherTypeFinalSettlementDisbursementList();
         $scope.voucher.Active = true;
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.voucher.DocRefNo = null;
-        $scope.employeeDisbursementDataList = [];
         $scope.salaryLockPayableGLData = [];
-        $scope.EmployeeListNew = [];
         $scope.saveBtnDisable = false;
 
     }
@@ -674,51 +668,49 @@ function finalSettlementPostController(cboService, commonMessage, $scope, $rootS
         }
     };
 
-    $scope.GetEmployeeSalaryProcessedReportSalaryLogWiseInVoucher = function () {
-        try {
-            var EmpBank = $("#PaymentModeIds option:selected").text();
-            if (EmpBank == '--Select--') {
-                EmpBank = '';
-            }
-            $http({
-                method: 'POST',
-                url: 'Accounts/SalaryDisbursement/GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher',
-                data: {
-                    'month': $scope.voucher.MonthNo,
-                    'year': $scope.voucher.YearNo, 
-                    'salaryProcessId': $scope.voucher.salaryProcessId,
-                    'payRollGroup': $scope.voucher.payGroupListSelected,
-                    'parameters': $scope.voucher.parameters,
-                    'isActive': $scope.voucher.IsActive,
-                    'isSeperated': $scope.voucher.IsSeperated,
-                    'isMaternity': $scope.voucher.IsMaternity,
-                    'voucherId': null,
-                    'Mode': $scope.voucher.PaymentMode,
-                    'EmpBank': EmpBank
-                }
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-                }
-            });
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    };
+    //$scope.GetEmployeeSalaryProcessedReportSalaryLogWiseInVoucher = function () {
+    //    try {
+    //        var EmpBank = $("#PaymentModeIds option:selected").text();
+    //        if (EmpBank == '--Select--') {
+    //            EmpBank = '';
+    //        }
+    //        $http({
+    //            method: 'POST',
+    //            url: 'Accounts/SalaryDisbursement/GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher',
+    //            data: {
+    //                'month': $scope.voucher.MonthNo,
+    //                'year': $scope.voucher.YearNo, 
+    //                'salaryProcessId': $scope.voucher.salaryProcessId,
+    //                'payRollGroup': $scope.voucher.payGroupListSelected,
+    //                'parameters': $scope.voucher.parameters,
+    //                'isActive': $scope.voucher.IsActive,
+    //                'isSeperated': $scope.voucher.IsSeperated,
+    //                'isMaternity': $scope.voucher.IsMaternity,
+    //                'voucherId': null,
+    //                'Mode': $scope.voucher.PaymentMode,
+    //                'EmpBank': EmpBank
+    //            }
+    //        }).then(function successCallback(response) {
+    //            if (response.data.Error === true) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            }
+    //            else {
+    //                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+    //            }
+    //        });
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+    //};
 
-    $scope.deleteUrl = "Accounts/SalaryDisbursement/DeleteSalaryDisbursementVoucher";
+    $scope.deleteUrl = "Accounts/SalaryDisbursement/DeleteFinalSettlementDisbursementVoucher";
 
-    $scope.deleteSalaryDisbursement = function (voucherId, monthNo, yearNo) {
+    $scope.deleteSalaryDisbursement = function (voucherId) {
         $http({
             method: "POST",
             url: $scope.deleteUrl,
             data: {
-                "voucherId": voucherId,
-                "monthNo": monthNo,
-                "yearNo": yearNo,
+                "voucherId": voucherId
             },
             dataType: "JSON"
         }).then(function successCallback(response) {
@@ -730,8 +722,6 @@ function finalSettlementPostController(cboService, commonMessage, $scope, $rootS
                 $scope.getData();
                 $scope.Clear();
                 $scope.voucherId = null;
-                $scope.DelMonthNo = null;
-                $scope.DelYearNo = null;
             }
         }, function errorCallback(response) {
             ShowResult(response.status.Message, "failure");
@@ -741,8 +731,6 @@ function finalSettlementPostController(cboService, commonMessage, $scope, $rootS
 
     $scope.confirmDelete = function (data) {
         $scope.voucherId = data.PayableVoucherId;
-        $scope.DelMonthNo = data.MonthNo;
-        $scope.DelYearNo = data.YearNo;
         $scope.message_delete_confirmation = "Are you sure to Delete?";
         angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
     };
