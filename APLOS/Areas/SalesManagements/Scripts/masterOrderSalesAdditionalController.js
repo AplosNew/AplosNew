@@ -17,7 +17,7 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
 
     $scope.searchByPostedSales = "InvoiceNo"; $scope.searchSales = "";
     $scope.searchByPostedSalesList = [{ value: 'InvoiceNo', name: "Invoice No" }, { value: 'VoucherNo', name: "Voucher No" }, { value: 'PartyCode', name: "Party Code" }, { value: 'PartyName', name: "Party Name" }
-        , { value: 'DocRefNo', name: "DocRef No" }
+        , { value: 'BankDocRef', name: "Bank Ref" }
     ];
     $scope.FromDate = null; $scope.ToDate = null;
     $scope.MasterOrderSalesPostedList = [];

@@ -122,7 +122,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             }
         }
 
-       
+
         [HttpGet, Authorize]
         public ActionResult GetOrderCostingMasterTemplateDataByArticle(string articleId)
         {
@@ -217,8 +217,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
 
                 }
-                
-                
+
+
             }
 
 
@@ -390,7 +390,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     throw new Exception("Select SO Item.");
                 }
                 ConnectionManager.DAL.ConManager objCon;
-                DataSet dsMaster,dsSO = null;
+                DataSet dsMaster, dsSO = null;
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.SOCostingConfirmation where  SalesOrderId='" + lineId + "'", out dsMaster, false, "1");
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM TRN.SalesOrder where  Id='" + lineId + "'", out dsSO, false, "1");
@@ -422,7 +422,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                             item["SalesOrderId"] = lineId;
                             EditRow(drmo, item);
                         }
-                        if (soList.Count==0)
+                        if (soList.Count == 0)
                         {
                             var so = new SOCostModelNew
                             {
@@ -434,12 +434,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
                         }
                         else
                         {
-                           var socheck= soList.Where(s => s.SOItemName == item["SOItemName"].ToString()).FirstOrDefault();
-                            if (socheck!=null)
+                            var socheck = soList.Where(s => s.SOItemName == item["SOItemName"].ToString()).FirstOrDefault();
+                            if (socheck != null)
                             {
                                 foreach (var it in soList.Where(s => s.SOItemName == item["SOItemName"].ToString()))
                                 {
-                                    if (it.SOItemName== item["SOItemName"].ToString())
+                                    if (it.SOItemName == item["SOItemName"].ToString())
                                     {
                                         it.SOValue += Convert.ToDecimal(item["SOValue"]);
                                     }
@@ -467,7 +467,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 if (sodv.Count > 0)
                 {
                     DataRow drso = sodv[0].Row;
-                        
+
                     drso.BeginEdit();
                     foreach (var so in soList)
                     {
@@ -486,7 +486,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                         if (so.SOItemName == "CM")
                         {
                             drso["CM"] = so.SOValue;
-                        }                      
+                        }
                         if (so.SOItemName == "DirectMaterialCost")
                         {
                             drso["DirectMaterialCost"] = so.SOValue;
@@ -643,7 +643,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetpackingTypeDataList(string SOId,string PackingType)
+        public JsonResult GetpackingTypeDataList(string SOId, string PackingType)
         {
             return Json(_masterOrderService.GetpackingTypeList(SOId, PackingType), JsonRequestBehavior.AllowGet);
         }
@@ -733,7 +733,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         public JsonResult GetMasterItemForApproveList(string masterOrderId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_masterOrderService.GetMasterItemForApproveList(masterOrderId,identity.EmployeeId), JsonRequestBehavior.AllowGet);
+            return Json(_masterOrderService.GetMasterItemForApproveList(masterOrderId, identity.EmployeeId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -775,7 +775,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
             Library.General.Conversions.CurrencyConversions con = new Library.General.Conversions.CurrencyConversions(ExchangeRateTableName);
             con.SaveConversion(entity.Id, CurrencyData);
-            
+
             return Json(new { MasterOrder = entity, Message = AplosMessage.Success });
         }
         [HttpPost]
@@ -786,7 +786,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpPost]
-        public JsonResult Edit(MasterOrder entity, string masterId, IEnumerable<MasterOrderResPerson> personList, IEnumerable<MasterOrderItem> itemList, List<Dictionary<string, object>> CurrencyData,  UserRemarksControl userRemarksControl)
+        public JsonResult Edit(MasterOrder entity, string masterId, IEnumerable<MasterOrderResPerson> personList, IEnumerable<MasterOrderItem> itemList, List<Dictionary<string, object>> CurrencyData, UserRemarksControl userRemarksControl)
         {
             _masterOrderService.Update(entity, masterId, personList, itemList, userRemarksControl);
             Library.Planning.OrderManagement.MasterOrder mo = new Library.Planning.OrderManagement.MasterOrder();
@@ -794,7 +794,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
             Library.General.Conversions.CurrencyConversions con = new Library.General.Conversions.CurrencyConversions(ExchangeRateTableName);
             con.SaveConversion(entity.Id, CurrencyData);
-            
+
             return Json(new { Message = AplosMessage.Updated });
         }
 
@@ -812,7 +812,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             Library.Planning.OrderManagement.MasterOrder mo = new Library.Planning.OrderManagement.MasterOrder();
             mo.GenerateLogForTnA(masterItemId, Library.Service.Enums.TaskAppliedOnEnum.SalesOrder);
 
-            return Json(new { Data= salesOrderMaster, Message = AplosMessage.Updated });
+            return Json(new { Data = salesOrderMaster, Message = AplosMessage.Updated });
         }
 
         //[HttpPost, Authorize]
@@ -1062,7 +1062,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             IWorksheet worksheet = workbook.Worksheets[0];
             try
             {
-                DataTable dtOrderMaster =MasterOrder.GetOrderMaster(MasterOrderId);
+                DataTable dtOrderMaster = MasterOrder.GetOrderMaster(MasterOrderId);
                 if (dtOrderMaster.Rows.Count == 0)
                     throw new Exception("No data found");
 
@@ -1641,7 +1641,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 throw ex;
             }
         }
-        
+
         [HttpPost, Authorize]
         public JsonResult CreateQBOQ(Dictionary<string, object> data)
         {
@@ -1701,7 +1701,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             {
                 if (data != null)
                 {
-                    var IsDuplicateEntryAllowed =MasterOrder.CheckCombination(data);
+                    var IsDuplicateEntryAllowed = MasterOrder.CheckCombination(data);
 
                     if (IsDuplicateEntryAllowed)
                     {
@@ -1853,7 +1853,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return Json(MasterOrder.GetMasterOrderAmountAndQty(masterId), JsonRequestBehavior.AllowGet);
         }
         [HttpPost, Authorize]
-        public JsonResult CreatePackingDetail(Dictionary<string, object> data,string MasterOrderId)
+        public JsonResult CreatePackingDetail(Dictionary<string, object> data, string MasterOrderId)
         {
             try
             {
@@ -1867,7 +1867,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             }
 
         }
-       
+
         [HttpGet, Authorize]
         public ActionResult GetPackingDetail(string masterOderId)
         {
@@ -1911,7 +1911,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         [HttpGet, Authorize]
         public ActionResult GetSavedSOData(string PackingDetailId)
         {
-          JsonResult json = Json(MasterOrder.GetSavedSOData(PackingDetailId), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(MasterOrder.GetSavedSOData(PackingDetailId), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
@@ -2029,8 +2029,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
                         _Id = data["Id"].ToString();
                         EditRow(dsMaster.Tables[0].Rows[0], data);
                     }
-              
-                            
+
+
                     #region FUND 
                     con.OpenDataSetThroughAdapter("SELECT * FROM dbo.SKUDetail where  PackingTypeChildId='" + data["Id"] + "'", out dscMaster, false, "1");
                     if (SKUList != null)
@@ -2301,7 +2301,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
         #endregion
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public JsonResult CreateCharacteristicsValue(CharacteristicsValue entity, string MaterialMasterId)
         {
             try
@@ -2330,16 +2330,61 @@ namespace Aplos.Areas.OrderManagements.Controllers
         public JsonResult CheckSalesOrder(SalesOrderMaster salesOrderMaster)
         {
             _masterOrderService.CheckSOGraph(salesOrderMaster);
-          
+
             return Json(new { Message = AplosMessage.Updated });
         }
 
         [HttpPost]
-        public JsonResult ApproveSalesOrder(MasterOrder entity,SalesOrderMaster salesOrderMaster)
+        public JsonResult ApproveSalesOrder(MasterOrder entity, SalesOrderMaster salesOrderMaster)
         {
-            _masterOrderService.ApproveSOGraph(entity,salesOrderMaster);
+            _masterOrderService.ApproveSOGraph(entity, salesOrderMaster);
 
             return Json(new { Message = AplosMessage.Updated });
+        }
+
+
+        [HttpPost, Authorize]
+        public JsonResult CreateMOAdditionalInfo(List<Dictionary<string, object>> data, string lineId)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsChild;
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[SalesAdditionalInfo] where  LineItemId='" + lineId + "'", out dsChild, false, "1");
+                int count = 0;
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            count++;
+                            item["Id"] = lineId + "-" + count;
+                            item["LineItemId"] = lineId;
+                            AddNewRow(dsChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsChild);
+                }
+
+
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
         }
 
     }
