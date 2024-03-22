@@ -404,7 +404,6 @@ namespace Aplos.Areas.Banks.Controllers
 
         }
 
-
         //Current Fund Position end//
     }
 }
