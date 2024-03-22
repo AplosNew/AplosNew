@@ -12,6 +12,8 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     $scope.saveDesignationUrl = $scope.path + 'CreateGlManagementDesignation';
     $scope.savePositionCodeUrl = $scope.path + 'CreateGlManagementPositionCode';
     $scope.saveBudgetCodeUrl = $scope.path + 'CreateGlManagementBudgetCode';
+    $scope.saveEmpUrl = $scope.path + 'CreateGlManagementEmployee';
+    $scope.saveRPUrl = $scope.path + 'CreateGlManagementResponsiblePersosn';
     $scope.deleteUrl = $scope.path + 'DeleteGlControl/';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
@@ -90,7 +92,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         $scope.GetEmployeeCategory(args.data.Id);
         $scope.GetDesignationData(args.data.Id);
         $scope.GetPositionCodeData(args.data.Id);
-        //$scope.GetInventoryCapitalGL(args.data.Id);
+        $scope.GetEmployeeData(args.data.Id);
         //$scope.GetCapitalGL(args.data.Id);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
@@ -353,16 +355,35 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     $scope.closeDesignationCodePopUp = function () {
         angular.element(document.querySelector('#LDPopUp')).modal('hide');
     }
+
+    $scope.message_detailconfirmation = null;
+    $scope.removeDesignation = function (obj) {
+        $scope.designationNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.designationNew.Id))
+            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.designationNew.Designation + ' ]';
+        angular.element(document.querySelector('#confirmDesignationDeletePopUp')).modal('show');
+    }
+
+    $scope.DeleteDesignation = function () {
+        $http.get('Accounts/GLManagement/DeleteDesignationData?id=' + $scope.designationNew.DesignationId)
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetDesignationData($scope.ModelNew.Id);
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+    };
+
     //#endregion LegalDesignation
 
     //#region position
-    $scope.position = {
-        Id: null
-        , PositionCodeId: null
-        , PositionCode: null
-    };
-    $scope.positionNew = Object.assign({}, $scope.position);
-
+   
     $scope.selectPositionCode = function () {
         $scope.getPositionCode();
         angular.element(document.querySelector('#PositionCodePopUp')).modal('show');
@@ -467,17 +488,34 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             $scope.PositionCodeListData = response.data;
         })
     }
+    $scope.message_PCconfirmation = null;
+    $scope.removePositionCode = function (obj) {
+        $scope.PCNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.PCNew.Id))
+            $scope.message_PCconfirmation = 'Are you sure want to delete permanently [ ' + $scope.PCNew.EmployeeCode + ' ]';
+        angular.element(document.querySelector('#confirmPCDeletePopUp')).modal('show');
+    }
+
+    $scope.DeletePositionCode = function () {
+        $http.get('Accounts/GLManagement/DeletePositionCodeData?id=' + $scope.PCNew.PositionCodeId)
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetPositionCodeData($scope.ModelNew.Id);
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+    };
+
     //#endregion position
 
     //#region BudgetCode
-    $scope.BudgetCode = {
-        Id: null,
-        BudgetCodeId: null,
-        Code: null
-    };
-    $scope.BudgetCodeNew = angular.copy($scope.BudgetCode);
-
-
+     
     $scope.BCpopUpTitle = "Manpower Budget";
     //$scope.BudgetCodepopUpDataList = [];
     //$scope.BudgetCodepopUp = function () {
@@ -606,7 +644,266 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         })
     }
 
+    $scope.removeBudgetCode = function (obj) {
+        $scope.BCNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.BCNew.Id))
+            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.BCNew.Code + ' ]';
+        angular.element(document.querySelector('#confirmBCDeletePopUp')).modal('show');
+    }
+
+    $scope.DeleteBudgetCode = function () {
+        $http.get('Accounts/GLManagement/DeleteBudgetCodeData?id=' + $scope.BCNew.BudgetCodeId)
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetBudgetCodeData($scope.ModelNew.Id);
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+    };
+
     //#endregion BudgetCode
+
+    //#region Employee 
+    $scope.employee = [];
+    $scope.getPopUpData = function () {
+        $scope.employee = [];
+        $http({
+            method: 'GET',
+            url: 'HumanResource/leaveApplicationNew/getemployeelist'
+        }).then(function successCallback(response) {
+            $scope.employee = response.data;
+        });
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
+    }
+
+    $scope.closeEmployeePopUp = function () {
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+    }
+
+    $scope.OKEmployee = function () {
+        try {
+            for (var i = 0; i < $scope.employee.length; i++) {
+                if ($scope.employee[i].CheckBoxSelect == true) {
+                    if (checkDoubleEmployeeInformation($scope.EmployeeList, $scope.employee[i].SystemID) === false) {
+                        $scope.EmployeeList.push($scope.employee[i]);
+                    }
+                }
+            }
+            angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+            $scope.SaveEmployeeData();
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    function checkDoubleEmployeeInformation(list, SystemID) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].EmpSystemId === SystemID) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.refreshTemplateEmployee = function (args) {
+        $("#Empheadchk").ejCheckBox({ "change": CheckBoxSelectAllEmp });
+    };
+
+    function CheckBoxSelectAllEmp(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        } 
+        var filtered = $("#GridEmp").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.employee.length; i++) {
+                $scope.employee[i].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridEmp").data("ejGrid");
+        gridObj.refreshContent();
+    }; 
+
+    $scope.SaveEmployeeData = function () {
+        if (baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+            return ShowResult('Please select GL Management!', 'failure');
+        }
+        $http({
+            method: 'POST',
+            url: $scope.saveEmpUrl,
+            data: { 'data': $scope.EmployeeList, 'GlManagementId': $scope.ModelNew.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetEmployeeData($scope.ModelNew.Id);
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+    $scope.EmployeeList = [];
+    $scope.GetEmployeeData = function (data) {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetEmployeeData",
+            data: { 'glManagementId': data },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.EmployeeList = response.data;
+        })
+    }
+    $scope.message_Empconfirmation = null;
+    $scope.removeEmployee = function (obj) {
+        $scope.EmpNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.EmpNew.EmpSystemId))
+            $scope.message_Empconfirmation = 'Are you sure want to delete permanently [ ' + $scope.EmpNew.EmployeeName + ' ]';
+        angular.element(document.querySelector('#confirmEmpDeletePopUp')).modal('show');
+    }
+    $scope.DeleteEmployee = function () {
+        if (baseService.isUndefinedOrNull($scope.EmployeeList[0].EmpSystemId)) {
+            if ($scope.EmployeeList[0].EmpSystemId === $scope.EmpSystemId) {
+                $scope.EmployeeList.splice(0, 1);
+            }
+        }
+        else {
+            $http.get('Accounts/GLManagement/DeleteEmployeeData?id=' + $scope.EmpNew.EmpSystemId)
+                .then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.GetEmployeeData($scope.ModelNew.Id);
+                    }
+                    function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                });
+        }
+    };
+ 
+    //#endregion Employee
+
+    //#region Responsible Person
+
+    $scope.ResPersonDataList = [];
+    $scope.GetResponsiblePersonInformation = function () {
+        try {
+            $http({
+                method: 'GET',
+                url: 'employees/EmployeeInformation/GetEmployeeListByPlant'
+            }).then(function successCallback(response) {
+                $scope.ResPersonDataList = response.data;
+            });
+            angular.element(document.querySelector('#employeePopUp')).modal('show');
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.closeRPPopUp = function () {
+        angular.element(document.querySelector('#employeePopUp')).modal('hide');
+    }
+
+    $scope.refreshTemplateRP = function (args) {
+        $("#RPheadchk").ejCheckBox({ "change": CheckBoxSelectAllRP });
+    };
+
+    function CheckBoxSelectAllRP(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+        var filtered = $("#GridResPer").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ResPersonDataList.length; i++) {
+                $scope.ResPersonDataList[i].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridResPer").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.OKResponsiblePerson = function () {
+        try {
+            for (var i = 0; i < $scope.ResPersonDataList.length; i++) {
+                if ($scope.ResPersonDataList[i].CheckBoxSelect == true) {
+                    if (checkDoubleResPerInformation($scope.ResPerList, $scope.ResPersonDataList[i].SystemID) === false) {
+                        $scope.ResPerList.push($scope.ResPersonDataList[i]);
+                    }
+                }
+            }
+            angular.element(document.querySelector('#employeePopUp')).modal('hide');
+            $scope.SaveResponsiblePersosnData();
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    function checkDoubleResPerInformation(list, SystemID) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].EmpSystemId === SystemID) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.SaveResponsiblePersosnData = function () {
+        if (baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+            return ShowResult('Please select GL Management!', 'failure');
+        }
+        $http({
+            method: 'POST',
+            url: $scope.saveRPUrl,
+            data: { 'data': $scope.ResPerList, 'GlManagementId': $scope.ModelNew.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetResponsiblePersonData($scope.ModelNew.Id);
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+    $scope.ResPerList = [];
+    $scope.GetResponsiblePersonData = function (data) {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetResPersonData",
+            data: { 'glManagementId': data },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ResPerList = response.data;
+        })
+    }
+    //#endregion Responsible Person
 
     $scope.DeleteMaterial = function () {
 

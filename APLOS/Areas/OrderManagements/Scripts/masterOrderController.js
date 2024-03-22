@@ -3800,6 +3800,40 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         });
     };
 
+    $scope.MOAdditionalInfoList = [];
+    $scope.GetMOAdditionalInfoPopup = function (index, data) {
+        $scope.itemIndex = index;
+        $scope.masterItemId = data.Id;
+
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/MasterOrder/GetLineItemAdditionalInfoData?lineItemId=' + $scope.masterItemId
+        }).then(function successCallback(response) {
+            $scope.MOAdditionalInfoList = response.data;
+            angular.element(document.querySelector('#MOAddInfoPopup')).modal('show');
+        });
+    };
+
+    $scope.SaveAddInfo = function () {
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/MasterOrder/CreateMOAdditionalInfo',
+            data: { 'data': $scope.MOAdditionalInfoList, 'lineId': $scope.masterItemId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+
+
     $scope.CalculateRate = function () {
         try {
             $http({
