@@ -120,11 +120,11 @@
                     <label class="col-sm-3 control-label">: <b>{{FinalSettlementModel.BasicAmount}}</b> </label>
                 </div>
                 @*<div class="form-group">
-                <label class="col-sm-4 control-label">Wage/Day</label>
-                <label class="col-sm-2 control-label">: <b>{{FinalSettlementModel.SalaryRate}}</b> </label>
-                <label class="col-sm-3 control-label"></label>
-                <label class="col-sm-3 control-label">: </label>
-            </div>*@
+                        <label class="col-sm-4 control-label">Wage/Day</label>
+                        <label class="col-sm-2 control-label">: <b>{{FinalSettlementModel.SalaryRate}}</b> </label>
+                        <label class="col-sm-3 control-label"></label>
+                        <label class="col-sm-3 control-label">: </label>
+                    </div>*@
 
             </fieldset>
 
@@ -134,39 +134,13 @@
 
 
             <fieldset class="scheduler-border">
-                <legend class="scheduler-border">Undisbursed Salary Info</legend>
-                @*<div class="form-group">
-                <label class="col-sm-4 control-label">Salary Amount ({{FinalSettlementModel.LastMonthProcDay}} Days)</label>
-                <div class="col-sm-8 show-message">
-                    <input type="number" ng-model="FinalSettlementModel.LastMonthNetPayAmount" class="form-control" required tabindex="1">
+                <legend class="scheduler-border">Last Month Salary Info</legend>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Salary Amount ({{FinalSettlementModel.LastMonthProcDay}} Days)</label>
+                    <div class="col-sm-8 show-message">
+                        <input type="number" ng-model="FinalSettlementModel.LastMonthNetPayAmount" class="form-control" required tabindex="1">
+                    </div>
                 </div>
-            </div>*@
-                <div class="table-responsive modal-table">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>YearNo</th>
-                                <th>Month Name</th>
-                                <th>Amount</th>
-                            </tr>
-
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="x in FinalSettlementUndisbursedEarningList">
-                                <td>{{x.YearNo}}</td>
-                                <td>{{x.MonthName}}</td>
-                                <td class="text-right">{{x.DisbusmentAmount}}</td>
-                            </tr>
-                            <tr>
-                                <td colspan="2">Total</td>
-                                <td class="text-right">
-                                    {{FinalSettlementUndisbursedEarningList | sumByKey : 'DisbusmentAmount'|number:0}}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                Salary Amount: {{FinalSettlementModel.LastMonthNetPayAmount}}
             </fieldset>
 
             <fieldset class="scheduler-border">
@@ -212,9 +186,9 @@
                     <label class="col-sm-1 control-label" style="text-align:right"> <b>{{FinalSettlementModel.LvEncashmentRate|number:4}}</b></label>
                     <label class="col-sm-2 control-label"> Amount</label>
                     @*<div class="col-sm-4 show-message">
-                    <input type="number" ng-model="FinalSettlementModel.LvEncashmentAmount=FinalSettlementModel.LvEncashmentDayNo*FinalSettlementModel.LvEncashmentRate" class="form-control" required tabindex="1" step="0.01">
+                            <input type="number" ng-model="FinalSettlementModel.LvEncashmentAmount=FinalSettlementModel.LvEncashmentDayNo*FinalSettlementModel.LvEncashmentRate" class="form-control" required tabindex="1" step="0.01">
 
-                </div>*@
+                        </div>*@
                     <label class="col-sm-2 control-label" style="text-align:right"> <b>{{FinalSettlementModel.LvEncashmentAmount=FinalSettlementModel.LvEncashmentDayNo*FinalSettlementModel.LvEncashmentRate|number:2}}</b></label>
                 </div>
             </fieldset>
@@ -412,8 +386,8 @@
 
 
                     @*<div class="col-sm-1 show-message">
-                    <input type="number" placeholder="Day No" ng-model="FinalSettlementModel.NoticePeriodRate" class="form-control" required tabindex="1">
-                </div>*@
+                            <input type="number" placeholder="Day No" ng-model="FinalSettlementModel.NoticePeriodRate" class="form-control" required tabindex="1">
+                        </div>*@
                     <label class="col-sm-2 control-label">Item Type</label>
                     <div class="col-sm-2 show-message">
                         <div class="select-style">
@@ -427,14 +401,7 @@
                 </div>
 
             </fieldset>
-            <fieldset class="scheduler-border">
-                <legend class="scheduler-border">Advance Information</legend>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Advance Amount</label>
-                    <label class="col-sm-1 control-label">:</label>
-                    <label class="col-sm-7 control-label text-right" style="text-align:right"> <b>{{FinalSettlementModel.AdvanceAmount}}</b></label>
-                </div>
-            </fieldset>
+
             <!-- #endregion -->
 
             <hr />
@@ -447,7 +414,7 @@
                 <label class="col-sm-4 control-label">Total Deduction </label>
                 <label class="col-sm-1 control-label">:</label>
                 <label ng-show="false" class="col-sm-7 control-label" style="text-align:right"> <b>{{FinalSettlementModel.DeductionAmount|number:2}}</b></label>
-                <label class="col-sm-7 control-label" style="text-align:right"> <b>{{FinalSettlementModel.TotalDeductionAmount=FinalSettlementModel.DeductionAmount+FinalSettlementModel.EarnLvDeductionAmount+(FinalSettlementModel.NoticePeriodType=='Deduction'?FinalSettlementModel.NoticePeriodAmount:0)+FinalSettlementModel.AdvanceAmount|number:2}}</b></label>
+                <label class="col-sm-7 control-label" style="text-align:right"> <b>{{FinalSettlementModel.TotalDeductionAmount=FinalSettlementModel.DeductionAmount+FinalSettlementModel.EarnLvDeductionAmount+(FinalSettlementModel.NoticePeriodType=='Deduction'?FinalSettlementModel.NoticePeriodAmount:0)|number:2}}</b></label>
 
             </div>
             <div class="form-group">
