@@ -30,6 +30,15 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         return $scope.tab === tabNum;
     };
 
+    $scope.tab2 = 10;
+    $scope.setTab2 = function (newTab2) {
+        $scope.tab2 = newTab2;
+    };
+
+    $scope.isSet2 = function (tabNum2) {
+        return $scope.tab2 === tabNum2;
+    };
+
     $scope.getData = function () {
         $http({
             method: 'POST',
@@ -38,7 +47,9 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
-            ClearFields(response.data.Sequence);
+            for (var i = 0; i < $scope.ModelList.length; i++) {
+                $scope.GlManagementId = $scope.ModelList[i].Id;
+            }
             $scope.GetSequence();
         });
     }
@@ -92,6 +103,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         $scope.GetEmployeeCategory(args.data.Id);
         $scope.GetDesignationData(args.data.Id);
         $scope.GetPositionCodeData(args.data.Id);
+        $scope.GetBudgetCodeData(args.data.Id);
         $scope.GetEmployeeData(args.data.Id);
         //$scope.GetCapitalGL(args.data.Id);
         $scope.Action = 'Update';
@@ -102,7 +114,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.ModelNewForm.$valid) {
+        if ($scope.ModelNewForm2.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
@@ -114,8 +126,8 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.getData();
                     //ClearFields(response.data.Sequence);
-                    //$scope.getData();
                     //$scope.selectIDs();
                 }
             }), function errorCallBack(response) {
@@ -125,10 +137,10 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.Delete = function () {
-        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+        if (!baseService.isUndefinedOrNull($scope.GlManagementId)) {
             $http({
                 method: 'POST',
-                url: $scope.deleteUrl + $scope.ModelNew.Id,
+                url: $scope.deleteUrl + $scope.GlManagementId,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -171,7 +183,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     $scope.EmpCatNew = Object.assign({}, $scope.EmployeeCategory);
 
     $scope.SaveEmployeeCategory = function () {
-        if (baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+        if (baseService.isUndefinedOrNull($scope.GlManagementId)) {
             return ShowResult('Please select GL Management!', 'failure');
         }
         for (var i = 0; i < $scope.EmployeeCategoryList.length; i++) {
@@ -182,7 +194,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         $http({
             method: 'POST',
             url: $scope.saveEmpCatUrl,
-            data: { 'data': $scope.EmpCatNew, 'GlManagementId': $scope.ModelNew.Id },
+            data: { 'data': $scope.EmpCatNew, 'GlManagementId': $scope.GlManagementId},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -190,7 +202,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.GetEmployeeCategory($scope.ModelNew.Id);
+                $scope.GetEmployeeCategory($scope.GlManagementId);
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -205,7 +217,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.EmployeeCategoryList = response.data;
-                $scope.EmpCatNew.EmployeeCategoryId = $scope.EmployeeCategoryList[0].EmployeeCategoryId;
+            $scope.EmpCatNew.EmployeeCategoryId = $scope.EmployeeCategoryList[0].EmployeeCategoryId;
         })
     }
 
@@ -219,29 +231,29 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.DeleteRowEmpCategory = function () {
-            if (baseService.isUndefinedOrNull($scope.EmployeeCategoryList[0].EmployeeCategoryId)) {
-                if ($scope.EmployeeCategoryList[0].EmployeeCategoryId === $scope.EmployeeCategoryId) {
-                    $scope.EmployeeCategoryList.splice(0, 1);
-                } 
+        if (baseService.isUndefinedOrNull($scope.EmployeeCategoryList[0].EmployeeCategoryId)) {
+            if ($scope.EmployeeCategoryList[0].EmployeeCategoryId === $scope.EmployeeCategoryId) {
+                $scope.EmployeeCategoryList.splice(0, 1);
             }
-            else {
-                $scope.DeleteEmployeeCategory()
-            }
+        }
+        else {
+            $scope.DeleteEmployeeCategory()
+        }
     };
-    $scope.DeleteEmployeeCategory = function () { 
+    $scope.DeleteEmployeeCategory = function () {
         $http.get('Accounts/GLManagement/DeleteEmployeeCategory?Id=' + $scope.EmployeeCategoryId)
-                .then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.GetEmployeeCategory($scope.ModelNew.Id);
-                    }
-                    function errorCallBack(response) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                }); 
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetEmployeeCategory($scope.GlManagementId);
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
     };
 
     //#region LegalDesignation
@@ -320,13 +332,13 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
 
 
     $scope.SaveDesignation = function () {
-        if (baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+        if (baseService.isUndefinedOrNull($scope.GlManagementId)) {
             return ShowResult('Please select GL Management!', 'failure');
         }
         $http({
             method: 'POST',
             url: $scope.saveDesignationUrl,
-            data: { 'data': $scope.DesignationList, 'GlManagementId': $scope.ModelNew.Id },
+            data: { 'data': $scope.DesignationList, 'GlManagementId': $scope.GlManagementId},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -334,7 +346,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.GetDesignationData($scope.ModelNew.Id);
+                $scope.GetDesignationData($scope.GlManagementId);
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -372,7 +384,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.GetDesignationData($scope.ModelNew.Id);
+                    $scope.GetDesignationData($scope.GlManagementId);
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -383,7 +395,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     //#endregion LegalDesignation
 
     //#region position
-   
+
     $scope.selectPositionCode = function () {
         $scope.getPositionCode();
         angular.element(document.querySelector('#PositionCodePopUp')).modal('show');
@@ -456,13 +468,13 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
 
 
     $scope.SavePositionCode = function () {
-        if (baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+        if (baseService.isUndefinedOrNull($scope.GlManagementId)) {
             return ShowResult('Please select GL Management!', 'failure');
         }
         $http({
             method: 'POST',
             url: $scope.savePositionCodeUrl,
-            data: { 'data': $scope.PositionCodeListData, 'GlManagementId': $scope.ModelNew.Id },
+            data: { 'data': $scope.PositionCodeListData, 'GlManagementId': $scope.GlManagementId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -470,7 +482,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.GetPositionCodeData($scope.ModelNew.Id);
+                $scope.GetPositionCodeData($scope.GlManagementId);
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -491,8 +503,8 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     $scope.message_PCconfirmation = null;
     $scope.removePositionCode = function (obj) {
         $scope.PCNew = obj.data;
-        if (!baseService.isUndefinedOrNull($scope.PCNew.Id))
-            $scope.message_PCconfirmation = 'Are you sure want to delete permanently [ ' + $scope.PCNew.EmployeeCode + ' ]';
+        if (!baseService.isUndefinedOrNull($scope.PCNew.Code))
+            $scope.message_PCconfirmation = 'Are you sure want to delete permanently [ ' + $scope.PCNew.Code + ' ]';
         angular.element(document.querySelector('#confirmPCDeletePopUp')).modal('show');
     }
 
@@ -504,7 +516,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.GetPositionCodeData($scope.ModelNew.Id);
+                    $scope.GetPositionCodeData($scope.GlManagementId);
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -515,31 +527,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     //#endregion position
 
     //#region BudgetCode
-     
-    $scope.BCpopUpTitle = "Manpower Budget";
-    //$scope.BudgetCodepopUpDataList = [];
-    //$scope.BudgetCodepopUp = function () {
-    //    $scope.BudgetCodepopUpDataList = [];
-    //    $scope.BudgetCodepopUpList = [];
-    //    $scope.popUpUrl = 'employees/recruitment/getbudgetcodelist';
-    //    //baseService.setCurrentPage('dataList');
-    //    $scope.BudgetCodegetPopUpData = function (pageno) {
-    //        baseService.paginationBase($scope.popUpUrl, pageno, $scope.budgetpopUpParameters)
-    //            .then(function (result) {
-    //                $scope.BudgetCodepopUpDataList = result.Rows;
-    //                $scope.budgetpopUpParameters.total_count = result.Total;
-    //                if (baseService.arrayLength($scope.BudgetCodepopUpList) === 0) {
-    //                    baseService.getDDLSearchColumn(result.Rows, $scope.BudgetCodepopUpList);
-    //                }
-    //            }, function () {
-    //                ShowResult(commonMessage.NetworkError, 'failure', 'BudgetCodepopUpId');
-    //            }).finally(function () {
-    //            });
-    //    };
-    //    angular.element(document.querySelector('#BudgetCodepopUpId')).modal('show');
-    //    $scope.BudgetCodegetPopUpData();
-    //};
-
+      
     $scope.BudgetCodepopUpDataList = [];
     $scope.GetBudgetCodeInformation = function () {
         try {
@@ -561,14 +549,20 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.OKBudgetCode = function () {
         try {
+            var ob = {};
             for (var i = 0; i < $scope.BudgetCodepopUpDataList.length; i++) {
                 if ($scope.BudgetCodepopUpDataList[i].CheckBoxSelect == true) {
                     if (checkDoubleBudgetCodeInformation($scope.BudgetCodeList, $scope.BudgetCodepopUpDataList[i].Id) === false) {
-                        $scope.BudgetCodeList.push($scope.BudgetCodepopUpDataList[i]);
+                        //$scope.BudgetCodeList.push($scope.BudgetCodepopUpDataList[i]);
+                        ob.Id = null;
+                        ob.BudgetCodeId = $scope.BudgetCodepopUpDataList[i].Id;
+                        ob.Code = $scope.BudgetCodepopUpDataList[i].Code;
+                        ob.Position = $scope.BudgetCodepopUpDataList[i].PositionName;
+                        $scope.BudgetCodeList.push(ob);
                     }
                 }
             }
-            angular.element(document.querySelector('#PositionCodePopUp')).modal('hide');
+            angular.element(document.querySelector('#BudgetCodepopUpId')).modal('hide');
             $scope.SaveBudgetCode();
         } catch (e) {
             ShowResult(e, "failure");
@@ -586,8 +580,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.refreshTemplateBC = function (args) {
         $("#BCheadchk").ejCheckBox({ "change": CheckBoxSelectAllBC });
-    };
-
+    }; 
     function CheckBoxSelectAllBC(e) {
         var ChkOrUnchk = false;
         if (e.model.checkState === "check") {
@@ -607,17 +600,16 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         }
         var gridObj = $("#GridBudgetCode").data("ejGrid");
         gridObj.refreshContent();
-    };
-
+    }; 
 
     $scope.SaveBudgetCode = function () {
-        if (baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+        if (baseService.isUndefinedOrNull($scope.GlManagementId)) {
             return ShowResult('Please select GL Management!', 'failure');
         }
         $http({
             method: 'POST',
             url: $scope.saveBudgetCodeUrl,
-            data: { 'data': $scope.BudgetCodeList, 'GlManagementId': $scope.ModelNew.Id },
+            data: { 'data': $scope.BudgetCodeList, 'GlManagementId': $scope.GlManagementId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -625,7 +617,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.GetBudgetCodeData($scope.ModelNew.Id);
+                $scope.GetBudgetCodeData($scope.GlManagementId);
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -644,10 +636,11 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         })
     }
 
+    $scope.message_BCconfirmation = null;
     $scope.removeBudgetCode = function (obj) {
         $scope.BCNew = obj.data;
         if (!baseService.isUndefinedOrNull($scope.BCNew.Id))
-            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.BCNew.Code + ' ]';
+            $scope.message_BCconfirmation = 'Are you sure want to delete permanently [ ' + $scope.BCNew.Code + ' ]';
         angular.element(document.querySelector('#confirmBCDeletePopUp')).modal('show');
     }
 
@@ -659,7 +652,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.GetBudgetCodeData($scope.ModelNew.Id);
+                    $scope.GetBudgetCodeData($scope.GlManagementId);
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -688,15 +681,21 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.OKEmployee = function () {
         try {
+            var ob = {};
             for (var i = 0; i < $scope.employee.length; i++) {
                 if ($scope.employee[i].CheckBoxSelect == true) {
                     if (checkDoubleEmployeeInformation($scope.EmployeeList, $scope.employee[i].SystemID) === false) {
-                        $scope.EmployeeList.push($scope.employee[i]);
+                        //$scope.EmployeeList.push($scope.employee[i]);
+                        ob.Id = null;
+                        ob.EmpSystemId = $scope.employee[i].SystemID;
+                        ob.EmployeeCode = $scope.employee[i].Code;
+                        ob.EmployeeName = $scope.employee[i].EmployeeName;
+                        $scope.EmployeeList.push(ob);
                     }
                 }
             }
-            angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
             $scope.SaveEmployeeData();
+            angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
         } catch (e) {
             ShowResult(e, "failure");
         }
@@ -719,7 +718,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         var ChkOrUnchk = false;
         if (e.model.checkState === "check") {
             ChkOrUnchk = true;
-        } 
+        }
         var filtered = $("#GridEmp").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
             for (var i = 0; i < $scope.employee.length; i++) {
@@ -733,16 +732,16 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         }
         var gridObj = $("#GridEmp").data("ejGrid");
         gridObj.refreshContent();
-    }; 
+    };
 
     $scope.SaveEmployeeData = function () {
-        if (baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+        if (baseService.isUndefinedOrNull($scope.GlManagementId)) {
             return ShowResult('Please select GL Management!', 'failure');
         }
         $http({
             method: 'POST',
             url: $scope.saveEmpUrl,
-            data: { 'data': $scope.EmployeeList, 'GlManagementId': $scope.ModelNew.Id },
+            data: { 'data': $scope.EmployeeList, 'GlManagementId': $scope.GlManagementId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -750,7 +749,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.GetEmployeeData($scope.ModelNew.Id);
+                $scope.GetEmployeeData($scope.GlManagementId);
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -789,7 +788,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
-                        $scope.GetEmployeeData($scope.ModelNew.Id);
+                        $scope.GetEmployeeData($scope.GlManagementId);
                     }
                     function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure');
@@ -797,8 +796,13 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
                 });
         }
     };
- 
+
     //#endregion Employee
+
+    //#region ControlDrCr
+    $rootScope.titleTab = 'Control Dr';
+    $rootScope.titleTab = 'Control Cr';
+    //#endregion ControlDrCr
 
     //#region Responsible Person
 
@@ -871,13 +875,13 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     }
 
     $scope.SaveResponsiblePersosnData = function () {
-        if (baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+        if (baseService.isUndefinedOrNull($scope.GlManagementId)) {
             return ShowResult('Please select GL Management!', 'failure');
         }
         $http({
             method: 'POST',
             url: $scope.saveRPUrl,
-            data: { 'data': $scope.ResPerList, 'GlManagementId': $scope.ModelNew.Id },
+            data: { 'data': $scope.ResPerList, 'GlManagementId': $scope.GlManagementId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -885,7 +889,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.GetResponsiblePersonData($scope.ModelNew.Id);
+                $scope.GetResponsiblePersonData($scope.GlManagementId);
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
