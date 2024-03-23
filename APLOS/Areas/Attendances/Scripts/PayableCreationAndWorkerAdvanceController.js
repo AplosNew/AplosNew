@@ -1,6 +1,6 @@
 ﻿'use strict';
 PayableCreationAndWorkerAdvanceController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', "$controller", "$window"];
-function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller,$window) {
+function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller, $window) {
     $rootScope.title = 'Payable Creation & Multiple Employee advance';
     $rootScope.titleTab1 = 'Payable Creation';
     $rootScope.titleTab2 = 'Multiple Employee Payment';
@@ -536,7 +536,11 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $scope.PCEmployeeList = [];
     $scope.PCOTEmployeeList = [];
     $scope.GetLoadEmployeeInformation = function (obj) {
-        $scope.TabName = obj;
+        if (baseService.isUndefinedOrNull(obj)) {
+            $scope.TabName = $scope.SaveTabName;
+        } else {
+            $scope.TabName = obj;
+        }
         if ($scope.TabName == "GoodWork") {
             if ($scope.ModelPCNew.ToDate === "" || $scope.ModelPCNew.ToDate === null || $scope.ModelPCNew.ToDate === undefined) {
                 ShowResult('Select To Date', 'failure');
@@ -668,7 +672,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
                 $http({
                     method: 'POST',
                     url: $scope.path + 'CreateGoodWorkPayableCreation',
-                    data: { 'data': $scope.ModelPCNew, 'goodWorkPaymentAdviseDetail': $scope.EmployeeGWList,'tabName': $scope.SaveTabName},
+                    data: { 'data': $scope.ModelPCNew, 'goodWorkPaymentAdviseDetail': $scope.EmployeeGWList, 'tabName': $scope.SaveTabName },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -679,7 +683,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
                         $scope.ModelPCNew.Id = response.data.Data.Id;
                         //$scope.ClearPayableCreation();
                         //$scope.GetGoodWorkPaymentData();
-                        $scope.GetLoadEmployeeInformation($scope.TabsName);
+                        $scope.GetLoadEmployeeInformation($scope.SaveTabName);
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -694,7 +698,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
                 $http({
                     method: 'POST',
                     url: $scope.path + 'CreateGoodWorkPayableCreation',
-                    data: { 'data': $scope.ModelOTNew, 'goodWorkPaymentAdviseDetail': $scope.EmployeeEOTList,'tabName': $scope.SaveTabName},
+                    data: { 'data': $scope.ModelOTNew, 'goodWorkPaymentAdviseDetail': $scope.EmployeeEOTList, 'tabName': $scope.SaveTabName },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -705,7 +709,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
                         $scope.ModelOTNew.Id = response.data.Data.Id;
                         //$scope.GetGoodWorkOTPaymentData();
                         //$scope.ClearOTPayableCreation();
-                        $scope.GetLoadEmployeeInformation($scope.TabsName);
+                        $scope.GetLoadEmployeeInformation($scope.SaveTabName);
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -744,7 +748,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             url: $scope.path + "GetGoodWorkPaymentList?paymentSource=" + 'Attendance',
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.GoodWorkOTPaymentList = response.data; 
+            $scope.GoodWorkOTPaymentList = response.data;
         });
     }
     $scope.GetGoodWorkOTPaymentData();
@@ -824,7 +828,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
 
     //***********************************Payable Creation End********************************************************//
     $scope.refreshTemplateGWemployees = function (args) {
-        $("#GWheadchk").ejCheckBox({ "change": CheckBoxSelectGWAllEmolyees});
+        $("#GWheadchk").ejCheckBox({ "change": CheckBoxSelectGWAllEmolyees });
     };
 
     function CheckBoxSelectGWAllEmolyees(e) {
