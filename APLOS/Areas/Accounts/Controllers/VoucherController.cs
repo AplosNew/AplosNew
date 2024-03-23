@@ -87,7 +87,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         #region Journal
 
-        [HttpGet, Authorize]
+        [HttpGet]
         public ActionResult Journal()
         {
             return View("~/Areas/Accounts/Views/Journal.cshtml");

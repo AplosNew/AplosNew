@@ -48,7 +48,7 @@ namespace Aplos.Areas.Banks.Controllers
             return View("~/Areas/Banks/Views/CurrentFundPosition.cshtml");
         }
 
-        [HttpGet, Authorize]
+        [HttpGet]
         public ActionResult BankJournal()
         {
             return View("~/Areas/Banks/Views/BankJournal.cshtml");

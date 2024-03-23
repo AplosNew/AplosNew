@@ -36,7 +36,7 @@ namespace Aplos.Areas.Banks.Controllers
             _bankJournalService = bankJournalService;
         }
 
-        [Authorize, HttpGet]
+        [HttpGet]
         public ActionResult CashJournal()
         {
             return View("~/Areas/Banks/Views/CashJournal.cshtml");
