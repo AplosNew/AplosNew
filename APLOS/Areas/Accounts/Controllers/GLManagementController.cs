@@ -426,38 +426,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         EditRow(drmo, item);
                     }
                 }
-                #endregion data update 
-                //#region data update
-                //if (dsBudCode.Tables[0].Rows.Count == 0)
-                //{
-                //    bplib.clsGenID genid = new bplib.clsGenID();
-                //    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementBudgetCode", out Id);
-
-                //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                //    DataRow dr;
-                //    dr = dsBudCode.Tables[0].NewRow();
-
-                //    dr["Id"] = Id;
-                //    dr["GlManagementId"] = GlManagementId;
-                //    dr["BudgetCodeId"] = data.BudgetCodeId; 
-
-                //    dr["AddedBy"] = identity.Name;
-                //    dr["AddedDate"] = System.DateTime.Now.ToString();
-                //    dr["AddedFromIP"] = identity.IPAddress;
-                //    dr["UpdatedBy"] = identity.Name;
-                //    dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                //    dr["UpdatedFromIP"] = identity.IPAddress;
-
-                //    dsBudCode.Tables[0].Rows.Add(dr);
-                //    //AddNewRow(dsRouteShChild.Tables[0], RouteShChild);
-                //}
-                //else
-                //{
-                //    Id = data["Id"].ToString();
-                //    EditRow(dsBudCode.Tables[0].Rows[0], data);
-                //}
-                //#endregion data update
-
+                #endregion data update  
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsBudCode);
                 return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
@@ -798,10 +767,11 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             try
             {
-                var sql = @"select MPB.Code,MPB.UserName as BudgetCode,BC.BudgetCodeId
+                var sql = @"select BC.Id,MPB.Code,BC.BudgetCodeId,P.UserName Position
                             from [HKP].[GLManagementBudgetCode] BC
                             left join [MST].[ManpowerBudget] MPB on MPB.Id=BC.BudgetCodeId
-							where PC.GLManagementId = '" + glManagementId + "' ";
+							left join ORG.Position P on P.Id=MPB.PositionId
+							where BC.GLManagementId = '" + glManagementId + "' ";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
