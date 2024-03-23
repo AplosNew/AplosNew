@@ -458,7 +458,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     if (dv.Count == 0)
                     {
                         item["Id"] = Id;
-                        item["EmpSystemId"] = item["SystemID"];
+                        item["EmpSystemId"] = item["EmpSystemId"];
                         item["GlManagementId"] = GlManagementId;
 
                         AddNewRow(dsEmp.Tables[0], item);
@@ -487,14 +487,14 @@ namespace Aplos.Areas.Accounts.Controllers
             {
                 DataSet dsEmp;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementEmployee] where GlManagementId='" + GlManagementId + "'", out dsEmp, false, "1");
+                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementResponsiblePerson] where GlManagementId='" + GlManagementId + "'", out dsEmp, false, "1");
 
                 string Id = "";
                 #region data update
                 foreach (var item in data)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementEmployee", out Id);
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementResponsiblePerson", out Id);
                     var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                     DataView dv = new DataView(dsEmp.Tables[0]);
@@ -503,7 +503,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     if (dv.Count == 0)
                     {
                         item["Id"] = Id;
-                        item["EmpSystemId"] = item["SystemID"];
+                        item["ResponsiblePersonId"] = item["ResponsiblePersonId"];
                         item["GlManagementId"] = GlManagementId;
 
                         AddNewRow(dsEmp.Tables[0], item);
@@ -745,6 +745,26 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+        [HttpGet]
+        public ActionResult DeleteResponsiblePersonData(string Id)
+        {
+            string sql = @"select * from [HKP].[GLManagementResponsiblePerson] where Id = '" + Id + @"'";
+            try
+            {
+                if (string.IsNullOrEmpty(Id))
+                    throw new Exception("Select entry first");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from [HKP].[GLManagementResponsiblePerson] where Id = '" + Id + @"'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
         [Authorize]
         public ActionResult GetPositionCodeData(string glManagementId)
         {
@@ -818,10 +838,10 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             try
             {
-                var sql = @"select GLME.Id,GLME.EmpSystemId,EI.EmployeeCode,EI.EmployeeName
-                            from [HKP].[GLManagementEmployee] GLME
-                            left join dbo.EmployeeInformation EI on EI.SystemId=GLME.EmpSystemId
-							where GLME.GLManagementId = '" + glManagementId + "' ";
+                var sql = @"select GLMRP.Id,GLMRP.ResponsiblePersonId,EI.EmployeeCode ResponsiblePersonCode,EI.EmployeeName ResponsiblePerson
+                            from [HKP].[GLManagementResponsiblePerson] GLMRP
+                            left join dbo.EmployeeInformation EI on EI.SystemId=GLMRP.ResponsiblePersonId
+							where GLMRP.GLManagementId = '" + glManagementId + "' ";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
