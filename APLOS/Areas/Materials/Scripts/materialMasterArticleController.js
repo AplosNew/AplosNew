@@ -1,5 +1,5 @@
 ﻿'use strict';
-materialMasterArticleController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService','$controller'];
+materialMasterArticleController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService', '$controller'];
 function materialMasterArticleController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService, $controller) {
     $rootScope.title = "Material Master Article";
     $scope.Action = 'Save';
@@ -221,7 +221,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
             //    articleFieldValidation($scope.articleNew.Code, 'Code');
             articleFieldValidation($scope.articleNew.ShortName, 'ShortName');
             articleFieldValidation($scope.articleNew.StandardName, 'StandardName');
-      
+
             for (var i = 0; i < $scope.attributeList.length; i++) {
                 var _invalid = $scope.IsMandatoryButNull($scope.attributeList[i].IsMandatory, $scope.attributeList[i].MaterialAttributeValueFreeText);
                 if (_invalid)
@@ -525,7 +525,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         angular.element(document.querySelector('#articlePoUp')).modal('show');
     };
 
-   
+
 
     $scope.updateArticle = function () {
         try {
@@ -533,7 +533,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
                 articleFieldValidation($scope.articleNew.Code, 'Code');
             articleFieldValidation($scope.articleNew.ShortName, 'ShortName');
             articleFieldValidation($scope.articleNew.StandardName, 'StandardName');
-           
+
 
             uniqueCheckInArticleList($scope.articleList, $scope.articleNew);
 
@@ -656,11 +656,11 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         var finalCon = "";
         var fcon = "";
         for (var i = 0; i < $scope.attributeList.length; i++) {
-           
+
             finalCon = (baseService.isUndefinedOrNull($scope.attributeList[i].MaterialAttributeValueFreeText) == true ? "" : $scope.attributeList[i].MaterialAttributeValueFreeText) + (baseService.isUndefinedOrNull($scope.attributeList[i].JoiningParameter) == true ? "" : $scope.attributeList[i].JoiningParameter);
-            $scope.stndName = $scope.stndName + " " + (finalCon == null ? "" : finalCon);
-            $scope.srtName = $scope.srtName + " " + (finalCon == null ? "" : finalCon);
-            un = un + " " + (finalCon == null ? "" : finalCon);
+            $scope.stndName = $scope.stndName + (finalCon == null ? "" : finalCon);
+            $scope.srtName = $scope.srtName + (finalCon == null ? "" : finalCon);
+            un = un + (finalCon == null ? "" : finalCon);
         }
 
         $scope.articleNew.ShortName = $scope.stndName;
@@ -864,7 +864,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
             , Remark: null
         };
         $scope.articleAlias = Object.assign({}, $scope.articleAliasModel);
-      
+
         $scope.GetArticleAliasDatas();
         angular.element(document.querySelector('#ArticleAliasPoUp')).modal('show');
     };
@@ -875,7 +875,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
             method: 'GET',
             url: $scope.path + 'getArticleAliaslist?articleId=' + $scope.articleId
         }).then(function successCallback(response) {
-          //  $scope.aliasList = response.data;
+            //  $scope.aliasList = response.data;
             $scope.articleAlias = Object.assign({}, response.data[0]);
         });
     }
@@ -896,11 +896,11 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
 
     $scope.closePartyPopUp = function (x) {
         var party = x.data;
-       
+
         $scope.articleAlias.PartyName = party.UserName;
         $scope.articleAlias.PartyId = party.Id;
         $scope.articleAlias.Code = party.Code;
-         
+
         $scope.hidePartyPopUp();
     };
 
@@ -957,25 +957,24 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         angular.element(document.querySelector('#deleteArticleAlias')).modal('show');
     };
 
-    $scope.removeArticlAliaseRow = function ()
-    {
-            $http({
-                method: 'POST',
-                url: 'materials/materialmasterarticle/deleteArticleAliasData',
-                dataType: 'JSON',
-                data: { 'Id': $scope.deleteArticleAliasId }
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.GetArticleAliasDatas();
-                }
-            }, function errorCallback(response) {
-                ShowResult(response.status.Message, 'failure');
-            });
-            return true;
+    $scope.removeArticlAliaseRow = function () {
+        $http({
+            method: 'POST',
+            url: 'materials/materialmasterarticle/deleteArticleAliasData',
+            dataType: 'JSON',
+            data: { 'Id': $scope.deleteArticleAliasId }
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetArticleAliasDatas();
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, 'failure');
+        });
+        return true;
     };
 
     // #region get Define Enum
@@ -990,5 +989,5 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         });
     }
     $scope.getEnum();
-     // #endregion get Define Enum
+    // #endregion get Define Enum
 }

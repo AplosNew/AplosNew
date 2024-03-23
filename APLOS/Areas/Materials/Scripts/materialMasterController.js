@@ -1592,6 +1592,7 @@ function MaterialMasterController(fileReader, commonMessage, $scope, $rootScope,
                 throw 'Total no of material attribute can not be more than 20!';
 
             if ($scope.manualValidationAddRemove('div_attr_1', 'Sequence', $scope.materialAttributeMasterNew)) return;
+            if ($scope.manualValidationAddRemove('div_attrjs_1', 'Joining Sequence', $scope.materialAttributeMasterNew)) return;
             if ($scope.manualValidationAddRemove('div_attr_2', 'Code', $scope.materialAttributeMasterNew)) return;
             if ($scope.manualValidationAddRemove('div_attr_3', 'Short Name', $scope.materialAttributeMasterNew)) return;
             if ($scope.manualValidationAddRemove('div_attr_4', 'Standard Name', $scope.materialAttributeMasterNew)) return;
