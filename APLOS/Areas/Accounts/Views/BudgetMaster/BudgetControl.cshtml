@@ -155,20 +155,13 @@
                             <div class="row">
                                 <div class="col-sm-12">
                                     <div id="GridWorkCenterProduct"
-                                         ng-init="chkinit()"
-                                         ej-grid e-datasource="BudgetControlChildList"
-                                         e-allowfiltering="true"
-                                         e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                                         e-allowscrolling="true"
-                                         e-pagesettings-pagesize="25"
-                                         e-filtersettings-filterType="excel">
+                                         ng-init="chkinit()" ej-grid e-datasource="BudgetControlChildList"e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-allowscrolling="true" e-pagesettings-pagesize="25" e-filtersettings-filterType="excel">
                                         <div e-columns>
-                                            <div e-column e-field="BudgetControlId" e-headertext="BudgetControlId" e-width="60"></div>
                                             <div e-column e-field="BudgetMasterActivityId" e-headertext="ControlId" e-width="50"></div>
                                             <div e-column e-field="IsLinear" e-headertext="IsLinear" e-width="50"></div>
                                             <div e-column e-field="CurrentValue" e-headertext="CurrentValue" e-width="100"></div>
                                             <div e-column e-field="LastValue" e-headertext="LastValue" e-width="100"></div>
-                                          
+                                            <div e-column e-field="UoMId" e-headertext="UoMId" e-width="50"></div>                                          
                                         </div>
                                     </div>
                                 </div>

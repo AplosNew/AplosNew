@@ -1420,6 +1420,7 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
         $scope.partyPlants = [];
         $scope.companyPartyList = [];
         $scope.getVendorCompanyDataNew();
+        $scope.PartyAdditionalInfoDataList = [];
     }
     // #endregion
 
@@ -2010,14 +2011,14 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
         });
     }
 
-    $scope.SaveAdditionalInfo = function () {
+    $scope.SaveAddInfo = function () {
         try {
             $http({
                 method: 'POST',
                 url: 'Productions/PackingInvoice/CreatePartyAdditionalInfo',
                 data: {
                     'data': $scope.PartyAdditionalInfoDataList
-                    , 'salesId': $scope.salesVM.Id
+                    , 'partyId': $scope.party.Id
                 },
                 dataType: 'JSON'
                 , contentType: "application/json charset=utf-8"
@@ -2027,7 +2028,7 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.GetContractTermsAndConditionsList();
+                    $scope.GetPartyAdditionalInfoDataList();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

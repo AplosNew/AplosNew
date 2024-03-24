@@ -3403,6 +3403,9 @@ namespace Library.Accounting.Accounts
                     sheet[xlsRow, colBCU].Text = dtData.Rows[i]["BudgetCategory"].ToString();
                     sheet.Range[xlsRow, colBCU].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet.Range[xlsRow, colBCU].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colBSC].Text = dtData.Rows[i]["BudgetSubCategorySequence"].ToString();
+                    sheet.Range[xlsRow, colBSC].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colBSC].VerticalAlignment = ExcelVAlign.VAlignTop;
                     sheet[xlsRow, colBSCU].Text = dtData.Rows[i]["BudgetSubCategory"].ToString();
                     sheet.Range[xlsRow, colBSCU].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet.Range[xlsRow, colBSCU].VerticalAlignment = ExcelVAlign.VAlignTop;
