@@ -521,5 +521,55 @@ Where SC.Id<>''
             return Json(clsSales.GetProductionOrderSOList(productionOrderId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetPartyAdditionalInfoDataList(string partyId)
+        {
+            return Json(clsSales.GetPartyAdditionalInfoDataList(partyId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreatePartyAdditionalInfo(List<Dictionary<string, object>> data, string partyId)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsChild;
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[SalesAdditionalInfo] where  PartyId='" + partyId + "'", out dsChild, false, "1");
+                int count = 0;
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            count++;
+                            item["Id"] = partyId + "-" + count;
+                            item["PartyId"] = partyId;
+                            AddNewRow(dsChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsChild);
+                }
+
+
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+        }
+
     }
 }

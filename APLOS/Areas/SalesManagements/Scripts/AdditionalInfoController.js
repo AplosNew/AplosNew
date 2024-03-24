@@ -46,7 +46,8 @@ function AdditionalInfoController(cboService, commonMessage, $scope, $rootScope,
         { Value: 'GRN', Text: 'GRN' },
         { Value: 'SalesOrder', Text: 'Sales Order' },
         { Value: 'LineItem', Text: 'Line Item' },
-        { Value: 'SalesInvoice', Text: 'Sales Invoice' }
+        { Value: 'SalesInvoice', Text: 'Sales Invoice' },
+        { Value: 'Party', Text: 'Party' }
     ];
     $scope.charecterTypeList = [
         {Value:'Text',Text:"Text"},
