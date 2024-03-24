@@ -30,6 +30,7 @@
                 <li ng-hide="true" role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6)" href="" aria-controls="vendorpf" role="tab" data-toggle="tab">Vendor PartnerFunction</a></li>
                 <li ng-hide="true" role="presentation" ng-class="{ active: isSet(7) }"><a ng-click="setTab(7)" href="" aria-controls="customerpf" role="tab" data-toggle="tab">Customer PartnerFunction</a></li>
                 <li role="presentation" ng-class="{ active: isSet(8) }"><a ng-click="setTab(8)" href="" aria-controls="plant" role="tab" data-toggle="tab">Plant</a></li>
+                <li role="presentation" ng-class="{ active: isSet(9) }"><a ng-click="setTab(9);GetPartyAdditionalInfoDataList();" href="" data-toggle="tab">Additional Info</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -604,7 +605,7 @@
                                 <th>Payment Term</th>
                                 <th>Payment Term Changeable</th>
                                 <th>Tax Applicable</th>
-                                <th>Tax App.Changeable</th> 
+                                <th>Tax App.Changeable</th>
                                 <th>Transit Days</th>
                                 <th>GL</th>
                                 <th>Bank</th>
@@ -635,7 +636,7 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <select id="PaymentTermId" class="form-control" name="Payment Term" ng-model="c.PaymentTermId" ng-disabled="!c.Active" >
+                                    <select id="PaymentTermId" class="form-control" name="Payment Term" ng-model="c.PaymentTermId" ng-disabled="!c.Active">
                                         <option value="">--Select--</option>
                                         <option ng-repeat="option in customerpaymentTermList" value="{{option.Value}}">{{option.Text}}</option>
                                     </select>
@@ -663,7 +664,7 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <input type="text" only-numbers ng-model=" c.TransitDays" class="form-control"  ng-disabled="!c.Active">
+                                    <input type="text" only-numbers ng-model=" c.TransitDays" class="form-control" ng-disabled="!c.Active">
                                 </td>
                                 <td>
                                     <button class="btn" ng-click="GetGLList(c.CompanyId, c.Id, c.PartyAccountGroupId)" ng-disabled="!c.Active || c.Id==null"><i class="fa fa-search"></i></button>
@@ -1181,14 +1182,14 @@
                                                                 </ul>
                                                             </td>
                                                             @*<td class="text-right table-td">
-                                                                <ul class="list-inline action-list">
-                                                                    <li>
-                                                                        <button ng-click="valuePassInDelModal(c.Id, c.ContactPerson)" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
-                                                                            <i class="glyphicon glyphicon-remove"></i>
-                                                                        </button>
-                                                                    </li>
-                                                                </ul>
-                                                            </td>*@
+                                                            <ul class="list-inline action-list">
+                                                                <li>
+                                                                    <button ng-click="valuePassInDelModal(c.Id, c.ContactPerson)" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                                                                        <i class="glyphicon glyphicon-remove"></i>
+                                                                    </button>
+                                                                </li>
+                                                            </ul>
+                                                        </td>*@
                                                             <td>{{c.ContactPerson}}</td>
                                                             <td>{{c.ContactPersonDesignation}}</td>
                                                             <td>{{c.Phone1}}</td>
@@ -1209,6 +1210,49 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(9), active: isSet(9) }">
+                <div class="row">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Select</th>
+                                    <th>User Name</th>
+                                    <th>Value</th>
+                                    <th>Remark</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in PartyAdditionalInfoDataList">
+                                    <td class="text-right table-td">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="x.Flag" tabindex="8">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>{{x.UserName}}</td>
+                                    <td>
+                                        <div class="col-sm-10" style="padding:0px; width:100%;" ng-hide="x.datepic == 'datepicker'">
+                                            <input type="text" name="Value" ng-model="x.Value" class="form-control">
+                                        </div>
+                                        <div class="col-sm-10" style="padding:0px; width:100%;" ng-hide="x.datepic != 'datepicker'">
+                                            <input type="text" name="Value" placeholder="dd-MMM-yyyy" ng-model="x.Value" class="form-control">
+                                        </div>
+                                    </td>
+                                    <td><input type="text" ng-model="x.Remarks" ng-maxlength="250" style="color:black;" class="form-control" /></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SaveAddInfo();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                        </ul>
                     </div>
                 </div>
             </div>
