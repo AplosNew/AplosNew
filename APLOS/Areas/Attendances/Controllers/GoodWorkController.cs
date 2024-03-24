@@ -835,7 +835,7 @@ namespace Aplos.Areas.Attendances.Controllers
 						LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
 						LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
                         LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-                            where gwpa.FromDate between '" + fromDate + @"' and '" + toDate + @"' and gwpa.ToDate between '" + fromDate + @"' and '" + toDate + @"'
+                        where gwpa.FromDate between '" + fromDate + @"' and '" + toDate + @"' and gwpa.ToDate between '" + fromDate + @"' and '" + toDate + @"'
                         and gwpa.PaymentSource='" + payDaysType + @"'";
             }
             catch (Exception ex)
