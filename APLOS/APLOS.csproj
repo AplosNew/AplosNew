@@ -556,6 +556,7 @@
     <Compile Include="Areas\Materials\Controllers\QRCodeGeneratorController.cs" />
     <Compile Include="Areas\Materials\Controllers\WeighingScaleMasterController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\DocumentationController.cs" />
+    <Compile Include="Areas\Payrolls\Controllers\EmployeeSeperationSetupController.cs" />
     <Compile Include="Areas\Processes\Controllers\ProcessManagementController.cs" />
     <Compile Include="Areas\Processes\Controllers\ProcessManagementRecepieController.cs" />
     <Compile Include="Areas\Processes\Controllers\ProcessTemplateController.cs" />
@@ -1948,6 +1949,7 @@
     <Content Include="Areas\OrderManagements\Scripts\masterOrderApproveByController.js" />
     <Content Include="Areas\OrderManagements\Scripts\masterOrderCheckByController.js" />
     <Content Include="Areas\OrderManagements\Scripts\TermsandConditionGroupController.js" />
+    <Content Include="Areas\Payrolls\Scripts\EmployeeSeperationSetupController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanEditController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
     <Content Include="Areas\Productions\Scripts\MasterPlanDetailsController.js" />
@@ -4932,6 +4934,7 @@
     <Content Include="Areas\Accounts\Views\GLManagement\GLManagement.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\FinalSettlementPost.cshtml" />
     <Content Include="Areas\Accounts\Views\BudgetMaster\BudgetControl.cshtml" />
+    <Content Include="Areas\Payrolls\Views\EmployeeSeperationSetup\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

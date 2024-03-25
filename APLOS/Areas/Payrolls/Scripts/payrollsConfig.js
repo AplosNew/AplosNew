@@ -382,6 +382,10 @@
             templateUrl: 'Payrolls/TaxPolicyHeader/Aplos',
             controller: 'TaxPolicyHeaderController'
         })
+        .when('/emp-sep-setup', {
+            templateUrl: 'Payrolls/EmployeeSeperationSetup/Aplos',
+            controller: 'EmployeeSeperationSetupController'
+        })
         ;
 
 
