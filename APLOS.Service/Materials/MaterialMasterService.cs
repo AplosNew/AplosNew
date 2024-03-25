@@ -757,7 +757,7 @@ namespace Library.Service.Materials
                             FROM MST.MaterialMasterAttribute AS MMA
                             LEFT JOIN HKP.MaterialAttribute AS MA ON MMA.MaterialAttributeId = MA.Id
                             LEFT JOIN (SELECT * FROM HKP.MaterialAttributeValue WHERE Active = 1 AND IsDefault = 1) AS MAV ON MAV.MaterialAttributeId=MMA.MaterialAttributeId AND MAV.SourceType=MA.ValueAssignmentLevel
-                            WHERE MMA.MaterialMasterId = '" + materialMasterId + "' ORDER BY MMA.[Sequence]";
+                            WHERE MMA.MaterialMasterId = '" + materialMasterId + "' ORDER BY MMA.JoiningSequence";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
             catch (Exception)

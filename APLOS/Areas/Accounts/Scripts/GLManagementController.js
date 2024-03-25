@@ -101,10 +101,10 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.GetEmployeeCategory(args.data.Id);
-        $scope.GetDesignationData(args.data.Id);
-        $scope.GetPositionCodeData(args.data.Id);
-        $scope.GetBudgetCodeData(args.data.Id);
-        $scope.GetEmployeeData(args.data.Id);
+        //$scope.GetDesignationData(args.data.Id);
+        //$scope.GetPositionCodeData(args.data.Id);
+        //$scope.GetBudgetCodeData(args.data.Id);
+        //$scope.GetEmployeeData(args.data.Id);
         //$scope.GetCapitalGL(args.data.Id);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
@@ -168,11 +168,13 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
-        $scope.MaterialDataList = [];
-        $scope.ExpenseGLList = [];
-        $scope.InventoryGLList = [];
-        $scope.InventoryCapitalGLList = [];
-        $scope.CapitalGLList = [];
+        $scope.EmployeeCategoryList = [];
+        $scope.employeeTypeList = [];
+        $scope.DesignationList = [];
+        $scope.PositionCodeListData = [];
+        $scope.BudgetCodeList = [];
+        $scope.EmployeeList = [];
+        $scope.ResPerList = [];
     }
 
     $scope.EmployeeCategory = {
@@ -354,11 +356,11 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.DesignationList = [];
-    $scope.GetDesignationData = function (data) {
+    $scope.GetDesignationData = function () {
         $http({
             method: 'POST',
             url: $scope.path + "GetDesignationData",
-            data: { 'glManagementId': data },
+            data: { 'glManagementId': $scope.GlManagementId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.DesignationList = response.data;
@@ -490,11 +492,11 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.PositionCodeListData = [];
-    $scope.GetPositionCodeData = function (data) {
+    $scope.GetPositionCodeData = function () {
         $http({
             method: 'POST',
             url: $scope.path + "GetPositionCodeData",
-            data: { 'glManagementId': data },
+            data: { 'glManagementId': $scope.GlManagementId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.PositionCodeListData = response.data;
@@ -625,11 +627,11 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.BudgetCodeList = [];
-    $scope.GetBudgetCodeData = function (data) {
+    $scope.GetBudgetCodeData = function () {
         $http({
             method: 'POST',
             url: $scope.path + "GetBudgetCodeData",
-            data: { 'glManagementId': data },
+            data: { 'glManagementId': $scope.GlManagementId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.BudgetCodeList = response.data;
@@ -688,7 +690,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
                         //$scope.EmployeeList.push($scope.employee[i]);
                         ob.Id = null;
                         ob.EmpSystemId = $scope.employee[i].SystemID;
-                        ob.EmployeeCode = $scope.employee[i].Code;
+                        ob.EmployeeCode = $scope.employee[i].EmployeeCode;
                         ob.EmployeeName = $scope.employee[i].EmployeeName;
                         $scope.EmployeeList.push(ob);
                     }
@@ -757,11 +759,11 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.EmployeeList = [];
-    $scope.GetEmployeeData = function (data) {
+    $scope.GetEmployeeData = function () {
         $http({
             method: 'POST',
             url: $scope.path + "GetEmployeeData",
-            data: { 'glManagementId': data },
+            data: { 'glManagementId': $scope.GlManagementId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.EmployeeList = response.data;
@@ -800,7 +802,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     //#endregion Employee
 
     //#region ControlDrCr
-    $rootScope.titleTab = 'Control Dr';
+    $rootScope.titleTab1 = 'Control Dr';
     $rootScope.titleTab = 'Control Cr';
     //#endregion ControlDrCr
 
@@ -813,7 +815,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
                 method: 'GET',
                 url: 'employees/EmployeeInformation/GetEmployeeListByPlant'
             }).then(function successCallback(response) {
-                $scope.ResPersonDataList = response.data;
+                $scope.ResPersonDataList = response.data.Rows;
             });
             angular.element(document.querySelector('#employeePopUp')).modal('show');
         } catch (e) {
@@ -851,10 +853,16 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.OKResponsiblePerson = function () {
         try {
+            var ob = {};
             for (var i = 0; i < $scope.ResPersonDataList.length; i++) {
                 if ($scope.ResPersonDataList[i].CheckBoxSelect == true) {
-                    if (checkDoubleResPerInformation($scope.ResPerList, $scope.ResPersonDataList[i].SystemID) === false) {
-                        $scope.ResPerList.push($scope.ResPersonDataList[i]);
+                    if (checkDoubleResPerInformation($scope.ResPerList, $scope.ResPersonDataList[i].SystemId) === false) {
+                        //$scope.ResPerList.push($scope.ResPersonDataList[i]);
+                        ob.Id = null;
+                        ob.ResponsiblePersonId = $scope.ResPersonDataList[i].SystemId;
+                        ob.ResponsiblePersonCode = $scope.ResPersonDataList[i].EmployeeCode;
+                        ob.ResponsiblePerson = $scope.ResPersonDataList[i].EmployeeName;
+                        $scope.ResPerList.push(ob);
                     }
                 }
             }
@@ -865,9 +873,9 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         }
     };
 
-    function checkDoubleResPerInformation(list, SystemID) {
+    function checkDoubleResPerInformation(list, SystemId) {
         for (var i = 0; i < list.length; i++) {
-            if (list[i].EmpSystemId === SystemID) {
+            if (list[i].ResponsiblePersonId === SystemId) {
                 return true;
             }
         }
@@ -897,16 +905,41 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.ResPerList = [];
-    $scope.GetResponsiblePersonData = function (data) {
+    $scope.GetResponsiblePersonData = function () {
         $http({
             method: 'POST',
             url: $scope.path + "GetResPersonData",
-            data: { 'glManagementId': data },
+            data: { 'glManagementId': $scope.GlManagementId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ResPerList = response.data;
         })
     }
+
+    $scope.message_RPconfirmation = null;
+    $scope.removeResponsiblePerson = function (obj) {
+        $scope.RPNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.RPNew.ResponsiblePersonId))
+            $scope.message_RPconfirmation = 'Are you sure want to delete permanently [ ' + $scope.RPNew.ResponsiblePerson + ' ]';
+        angular.element(document.querySelector('#confirmRPDeletePopUp')).modal('show');
+    }
+
+    $scope.DeleteResponsiblePerson = function () {
+        $http.get('Accounts/GLManagement/DeleteResponsiblePersonData?id=' + $scope.RPNew.Id)
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetResponsiblePersonData($scope.GlManagementId);
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+    };
+
     //#endregion Responsible Person
 
     $scope.DeleteMaterial = function () {

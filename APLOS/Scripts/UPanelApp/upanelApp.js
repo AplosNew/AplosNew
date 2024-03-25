@@ -1264,6 +1264,7 @@ upanelApp.controller("roundOffJournalController", roundOffJournalController)
 upanelApp.controller("BarcodeGeneratorSettingController", BarcodeGeneratorSettingController)
 upanelApp.controller("GLManagementController", GLManagementController)
 upanelApp.controller("BudgetControlController", BudgetControlController)
+upanelApp.controller("EmployeeSeperationSetupController", EmployeeSeperationSetupController)
 
 
 

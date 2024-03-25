@@ -67,7 +67,7 @@
     <div class="common-btn">
         <ul class="list-inline text-right">
             <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
             <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
@@ -77,14 +77,14 @@
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Employee Category</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Designation</a></li>
-                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="general" role="tab" data-toggle="tab">Position Code</a></li>
-                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="general" role="tab" data-toggle="tab">Budget Code</a></li>
-                <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="general" role="tab" data-toggle="tab">Employee</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);GetDesignationData();" href="" aria-controls="general" role="tab" data-toggle="tab">Designation</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);GetPositionCodeData();" href="" aria-controls="general" role="tab" data-toggle="tab">Position Code</a></li>
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);GetBudgetCodeData();" href="" aria-controls="general" role="tab" data-toggle="tab">Budget Code</a></li>
+                <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5);GetEmployeeData();" href="" aria-controls="general" role="tab" data-toggle="tab">Employee</a></li>
                 <li role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6)" href="" aria-controls="general" role="tab" data-toggle="tab">Control Dr/Control Cr</a></li>
                 <li role="presentation" ng-class="{ active: isSet(7) }"><a ng-click="setTab(7)" href="" aria-controls="general" role="tab" data-toggle="tab">ActionBy</a></li>
                 <li role="presentation" ng-class="{ active: isSet(8) }"><a ng-click="setTab(8)" href="" aria-controls="general" role="tab" data-toggle="tab">Approved By</a></li>
-                <li role="presentation" ng-class="{ active: isSet(9) }"><a ng-click="setTab(9)" href="" aria-controls="general" role="tab" data-toggle="tab">Responsible Person</a></li>
+                <li role="presentation" ng-class="{ active: isSet(9) }"><a ng-click="setTab(9);GetResponsiblePersonData();" href="" aria-controls="general" role="tab" data-toggle="tab">Responsible Person</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -128,7 +128,7 @@
                                                 <ul class="list-inline action-list">
                                                     <li>
                                                         <button ng-click="RemoveEmployeeCategory(x)" class="btn-action tooltip-here" data-placement="top" title="Remove" tabindex="1011">
-                                                            <i class="glyphicon glyphicon-remove"></i>
+                                                            <i class="glyphicon glyphicon-trash"></i>
                                                         </button>
                                                     </li>
                                                 </ul>
@@ -246,7 +246,7 @@
                 <div class="tab-design" id="tab_show">
                     <div class="site-tab">
                         <ul class="nav nav-tabs" role="tablist">
-                            <li role="presentation" ng-class="{ active: isSet2(10) }"><a ng-click="setTab2(10)" href="" aria-controls="general" role="tab" data-toggle="tab">{{titleTab}}</a></li>
+                            <li role="presentation" ng-class="{ active: isSet2(10) }"><a ng-click="setTab2(10)" href="" aria-controls="general" role="tab" data-toggle="tab">{{titleTab1}}</a></li>
                             <li role="presentation" ng-class="{ active: isSet2(11) }"><a ng-click="setTab2(11)" href="" aria-controls="general" role="tab" data-toggle="tab">{{titleTab}}</a></li>
                         </ul>
                     </div>
@@ -329,21 +329,21 @@
                         <button ng-click="GetResponsiblePersonInformation();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-plus">Responsible Person</i></button>
                     </div>
                     <div class="col-xs-12 col-sm-12 col-md-12">
-                        <div id="GridEdit" ng-init="chkPC()" ej-grid e-datasource="BudgetCodeList" e-allowfiltering="true"
+                        <div id="GridEdit" ng-init="chkPC()" ej-grid e-datasource="ResPerList" e-allowfiltering="true"
                              e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                             <div e-columns>
-                                <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
-                                <div e-column e-field="Position" e-headertext="Position" e-width="4"></div>
-                                <div e-column e-headertext="Actions" e-template="#ShowActionButtonBC" e-width="1"></div>
+                                <div e-column e-field="ResponsiblePersonCode" e-headertext="Responsible Person Code" e-width="3"></div>
+                                <div e-column e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="4"></div>
+                                <div e-column e-headertext="Actions" e-template="#ShowActionButtonRP" e-width="1"></div>
                             </div>
                         </div>
                     </div>
-                    <script type="text/template" id="ShowActionButtonBC">
-                        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeBudgetCode(this);" style="margin: -6px;"></i></button>
+                    <script type="text/template" id="ShowActionButtonRP">
+                        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeResponsiblePerson(this);" style="margin: -6px;"></i></button>
                     </script>
                 </div>
-                <confirm-archive-generic modalid="confirmBCDeletePopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteBudgetCode();"></confirm-archive-generic>
+                <confirm-archive-generic modalid="confirmRPDeletePopUp" title="Confirmation" message={{message_RPconfirmation}} data-ng-click-right-button="DeleteResponsiblePerson();"></confirm-archive-generic>
             </div>
         </div>
     </div>

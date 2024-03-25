@@ -1,10 +1,10 @@
 ﻿'use strict';
-AdditionalInfoController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function AdditionalInfoController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Additional Info';
+EmployeeSeperationSetupController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+    $rootScope.title = 'Employee Seperation Setup';
     $scope.Action = 'Save';
     $scope.ModelList = [];
-    $scope.path = 'SalesManagements/AdditionalInfo/';
+    $scope.path = 'QMS/EmployeeSeperationSetup/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
@@ -37,23 +37,9 @@ function AdditionalInfoController(cboService, commonMessage, $scope, $rootScope,
         UserName: null,
         Description: null,
         Remarks: null,
-        Mandatory: false,
         Active: true
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-
-    $scope.CategoryList = [
-        { Value: 'GRN', Text: 'GRN' },
-        { Value: 'SalesOrder', Text: 'Sales Order' },
-        { Value: 'LineItem', Text: 'Line Item' },
-        { Value: 'SalesInvoice', Text: 'Sales Invoice' },
-        { Value: 'Party', Text: 'Party' }
-    ];
-    $scope.charecterTypeList = [
-        {Value:'Text',Text:"Text"},
-        { Value: 'DateTime', Text:"DateTime"},
-        { Value: 'Decimal', Text:"Decimal"}
-    ];
 
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {
