@@ -54,7 +54,7 @@ namespace Aplos.Areas.Banks.Controllers
             return View("~/Areas/Banks/Views/BankJournal.cshtml");
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public JsonResult GetBankJournalList(GridParameter parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
