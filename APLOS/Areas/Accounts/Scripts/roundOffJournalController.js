@@ -137,18 +137,47 @@ function roundOffJournalController(accountService, cboService, commonMessage, $s
     $scope.closeItemPopUp = function () {
         angular.element(document.querySelector('#trailBalanceRoundOffListPopUp')).modal('hide');
     };
-   
+
+    $scope.totalDrAmount = 0;
+    $scope.totalCrAmount = 0;
+
+    
+
     $scope.clickCheckedTBItem = function () {
+        var totalDrAm = 0;
+        var totalCrAm= 0;
+
         try {
             for (var i = 0; i < $scope.trailBalanceRoundOffList.length; i++) {
-                if ($scope.trailBalanceRoundOffList[i].Active) {
+                var getRow = $filter("filter")($scope.voucherDetailList, {
+                    "BudgetMasterId": $scope.trailBalanceRoundOffList[i].BudgetMasterId, "ActivityId": $scope.trailBalanceRoundOffList[i].ActivityId
+                    , "PartyId": $scope.trailBalanceRoundOffList[i].PartyId
+                });
+                if (getRow.length == 0 && $scope.trailBalanceRoundOffList[i].Active) {
                     $scope.voucherDetailList.push($scope.trailBalanceRoundOffList[i]);
+
+                    totalDrAm += $scope.voucherDetailList[i].DrAmount;
+                    totalCrAm += $scope.voucherDetailList[i].CrAmount;
                 }
             }
+            $scope.totalDrAmount = parseFloat(totalDrAm).toFixed(6);
+            $scope.totalCrAmount = parseFloat(totalCrAm).toFixed(6);
+
             angular.element(document.querySelector('#trailBalanceRoundOffListPopUp')).modal('hide');
         } catch (e) {
             ShowResult(e, 'info');
         }
+    }
+    $scope.calculateTotalAmount = function () {
+        var totalDrAm = 0;
+        var totalCrAm = 0;
+
+        for (var i = 0; i < $scope.voucherDetailList.length; i++) {
+            totalDrAm += $scope.voucherDetailList[i].DrAmount;
+            totalCrAm += $scope.voucherDetailList[i].CrAmount;
+        }
+        $scope.totalDrAmount = parseFloat(totalDrAm).toFixed(6);
+        $scope.totalCrAmount = parseFloat(totalCrAm).toFixed(6);
     }
 
     $scope.getTransactionTypeGL = function (id) {
@@ -186,7 +215,7 @@ function roundOffJournalController(accountService, cboService, commonMessage, $s
     };
 
 
-    $scope.removeRow = function (index) {
+    $scope.removeDetaillRow = function (id,voucherId,index) {
         $scope.voucherDetailList.splice(index, 1);
     };
 
