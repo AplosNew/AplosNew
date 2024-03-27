@@ -1,6 +1,7 @@
 ﻿#region Using
 
 using Aplos.Controllers;
+using Aplos.MaterialManagement.MaterialQuery;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
@@ -17,7 +18,7 @@ using System.Web.Mvc;
 
 #endregion Using
 
-namespace Aplos.Areas.QMS.Controllers
+namespace Aplos.Areas.Payrolls.Controllers
 {
     public class EmployeeSeperationSetupController : BaseController
     {
@@ -116,7 +117,7 @@ namespace Aplos.Areas.QMS.Controllers
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] = "DZ" + _Id;
+                    data["Id"] = _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -129,7 +130,7 @@ namespace Aplos.Areas.QMS.Controllers
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
 
-                return Json(new { Error = false, Data= data, Sequence = GetSequence(), Message = AplosMessage.Updated });
+                return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)
@@ -142,7 +143,7 @@ namespace Aplos.Areas.QMS.Controllers
 
         public ActionResult Delete(string id)
         {
-            string sql = @"select * from '"+TableName+"' where Id = '" + id + "'";
+            string sql = @"select * from '" + TableName + "' where Id = '" + id + "'";
 
             try
             {
@@ -218,5 +219,198 @@ namespace Aplos.Areas.QMS.Controllers
 
             return 1;
         }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateEmpSeperationEmployeeType(Dictionary<string, object> data, string masterId)
+        {
+            try
+            {
+                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+                DataSet dsEmpCat, dsDD;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                con.OpenDataSetThroughAdapter("select * from [dbo].[EmpSeperationEmployeeType] where Id='" + data["Id"] + "'", out dsEmpCat, false, "1");
+                con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[EmpSeperationEmployeeType] where EmployeeSeperationSetupId='" + masterId + "'", out dsDD, false, "1");
+                int ccount = Convert.ToInt32(dsDD.Tables[0].Rows[0]["countId"].ToString());
+                string Id = "";
+                #region data update
+                if (dsEmpCat.Tables[0].Rows.Count == 0)
+                {
+                    ccount++;
+                    DataRow dr;
+                    dr = dsEmpCat.Tables[0].NewRow();
+
+                    dr["Id"] = materialCommonService.MakePK(masterId, ccount, 2);
+                    dr["EmployeeSeperationSetupId"] = masterId;
+                    dr["EmployeeTypeId"] = data["EmployeeTypeId"];
+
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    dsEmpCat.Tables[0].Rows.Add(dr);
+                }
+                else
+                {
+                    Id = data["Id"].ToString();
+                    EditRow(dsEmpCat.Tables[0].Rows[0], data);
+                }
+
+                #endregion data update 
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsEmpCat);
+                return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetEmpSeperationEmployeeTypeData(string masterId)
+        {
+            try
+            {
+                var sql = @"select ec.UserName as EmployeeCategory,glmec.*
+                            from [dbo].[EmpSeperationEmployeeType] glmec 
+                            left join [HKP].[EmployeeCategory] ec on ec.Id=glmec.EmployeeTypeId
+							where glmec.EmployeeSeperationSetupId = '" + masterId + "' ";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult DeleteEmployeeCategory(string id)
+        {
+            DeleteEmployeeCategoryData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+
+        public void DeleteEmployeeCategoryData(string id)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "DELETE FROM [dbo].[EmpSeperationEmployeeType] WHERE Id = '" + id + "'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }//End of function
+
+
+        [HttpGet, Authorize]
+        public ActionResult GetDesignationGroupData()
+        {
+            try
+            {
+                var sql = @"select Flag=CAST(0 AS bit),* from HKP.DesignationGroup Where Active=1 Order By UserName";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetEmpSepDesignationGroupData(string masterId)
+        {
+            try
+            {
+                var sql = @"select ec.Sequence,ec.Code,ec.ShortName,ec.StandardName,ec.UserName,glmec.*
+                            from [dbo].EmpSeperationDesignationGroup glmec 
+                            left join [HKP].[DesignationGroup] ec on ec.Id=glmec.DesignationGroupId
+							where glmec.EmployeeSeperationSetupId = '" + masterId + "' Order By ec.UserName";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateDesignationGroup(List<Dictionary<string, object>> data, string masterId)
+        {
+            try
+            {
+                DataSet dsDesignation, dsDD;
+                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from [dbo].[EmpSeperationDesignationGroup] where EmployeeSeperationSetupId='" + masterId + "'", out dsDesignation, false, "1");
+                con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[EmpSeperationDesignationGroup] where EmployeeSeperationSetupId='" + masterId + "'", out dsDD, false, "1");
+                int ccount = Convert.ToInt32(dsDD.Tables[0].Rows[0]["countId"].ToString());
+
+                string Id = "";
+
+                #region data update
+                foreach (var item in data)
+                {
+
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                    DataView dv = new DataView(dsDesignation.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        ccount++;
+                        item["Id"] = materialCommonService.MakePK(masterId, ccount, 2);
+                        item["EmployeeSeperationSetupId"] = masterId;
+
+                        AddNewRow(dsDesignation.Tables[0], item);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        item["Id"] = dv[0].Row["Id"].ToString();
+                        EditRow(drmo, item);
+                    }
+
+                }
+
+                #endregion data update 
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsDesignation);
+                return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+
     }
 }

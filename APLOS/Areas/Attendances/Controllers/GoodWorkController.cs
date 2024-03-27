@@ -694,6 +694,20 @@ namespace Aplos.Areas.Attendances.Controllers
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public ActionResult GetWorkerAdvancePendingforApprovalList()
+        {
+            string sql = @"select wa.Id,FORMAT(FromDate,'dd-MMM-yy')FromDate,FORMAT(ToDate,'dd-MMM-yy')ToDate,UserRef,wa.YearNo,wa.MonthNo
+						        ,wa.PayDaysType,wa.Percentage,wa.Remarks
+                                ,ei.SystemId PreparedById,ei.EmployeeName PreparedBy
+						        ,ei2.SystemId CheckedById,ei2.EmployeeName CheckedBy
+                                from [dbo].[WorkerAdvance] wa
+                                LEFT JOIN dbo.EmployeeInformation AS ei ON ei.SystemId=wa.PreparedById
+                                LEFT JOIN dbo.EmployeeInformation AS ei2 ON ei2.SystemId=wa.CheckedById
+                                WHERE wa.ApprovedStatus IS NULL ";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
 
         public ActionResult GetWorkerAdvanceDetailCenter(string workAdvanceId)
         {
@@ -725,6 +739,27 @@ namespace Aplos.Areas.Attendances.Controllers
                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.AuthorityId 
                          where   E.EmployeeStatus='Active'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult ApproveWorkerAdvance(string workerAdvanceId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("UPDATE [dbo].[WorkerAdvance] SET ApprovedById='" + identity.EmployeeId + "' ,ApprovedStatus='Approved'  where Id='" + workerAdvanceId + "' ");
+                con.CommitTransaction();
+
+                return Json(new { Message = "Approved Successfully." });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+            
         }
 
         [HttpPost]

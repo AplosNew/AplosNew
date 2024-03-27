@@ -876,5 +876,74 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         }
         return false;
     }
+    //Pending for Approval
+    $scope.WorkerAdvancePendingforApprovalList = [];
+    $scope.getPendingforApprovalData = function () {
+        $http({
+            method: 'Get',
+            url: $scope.path + "GetWorkerAdvancePendingforApprovalList",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.WorkerAdvancePendingforApprovalList = response.data;
+        });
+    }
+    $scope.getPendingforApprovalData();
+
+
+    $scope.GetDblClickPendingforApproval = function (args) {
+        $scope.ModelNewPendingforApproval = Object.assign({}, args.data);
+        $scope.ModelNewPendingforApproval.YearNo = $scope.ModelNewPendingforApproval.YearNo.toString();
+        $scope.ModelNewPendingforApproval.MonthNo = $scope.ModelNewPendingforApproval.MonthNo.toString();
+
+        $scope.GetWorkerAdvanceDetailPendingforApproval();
+       
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.EmployeeMainListWorkerAdvanceDetail = [];
+    $scope.GetWorkerAdvanceDetailPendingforApproval = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetWorkerAdvanceDetailCenter?workAdvanceId=' + $scope.ModelNewPendingforApproval.Id,
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.EmployeeMainListWorkerAdvanceDetail = resp.data;
+        });
+    }
+    $scope.workerAdvanceId = null;
+    $scope.ApproveWorkerAdvanceConfirm = function (data) {
+        $scope.workerAdvanceId = data.Id;
+        $scope.message_approve_confirmation = "Are you sure to Approve?";
+        angular.element(document.querySelector("#confirmWorkerAdvanceApprovePopUp")).modal("show");
+    };
+
+    $scope.approveUrl = "Attendances/GoodWork/ApproveWorkerAdvance";
+    $scope.approveWorkerAdvance = function (workerAdvanceId) {
+        $http({
+            method: "POST",
+            url: $scope.approveUrl,
+            data: {
+                "workerAdvanceId": workerAdvanceId
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getPendingforApprovalData();
+                
+                $scope.workerAdvanceId = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+    //Pending for Approval
 
 }

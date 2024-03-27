@@ -3395,6 +3395,11 @@ namespace Library.Service.Invoices
                     SourceType = SourceType.IssueJournal.ToString(),
                     VoucherTypeId = voucherVM.VoucherTypeId
                 };
+                AuditService.AddedLog(voucher);
+                voucher.AddedBy = issueData.AddedBy;
+                voucher.PostedBy = voucher.AddedBy;
+                voucher.PostedFromIP = voucher.AddedFromIP;
+                voucher.PostedDate = voucher.AddedDate;
                 _voucherService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix);
                 //svoucher.PostedBy = voucher.AddedBy;
                 var currentVoucherDetaiRecord = 0;
