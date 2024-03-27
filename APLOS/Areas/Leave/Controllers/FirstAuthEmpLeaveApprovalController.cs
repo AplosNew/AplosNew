@@ -5,6 +5,7 @@ using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.HumanResource.Leave;
+using Library.HumanResource.NewAttendanceProcess;
 using Library.Model.Biometrics;
 using Library.Model.HumanResources;
 using Library.Service.Biometrics;
@@ -29,10 +30,13 @@ namespace Aplos.Areas.Leave.Controllers
         private readonly ISqlRepository _sqlRepository;
         private readonly IMaternityLeavePolicyService _LeavePolicyMaster;
         private readonly ILeaveTransectionService _leaveTransactionService;
+        private readonly ILeaveTransactionNewService _leaveTransactionNewService;
+
         private readonly IMailSenderService _mailSenderService;
 
         public FirstAuthEmpLeaveApprovalController(
               IMaternityLeavePolicyService LeavePolicyService,
+              ILeaveTransactionNewService leaveTransactionNewService,
                ISqlRepository sqlRepository,
                ILeaveTransectionService leaveTransactionService
              , IMailSenderService mailSenderService
@@ -42,6 +46,7 @@ namespace Aplos.Areas.Leave.Controllers
             _LeavePolicyMaster = LeavePolicyService;
             _sqlRepository = sqlRepository;
             _leaveTransactionService = leaveTransactionService;
+            _leaveTransactionNewService = leaveTransactionNewService;
             _mailSenderService = mailSenderService;
             
         }
@@ -144,6 +149,7 @@ namespace Aplos.Areas.Leave.Controllers
             List<Dictionary<string, object>> data = (List<Dictionary<string, object>>)objLvTrsEmpWise.GetYearlyCalendarInfoCmb(identity.CompanyGroupId, identity.PlantId);
             string calanderYearId = data[0]["Id"].ToString();
             return Json(_leaveTransactionService.LoadGrdAllocatedLvDetails(identity.CompanyGroupId, identity.PlantId, EmpsystemId, calanderYearId), JsonRequestBehavior.AllowGet);
+            //return Json(_leaveTransactionNewService.LoadGrdAllocatedLvDetailsNew(identity.CompanyGroupId, identity.PlantId, EmpsystemId, calanderYearId), JsonRequestBehavior.AllowGet);
         }
 
 
