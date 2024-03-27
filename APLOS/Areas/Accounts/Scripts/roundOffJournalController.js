@@ -156,8 +156,8 @@ function roundOffJournalController(accountService, cboService, commonMessage, $s
                 if (getRow.length == 0 && $scope.trailBalanceRoundOffList[i].Active) {
                     $scope.voucherDetailList.push($scope.trailBalanceRoundOffList[i]);
 
-                    totalDrAm += $scope.voucherDetailList[i].DrAmount;
-                    totalCrAm += $scope.voucherDetailList[i].CrAmount;
+                    totalDrAm += $scope.trailBalanceRoundOffList[i].DrAmount;
+                    totalCrAm += $scope.trailBalanceRoundOffList[i].CrAmount;
                 }
             }
             $scope.totalDrAmount = parseFloat(totalDrAm).toFixed(6);
