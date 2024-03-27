@@ -130,7 +130,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
 
-                return Json(new { Error = false, Data= data, Sequence = GetSequence(), Message = AplosMessage.Updated });
+                return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)
@@ -143,7 +143,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         public ActionResult Delete(string id)
         {
-            string sql = @"select * from '"+TableName+"' where Id = '" + id + "'";
+            string sql = @"select * from '" + TableName + "' where Id = '" + id + "'";
 
             try
             {
@@ -284,7 +284,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public ActionResult DeleteEmployeeCategory(string id)
         {
             DeleteEmployeeCategoryData(id);
@@ -332,7 +332,25 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             try
             {
-                var sql = @"select Flag=CAST(0 AS bit),* from HKP.DesignationGroup Where Active=1";
+                var sql = @"select Flag=CAST(0 AS bit),* from HKP.DesignationGroup Where Active=1 Order By UserName";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetEmpSepDesignationGroupData(string masterId)
+        {
+            try
+            {
+                var sql = @"select ec.Sequence,ec.Code,ec.ShortName,ec.StandardName,ec.UserName,glmec.*
+                            from [dbo].EmpSeperationDesignationGroup glmec 
+                            left join [HKP].[DesignationGroup] ec on ec.Id=glmec.DesignationGroupId
+							where glmec.EmployeeSeperationSetupId = '" + masterId + "' Order By ec.UserName";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
@@ -348,6 +366,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             try
             {
                 DataSet dsDesignation, dsDD;
+                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from [dbo].[EmpSeperationDesignationGroup] where EmployeeSeperationSetupId='" + masterId + "'", out dsDesignation, false, "1");
                 con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[EmpSeperationDesignationGroup] where EmployeeSeperationSetupId='" + masterId + "'", out dsDD, false, "1");
@@ -358,7 +377,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 #region data update
                 foreach (var item in data)
                 {
-                    
+
                     var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                     DataView dv = new DataView(dsDesignation.Tables[0]);
@@ -366,8 +385,8 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                     if (dv.Count == 0)
                     {
-
-                        item["Id"] = Id;
+                        ccount++;
+                        item["Id"] = materialCommonService.MakePK(masterId, ccount, 2);
                         item["EmployeeSeperationSetupId"] = masterId;
 
                         AddNewRow(dsDesignation.Tables[0], item);

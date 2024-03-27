@@ -162,6 +162,7 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.EmployeeCategoryList = response.data;
+            $scope.GetSavedDesignationGroup();
         })
     }
 
@@ -213,11 +214,42 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
         gridObj.clearFiltering();  // clears all the filtering
     };
 
+    // #region checkbox all
+
+    $scope.refreshTemplateOperation = function (args) {
+        $("#headchk").ejCheckBox({ "change": headCheckChangeOperation });
+    };
+
+    function headCheckChangeOperation(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridDesignationGroup").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.DesignationGroupList.length; i++) {
+                $scope.DesignationGroupList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridDesignationGroup").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+
+    // #endregion
+
+
     $scope.SelectedDesignationGroupList = [];
     $scope.CloseDesignationGroup = function () {
         try {
             for (var i = 0; i < $scope.DesignationGroupList.length; i++) {
-                if ($scope.DesignationGroupList[i].Active == true) {
+                if ($scope.DesignationGroupList[i].Flag == true) {
                     if (checkExists($scope.SelectedDesignationGroupList, $scope.DesignationGroupList[i].Id) === false) {
                         var ob = {};
                         ob.Id = null;
@@ -270,8 +302,8 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
             
             $http({
                 method: 'POST',
-                url: 'Payrolls/EmployeeSeperationSetup/GetEmpSepDesignationGroupData',
-                data: { 'entities': $scope.SelectedDesignationGroupList, 'masterId': $scope.ModelNew.Id },
+                url: 'Payrolls/EmployeeSeperationSetup/CreateDesignationGroup',
+                data: { 'data': $scope.SelectedDesignationGroupList, 'masterId': $scope.ModelNew.Id },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
