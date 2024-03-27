@@ -54,7 +54,7 @@ namespace Aplos.Areas.Banks.Controllers
             return View("~/Areas/Banks/Views/EntityExpenseBookingApproval.cshtml");
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public JsonResult GetCashJournalList(GridParameter parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
