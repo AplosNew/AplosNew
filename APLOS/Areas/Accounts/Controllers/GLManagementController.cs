@@ -315,7 +315,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementDesignation", out Id);
                     var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                      
+
                     DataView dv = new DataView(dsDesignation.Tables[0]);
                     dv.RowFilter = "Id='" + item["Id"] + "'";
 
@@ -325,11 +325,11 @@ namespace Aplos.Areas.Accounts.Controllers
                         item["Id"] = Id;
                         //item["DesignationId"] = item["Id"];
                         item["GlManagementId"] = GlManagementId;
-                         
+
                         AddNewRow(dsDesignation.Tables[0], item);
                     }
                     else
-                    { 
+                    {
                         DataRow drmo = dv[0].Row;
                         item["Id"] = dv[0].Row["Id"].ToString();
                         EditRow(drmo, item);
@@ -355,20 +355,20 @@ namespace Aplos.Areas.Accounts.Controllers
                 DataSet dsPCode;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementPositionCode] where GlManagementId='" + GlManagementId + "'", out dsPCode, false, "1");
-                string Id = "";  
-               
+                string Id = "";
+
                 #region data update
                 foreach (var item in data)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementPositionCode", out Id);
                     var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                     
+
                     DataView dv = new DataView(dsPCode.Tables[0]);
                     dv.RowFilter = "Id='" + item["Id"] + "'";
 
                     if (dv.Count == 0)
-                    { 
+                    {
                         item["Id"] = Id;
                         item["GlManagementId"] = GlManagementId;
 
@@ -379,8 +379,8 @@ namespace Aplos.Areas.Accounts.Controllers
                         DataRow drmo = dv[0].Row;
                         item["Id"] = dv[0].Row["Id"].ToString();
                         EditRow(drmo, item);
-                    } 
-                } 
+                    }
+                }
                 #endregion data update 
 
                 clsStaticInfo _info = new clsStaticInfo();
@@ -401,7 +401,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementBudgetCode] where GlManagementId='" + GlManagementId + "'", out dsBudCode, false, "1");
 
-                string Id = ""; 
+                string Id = "";
                 #region data update
                 foreach (var item in data)
                 {
@@ -463,7 +463,12 @@ namespace Aplos.Areas.Accounts.Controllers
 
                         AddNewRow(dsEmp.Tables[0], item);
                     }
-                    else
+                    else if (dv.Count > 0 && Convert.ToBoolean(item["CheckBoxSelect"].ToString())==false)
+                    {
+                        DataRow drmo = dv[0].Row;
+                        drmo.Delete();
+                    }
+                    else 
                     {
                         DataRow drmo = dv[0].Row;
                         item["Id"] = dv[0].Row["Id"].ToString();
@@ -471,7 +476,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     }
                 }
                 #endregion data update 
-                
+
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsEmp);
                 return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
@@ -481,32 +486,37 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-        public JsonResult CreateGlManagementResponsiblePersosn(List<Dictionary<string, object>> data, string GlManagementId)
+        public JsonResult CreateGlManagementActionBy(List<Dictionary<string, object>> data, string GlManagementId)
         {
             try
             {
-                DataSet dsEmp;
+                DataSet dsAB;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementResponsiblePerson] where GlManagementId='" + GlManagementId + "'", out dsEmp, false, "1");
+                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementActionBy] where GlManagementId='" + GlManagementId + "'", out dsAB, false, "1");
 
                 string Id = "";
                 #region data update
                 foreach (var item in data)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementResponsiblePerson", out Id);
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementActionBy", out Id);
                     var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                    DataView dv = new DataView(dsEmp.Tables[0]);
+                    DataView dv = new DataView(dsAB.Tables[0]);
                     dv.RowFilter = "Id='" + item["Id"] + "'";
 
                     if (dv.Count == 0)
                     {
                         item["Id"] = Id;
-                        item["ResponsiblePersonId"] = item["ResponsiblePersonId"];
+                        item["ActionById"] = item["ActionById"];
                         item["GlManagementId"] = GlManagementId;
 
-                        AddNewRow(dsEmp.Tables[0], item);
+                        AddNewRow(dsAB.Tables[0], item);
+                    }
+                    else if (dv.Count > 0 && Convert.ToBoolean(item["CheckBoxSelect"].ToString()) == false)
+                    {
+                        DataRow drmo = dv[0].Row;
+                        drmo.Delete();
                     }
                     else
                     {
@@ -518,7 +528,108 @@ namespace Aplos.Areas.Accounts.Controllers
                 #endregion data update 
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsEmp);
+                _info.SaveDataSets(dsAB);
+                return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        public JsonResult CreateGlManagementApproveBy(List<Dictionary<string, object>> data, string GlManagementId)
+        {
+            try
+            {
+                DataSet dsAPB;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementApproveBy] where GlManagementId='" + GlManagementId + "'", out dsAPB, false, "1");
+
+                string Id = "";
+                #region data update
+                foreach (var item in data)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementApproveBy", out Id);
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                    DataView dv = new DataView(dsAPB.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        item["Id"] = Id;
+                        item["ApproveById"] = item["ApproveById"];
+                        item["GlManagementId"] = GlManagementId;
+
+                        AddNewRow(dsAPB.Tables[0], item);
+                    }
+                    else if (dv.Count > 0 && Convert.ToBoolean(item["CheckBoxSelect"].ToString()) == false)
+                    {
+                        DataRow drmo = dv[0].Row;
+                        drmo.Delete();
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        item["Id"] = dv[0].Row["Id"].ToString();
+                        EditRow(drmo, item);
+                    }
+                }
+                #endregion data update 
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsAPB);
+                return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        public JsonResult CreateGlManagementResponsiblePersosn(List<Dictionary<string, object>> data, string GlManagementId)
+        {
+            try
+            {
+                DataSet dsRP;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementResponsiblePerson] where GlManagementId='" + GlManagementId + "'", out dsRP, false, "1");
+
+                string Id = "";
+                #region data update
+                foreach (var item in data)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementResponsiblePerson", out Id);
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                    DataView dv = new DataView(dsRP.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        item["Id"] = Id;
+                        item["ResponsiblePersonId"] = item["ResponsiblePersonId"];
+                        item["GlManagementId"] = GlManagementId;
+
+                        AddNewRow(dsRP.Tables[0], item);
+                    }
+                    else if (dv.Count > 0 && Convert.ToBoolean(item["CheckBoxSelect"].ToString()) == false)
+                    {
+                        DataRow drmo = dv[0].Row;
+                        drmo.Delete();
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        item["Id"] = dv[0].Row["Id"].ToString();
+                        EditRow(drmo, item);
+                    }
+                }
+                #endregion data update 
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsRP);
                 return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
             }
             catch (Exception ex)
@@ -646,7 +757,7 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
         [HttpGet]
-         public ActionResult DeleteEmployeeCategory(string Id)
+        public ActionResult DeleteEmployeeCategory(string Id)
         {
             string sql = @"select * from [HKP].[GLManagementEmployeeCategory] where EmployeeCategoryId = '" + Id + @"'";
             try
@@ -725,46 +836,8 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-        [HttpGet]
-        public ActionResult DeleteEmployeeData(string Id)
-        {
-            string sql = @"select * from [HKP].[GLManagementEmployee] where EmpSystemId = '" + Id + @"'";
-            try
-            {
-                if (string.IsNullOrEmpty(Id))
-                    throw new Exception("Select entry first");
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from [HKP].[GLManagementEmployee] where EmpSystemId = '" + Id + @"'");
-                con.CommitTransaction();
-
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
-        [HttpGet]
-        public ActionResult DeleteResponsiblePersonData(string Id)
-        {
-            string sql = @"select * from [HKP].[GLManagementResponsiblePerson] where Id = '" + Id + @"'";
-            try
-            {
-                if (string.IsNullOrEmpty(Id))
-                    throw new Exception("Select entry first");
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from [HKP].[GLManagementResponsiblePerson] where Id = '" + Id + @"'");
-                con.CommitTransaction();
-
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
+        
+        
         [Authorize]
         public ActionResult GetPositionCodeData(string glManagementId)
         {
@@ -816,12 +889,223 @@ namespace Aplos.Areas.Accounts.Controllers
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
-        [Authorize]
+        [Authorize, HttpGet]
+        public ActionResult GetSaveEmployee(string glManagementId)
+        {
+            string str = @"select gm.Id,gm.EmpSystemId,ei.EmployeeCode,ei.EmployeeName,CheckBoxSelect=cast(case when gm.EmpSystemId is null then 0 else 1 end as bit) from [HKP].[GLManagementEmployee] gm
+                        left join dbo.EmployeeInformation ei on ei.SystemId=gm.EmpSystemId
+                        where gm.GlManagementId ='" + glManagementId + "' ";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public ActionResult GetSaveActionBy(string glManagementId)
+        {
+            string str = @"select gm.Id,gm.ActionById,ei.EmployeeCode,ei.EmployeeName,CheckBoxSelect=cast(case when gm.ActionById is null then 0 else 1 end as bit) 
+                        from [HKP].[GLManagementActionBy] gm
+                        left join dbo.EmployeeInformation ei on ei.SystemId=gm.ActionById
+                        where gm.GlManagementId ='" + glManagementId + "' ";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public ActionResult GetSaveApproveBy(string glManagementId)
+        {
+            string str = @"select gm.Id,gm.ApproveById,ei.EmployeeCode,ei.EmployeeName,CheckBoxSelect=cast(case when gm.ApproveById is null then 0 else 1 end as bit) 
+                        from [HKP].[GLManagementApproveBy] gm
+                        left join dbo.EmployeeInformation ei on ei.SystemId=gm.ApproveById
+                        where gm.GlManagementId ='" + glManagementId + "' ";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public ActionResult GetSaveResponsiblePerson(string glManagementId)
+        {
+            string str = @"select gm.Id,gm.ResponsiblePersonId,ei.EmployeeCode,ei.EmployeeName,CheckBoxSelect=cast(case when gm.ResponsiblePersonId is null then 0 else 1 end as bit) 
+                        from [HKP].[GLManagementResponsiblePerson] gm
+                        left join dbo.EmployeeInformation ei on ei.SystemId=gm.ResponsiblePersonId
+                        where gm.GlManagementId ='" + glManagementId + "' ";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize,HttpGet]
+        public ActionResult getemployeelist(string GlManagementId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                var sql = @"SELECT CheckBoxSelect=cast(case when glme.EmpSystemId is null then 0 else 1 end as bit),Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,DeM.UserName Designation,
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,SE.UserName Section,EMP.SectionId,SuS.UserName SubSection
+                                        ,PL.UserName Plant,LDEG.UserName LegalDesignation,isnull( L.UserName,'') Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
+                                        EMP.EmployeeCodeNumeric, EMP.FatherName,FORMAT( EMP.DOB,'dd-MMM-yyyy')DOB,DeM.UserName DesignationGroup,
+                                        EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric,EJ.JobLcSystemID,FORMAT(EJ.EffectiveDate,'dd-MMM-yyyy')EffectiveDate
+                                        ,C.UserName Company,AM.Address1,EMP.PresentAddress1,EMP.CellPhnNo,EC.UserName EmployeeCategory,LPM.PolicyName
+                                        FROM EmployeeInformation EMP
+                                        LEFT JOIN ORG.Company C ON C.Id=EMP.CompanyId
+                                        LEFT JOIN MST.AddressMaster AM ON AM.Id=C.AddressMasterId
+                                        LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                                        LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                        LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                                        left join ORG.Section SE on SE.Id=PR.SectionId
+										LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
+                                        LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                                        LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
+                                        LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId
+                                        LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
+                                        LEFT JOIN MST.DesignationMasterLegalDesignation DML ON DML.LegalDesignationId = EMP.LegalDesignationId
+										Left join  MST.DesignationMaster DeM on DeM.Id = DML.DesignationMasterId
+										left join HKP.Designation DeG on DeG.Id=DeM.DesignationId
+                                        left join [MST].[DesignationMaster] DM on DM.DesignationId=EMP.GivenDesignationId
+										left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.Id and DMC.PlantId=emp.PlantId                
+										left join [dbo].[LeavePolicyMaster] LPM on LPM.SystemID=DMC.LeavePolicyMasterId and LPM.PlantID=emp.PlantID
+                                        left join [HKP].[EmployeeCategory] EC on EC.Id=DM.EmployeeCategoryId
+                                        LEFT JOIN dbo.EmpDateWiseJobLocation EJ ON EJ.EmpsystemId=EMP.SystemId
+										 AND EJ.SystemId=(Select top(1) SystemId from dbo.EmpDateWiseJobLocation JB Where JB.EmpSystemID=EMP.SystemId Order by EffectiveDate desc)
+                                        left join(select * from  [HKP].[GLManagementEmployee] where GlManagementId='" + GlManagementId + @"') glme on glme.EmpSystemId=EMP.SystemId
+                                        WHERE emp.PlantID='" + identity.PlantId + @"'  and EMP.CompanyId='" + identity.CompanyId + @"' and EMP.EmployeeStatus='Active' ORDER BY EmployeeCodePreFix,EMP.EmployeeCodeNumeric";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [Authorize, HttpGet]
+        public ActionResult getActionBylist(string GlManagementId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                var sql = @"SELECT CheckBoxSelect=cast(case when gla.ActionById is null then 0 else 1 end as bit),Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,DeM.UserName Designation,
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,SE.UserName Section,EMP.SectionId,SuS.UserName SubSection
+                                        ,PL.UserName Plant,LDEG.UserName LegalDesignation,isnull( L.UserName,'') Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
+                                        EMP.EmployeeCodeNumeric, EMP.FatherName,FORMAT( EMP.DOB,'dd-MMM-yyyy')DOB,DeM.UserName DesignationGroup,
+                                        EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric,EJ.JobLcSystemID,FORMAT(EJ.EffectiveDate,'dd-MMM-yyyy')EffectiveDate
+                                        ,C.UserName Company,AM.Address1,EMP.PresentAddress1,EMP.CellPhnNo,EC.UserName EmployeeCategory,LPM.PolicyName
+                                        FROM EmployeeInformation EMP
+                                        LEFT JOIN ORG.Company C ON C.Id=EMP.CompanyId
+                                        LEFT JOIN MST.AddressMaster AM ON AM.Id=C.AddressMasterId
+                                        LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                                        LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                        LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                                        left join ORG.Section SE on SE.Id=PR.SectionId
+										LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
+                                        LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                                        LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
+                                        LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId
+                                        LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
+                                        LEFT JOIN MST.DesignationMasterLegalDesignation DML ON DML.LegalDesignationId = EMP.LegalDesignationId
+										Left join  MST.DesignationMaster DeM on DeM.Id = DML.DesignationMasterId
+										left join HKP.Designation DeG on DeG.Id=DeM.DesignationId
+                                        left join [MST].[DesignationMaster] DM on DM.DesignationId=EMP.GivenDesignationId
+										left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.Id and DMC.PlantId=emp.PlantId                
+										left join [dbo].[LeavePolicyMaster] LPM on LPM.SystemID=DMC.LeavePolicyMasterId and LPM.PlantID=emp.PlantID
+                                        left join [HKP].[EmployeeCategory] EC on EC.Id=DM.EmployeeCategoryId
+                                        LEFT JOIN dbo.EmpDateWiseJobLocation EJ ON EJ.EmpsystemId=EMP.SystemId
+										 AND EJ.SystemId=(Select top(1) SystemId from dbo.EmpDateWiseJobLocation JB Where JB.EmpSystemID=EMP.SystemId Order by EffectiveDate desc)
+                                        left join(select * from  [HKP].[GLManagementActionBy] where GlManagementId='" + GlManagementId + @"') gla on gla.ActionById=EMP.SystemId
+                                        WHERE emp.PlantID='" + identity.PlantId + @"'  and EMP.CompanyId='" + identity.CompanyId + @"' and EMP.EmployeeStatus='Active' ORDER BY EmployeeCodePreFix,EMP.EmployeeCodeNumeric";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [Authorize, HttpGet]
+        public ActionResult getApproveBylist(string GlManagementId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                var sql = @"SELECT CheckBoxSelect=cast(case when glap.ApproveById is null then 0 else 1 end as bit),Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,DeM.UserName Designation,
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,SE.UserName Section,EMP.SectionId,SuS.UserName SubSection
+                                        ,PL.UserName Plant,LDEG.UserName LegalDesignation,isnull( L.UserName,'') Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
+                                        EMP.EmployeeCodeNumeric, EMP.FatherName,FORMAT( EMP.DOB,'dd-MMM-yyyy')DOB,DeM.UserName DesignationGroup,
+                                        EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric,EJ.JobLcSystemID,FORMAT(EJ.EffectiveDate,'dd-MMM-yyyy')EffectiveDate
+                                        ,C.UserName Company,AM.Address1,EMP.PresentAddress1,EMP.CellPhnNo,EC.UserName EmployeeCategory,LPM.PolicyName
+                                        FROM EmployeeInformation EMP
+                                        LEFT JOIN ORG.Company C ON C.Id=EMP.CompanyId
+                                        LEFT JOIN MST.AddressMaster AM ON AM.Id=C.AddressMasterId
+                                        LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                                        LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                        LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                                        left join ORG.Section SE on SE.Id=PR.SectionId
+										LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
+                                        LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                                        LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
+                                        LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId
+                                        LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
+                                        LEFT JOIN MST.DesignationMasterLegalDesignation DML ON DML.LegalDesignationId = EMP.LegalDesignationId
+										Left join  MST.DesignationMaster DeM on DeM.Id = DML.DesignationMasterId
+										left join HKP.Designation DeG on DeG.Id=DeM.DesignationId
+                                        left join [MST].[DesignationMaster] DM on DM.DesignationId=EMP.GivenDesignationId
+										left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.Id and DMC.PlantId=emp.PlantId                
+										left join [dbo].[LeavePolicyMaster] LPM on LPM.SystemID=DMC.LeavePolicyMasterId and LPM.PlantID=emp.PlantID
+                                        left join [HKP].[EmployeeCategory] EC on EC.Id=DM.EmployeeCategoryId
+                                        LEFT JOIN dbo.EmpDateWiseJobLocation EJ ON EJ.EmpsystemId=EMP.SystemId
+										 AND EJ.SystemId=(Select top(1) SystemId from dbo.EmpDateWiseJobLocation JB Where JB.EmpSystemID=EMP.SystemId Order by EffectiveDate desc)
+                                        left join(select * from  [HKP].[GLManagementApproveBy] where GlManagementId='" + GlManagementId + @"') glap on glap.ApproveById=EMP.SystemId
+                                        WHERE emp.PlantID='" + identity.PlantId + @"'  and EMP.CompanyId='" + identity.CompanyId + @"' and EMP.EmployeeStatus='Active' ORDER BY EmployeeCodePreFix,EMP.EmployeeCodeNumeric";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [Authorize, HttpGet]
+        public ActionResult getResponsiblePersonlist(string GlManagementId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                var sql = @"SELECT CheckBoxSelect=cast(case when glrp.ResponsiblePersonId is null then 0 else 1 end as bit),Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,DeM.UserName Designation,
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,SE.UserName Section,EMP.SectionId,SuS.UserName SubSection
+                                        ,PL.UserName Plant,LDEG.UserName LegalDesignation,isnull( L.UserName,'') Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
+                                        EMP.EmployeeCodeNumeric, EMP.FatherName,FORMAT( EMP.DOB,'dd-MMM-yyyy')DOB,DeM.UserName DesignationGroup,
+                                        EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric,EJ.JobLcSystemID,FORMAT(EJ.EffectiveDate,'dd-MMM-yyyy')EffectiveDate
+                                        ,C.UserName Company,AM.Address1,EMP.PresentAddress1,EMP.CellPhnNo,EC.UserName EmployeeCategory,LPM.PolicyName
+                                        FROM EmployeeInformation EMP
+                                        LEFT JOIN ORG.Company C ON C.Id=EMP.CompanyId
+                                        LEFT JOIN MST.AddressMaster AM ON AM.Id=C.AddressMasterId
+                                        LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                                        LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                        LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                                        left join ORG.Section SE on SE.Id=PR.SectionId
+										LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
+                                        LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                                        LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
+                                        LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId
+                                        LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
+                                        LEFT JOIN MST.DesignationMasterLegalDesignation DML ON DML.LegalDesignationId = EMP.LegalDesignationId
+										Left join  MST.DesignationMaster DeM on DeM.Id = DML.DesignationMasterId
+										left join HKP.Designation DeG on DeG.Id=DeM.DesignationId
+                                        left join [MST].[DesignationMaster] DM on DM.DesignationId=EMP.GivenDesignationId
+										left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.Id and DMC.PlantId=emp.PlantId                
+										left join [dbo].[LeavePolicyMaster] LPM on LPM.SystemID=DMC.LeavePolicyMasterId and LPM.PlantID=emp.PlantID
+                                        left join [HKP].[EmployeeCategory] EC on EC.Id=DM.EmployeeCategoryId
+                                        LEFT JOIN dbo.EmpDateWiseJobLocation EJ ON EJ.EmpsystemId=EMP.SystemId
+										 AND EJ.SystemId=(Select top(1) SystemId from dbo.EmpDateWiseJobLocation JB Where JB.EmpSystemID=EMP.SystemId Order by EffectiveDate desc)
+                                        left join(select * from  [HKP].[GLManagementResponsiblePerson] where GlManagementId='" + GlManagementId + @"') glrp on glrp.ResponsiblePersonId=EMP.SystemId
+                                        WHERE emp.PlantID='" + identity.PlantId + @"'  and EMP.CompanyId='" + identity.CompanyId + @"' and EMP.EmployeeStatus='Active' ORDER BY EmployeeCodePreFix,EMP.EmployeeCodeNumeric";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [Authorize, HttpGet]
         public ActionResult GetEmployeeData(string glManagementId)
         {
             try
             {
-                var sql = @"select GLME.Id,GLME.EmpSystemId,EI.EmployeeCode,EI.EmployeeName
+                var sql = @"select CheckBoxSelect=cast(case when GLME.Id is null then 0 else 1 end as bit),GLME.Id,GLME.EmpSystemId,EI.EmployeeCode,EI.EmployeeName
                             from [HKP].[GLManagementEmployee] GLME
                             left join dbo.EmployeeInformation EI on EI.SystemId=GLME.EmpSystemId
 							where GLME.GLManagementId = '" + glManagementId + "' ";
@@ -833,23 +1117,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-        [Authorize]
-        public ActionResult GetResPersonData(string glManagementId)
-        {
-            try
-            {
-                var sql = @"select GLMRP.Id,GLMRP.ResponsiblePersonId,EI.EmployeeCode ResponsiblePersonCode,EI.EmployeeName ResponsiblePerson
-                            from [HKP].[GLManagementResponsiblePerson] GLMRP
-                            left join dbo.EmployeeInformation EI on EI.SystemId=GLMRP.ResponsiblePersonId
-							where GLMRP.GLManagementId = '" + glManagementId + "' ";
-
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
+       
         [Authorize]
         public ActionResult GetExpenseGLData(string glId, string budgetId, string activityId)
         {
