@@ -133,6 +133,18 @@
                         <li> <button ng-click="AddDesignationGroup();" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus"></i> Designation Group</button></li>
                     </ul>
                 </div>
+                <div id="GridGroup" ej-grid e-datasource="SelectedDesignationGroupList" 
+                     e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
+                    <div e-columns>
+                        <div e-column e-field="Sequence" e-headertext="Sequence" e-headertext-color="black" e-textalign="left" e-width="20"></div>
+                        <div e-column e-field="Code" e-headertext="Code" e-width="30"></div>
+                        <div e-column e-field="ShortName" e-headertext="ShortName" e-width="30"></div>
+                        <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="50"></div>
+                        <div e-column e-field="UserName" e-headertext="UserName" e-width="50"></div>
+
+                    </div>
+                </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }" ng-form="tabForm3" id="Seperation">
 
