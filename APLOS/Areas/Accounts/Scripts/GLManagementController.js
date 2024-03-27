@@ -13,6 +13,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     $scope.savePositionCodeUrl = $scope.path + 'CreateGlManagementPositionCode';
     $scope.saveBudgetCodeUrl = $scope.path + 'CreateGlManagementBudgetCode';
     $scope.saveEmpUrl = $scope.path + 'CreateGlManagementEmployee';
+    $scope.saveDrCrUrl = $scope.path + 'CreateGlManagementControlDrCr';
     $scope.saveABUrl = $scope.path + 'CreateGlManagementActionBy';
     $scope.saveAPBUrl = $scope.path + 'CreateGlManagementApproveBy';
     $scope.saveRPUrl = $scope.path + 'CreateGlManagementResponsiblePersosn';
@@ -769,6 +770,225 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     };
  
     //#endregion Employee
+
+    //#region Control Dr/Control Cr
+    $scope.ControlDrListData = [];
+    $scope.GetControlDrData = function () {
+        $http({
+            method: 'GET',
+            url: 'Accounts/GLManagement/getControlDrlist?GlManagementId=' + $scope.GlManagementId
+        }).then(function successCallback(response) {
+            $scope.ControlDrListData = response.data;
+            $scope.GetSaveControlDr();
+        });
+    }
+
+    $scope.ControlDrList = [];
+    $scope.GetSaveControlDr = function () {
+        $http({
+            method: 'GET',
+            url: 'Accounts/GLManagement/GetSaveControlDr?GlManagementId=' + $scope.GlManagementId
+        }).then(function successCallback(response) {
+            $scope.ControlDrList = response.data;
+        });
+    }
+    $scope.OKControlDr = function (obj) {
+        $scope.TabName = obj;
+        var ob = {};
+        try {
+            for (var i = 0; i < $scope.ControlDrListData.length; i++) {
+                if ($scope.ControlDrListData[i].CheckBoxSelect == true) {
+                    if (checkDoubleDrInformation($scope.ControlDrList, $scope.ControlDrListData[i].BudgetMasterActivityId) === false) {
+                        ob.Id = null;
+                        ob.BudgetMasterActivityIdDr = $scope.ControlDrListData[i].BudgetMasterActivityId;
+                        ob.BudgetCode = $scope.ControlDrListData[i].BudgetCode;
+                        ob.BudgetName = $scope.ControlDrListData[i].BudgetName;
+                        $scope.ControlDrList.push(ob);
+                        ob = {};
+                    }
+                }
+            }
+            $scope.SaveControlDrData();
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    function checkDoubleDrInformation(list, BudgetMasterActivityId) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].BudgetMasterActivityIdDr === BudgetMasterActivityId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.refreshTemplateControlDr = function (args) {
+        $("#CDrheadchk").ejCheckBox({ "change": CheckBoxSelectAllCDr});
+    };
+
+    function CheckBoxSelectAllCDr(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+        var filtered = $("#GridCDr").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ControlDrListData.length; i++) {
+                $scope.ControlDrListData[i].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridCDr").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.SaveControlDrData = function () {
+        if (baseService.isUndefinedOrNull($scope.GlManagementId)) {
+            return ShowResult('Please select GL Management!', 'failure');
+        }
+        for (var i = 0; i < $scope.ControlDrList.length; i++) {
+            for (var j = 0; j < $scope.ControlDrListData.length; j++) {
+                if ($scope.ControlDrListData[j].BudgetMasterActivityId == $scope.ControlDrList[i].BudgetMasterActivityIdDr) {
+                    if ($scope.ControlDrListData[j].CheckBoxSelect == false) {
+                        $scope.ControlDrList[i].CheckBoxSelect = false;
+                    }
+                }
+            }
+        }
+        $http({
+            method: 'POST',
+            url: $scope.saveDrCrUrl,
+            data: { 'data': $scope.ControlDrList, 'GlManagementId': $scope.GlManagementId, 'TabName': $scope.TabName},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetResponsiblePersonData($scope.GlManagementId);
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+    //#endregion Control Dr/Control Cr
+
+    //#region Control Cr
+    $scope.ControlCrListData = [];
+    $scope.GetControlDrData = function () {
+        $http({
+            method: 'GET',
+            url: 'Accounts/GLManagement/getControlDrlist?GlManagementId=' + $scope.GlManagementId
+        }).then(function successCallback(response) {
+            $scope.ControlCrListData = response.data;
+            $scope.GetSaveControlDr();
+        });
+    }
+
+    $scope.ControlDrList = [];
+    $scope.GetSaveControlDr = function () {
+        $http({
+            method: 'GET',
+            url: 'Accounts/GLManagement/GetSaveControlDr?GlManagementId=' + $scope.GlManagementId
+        }).then(function successCallback(response) {
+            $scope.ControlDrList = response.data;
+        });
+    }
+    $scope.OKControlCr = function (obj) {
+        $scope.TabName = obj;
+        var ob = {};
+        try {
+            for (var i = 0; i < $scope.ControlCrListData.length; i++) {
+                if ($scope.ControlCrListData[i].CheckBoxSelect == true) {
+                    if (checkDoubleDrInformation($scope.ControlDrList, $scope.ControlCrListData[i].BudgetMasterActivityId) === false) {
+                        ob.Id = null;
+                        ob.BudgetMasterActivityIdDr = $scope.ControlCrListData[i].BudgetMasterActivityId;
+                        ob.BudgetCode = $scope.ControlCrListData[i].BudgetCode;
+                        ob.BudgetName = $scope.ControlCrListData[i].BudgetName;
+                        $scope.ControlDrList.push(ob);
+                        ob = {};
+                    }
+                }
+            }
+            $scope.SaveControlDrData();
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    function checkDoubleDrInformation(list, BudgetMasterActivityId) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].BudgetMasterActivityIdDr === BudgetMasterActivityId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.refreshTemplateControlDr = function (args) {
+        $("#CDrheadchk").ejCheckBox({ "change": CheckBoxSelectAllCDr });
+    };
+
+    function CheckBoxSelectAllCDr(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+        var filtered = $("#GridCDr").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ControlCrListData.length; i++) {
+                $scope.ControlCrListData[i].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridCDr").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.SaveControlDrData = function () {
+        if (baseService.isUndefinedOrNull($scope.GlManagementId)) {
+            return ShowResult('Please select GL Management!', 'failure');
+        }
+        for (var i = 0; i < $scope.ControlDrList.length; i++) {
+            for (var j = 0; j < $scope.ControlCrListData.length; j++) {
+                if ($scope.ControlCrListData[j].BudgetMasterActivityId == $scope.ControlDrList[i].BudgetMasterActivityIdDr) {
+                    if ($scope.ControlCrListData[j].CheckBoxSelect == false) {
+                        $scope.ControlDrList[i].CheckBoxSelect = false;
+                    }
+                }
+            }
+        }
+        $http({
+            method: 'POST',
+            url: $scope.saveDrCrUrl,
+            data: { 'data': $scope.ControlDrList, 'GlManagementId': $scope.GlManagementId, 'TabName': $scope.TabName },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetResponsiblePersonData($scope.GlManagementId);
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+    //#endregion Control Cr
+
 
     //#region Action By
     $scope.ActionByListData = [];
