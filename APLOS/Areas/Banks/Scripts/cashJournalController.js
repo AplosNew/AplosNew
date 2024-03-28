@@ -108,6 +108,17 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
         });
     });
 
+    $scope.approvedByList = [];
+    $scope.getCboApprovedByList = function () {
+        cboService.getAuthorizationConfigCbo('JournalApproveBy', function (result) {
+            $scope.approvedByList = result;
+            if ($scope.approvedByList.length == 1) {
+                $scope.voucher.ApprovedById = $scope.approvedByList[0].Id;
+            }
+        });
+    };
+    $scope.getCboApprovedByList();
+
     $scope.SelectedBudgetItem = function (id) {
         $scope.voucherDetail.BudgetName = $("#budgetid option:selected").text();
         $scope.voucherDetail.BudgetMasterId = id;

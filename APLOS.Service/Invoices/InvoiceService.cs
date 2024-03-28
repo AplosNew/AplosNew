@@ -2058,6 +2058,10 @@ namespace Library.Service.Invoices
                     var invoice = InsertInvoice(voucherVM);
 
                     // INSERT INTO Voucher TABLE
+                    if (voucherVM.ApprovedById != null)
+                    {
+                        voucherVM.ApprovedByStatus = "ToBeApproved";
+                    }
                     var voucher = _voucherService.InsertVoucher(voucherVM);
                     voucherVM.VoucherNo = voucher.VoucherNo;
                     // Set to Invoice
