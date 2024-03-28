@@ -111,6 +111,17 @@ function bankJournalController(bankService, accountService, cboService, commonMe
         $scope.entityList = result;
     });
 
+    $scope.approvedByList = [];
+    $scope.getCboApprovedByList = function () {
+        cboService.getAuthorizationConfigCbo('JournalApproveBy', function (result) {
+            $scope.approvedByList = result;
+            if ($scope.approvedByList.length == 1) {
+                $scope.voucher.ApprovedById = $scope.approvedByList[0].Id;
+            }
+        });
+    };
+    $scope.getCboApprovedByList();
+
     $scope.changeEntityForBankCash = function (entityId) {
         bankService.getBankMasterHouseBankCboListByEntity(entityId, function (result) {
             $scope.bankMasterList = result;
