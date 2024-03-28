@@ -77,6 +77,10 @@ namespace Aplos.Areas.Banks.Controllers
             voucherVM.PlantId = identity.PlantId;
             voucherVM.SourceType = SourceType.CashJournal.ToString();
             voucherVM.IsPark = true;
+            if (voucherVM.ApprovedById != null)
+            {
+                voucherVM.ApprovedByStatus = "ToBeApproved";
+            }
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _cashJournalService.InsertCashJournal(voucherVM, voucherDetailVMList)) });
         }
 

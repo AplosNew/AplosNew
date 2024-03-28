@@ -154,6 +154,17 @@
             </div>
         </div>
     </div>
+    <div class="col-xs-12 col-sm-3 col-md-3">
+        <div class="form-group" ng-show="approvedByList.length">
+            <label class="col-sm-3 control-label">Approved By<sup>*</sup></label>
+            <div class="col-sm-9">
+                <div class="select-style" style="font-size:smaller">
+                    <select name="ApprovedById" id="ApprovedById" ng-model="voucher.ApprovedById" class="form-control"
+                            ng-options="item.Id as item.Value for item in approvedByList" tabindex="6"></select>
+                </div>
+            </div>
+        </div>
+    </div>
     @*<div class="col-xs-12 col-sm-3 col-md-3">
         <div class="form-group">
             <label class="col-sm-3 control-label">Reverse</label>

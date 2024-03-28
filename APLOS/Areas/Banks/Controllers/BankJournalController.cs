@@ -70,7 +70,11 @@ namespace Aplos.Areas.Banks.Controllers
             voucherVM.PlantId = identity.PlantId;
             voucherVM.SourceType = SourceType.BankJournal.ToString();
             voucherVM.IsPark = true;
-             if (voucherVM.BankJournalType == BankJournalType.CashExpense.ToString() && voucherDetailVMList == null)
+            if (voucherVM.ApprovedById != null)
+            {
+                voucherVM.ApprovedByStatus = "ToBeApproved";
+            }
+            if (voucherVM.BankJournalType == BankJournalType.CashExpense.ToString() && voucherDetailVMList == null)
                 throw new CustomException("Please select GL!");
             if (voucherVM.BankJournalType == BankJournalType.BankCharge.ToString() && bankChargeDetailVMList == null)
                 throw new CustomException("Please select GL!");
