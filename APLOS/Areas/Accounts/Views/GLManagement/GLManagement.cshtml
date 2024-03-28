@@ -81,7 +81,7 @@
                 <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);GetPositionCodeData();" href="" aria-controls="general" role="tab" data-toggle="tab">Position Code</a></li>
                 <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);GetBudgetCodeData();" href="" aria-controls="general" role="tab" data-toggle="tab">Budget Code</a></li>
                 <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5);getPopUpData();" href="" aria-controls="general" role="tab" data-toggle="tab">Employee</a></li>
-                <li role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6);GetControlDrData();" href="" aria-controls="general" role="tab" data-toggle="tab">Control Dr/Control Cr</a></li>
+                <li role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6);GetControlDrData('ControlDr');" href="" aria-controls="general" role="tab" data-toggle="tab">Control Dr/Control Cr</a></li>
                 <li role="presentation" ng-class="{ active: isSet(7) }"><a ng-click="setTab(7);getActionByPopUpData();" href="" aria-controls="general" role="tab" data-toggle="tab">ActionBy</a></li>
                 <li role="presentation" ng-class="{ active: isSet(8) }"><a ng-click="setTab(8);getApproveByPopUpData();" href="" aria-controls="general" role="tab" data-toggle="tab">Approved By</a></li>
                 <li role="presentation" ng-class="{ active: isSet(9) }"><a ng-click="setTab(9);GetResponsiblePersonData();" href="" aria-controls="general" role="tab" data-toggle="tab">Responsible Person</a></li>
@@ -267,13 +267,13 @@
                 <div class="tab-design" id="tab_show">
                     <div class="site-tab">
                         <ul class="nav nav-tabs" role="tablist">
-                            <li role="presentation" ng-class="{ active: isSet2(10) }"><a ng-click="setTab2(10);GetControlDrData();" href="" aria-controls="general" role="tab" data-toggle="tab">{{titleTab1}}</a></li>
-                            <li role="presentation" ng-class="{ active: isSet2(11) }"><a ng-click="setTab2(11)" href="" aria-controls="general" role="tab" data-toggle="tab">{{titleTab}}</a></li>
+                            <li role="presentation" ng-class="{ active: isSet2(10) }"><a ng-click="setTab2(10);GetControlDrData('ControlDr')" href="" aria-controls="general" role="tab" data-toggle="tab">{{titleTab1}}</a></li>
+                            <li role="presentation" ng-class="{ active: isSet2(11) }"><a ng-click="setTab2(11);GetControlCrData('ControlCr');" href="" aria-controls="general" role="tab" data-toggle="tab">{{titleTab}}</a></li>
                         </ul>
                     </div>
                 </div>
                 <div class="tab-content">
-                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(10), active: isSet2(10) }">
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{'in':isSet2(10), active: isSet2(10)}">
                         <div class="row">
                             <div class="form-elements">
                                 <div class="common-btn">
@@ -288,9 +288,11 @@
                                                  e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateControlDr">
                                                 <div e-columns>
                                                     <div e-column e-headertext="" e-headertemplateid="#headerTemplateControlDr" e-template="#checkboxTemplateControlCr" e-textalign="center" e-width="30"></div>
-                                                    <div e-column e-field="GLGeneralInfoCode" e-headertext="GL General Info Code" e-width="80"></div>
-                                                    <div e-column e-field="BudgetCode" e-headertext="Budget Code" e-width="80"></div>
+                                                    <div e-column e-field="AccountGroupName" e-headertext="Account Group Name" e-width="80"></div>
+                                                    <div e-column e-field="GLGeneralInfoName" e-headertext="GL General Info Name" e-width="80"></div>
                                                     <div e-column e-field="BudgetName" e-headertext="Budget Name" e-width="80"></div>
+                                                    <div e-column e-field="ActivityName" e-headertext="Activity Name" e-width="80"></div>
+                                                    <div e-column e-field="RefNo" e-headertext="RefNo" e-width="80"></div>
                                                 </div>
                                             </div>
                                             <script type="text/x-jsrender" id="headerTemplateControlDr">
@@ -317,16 +319,18 @@
                                     <div class="modal-body">
                                         <div class="content-container-fluid" style="color:black;">
                                             <div style="color:black;" id="GridCCr" ej-grid e-datasource="ControlCrListData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                                                 e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateControlDr">
+                                                 e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateControlCr">
                                                 <div e-columns>
-                                                    <div e-column e-headertext="" e-headertemplateid="#headerTemplateControlDr" e-template="#checkboxTemplateControlCr" e-textalign="center" e-width="30"></div>
-                                                    <div e-column e-field="GLGeneralInfoCode" e-headertext="GL General Info Code" e-width="80"></div>
-                                                    <div e-column e-field="BudgetCode" e-headertext="Budget Code" e-width="80"></div>
+                                                    <div e-column e-headertext="" e-headertemplateid="#headerTemplateControlCr" e-template="#checkboxTemplateControlCr" e-textalign="center" e-width="30"></div>
+                                                    <div e-column e-field="AccountGroupName" e-headertext="Account Group Name" e-width="80"></div>
+                                                    <div e-column e-field="GLGeneralInfoName" e-headertext="GL General Info Name" e-width="80"></div>
                                                     <div e-column e-field="BudgetName" e-headertext="Budget Name" e-width="80"></div>
+                                                    <div e-column e-field="ActivityName" e-headertext="Activity Name" e-width="80"></div>
+                                                    <div e-column e-field="RefNo" e-headertext="RefNo" e-width="80"></div>
                                                 </div>
                                             </div>
-                                            <script type="text/x-jsrender" id="headerTemplateControlDr">
-                                                <input type="checkbox" id="CDrheadchk" />
+                                            <script type="text/x-jsrender" id="headerTemplateControlCr">
+                                                <input type="checkbox" id="CCrheadchk" />
                                             </script>
                                             <script type="text/template" id="checkboxTemplateControlCr">
                                                 <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />

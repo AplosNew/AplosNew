@@ -662,7 +662,7 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td colspan="2"></td>
+                                        <td colspan="4"></td>
                                         <td class="text-right">
                                             <label ng-class="{'control-label redClr text-right':x.SOQty != x.TotalQty, 'control-label text-right': x.SOQty == x.TotalQty}">
                                                 {{itemList | sumByKey : 'TotalQty'|number:2}}
@@ -679,7 +679,7 @@
                                                 {{itemList | sumByKey : 'TotalAmount'|number:2}}
                                             </label>
                                         </td>
-                                        <td colspan="26"></td>
+                                        <td colspan="27"></td>
                                         <td class="text-center">
                                             <button ng-click="addNewItem();" ng-disabled="fileNew.Id===null" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> Add Line Item</button>
                                         </td>
