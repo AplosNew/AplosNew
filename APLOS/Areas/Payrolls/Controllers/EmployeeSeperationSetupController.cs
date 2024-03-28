@@ -411,6 +411,182 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetProcessParameterList(string masterId)
+        {
+
+            string sql = @"SELECT N.* FROM [dbo].[EmployeeSeperationItem] N Where EmployeeSeperationSetupId='" + masterId + "' Order By N.Sequence";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetHeaderItemCbo(string id, string masterId)
+        {
+            return Json(_sqlRepository.GetDataCollection("SELECT Id AS Value, UserName AS Text FROM [dbo].[EmployeeSeperationItem] WHERE Id<>'" + id + "' AND EmployeeSeperationSetupId='" + masterId + "'"), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult CreateSeperationItem(Dictionary<string, object> data, List<Dictionary<string, object>> details)
+        {
+            try
+            {
+                SaveSeperationItemData(data, details);
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
+
+        private void SaveSeperationItemData(Dictionary<string, object> data, List<Dictionary<string, object>> details)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            try
+            {
+                if (data != null)
+                {
+                    string _Id = "";
+
+                    DataSet dsMaster, dsDestination = null;
+                    DataRow drF;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                    con.OpenDataSetThroughAdapter("select * from EmployeeSeperationItem where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "' AND EmployeeSeperationSetupId='" + data["EmployeeSeperationSetupId"] + "'", out dsMaster, false, "1");
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                        throw new Exception("UserName already exists!!!");
+
+
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.EmployeeSeperationItem WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.FormulaDetail Where EmployeeSeperationItemId='" + data["Id"] + "'", out dsDestination, false, "1");
+
+                    if (data["EntryState"].ToString() == "Entry")
+                    {
+                        data["Formula"] = DBNull.Value;
+                        data["FormulaId"] = DBNull.Value;
+
+
+                        while (dsDestination.Tables[0].DefaultView.Count > 0)
+                            dsDestination.Tables[0].DefaultView[0].Delete();
+                    }
+
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmployeeSeperationItem", out _Id);
+
+                        data["Id"] = _Id;
+                        AddNewRow(dsMaster.Tables[0], data);
+                    }
+                    else
+                    {
+                        _Id = data["Id"].ToString();
+                        EditRow(dsMaster.Tables[0].Rows[0], data);
+                    }
+
+                    string Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                    #region NoticePeriodFormulaDetail 
+
+                    if (data["EntryState"].ToString() == "Calculate")
+                    {
+                        while (dsDestination.Tables[0].DefaultView.Count > 0)
+                            dsDestination.Tables[0].DefaultView[0].Delete();
+                        int count = 0;
+                        if (details != null)
+                        {
+
+                            foreach (var item in details)
+                            {
+                                drF = dsDestination.Tables[0].NewRow();
+                                count++;
+                                string pk = _Id + "_" + count;
+                                drF["Id"] = pk;
+                                drF["EmployeeSeperationItemId"] = _Id;
+                                drF["Sequence"] = item["Sequence"];
+                                drF["EmployeeSeperationItemHeadId"] = item["EmployeeSeperationItemHeadId"];
+                                drF["Component"] = item["Component"];
+
+                                dsDestination.Tables[0].Rows.Add(drF);
+                            }
+
+                        }
+                    }
+                    #endregion NoticePeriodFormulaDetail 
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster, dsDestination);
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetSeperationItemAutoSequence(string masterId)
+        {
+            return Json(GetSeperationItemSequence(masterId), JsonRequestBehavior.AllowGet);
+        }
+        private double GetSeperationItemSequence(string masterId)
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  ISNULL(Max(Sequence),0) AS Sequence FROM dbo.EmployeeSeperationItem Where EmployeeSeperationSetupId='" + masterId + "'");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult DeleteEmployeeSeperationItem(string id)
+        {
+            DeleteEmployeeSeperationItemData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        public void DeleteEmployeeSeperationItemData(string SystemID)
+        {
+            string strSQL, strFSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "DELETE FROM dbo.EmployeeSeperationItem WHERE Id = '" + SystemID + "'";
+                strFSQL = "DELETE FROM dbo.FormulaDetail WHERE EmployeeSeperationItemId = '" + SystemID + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+
+                objCon.ExecuteNonQueryWrapper(strFSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    throw (ex);
+                }
+                catch (Exception exx)
+                {
+                    throw exx;
+                }
+            }
+            finally
+            {
+                objCon.CloseConnection();
+                objCon = null;
+            }
+        }//End of function
+
+
 
     }
 }
