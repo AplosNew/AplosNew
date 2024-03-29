@@ -219,7 +219,7 @@ LEFT JOIN(
 --		LEFT JOIN LeaveType t on t.Id=a.LeaveTypeID 
 --		where EmployeeId='" + EmpSystemId + @"' AND t.LeaveType='Earn' 
 --		order by fromdate desc
-select top(1) ISNULL(A.Opening,0) BroughtForward,A.EmployeeId,0 EncashedInbetween from dbo.AnnualLeaveDataPast A
+select top(1) BroughtForward=CASE WHEN A.Closing>A.CarryForward THEN A.Closing ELSE A.CarryForward END,A.EmployeeId,0 EncashedInbetween from dbo.AnnualLeaveDataPast A
 left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
 Where EmployeeId='" + EmpSystemId + @"' order by A.AddedDate desc
 ) S ON a.EmpSystemID=S.EmployeeId
