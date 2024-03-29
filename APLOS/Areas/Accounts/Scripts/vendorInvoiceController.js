@@ -333,6 +333,16 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         });
     };
     $scope.getBeneficiaryType();
+    $scope.approvedByList = [];
+    $scope.getCboApprovedByList = function () {
+        cboService.getAuthorizationConfigCbo('JournalApproveBy', function (result) {
+            $scope.approvedByList = result;
+            if ($scope.approvedByList.length == 1) {
+                $scope.voucher.ApprovedById = $scope.approvedByList[0].Id;
+            }
+        });
+    };
+    $scope.getCboApprovedByList();
     $scope.validation = function () {
         if ($scope.partyType === "Vendor") {
             if (baseService.isUndefinedOrNull($scope.voucher.PartyId)) {

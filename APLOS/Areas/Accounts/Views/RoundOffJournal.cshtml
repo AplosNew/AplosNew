@@ -129,8 +129,8 @@
                     <td>{{x.Budget}}</td>
                     <td>{{x.Activity}}</td>
                     <td>{{x.Particulars}}</td>
-                    <td><input type="text" class="form-control text-right" id="vdDrAmount" ng-model="x.DrAmount " ng-disabled="x.Particulars!='GL'" n-decimals="6" tabindex="11" ng-change="checkDrAmount($index)" autocomplete="off"></td>
-                    <td><input type="text" class="form-control text-right" id="vdCrAmount" ng-model="x.CrAmount " ng-disabled="x.Particulars!='GL'" n-decimals="6" tabindex="12" ng-change="checkCrAmount($index)" autocomplete="off"></td>
+                    <td><input type="text" class="form-control text-right" id="vdDrAmount" ng-model="x.DrAmount " ng-disabled="x.Particulars!='GL'" n-decimals="6" tabindex="11" ng-change="calculateTotalAmount()" autocomplete="off"></td>
+                    <td><input type="text" class="form-control text-right" id="vdCrAmount" ng-model="x.CrAmount " ng-disabled="x.Particulars!='GL'" n-decimals="6" tabindex="12" ng-change="calculateTotalAmount()" autocomplete="off"></td>
                     <td class="text-right">
                         <button ng-click="removeDetaillRow(x.Id,x.VoucherId,$index)" data-toggle="modal" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
                             <i class="glyphicon glyphicon-remove"></i>
@@ -141,8 +141,8 @@
             <tfoot>
                 <tr>
                     <td colspan="4" class="text-right">Total</td>
-                    <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'DrAmount' }}</b></td>
-                    <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'CrAmount' }}</b></td>
+                    <td class="text-right"><b><input type="text" class="form-control text-right" ng-model="totalDrAmount " disabled n-decimals="6"></b></td>
+                    <td class="text-right"><b><input type="text" class="form-control text-right" ng-model="totalCrAmount " disabled n-decimals="6"></b></td>
                     <td></td>
                 </tr>
             </tfoot>
@@ -197,7 +197,7 @@
                     <td>{{x.PostingDate | dateFiltering}}</td>
                     <td>{{x.DocRefNo}}</td>
                     <td>{{x.CurrencyCode}}</td>
-                    <td class="text-right">{{x.DrAmount | number:2}}</td>
+                    <td class="text-right">{{x.DrAmount | number:6}}</td>
                     <td>{{x.IsPark?'Parked':'Posted'}}</td>
                     <td class="text-right">
                         <ul class="list-inline action-list">

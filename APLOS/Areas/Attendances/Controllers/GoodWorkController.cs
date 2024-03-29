@@ -685,7 +685,7 @@ namespace Aplos.Areas.Attendances.Controllers
         public ActionResult GetWorkerAdvanceList()
         {
             string sql = @"select wa.Id,FORMAT(FromDate,'dd-MMM-yy')FromDate,FORMAT(ToDate,'dd-MMM-yy')ToDate,UserRef,wa.YearNo,wa.MonthNo
-						        ,wa.PayDaysType,wa.Remarks
+						        ,wa.PayDaysType,wa.Percentage,wa.Remarks
                                 ,ei.SystemId PreparedById,ei.EmployeeName PreparedBy
 						        ,ei2.SystemId CheckedById,ei2.EmployeeName CheckedBy
                                   from [dbo].[WorkerAdvance] wa
@@ -694,18 +694,31 @@ namespace Aplos.Areas.Attendances.Controllers
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public ActionResult GetWorkerAdvancePendingforApprovalList()
+        {
+            string sql = @"select wa.Id,FORMAT(FromDate,'dd-MMM-yy')FromDate,FORMAT(ToDate,'dd-MMM-yy')ToDate,UserRef,wa.YearNo,wa.MonthNo
+						        ,wa.PayDaysType,wa.Percentage,wa.Remarks
+                                ,ei.SystemId PreparedById,ei.EmployeeName PreparedBy
+						        ,ei2.SystemId CheckedById,ei2.EmployeeName CheckedBy
+                                from [dbo].[WorkerAdvance] wa
+                                LEFT JOIN dbo.EmployeeInformation AS ei ON ei.SystemId=wa.PreparedById
+                                LEFT JOIN dbo.EmployeeInformation AS ei2 ON ei2.SystemId=wa.CheckedById
+                                WHERE wa.ApprovedStatus IS NULL ";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
 
         public ActionResult GetWorkerAdvanceDetailCenter(string workAdvanceId)
         {
             string str = @"select ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,s.UserName Section,ss.UserName SubSection,wad.Id
-							,wa.Id workAdvanceId,d.UserName Department,wad.Minute,wad.Hour,wad.Rate,wad.Amount 
+							,wa.Id workAdvanceId,d.UserName Department,wad.Amount 
                             from [dbo].[WorkerAdvanceDetail] wad
                             left join [dbo].[WorkerAdvance] wa on wa.Id=wad.WorkerAdvanceId
                             left join EmployeeInformation ei on ei.SystemId=wad.EmpSystemId
                             left join org.Section AS s ON s.Id=ei.SectionId
                             left join org.SubSection AS ss ON ss.Id=ei.SubSectionId
                             left join org.Department d on d.Id=ei.DepartmentId
-                            
                             where wad.WorkerAdvanceId in ('" + workAdvanceId + "')";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
@@ -726,6 +739,27 @@ namespace Aplos.Areas.Attendances.Controllers
                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.AuthorityId 
                          where   E.EmployeeStatus='Active'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult ApproveWorkerAdvance(string workerAdvanceId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("UPDATE [dbo].[WorkerAdvance] SET ApprovedById='" + identity.EmployeeId + "' ,ApprovedStatus='Approved'  where Id='" + workerAdvanceId + "' ");
+                con.CommitTransaction();
+
+                return Json(new { Message = "Approved Successfully." });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+            
         }
 
         [HttpPost]
@@ -751,11 +785,13 @@ namespace Aplos.Areas.Attendances.Controllers
                         genid.GenID("WorkerAdvance", out _Id);
                     }
                     data["Id"] = _Id;
+                    data["CheckedStatus"] = "Checked";
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
                     data["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                    data["CheckedStatus"] = "Checked";
                     EditRow(dsMaster.Tables[0].DefaultView[0].Row, data);
                 }
 
@@ -835,8 +871,9 @@ namespace Aplos.Areas.Attendances.Controllers
 						LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
 						LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
                         LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-                            where gwpa.FromDate between '" + fromDate + @"' and '" + toDate + @"' and gwpa.ToDate between '" + fromDate + @"' and '" + toDate + @"'
-                        and gwpa.PaymentSource='" + payDaysType + @"'";
+                        where gwpa.FromDate between '" + fromDate + @"' and '" + toDate + @"' and gwpa.ToDate between '" + fromDate + @"' and '" + toDate + @"'
+                        and gwpa.PaymentSource='" + payDaysType + @"'
+                        and gwpa.Id not in(select GoodWorkPaymentAdviseId from [dbo].[WorkerAdvanceDetail]) ";
             }
             catch (Exception ex)
             {

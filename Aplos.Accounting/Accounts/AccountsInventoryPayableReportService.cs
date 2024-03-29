@@ -3341,62 +3341,152 @@ namespace Library.Accounting.Accounts
                 int endXlsCol = 1;
 
                 #region Lunch Out
-                IWorksheet sheet1 = null;
-                sheet1 = workbook.Worksheets[0];
+                IWorksheet sheet = null;
+                sheet = workbook.Worksheets[0];
                 IWorksheet sheetSource = null;
                 sheetSource = workbook.Worksheets[1];
                 xlsRow = 1;
-
+                DataTable dtData = GetBudgetMasterActivityData();
                 #region ------------------Column Header------------------
 
-
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Budget ControlId"); int colBCId = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetMasterActivityId"); int colCId = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IsLinear"); int colIsLinear = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Current Value"); int colCurrentValue = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Last Value"); int colLastValue = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "UoMId"); int colUoMId = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ResponsiblePersonId"); int colResponsiblePersonId = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ActionById"); int colActionById = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remark"); int colRemark = xlsCol;
+                sheet[xlsRow, xlsCol].Text = "Budget Group Seq"; sheet[xlsRow, xlsCol].ColumnWidth = 18; int colBG = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "Budget Group"; sheet[xlsRow, xlsCol].ColumnWidth = 15; int colBGU = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "Budget Category Seq"; sheet[xlsRow, xlsCol].ColumnWidth = 21; int colBC = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "Budget Category"; sheet[xlsRow, xlsCol].ColumnWidth = 30; int colBCU = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "Budget SubCategory Seq"; sheet[xlsRow, xlsCol].ColumnWidth = 25; int colBSC = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "Budget SubCategory"; sheet[xlsRow, xlsCol].ColumnWidth = 25; int colBSCU = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "Budget Seq"; sheet[xlsRow, xlsCol].ColumnWidth = 12; int colB = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "Budget"; sheet[xlsRow, xlsCol].ColumnWidth = 25; int colBU = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "BudgetMasterId"; sheet[xlsRow, xlsCol].ColumnWidth = 16; int colBM = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "ActivityId"; sheet[xlsRow, xlsCol].ColumnWidth = 10; int colA = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "ControlId"; sheet[xlsRow, xlsCol].ColumnWidth = 10; int colBMA = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "User Group"; sheet[xlsRow, xlsCol].ColumnWidth = 15; int colUG = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "User Category"; sheet[xlsRow, xlsCol].ColumnWidth = 25; int colUC = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "User SubCategory"; sheet[xlsRow, xlsCol].ColumnWidth = 25; int colUSC = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "User Item"; sheet[xlsRow, xlsCol].ColumnWidth = 25; int colUI = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "User Report"; sheet[xlsRow, xlsCol].ColumnWidth = 12; int colUR = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "IsLinear"; sheet[xlsRow, xlsCol].ColumnWidth = 15; int colIL = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "Current Value"; sheet[xlsRow, xlsCol].ColumnWidth = 15; int colCV = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "Last Value"; sheet[xlsRow, xlsCol].ColumnWidth = 15; int colLV = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "UoMId"; sheet[xlsRow, xlsCol].ColumnWidth = 15; int colUOM = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "ResponsiblePersonId"; sheet[xlsRow, xlsCol].ColumnWidth = 21; int colRP = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "ActionById"; sheet[xlsRow, xlsCol].ColumnWidth = 15; int colAC = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "Remarks"; sheet[xlsRow, xlsCol].ColumnWidth = 15; int colR = xlsCol; xlsCol++;
 
                 endXlsCol = xlsCol;
 
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
 
                 xlsRow++;
 
                 #endregion ------------------Column Header------------------
 
 
+                for (int i = 0; i < dtData.Rows.Count; i++)
+                {
+                    sheet[xlsRow, colBG].Text = dtData.Rows[i]["BudgetGroupSequence"].ToString();
+                    sheet.Range[xlsRow, colBG].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colBG].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colBGU].Text = dtData.Rows[i]["BudgetGroup"].ToString();
+                    sheet.Range[xlsRow, colBGU].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colBGU].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colBC].Text = dtData.Rows[i]["BudgetCategorySequence"].ToString();
+                    sheet.Range[xlsRow, colBC].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colBC].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colBCU].Text = dtData.Rows[i]["BudgetCategory"].ToString();
+                    sheet.Range[xlsRow, colBCU].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colBCU].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colBSC].Text = dtData.Rows[i]["BudgetSubCategorySequence"].ToString();
+                    sheet.Range[xlsRow, colBSC].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colBSC].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colBSCU].Text = dtData.Rows[i]["BudgetSubCategory"].ToString();
+                    sheet.Range[xlsRow, colBSCU].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colBSCU].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colB].Text = dtData.Rows[i]["BudgetSequence"].ToString();
+                    sheet.Range[xlsRow, colB].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colB].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colBU].Text = dtData.Rows[i]["Budget"].ToString();
+                    sheet.Range[xlsRow, colBU].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colBU].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colBM].Text = dtData.Rows[i]["BudgetMasterId"].ToString();
+                    sheet.Range[xlsRow, colBM].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colBM].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colA].Text = dtData.Rows[i]["ActivityId"].ToString();
+                    sheet.Range[xlsRow, colA].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colA].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colBMA].Text = dtData.Rows[i]["BudgetMasterActivityId"].ToString();
+                    sheet.Range[xlsRow, colBMA].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colBMA].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colUG].Text = dtData.Rows[i]["UserGroup"].ToString();
+                    sheet.Range[xlsRow, colUG].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colUG].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colUC].Text = dtData.Rows[i]["UserCategory"].ToString();
+                    sheet.Range[xlsRow, colUC].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colUC].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colUSC].Text = dtData.Rows[i]["UserSubCategory"].ToString();
+                    sheet.Range[xlsRow, colUSC].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colUSC].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colUI].Text = dtData.Rows[i]["UserItem"].ToString();
+                    sheet.Range[xlsRow, colUI].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colUI].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colUR].Text = dtData.Rows[i]["UserReport"].ToString();
+                    sheet.Range[xlsRow, colUR].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colUR].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colIL].Text = dtData.Rows[i]["IsLinear"].ToString();
+                    sheet.Range[xlsRow, colIL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colIL].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colCV].Text = dtData.Rows[i]["CurrentValue"].ToString();
+                    sheet.Range[xlsRow, colCV].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colCV].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colLV].Text = dtData.Rows[i]["LastValue"].ToString();
+                    sheet.Range[xlsRow, colLV].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colLV].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colUOM].Text = dtData.Rows[i]["UoMId"].ToString();
+                    sheet.Range[xlsRow, colUOM].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colUOM].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colRP].Text = dtData.Rows[i]["ResponsiblePersonId"].ToString();
+                    sheet.Range[xlsRow, colRP].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colRP].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colAC].Text = dtData.Rows[i]["ActionById"].ToString();
+                    sheet.Range[xlsRow, colAC].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colAC].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colR].Text = dtData.Rows[i]["Remarks"].ToString();
+                    sheet.Range[xlsRow, colR].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colR].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    xlsRow++;
+                }
+              
                 #region UsedRange Alignment
 
-                sheet1.UsedRange.WrapText = true;
-                sheet1.UsedRange.CellStyle.Font.Size = 10;
-                sheet1.Range["A1"].CellStyle.Font.Size = 10;
-                sheet1.Range["A2"].CellStyle.Font.Size = 10;
-                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.CellStyle.Font.Size = 10;
+                sheet.Range["A1"].CellStyle.Font.Size = 10;
+                sheet.Range["A2"].CellStyle.Font.Size = 10;
+                sheet.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
 
                 #endregion UsedRange Alignment
 
                 #region Page Setup
-                sheet1.PageSetup.TopMargin = 0.5;
-                sheet1.PageSetup.BottomMargin = 0.7;
-                sheet1.PageSetup.PrintTitleRows = "$1:$5";
-                sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
-                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + Name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
-                sheet1.PageSetup.LeftMargin = 0.5;
-                sheet1.PageSetup.RightMargin = 0.2;
-                sheet1.PageSetup.Orientation = ExcelPageOrientation.Landscape;
-                sheet1.PageSetup.FitToPagesTall = 0;
-                sheet1.PageSetup.FitToPagesWide = 1;
-                sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
-                sheet1.IsDisplayZeros = false;
-                sheet1.Name = "Sheet1";
+                sheet.PageSetup.TopMargin = 0.5;
+                sheet.PageSetup.BottomMargin = 0.7;
+                sheet.PageSetup.PrintTitleRows = "$1:$5";
+                sheet.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + Name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                sheet.PageSetup.LeftMargin = 0.5;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.IsDisplayZeros = false;
+                sheet.Name = "Sheet1";
                 #endregion Page Setup
 
                 #endregion  Lunch Out
@@ -3408,6 +3498,26 @@ namespace Library.Accounting.Accounts
                 throw ex;
             }
         }
+
+        public DataTable GetBudgetMasterActivityData()
+        {
+            var cmdText = @"Select NULL Id,BG.Sequence BudgetGroupSequence,BG.UserName BudgetGroup,BC.Sequence BudgetCategorySequence
+,BC.UserName BudgetCategory,BSC.Sequence BudgetSubCategorySequence,BSC.UserName BudgetSubCategory
+,B.Sequence BudgetSequence,B.UserName Budget,BMA.BudgetMasterId,BMA.ActivityId,BMA.Id BudgetMasterActivityId
+,BMA.UserGroup,BMA.UserCategory,BMA.UserSubCategory,BMA.UserItem,BMA.UserReport,0 IsLinear,0 CurrentValue,0 LastValue,NULL UoMId
+,NULL ResponsiblePersonId,NULL ActionById,NULL Remarks
+FROM MST.BudgetMasterActivity BMA
+LEFT JOIN MST.BudgetMaster BM ON BM.Id=BMA.BudgetMasterId
+LEFT JOIN HKP.BudgetGroup BG ON BG.Id=BM.BudgetGroupId
+LEFT JOIN HKP.BudgetCategory BC ON BC.Id=BM.BudgetCategoryId
+LEFT JOIN HKP.BudgetSubCategory BSC ON BSC.Id=BM.BudgetSubCategoryId
+LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
+Order  by B.UserName";
+            return _sqlRepository.GetDataTable(cmdText);
+
+
+        }
+
         #endregion
     }
 }

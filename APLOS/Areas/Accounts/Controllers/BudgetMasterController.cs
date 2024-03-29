@@ -705,15 +705,15 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=B.ApproveById) AS TEMP WHERE "
                             {
                                 BudgetControlChildTemplate vm = new BudgetControlChildTemplate();
 
-                                vm.BudgetControlId = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
-                                vm.BudgetMasterActivityId = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
-                                vm.IsLinear = dsExcel.Tables[0].Rows[i][2].ToString();
-                                vm.CurrentValue =Convert.ToDecimal(dsExcel.Tables[0].Rows[i][3].ToString().Trim());
-                                vm.LastValue = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][4].ToString().Trim());
-                                vm.UoMId = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
-                                vm.ResponsiblePersonId = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
-                                vm.ActionById = dsExcel.Tables[0].Rows[i][7].ToString().Trim();
-                                vm.Remarks = dsExcel.Tables[0].Rows[i][8].ToString().Trim();
+                                
+                                vm.BudgetMasterActivityId = dsExcel.Tables[0].Rows[i][10].ToString().Trim();
+                                vm.IsLinear = dsExcel.Tables[0].Rows[i][16].ToString();
+                                vm.CurrentValue =Convert.ToDecimal(dsExcel.Tables[0].Rows[i][17].ToString().Trim());
+                                vm.LastValue = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][18].ToString().Trim());
+                                vm.UoMId = dsExcel.Tables[0].Rows[i][19].ToString().Trim();
+                                vm.ResponsiblePersonId = dsExcel.Tables[0].Rows[i][20].ToString().Trim();
+                                vm.ActionById = dsExcel.Tables[0].Rows[i][21].ToString().Trim();
+                                vm.Remarks = dsExcel.Tables[0].Rows[i][22].ToString().Trim();
                                
                                 data.Add(vm);
 

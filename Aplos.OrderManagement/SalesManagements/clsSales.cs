@@ -5107,6 +5107,26 @@ order by SAI.SalesId";
 			}
 		}
 		#endregion
+
+		public IEnumerable<object> GetPartyAdditionalInfoDataList(string partyId)
+		{
+			try
+			{
+				string sql = @"SELECT Flag=CAST(CASE WHEN SA.Id IS NULL THEN 0 ELSE 1 END AS bit),A.UserName,SA.Id,SA.LineItemId
+,A.Id AdditionalInfoId,SA.Value,SA.Remarks,A.CharecterType,'' CharType,''datepic
+FROM [HKP].[AdditionalInfo] A
+OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.Id AND PartyId='" + partyId + @"') SA
+Where A.Category='Party'
+Order By A.sequence";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+
 	}
 
 

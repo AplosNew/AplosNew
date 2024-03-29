@@ -225,6 +225,10 @@ function BudgetControlController(commonMessage, $scope, $rootScope, baseService,
             if ($scope.ModelNew.MonthNo != $scope._ToDate) {
                 throw "Select From Date by selected month.";
             }
+            if ($scope.ModelNew.BudgetedDays > $scope.ModelNew.WorkingDays) {
+                throw "Budgeted Days cann't greater than Working Days";
+            }
+
             $scope.$broadcast('show-errors-check-validity');
             if ($scope.ModelNewForm.$valid) {
                 $http({
@@ -240,7 +244,7 @@ function BudgetControlController(commonMessage, $scope, $rootScope, baseService,
                         ShowResult(response.data.Message, 'success');
                         ClearFields();
                         $scope.getData();
-
+                        $scope.BudgetControlChildList = [];
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -283,6 +287,7 @@ function BudgetControlController(commonMessage, $scope, $rootScope, baseService,
     function ClearFields() {
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+        $scope.BudgetControlChildList = [];
     }
 
     $scope.GetSampleFile = function () {

@@ -87,7 +87,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         #region Journal
 
-        [HttpGet, Authorize]
+        [HttpGet]
         public ActionResult Journal()
         {
             return View("~/Areas/Accounts/Views/Journal.cshtml");
@@ -144,7 +144,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = AplosMessage.Posted });
         }
 
-
+        [HttpGet, Authorize]
         public JsonResult GetJournalVoucherList(GridParameter parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

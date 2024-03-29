@@ -1420,6 +1420,7 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
         $scope.partyPlants = [];
         $scope.companyPartyList = [];
         $scope.getVendorCompanyDataNew();
+        $scope.PartyAdditionalInfoDataList = [];
     }
     // #endregion
 
@@ -1999,5 +2000,41 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
 
     // #endregion
 
+    $scope.PartyAdditionalInfoDataList = [];
+    $scope.GetPartyAdditionalInfoDataList = function () {
 
+        $http({
+            method: 'GET',
+            url: 'Productions/PackingInvoice/GetPartyAdditionalInfoDataList?partyId=' + $scope.party.Id
+        }).then(function successCallback(response) {
+            $scope.PartyAdditionalInfoDataList = response.data;
+        });
+    }
+
+    $scope.SaveAddInfo = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: 'Productions/PackingInvoice/CreatePartyAdditionalInfo',
+                data: {
+                    'data': $scope.PartyAdditionalInfoDataList
+                    , 'partyId': $scope.party.Id
+                },
+                dataType: 'JSON'
+                , contentType: "application/json charset=utf-8"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetPartyAdditionalInfoDataList();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
 }

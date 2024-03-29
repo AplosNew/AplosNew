@@ -48,13 +48,13 @@ namespace Aplos.Areas.Banks.Controllers
             return View("~/Areas/Banks/Views/CurrentFundPosition.cshtml");
         }
 
-        [HttpGet, Authorize]
+        [HttpGet]
         public ActionResult BankJournal()
         {
             return View("~/Areas/Banks/Views/BankJournal.cshtml");
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public JsonResult GetBankJournalList(GridParameter parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -70,7 +70,11 @@ namespace Aplos.Areas.Banks.Controllers
             voucherVM.PlantId = identity.PlantId;
             voucherVM.SourceType = SourceType.BankJournal.ToString();
             voucherVM.IsPark = true;
-             if (voucherVM.BankJournalType == BankJournalType.CashExpense.ToString() && voucherDetailVMList == null)
+            if (voucherVM.ApprovedById != null)
+            {
+                voucherVM.ApprovedByStatus = "ToBeApproved";
+            }
+            if (voucherVM.BankJournalType == BankJournalType.CashExpense.ToString() && voucherDetailVMList == null)
                 throw new CustomException("Please select GL!");
             if (voucherVM.BankJournalType == BankJournalType.BankCharge.ToString() && bankChargeDetailVMList == null)
                 throw new CustomException("Please select GL!");
@@ -403,7 +407,6 @@ namespace Aplos.Areas.Banks.Controllers
             }
 
         }
-
 
         //Current Fund Position end//
     }

@@ -1,85 +1,90 @@
 ﻿<togglable name="{{title}}"></togglable>
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
-    <input type="hidden" ng-model="ModelNew.Id">
-    <div class="col-xs-12 col-sm-6 col-md-6">
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="ModelNew.Sequence" e-width="100" required />
+    <div class="form-elements form-horizontal" ng-form name="ModelNewForm2">
+
+        <input type="hidden" ng-model="ModelNew.Id">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="ModelNew.Sequence" e-width="100" required />
+                    @*<input type="text" n-decimals="2" name="Sequence" ng-model="ModelNew.Sequence" class="form-control text-right" required>*@
+
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Short Name" ng-model="ModelNew.ShortName" class="form-control" maxlength="15" required tabindex="3">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">User Defined Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Description</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="3" ng-model="ModelNew.Description" tabindex="7" maxlength="250"></textarea>
+                </div>
             </div>
         </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Short Name" ng-model="ModelNew.ShortName" class="form-control" maxlength="15" required tabindex="3">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required tabindex="2" maxlength="10">
+                </div>
             </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">User Defined Name<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
+                </div>
             </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Description</label>
-            <div class="col-sm-8">
-                <textarea class="form-control" rows="3" ng-model="ModelNew.Description" tabindex="7" maxlength="250"></textarea>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                </div>
             </div>
-        </div>
-    </div>
-    <div class="col-xs-12 col-sm-6 col-md-6">
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required tabindex="2" maxlength="10">
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Remarks</label>
-            <div class="col-sm-8">
-                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Active</label>
-            <div class="col-sm-8">
-                <div class="checkbox-site">
-                    <label>
-                        <input type="checkbox" ng-model="ModelNew.Active" tabindex="8">
-                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                    </label>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Active</label>
+                <div class="col-sm-8">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="ModelNew.Active" tabindex="8">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+
                 </div>
 
             </div>
-
         </div>
-    </div>
-    <div class="common-btn">
-        <ul class="list-inline text-right">
-            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-        </ul>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
     </div>
 
     <div class="tab-design" id="tab_show">
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Employee Category</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Designation</a></li>
-                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="general" role="tab" data-toggle="tab">Position Code</a></li>
-                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="general" role="tab" data-toggle="tab">Budget Code</a></li>
-                <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="general" role="tab" data-toggle="tab">Employee</a></li>
-                <li role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6)" href="" aria-controls="general" role="tab" data-toggle="tab">Control Dr/Control Cr</a></li>
-                <li role="presentation" ng-class="{ active: isSet(7) }"><a ng-click="setTab(7)" href="" aria-controls="general" role="tab" data-toggle="tab">ActionBy</a></li>
-                <li role="presentation" ng-class="{ active: isSet(8) }"><a ng-click="setTab(8)" href="" aria-controls="general" role="tab" data-toggle="tab">Approved By</a></li>
-                <li role="presentation" ng-class="{ active: isSet(9) }"><a ng-click="setTab(9)" href="" aria-controls="general" role="tab" data-toggle="tab">Responsible Person</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);GetDesignationData();" href="" aria-controls="general" role="tab" data-toggle="tab">Designation</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);GetPositionCodeData();" href="" aria-controls="general" role="tab" data-toggle="tab">Position Code</a></li>
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);GetBudgetCodeData();" href="" aria-controls="general" role="tab" data-toggle="tab">Budget Code</a></li>
+                <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5);getPopUpData();" href="" aria-controls="general" role="tab" data-toggle="tab">Employee</a></li>
+                <li role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6);GetControlDrData('ControlDr');" href="" aria-controls="general" role="tab" data-toggle="tab">Control Dr/Control Cr</a></li>
+                <li role="presentation" ng-class="{ active: isSet(7) }"><a ng-click="setTab(7);getActionByPopUpData();" href="" aria-controls="general" role="tab" data-toggle="tab">ActionBy</a></li>
+                <li role="presentation" ng-class="{ active: isSet(8) }"><a ng-click="setTab(8);getApproveByPopUpData();" href="" aria-controls="general" role="tab" data-toggle="tab">Approved By</a></li>
+                <li role="presentation" ng-class="{ active: isSet(9) }"><a ng-click="setTab(9);GetResponsiblePersonData();" href="" aria-controls="general" role="tab" data-toggle="tab">Responsible Person</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -96,7 +101,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-sm-2 show-message">
+                            <div class="col-sm-2">
                                 <div class="common-btn">
                                     <ul class="list-inline text-left">
                                         <li> <button ng-click="SaveEmployeeCategory();" class="btn" tabindex="9"><i class="fa fa-plus" style="font-size:18px"></i></button></li>
@@ -123,7 +128,7 @@
                                                 <ul class="list-inline action-list">
                                                     <li>
                                                         <button ng-click="RemoveEmployeeCategory(x)" class="btn-action tooltip-here" data-placement="top" title="Remove" tabindex="1011">
-                                                            <i class="glyphicon glyphicon-remove"></i>
+                                                            <i class="glyphicon glyphicon-trash"></i>
                                                         </button>
                                                     </li>
                                                 </ul>
@@ -186,93 +191,286 @@
                         </script>
                     </div>
                 </div>
-                <confirm-archive-generic modalid="confirmPCDeletePopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeletePositionCode();"></confirm-archive-generic>
+                <confirm-archive-generic modalid="confirmPCDeletePopUp" title="Confirmation" message={{message_PCconfirmation}} data-ng-click-right-button="DeletePositionCode();"></confirm-archive-generic>
             </div>
 
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
-                <div class="form-elements">
-                    <div class="col-xs-12 col-sm-6 col-md-6">
-                        <button ng-click="GetBudgetCodeInformation();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-plus">Budget Code</i></button>
-                    </div>
-                    <div class="col-xs-12 col-sm-12 col-md-12">
-                        <div id="GridEdit" ng-init="chkPC()" ej-grid e-datasource="BudgetCodeList" e-allowfiltering="true"
-                             e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                            <div e-columns>
-                                <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
-                                <div e-column e-field="Position" e-headertext="Position" e-width="4"></div>
-                                <div e-column e-headertext="Actions" e-template="#ShowActionButtonBC" e-width="1"></div>
+                <div class="row">
+                    <div class="form-elements">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <button ng-click="GetBudgetCodeInformation();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-plus">Budget Code</i></button>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div id="GridEdit" ng-init="chkPC()" ej-grid e-datasource="BudgetCodeList" e-allowfiltering="true"
+                                 e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                                <div e-columns>
+                                    <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+                                    <div e-column e-field="Position" e-headertext="Position" e-width="4"></div>
+                                    <div e-column e-headertext="Actions" e-template="#ShowActionButtonBC" e-width="1"></div>
+                                </div>
                             </div>
                         </div>
+                        <script type="text/template" id="ShowActionButtonBC">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeBudgetCode(this);" style="margin: -6px;"></i></button>
+                        </script>
                     </div>
-                    <script type="text/template" id="ShowActionButtonBC">
-                        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeBudgetCode(this);" style="margin: -6px;"></i></button>
-                    </script> 
                 </div>
-                <confirm-archive-generic modalid="confirmBCDeletePopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteBudgetCode();"></confirm-archive-generic>
+                <confirm-archive-generic modalid="confirmBCDeletePopUp" title="Confirmation" message={{message_BCconfirmation}} data-ng-click-right-button="DeleteBudgetCode();"></confirm-archive-generic>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
-                <div class="form-elements">
-                    <div class="col-xs-12 col-sm-6 col-md-6">
-                        <button ng-click="getPopUpData();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-plus">Employee</i></button>
-                    </div>
-                    <div class="col-xs-12 col-sm-12 col-md-12">
-                        <div id="GridEdit" ng-init="chkPC()" ej-grid e-datasource="EmployeeList" e-allowfiltering="true"
-                             e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                            <div e-columns>
-                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="3"></div>
-                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="4"></div>
-                                <div e-column e-headertext="Actions" e-template="#ShowActionButtonBC" e-width="1"></div>
-                            </div>
+                <div class="row">
+                    <div class="form-elements">
+                        @*<div class="col-xs-12 col-sm-6 col-md-6">
+                                <button ng-click="getPopUpData();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-plus">Employee</i></button>
+                            </div>*@
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="OKEmployee();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                            </ul>
                         </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="modal-body">
+                                <div class="content-container-fluid" style="color:black;">
+                                    <div style="color:black;" id="GridEmp" ej-grid e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                         e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateEmployee">
+                                        <div e-columns>
+                                            <div e-column e-headertext="" e-headertemplateid="#headerTemplateEmp" e-template="#checkboxTemplateEmp" e-textalign="center" e-width="30"></div>
+                                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                                        </div>
+                                    </div>
+                                    <script type="text/x-jsrender" id="headerTemplateEmp">
+                                        <input type="checkbox" id="Empheadchk" />
+                                    </script>
+                                    <script type="text/template" id="checkboxTemplateEmp">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+                                    </script>
+                                </div>
+                            </div>
+
+                        </div>
+                        <script type="text/template" id="ShowActionButtonBC">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeEmployee(this);" style="margin: -6px;"></i></button>
+                        </script>
                     </div>
-                    <script type="text/template" id="ShowActionButtonBC">
-                        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeEmployee(this);" style="margin: -6px;"></i></button>
-                    </script>
                 </div>
-                <confirm-archive-generic modalid="confirmEmpDeletePopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteEmployee();"></confirm-archive-generic>
+                <confirm-archive-generic modalid="confirmEmpDeletePopUp" title="Confirmation" message={{message_Empconfirmation}} data-ng-click-right-button="DeleteEmployee();"></confirm-archive-generic>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(6), active: isSet(6) }">
-                <div class="form-elements">
-                    <div class="col-xs-12 col-sm-6 col-md-6">
-                        <button ng-click="getPopUpData();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-plus">Employee</i></button>
+                <div class="tab-design" id="tab_show">
+                    <div class="site-tab">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" ng-class="{ active: isSet2(10) }"><a ng-click="setTab2(10);GetControlDrData('ControlDr')" href="" aria-controls="general" role="tab" data-toggle="tab">{{titleTab1}}</a></li>
+                            <li role="presentation" ng-class="{ active: isSet2(11) }"><a ng-click="setTab2(11);GetControlCrData('ControlCr');" href="" aria-controls="general" role="tab" data-toggle="tab">{{titleTab}}</a></li>
+                        </ul>
                     </div>
-                    <div class="col-xs-12 col-sm-12 col-md-12">
-                        <div id="GridEdit" ng-init="chkPC()" ej-grid e-datasource="EmployeeList" e-allowfiltering="true"
-                             e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                            <div e-columns>
-                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="3"></div>
-                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="4"></div>
-                                <div e-column e-headertext="Actions" e-template="#ShowActionButtonBC" e-width="1"></div>
+                </div>
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{'in':isSet2(10), active: isSet2(10)}">
+                        <div class="row">
+                            <div class="form-elements">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-right">
+                                        <li> <button ng-click="OKControlDr('ControlDr');" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                    </ul>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="modal-body">
+                                        <div class="content-container-fluid" style="color:black;">
+                                            <div style="color:black;" id="GridCDr" ej-grid e-datasource="ControlDrListData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                                 e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateControlDr">
+                                                <div e-columns>
+                                                    <div e-column e-headertext="" e-headertemplateid="#headerTemplateControlDr" e-template="#checkboxTemplateControlCr" e-textalign="center" e-width="30"></div>
+                                                    <div e-column e-field="AccountGroupName" e-headertext="Account Group Name" e-width="80"></div>
+                                                    <div e-column e-field="GLGeneralInfoName" e-headertext="GL General Info Name" e-width="80"></div>
+                                                    <div e-column e-field="BudgetName" e-headertext="Budget Name" e-width="80"></div>
+                                                    <div e-column e-field="ActivityName" e-headertext="Activity Name" e-width="80"></div>
+                                                    <div e-column e-field="RefNo" e-headertext="RefNo" e-width="80"></div>
+                                                </div>
+                                            </div>
+                                            <script type="text/x-jsrender" id="headerTemplateControlDr">
+                                                <input type="checkbox" id="CDrheadchk" />
+                                            </script>
+                                            <script type="text/template" id="checkboxTemplateControlCr">
+                                                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+                                            </script>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <script type="text/template" id="ShowActionButtonBC">
-                        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeEmployee(this);" style="margin: -6px;"></i></button>
-                    </script>
-                </div>
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(11), active: isSet2(11) }">
+                        <div class="row">
+                            <div class="form-elements">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-right">
+                                        <li> <button ng-click="OKControlCr('ControlCr');" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                    </ul>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="modal-body">
+                                        <div class="content-container-fluid" style="color:black;">
+                                            <div style="color:black;" id="GridCCr" ej-grid e-datasource="ControlCrListData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                                 e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateControlCr">
+                                                <div e-columns>
+                                                    <div e-column e-headertext="" e-headertemplateid="#headerTemplateControlCr" e-template="#checkboxTemplateControlCr" e-textalign="center" e-width="30"></div>
+                                                    <div e-column e-field="AccountGroupName" e-headertext="Account Group Name" e-width="80"></div>
+                                                    <div e-column e-field="GLGeneralInfoName" e-headertext="GL General Info Name" e-width="80"></div>
+                                                    <div e-column e-field="BudgetName" e-headertext="Budget Name" e-width="80"></div>
+                                                    <div e-column e-field="ActivityName" e-headertext="Activity Name" e-width="80"></div>
+                                                    <div e-column e-field="RefNo" e-headertext="RefNo" e-width="80"></div>
+                                                </div>
+                                            </div>
+                                            <script type="text/x-jsrender" id="headerTemplateControlCr">
+                                                <input type="checkbox" id="CCrheadchk" />
+                                            </script>
+                                            <script type="text/template" id="checkboxTemplateControlCr">
+                                                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+                                            </script>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
+                    </div>
+                </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(7), active: isSet(7) }">
+                <div class="row">
+                    <div class="form-elements">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="OKActionBy();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                            </ul>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="modal-body">
+                                <div class="content-container-fluid" style="color:black;">
+                                    <div style="color:black;" id="GridAB" ej-grid e-datasource="ActionByListData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                         e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateAB">
+                                        <div e-columns>
+                                            <div e-column e-headertext="" e-headertemplateid="#headerTemplateAB" e-template="#checkboxTemplateAB" e-textalign="center" e-width="30"></div>
+                                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                                        </div>
+                                    </div>
+                                    <script type="text/x-jsrender" id="headerTemplateAB">
+                                        <input type="checkbox" id="ABheadchk" />
+                                    </script>
+                                    <script type="text/template" id="checkboxTemplateAB">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+                                    </script>
+                                </div>
+                            </div>
 
+                        </div>
+                        <script type="text/template" id="ShowActionButtonBC">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeEmployee(this);" style="margin: -6px;"></i></button>
+                        </script>
+                    </div>
+                </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(8), active: isSet(8) }">
+                <div class="row">
+                    <div class="form-elements">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="OKApproveBy();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                            </ul>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="modal-body">
+                                <div class="content-container-fluid" style="color:black;">
+                                    <div style="color:black;" id="GridAPB" ej-grid e-datasource="ApproveByListData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                         e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateAPB">
+                                        <div e-columns>
+                                            <div e-column e-headertext="" e-headertemplateid="#headerTemplateAPB" e-template="#checkboxTemplateAPB" e-textalign="center" e-width="30"></div>
+                                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                                        </div>
+                                    </div>
+                                    <script type="text/x-jsrender" id="headerTemplateAPB">
+                                        <input type="checkbox" id="APBheadchk" />
+                                    </script>
+                                    <script type="text/template" id="checkboxTemplateAPB">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+                                    </script>
+                                </div>
+                            </div>
 
+                        </div>
+                        <script type="text/template" id="ShowActionButtonBC">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeEmployee(this);" style="margin: -6px;"></i></button>
+                        </script>
+                    </div>
+                </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(9), active: isSet(9) }">
-                <div class="form-elements">
-                    <div class="col-xs-12 col-sm-6 col-md-6">
-                        <button ng-click="GetResponsiblePersonInformation();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-plus">Responsible Person</i></button> 
-                     </div>
+                <div class="row">
+                    <div class="form-elements">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="OKResponsiblePerson();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                            </ul>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="modal-body">
+                                <div class="content-container-fluid" style="color:black;">
+                                    <div style="color:black;" id="GridRP" ej-grid e-datasource="ResponsiblePersonListData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                         e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateRP">
+                                        <div e-columns>
+                                            <div e-column e-headertext="" e-headertemplateid="#headerTemplateRP" e-template="#checkboxTemplateRP" e-textalign="center" e-width="30"></div>
+                                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                                        </div>
+                                    </div>
+                                    <script type="text/x-jsrender" id="headerTemplateRP">
+                                        <input type="checkbox" id="RPheadchk" />
+                                    </script>
+                                    <script type="text/template" id="checkboxTemplateRP">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+                                    </script>
+                                </div>
+                            </div>
 
-                 </div>
+                        </div>
+                        <script type="text/template" id="ShowActionButtonBC">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeEmployee(this);" style="margin: -6px;"></i></button>
+                        </script>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
- 
+
 <div class="modal fade site-modal in" id="LDPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -357,20 +555,6 @@
     </div>
 </div>
 
-@*<modal-table modalid="BudgetCodepopUpId"
-                 data-title={{BCpopUpTitle}}
-                 data-search-parameters="budgetpopUpParameters"
-                 data-exclued-column-list="Code"
-                 data-field-list="BudgetCodepopUpList"
-                 data-data-list="BudgetCodepopUpDataList"
-                 data-search-function="BudgetCodegetPopUpData"
-                 data-single-click="selectSingleClick(data)"
-                 data-double-click="selectDoubleClick(data)"
-                 data-right-button="true"
-                 data-left-button="true"
-                 data-ng-click-left-button="selectByButton()"
-                 data-ng-click-cancel="closePopUp()">
-    </modal-table>*@
 
 <div class="modal fade site-modal in" id="BudgetCodepopUpId" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
@@ -428,86 +612,86 @@
         </div>
     </div>
 </div>
-<div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                Employee List
-                <button type="button" class="close" ng-click="closeEmployeePopUp();">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="content-container-fluid" style="color:black;">
-                    <div style="color:black;" id="GridEmp" ej-grid e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                         e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateEmployee">
-                        <div e-columns>
-                            <div e-column e-headertext="" e-headertemplateid="#headerTemplateEmp" e-template="#checkboxTemplateEmp" e-textalign="center" e-width="30"></div>
-                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
-                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
-                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
-                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
-                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
-                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
-                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
-                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+@*<div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    Employee List
+                    <button type="button" class="close" ng-click="closeEmployeePopUp();">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="GridEmp" ej-grid e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateEmployee">
+                            <div e-columns>
+                                <div e-column e-headertext="" e-headertemplateid="#headerTemplateEmp" e-template="#checkboxTemplateEmp" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                                <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                                <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                                <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                            </div>
                         </div>
+                        <script type="text/x-jsrender" id="headerTemplateEmp">
+                            <input type="checkbox" id="Empheadchk" />
+                        </script>
+                        <script type="text/template" id="checkboxTemplateEmp">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+                        </script>
                     </div>
-                    <script type="text/x-jsrender" id="headerTemplateEmp">
-                        <input type="checkbox" id="Empheadchk" />
-                    </script>
-                    <script type="text/template" id="checkboxTemplateEmp">
-                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
-                    </script>
+                </div>
+                <div class="modal-footer common-btn">
+                    <ul class="list-inline text-right" ng-show="true">
+                        <li><button ng-click="OKEmployee();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Ok </button></li>
+                        <li><button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Close</button></li>
+                    </ul>
                 </div>
             </div>
-            <div class="modal-footer common-btn">
-                <ul class="list-inline text-right" ng-show="true">
-                    <li><button ng-click="OKEmployee();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Ok </button></li>
-                    <li><button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Close</button></li>
-                </ul>
-            </div>
         </div>
-    </div>
-</div>
-<div class="modal fade site-modal in" id="employeePopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                Responsible Person List
-                <button type="button" class="close" ng-click="closeRPPopUp();">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="content-container-fluid" style="color:black;">
-                    <div style="color:black;" id="GridResPer" ej-grid e-datasource="ResPersonDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                         e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateRP">
-                        <div e-columns>
-                            <div e-column e-headertext="" e-headertemplateid="#headerTemplateRP" e-template="#checkboxTemplateRP" e-textalign="center" e-width="30"></div>
-                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
-                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
-                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
-                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
-                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
-                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
-                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
-                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+    </div>*@
+@*<div class="modal fade site-modal in" id="employeePopUp" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    Responsible Person List
+                    <button type="button" class="close" ng-click="closeRPPopUp();">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="GridResPer" ej-grid e-datasource="ResPersonDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateRP">
+                            <div e-columns>
+                                <div e-column e-headertext="" e-headertemplateid="#headerTemplateRP" e-template="#checkboxTemplateRP" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                                <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                                <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                                <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                            </div>
                         </div>
+                        <script type="text/x-jsrender" id="headerTemplateRP">
+                            <input type="checkbox" id="RPheadchk" />
+                        </script>
+                        <script type="text/template" id="checkboxTemplateRP">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+                        </script>
                     </div>
-                    <script type="text/x-jsrender" id="headerTemplateRP">
-                        <input type="checkbox" id="RPheadchk" />
-                    </script>
-                    <script type="text/template" id="checkboxTemplateRP">
-                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
-                    </script>
+                </div>
+                <div class="modal-footer common-btn">
+                    <ul class="list-inline text-right" ng-show="true">
+                        <li><button ng-click="OKResponsiblePerson();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Ok </button></li>
+                        <li><button ng-click="closeRPPopUp();" class="btn"><i class=""></i> Close</button></li>
+                    </ul>
                 </div>
             </div>
-            <div class="modal-footer common-btn">
-                <ul class="list-inline text-right" ng-show="true">
-                    <li><button ng-click="OKResponsiblePerson();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Ok </button></li>
-                    <li><button ng-click="closeRPPopUp();" class="btn"><i class=""></i> Close</button></li>
-                </ul>
-            </div>
         </div>
-    </div>
-</div>
+    </div>*@
 
 
 <div class="row text-right aplos-grid-toggle">
@@ -562,86 +746,86 @@
 <confirm-modal></confirm-modal>
 
 <!-- #region Material Master -->
-<div class="modal fade site-modal in" id="popUpId" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content" ng-form name="materialgridCharacteristicsForm">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Material</h4>
-            </div>
-            <div class="modal-body">
-                <div class="row text-right">
-                    <div class="col-xs-12 col-sm-12 col-sm-12">
-                        <div class="search-form">
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-3 col-md-3">
-                                    <div class="select-style">
-                                        <select ng-model="popUpParameters.searchBy">
-                                            <option ng-repeat="option in searchbyMaterialMasterDatalist" value="{{option.value}}">{{option.name}}</option>
-                                        </select>
+@*<div class="modal fade site-modal in" id="popUpId" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" ng-form name="materialgridCharacteristicsForm">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Material</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="popUpParameters.searchBy">
+                                                <option ng-repeat="option in searchbyMaterialMasterDatalist" value="{{option.value}}">{{option.name}}</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search" ng-enter="getPopUpData()">
-                                </div>
-                                <div class="col-xs-12 col-sm-2 col-md-2">
-                                    <button type="button" ng-click="getPopUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search" ng-enter="getPopUpData()">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="getPopUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Material Type</th>
+                                    <th>Material Group</th>
+                                    <th>Product</th>
+                                    <th>Code</th>
+                                    <th>User Name</th>
+                                    <th>Standard Name</th>
+                                    <th>Short Name</th>
+                                    <th>IsAsset</th>
+                                    <th>Asset Master</th>
+                                    <th>Budget Code</th>
+                                    <th>Activity</th>
+                                    <th>Id</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr dir-paginate="x in popUpDataList|itemsPerPage:popUpParameters.pageSize" total-items="popUpParameters.total_count" ng-dblclick="selectDoubleClick(x);" ng-click="selectSingleClick(x);">
+                                    <td>{{x.MaterialTypeName}}</td>
+                                    <td>{{x.MaterialGroupMasterName}}</td>
+                                    <td>{{x.ProductMasterName}}</td>
+                                    <td>{{x.Code}}</td>
+                                    <td>{{x.UserName}}</td>
+                                    <td>{{x.StandardName}}</td>
+                                    <td>{{x.ShortName}}</td>
+                                    <td>{{x.IsAsset}}</td>
+                                    <td>{{x.AssetMasterName}}</td>
+                                    <td>{{x.AssetBudgetCode}}</td>
+                                    <td>{{x.ActivityName}}</td>
+                                    <td>{{x.Id}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <dir-pagination-controls max-size="10"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getPopUpData(newPageNumber)">
+                    </dir-pagination-controls>
                 </div>
-                <div class="table-responsive modal-table">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Material Type</th>
-                                <th>Material Group</th>
-                                <th>Product</th>
-                                <th>Code</th>
-                                <th>User Name</th>
-                                <th>Standard Name</th>
-                                <th>Short Name</th>
-                                <th>IsAsset</th>
-                                <th>Asset Master</th>
-                                <th>Budget Code</th>
-                                <th>Activity</th>
-                                <th>Id</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr dir-paginate="x in popUpDataList|itemsPerPage:popUpParameters.pageSize" total-items="popUpParameters.total_count" ng-dblclick="selectDoubleClick(x);" ng-click="selectSingleClick(x);">
-                                <td>{{x.MaterialTypeName}}</td>
-                                <td>{{x.MaterialGroupMasterName}}</td>
-                                <td>{{x.ProductMasterName}}</td>
-                                <td>{{x.Code}}</td>
-                                <td>{{x.UserName}}</td>
-                                <td>{{x.StandardName}}</td>
-                                <td>{{x.ShortName}}</td>
-                                <td>{{x.IsAsset}}</td>
-                                <td>{{x.AssetMasterName}}</td>
-                                <td>{{x.AssetBudgetCode}}</td>
-                                <td>{{x.ActivityName}}</td>
-                                <td>{{x.Id}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="modal-footer  common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button data-ng-click="selectByButton()" class="btn"><i class=""></i> Select</button></li>
+                        <li><button data-ng-click="closePopUp()" class="btn btn-default">Cancel</button></li>
+                    </ul>
                 </div>
-                <dir-pagination-controls max-size="10"
-                                         direction-links="true"
-                                         boundary-links="true"
-                                         on-page-change="getPopUpData(newPageNumber)">
-                </dir-pagination-controls>
-            </div>
-            <div class="modal-footer  common-btn">
-                <ul class="list-inline text-right">
-                    <li><button data-ng-click="selectByButton()" class="btn"><i class=""></i> Select</button></li>
-                    <li><button data-ng-click="closePopUp()" class="btn btn-default">Cancel</button></li>
-                </ul>
             </div>
         </div>
-    </div>
-</div>
+    </div>*@
 
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")
 <confirm-archive-generic data-modalid="confirmgenericPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="RemoveRow()"></confirm-archive-generic>

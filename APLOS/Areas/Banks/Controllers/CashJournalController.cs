@@ -36,7 +36,7 @@ namespace Aplos.Areas.Banks.Controllers
             _bankJournalService = bankJournalService;
         }
 
-        [Authorize, HttpGet]
+        [HttpGet]
         public ActionResult CashJournal()
         {
             return View("~/Areas/Banks/Views/CashJournal.cshtml");
@@ -54,7 +54,7 @@ namespace Aplos.Areas.Banks.Controllers
             return View("~/Areas/Banks/Views/EntityExpenseBookingApproval.cshtml");
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public JsonResult GetCashJournalList(GridParameter parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -77,6 +77,10 @@ namespace Aplos.Areas.Banks.Controllers
             voucherVM.PlantId = identity.PlantId;
             voucherVM.SourceType = SourceType.CashJournal.ToString();
             voucherVM.IsPark = true;
+            if (voucherVM.ApprovedById != null)
+            {
+                voucherVM.ApprovedByStatus = "ToBeApproved";
+            }
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _cashJournalService.InsertCashJournal(voucherVM, voucherDetailVMList)) });
         }
 
