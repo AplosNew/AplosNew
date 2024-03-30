@@ -59,6 +59,9 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         return $scope.tab === tabNum;
     };
 
+    cboService.getCboEntityByPlant(null, null, " ", function (result) {
+        $scope.entityList = result;
+    });
 
     $scope.ModelTemp = {
         Id: null,
@@ -306,7 +309,7 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         }
 
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.ModelNewForm.$valid) {
+        if ($scope.ModelNewForm) {
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
