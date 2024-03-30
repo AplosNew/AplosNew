@@ -149,8 +149,11 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet[ROW, COL].ColumnWidth = 10;
                 int ColTime = COL;
                 COL++;
-                
 
+                sheet[ROW, COL].Text = "Entity";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColEntity = COL;
+                COL++;
                 sheet[ROW, COL].Text = "Category";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int ColCategory = COL;
@@ -176,18 +179,20 @@ namespace Aplos.Areas.Materials.Controllers
                 int ColSubGroup = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Entity";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int ColEntity = COL;
-                COL++;
+               
 
-                sheet[ROW, COL].Text = "UOM";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int ColUOM = COL;
-                COL++;
+               
                 sheet[ROW, COL].Text = "PartyName";
                 sheet[ROW, COL].ColumnWidth = 20;
                 int ColPartyName = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Reading";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColReading = COL;
+                COL++;
+                sheet[ROW, COL].Text = "UOM";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColUOM = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Quantity";
                 sheet[ROW, COL].ColumnWidth = 15;
@@ -204,10 +209,7 @@ namespace Aplos.Areas.Materials.Controllers
                 int ColFinalQuantity = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Reading";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int ColReading = COL;
-                COL++;
+               
                 sheet[ROW, COL].Text = "EffectiveDate";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int ColEffectiveDate = COL;
