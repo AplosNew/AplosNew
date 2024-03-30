@@ -93,7 +93,7 @@ namespace Aplos.Areas.Materials.Controllers
                             left join HKP.UtilityGroup UG on UG.Id=UM.UtilityGroupId
 							left join org.Entity ET on ET.Id = UM.EntityId
 							left join [SCS].[UnitOfMeasurement] UOM on UOM.Id = UM.UoMId
-							left join UtilityDetail UD on UD.UtilityMasterId = UM.Id
+							left join UtilityDetail UD on UD.UtilityMasterId = UM.Id and UD.EffectiveDate between '" + FromDate + @"' and '" + ToDate + @"'
 							left join hkp.Party PT on PT.Id = UM.PartyId
 							left join EmployeeInformation RS on RS.SystemId = UM.ResponsiblePersonId
 							left join EmployeeInformation AD on AD.SystemId = UM.AdminId
@@ -149,8 +149,11 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet[ROW, COL].ColumnWidth = 10;
                 int ColTime = COL;
                 COL++;
-                
 
+                sheet[ROW, COL].Text = "Entity";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColEntity = COL;
+                COL++;
                 sheet[ROW, COL].Text = "Category";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int ColCategory = COL;
@@ -176,18 +179,20 @@ namespace Aplos.Areas.Materials.Controllers
                 int ColSubGroup = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Entity";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int ColEntity = COL;
-                COL++;
+               
 
-                sheet[ROW, COL].Text = "UOM";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int ColUOM = COL;
-                COL++;
+               
                 sheet[ROW, COL].Text = "PartyName";
                 sheet[ROW, COL].ColumnWidth = 20;
                 int ColPartyName = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Reading";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColReading = COL;
+                COL++;
+                sheet[ROW, COL].Text = "UOM";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColUOM = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Quantity";
                 sheet[ROW, COL].ColumnWidth = 15;
@@ -204,10 +209,7 @@ namespace Aplos.Areas.Materials.Controllers
                 int ColFinalQuantity = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Reading";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int ColReading = COL;
-                COL++;
+               
                 sheet[ROW, COL].Text = "EffectiveDate";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int ColEffectiveDate = COL;
