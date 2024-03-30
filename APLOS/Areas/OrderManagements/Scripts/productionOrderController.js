@@ -399,6 +399,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     $scope.model = Object.assign({}, $scope.model);
 
     $scope.DisableActionButtons = false;
+    $scope.pbookingmessage = null;
     $scope.Get = function (Row) {
         $scope.TotalSPT = 0;
         $scope.TotalWorkStation = 0;
@@ -432,6 +433,9 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         //$scope.GetBulletinTamplate2ndIndexReport(Row.data.Id);
 
         $scope.bulletintab = false;
+        if ($scope.model.UsedInPB) {
+            $scope.pbookingmessage = "Lot generation is not possible as Production is booked with this Production Order.";
+        }
 
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
@@ -787,6 +791,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         $scope.PicFileName = virtualPath.ProductionBulletinImage + '';
         $scope.productionFPWorkCenterList = [];
         $scope.lotControlList = [];
+        $scope.pbookingmessage = null;
     }
     $scope.Clear();
 

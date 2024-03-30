@@ -897,7 +897,7 @@
             </div>
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(6), active: isSet(6) }">
-            <div class="row" ng-form="tablcFrom" ng-show="model.IsPreDefineLotApplicable==true" >
+            <div class="row" ng-form="tablcFrom" ng-show="model.IsPreDefineLotApplicable==true">
                 <div class="col-xs-6 col-sm-6 col-md-6">
                     <div class="form-group">
                         <label class="col-sm-4 control-label">User LotNo</label>
@@ -905,7 +905,7 @@
                             <input type="text" name="UserDefineLotNo" ng-model="model.UserDefineLotNo" class="form-control" tabindex="5" maxlength="50">
                         </div>
                     </div>
-                   
+
                 </div>
                 <div class="col-xs-6 col-sm-6 col-md-6">
                     <div class="form-group">
@@ -916,8 +916,9 @@
                         </div>
                     </div>
                 </div>
+                <label class="col-sm-12 control-label">{{pbookingmessage}}</label>
                 <div class="col-xs-12">
-                    <div id="GridLC" ej-grid e-datasource="lotControlList" e-allowpaging="true"  e-enabletouch="false" e-responsive="true"e-allowselection="true" e-allowtextwrap="true">
+                    <div id="GridLC" ej-grid e-datasource="lotControlList" e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-allowselection="true" e-allowtextwrap="true">
                         <div e-columns>
                             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
                             <div e-column e-field="ProductionOrderId" e-headertext="PONo" e-width="3"></div>
@@ -944,10 +945,10 @@
                             </div>
                         </script>
                         @*<script type="text/template" id="UserLotNo">
-                            <div class="col-sm-12" style="padding:0px;">
-                                <input type="text" name="UserLotNo" ng-model="data.UserLotNo" class="form-control" maxlength="50">
-                            </div>
-                        </script>*@
+                    <div class="col-sm-12" style="padding:0px;">
+                        <input type="text" name="UserLotNo" ng-model="data.UserLotNo" class="form-control" maxlength="50">
+                    </div>
+                </script>*@
                         <script type="text/template" id="LCRemark">
                             <div class="col-sm-12" style="padding:0px;">
                                 <input type="text" name="Remark" ng-model="data.Remark" class="form-control" maxlength="250">
@@ -957,7 +958,7 @@
                 </div>
                 <div class="modal-footer common-btn">
                     <ul class="list-inline text-right">
-                        <li><button type="button" class="btn btn-default"  @*ng-disabled="model.UsedInPB==true"*@  ng-click="SaveLotControl();">Save</button></li>
+                        <li><button type="button" class="btn btn-default" @*ng-disabled="model.UsedInPB==true"*@ ng-click="SaveLotControl();">Save</button></li>
                     </ul>
                 </div>
             </div>
