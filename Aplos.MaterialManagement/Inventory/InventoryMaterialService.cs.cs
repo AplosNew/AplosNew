@@ -1517,7 +1517,7 @@ namespace Library.MaterialManagement.Inventory
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND IRD.MaterialStorageId='" + entity.MaterialStorageId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
-                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) AND IRD.Id NOT IN (SELECT InventoryReceiveDetailId FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL)
+                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) AND IRD.Id NOT IN (SELECT ISNULL(InventoryReceiveDetailId,'') FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL)
             UNION ALL
             SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.ShortageQty, 0)) - SUM(ISNULL(IIH.Qty, 0))-SUM(ISNULL(TIRD.TransferBaseQty,0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))),0 ApprovedQty, 0 UnApprovedQty
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
@@ -1543,7 +1543,7 @@ namespace Library.MaterialManagement.Inventory
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND IRD.MaterialStorageId='" + entity.MaterialStorageId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
-                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) AND IRD.Id NOT IN (SELECT InventoryReceiveDetailId FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL)
+                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) AND IRD.Id NOT IN (SELECT ISNULL(InventoryReceiveDetailId,'') FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL)
 
                     UNION ALL
 SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.ShortageQty, 0)) - SUM(ISNULL(IIH.Qty, 0))-SUM(ISNULL(TIRD.TransferBaseQty,0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))),0 ApprovedQty, 0 UnApprovedQty
@@ -1570,7 +1570,7 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.Sho
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND IRD.MaterialStorageId='" + entity.MaterialStorageId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
-                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) AND IRD.Id NOT IN (SELECT InventoryReceiveDetailId FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL)
+                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) AND IRD.Id NOT IN (SELECT ISNULL(InventoryReceiveDetailId,'') FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL)
 
                     UNION ALL
                     SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.ShortageQty, 0)) - SUM(ISNULL(IIH.Qty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))),0 ApprovedQty, 0 UnApprovedQty
@@ -1594,7 +1594,7 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.Sho
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND IRD.MaterialStorageId='" + entity.MaterialStorageId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
-                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) AND IRD.Id NOT IN (SELECT InventoryReceiveDetailId FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL)
+                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) AND IRD.Id NOT IN (SELECT ISNULL(InventoryReceiveDetailId,'') FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL)
                     UNION ALL
                     SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.ShortageQty, 0)) - SUM(ISNULL(IIH.Qty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))),0 ApprovedQty, 0 UnApprovedQty
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
@@ -1617,7 +1617,7 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.Sho
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND IRD.MaterialStorageId='" + entity.MaterialStorageId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
-                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) AND IRD.Id NOT IN (SELECT InventoryReceiveDetailId FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL)
+                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) AND IRD.Id NOT IN (SELECT ISNULL(InventoryReceiveDetailId,'') FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL)
             UNION ALL
            SELECT 0 TotalQty,0 PostingQty,ApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.ShortageQty, 0)) - SUM(ISNULL(IIH.Qty, 0))-SUM(ISNULL(TIRD.TransferBaseQty,0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 UnApprovedQty
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
@@ -1643,7 +1643,7 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.Sho
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND IRD.MaterialStorageId='" + entity.MaterialStorageId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
-                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) AND IRD.Id NOT IN (SELECT InventoryReceiveDetailId FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL)
+                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) AND IRD.Id NOT IN (SELECT ISNULL(InventoryReceiveDetailId,'') FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL)
                 UNION ALL
                 SELECT 0 TotalQty,0 PostingQty,0 ApprovedQty, UnApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.ShortageQty, 0)) - SUM(ISNULL(IIH.Qty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0))))
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
@@ -1666,7 +1666,7 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.Sho
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND IRD.MaterialStorageId='" + entity.MaterialStorageId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
-                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) AND IRD.Id NOT IN (SELECT InventoryReceiveDetailId FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL)
+                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) AND IRD.Id NOT IN (SELECT ISNULL(InventoryReceiveDetailId,'') FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL)
 			) AS t";
 				return _sqlRepository.GetData(sql);
 			}
@@ -1775,11 +1775,11 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.Sho
 				var sql = "";
                 var tempsql = "";
                 if (!string.IsNullOrEmpty(entity.MaterialStorageId) && entity.IsAsset==false)
-                    tempsql = "IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"' AND IRD.MaterialStorageId='" + entity.MaterialStorageId + @"' AND IRD.IsAsset=0 ";
+                    tempsql = "IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"' AND IRD.MaterialStorageId='" + entity.MaterialStorageId + @"'  ";
                else if (!string.IsNullOrEmpty(entity.MaterialStorageId) && entity.IsAsset == true)
-                    tempsql = "IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"' AND IRD.MaterialStorageId='" + entity.MaterialStorageId + @"'  AND IRD.IsAsset=1 ";
+                    tempsql = "IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"' AND IRD.MaterialStorageId='" + entity.MaterialStorageId + @"' ";
                 else if (string.IsNullOrEmpty(entity.MaterialStorageId) && entity.IsAsset == true)
-                    tempsql = "IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"'  AND IRD.IsAsset=1 ";
+                    tempsql = "IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"' ";
                 else
                     tempsql = " IM.CompanyGroupId = '" + entity.CompanyGroupId + "' AND IM.CompanyId = '" + entity.CompanyId + "' AND IM.PlantId = '" + entity.PlantId + @"' ";
 
@@ -1856,7 +1856,8 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.Sho
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND ISNULL(IM.CountryId,'')='" + entity.CountryId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
 					AND IRD.BaseQty !=(ISNULL(II.IssueQty,0))
-                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) 
+                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE)
+                    AND IRD.Id NOT IN (SELECT ISNULL(InventoryReceiveDetailId,'') FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL)
 
                     UNION ALL
 
@@ -1925,9 +1926,10 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.Sho
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND ISNULL(IM.CountryId,'')='" + entity.CountryId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
 					AND IRD.BaseQty !=ISNULL(II.IssueQty,0)
-                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) 
+                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE)
+                    AND IRD.Id NOT IN (SELECT ISNULL(InventoryReceiveDetailId,'') FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL)
 
-					Union ALL
+					UNION ALL
 					SELECT IRD.InventoryReceiveId, IRD.POId, IRD.PODetailsId, IRD.Id AS InventoryReceiveDetailId, IRD.InventoryMaterialId, P.Code AS PartyCode, P.UserName AS PartyName
 	                     , IsPosting=CASE WHEN IR.[Status] IS NULL THEN 0 else 1 END
 						, IsApproved=CASE WHEN IR.IsApproved= 0 THEN 0 else 1 END
@@ -1981,9 +1983,9 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.Sho
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND ISNULL(IM.CountryId,'')='" + entity.CountryId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
 					AND IRD.BaseQty !=IRD.BaseIssueQty
-                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE)							
+                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE)  AND IRD.Id NOT IN (SELECT ISNULL(InventoryReceiveDetailId,'') FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL)							
 
-					Union ALL
+					UNION ALL
 					SELECT IRD.InventoryReceiveId, IRD.POId, IRD.PODetailsId, IRD.Id AS InventoryReceiveDetailId, IRD.InventoryMaterialId, P.Code AS PartyCode, P.UserName AS PartyName
 	                     , IsPosting=CASE WHEN IR.[Status] IS NULL THEN 0 else 1 END
 						, IsApproved=CASE WHEN IR.IsApproved= 0 THEN 0 else 1 END
@@ -2037,7 +2039,8 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.Sho
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND ISNULL(IM.CountryId,'')='" + entity.CountryId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
 					AND IRD.BaseQty !=IRD.BaseIssueQty
-                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) )x WHERE x.BalanceStock>0 
+                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) AND IRD.Id NOT IN (SELECT ISNULL(InventoryReceiveDetailId,'') FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL))x WHERE x.BalanceStock>0 
+                    
 					";
 				}
                 else
