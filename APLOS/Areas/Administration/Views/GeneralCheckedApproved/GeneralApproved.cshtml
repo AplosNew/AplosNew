@@ -1,0 +1,432 @@
+﻿
+<style>
+
+	.loaderr {
+		width: 300px;
+		height: 200px;
+		background-color: #0780BA;
+		color: #fff;
+		padding: 100px;
+		font-size: 25px;
+	}
+
+	.e-grid .e-headercelldiv {
+		font-weight: bold;
+		font-size: 10px;
+		display: block;
+		border: 0 none;
+		height: 29px;
+		line-height: 29px;
+		margin: -7px;
+		padding: 0 .7em;
+		text-align: left;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		font-family: "Arial Narrow";
+	}
+
+	.e-grid .e-rowcell {
+		border-width: 1px 0 0 1px;
+		padding: .7em;
+		line-height: 10px;
+		white-space: nowrap;
+		width: auto;
+		vertical-align: middle;
+	}
+	/*.e-gridheader .e-headercell {
+		background-color: #1c1f32;
+		color: White;
+		min-height: 100%;
+		border-bottom-color: #8B4513;
+	}*/
+	.e-grid.e-wrap .e-columnheader .e-headercelldiv {
+		margin-bottom: 2px;
+		margin-top: 0;
+		font-size: 9px;
+	}
+	/*.e-filterset:before {
+		color: Green;
+	}*/
+
+
+
+
+	e-grid .e-columnheader .wrap .e-headercelldiv {
+		height: Auto;
+	}
+
+	.e-grid .e-excelfilter .e-btncontainer input {
+		padding: .2em .4em .3em;
+	}
+
+	.e-grid.e-dlgcontainer .e-dlgBtns .e-clear {
+		padding: 3px;
+	}
+
+	.e-grid.e-dlgcontainer .e-dlgBtns .e-filter {
+		padding: 3px;
+	}
+
+	::-ms-clear {
+		display: none;
+	}
+
+	.e-grid.filtered .e-filteredicon {
+		color: red;
+	}
+</style>
+
+<script>
+
+
+
+	function chkChange(Id, UserName) {
+		debugger;
+		$("#message").text(Id);
+		$("#PartyCode").text(Id);
+		$("#Vendor").val(UserName);
+		$('#partyPopUp').modal('hide');
+		//alert('Session==' + UserName);
+		PartyId = $("#PartyCode").text();
+		//$scope.getPartyPlantList(Id);
+	}
+	function getMasterId(Id) {
+		debugger;
+		$("#masterId").text(Id);
+
+	}
+</script>
+<style>
+	.e-filterset:before {
+		/*content: "";*/
+		color: white;
+	}
+
+	.e-gridheader .e-headercell { /* grid header color and grid row select color*/
+		/*background: #a2f1ff;
+		color: #080076;
+		min-height: 100%;
+		border-bottom-color: #8B4513;*/
+		background-color: #1c1f32;
+		color: White;
+		min-height: 100%;
+		border-bottom-color: #8B4513;
+	}
+
+	element.style {
+		height: 20px;
+		width: 50px;
+	}
+</style>
+
+<togglable name="Purchase Order Approval/Un Approved List"></togglable>
+
+@*Index Grid*@
+@*Taufik create list start*@
+<div id="gridscroll1">
+	<div class="tab-design" id="tab_show">
+		<div class="site-tab">
+			<ul class="nav nav-tabs" role="tablist">
+				<li role="presentation" ng-class="{ active: isSetUnApproved(1) }"><a ng-click="setTabUnApproved(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Un Approved</a></li>
+				<li role="presentation" ng-class="{ active: isSetApprovedHoldReject(3) }"><a ng-click="setTabApprovedHoldReject(3)" href="" aria-controls="general" role="tab" data-toggle="tab">Approved (Hold / Reject)</a></li>
+				<li role="presentation" ng-class="{ active: isSetApproved(2) }"><a ng-click="setTabApproved(2)" href="" aria-controls="address" role="tab" data-toggle="tab">Approved</a></li>
+				@*<li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="address" role="tab" data-toggle="tab">Po Approval</a></li>*@
+				@*<li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="address" role="tab" data-toggle="tab">To be Separated</a></li>*@
+			</ul>
+		</div>
+		<div class="tab-content">
+			<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetUnApproved(1), active: isSetUnApproved(1) }">
+
+				<fieldset class="scheduler-border">
+					<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+					<div id="POUnApproval">
+						@*<div id='Grid'>e-allowselection="true"</div>*@
+						<div class="content-container-fluid" style="color:black;">
+							<div style="color:black;" id="GridPOAPp" ej-grid e-datasource="GriddataAUth"
+								 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+								 e-filtersettings-filterType="excel" e-enabletouch="true"
+								 e-detailstemplate="detailTemp" e-actioncomplete="PurchaseOrderUnApprovedScrollbar"
+								 e-detailsdatabound="detailgrid">
+                                <div e-columns>
+                                    @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
+                                    <div e-column e-headertext="Actions" e-width="80">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Approval/Hold/Reject" ng-click="$parent.onClickPOA('GridPOAPp');" style="margin: -6px;"></i></button>
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPOAPp');" style="margin: -6px;"></i></button>
+                                    </div>
+                                    <div e-column e-template="#RejectApprovedReason" e-headertext="Hold / Reject Reason" e-width="200" style="height: 20px;"></div>
+                                    <div e-column e-template="#ApprovedStatus1" e-headertext="Approved Status" e-width="150"></div>
+                                    <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
+                                    <div e-column e-field="PartyCode" e-headertext="Vendor Code" e-width="100"></div>
+                                    <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="100"></div>
+                                    <div e-column e-field="PODate" e-headertext="PO Date" e-width="120"></div>
+                                    <div e-column e-field="Id" e-headertext="PO No" e-width="100"></div>
+                                    <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="100"></div>
+                                    <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="100"></div>
+                                    <div e-column e-field="PurchaseLC" e-headertext="Purchase LC" e-width="100"></div>
+                                    <div e-column e-field="ContructNumber" e-headertext="Contruct Number" e-width="100"></div>
+                                    <div e-column e-field="Customer" e-headertext="Customer" e-width="100"></div>
+                                    <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="100"></div>
+                                    <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="100"></div>
+                                    <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="120"></div>
+                                    <div e-column e-field="CurrencyCode" e-headertext="Currency" textAlign='Right' e-width="100"></div>
+                                    <div e-column e-field="CtnId" e-headertext="Appr.No" e-width="120"></div>
+                                </div>
+
+							</div>
+
+						</div>
+
+						<script id="tabGridContents" type="text/x-jsrender">
+							<div class="tabcontrol" id="Test">
+								<ul>
+									<li><a href="#gridTab{{:Id}}">PO Details</a></li>
+									<li><a href="#gridTab1{{:Id}}">PO Approved Status</a></li>
+									<li><a href="#gridTab2{{:Id}}">Attached Documents List</a></li>
+								</ul>
+								<div id="gridTab{{:Id}}">
+									<div id="detailGrid"></div>
+								</div>
+								<div id="gridTab1{{:Id}}">
+									<div>
+										<div class='employee-details'>
+											<ul>
+												<li><label style="color:maroon;">Prepared By:</label><span style="padding-left:8px">{{:AddedBy}}</span></li>
+												<li><label style="color:maroon;">Checked By:</label><span style="padding-left:8px">{{:CheckedBy}}</span></li>
+												<li><label style="color:maroon;">Checked Status:</label><span style="padding-left:8px">{{:CheckedByStatus}}</span></li>
+												<li><label style="color:maroon;">Authorized By:</label><span style="padding-left:8px">{{:AuthorizedBy}}</span></li>
+												<li><label style="color:maroon;">Authorized Status:</label><span style="padding-left:8px">{{:AuthorizedByStatus}}</span></li>
+												<li><label style="color:maroon;">Hold /Reject Reason:</label><span style="padding-left:8px">{{:ApprovedHoldRejectReason}}</span></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+
+								<div id="gridTab2{{:Id}}">
+									<div id="detailGrid1" style="width:800px;"></div>
+								</div>
+
+							</div>
+						</script>
+					</div>
+				</fieldset>
+			</div>
+
+			<script type="text/template" id="ApprovedStatus1">
+				<div class="">
+					<div id="control1">
+						<input id="combo1" type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.approvalStatusList" e-value="data.AuthorizedStatus" e-width="100%" />
+					</div>
+				</div>
+			</script>
+			<script type="text/template" id="RejectApprovedReason">
+				@*<div class="col-sm-10" style="width:300px;height:20px; ">*@
+				<input type="text" ng-model="data.ApproveRejectReason" style="color:black;" class="form-control" />
+				@*</div>*@
+			</script>
+			<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetApprovedHoldReject(3), active: isSetApprovedHoldReject(3) }">
+
+				<fieldset class="scheduler-border">
+					<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+					<div id="POApprovHR">
+						<div class="content-container-fluid" style="color:black;">
+							<div style="color:black;" id="GridPOAHR" ej-grid e-datasource="GriddataAUth"
+								 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+								 e-filtersettings-filterType="excel" e-enabletouch="true"
+								 e-detailstemplate="detailTemp" e-actioncomplete="PoApprovedHoldandRejectScroll"
+								 e-detailsdatabound="detailgrid">
+                                <div e-columns>
+                                    @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
+                                    <div e-column e-headertext="Actions" e-width="80">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Update For Hold / Reject" ng-click="$parent.onClickPOA('GridPOAHR');" style="margin: -6px;"></i></button>
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPOAHR');" style="margin: -6px;"></i></button>
+                                    </div>
+                                    <div e-column e-template="#RejectApprovedReason1" e-headertext="Hold / Reject Reason" e-width="200" style="height: 20px;"></div>
+                                    <div e-column e-template="#ApprovedStatus" e-headertext="Approved Status" e-width="150"></div>
+                                    <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
+                                    <div e-column e-field="PartyCode" e-headertext="Vendor Code" e-width="100"></div>
+                                    <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="100"></div>
+                                    <div e-column e-field="PODate" e-headertext="PO Date" e-width="110"></div>
+                                    <div e-column e-field="Id" e-headertext="PO No" e-width="100"></div>
+                                    <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="100"></div>
+                                    <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="100"></div>
+                                    <div e-column e-field="PurchaseLC" e-headertext="Purchase LC" e-width="100"></div>
+                                    <div e-column e-field="ContructNumber" e-headertext="Contruct Number" e-width="100"></div>
+                                    <div e-column e-field="Customer" e-headertext="Customer" e-width="100"></div>
+                                    <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="100"></div>
+                                    <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="120"></div>
+                                    <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="100"></div>
+                                    <div e-column e-field="CurrencyCode" e-headertext="Currency" textAlign='Right' e-width="100"></div>
+                                    <div e-column e-field="CtnId" e-headertext="Appr.No" e-width="100"></div>
+                                    @*<div e-column e-field="AddedBy" e-headertext="Prepared By" e-width="120"></div>*@
+                                    @*<div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="120"></div>*@
+                                    @*<div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="120"></div>*@
+                                    @*<div e-column e-field="AuthorizedBy" e-headertext="Authorized By" e-width="120"></div>*@
+                                    @*<div e-column e-field="AuthorizedByStatus" e-headertext="Authorized Status" e-width="130"></div>*@
+                                </div>
+							</div>
+						</div>
+						<script id="tabGridContents" type="text/x-jsrender">
+							<div class="tabcontrol" id="Test">
+								<ul>
+									<li><a href="#gridTab{{:Id}}">PO Details</a></li>
+									<li><a href="#gridTab1{{:Id}}">PO Approved Status</a></li>
+									<li><a href="#gridTab2{{:Id}}">Attached Documents List</a></li>
+								</ul>
+								<div id="gridTab{{:Id}}">
+									<div id="detailGrid"></div>
+								</div>
+								<div id="gridTab1{{:Id}}">
+									<div>
+										<div class='employee-details'>
+											<ul>
+												<li><label style="color:maroon;">Prepared By:</label><span style="padding-left:8px">{{:AddedBy}}</span></li>
+												<li><label style="color:maroon;">Checked By:</label><span style="padding-left:8px">{{:CheckedBy}}</span></li>
+												<li><label style="color:maroon;">Checked Status:</label><span style="padding-left:8px">{{:CheckedByStatus}}</span></li>
+												<li><label style="color:maroon;">Authorized By:</label><span style="padding-left:8px">{{:AuthorizedBy}}</span></li>
+												<li><label style="color:maroon;">Authorized Status:</label><span style="padding-left:8px">{{:AuthorizedByStatus}}</span></li>
+												<li><label style="color:maroon;">Hold /Reject Reason:</label><span style="padding-left:8px">{{:ApprovedHoldRejectReason}}</span></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+
+								<div id="gridTab2{{:Id}}">
+									<div id="detailGrid1" style="width:800px;"></div>
+								</div>
+
+							</div>
+						</script>
+					</div>
+				</fieldset>
+			</div>
+
+			<script type="text/template" id="ApprovedStatus">
+				<div class="">
+					<div id="control1">
+						<input id="combo2" type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.approvalStatusList" e-value="data.AuthorizedStatus" e-width="100%" />
+					</div>
+
+				</div>
+
+			</script>
+
+			<script type="text/template" id="RejectApprovedReason1">
+				@*<div class="col-sm-10" style="width:300px;height:20px; ">*@
+				<input type="text" readonly ng-model="data.ApproveRejectReason" style="color:black;" class="form-control" />
+				@*</div>*@
+			</script>
+
+			<div ng-hide="false" role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetApproved(2), active: isSetApproved(2) }">
+				<fieldset class="scheduler-border">
+					<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+					<div id="POApproval">
+						@*<div id='Grid'>e-allowselection="true"</div>*@
+						<div class="content-container-fluid" style="color:black;">
+							<div style="color:black;" id="GridPO1" ej-grid e-datasource="GriddataAUth1"
+								 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+								 e-filtersettings-filterType="excel" e-enabletouch="true"
+								 e-detailstemplate="detailTemp" e-actioncomplete="PurchaseOrderApprovedScrollbar"
+								 e-detailsdatabound="detailgrid">
+                                <div e-columns>
+
+                                    @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
+                                    <div e-column e-headertext="Actions" e-width="50">
+                                        @* <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-check" title="Checked/H/R" ng-click="$parent.onClickPOA('GridPOAPp');" style="margin: -6px;"></i></button>*@
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPO1');" style="margin: -6px;"></i></button>
+                                    </div>
+                                    <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
+                                    <div e-column e-field="PartyCode" e-headertext="Vendor Code" e-width="100"></div>
+
+                                    <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="120"></div>
+                                    <div e-column e-field="PODate" e-headertext="PO Date" e-width="120"></div>
+                                    <div e-column e-field="Id" e-headertext="PO No" e-width="100"></div>
+                                    <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="100"></div>
+                                    <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="120"></div>
+                                    <div e-column e-field="PurchaseLC" e-headertext="Purchase LC" e-width="100"></div>
+                                    <div e-column e-field="ContructNumber" e-headertext="Contruct Number" e-width="100"></div>
+                                    <div e-column e-field="Customer" e-headertext="Customer" e-width="100"></div>
+                                    <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="100"></div>
+                                    <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="120"></div>
+                                    <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="120"></div>
+                                    <div e-column e-field="CurrencyCode" e-headertext="Currency" textAlign='Right' e-width="100"></div>
+                                    <div e-column e-field="CtnId" e-headertext="Appr.No" e-width="60"></div>
+
+
+                                    @*  <div e-column e-headertext="" e-commands="commandprint" e-isunbound=true e-textalign="center" e-width="50"></div>*@
+
+
+                                </div>
+
+							</div>
+
+						</div>
+						<script id="tabGridContents" type="text/x-jsrender">
+							<div class="tabcontrol" id="Test">
+								<ul>
+									<li><a href="#gridTab{{:Id}}">PO Details</a></li>
+									<li><a href="#gridTab1{{:Id}}">Attached Documents List</a></li>
+								</ul>
+								<div id="gridTab{{:Id}}">
+									<div id="detailGrid"></div>
+								</div>
+								<div id="gridTab1{{:Id}}">
+									<div id="detailGrid1" style="width:800px;"></div>
+								</div>
+
+							</div>
+						</script>
+					</div>
+				</fieldset>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="modal fade site-modal in" id="ActionPopUp" role="dialog" data-backdrop="static">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header"> Reason for approved & Unaooroved</div>  @*<button type="button" class="close" ng-click="closeInvoicingPartyPopUp();">&times;</button>*@
+				<div class="modal-body">
+					<div class="col-xs-12 col-sm-12col-md-12">
+
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Reason</label>
+							<label class="col-sm-4 control-label" ng-model="SystemId" ng-hide="true">{{SystemId}}</label>
+							<div class="col-sm-12">
+								<textarea type="text" rows="3" ng-model="reason" class="form-control" style="border:double"></textarea>
+							</div>
+
+
+
+						</div>
+
+					</div>
+					<div class="clearfix"></div>
+					<div class="">
+						<ul class="common-btn list-inline text-right">
+							<li><button ng-click="poApp1();" class="btn"> Save</button></li>
+							<li><button ng-click="ClosedPOPUp();" class="btn"> Close</button></li>
+						</ul>
+					</div>
+
+
+					@*  *@
+				</div>
+
+
+
+			</div>
+		</div>
+
+
+	</div>
+	@*Taufik create list End*@
+</div>
+
+<confirm-archive-generic modalid="approvalAlertHold" title="Confirmation" message={{message}} data-ng-click-right-button="poAppAuth();"></confirm-archive-generic>
+
+<confirm-archive-generic modalid="poapprovealert" title="Confirmation" message={{message}} data-ng-click-right-button="poAppAuth();"></confirm-archive-generic>
+<confirm-archive-generic modalid="poapprovalalert1" title="Confirmation" message={{message}} data-ng-click-right-button="poApp1();"></confirm-archive-generic>
+
+
+
