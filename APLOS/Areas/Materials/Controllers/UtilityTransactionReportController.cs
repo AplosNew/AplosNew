@@ -79,16 +79,29 @@ namespace Aplos.Areas.Materials.Controllers
             var str = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],MAX(CONVERT(varchar(5),UT.AddedDate,108)) [Time],UG.UserName [Group],UM.UtilitySubGroup SubGroup,UM.UtilityCategory Category,UM.Item
 							,UM.UtilitySubCategory SubCategory,UM.Item,EI.EmployeeName ResponsiblePerson 
 							,format(UT.AddedDate,'dd-MMM-yyyy')AddedDate,UT.Quantity,UT.Reading,isnull(UT.Remarks,'')Remarks
-                            ,Amount=isnull(UT.Quantity*(SELECT TOP(1) Rate FROM dbo.UtilityDetail WHERE EffectiveDate between '" + FromDate + @"' and '" + ToDate + @"' AND UtilityMasterId=UT.UtilityMasterId ORDER BY EffectiveDate),0)
+                            ,Amount=isnull(UT.Quantity*(SELECT TOP(1) Rate FROM dbo.UtilityDetail  WHERE EffectiveDate between '" + FromDate + @"' and '" + ToDate + @"' AND UtilityMasterId=UT.UtilityMasterId ORDER BY EffectiveDate),0)
                             ,isnull(UT.MultiplyingFactor,0) MultiplyingFactor
-                            ,FinalQuantity=isnull(UT.MultiplyingFactor,0)*UT.Quantity
+							,FinalQuantity=isnull(UT.MultiplyingFactor,0)*UT.Quantity
+							,ET.UserName Entity , UOM.UserName UOM 
+                            ,case when  UD.Rate is null then 0 else UD.Rate end Rate
+							,case when  UD.EffectiveDate is null then '' else format(UD.EffectiveDate,'dd-MMM-yyyy') end EffectiveDate
+							,PT.UserName PartyName , RS.EmployeeName ResponsiblePerson , AD.EmployeeName [Admin] , UM.EntryLegDays , 
+							case when um.Active = 1 then 'Active' else 'InActive' end Status
 							from UtilityTransaction UT
 							left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
 							left join EmployeeInformation EI on EI.SystemId=UM.ResponsiblePersonId
                             left join HKP.UtilityGroup UG on UG.Id=UM.UtilityGroupId
+							left join org.Entity ET on ET.Id = UM.EntityId
+							left join [SCS].[UnitOfMeasurement] UOM on UOM.Id = UM.UoMId
+							left join UtilityDetail UD on UD.UtilityMasterId = UM.Id
+							left join hkp.Party PT on PT.Id = UM.PartyId
+							left join EmployeeInformation RS on RS.SystemId = UM.ResponsiblePersonId
+							left join EmployeeInformation AD on AD.SystemId = UM.AdminId
                              where UT.Date between '" + FromDate + @"' and '" + ToDate + @"'
                              group by UT.Id,UT.Date,UT.AddedDate,UM.UserName,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory
-							,UM.Item,EI.EmployeeName,UT.Quantity,UT.Reading,UT.Remarks,UG.UserName,UT.MultiplyingFactor,UT.UtilityMasterId";
+							,UM.Item,EI.EmployeeName,UT.Quantity,UT.Reading,UT.Remarks,UG.UserName,UT.MultiplyingFactor,UT.UtilityMasterId , ET.UserName , UOM.UserName
+							,UD.Rate , UD.EffectiveDate ,PT.UserName , PT.UserName , RS.EmployeeName ,  AD.EmployeeName , UM.EntryLegDays
+							,um.Active";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
@@ -136,6 +149,7 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet[ROW, COL].ColumnWidth = 10;
                 int ColTime = COL;
                 COL++;
+                
 
                 sheet[ROW, COL].Text = "Category";
                 sheet[ROW, COL].ColumnWidth = 12;
@@ -162,6 +176,19 @@ namespace Aplos.Areas.Materials.Controllers
                 int ColSubGroup = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "Entity";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColEntity = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "UOM";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColUOM = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PartyName";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int ColPartyName = COL;
+                COL++;
                 sheet[ROW, COL].Text = "Quantity";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int ColQuantity = COL;
@@ -181,9 +208,41 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet[ROW, COL].ColumnWidth = 12;
                 int ColReading = COL;
                 COL++;
+                sheet[ROW, COL].Text = "EffectiveDate";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColEffectiveDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Rate";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColRate = COL;
+                COL++;
                 sheet[ROW, COL].Text = "Amount";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int ColAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "EntryLegDays";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColEntryLegDays = COL;
+                COL++;
+
+
+
+                sheet[ROW, COL].Text = "ResponsiblePerson";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColResponsiblePerson = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Admin";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColAdmin = COL;
+                COL++;
+
+               
+                sheet[ROW, COL].Text = "Status";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColStatus = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Remarks";
@@ -233,6 +292,16 @@ namespace Aplos.Areas.Materials.Controllers
                                        
                     sheet[ROW, ColAmount].Number = clsStaticInfo.dbl(data[i]["Amount"].ToString());
                     sheet[ROW, ColAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColEntity].Text = data[i]["Entity"].ToString();
+                    sheet[ROW, ColUOM].Text = data[i]["UOM"].ToString();
+                    sheet[ROW, ColEffectiveDate].Text = data[i]["EffectiveDate"].ToString();
+                    sheet[ROW, ColRate].Number = clsStaticInfo.dbl(data[i]["Rate"].ToString());
+                    sheet[ROW, ColRate].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColPartyName].Text = data[i]["PartyName"].ToString();
+                    sheet[ROW, ColResponsiblePerson].Text = data[i]["ResponsiblePerson"].ToString();
+                    sheet[ROW, ColAdmin].Text = data[i]["Admin"].ToString();
+                    sheet[ROW, ColEntryLegDays].Text = data[i]["EntryLegDays"].ToString();
+                    sheet[ROW, ColStatus].Text = data[i]["Status"].ToString();
                     sheet[ROW, ColRemarks].Text = data[i]["Remarks"].ToString();
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -288,19 +357,32 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
-                string strSQL = @"SELECT UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],MAX(CONVERT(varchar(5),UT.AddedDate,108)) [Time],UG.UserName [Group],UM.UtilitySubGroup SubGroup,UM.UtilityCategory Category
+                string strSQL = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],MAX(CONVERT(varchar(5),UT.AddedDate,108)) [Time],UG.UserName [Group],UM.UtilitySubGroup SubGroup,UM.UtilityCategory Category,UM.Item
 							,UM.UtilitySubCategory SubCategory,UM.Item,EI.EmployeeName ResponsiblePerson 
-							,format(UT.AddedDate,'dd-MMM-yyyy')AddedDate,UT.Quantity,UT.Reading,UT.Remarks
+							,format(UT.AddedDate,'dd-MMM-yyyy')AddedDate,UT.Quantity,UT.Reading,isnull(UT.Remarks,'')Remarks
+                            ,Amount=isnull(UT.Quantity*(SELECT TOP(1) Rate FROM dbo.UtilityDetail  WHERE EffectiveDate between '" + FromDate + @"' and '" + ToDate + @"' AND UtilityMasterId=UT.UtilityMasterId ORDER BY EffectiveDate),0)
                             ,isnull(UT.MultiplyingFactor,0) MultiplyingFactor
-							,Amount=UT.Quantity*(SELECT TOP(1) Rate FROM dbo.UtilityDetail WHERE EffectiveDate between '" + FromDate + @"' and '" + ToDate + @"' AND UtilityMasterId=UT.UtilityMasterId ORDER BY EffectiveDate)
-                            ,FinalQuantity=UT.MultiplyingFactor*UT.Quantity
+							,FinalQuantity=isnull(UT.MultiplyingFactor,0)*UT.Quantity
+							,ET.UserName Entity , UOM.UserName UOM 
+                            ,case when  UD.Rate is null then 0 else UD.Rate end Rate
+							,case when  UD.EffectiveDate is null then '' else format(UD.EffectiveDate,'dd-MMM-yyyy') end EffectiveDate
+							,PT.UserName PartyName , RS.EmployeeName ResponsiblePerson , AD.EmployeeName [Admin] , UM.EntryLegDays , 
+							case when um.Active = 1 then 'Active' else 'InActive' end Status
 							from UtilityTransaction UT
 							left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
-                            left join HKP.UtilityGroup UG on UG.Id=UM.UtilityGroupId
 							left join EmployeeInformation EI on EI.SystemId=UM.ResponsiblePersonId
-							where UT.Date between '" + FromDate + @"' and '" + ToDate + @"'
-							group by UT.Id,UT.Date,UT.AddedDate,UM.UserName,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory
-							,UM.Item,EI.EmployeeName,UT.Quantity,UT.Reading,UT.Remarks,UG.UserName,UT.MultiplyingFactor,UT.UtilityMasterId";
+                            left join HKP.UtilityGroup UG on UG.Id=UM.UtilityGroupId
+							left join org.Entity ET on ET.Id = UM.EntityId
+							left join [SCS].[UnitOfMeasurement] UOM on UOM.Id = UM.UoMId
+							left join UtilityDetail UD on UD.UtilityMasterId = UM.Id
+							left join hkp.Party PT on PT.Id = UM.PartyId
+							left join EmployeeInformation RS on RS.SystemId = UM.ResponsiblePersonId
+							left join EmployeeInformation AD on AD.SystemId = UM.AdminId
+                             where UT.Date between '" + FromDate + @"' and '" + ToDate + @"'
+                             group by UT.Id,UT.Date,UT.AddedDate,UM.UserName,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory
+							,UM.Item,EI.EmployeeName,UT.Quantity,UT.Reading,UT.Remarks,UG.UserName,UT.MultiplyingFactor,UT.UtilityMasterId , ET.UserName , UOM.UserName
+							,UD.Rate , format(UD.EffectiveDate,'dd-MMM-yyyy') ,PT.UserName , PT.UserName , RS.EmployeeName ,  AD.EmployeeName , UM.EntryLegDays
+							,um.Active";
 
                 data = _sqlRepository.GetDataTable(strSQL);
             }
