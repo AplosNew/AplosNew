@@ -876,7 +876,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         }
         return false;
     }
-    //Pending for Approval
+    //Pending for Approval WorkerAdvance Start
     $scope.WorkerAdvancePendingforApprovalList = [];
     $scope.getPendingforApprovalData = function () {
         $http({
@@ -944,6 +944,356 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         return true;
     };
 
-    //Pending for Approval
+    //Pending for Approval WorkerAdvance End
+
+    //Pending for Payment GoodWorkPaymentAdvise Pending Payment Start
+    $scope.ModelPCTempPendingPayment = {
+        Id: null,
+        FromDate: null,
+        ToDate: null,
+        UserRef: null,
+        PaymentDate: null,
+        ByWhom: null,
+        ByWhomId: null,
+        PaymentSource: null,
+        Remarks: null
+    };
+    $scope.ModelPCNewPendingPayment = Object.assign({}, $scope.ModelPCTempPendingPayment);
+
+    $scope.GoodWorkPaymentAdvisePendingPaymentList = [];
+    $scope.GetGoodWorkPaymentAdvisePendingPaymentData = function () {
+        $http({
+            method: 'Get',
+            url: $scope.path + "GetGoodWorkPaymentAdvisePendingPaymentList",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.GoodWorkPaymentAdvisePendingPaymentList = response.data;
+        });
+    }
+    $scope.GetGoodWorkPaymentAdvisePendingPaymentData();
+    $scope.PCEmployeeListPendingPayment = [];
+    $scope.GetGoodWorkPaymentAdvisePendingPaymentdetail = function () {
+        $http({
+            method: 'Get',
+            url: $scope.path + "GetGoodWorkPaymentAdviseDetailList?paymentAdviseId=" + $scope.ModelPCNewPendingPayment.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.PCEmployeeListPendingPayment = response.data;
+        });
+    }
+    
+    $scope.GetGWPendingPaymentPDblClick = function (args) {
+        $scope.ModelPCNewPendingPayment = Object.assign({}, args.data);
+        $scope.GetGoodWorkPaymentAdvisePendingPaymentdetail();
+        
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.ClearGoodWorkPaymentAdvisePendingPayment = function () {
+        $scope.Action = 'Save';
+        $scope.ModelPCNewPendingPayment = Object.assign({}, $scope.ModelPCTempPendingPayment);
+        $scope.PCEmployeeListPendingPayment = [];
+        return true;
+    };
+
+    $scope.GoodWorkPaymentAdvisePendingPaymentSave = function (obj) {
+        try {
+            $scope.GetEmployeeGWListPendingPaymentItem();
+                $http({
+                    method: 'POST',
+                    url: $scope.path + 'SaveGoodWorkPaymentAdvisePendingPayment',
+                    data: { 'data': $scope.ModelPCNewPendingPayment, 'goodWorkPaymentAdviseDetail': $scope.EmployeeGWListPendingPayment },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        
+                        $scope.ClearGoodWorkPaymentAdvisePendingPayment();
+                        $scope.GetGoodWorkPaymentAdvisePendingPaymentData();
+                      
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+    $scope.refreshTemplateGWemployeesPendingPayment = function (args) {
+        $("#GWheadchkPendingPayment").ejCheckBox({ "change": CheckBoxSelectGWAllEmolyeesPendingPayment });
+    };
+
+    function CheckBoxSelectGWAllEmolyeesPendingPayment(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridGWChildEditPendingPayment").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.PCEmployeeListPendingPayment.length; i++) {
+                $scope.PCEmployeeListPendingPayment[i].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridGWChildEditPendingPayment").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.EmployeeGWListPendingPayment = [];
+    $scope.GetEmployeeGWListPendingPaymentItem = function () {
+        $scope.EmployeeGWListPendingPayment = [];
+        try {
+            for (var i = 0; i < $scope.PCEmployeeListPendingPayment.length; i++) {
+                if (checkItemsExistPendingPayment($scope.EmployeeGWListPendingPayment, $scope.PCEmployeeListPendingPayment[i].Id) === false) {
+                    if ($scope.PCEmployeeListPendingPayment[i].CheckBoxSelect === true) {
+                        $scope.EmployeeGWListPendingPayment.push($scope.PCEmployeeListPendingPayment[i]);
+                    }
+                }
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    function checkItemsExistPendingPayment(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].Id === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+    //Pending for Payment GoodWorkPaymentAdvise Pending Payment End
+
+    //Pending for Payment GoodWorkPaymentAdvise Pending Approval Start
+    $scope.ModelPCTempPendingPaymentApproval = {
+        Id: null,
+        FromDate: null,
+        ToDate: null,
+        UserRef: null,
+        PaymentDate: null,
+        ByWhom: null,
+        ByWhomId: null,
+        PaymentSource: null,
+        Remarks: null
+    };
+    $scope.ModelPCNewPendingPaymentApproval = Object.assign({}, $scope.ModelPCTempPendingPaymentApproval);
+
+    $scope.GoodWorkPaymentAdvisePendingApprovalList = [];
+    $scope.GetGoodWorkPaymentAdvisePendingApprovalData = function () {
+        $http({
+            method: 'Get',
+            url: $scope.path + "GetGoodWorkPaymentAdvisePendingApprovalList",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.GoodWorkPaymentAdvisePendingApprovalList = response.data;
+        });
+    }
+    $scope.GetGoodWorkPaymentAdvisePendingApprovalData();
+    $scope.PCEmployeeListPendingPaymentApproval = [];
+    $scope.GetGoodWorkPaymentAdvisePendingApprovaldetail = function () {
+        $http({
+            method: 'Get',
+            url: $scope.path + "GetGoodWorkPaymentAdviseDetailCheckedList?paymentAdviseId=" + $scope.ModelPCNewPendingPaymentApproval.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.PCEmployeeListPendingPaymentApproval = response.data;
+        });
+    }
+
+    $scope.GetGWPendingPaymentApprovalPDblClick = function (args) {
+        $scope.ModelPCNewPendingPaymentApproval = Object.assign({}, args.data);
+        $scope.GetGoodWorkPaymentAdvisePendingApprovaldetail();
+
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.ClearGoodWorkPaymentAdvisePendingApproval = function () {
+        $scope.Action = 'Save';
+        $scope.ModelPCNewPendingPaymentApproval = Object.assign({}, $scope.ModelPCTempPendingPaymentApproval);
+        $scope.PCEmployeeListPendingPaymentApproval = [];
+        return true;
+    };
+
+    $scope.GoodWorkPaymentAdvisePendingApprovalSave = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SaveGoodWorkPaymentAdvisePendingApproval',
+                data: { 'data': $scope.ModelPCNewPendingPaymentApproval },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+
+                    $scope.ClearGoodWorkPaymentAdvisePendingApproval();
+                    $scope.GetGoodWorkPaymentAdvisePendingApprovalData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+    
+    //Pending for Payment GoodWorkPaymentAdvise Pending Payment End
+
+    //Payments GoodWorkPaymentAdvise Payments Start
+    $scope.ModelPCTempPayments = {
+        Id: null,
+        FromDate: null,
+        ToDate: null,
+        UserRef: null,
+        PaymentDate: null,
+        ByWhom: null,
+        ByWhomId: null,
+        PaymentSource: null,
+        Remarks: null
+    };
+    $scope.ModelPCNewPayments = Object.assign({}, $scope.ModelPCTempPayments);
+
+    $scope.GoodWorkPaymentAdvisePaymentsList = [];
+    $scope.GetGoodWorkPaymentAdvisePaymentsData = function () {
+        $http({
+            method: 'Get',
+            url: $scope.path + "GetGoodWorkPaymentAdviseApprovedList",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.GoodWorkPaymentAdvisePaymentsList = response.data;
+        });
+    }
+    $scope.GetGoodWorkPaymentAdvisePaymentsData();
+    $scope.PCEmployeeListPayments = [];
+    $scope.GetGoodWorkPaymentAdvisePaymentsdetail = function () {
+        $http({
+            method: 'Get',
+            url: $scope.path + "GetGoodWorkPaymentAdviseDetailCheckedList?paymentAdviseId=" + $scope.ModelPCNewPayments.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.PCEmployeeListPayments = response.data;
+        });
+    }
+
+    $scope.GetGWPaymentsPDblClick = function (args) {
+        $scope.ModelPCNewPayments = Object.assign({}, args.data);
+        $scope.GetGoodWorkPaymentAdvisePaymentsdetail();
+
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.ClearGoodWorkPaymentAdvisePayments = function () {
+        $scope.Action = 'Save';
+        $scope.ModelPCNewPayments = Object.assign({}, $scope.ModelPCTempPayments);
+        $scope.PCEmployeeListPayments = [];
+        return true;
+    };
+
+    $scope.GoodWorkPaymentAdvisePaymentsSave = function (obj) {
+        try {
+            $scope.GetEmployeeGWListPaymentsItem();
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SaveGoodWorkPaymentAdvisePayments',
+                data: { 'data': $scope.ModelPCNewPayments, 'goodWorkPaymentAdviseDetail': $scope.EmployeeGWListPayments },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+
+                    $scope.ClearGoodWorkPaymentAdvisePayments();
+                    $scope.GetGoodWorkPaymentAdvisePaymentsData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+    $scope.refreshTemplateGWemployeesPayments = function (args) {
+        $("#GWheadchkPayments").ejCheckBox({ "change": CheckBoxSelectGWAllEmolyeesPayments });
+    };
+
+    function CheckBoxSelectGWAllEmolyeesPayments(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridGWChildEditPayments").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.PCEmployeeListPayments.length; i++) {
+                if ($scope.PCEmployeeListPayments[i].IsDisburse === false) {
+                    $scope.PCEmployeeListPayments[i].CheckBoxSelect = ChkOrUnchk;
+                }
+                
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                if (filtered[j].IsDisburse === false) {
+                    filtered[j].CheckBoxSelect = ChkOrUnchk;
+                }
+                
+            }
+        }
+        var gridObj = $("#GridGWChildEditPayments").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.EmployeeGWListPayments = [];
+    $scope.GetEmployeeGWListPaymentsItem = function () {
+        $scope.EmployeeGWListPayments = [];
+        try {
+            for (var i = 0; i < $scope.PCEmployeeListPayments.length; i++) {
+                if (checkItemsExistPayments($scope.EmployeeGWListPayments, $scope.PCEmployeeListPayments[i].Id) === false) {
+                    if ($scope.PCEmployeeListPayments[i].CheckBoxSelect === true && $scope.PCEmployeeListPayments[i].IsDisburse === false) {
+                        $scope.EmployeeGWListPayments.push($scope.PCEmployeeListPayments[i]);
+                    }
+                }
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    function checkItemsExistPayments(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].Id === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+    //Payments GoodWorkPaymentAdvise Payments End
 
 }
