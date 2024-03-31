@@ -93,7 +93,7 @@ namespace Aplos.Areas.Materials.Controllers
                             left join HKP.UtilityGroup UG on UG.Id=UM.UtilityGroupId
 							left join org.Entity ET on ET.Id = UM.EntityId
 							left join [SCS].[UnitOfMeasurement] UOM on UOM.Id = UM.UoMId
-							left join UtilityDetail UD on UD.UtilityMasterId = UM.Id
+							left join UtilityDetail UD on UD.UtilityMasterId = UM.Id and UD.EffectiveDate between '" + FromDate + @"' and '" + ToDate + @"'
 							left join hkp.Party PT on PT.Id = UM.PartyId
 							left join EmployeeInformation RS on RS.SystemId = UM.ResponsiblePersonId
 							left join EmployeeInformation AD on AD.SystemId = UM.AdminId

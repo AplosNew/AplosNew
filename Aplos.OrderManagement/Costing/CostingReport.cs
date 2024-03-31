@@ -1501,9 +1501,9 @@ namespace Library.OrderManagement.Costing
                 {
                     sheet[ROW, colCostingItem].Text = dtComponentRelatedItems.DefaultView[M]["CostingItem"].ToString();
                     sheet[ROW, colValue].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Value"].ToString());
-                    
-                    //sheet[ROW, colQty].Number = sheet[ROW, colQty].Number = clsStaticInfo.dbl(OrderQTY); ;
-                    sheet[ROW, colQty].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalQty"].ToString());
+
+                    sheet[ROW, colQty].Number = sheet[ROW, colQty].Number = clsStaticInfo.dbl(OrderQTY); ;
+                    //sheet[ROW, colQty].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalQty"].ToString());
 
                     if (orderBudget == "1")
                     {

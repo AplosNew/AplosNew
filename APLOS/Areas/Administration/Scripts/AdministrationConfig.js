@@ -40,4 +40,8 @@ function AdministrationConfig($routeProvider, $locationProvider) {
             templateUrl: 'Administration/GeneralContractApproved',
             controller: 'GeneralContractApprovedController'
         })
+        .when('/general-approved', {
+            templateUrl: 'Administration/GeneralCheckedApproved/GeneralApproved',
+            controller: 'GeneralApprovedController'
+        })
 };

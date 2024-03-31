@@ -308,7 +308,6 @@ namespace Aplos.Areas.Accounts.Controllers
                 con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementDesignation] where GlManagementId='" + GlManagementId + "'", out dsDesignation, false, "1");
 
                 string Id = "";
-
                 #region data update
                 foreach (var item in data)
                 {
@@ -321,12 +320,14 @@ namespace Aplos.Areas.Accounts.Controllers
 
                     if (dv.Count == 0)
                     {
-
                         item["Id"] = Id;
-                        //item["DesignationId"] = item["Id"];
                         item["GlManagementId"] = GlManagementId;
-
                         AddNewRow(dsDesignation.Tables[0], item);
+                    }
+                    else if (dv.Count > 0 && Convert.ToBoolean(item["CheckBoxSelect"].ToString()) == false)
+                    {
+                        DataRow drmo = dv[0].Row;
+                        drmo.Delete();
                     }
                     else
                     {
@@ -334,9 +335,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         item["Id"] = dv[0].Row["Id"].ToString();
                         EditRow(drmo, item);
                     }
-
                 }
-
                 #endregion data update 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsDesignation);
@@ -373,6 +372,11 @@ namespace Aplos.Areas.Accounts.Controllers
                         item["GlManagementId"] = GlManagementId;
 
                         AddNewRow(dsPCode.Tables[0], item);
+                    }
+                    else if (dv.Count > 0 && Convert.ToBoolean(item["CheckBoxSelect"].ToString()) == false)
+                    {
+                        DataRow drmo = dv[0].Row;
+                        drmo.Delete();
                     }
                     else
                     {
@@ -418,6 +422,11 @@ namespace Aplos.Areas.Accounts.Controllers
                         item["GlManagementId"] = GlManagementId;
 
                         AddNewRow(dsBudCode.Tables[0], item);
+                    }
+                    else if (dv.Count > 0 && Convert.ToBoolean(item["CheckBoxSelect"].ToString()) == false)
+                    {
+                        DataRow drmo = dv[0].Row;
+                        drmo.Delete();
                     }
                     else
                     {
@@ -516,7 +525,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
                             AddNewRow(dsDr.Tables[0], item);
                         }
-                        else if (dv.Count > 0 && Convert.ToBoolean(item["CheckBoxSelect"].ToString()) == false && item["Id"].ToString()!=null)
+                        else if (dv.Count > 0 && Convert.ToBoolean(item["CheckBoxSelect"].ToString()) == false && item["Id"].ToString() != null)
                         {
                             DataRow drmo = dv[0].Row;
                             drmo.Delete();
@@ -569,7 +578,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 }
                 #endregion data update 
 
-                
+
                 return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
             }
             catch (Exception ex)
@@ -821,31 +830,16 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
         [HttpGet, Authorize]
-        public ActionResult GetDesignationInformation()
+        public ActionResult GetDesignationInformation(string glManagementId)
         {
-            string sql = @"SELECT '' Id,Id DesignationId, Sequence,Code,ShortName,StandardName,UserName FROM [HKP].[Designation]                            
-                         WHERE Active=1";
+            string sql = @"SELECT CheckBoxSelect=cast(case when gld.Id is null then 0 else 1 end as bit),gld.Id,D.Id DesignationId,                    D.Sequence,D.Code,D.ShortName,D.StandardName,D.UserName
+                            FROM [HKP].[Designation] D   
+                            left join(select * from  [HKP].[GLManagementDesignation] where GlManagementId='" + glManagementId + @"') gld on gld.DesignationId = D.Id
+                            WHERE Active = 1";
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize]
-        public ActionResult GetDesignationData(string glManagementId)
-        {
-            try
-            {
-                var sql = @"select GLMD.Id,D.UserName as Designation,GLMD.DesignationId,D.Sequence,D.Code
-                            from [HKP].[GLManagementDesignation] GLMD 
-                            left join [HKP].[Designation] D on D.Id=GLMD.DesignationId
-							where GLMD.GLManagementId = '" + glManagementId + "' ";
-
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
         [HttpGet]
         public ActionResult DeleteEmployeeCategory(string Id)
         {
@@ -866,116 +860,20 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-        [HttpGet]
-        public ActionResult DeleteDesignationData(string Id)
-        {
-            string sql = @"select * from [HKP].[GLManagementDesignation] where DesignationId = '" + Id + @"'";
-            try
-            {
-                if (string.IsNullOrEmpty(Id))
-                    throw new Exception("Select entry first");
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from [HKP].[GLManagementDesignation] where DesignationId = '" + Id + @"'");
-                con.CommitTransaction();
-
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
-        [HttpGet]
-        public ActionResult DeletePositionCodeData(string Id)
-        {
-            string sql = @"select * from [HKP].[GLManagementPositionCode] where PositionCodeId = '" + Id + @"'";
-            try
-            {
-                if (string.IsNullOrEmpty(Id))
-                    throw new Exception("Select entry first");
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from [HKP].[GLManagementPositionCode] where PositionCodeId = '" + Id + @"'");
-                con.CommitTransaction();
-
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
-        [HttpGet]
-        public ActionResult DeleteBudgetCodeData(string Id)
-        {
-            string sql = @"select * from [HKP].[GLManagementBudgetCode] where BudgetCodeId = '" + Id + @"'";
-            try
-            {
-                if (string.IsNullOrEmpty(Id))
-                    throw new Exception("Select entry first");
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from [HKP].[GLManagementBudgetCode] where BudgetCodeId = '" + Id + @"'");
-                con.CommitTransaction();
-
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
-
-
-        [Authorize]
-        public ActionResult GetPositionCodeData(string glManagementId)
-        {
-            try
-            {
-                var sql = @"select PC.Id,P.Code,P.UserName as Position,PC.PositionCodeId
-                            from [HKP].[GLManagementPositionCode] PC
-                            left join [ORG].[Position] P on P.Id=PC.PositionCodeId
-							where PC.GLManagementId = '" + glManagementId + "' ";
-
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
-        [Authorize]
-        public ActionResult GetBudgetCodeData(string glManagementId)
-        {
-            try
-            {
-                var sql = @"select BC.Id,MPB.Code,BC.BudgetCodeId,P.UserName Position
-                            from [HKP].[GLManagementBudgetCode] BC
-                            left join [MST].[ManpowerBudget] MPB on MPB.Id=BC.BudgetCodeId
-							left join ORG.Position P on P.Id=MPB.PositionId
-							where BC.GLManagementId = '" + glManagementId + "' ";
-
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
 
         [Authorize, HttpGet]
-        public ActionResult GetPositionCode()
+        public ActionResult GetPositionCode(string GlManagementId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select '' Id,P.Id PositionCodeId,P.Code,P.UserName Position,P.Activity,
+            string str = @"select CheckBoxSelect=cast(case when glpc.Id is null then 0 else 1 end as bit),glpc.Id,P.Id PositionCodeId,P.Code,P.UserName Position,P.Activity,
                         DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection
                         from ORG.Position P	
                         LEFT JOIN ORG.Department AS DEP ON DEP.Id=P.DepartmentId
                         LEFT OUTER JOIN ORG.Section S ON S.Id=P.SectionId
                         LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
                         left outer join MST.DesignationMaster DM ON DM.DesignationId=P.DesignationId
-                        where P.Active = 1";
+                        left join(select * from  [HKP].[GLManagementPositionCode] where GlManagementId='" + GlManagementId + @"') glpc on glpc.PositionCodeId=p.Id
+						where P.Active = 1";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
@@ -988,7 +886,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
-      
+
         [Authorize, HttpGet]
         public ActionResult GetSaveActionBy(string glManagementId)
         {
@@ -1062,6 +960,32 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+        [Authorize, HttpGet]
+        public ActionResult getbudgetcodelist(string GlManagementId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                var sql = @"SELECT CheckBoxSelect=cast(case when BC.Id is null then 0 else 1 end as bit),BC.Id,PMB.Id BudgetCodeId, PMB.Code, PMB.EntityId, ERD.UserName AS EntityName, PMB.PositionId, PRD.UserName AS PositionName,PRD.Code PositionCode,ERD.Code EntityCode, PMB.EmploymentType, PMB.IsOTEntitled, PMB.PayrollGroupId, PMB.WorkGroupId, PMB.Deployment, PRD.IsDirect , ERD.PlantId,(SELECT UserName FROM  [ORG].[Plant] WHERE Id=ERD.PlantId) AS [Plant], ERD.DivisionId, (SELECT UserName FROM  [ORG].[Division] 
+                    WHERE Id=ERD.DivisionId) AS [Division], ERD.SubDivisionId, (SELECT UserName FROM  [ORG].[SubDivision] WHERE Id=ERD.SubDivisionId) AS [SubDivision], ERD.UnitId,(SELECT UserName FROM  [ORG].[Unit] WHERE Id=ERD.UnitId) AS [Unit], PRD.DepartmentId,
+                    (SELECT UserName FROM [ORG].[Department] WHERE Id=PRD.DepartmentId) AS [Department], PRD.SectionId,
+                    (SELECT UserName FROM [ORG].[Section] WHERE Id=PRD.SectionId) AS [Section], PRD.SubSectionId,
+                    (SELECT UserName FROM [ORG].[SubSection] WHERE Id=PRD.SubSectionId) AS [SubSection], PMB.LineId, 
+                    (SELECT UserName FROM  [ORG].[Line] WHERE Id=PMB.LineId) AS [Line] , PMB.ShiftDefinationId, 
+                    (SELECT UserName FROM  [dbo].[ShiftDefination] WHERE SystemID=PMB.ShiftDefinationId) AS [ShiftDefination] , PRD.DesignationId,
+                    (SELECT UserName FROM [HKP].[Designation] WHERE Id=PRD.DesignationId) AS [Designation]  
+                    FROM [MST].[ManpowerBudget] AS PMB INNER JOIN ORG.Entity AS ERD ON PMB.EntityId=ERD.Id 
+                    INNER JOIN ORG.Position AS PRD ON PMB.PositionId = PRD.Id 
+                    LEFT JOIN (select * from  [HKP].[GLManagementBudgetCode] where GlManagementId='" + GlManagementId + @"') BC ON BC.BudgetCodeId=PMB.Id                 WHERE PMB.Active=1 AND PMB.Archive=0 AND ERD.CompanyGroupId='" + identity.CompanyGroupId + @"' AND ERD.CompanyId='" + identity.CompanyId + @"'
+                    AND ERD.PlantId='" + identity.PlantId + @"' AND ERD.Active=1 AND ERD.Archive=0";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         [Authorize, HttpGet]
         public ActionResult getControlDrlist(string GlManagementId, string tabName)
         {
