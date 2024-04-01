@@ -467,7 +467,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     if (dv.Count == 0)
                     {
                         item["Id"] = Id;
-                        item["EmpSystemId"] = item["EmpSystemId"];
+                        item["EmpSystemId"] = item["SystemID"];
                         item["GlManagementId"] = GlManagementId;
 
                         AddNewRow(dsEmp.Tables[0], item);
@@ -609,7 +609,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     if (dv.Count == 0)
                     {
                         item["Id"] = Id;
-                        item["ActionById"] = item["ActionById"];
+                        item["ActionById"] = item["SystemID"];
                         item["GlManagementId"] = GlManagementId;
 
                         AddNewRow(dsAB.Tables[0], item);
@@ -659,7 +659,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     if (dv.Count == 0)
                     {
                         item["Id"] = Id;
-                        item["ApproveById"] = item["ApproveById"];
+                        item["ApproveById"] = item["SystemID"];
                         item["GlManagementId"] = GlManagementId;
 
                         AddNewRow(dsAPB.Tables[0], item);
@@ -709,7 +709,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     if (dv.Count == 0)
                     {
                         item["Id"] = Id;
-                        item["ResponsiblePersonId"] = item["ResponsiblePersonId"];
+                        item["ResponsiblePersonId"] = item["SystemID"];
                         item["GlManagementId"] = GlManagementId;
 
                         AddNewRow(dsRP.Tables[0], item);
@@ -876,54 +876,15 @@ namespace Aplos.Areas.Accounts.Controllers
 						where P.Active = 1";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
-        }
-        [Authorize, HttpGet]
-        public ActionResult GetSaveEmployee(string glManagementId)
-        {
-            string str = @"select gm.Id,gm.EmpSystemId,ei.EmployeeCode,ei.EmployeeName,CheckBoxSelect=cast(case when gm.EmpSystemId is null then 0 else 1 end as bit) from [HKP].[GLManagementEmployee] gm
-                        left join dbo.EmployeeInformation ei on ei.SystemId=gm.EmpSystemId
-                        where gm.GlManagementId ='" + glManagementId + "' ";
-
-            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpGet]
-        public ActionResult GetSaveActionBy(string glManagementId)
-        {
-            string str = @"select gm.Id,gm.ActionById,ei.EmployeeCode,ei.EmployeeName,CheckBoxSelect=cast(case when gm.ActionById is null then 0 else 1 end as bit) 
-                        from [HKP].[GLManagementActionBy] gm
-                        left join dbo.EmployeeInformation ei on ei.SystemId=gm.ActionById
-                        where gm.GlManagementId ='" + glManagementId + "' ";
-
-            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
-        }
-        [Authorize, HttpGet]
-        public ActionResult GetSaveApproveBy(string glManagementId)
-        {
-            string str = @"select gm.Id,gm.ApproveById,ei.EmployeeCode,ei.EmployeeName,CheckBoxSelect=cast(case when gm.ApproveById is null then 0 else 1 end as bit) 
-                        from [HKP].[GLManagementApproveBy] gm
-                        left join dbo.EmployeeInformation ei on ei.SystemId=gm.ApproveById
-                        where gm.GlManagementId ='" + glManagementId + "' ";
-
-            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
-        }
-        [Authorize, HttpGet]
-        public ActionResult GetSaveResponsiblePerson(string glManagementId)
-        {
-            string str = @"select gm.Id,gm.ResponsiblePersonId,ei.EmployeeCode,ei.EmployeeName,CheckBoxSelect=cast(case when gm.ResponsiblePersonId is null then 0 else 1 end as bit) 
-                        from [HKP].[GLManagementResponsiblePerson] gm
-                        left join dbo.EmployeeInformation ei on ei.SystemId=gm.ResponsiblePersonId
-                        where gm.GlManagementId ='" + glManagementId + "' ";
-
-            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
-        }
+        } 
+  
         [Authorize, HttpGet]
         public ActionResult getemployeelist(string GlManagementId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                var sql = @"SELECT CheckBoxSelect=cast(case when glme.EmpSystemId is null then 0 else 1 end as bit),Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,DeM.UserName Designation,
+                var sql = @"SELECT CheckBoxSelect=cast(case when glme.Id is null then 0 else 1 end as bit),glme.Id,Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,DeM.UserName Designation,
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,SE.UserName Section,EMP.SectionId,SuS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation,isnull( L.UserName,'') Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
                                         EMP.EmployeeCodeNumeric, EMP.FatherName,FORMAT( EMP.DOB,'dd-MMM-yyyy')DOB,DeM.UserName DesignationGroup,
@@ -1037,7 +998,7 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                var sql = @"SELECT CheckBoxSelect=cast(case when gla.ActionById is null then 0 else 1 end as bit),Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,DeM.UserName Designation,
+                var sql = @"SELECT CheckBoxSelect=cast(case when gla.Id is null then 0 else 1 end as bit),gla.Id,Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,DeM.UserName Designation,
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,SE.UserName Section,EMP.SectionId,SuS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation,isnull( L.UserName,'') Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
                                         EMP.EmployeeCodeNumeric, EMP.FatherName,FORMAT( EMP.DOB,'dd-MMM-yyyy')DOB,DeM.UserName DesignationGroup,
@@ -1080,7 +1041,7 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                var sql = @"SELECT CheckBoxSelect=cast(case when glap.ApproveById is null then 0 else 1 end as bit),Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,DeM.UserName Designation,
+                var sql = @"SELECT CheckBoxSelect=cast(case when glap.Id is null then 0 else 1 end as bit),glap.Id,Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,DeM.UserName Designation,
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,SE.UserName Section,EMP.SectionId,SuS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation,isnull( L.UserName,'') Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
                                         EMP.EmployeeCodeNumeric, EMP.FatherName,FORMAT( EMP.DOB,'dd-MMM-yyyy')DOB,DeM.UserName DesignationGroup,
@@ -1123,7 +1084,7 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                var sql = @"SELECT CheckBoxSelect=cast(case when glrp.ResponsiblePersonId is null then 0 else 1 end as bit),Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,DeM.UserName Designation,
+                var sql = @"SELECT CheckBoxSelect=cast(case when glrp.Id is null then 0 else 1 end as bit),glrp.Id,Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,DeM.UserName Designation,
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,SE.UserName Section,EMP.SectionId,SuS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation,isnull( L.UserName,'') Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
                                         EMP.EmployeeCodeNumeric, EMP.FatherName,FORMAT( EMP.DOB,'dd-MMM-yyyy')DOB,DeM.UserName DesignationGroup,
@@ -1177,112 +1138,6 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-
-        [Authorize]
-        public ActionResult GetExpenseGLData(string glId, string budgetId, string activityId)
-        {
-            try
-            {
-                var sql = @"SELECT  distinct GLGI.Id AS GLGeneralInfoId,'' Id,GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
-                                    , B.BudgetMasterId, B.RefNo, B.BudgetCode, B.BudgetName
-									, A.ActivityId, A.ActivityCode, A.ActivityName--, GLTY.AccountType
-                                    FROM [HKP].[GLGeneralInfo] AS GLGI
-                                    LEFT JOIN [HKP].[GLCompanyGroup] AS GLCG ON GLCG.GLGeneralInfoId=GLGI.Id
-                                    LEFT JOIN [HKP].[GLCompanyInfo] AS GLCI ON GLCI.GLGeneralInfoId=GLGI.Id
-                                    LEFT JOIN [HKP].[GLAccountType] AS GLTY ON GLTY.GLGeneralInfoId=GLGI.Id
-                                    LEFT JOIN (SELECT BM.Id AS BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName, BM.GLGeneralInfoId, BM.RefNo
-	                                    FROM [HKP].[Budget] AS B
-                                        LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.BudgetId=B.Id
-                                    ) AS B ON B.GLGeneralInfoId=GLGI.Id
-                                    LEFT JOIN (SELECT A.Id AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, BA.BudgetMasterId
-	                                    FROM [HKP].[Activity] AS A
-	                                    LEFT JOIN [MST].[BudgetMasterActivity] AS BA ON BA.ActivityId=A.Id
-                                    ) AS A ON A.BudgetMasterId=B.BudgetMasterId
-                             where GLGI.Id = '" + glId + "' and b.BudgetMasterId = '" + budgetId + "'" +
-                             "and a.ActivityId = '" + activityId + "' ";
-
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
-
-        [Authorize]
-        public ActionResult GetConsumableData(string glControlDetailId, string type)
-        {
-            try
-            {
-                var sql = @"select GLCD.Id,GLCD.GLGeneralInfoId,glg.UserName GLGeneralInfoName,GLCD.BudgetMasterId
-						,B.UserName BudgetName,GLCD.ActivityId,A.UserName ActivityName
-						from mst.GLControldetail GLCD
-						left join [HKP].[GLGeneralInfo] glg on glg.Id=GLCD.GLGeneralInfoId
-						left join mst.BudgetMaster BM on BM.Id=GLCD.BudgetMasterId
-						left join HKP.Budget B on B.Id=BM.BudgetId
-						left join [HKP].[Activity] A on A.Id=GLCD.ActivityId
-						where GLCD.GLControlId= '" + glControlDetailId + "' and GLCD.Type = '" + type + "'";
-
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
-
-        [HttpPost]
-        public JsonResult UpdateMaterial(Dictionary<string, object> materialList, string materialId)
-        {
-            DataSet dsMaterial;
-            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-            string materialsql = "SELECT * FROM [MST].[MaterialMaster] WHERE Id  in ('" + materialId + "')";
-            con.OpenDataSetThroughAdapter(materialsql, out dsMaterial, false, "1");
-            #region Material
-            #region data update
-
-            if (materialList != null)
-            {
-                DataView dvsc = new DataView(dsMaterial.Tables[0]);
-
-                if (dvsc.Count > 0)
-                {
-                    DataRow drmo = dvsc[0].Row;
-                    drmo.BeginEdit();
-                    drmo["GLControlMasterId"] = null;
-                    drmo.EndEdit();
-                }
-            }
-
-            #endregion data update
-            #endregion Material
-            clsStaticInfo _info = new clsStaticInfo();
-            _info.SaveDataSets(dsMaterial);
-
-            return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Updated });
-        }
-        [HttpPost]
-        public ActionResult DeleteConsumerable(string id)
-        {
-            string sql = @"select * from [MST].[GLControlDetail] where Id = '" + id + "'";
-            try
-            {
-                if (string.IsNullOrEmpty(id))
-                    throw new Exception("Select entry first");
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from [MST].[GLControlDetail] where Id='" + id + "'");
-                con.CommitTransaction();
-
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
-
 
         [HttpPost, Authorize]
         public ActionResult GetGLControlReport(string glControlId)

@@ -550,39 +550,25 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
 
     //#region Employee 
     $scope.employee = [];
-    $scope.getPopUpData = function () {
+    $scope.getEmployeePopUpData = function () {
         $http({
             method: 'GET',
             url: 'Accounts/GLManagement/getemployeelist?GlManagementId=' + $scope.GlManagementId
         }).then(function successCallback(response) {
             $scope.employee = response.data;
-            $scope.GetSaveEmployee();
         });
     }
 
     $scope.EmployeeList = [];
-    $scope.GetSaveEmployee = function () {
-        $http({
-            method: 'GET',
-            url: 'Accounts/GLManagement/GetSaveEmployee?GlManagementId=' + $scope.GlManagementId
-        }).then(function successCallback(response) {
-            $scope.EmployeeList = response.data;
-        });
-    }
     $scope.OKEmployee = function () {
-        var ob = {};
+        $scope.EmployeeList = [];
         try {
             for (var i = 0; i < $scope.employee.length; i++) {
                 if ($scope.employee[i].CheckBoxSelect == true) {
-                    if (checkDoubleEmployeeInformation($scope.EmployeeList, $scope.employee[i].SystemID) === false) {
-                        //$scope.EmployeeList.push($scope.employee[i]);
-                        ob.Id = null;
-                        ob.EmpSystemId = $scope.employee[i].SystemID;
-                        ob.EmployeeCode = $scope.employee[i].EmployeeCode;
-                        ob.EmployeeName = $scope.employee[i].EmployeeName;
-                        $scope.EmployeeList.push(ob);
-                        ob = {};
-                    }
+                    $scope.EmployeeList.push($scope.employee[i]);
+                }
+                if ($scope.employee[i].CheckBoxSelect == false && $scope.employee[i].Id != null) {
+                    $scope.EmployeeList.push($scope.employee[i]);
                 }
             }
             $scope.SaveEmployeeData();
@@ -590,15 +576,6 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             ShowResult(e, "failure");
         }
     };
-
-    function checkDoubleEmployeeInformation(list, SystemID) {
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].EmpSystemId === SystemID) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     $scope.refreshTemplateEmployee = function (args) {
         $("#Empheadchk").ejCheckBox({ "change": CheckBoxSelectAllEmp });
@@ -648,7 +625,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.getPopUpData($scope.GlManagementId);
+                $scope.getEmployeePopUpData();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -843,48 +820,28 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             url: 'Accounts/GLManagement/getActionBylist?GlManagementId=' + $scope.GlManagementId
         }).then(function successCallback(response) {
             $scope.ActionByListData = response.data;
-            $scope.GetSaveAcionBy();
         });
     }
 
     $scope.ActionByList = [];
-    $scope.GetSaveAcionBy = function () {
-        $http({
-            method: 'GET',
-            url: 'Accounts/GLManagement/GetSaveActionBy?GlManagementId=' + $scope.GlManagementId
-        }).then(function successCallback(response) {
-            $scope.ActionByList = response.data;
-        });
-    }
     $scope.OKActionBy = function () {
-        var ob = {};
+        $scope.ActionByList = [];
         try {
             for (var i = 0; i < $scope.ActionByListData.length; i++) {
                 if ($scope.ActionByListData[i].CheckBoxSelect == true) {
-                    if (checkDoubleABInformation($scope.ActionByList, $scope.ActionByListData[i].SystemID) === false) {
-                        ob.Id = null;
-                        ob.ActionById = $scope.ActionByListData[i].SystemID;
-                        ob.ActionByCode = $scope.ActionByListData[i].EmployeeCode;
-                        ob.ActionByName = $scope.ActionByListData[i].EmployeeName;
-                        $scope.ActionByList.push(ob);
-                        ob = {};
-                    }
+                    $scope.ActionByList.push($scope.ActionByListData[i]);
+                }
+                if ($scope.ActionByListData[i].CheckBoxSelect == false && $scope.ActionByListData[i].Id != null) {
+                    $scope.ActionByList.push($scope.ActionByListData[i]);
                 }
             }
+
             $scope.SaveABData();
         } catch (e) {
             ShowResult(e, "failure");
         }
     };
 
-    function checkDoubleABInformation(list, SystemID) {
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].ActionById === SystemID) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     $scope.refreshTemplateAB = function (args) {
         $("#ABheadchk").ejCheckBox({ "change": CheckBoxSelectAllAB });
@@ -951,32 +908,19 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             url: 'Accounts/GLManagement/getApproveBylist?GlManagementId=' + $scope.GlManagementId
         }).then(function successCallback(response) {
             $scope.ApproveByListData = response.data;
-            $scope.GetSaveApproveBy();
         });
     }
 
     $scope.ApproveByList = [];
-    $scope.GetSaveApproveBy = function () {
-        $http({
-            method: 'GET',
-            url: 'Accounts/GLManagement/GetSaveApproveBy?GlManagementId=' + $scope.GlManagementId
-        }).then(function successCallback(response) {
-            $scope.ApproveByList = response.data;
-        });
-    }
     $scope.OKApproveBy = function () {
-        var ob = {};
+        $scope.ApproveByList = [];
         try {
             for (var i = 0; i < $scope.ApproveByListData.length; i++) {
                 if ($scope.ApproveByListData[i].CheckBoxSelect == true) {
-                    if (checkDoubleAPBInformation($scope.ApproveByList, $scope.ApproveByListData[i].SystemID) === false) {
-                        ob.Id = null;
-                        ob.ApproveById = $scope.ApproveByListData[i].SystemID;
-                        ob.ApproveByCode = $scope.ApproveByListData[i].EmployeeCode;
-                        ob.ApproveByName = $scope.ApproveByListData[i].EmployeeName;
-                        $scope.ApproveByList.push(ob);
-                        ob = {};
-                    }
+                    $scope.ApproveByList.push($scope.ApproveByListData[i]);
+                }
+                if ($scope.ApproveByListData[i].CheckBoxSelect == false && $scope.ApproveByListData[i].Id != null) {
+                    $scope.ApproveByList.push($scope.ApproveByListData[i]);
                 }
             }
             $scope.SaveAPBData();
@@ -984,15 +928,6 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             ShowResult(e, "failure");
         }
     };
-
-    function checkDoubleAPBInformation(list, SystemID) {
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].ApproveById === SystemID) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     $scope.refreshTemplateAPB = function (args) {
         $("#APBheadchk").ejCheckBox({ "change": CheckBoxSelectAllAPB });
@@ -1064,32 +999,19 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             url: 'Accounts/GLManagement/getResponsiblePersonlist?GlManagementId=' + $scope.GlManagementId
         }).then(function successCallback(response) {
             $scope.ResponsiblePersonListData = response.data;
-            $scope.GetSaveResponsiblePerson();
         });
     }
 
     $scope.ResponsiblePersonList = [];
-    $scope.GetSaveResponsiblePerson = function () {
-        $http({
-            method: 'GET',
-            url: 'Accounts/GLManagement/GetSaveResponsiblePerson?GlManagementId=' + $scope.GlManagementId
-        }).then(function successCallback(response) {
-            $scope.ResponsiblePersonList = response.data;
-        });
-    }
     $scope.OKResponsiblePerson = function () {
-        var ob = {};
+        $scope.ResponsiblePersonList = [];
         try {
             for (var i = 0; i < $scope.ResponsiblePersonListData.length; i++) {
                 if ($scope.ResponsiblePersonListData[i].CheckBoxSelect == true) {
-                    if (checkDoubleRPInformation($scope.ResponsiblePersonList, $scope.ResponsiblePersonListData[i].SystemID) === false) {
-                        ob.Id = null;
-                        ob.ResponsiblePersonId = $scope.ResponsiblePersonListData[i].SystemID;
-                        ob.ResponsiblePersonCode = $scope.ResponsiblePersonListData[i].EmployeeCode;
-                        ob.ResponsiblePersonName = $scope.ResponsiblePersonListData[i].EmployeeName;
-                        $scope.ResponsiblePersonList.push(ob);
-                        ob = {};
-                    }
+                    $scope.ResponsiblePersonList.push($scope.ResponsiblePersonListData[i]);
+                }
+                if ($scope.ResponsiblePersonListData[i].CheckBoxSelect == false && $scope.ResponsiblePersonListData[i].Id != null) {
+                    $scope.ResponsiblePersonList.push($scope.ResponsiblePersonListData[i]);
                 }
             }
             $scope.SaveRPData();
@@ -1098,15 +1020,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         }
     };
 
-    function checkDoubleRPInformation(list, SystemID) {
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].ResponsiblePersonId === SystemID) {
-                return true;
-            }
-        }
-        return false;
-    }
-
+ 
     $scope.refreshTemplateRP = function (args) {
         $("#RPheadchk").ejCheckBox({ "change": CheckBoxSelectAllRP });
     };
@@ -1164,32 +1078,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
 
     //#endregion Responsible Person
 
-    $scope.DeleteMaterial = function () {
-
-        $http({
-            method: 'POST',
-            url: 'Accounts/GeneralAccountDeterminate/UpdateMaterial',
-            data: { 'materialId': $scope.materialId, 'materialList': $scope.materialMasterDataList },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.selectIDs();
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
-        }
-
-    }
-
-    // #endregion ---------------------------------      MATERIAL ALLOCACTION GRID      -----------------------------------//
-
-
-    // #region ---------------------------------      Expense     -----------------------------------//
-
+  
     $scope.report = {
         GLName: null,
         GLGeneralInfoId: null,
@@ -1298,90 +1187,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         return false;
     }
 
-    $scope.setSelected = function (data) {
-
-        if ($scope.tabType == 'consumableTab') {
-            $scope.Type = "Consumable";
-
-            if (checkConsumableExist($scope.ExpenseGLList, data) === false) {
-                $scope.ExpenseGLList.push({
-                    Id: null,
-                    GLGeneralInfoId: data.GLGeneralInfoId,
-                    GLGeneralInfoName: data.GLGeneralInfoName,
-                    BudgetMasterId: data.BudgetMasterId,
-                    BudgetName: data.BudgetName,
-                    ActivityName: data.ActivityName,
-                    ActivityId: data.ActivityId,
-                    BudgetMasterActivityId: data.BudgetMasterActivityId,
-                    Type: $scope.Type
-                });
-            }
-            else {
-                ShowResult(data.GLGeneralInfoName + " is already  Exist", "failure");
-            }
-        }
-
-        else if ($scope.tabType == 'inventoryTab') {
-            $scope.Type = "Inventory";
-            if (checkConsumableExist($scope.InventoryGLList, data) === false) {
-                $scope.InventoryGLList.push({
-                    Id: null,
-                    GLGeneralInfoId: data.GLGeneralInfoId,
-                    GLGeneralInfoName: data.GLGeneralInfoName,
-                    BudgetMasterId: data.BudgetMasterId,
-                    BudgetName: data.BudgetName,
-                    ActivityName: data.ActivityName,
-                    ActivityId: data.ActivityId,
-                    BudgetMasterActivityId: data.BudgetMasterActivityId,
-                    Type: $scope.Type
-                });
-            }
-            else {
-                ShowResult(data.GLGeneralInfoName + " is already  Exist", "failure");
-            }
-        }
-        else if ($scope.tabType == 'inventoryCapitalTab') {
-            $scope.Type = "InventoryCapital";
-            if (checkConsumableExist($scope.InventoryCapitalGLList, data) === false) {
-                $scope.InventoryCapitalGLList.push({
-                    Id: null,
-                    GLGeneralInfoId: data.GLGeneralInfoId,
-                    GLGeneralInfoName: data.GLGeneralInfoName,
-                    BudgetMasterId: data.BudgetMasterId,
-                    BudgetName: data.BudgetName,
-                    ActivityName: data.ActivityName,
-                    ActivityId: data.ActivityId,
-                    BudgetMasterActivityId: data.BudgetMasterActivityId,
-                    Type: $scope.Type
-                });
-            }
-            else {
-                ShowResult(data.GLGeneralInfoName + " is already  Exist", "failure");
-            }
-        }
-        else {
-            $scope.Type = "Capital";
-            if (checkConsumableExist($scope.CapitalGLList, data) === false) {
-                $scope.CapitalGLList.push({
-                    Id: null,
-                    GLGeneralInfoId: data.GLGeneralInfoId,
-                    GLGeneralInfoName: data.GLGeneralInfoName,
-                    BudgetMasterId: data.BudgetMasterId,
-                    BudgetName: data.BudgetName,
-                    ActivityName: data.ActivityName,
-                    ActivityId: data.ActivityId,
-                    BudgetMasterActivityId: data.BudgetMasterActivityId,
-                    Type: $scope.Type
-                });
-            }
-            else {
-                ShowResult(data.GLGeneralInfoName + " is already  Exist", "failure");
-            }
-        }
-
-        $scope.closeCOAICodeListPopUp();
-    };
-
+ 
     $scope.ExpenseGLList = [];
     $scope.selectGLBudget = function (data) {
         $http({
@@ -1398,196 +1204,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         })
     }
 
-    $scope.tempIndex = [];
-    $scope.RemoveIndex = [];
-    $scope.RemoveExpense = function (data, index, removeRow) {
-        $scope.tempIndex = index;
-        $scope.RemoveIndex = removeRow;
-        if (data.Id != null) {
-            $scope.consumableId = data.Id;
-        }
-        else {
-            $scope.consumableId = "";
-        }
-        if (baseService.isUndefinedOrNull(data.UserName))
-            $scope.message_confirmation = 'Are you sure want to remove this data....';
-        else
-            $scope.message_confirmation = 'Are you sure want to remove ?';
-        angular.element(document.querySelector('#confirmgenericPopUp')).modal('show');
-    };
-
-    $scope.RemoveRow = function () {
-        if ($scope.RemoveIndex == 'inventoryTabDel') {
-            if (baseService.isUndefinedOrNull($scope.consumableId)) {
-                $scope.InventoryGLList.splice($scope.tempIndex, 1);
-            }
-            else {
-                $http({
-                    method: 'POST',
-                    url: 'Accounts/GeneralAccountDeterminate/DeleteConsumerable',
-                    data: { 'Id': $scope.consumableId },
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                $scope.InventoryGLList.splice($scope.tempIndex, 1);
-            }
-
-        }
-
-        else if ($scope.RemoveIndex == 'consumableTabDel') {
-            if (baseService.isUndefinedOrNull($scope.consumableId)) {
-                $scope.ExpenseGLList.splice($scope.tempIndex, 1);
-            }
-            else {
-                $http({
-                    method: 'POST',
-                    url: 'Accounts/GeneralAccountDeterminate/DeleteConsumerable',
-                    data: { 'Id': $scope.consumableId },
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                $scope.ExpenseGLList.splice($scope.tempIndex, 1);
-            }
-
-        }
-
-        else if ($scope.RemoveIndex == 'inventoryCapitalTabDel') {
-            if (baseService.isUndefinedOrNull($scope.consumableId)) {
-                $scope.InventoryGLList.splice($scope.tempIndex, 1);
-            }
-            else {
-                $http({
-                    method: 'POST',
-                    url: 'Accounts/GeneralAccountDeterminate/DeleteConsumerable',
-                    data: { 'Id': $scope.consumableId },
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                $scope.InventoryCapitalGLList.splice($scope.tempIndex, 1);
-            }
-
-        }
-
-        else {
-            if (baseService.isUndefinedOrNull($scope.consumableId)) {
-                $scope.CapitalGLList.splice($scope.tempIndex, 1);
-            }
-            else {
-                $http({
-                    method: 'POST',
-                    url: 'Accounts/GeneralAccountDeterminate/DeleteConsumerable',
-                    data: { 'Id': $scope.consumableId },
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                $scope.CapitalGLList.splice($scope.tempIndex, 1);
-            }
-
-        }
-
-    }
-
-    $scope.selectExpenseGL = function (data) {
-        $scope.TabType = "Consumable";
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetConsumableData",
-            data: { 'glControlDetailId': data, 'type': $scope.TabType },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.ExpenseGLList = response.data;
-        })
-    }
-
-    $scope.InventoryGLList = [];
-    $scope.selectInventoryGLBudget = function (data) {
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetExpenseGLData",
-            data: {
-                'glId': data.GLGeneralInfoId,
-                'budgetId': data.BudgetMasterId,
-                'activityId': data.ActivityId
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.InventoryGLList = response.data;
-        })
-    }
-
-
-    $scope.GetInventoryGL = function (data) {
-        $scope.TabType = "Inventory";
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetConsumableData",
-            data: { 'glControlDetailId': data, 'type': $scope.TabType },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.InventoryGLList = response.data;
-        })
-    }
-
-    $scope.InventoryCapitalGLList = [];
-    $scope.GetInventoryCapitalGL = function (data) {
-        $scope.TabType = "InventoryCapital";
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetConsumableData",
-            data: { 'glControlDetailId': data, 'type': $scope.TabType },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.InventoryCapitalGLList = response.data;
-        })
-    }
-
-    $scope.CapitalGLList = [];
-    $scope.GetCapitalGL = function (data) {
-        $scope.TabType = "Capital";
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetConsumableData",
-            data: { 'glControlDetailId': data, 'type': $scope.TabType },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.CapitalGLList = response.data;
-        })
-    }
-
-    // #endregion --------------------------------- Inventory  -----------------------------------//
-
+  
     $scope.GLControlReport = function (data, index) {
         $scope.fileName = "GLControlReport.xlsx";
 
