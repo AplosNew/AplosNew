@@ -422,6 +422,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         };
         $scope.index = -1;
     }
+    $scope.hsnCodeList = [];
     cboService.getHNSCbo(function (response) {
         $scope.hsnCodeList = response;
     });

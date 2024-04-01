@@ -910,7 +910,8 @@ UNION ALL
 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty 
 else 0 END AS decimal(18,2))-ISNULL(tav.av, 0)AS decimal(18,2)),0)
  ,ISNULL(ltrn.ldays, 0) Applied,ISNULL(tav.av, 0) Availed,ISNULL(R.Rejected,0) Rejected,ISNULL(acApl.ldays,0) ldays,A.LeaveType,CAST (0 AS BIT) IsBroughtForwardAdd
- ,(round((CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2))) * 2, 0)/2) as Earned
+ ,Earned=CASE WHEN ltd.LvAvailedOnFixedOrPercentage='Percentage' THEN (round((CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2))) * 2, 0)/2)*ltd.LvCanAvailQuantity/100
+ ELSE (round((CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2))) * 2, 0)/2) END
 
 ,Balance=ROUND(CAST (A.Opening +CAST(case when ltd.EncashWorkingDaysQty >0 
 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty 

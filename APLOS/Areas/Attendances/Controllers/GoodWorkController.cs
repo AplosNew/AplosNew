@@ -1248,11 +1248,89 @@ namespace Aplos.Areas.Attendances.Controllers
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public ActionResult GetGoodWorkPaymentAdvisePendingPaymentList()
+        {
+            string sql = @"select ei.EmployeeCode,ei.EmployeeName ByWhom,gwp.Id,FORMAT(gwp.FromDate,'dd-MMM-yyy') FromDate,FORMAT(gwp.ToDate,'dd-MMM-yyy')ToDate
+						,gwp.UserRef,FORMAT(gwp.PaymentDate,'dd-MMM-yyy') PaymentDate,gwp.Remarks,gwp.PaymentSource
+						from GoodWorkPaymentAdvise gwp 
+						left join EmployeeInformation ei on ei.SystemId=gwp.ByWhomId
+                        where gwp.ApprovedStatus is null ";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public JsonResult SaveGoodWorkPaymentAdvisePendingPayment(Dictionary<string, object> data, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail)
+        {
+            try
+            {
+                string goodWorkPaymentAdviseDetailIds = "";
+                if (goodWorkPaymentAdviseDetail != null)
+                {
+                    foreach (var item in goodWorkPaymentAdviseDetail)
+                    {
+                        if (goodWorkPaymentAdviseDetailIds == "")
+                        {
+                            goodWorkPaymentAdviseDetailIds = "'" + item["Id"] + "'"; ;
+                        }
+                        else
+                        {
+                            goodWorkPaymentAdviseDetailIds += ",'" + item["Id"] + "'";
+
+                        }
+                    }
+                }
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("UPDATE [dbo].[GoodWorkPaymentAdvise] SET PaymentCreationById='" + identity.EmployeeId + "' ,ApprovedStatus='PaymentCreation'  where Id='" + data["Id"] + "' ");
+                con.executeQuery("UPDATE [dbo].[GoodWorkPaymentAdvisedetail] SET IsCheck=1  where Id in (" + goodWorkPaymentAdviseDetailIds + ") ");
+                con.CommitTransaction();
+
+                
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetGoodWorkPaymentAdvisePendingApprovalList()
+        {
+            string sql = @"select ei.EmployeeCode,ei.EmployeeName ByWhom,gwp.Id,FORMAT(gwp.FromDate,'dd-MMM-yyy') FromDate,FORMAT(gwp.ToDate,'dd-MMM-yyy')ToDate
+						,gwp.UserRef,FORMAT(gwp.PaymentDate,'dd-MMM-yyy') PaymentDate,gwp.Remarks,gwp.PaymentSource
+						from GoodWorkPaymentAdvise gwp 
+						left join EmployeeInformation ei on ei.SystemId=gwp.ByWhomId
+                        where gwp.ApprovedStatus ='PaymentCreation' ";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult SaveGoodWorkPaymentAdvisePendingApproval(Dictionary<string, object> data)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("UPDATE [dbo].[GoodWorkPaymentAdvise] SET ApprovedById='" + identity.EmployeeId + "' ,ApprovedStatus='PaymentApproved'  where Id='" + data["Id"] + "' ");
+                con.CommitTransaction();
+                return Json(new { Error = false, Data = data, Message = "Approved Successfully" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
 
         [HttpGet, Authorize]
         public ActionResult GetGoodWorkPaymentAdviseDetailList(string paymentAdviseId)
         {
-            string sql = @"select gwpad.Id,gwpad.PaymentAdviseId,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour,gwpad.Hour*60 Minute,gwpad.Rate,gwpad.Amount,gwpad.Remarks
+            string sql = @"select gwpad.Id,gwpad.PaymentAdviseId,gwpad.EmpSystemId,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour,gwpad.Hour*60 Minute,gwpad.Rate,gwpad.Amount,gwpad.Remarks
                             from GoodWorkPaymentAdviseDetail gwpad
                             left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
 							left join GoodWorkPaymentAdvise gwpa on gwpa.Id=gwpad.PaymentAdviseId
@@ -1260,6 +1338,67 @@ namespace Aplos.Areas.Attendances.Controllers
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public ActionResult GetGoodWorkPaymentAdviseDetailCheckedList(string paymentAdviseId)
+        {
+            string sql = @"select CheckBoxSelect=cast(case when gwpad.IsDisburse is null then 0 else 1 end as bit),gwpad.Id,gwpad.PaymentAdviseId,gwpad.EmpSystemId,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour,gwpad.Hour*60 Minute,gwpad.Rate,gwpad.Amount,gwpad.Remarks
+                            ,gwpad.IsCheck,isnull(gwpad.IsDisburse,0)IsDisburse
+                            from GoodWorkPaymentAdviseDetail gwpad
+                            left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
+							left join GoodWorkPaymentAdvise gwpa on gwpa.Id=gwpad.PaymentAdviseId
+                            where gwpa.Id='" + paymentAdviseId + "' and gwpad.IsCheck=1";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetGoodWorkPaymentAdviseApprovedList()
+        {
+            string sql = @"select ei.EmployeeCode,ei.EmployeeName ByWhom,gwp.Id,FORMAT(gwp.FromDate,'dd-MMM-yyy') FromDate,FORMAT(gwp.ToDate,'dd-MMM-yyy')ToDate
+						,gwp.UserRef,FORMAT(gwp.PaymentDate,'dd-MMM-yyy') PaymentDate,gwp.Remarks,gwp.PaymentSource
+						from GoodWorkPaymentAdvise gwp 
+						left join EmployeeInformation ei on ei.SystemId=gwp.ByWhomId
+                        where gwp.ApprovedStatus ='PaymentApproved' ";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public JsonResult SaveGoodWorkPaymentAdvisePayments(Dictionary<string, object> data, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail)
+        {
+            try
+            {
+                string goodWorkPaymentAdviseDetailIds = "";
+                if (goodWorkPaymentAdviseDetail != null)
+                {
+                    foreach (var item in goodWorkPaymentAdviseDetail)
+                    {
+                        if (goodWorkPaymentAdviseDetailIds == "")
+                        {
+                            goodWorkPaymentAdviseDetailIds = "'" + item["Id"] + "'"; ;
+                        }
+                        else
+                        {
+                            goodWorkPaymentAdviseDetailIds += ",'" + item["Id"] + "'";
+
+                        }
+                    }
+                }
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                //con.executeQuery("UPDATE [dbo].[GoodWorkPaymentAdvise] SET PaymentCreationById='" + identity.EmployeeId + "' ,ApprovedStatus='PaymentCreation'  where Id='" + data["Id"] + "' ");
+                con.executeQuery("UPDATE [dbo].[GoodWorkPaymentAdvisedetail] SET IsDisburse=1  where Id in (" + goodWorkPaymentAdviseDetailIds + ") ");
+                con.CommitTransaction();
+
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetGoodWorkPaymentAdviseOTDetailList(string paymentAdviseId)
         {

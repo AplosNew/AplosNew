@@ -1265,6 +1265,7 @@ upanelApp.controller("BarcodeGeneratorSettingController", BarcodeGeneratorSettin
 upanelApp.controller("GLManagementController", GLManagementController)
 upanelApp.controller("BudgetControlController", BudgetControlController)
 upanelApp.controller("EmployeeSeperationSetupController", EmployeeSeperationSetupController)
+upanelApp.controller("fullandfinalSettlementController", fullandfinalSettlementController)
 
 
 

@@ -261,16 +261,15 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
 
     //#region LegalDesignation
 
-    $scope.popUpDataList = [];
+    $scope.DesignationDataList = [];
     $scope.GetDesignationInformation = function () {
         try {
             $http({
                 method: 'GET',
-                url: 'Accounts/GLManagement/GetDesignationInformation'
+                url: 'Accounts/GLManagement/GetDesignationInformation?GlManagementId=' + $scope.GlManagementId,
             }).then(function successCallback(response) {
-                $scope.popUpDataList = response.data;
+                $scope.DesignationDataList = response.data;
             });
-            angular.element(document.querySelector('#LDPopUp')).modal('show');
         } catch (e) {
             ShowResult(e, "failure");
         }
@@ -286,10 +285,10 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             ChkOrUnchk = true;
         }
 
-        var filtered = $("#desInfoGrid").data("ejGrid").getFilteredRecords();
+        var filtered = $("#GridDes").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.popUpDataList.length; i++) {
-                $scope.popUpDataList[i].CheckBoxSelect = ChkOrUnchk;
+            for (var i = 0; i < $scope.DesignationDataList.length; i++) {
+                $scope.DesignationDataList[i].CheckBoxSelect = ChkOrUnchk;
             }
         }
         else {
@@ -297,47 +296,43 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
                 filtered[j].CheckBoxSelect = ChkOrUnchk;
             }
         }
-        var gridObj = $("#desInfoGrid").data("ejGrid");
+        var gridObj = $("#GridDes").data("ejGrid");
         gridObj.refreshContent();
     };
 
-    $scope.OK = function () {
+    $scope.DesignationList = [];
+    $scope.OKDesignationInformation = function () {
         try {
-            for (var i = 0; i < $scope.popUpDataList.length; i++) {
-                if ($scope.popUpDataList[i].CheckBoxSelect == true) {
-                    if (checkDoubleDesignationInformation($scope.DesignationList, $scope.popUpDataList[i].DesignationId) === false) {
-                        $scope.DesignationList.push($scope.popUpDataList[i]);
-                    }
+            $scope.DesignationList = [];
+            for (var i = 0; i < $scope.DesignationDataList.length; i++) {
+                if ($scope.DesignationDataList[i].CheckBoxSelect == true) {
+                    $scope.DesignationList.push($scope.DesignationDataList[i]);
+                }
+                if ($scope.DesignationDataList[i].CheckBoxSelect == false && $scope.DesignationDataList[i].Id != null) {
+                    $scope.DesignationList.push($scope.DesignationDataList[i]);
                 }
             }
-            angular.element(document.querySelector('#LDPopUp')).modal('hide');
             $scope.SaveDesignation();
         } catch (e) {
             ShowResult(e, "failure");
         }
     };
 
-    function checkDoubleDesignationInformation(list, DesignationId) {
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].DesignationId === DesignationId) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    $scope.designation = {
-        Id: null,
-        DesignationId: null,
-        Designation: null
-    };
-    $scope.designationNew = angular.copy($scope.designation);
-
 
     $scope.SaveDesignation = function () {
         if (baseService.isUndefinedOrNull($scope.GlManagementId)) {
             return ShowResult('Please select GL Management!', 'failure');
         }
+        for (var i = 0; i < $scope.DesignationList.length; i++) {
+            for (var j = 0; j < $scope.DesignationDataList.length; j++) {
+                if ($scope.DesignationDataList[j].Id == $scope.DesignationList[i].Id) {
+                    if ($scope.DesignationDataList[j].CheckBoxSelect == false) {
+                        $scope.DesignationList[i].CheckBoxSelect = false;
+                    }
+                }
+            }
+        }
+
         $http({
             method: 'POST',
             url: $scope.saveDesignationUrl,
@@ -349,14 +344,13 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.GetDesignationData($scope.GlManagementId);
+                $scope.GetDesignationInformation();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
         }
     };
 
-    $scope.DesignationList = [];
     $scope.GetDesignationData = function () {
         $http({
             method: 'POST',
@@ -367,56 +361,19 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             $scope.DesignationList = response.data;
         })
     }
-    $scope.closeDesignationCodePopUp = function () {
-        angular.element(document.querySelector('#LDPopUp')).modal('hide');
-    }
-
-    $scope.message_detailconfirmation = null;
-    $scope.removeDesignation = function (obj) {
-        $scope.designationNew = obj.data;
-        if (!baseService.isUndefinedOrNull($scope.designationNew.Id))
-            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.designationNew.Designation + ' ]';
-        angular.element(document.querySelector('#confirmDesignationDeletePopUp')).modal('show');
-    }
-
-    $scope.DeleteDesignation = function () {
-        $http.get('Accounts/GLManagement/DeleteDesignationData?id=' + $scope.designationNew.DesignationId)
-            .then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.GetDesignationData($scope.GlManagementId);
-                }
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            });
-    };
 
     //#endregion LegalDesignation
 
-    //#region position
-
-    $scope.selectPositionCode = function () {
-        $scope.getPositionCode();
-        angular.element(document.querySelector('#PositionCodePopUp')).modal('show');
-    }
-
-    $scope.PositionCodeList = [];
+    //#region position 
+    $scope.PositionCodeListData = [];
     $scope.getPositionCode = function () {
         $http({
             method: 'Get',
-            url: $scope.path + 'GetPositionCode',
+            url: 'Accounts/GLManagement/GetPositionCode?GlManagementId=' + $scope.GlManagementId,
             dataType: 'JSON'
         }).then(function succ(resp) {
-            $scope.PositionCodeList = resp.data;
+            $scope.PositionCodeListData = resp.data;
         });
-    }
-
-    $scope.closePositionCodePopUp = function () {
-        angular.element(document.querySelector('#PositionCodePopUp')).modal('hide');
     }
 
     $scope.refreshTemplatePC = function (args) {
@@ -429,10 +386,10 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             ChkOrUnchk = true;
         }
 
-        var filtered = $("#GridPositionCode").data("ejGrid").getFilteredRecords();
+        var filtered = $("#GridPC").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.PositionCodeList.length; i++) {
-                $scope.PositionCodeList[i].CheckBoxSelect = ChkOrUnchk;
+            for (var i = 0; i < $scope.PositionCodeListData.length; i++) {
+                $scope.PositionCodeListData[i].CheckBoxSelect = ChkOrUnchk;
             }
         }
         else {
@@ -440,44 +397,47 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
                 filtered[j].CheckBoxSelect = ChkOrUnchk;
             }
         }
-        var gridObj = $("#GridPositionCode").data("ejGrid");
+        var gridObj = $("#GridPC").data("ejGrid");
         gridObj.refreshContent();
     };
 
+    $scope.PositionCodeData = [];
     $scope.OKPositionCode = function () {
         try {
-            for (var i = 0; i < $scope.PositionCodeList.length; i++) {
-                if ($scope.PositionCodeList[i].CheckBoxSelect == true) {
-                    if (checkDoublePositionCodeInformation($scope.PositionCodeListData, $scope.PositionCodeList[i].PositionCodeId) === false) {
-                        $scope.PositionCodeListData.push($scope.PositionCodeList[i]);
-                    }
+            $scope.PositionCodeData = [];
+            for (var i = 0; i < $scope.PositionCodeListData.length; i++) {
+                if ($scope.PositionCodeListData[i].CheckBoxSelect == true) {
+                    $scope.PositionCodeData.push($scope.PositionCodeListData[i]);
+                }
+                if ($scope.PositionCodeListData[i].CheckBoxSelect == false && $scope.PositionCodeListData[i].Id != null) {
+                    $scope.PositionCodeData.push($scope.PositionCodeListData[i]);
                 }
             }
-            angular.element(document.querySelector('#PositionCodePopUp')).modal('hide');
             $scope.SavePositionCode();
         } catch (e) {
             ShowResult(e, "failure");
         }
     };
 
-    function checkDoublePositionCodeInformation(list, PositionCodeId) {
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].PositionCodeId === PositionCodeId) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 
     $scope.SavePositionCode = function () {
         if (baseService.isUndefinedOrNull($scope.GlManagementId)) {
             return ShowResult('Please select GL Management!', 'failure');
         }
+        for (var i = 0; i < $scope.PositionCodeData.length; i++) {
+            for (var j = 0; j < $scope.PositionCodeListData.length; j++) {
+                if ($scope.PositionCodeListData[j].Id == $scope.PositionCodeData[i].Id) {
+                    if ($scope.PositionCodeListData[j].CheckBoxSelect == false) {
+                        $scope.PositionCodeData[i].CheckBoxSelect = false;
+                    }
+                }
+            }
+        }
+
         $http({
             method: 'POST',
             url: $scope.savePositionCodeUrl,
-            data: { 'data': $scope.PositionCodeListData, 'GlManagementId': $scope.GlManagementId },
+            data: { 'data': $scope.PositionCodeData, 'GlManagementId': $scope.GlManagementId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -485,47 +445,14 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.GetPositionCodeData($scope.GlManagementId);
+                $scope.getPositionCode();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
         }
     };
 
-    $scope.PositionCodeListData = [];
-    $scope.GetPositionCodeData = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetPositionCodeData",
-            data: { 'glManagementId': $scope.GlManagementId },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.PositionCodeListData = response.data;
-        })
-    }
-    $scope.message_PCconfirmation = null;
-    $scope.removePositionCode = function (obj) {
-        $scope.PCNew = obj.data;
-        if (!baseService.isUndefinedOrNull($scope.PCNew.Code))
-            $scope.message_PCconfirmation = 'Are you sure want to delete permanently [ ' + $scope.PCNew.Code + ' ]';
-        angular.element(document.querySelector('#confirmPCDeletePopUp')).modal('show');
-    }
 
-    $scope.DeletePositionCode = function () {
-        $http.get('Accounts/GLManagement/DeletePositionCodeData?id=' + $scope.PCNew.PositionCodeId)
-            .then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.GetPositionCodeData($scope.GlManagementId);
-                }
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            });
-    };
 
     //#endregion position
 
@@ -536,50 +463,32 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         try {
             $http({
                 method: 'GET',
-                url: 'employees/recruitment/getbudgetcodelist'
+                url: 'Accounts/GLManagement/getbudgetcodelist?GlManagementId=' + $scope.GlManagementId
             }).then(function successCallback(response) {
-                $scope.BudgetCodepopUpDataList = response.data.Rows;
+                $scope.BudgetCodepopUpDataList = response.data;
             });
-            angular.element(document.querySelector('#BudgetCodepopUpId')).modal('show');
         } catch (e) {
             ShowResult(e, "failure");
         }
     };
 
-    $scope.closeBudgetCodePopUp = function () {
-        angular.element(document.querySelector('#BudgetCodepopUpId')).modal('hide');
-    }
-
+    $scope.BudgetCodeList = [];
     $scope.OKBudgetCode = function () {
+        $scope.BudgetCodeList = [];
         try {
-            var ob = {};
             for (var i = 0; i < $scope.BudgetCodepopUpDataList.length; i++) {
                 if ($scope.BudgetCodepopUpDataList[i].CheckBoxSelect == true) {
-                    if (checkDoubleBudgetCodeInformation($scope.BudgetCodeList, $scope.BudgetCodepopUpDataList[i].Id) === false) {
-                        //$scope.BudgetCodeList.push($scope.BudgetCodepopUpDataList[i]);
-                        ob.Id = null;
-                        ob.BudgetCodeId = $scope.BudgetCodepopUpDataList[i].Id;
-                        ob.Code = $scope.BudgetCodepopUpDataList[i].Code;
-                        ob.Position = $scope.BudgetCodepopUpDataList[i].PositionName;
-                        $scope.BudgetCodeList.push(ob);
-                    }
+                    $scope.BudgetCodeList.push($scope.BudgetCodepopUpDataList[i]);
+                }
+                if ($scope.BudgetCodepopUpDataList[i].CheckBoxSelect == false && $scope.BudgetCodepopUpDataList[i].Id != null) {
+                    $scope.BudgetCodeList.push($scope.BudgetCodepopUpDataList[i]);
                 }
             }
-            angular.element(document.querySelector('#BudgetCodepopUpId')).modal('hide');
             $scope.SaveBudgetCode();
         } catch (e) {
             ShowResult(e, "failure");
         }
     };
-
-    function checkDoubleBudgetCodeInformation(list, Id) {
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].BudgetCodeId === Id) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     $scope.refreshTemplateBC = function (args) {
         $("#BCheadchk").ejCheckBox({ "change": CheckBoxSelectAllBC });
@@ -609,6 +518,16 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         if (baseService.isUndefinedOrNull($scope.GlManagementId)) {
             return ShowResult('Please select GL Management!', 'failure');
         }
+        for (var i = 0; i < $scope.BudgetCodeList.length; i++) {
+            for (var j = 0; j < $scope.BudgetCodepopUpDataList.length; j++) {
+                if ($scope.BudgetCodepopUpDataList[j].BudgetCodeId == $scope.BudgetCodeList[i].BudgetCodeId) {
+                    if ($scope.BudgetCodepopUpDataList[j].CheckBoxSelect == false) {
+                        $scope.BudgetCodeList[i].CheckBoxSelect = false;
+                    }
+                }
+            }
+        }
+
         $http({
             method: 'POST',
             url: $scope.saveBudgetCodeUrl,
@@ -620,47 +539,11 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.GetBudgetCodeData($scope.GlManagementId);
+                $scope.GetBudgetCodeInformation();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
         }
-    };
-
-    $scope.BudgetCodeList = [];
-    $scope.GetBudgetCodeData = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetBudgetCodeData",
-            data: { 'glManagementId': $scope.GlManagementId },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.BudgetCodeList = response.data;
-        })
-    }
-
-    $scope.message_BCconfirmation = null;
-    $scope.removeBudgetCode = function (obj) {
-        $scope.BCNew = obj.data;
-        if (!baseService.isUndefinedOrNull($scope.BCNew.Id))
-            $scope.message_BCconfirmation = 'Are you sure want to delete permanently [ ' + $scope.BCNew.Code + ' ]';
-        angular.element(document.querySelector('#confirmBCDeletePopUp')).modal('show');
-    }
-
-    $scope.DeleteBudgetCode = function () {
-        $http.get('Accounts/GLManagement/DeleteBudgetCodeData?id=' + $scope.BCNew.BudgetCodeId)
-            .then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.GetBudgetCodeData($scope.GlManagementId);
-                }
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            });
     };
 
     //#endregion BudgetCode
@@ -789,7 +672,6 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     $scope.ControlDrList = [];
     $scope.OKControlDr = function (obj) {
         $scope.TabName = obj;
-        var ob = {};
         $scope.ControlDrList = [];
         try {
             for (var i = 0; i < $scope.ControlDrListData.length; i++) {
@@ -805,15 +687,6 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             ShowResult(e, "failure");
         }
     };
-
-    function checkDoubleDrInformation(list, Id) {
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].BudgetMasterActivityId === Id) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     $scope.refreshTemplateControlDr = function (args) {
         $("#CDrheadchk").ejCheckBox({ "change": CheckBoxSelectAllCDr });
@@ -888,16 +761,14 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     $scope.ControlCrList = [];
     $scope.OKControlCr = function (obj) {
         $scope.TabName = obj;
-        var ob = {};
+        $scope.ControlCrList = [];
         try {
             for (var i = 0; i < $scope.ControlCrListData.length; i++) {
                 if ($scope.ControlCrListData[i].CheckBoxSelect == true) {
-                    if (checkDoubleCrInformation($scope.ControlCrList, $scope.ControlCrListData[i].Id) === false) {
-                        //ob.Id = null;
-                        //ob.BudgetMasterActivityIdCr = $scope.ControlCrListData[i].BudgetMasterActivityId;
-                        //ob = {};
-                        $scope.ControlCrList.push($scope.ControlCrListData[i]);
-                    }
+                    $scope.ControlCrList.push($scope.ControlCrListData[i]);
+                }
+                if ($scope.ControlCrListData[i].CheckBoxSelect == false && $scope.ControlCrListData[i].Id != null) {
+                    $scope.ControlCrList.push($scope.ControlCrListData[i]);
                 }
             }
             $scope.SaveControlCrData();
@@ -905,15 +776,6 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             ShowResult(e, "failure");
         }
     };
-
-    function checkDoubleCrInformation(list, Id) {
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].BudgetMasterActivityId === Id) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     $scope.refreshTemplateControlCr = function (args) {
         $("#CCrheadchk").ejCheckBox({ "change": CheckBoxSelectAllCCr });
