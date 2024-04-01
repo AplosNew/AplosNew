@@ -200,7 +200,7 @@ namespace Aplos
                   "~/Scripts/MyApp/empPasswordChangeController.js",
                   "~/Scripts/MyApp/epanelLogoutController.js",
                   "~/Scripts/MyApp/myAppCalendarController.js",
-                   "~/Areas/Products/Scripts/RequisitionController.js",
+                  "~/Areas/Products/Scripts/RequisitionController.js",
                   "~/Areas/Products/Scripts/InventoryCheckApprovedController.js",
                   "~/Areas/MeetingManagement/Scripts/MeetingPointsController.js",
                   "~/Areas/MeetingManagement/Scripts/MeetingReportsController.js",
@@ -214,9 +214,7 @@ namespace Aplos
                   "~/Areas/Employees/Scripts/myappEmployeeLedgerReportController.js",
                   "~/Areas/HumanResource/Scripts/VehicleMovementRequisitionController.js",
                   "~/Areas/FixedAssets/Scripts/CapitalizeAssetRegisterApprovalController.js",
-                  
-
-
+                  "~/Areas/Administration/Scripts/GeneralApprovedController.js",
                   "~/Scripts/MyApp/epanelApp.js"
                   ));
 

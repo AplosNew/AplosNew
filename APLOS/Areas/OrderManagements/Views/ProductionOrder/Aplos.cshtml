@@ -133,7 +133,7 @@
             <div class="col-sm-8" style="padding-top: 8px;">
                 <div class="checkbox-site">
                     <label>
-                        <input type="checkbox" ng-model="model.IsPreDefineLotApplicable" ng-disabled="model.UsedInPB==true" tabindex="8">
+                        <input type="checkbox" ng-model="model.IsPreDefineLotApplicable" ng-disabled="lotControlList.length>0" tabindex="8">
                         <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                     </label>
                 </div>

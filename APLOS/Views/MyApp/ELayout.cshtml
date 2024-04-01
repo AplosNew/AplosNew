@@ -33,6 +33,7 @@
     @Scripts.Render("~/bundles/humanresource")
     @Scripts.Render("~/bundles/MeetingPoints")
     @Scripts.Render("~/bundles/FixedAssets")
+    @Scripts.Render("~/bundles/Administration")
     @Scripts.Render("~/bundles/epanel")
 
 
@@ -123,6 +124,12 @@
                                 <li><a href="{{bootPoint}}employee-calendar">Calendar</a></li>
                                 <li><a href="{{bootPoint}}employee-job-card">Job Card</a></li>
 
+                            </ul>
+                        </li>
+                        <li>
+                            <a><span class="glyphicon glyphicon-lock"></span>General</a>
+                            <ul>
+                                <li><a href="{{bootPoint}}general-approved">Approval</a></li>
                             </ul>
                         </li>
                         <li>
@@ -217,7 +224,7 @@
                                 <li><a href="{{bootPoint}}multiple-vendor-payment">Multiple Vendor Payment Approval</a></li>
                             </ul>
                         </li>
-                        
+
                         <li>
                             <a><span class="glyphicon glyphicon-lock"></span>Inventory Sales</a>
                             <ul>
