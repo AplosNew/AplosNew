@@ -63,6 +63,7 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller("VehicleMovementRequisitionController", VehicleMovementRequisitionController)
     .controller("CapitalizeAssetRegisterApprovalController", CapitalizeAssetRegisterApprovalController)
     .controller("multipleVPController", multipleVPController)
+    .controller("GeneralApprovedController", GeneralApprovedController)
     //#endregion
 
     .config(['$routeProvider', '$locationProvider', '$httpProvider', function ($routeProvider, $locationProvider, $httpProvider) {
@@ -153,7 +154,10 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
 
 
             //#region Requisition
-
+            .when('/general-approved', {
+                templateUrl: 'Administration/GeneralCheckedApproved/GeneralApproved',
+                controller: 'GeneralApprovedController'
+            })
             .when('/requisition', {
                 templateUrl: 'Products/Requisition/Aplos',
                 controller: 'RequisitionController'

@@ -119,7 +119,7 @@
 	}
 </style>
 
-<togglable name="Purchase Order Approval/Un Approved List"></togglable>
+<togglable name="General Approval"></togglable>
 
 @*Index Grid*@
 @*Taufik create list start*@
@@ -155,20 +155,19 @@
                                     </div>
                                     <div e-column e-template="#RejectApprovedReason" e-headertext="Hold / Reject Reason" e-width="200" style="height: 20px;"></div>
                                     <div e-column e-template="#ApprovedStatus1" e-headertext="Approved Status" e-width="150"></div>
+                                    <div e-column e-field="SourceType" e-headertext="SourceType" e-width="100"></div>
+                                    <div e-column e-field="Id" e-headertext="PO No/VoucherNo" e-width="100"></div>
+                                    <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="100"></div>
                                     <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
-                                    <div e-column e-field="PartyCode" e-headertext="Vendor Code" e-width="100"></div>
-                                    <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="100"></div>
-                                    <div e-column e-field="PODate" e-headertext="PO Date" e-width="120"></div>
-                                    <div e-column e-field="Id" e-headertext="PO No" e-width="100"></div>
+                                    <div e-column e-field="PODate" e-headertext="Doc Date" e-width="120"></div>
                                     <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="100"></div>
+                                    <div e-column e-field="CurrencyCode" e-headertext="Currency" textAlign='Right' e-width="100"></div>
                                     <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="100"></div>
                                     <div e-column e-field="PurchaseLC" e-headertext="Purchase LC" e-width="100"></div>
                                     <div e-column e-field="ContructNumber" e-headertext="Contruct Number" e-width="100"></div>
                                     <div e-column e-field="Customer" e-headertext="Customer" e-width="100"></div>
                                     <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="100"></div>
-                                    <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="100"></div>
                                     <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="120"></div>
-                                    <div e-column e-field="CurrencyCode" e-headertext="Currency" textAlign='Right' e-width="100"></div>
                                     <div e-column e-field="CtnId" e-headertext="Appr.No" e-width="120"></div>
                                 </div>
 
