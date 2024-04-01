@@ -266,11 +266,7 @@
                             <div class="form-group">
                                 <label class="col-sm-5 control-label">HSN Code</label>
                                 <div class="col-sm-7">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="articleNew.HSNCodeId" ng-options="item.Value as item.Text for item in hsnCodeList">
-                                            <option value=""></option>
-                                        </select>
-                                    </div>
+                                    <input ej-dropdownlist e-enablefiltersearch="true" e-name="$index" e-datasource="hsnCodeList" e-value="articleNew.HSNCodeId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
                                 </div>
                             </div>
                         </div>

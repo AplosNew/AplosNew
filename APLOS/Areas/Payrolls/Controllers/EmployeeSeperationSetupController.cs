@@ -531,6 +531,19 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetDetailList(string ItemId)
+        {
+
+            string sql = @"SELECT D.Sequence,D.EmployeeSeperationItemHeadId
+                            ,SalaryHead= CASE WHEN ISNULL(SD.UserName,'')<>'' THEN SD.UserName ELSE D.Component END,D.Component,D.EmployeeSeperationItemId
+                            FROM [dbo].[FormulaDetail] D
+                            LEFT JOIN dbo.EmployeeSeperationItem SD ON SD.Id=D.EmployeeSeperationItemHeadId
+                            WHERE EmployeeSeperationItemId='" + ItemId + "' Order By D.Sequence";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpGet, Authorize]
         public JsonResult GetSeperationItemAutoSequence(string masterId)
         {
             return Json(GetSeperationItemSequence(masterId), JsonRequestBehavior.AllowGet);
@@ -585,6 +598,51 @@ namespace Aplos.Areas.Payrolls.Controllers
                 objCon = null;
             }
         }//End of function
+
+
+        [Authorize, HttpGet]
+        public ActionResult getControlDrlist(string tabName)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                var sql = "";
+                if (tabName == "ControlDr")
+                {
+                    sql = @"SELECT AG.UserName AS AccountGroupName, GLGI.Id AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                                    , BMA.BudgetMasterId, BM.RefNo, B.Code BudgetCode, B.UserName BudgetName, BMA.ActivityId, A.Code ActivityCode, A.UserName ActivityName 
+									,BMA.Active,BMA.Id BudgetMasterActivityId
+                                    FROM [MST].[BudgetMasterActivity] BMA
+									 JOIN [MST].[BudgetMaster] AS BM ON BM.Id=BMA.BudgetMasterId
+									LEFT JOIN [HKP].[Budget] B ON B.Id=BM.BudgetId
+									 JOIN [HKP].[Activity] A ON A.Id=BMA.ActivityId
+									LEFT JOIN  [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=BM.GLGeneralInfoId
+                                    LEFT JOIN [HKP].[GLCompanyInfo] AS GLCI ON GLCI.GLGeneralInfoId=GLGI.Id
+                                    LEFT JOIN [HKP].[AccountGroup] AS AG ON AG.Id=GLGI.AccountGroupId
+									WHERE GLGI.Archive=0 AND GLGI.Active=1 AND  GLCI.CompanyId='" + identity.CompanyId + @"' AND BMA.Active=1 AND BM.Active=1";
+                }
+                else
+                {
+                    sql = @"SELECT AG.UserName AS AccountGroupName, GLGI.Id AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                                    , BMA.BudgetMasterId, BM.RefNo, B.Code BudgetCode, B.UserName BudgetName, BMA.ActivityId, A.Code ActivityCode, A.UserName ActivityName 
+									,BMA.Active,BMA.Id BudgetMasterActivityId
+                                    FROM [MST].[BudgetMasterActivity] BMA
+									 JOIN [MST].[BudgetMaster] AS BM ON BM.Id=BMA.BudgetMasterId
+									LEFT JOIN [HKP].[Budget] B ON B.Id=BM.BudgetId
+									 JOIN [HKP].[Activity] A ON A.Id=BMA.ActivityId
+									LEFT JOIN  [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=BM.GLGeneralInfoId
+                                    LEFT JOIN [HKP].[GLCompanyInfo] AS GLCI ON GLCI.GLGeneralInfoId=GLGI.Id
+                                    LEFT JOIN [HKP].[AccountGroup] AS AG ON AG.Id=GLGI.AccountGroupId
+									WHERE GLGI.Archive=0 AND GLGI.Active=1 AND  GLCI.CompanyId='" + identity.CompanyId + @"' AND BMA.Active=1 AND BM.Active=1";
+                }
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
 
 
 
