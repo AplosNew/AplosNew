@@ -357,6 +357,10 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
                 ShowResult("LC Vendor and Invoice venodr are not same!,Please select Same Vendor!", "failure");
                 return true;
             }
+            if ($scope.approvedByList.length > 0 && $scope.voucher.ApprovedById==null) {
+                ShowResult("Please select Approved By!", "failure");
+                return true;
+            }
             if ($scope.voucher.PaymentSource === "GL") {
                 var vdetailDr = $filter("filter")($scope.voucherDetailList, { TrnType: "Dr" });
                 if (vdetailDr.length === 0) {
@@ -1269,7 +1273,10 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
     };
 
     $scope.invoiceId = null;
-    $scope.confirmPost = function (invoiceId, type,tdsId,data) {
+    $scope.confirmPost = function (invoiceId, type, tdsId, data) {
+        if (data.ApprovedByStatus == 'ToBeApproved' || data.ApprovedByStatus == 'Hold' || data.ApprovedByStatus == 'Reject') {
+            ShowResult("Before Post, Please Approve First. Mr."+data.ApprovedBy+" is responsible for Approve", "failure");
+        }
         $scope.invoiceId = invoiceId;
         $scope.type = type;
         $scope.tdsId = tdsId;
