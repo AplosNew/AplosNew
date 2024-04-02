@@ -9,6 +9,7 @@ using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.HumanResource.Payroll.Allowance;
+using Library.Model.Enums;
 using Library.Model.Setups;
 using Library.OrderManagement.Sales;
 using Library.Service.Enums;
@@ -1346,7 +1347,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             from GoodWorkPaymentAdviseDetail gwpad
                             left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
 							left join GoodWorkPaymentAdvise gwpa on gwpa.Id=gwpad.PaymentAdviseId
-                            where gwpa.Id='" + paymentAdviseId + "' and gwpad.IsCheck=1";
+                            where gwpa.Id='" + paymentAdviseId + "' and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0 ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -1354,7 +1355,7 @@ namespace Aplos.Areas.Attendances.Controllers
         public ActionResult GetGoodWorkPaymentAdviseApprovedList()
         {
             string sql = @"select ei.EmployeeCode,ei.EmployeeName ByWhom,gwp.Id,FORMAT(gwp.FromDate,'dd-MMM-yyy') FromDate,FORMAT(gwp.ToDate,'dd-MMM-yyy')ToDate
-						,gwp.UserRef,FORMAT(gwp.PaymentDate,'dd-MMM-yyy') PaymentDate,gwp.Remarks,gwp.PaymentSource
+						,gwp.UserRef,FORMAT(gwp.PaymentDate,'dd-MMM-yyy') PaymentDate,gwp.Remarks,gwp.PaymentSource,gwp.PaymentsStatus
 						from GoodWorkPaymentAdvise gwp 
 						left join EmployeeInformation ei on ei.SystemId=gwp.ByWhomId
                         where gwp.ApprovedStatus ='PaymentApproved' ";
@@ -1386,8 +1387,8 @@ namespace Aplos.Areas.Attendances.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
-                //con.executeQuery("UPDATE [dbo].[GoodWorkPaymentAdvise] SET PaymentCreationById='" + identity.EmployeeId + "' ,ApprovedStatus='PaymentCreation'  where Id='" + data["Id"] + "' ");
-                con.executeQuery("UPDATE [dbo].[GoodWorkPaymentAdvisedetail] SET IsDisburse=1  where Id in (" + goodWorkPaymentAdviseDetailIds + ") ");
+                con.executeQuery("UPDATE [dbo].[GoodWorkPaymentAdvisedetail] SET IsDisburse=1,PaymentsDate=GETDATE(), PaymentsById='" + identity.EmployeeId + "'  where Id in (" + goodWorkPaymentAdviseDetailIds + ") ");
+                con.executeQuery("UPDATE [dbo].[GoodWorkPaymentAdvise] SET PaymentsStatus=CASE WHEN (SELECT COUNT(Id)Id FROM [dbo].[GoodWorkPaymentAdvisedetail]   where PaymentAdviseId= '" + data["Id"] + "' AND ISNULL(IsCheck,0)=1 AND ISNULL(IsDisburse,0)=0)>0 THEN 'Partial Payments' ELSE 'Full Payments' END  where Id='" + data["Id"] + "' ");
                 con.CommitTransaction();
 
 
@@ -1396,6 +1397,26 @@ namespace Aplos.Areas.Attendances.Controllers
             catch (Exception ex)
             {
                 return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GoodWorkPaymentAdvisePaymentsReports(ReportFormat reportFormat, string goodWorkPaymentAdviseId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsInventoryPayableReportService accountsInventoryPayableReportService = new AccountsInventoryPayableReportService(_sqlRepository);
+            var reportFileName = "Good Work Payment Advise Payments Reports";
+            var workbook = accountsInventoryPayableReportService.GoodWorkPaymentAdvisePaymentsReports(reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, goodWorkPaymentAdviseId);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
             }
         }
 
