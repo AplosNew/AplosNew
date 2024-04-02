@@ -229,7 +229,11 @@ namespace Aplos.Areas.Payrolls.Controllers
                 DataSet dsEmpCat, dsDD;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                con.OpenDataSetThroughAdapter("select * from [dbo].[EmpSeperationEmployeeType] where EmployeeTypeId='" + data["EmployeeTypeId"] + "' AND  Id<>'" + data["Id"] + "'", out dsEmpCat, false, "1");
+                if (dsEmpCat.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Employee Type already exists!!!");
                 con.OpenDataSetThroughAdapter("select * from [dbo].[EmpSeperationEmployeeType] where Id='" + data["Id"] + "'", out dsEmpCat, false, "1");
+
                 con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[EmpSeperationEmployeeType] where EmployeeSeperationSetupId='" + masterId + "'", out dsDD, false, "1");
                 int ccount = Convert.ToInt32(dsDD.Tables[0].Rows[0]["countId"].ToString());
                 string Id = "";
@@ -271,7 +275,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             try
             {
-                var sql = @"select ec.UserName as EmployeeCategory,glmec.*
+                var sql = @"select ec.Sequence,ec.Code,ec.ShortName,ec.StandardName,ec.UserName as EmployeeCategory,glmec.*
                             from [dbo].[EmpSeperationEmployeeType] glmec 
                             left join [HKP].[EmployeeCategory] ec on ec.Id=glmec.EmployeeTypeId
 							where glmec.EmployeeSeperationSetupId = '" + masterId + "' ";
@@ -422,7 +426,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         [HttpGet, Authorize]
         public JsonResult GetHeaderItemCbo(string id, string masterId)
         {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id AS Value, UserName AS Text FROM [dbo].[EmployeeSeperationItem] WHERE Id<>'" + id + "' AND EmployeeSeperationSetupId='" + masterId + "'"), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection("SELECT Id AS Value, UserName AS Text FROM [dbo].[EmployeeSeperationItem] WHERE Id<>'" + id + "' AND EmployeeSeperationSetupId='" + masterId + "' Order By Sequence"), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]

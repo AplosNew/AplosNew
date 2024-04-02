@@ -225,6 +225,7 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
                     ShowResult(response.data.Message, 'failure');
                 } else {
                     $scope.FormulaList = response.data;
+                    angular.element(document.querySelector('#dialogEmployeeInfo')).modal('hide');
                 }
             });
 
