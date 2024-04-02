@@ -386,6 +386,12 @@
             templateUrl: 'Payrolls/EmployeeSeperationSetup/Aplos',
             controller: 'EmployeeSeperationSetupController'
         })
+
+        .when('/final-settlement', {
+            templateUrl: 'payrolls/FinalSettlement/FinalSettle',
+            controller: 'fullandfinalSettlementController'
+        })
+
         ;
 
 

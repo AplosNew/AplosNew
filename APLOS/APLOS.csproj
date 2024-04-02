@@ -1952,6 +1952,7 @@
     <Content Include="Areas\OrderManagements\Scripts\masterOrderCheckByController.js" />
     <Content Include="Areas\OrderManagements\Scripts\TermsandConditionGroupController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeSeperationSetupController.js" />
+    <Content Include="Areas\Payrolls\Scripts\fullandfinalSettlementController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanEditController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
     <Content Include="Areas\Productions\Scripts\MasterPlanDetailsController.js" />
@@ -4938,6 +4939,7 @@
     <Content Include="Areas\Accounts\Views\BudgetMaster\BudgetControl.cshtml" />
     <Content Include="Areas\Payrolls\Views\EmployeeSeperationSetup\Aplos.cshtml" />
     <Content Include="Areas\Administration\Views\GeneralCheckedApproved\GeneralApproved.cshtml" />
+    <Content Include="Areas\Payrolls\Views\FinalSettlement\FinalSettle.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

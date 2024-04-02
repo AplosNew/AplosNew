@@ -1646,11 +1646,9 @@ namespace Aplos.Areas.Attendances.Controllers
                         }
                         if (dv.Count > 0)
                         {
-                            ccount++;
-                            string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
+                           
                             DataRow drmo = dv[0].Row;
-                            drmo.BeginEdit();
-                            drmo["Id"] = detailid;
+                            drmo.BeginEdit(); 
                             drmo["FromTime"] = item["FromTime"];
                             drmo["ToTime"] = item["ToTime"];
                             drmo["Minute"] = item["Minute"];
@@ -1728,12 +1726,9 @@ namespace Aplos.Areas.Attendances.Controllers
                             materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
                         }
                         if (dv.Count > 0)
-                        {
-                            ccount++;
-                            string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
+                        { 
                             DataRow drmo = dv[0].Row;
-                            drmo.BeginEdit();
-                            drmo["Id"] = detailid;
+                            drmo.BeginEdit(); 
                             drmo["FromTime"] = item["FromTime"];
                             drmo["ToTime"] = item["ToTime"];
                             drmo["Minute"] = item["Minute"];

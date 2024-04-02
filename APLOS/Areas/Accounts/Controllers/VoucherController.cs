@@ -104,6 +104,10 @@ namespace Aplos.Areas.Accounts.Controllers
                 throw new CustomException("Please Add GL.");
             if (voucherDetailVMList.Sum(r => r.DrAmount) != voucherDetailVMList.Sum(r => r.CrAmount))
                 throw new CustomException("Dr Cr not match!");
+            if (voucherVM.ApprovedById != null)
+            {
+                voucherVM.ApprovedByStatus = "ToBeApproved";
+            }
             foreach (var item in voucherDetailVMList)
             {
                 if ((item.DrAmount + item.CrAmount == 0) || (item.DrAmount + item.CrAmount < 0))

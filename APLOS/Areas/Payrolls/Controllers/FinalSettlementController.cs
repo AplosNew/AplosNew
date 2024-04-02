@@ -36,10 +36,27 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             return View();
         }
+        [Authorize]
+        public ActionResult FinalSettle()
+        {
+            return View();
+        }
         #endregion
 
         #region -- Operations
+        [HttpGet, Authorize]
+        public ActionResult GetEmployeeSeperationItemFormulaData(string EmpSystemId)
+        {
+            string sql = @"SELECT A.Id,A.EmpSystemId,OL.Id EmployeeSeperationItemId,OL.UserName,OL.Formula,OL.FormulaId,A.Value,OL.EntryState
+                            FROM EmployeeSeperationItem AS OL
+                            OUTER APPLY (SELECT * FROM dbo.EmployeeFullAndFinalSettlement WHERE EmployeeSeperationItemId=OL.Id AND ISNULL(EmpSystemId,'" + EmpSystemId + @"')='" + EmpSystemId + @"') A
+							Where OL.EmployeeSeperationSetupId=(select EmployeeSeperationSetupId from [dbo].[EmpSeperationDesignationGroup] where DesignationGroupId=(select DesignationGroupId from [dbo].EmployeeInformation Where SystemId='" + EmpSystemId + @"'))
+                            ORDER BY OL.Sequence";
+         
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
 
+       
 
         [HttpGet, Authorize]
         public ActionResult GetSeparationTypelist()

@@ -280,6 +280,18 @@ namespace Aplos.Areas.Accounts.Controllers
                 }
                 if (sourceType == SourceType.EmployeeAdvance.ToString())
                 {
+                    ConnectionManager.DAL.ConManager objCon1;
+                    DataSet dsMaster1 = null;
+                    string setOffsql = @"SELECT VoucherNo from trn.InvoiceWriteOffDetail iwd JOIN trn.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId LEFT JOIN trn.Voucher v on v.Id = iw.VoucherId
+                                            WHERE iwd.AdvanceId in (select Id from trn.Advance where VoucherId = '" + voucherId + "')";
+                    objCon1 = new ConnectionManager.DAL.ConManager("1");
+                    objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
+
+                    if (dsMaster1.Tables[0].Rows.Count > 0)
+                    {
+                        throw new CustomException("Voucher Park Mode not allowed,  Voucher No '" + dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
+                    }
+
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     var advanceSql = @"UPDATE [TRN].Advance SET ISPark=1,IsPosted=0 WHERE VoucherId='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);

@@ -121,6 +121,18 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
         $scope.voucher.DocDate = $scope.voucher.PostingDate;
     };
 
+    $scope.approvedByList = [];
+    $scope.getCboApprovedByList = function () {
+        cboService.getAuthorizationConfigCbo('JournalApproveBy', function (result) {
+            $scope.approvedByList = result;
+            if ($scope.approvedByList.length == 1) {
+                $scope.voucher.ApprovedById = $scope.approvedByList[0].Id;
+            }
+        });
+    };
+    $scope.getCboApprovedByList();
+
+
     $scope.getJournalVoucherDetailList = function (id) {
         $http({
             method: "get",

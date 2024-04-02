@@ -61,6 +61,7 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
         $scope.masterId = $scope.ModelNew.Id;
         $scope.GetEmployeeCategory();
         $scope.GetSeperationItemAutoSequence();
+        $scope.GetOrderLineCostingItemCbo();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -326,7 +327,7 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
         }
     };
 
-    $scope.ModelProcessPara = { Id: null, EmployeeSeperationSetupId: null, Sequence: 0, UserName: null, SandardName: null, Active: true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
+    $scope.ModelProcessPara = { Id: null, EmployeeSeperationSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, SandardName: null, Active: true, IsReportItem: false, ViewItem: null, DefaultValue: null, EntryState: 'Auto', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
     $scope.ModelProcessParaNew = Object.assign({}, $scope.ModelProcessPara);
 
     $scope.ModelProcessPara.FormulaDes = null;
@@ -355,8 +356,8 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
             if (formula === 'SHead') {
 
                 formulaObj.Sequence = $scope.FormulaDetails.length + 1;
-                formulaObj.ProductionBookingParameterId = $scope.ModelProcessPara.Id == null ? null : $scope.ModelProcessPara.Id;
-                formulaObj.ProductionBookingParameterHeadId = $scope.ModelProcessPara.HeadIdFormula;
+                formulaObj.EmployeeSeperationItemId = $scope.ModelProcessPara.Id == null ? null : $scope.ModelProcessPara.Id;
+                formulaObj.EmployeeSeperationItemHeadId = $scope.ModelProcessPara.HeadIdFormula;
                 formulaObj.SalaryHead = $("#HeadFormula option:selected").text();
                 formulaObj.Component = null;
                 $scope.FormulaDetails.push(formulaObj);
@@ -370,10 +371,10 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
                 for (var i = 0; i < $scope.FormulaDetails.length; i++) {
                     if (!baseService.isUndefinedOrNull($scope.ModelProcessPara.FormulaDes)) {
                         $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
-                        $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].ProductionBookingParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].ProductionBookingParameterHeadId);
+                        $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].EmployeeSeperationItemHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].EmployeeSeperationItemHeadId);
                     } else {
                         $scope.ModelProcessPara.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
-                        $scope.ModelProcessPara.FormulaDesID = $scope.FormulaDetails[i].ProductionBookingParameterHeadId;
+                        $scope.ModelProcessPara.FormulaDesID = $scope.FormulaDetails[i].EmployeeSeperationItemHeadId;
                     }
                 }
 
@@ -388,8 +389,8 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
 
 
                         formulaObj.Sequence = $scope.FormulaDetails.length + 1;
-                        formulaObj.ProductionBookingParameterId = $scope.ModelProcessPara.Id == null ? null : $scope.ModelProcessPara.Id;
-                        formulaObj.ProductionBookingParameterHeadId = null;
+                        formulaObj.EmployeeSeperationItemId = $scope.ModelProcessPara.Id == null ? null : $scope.ModelProcessPara.Id;
+                        formulaObj.EmployeeSeperationItemHeadId = null;
                         formulaObj.Component = $scope.ModelProcessPara.Operator;
                         formulaObj.SalaryHead = $scope.ModelProcessPara.Operator;;
 
@@ -404,7 +405,7 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
                         for (var i = 0; i < $scope.FormulaDetails.length; i++) {
 
                             $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
-                            $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].ProductionBookingParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].ProductionBookingParameterHeadId);
+                            $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].EmployeeSeperationItemHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].EmployeeSeperationItemHeadId);
 
                         }
 
@@ -425,8 +426,8 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
 
 
                     formulaObj.Sequence = $scope.FormulaDetails.length + 1;
-                    formulaObj.ProductionBookingParameterId = $scope.ModelProcessPara.Id == null ? null : $scope.ModelProcessPara.Id;
-                    formulaObj.ProductionBookingParameterHeadId = null;
+                    formulaObj.EmployeeSeperationItemId = $scope.ModelProcessPara.Id == null ? null : $scope.ModelProcessPara.Id;
+                    formulaObj.EmployeeSeperationItemHeadId = null;
                     formulaObj.SalaryHead = $scope.ModelProcessPara.Precedence;
                     formulaObj.Component = $scope.ModelProcessPara.Precedence;
                     $scope.FormulaDetails.push(formulaObj);
@@ -441,7 +442,7 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
                     for (var i = 0; i < $scope.FormulaDetails.length; i++) {
 
                         $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
-                        $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].ProductionBookingParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].ProductionBookingParameterHeadId);
+                        $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].EmployeeSeperationItemHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].EmployeeSeperationItemHeadId);
 
                     }
 
@@ -458,8 +459,8 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
                 if (!baseService.isUndefinedOrNull($scope.ModelProcessPara.Value)) {
 
                     formulaObj.Sequence = $scope.FormulaDetails.length + 1;
-                    formulaObj.ProductionBookingParameterId = $scope.ModelProcessPara.Id == null ? null : $scope.ModelProcessPara.Id;
-                    formulaObj.ProductionBookingParameterHeadId = null;
+                    formulaObj.EmployeeSeperationItemId = $scope.ModelProcessPara.Id == null ? null : $scope.ModelProcessPara.Id;
+                    formulaObj.EmployeeSeperationItemHeadId = null;
                     formulaObj.SalaryHead = $scope.ModelProcessPara.Value;
                     formulaObj.Component = $scope.ModelProcessPara.Value;
                     $scope.FormulaDetails.push(formulaObj);
@@ -473,7 +474,7 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
                     for (var i = 0; i < $scope.FormulaDetails.length; i++) {
 
                         $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
-                        $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].ProductionBookingParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].ProductionBookingParameterHeadId);
+                        $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].EmployeeSeperationItemHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].EmployeeSeperationItemHeadId);
 
                     }
 
@@ -507,10 +508,10 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
         for (var i = 0; i < $scope.FormulaDetails.length; i++) {
             if (!baseService.isUndefinedOrNull($scope.ModelProcessPara.FormulaDes)) {
                 $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
-                $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].ProductionBookingParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].ProductionBookingParameterHeadId);
+                $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].EmployeeSeperationItemHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].EmployeeSeperationItemHeadId);
             } else {
                 $scope.ModelProcessPara.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
-                $scope.ModelProcessPara.FormulaDesID = ($scope.FormulaDetails[i].ProductionBookingParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].ProductionBookingParameterHeadId);
+                $scope.ModelProcessPara.FormulaDesID = ($scope.FormulaDetails[i].EmployeeSeperationItemHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].EmployeeSeperationItemHeadId);
             }
         }
 
@@ -568,6 +569,21 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
                 });
     };
 
+    $scope.setCheckedEntry = function (name) {
+        if (name === 'Auto') {
+            $scope.ModelProcessPara.EntryState = 'Auto';
+            $scope.ModelProcessPara.Formula = null;
+            $scope.ModelProcessPara.FormulaId = null;
+            $scope.ModelProcessPara.FormulaDes = null;
+            $scope.ModelProcessPara.FormulaDesID = null;
+            $scope.ModelProcessPara.SalaryHeadFormula = null;
+            $scope.ModelProcessPara.FormulaDescription = null;
+            $scope.FormulaArray = [];
+            $scope.FormulaIdArray = [];
+        }
+    }
+
+
     $scope.ProductionAction = 'Save';
     $scope.SaveProcessParameter = function () {
         try {
@@ -590,6 +606,7 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
                     ShowResult(response.data.Message, 'success');
                     $scope.GetSeperationItemAutoSequence();
                     $scope.GetProcessParameterData();
+                    $scope.GetOrderLineCostingItemCbo();
                     $scope.ClearSeperationItem();
                     $scope.FormulaDetails = [];
                 }
@@ -602,6 +619,7 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
         }
     };
     $scope.ClearSeperationItem = function () {
+        $scope.ModelProcessPara = { Id: null, EmployeeSeperationSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, SandardName: null, Active: true, IsReportItem: false, ViewItem: null, DefaultValue: null, EntryState: 'Auto', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
         $scope.ModelProcessParaNew = Object.assign({}, $scope.ModelProcessPara);
         $scope.GetSeperationItemAutoSequence();
     }
@@ -620,8 +638,8 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
                 });
     };
     $scope.GetSeperationItemAutoSequence();
-
-    $scope.OrderLineCostingItemList = [];
+    $scope.OperatorList = [{ Text: "*", Value: "*" }, { Text: "/", Value: "/" }, { Text: "+", Value: "+" }, { Text: "-", Value: "-" }];
+    $scope.ItemList = [];
     $scope.GetOrderLineCostingItemCbo = function () {
         try {
             $http({
@@ -633,7 +651,7 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    $scope.OrderLineCostingItemList = response.data;
+                    $scope.ItemList = response.data;
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -643,7 +661,7 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
         }
     };
 
-    $scope.message_PrductionParaconfirmation = null;
+    $scope.message_PrductionParaconfirmation = "Are you sure want to delete permanently";
     $scope.removePrductionPara = function (obj) {
 
         $scope.PrductionPara = obj.data;
@@ -663,6 +681,8 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
             else {
                 ShowResult(response.data.Message, 'success');
                 $scope.GetProcessParameterData();
+                $scope.GetOrderLineCostingItemCbo();
+                $scope.GetSeperationItemAutoSequence();
             }
         }, function () {
             ShowResult(commonMessage.NetworkError, 'failure');
@@ -671,4 +691,106 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
 
     };
 
+    $scope.GetProcessPara = function (obj) {
+        $scope.ProductionAction = 'Update';
+
+        $scope.FormulaDetails = [];
+        $scope.ModelProcessPara.HeadIdFormula = null;
+        $scope.ModelProcessPara.Operator = null;
+        $scope.ModelProcessPara.Precedence = null;
+        $scope.ModelProcessPara.Value = null;
+
+        $scope.objectData = obj.data;
+        $scope.ModelProcessPara = Object.assign({}, $scope.objectData);
+        if ($scope.ModelProcessPara.EntryState == "Calculate") {
+
+            $http({
+                method: 'GET',
+                url: "Payrolls/EmployeeSeperationSetup/GetDetailList?ItemId=" + $scope.ModelProcessPara.Id
+            }).then(function successCallback(response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.FormulaDetails = response.data;
+
+                    $scope.ModelProcessPara.FormulaDes = '';
+                    $scope.ModelProcessPara.FormulaDesID = '';
+
+                    for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+
+                        if (!baseService.isUndefinedOrNull($scope.ModelProcessPara.FormulaDes)) {
+                            $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+
+                            $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].EmployeeSeperationItemHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].EmployeeSeperationItemHeadId);
+                        } else {
+                            $scope.ModelProcessPara.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
+                            $scope.ModelProcessPara.FormulaDesID = $scope.FormulaDetails[i].EmployeeSeperationItemHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].EmployeeSeperationItemHeadId;
+                        }
+                    }
+
+                    $scope.ModelProcessPara.FormulaDescription = $scope.ModelProcessPara.FormulaDes;
+                    $scope.ModelProcessPara.FormulaIDDescription = $scope.ModelProcessPara.FormulaDesID;
+
+                    $scope.ModelProcessPara.Formula = $scope.ModelProcessPara.FormulaDescription;
+                    $scope.ModelProcessPara.FormulaId = $scope.ModelProcessPara.FormulaIDDescription;
+
+                }
+            });
+        }
+
+
+        var value = null;
+
+        $scope.GetOrderLineCostingItemCbo();
+
+    };
+
+    $scope.ControlCrListData = [];
+    $scope.ControlDrListData = [];
+    $scope.GetControlDrCrData = function (tab) {
+        $scope.TabName = tab;
+        $http({
+            method: 'GET',
+            url: 'Payrolls/EmployeeSeperationSetup/getControlDrlist?tabName=' + $scope.TabName,
+        }).then(function successCallback(response) {
+            if ($scope.TabName == "ControlCr") {
+                $scope.ControlCrListData = response.data;
+                $("#CrGLPoUp").ejDialog("setTitle", "Cr GL");
+                var eDialog = $("#CrGLPoUp").data("ejDialog");
+                eDialog.open();
+                var gridObj = $("#c").data("ejGrid");
+                gridObj.clearFiltering();  // clears all the filtering
+            } else {
+                $scope.ControlDrListData = response.data;
+                $("#DrGLPoUp").ejDialog("setTitle", "Dr GL");
+                var eDialog = $("#DrGLPoUp").data("ejDialog");
+                eDialog.open();
+                var gridObj = $("#DrGLPoUp").data("ejGrid");
+                gridObj.clearFiltering();  // clears all the filtering
+            }
+
+        });
+    }
+
+    $scope.SelectDr = function (args) {
+        $scope.ModelProcessPara.DrAccountGroupName = args.data.AccountGroupName;
+        $scope.ModelProcessPara.DrBudgetMasterActivityId = args.data.BudgetMasterActivityId;
+        var eDialog = $("#DrGLPoUp").data("ejDialog");
+        eDialog.close();
+    }
+
+    $scope.SelectCr = function (args) {
+        $scope.ModelProcessPara.CrAccountGroupName = args.data.AccountGroupName;
+        $scope.ModelProcessPara.CrBudgetMasterActivityId = args.data.BudgetMasterActivityId;
+        var eDialog = $("#CrGLPoUp").data("ejDialog");
+        eDialog.close();
+    }
+
+    $scope.CloseDr = function () {
+        var eDialog = $("#DrGLPoUp").data("ejDialog");
+        eDialog.close();
+    }
+
+    $scope.CloseCr = function () {
+        var eDialog = $("#CrGLPoUp").data("ejDialog");
+        eDialog.close();
+    }
 }

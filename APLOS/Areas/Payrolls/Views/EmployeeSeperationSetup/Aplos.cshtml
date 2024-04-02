@@ -104,12 +104,20 @@
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
+                                        <th>Sequence</th>
+                                        <th>Code</th>
+                                        <th>ShortName</th>
+                                        <th>Standard Name</th>
                                         <th>Employee Type</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr ng-repeat="x in EmployeeCategoryList">
+                                        <td>{{x.Sequence}}</td>
+                                        <td>{{x.Code}}</td>
+                                        <td>{{x.ShortName}}</td>
+                                        <td>{{x.StandardName}}</td>
                                         <td>{{x.EmployeeCategory}}</td>
                                         <td class="text-right table-td">
                                             <ul class="list-inline action-list">
@@ -130,7 +138,7 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-form="tabForm2" id="Designation">
                 <div class="common-btn">
                     <ul class="list-inline text-left">
-                        <li> <button ng-click="AddDesignationGroup();" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus"></i> Designation Group</button></li>
+                        <li> <button ng-click="AddDesignationGroup();" ng-disabled="ModelNew.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus"></i> Designation Group</button></li>
                     </ul>
                 </div>
                 <div id="GridGroup" ej-grid e-datasource="SelectedDesignationGroupList" 
@@ -154,23 +162,33 @@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="number" name="Sequence" ng-model="ModelProcessPara.Sequence" class="form-control" required tabindex="1">
+                                    <input type="number" name="Sequence" ng-model="ModelProcessPara.Sequence" class="form-control" required tabindex="301">
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Sandard Name<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="Sandard Name" ng-model="ModelProcessPara.SandardName" class="form-control" required tabindex="3" maxlength="50">
+                                    <input type="text" name="Sandard Name" ng-model="ModelProcessPara.SandardName" class="form-control" required tabindex="303" maxlength="100">
                                 </div>
                             </div>
-
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Dr GL</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <input tabindex="1" type="text" name="Dr GL" ng-model="ModelProcessPara.DrAccountGroupName" class="form-control" readonly>
+                                        <span class="input-group-btn">
+                                            <button ng-click="GetControlDrCrData('ControlDr');" class="btn single-small-btn" tabindex="305"><i class="glyphicon glyphicon-search"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label"></label>
                                 <div class="col-sm-8">
                                     <div class="radio">
                                         <label>
-                                            <input type="radio" name="Assign" ng-model="ModelProcessPara.EntryState" value="Entry" ng-change="setCheckedEntry('Entry')">
-                                            <span class="cr"><i class="cr-icon"></i></span>Entry
+                                            <input type="radio" name="Assign" ng-model="ModelProcessPara.EntryState" value="Auto" ng-change="setCheckedEntry('Auto')">
+                                            <span class="cr"><i class="cr-icon"></i></span>Auto
                                         </label>
                                         <label>
                                             <input type="radio" name="Assign" ng-model="ModelProcessPara.EntryState" value="Calculate">
@@ -179,20 +197,30 @@
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div class="form-group" ng-show="ModelProcessPara.EntryState=='Entry'">
-                                <label class="col-sm-4 control-label">Default Value</label>
-                                <div class="col-sm-8">
-                                    <input type="text" name="Fixed Value" n-decimals="2" ng-model="ModelProcessPara.DefaultValue" class="form-control">
-                                </div>
-                            </div>
-
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="User Name" ng-model="ModelProcessPara.UserName" class="form-control" required tabindex="2" maxlength="50">
+                                    <input type="text" name="User Name" ng-model="ModelProcessPara.UserName" class="form-control" required tabindex="302" maxlength="100">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">View Item</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="View Item" ng-model="ModelProcessPara.ViewItem" class="form-control" required tabindex="304" maxlength="100">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Cr GL</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <input tabindex="1" type="text" name="Cr GL" ng-model="ModelProcessPara.CrAccountGroupName" class="form-control" readonly>
+                                        <span class="input-group-btn">
+                                            <button ng-click="GetControlDrCrData('ControlCr');" class="btn single-small-btn" tabindex="306"><i class="glyphicon glyphicon-search"></i></button>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -205,9 +233,17 @@
                                         </label>
                                     </div>
                                 </div>
-                                
+                                <label class="col-sm-4 control-label">Is Report Item</label>
+                                <div class="col-sm-2">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="ModelProcessPara.IsReportItem" tabindex="8">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
-                            
+
 
                         </div>
                         <div class="col-sm-12" ng-show="ModelProcessPara.EntryState=='Calculate'">
@@ -217,7 +253,7 @@
                                         <label class="col-sm-4 control-label">Head</label>
                                         <div class="col-sm-6">
                                             <div class="select-style">
-                                                <select ng-model="ModelProcessPara.HeadIdFormula" id="HeadFormula" class="form-control" name="Salary Head" ng-options="item.Value as item.Text for item in OrderLineCostingItemList">
+                                                <select ng-model="ModelProcessPara.HeadIdFormula" id="HeadFormula" class="form-control" name="Salary Head" ng-options="item.Value as item.Text for item in ItemList">
                                                     <option value=""></option>
                                                 </select>
                                             </div>
@@ -326,7 +362,7 @@
                         </div>
                         <script type="text/template" id="ProParaAction">
                             <button style="color: #f3f3ec;background-color: #1c1f32;" title="Process Parameter" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removePrductionPara(this);" style="margin: -6px;"></i></button>
-                            <confirm-archive-generic modalid="confirmDeleteProductionBookingParameterPopUp" title="Confirmation" message={{message_PrductionParaconfirmation}} data-ng-click-right-button="DeleteEmployeeSeperationItem();"></confirm-archive-generic>
+                            
                         </script>
                     </div>
                 </fieldset>
@@ -372,6 +408,7 @@
 </div>
 <confirm-modal></confirm-modal>
 <confirm-archive-generic modalid="confirmEmployeeCategoryPopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteEmployeeCategory();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeleteProductionBookingParameterPopUp" title="Confirmation" message={{message_PrductionParaconfirmation}} data-ng-click-right-button="DeleteEmployeeSeperationItem();"></confirm-archive-generic>
 <div class="row">
     <div class="form-group">
         <ej-dialog id="DesignationGroupPoUp" title="Designation Group" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#maindiv"
@@ -399,6 +436,54 @@
                 <div class="common-btn" style="padding-right: 15px;">
                     <ul class="list-inline text-right">
                         <li> <button ng-click="CloseDesignationGroup();" class="btn">Apply</button></li>
+                    </ul>
+                </div>
+            </div>
+        </ej-dialog>
+    </div>
+</div>
+<div class="row">
+    <div class="form-group">
+        <ej-dialog id="DrGLPoUp" title="Dr GL" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#maindiv"
+                 e-close="onDialogClose" e-minwidth="1000" e-minheight="80" e-open="enableBtn">
+            <div class="row">
+                <div style="color:black;" id="GridCDr" ej-grid e-datasource="ControlDrListData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                    e-recorddoubleclick="SelectDr"  e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="AccountGroupName" e-headertext="Account Group Name" e-width="80"></div>
+                        <div e-column e-field="GLGeneralInfoName" e-headertext="GL General Info Name" e-width="80"></div>
+                        <div e-column e-field="BudgetName" e-headertext="Budget Name" e-width="80"></div>
+                        <div e-column e-field="ActivityName" e-headertext="Activity Name" e-width="80"></div>
+                        <div e-column e-field="RefNo" e-headertext="RefNo" e-width="80"></div>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="CloseDr();" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </ej-dialog>
+    </div>
+</div>
+<div class="row">
+    <div class="form-group">
+        <ej-dialog id="CrGLPoUp" title="Cr GL" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#maindiv"
+                  e-close="onDialogClose" e-minwidth="1000" e-minheight="80" e-open="enableBtn">
+            <div class="row">
+                <div style="color:black;" id="GridCCr" ej-grid e-datasource="ControlCrListData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                     e-recorddoubleclick="SelectCr"  e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="AccountGroupName" e-headertext="Account Group Name" e-width="80"></div>
+                        <div e-column e-field="GLGeneralInfoName" e-headertext="GL General Info Name" e-width="80"></div>
+                        <div e-column e-field="BudgetName" e-headertext="Budget Name" e-width="80"></div>
+                        <div e-column e-field="ActivityName" e-headertext="Activity Name" e-width="80"></div>
+                        <div e-column e-field="RefNo" e-headertext="RefNo" e-width="80"></div>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="CloseCr();" class="btn">Close</button></li>
                     </ul>
                 </div>
             </div>

@@ -47,17 +47,11 @@ function GeneralApprovedController(accountService, addressService, $window, cboS
 	//#region  Grid Data Display Load for Approve UI all tab Function
 	$scope.GriddataAUth = [];
 	$scope.getUNApprovalList = function () {
-		if ($scope.POTypeApprovalStatus === 'Checked') {
-			$scope.POTypeApprovalStatus = 'Checked';
-		}
-		else {
-
-		}
 		$http({
 			method: "GET",
 			dataType: 'JSON',
 			//url: $scope.getSearchListUrl,
-			url: 'Products/PurchaseOrder/getUNApprovalList?POTypeApprovalStatus=' + $scope.POTypeApprovalStatus,
+			url: 'Administration/GeneralCheckedApproved/getUNApprovalList?POTypeApprovalStatus=' + $scope.POTypeApprovalStatus,
 		}).then(function successCallback(response) {
 			$scope.GriddataAUth = response.data;
 			//entrydata = copy(searchdata);
@@ -71,7 +65,7 @@ function GeneralApprovedController(accountService, addressService, $window, cboS
 			method: "GET",
 			dataType: 'JSON',
 			//url: $scope.getSearchListUrl,
-			url: 'Products/PurchaseOrder/getApprovedHoldReject',
+			url: 'Administration/GeneralCheckedApproved/GetApprovedList',
 		}).then(function successCallback(response) {
 			$scope.GriddataAUth1 = response.data;
 			//entrydata = copy(searchdata);
@@ -149,6 +143,7 @@ function GeneralApprovedController(accountService, addressService, $window, cboS
 		var x = "#" + z;
 		var gridObj = $(x).data("ejGrid");
 		$scope.podata = gridObj.getSelectedRecords()[0];
+
 		$scope.approvalAlert();
 	};
 
@@ -218,11 +213,17 @@ function GeneralApprovedController(accountService, addressService, $window, cboS
 			ShowResult("Please Select Approval Status", 'failure');
 			return false;
 		}
-
+		$scope.approvalUrl = '';
+		if ($scope.podata.SourceType == 'PO') { $scope.approvalUrl = 'Products/PurchaseOrder/PoApprovedAuth'; }
+		else if ($scope.podata.SourceType == 'CashJournal' || $scope.podata.SourceType == 'BankJournal' || $scope.podata.SourceType == 'JournalVoucher' || $scope.podata.SourceType == 'VendorInvoice')
+		{
+			$scope.approvalUrl = 'Administration/GeneralCheckedApproved/UpdateApprovalStatus';
+			$scope.podata.Id = $scope.podata.VoucherId;
+		}
 
 		$http({
 			method: 'POST',
-			url: 'Products/PurchaseOrder/PoApprovedAuth',
+			url: $scope.approvalUrl,
 			data: {
 				'PoId': $scope.podata.Id,
 				'PoValue': $scope.podata.TotalQty,
@@ -270,7 +271,21 @@ function GeneralApprovedController(accountService, addressService, $window, cboS
 		var x = "#" + z;
 		var gridObj = $(x).data("ejGrid");
 		var data = gridObj.getSelectedRecords()[0];
-		location.href = "Products/PurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id + '&plantId=' + data.PlantId;
+		if (data.SourceType == 'PO') {
+			location.href = "Products/PurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id + '&plantId=' + data.PlantId;
+		}
+		else if (data.SourceType == 'CashJournal') {
+			$window.open("Banks/CashReport/GetCashJournalReport?reportFormat=" + 'Pdf' + '&voucherId=' + data.VoucherId, '_blank');
+		}
+		else if (data.SourceType == 'BankJournal') {
+			$window.open("Banks/BankReport/GetBankJournalReport?reportFormat=" + 'Pdf' + '&voucherId=' + data.VoucherId, '_blank');
+		}
+		else if (data.SourceType == 'JournalVoucher') {
+			$window.open("Accounts/Voucher/GetJournalVoucherReport?reportFormat=" + 'Pdf' + '&voucherId=' + data.VoucherId, '_blank');
+		}
+		else if (data.SourceType == 'VendorInvoice') {
+			$window.open("Accounts/Invoice/ReportVendorInvoice?reportFormat=" + 'Pdf' + '&voucherId=' + data.VoucherId, '_blank');
+		}
 		//location.href = "Products/PurchaseOrder/GePurchaseOrderReportByReq?purchaseOrderId=" + data.Id;
 
 	};

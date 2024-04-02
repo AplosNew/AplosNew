@@ -32,6 +32,15 @@
                 <input type="text" maxlength="50" id="Rate" name="Rate" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" autocomplete="off" required ng-disabled="baseCurrencyId==voucher.CurrencyId">
             </div>
         </div>
+        <div class="form-group" ng-show="approvedByList.length">
+            <label class="col-sm-4 control-label">Approved By<sup>*</sup></label>
+            <div class="col-sm-8">
+                <div class="select-style" style="font-size:smaller">
+                    <select name="ApprovedById" id="ApprovedById" ng-model="voucher.ApprovedById" class="form-control"
+                            ng-options="item.Id as item.Value for item in approvedByList" tabindex="6"></select>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="col-xs-12 col-sm-4 col-md-4">
         <div id="div_PostingDate" class="form-group" show-errors>
