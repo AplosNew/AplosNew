@@ -327,7 +327,7 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
         }
     };
 
-    $scope.ModelProcessPara = { Id: null, EmployeeSeperationSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, SandardName: null, Active: true, IsReportItem: false, ViewItem:null, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
+    $scope.ModelProcessPara = { Id: null, EmployeeSeperationSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, SandardName: null, Active: true, IsReportItem: false, ViewItem: null, DefaultValue: null, EntryState: 'Auto', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
     $scope.ModelProcessParaNew = Object.assign({}, $scope.ModelProcessPara);
 
     $scope.ModelProcessPara.FormulaDes = null;
@@ -569,6 +569,21 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
                 });
     };
 
+    $scope.setCheckedEntry = function (name) {
+        if (name === 'Auto') {
+            $scope.ModelProcessPara.EntryState = 'Auto';
+            $scope.ModelProcessPara.Formula = null;
+            $scope.ModelProcessPara.FormulaId = null;
+            $scope.ModelProcessPara.FormulaDes = null;
+            $scope.ModelProcessPara.FormulaDesID = null;
+            $scope.ModelProcessPara.SalaryHeadFormula = null;
+            $scope.ModelProcessPara.FormulaDescription = null;
+            $scope.FormulaArray = [];
+            $scope.FormulaIdArray = [];
+        }
+    }
+
+
     $scope.ProductionAction = 'Save';
     $scope.SaveProcessParameter = function () {
         try {
@@ -591,6 +606,7 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
                     ShowResult(response.data.Message, 'success');
                     $scope.GetSeperationItemAutoSequence();
                     $scope.GetProcessParameterData();
+                    $scope.GetOrderLineCostingItemCbo();
                     $scope.ClearSeperationItem();
                     $scope.FormulaDetails = [];
                 }
@@ -603,7 +619,7 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
         }
     };
     $scope.ClearSeperationItem = function () {
-        $scope.ModelProcessPara = { Id: null, EmployeeSeperationSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, SandardName: null, Active: true, IsReportItem: false, ViewItem: null, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
+        $scope.ModelProcessPara = { Id: null, EmployeeSeperationSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, SandardName: null, Active: true, IsReportItem: false, ViewItem: null, DefaultValue: null, EntryState: 'Auto', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
         $scope.ModelProcessParaNew = Object.assign({}, $scope.ModelProcessPara);
         $scope.GetSeperationItemAutoSequence();
     }
@@ -622,8 +638,8 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
                 });
     };
     $scope.GetSeperationItemAutoSequence();
-
-    $scope.OrderLineCostingItemList = [];
+    $scope.OperatorList = [{ Text: "*", Value: "*" }, { Text: "/", Value: "/" }, { Text: "+", Value: "+" }, { Text: "-", Value: "-" }];
+    $scope.ItemList = [];
     $scope.GetOrderLineCostingItemCbo = function () {
         try {
             $http({
@@ -635,7 +651,7 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    $scope.OrderLineCostingItemList = response.data;
+                    $scope.ItemList = response.data;
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -645,7 +661,7 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
         }
     };
 
-    $scope.message_PrductionParaconfirmation = null;
+    $scope.message_PrductionParaconfirmation = "Are you sure want to delete permanently";
     $scope.removePrductionPara = function (obj) {
 
         $scope.PrductionPara = obj.data;
@@ -665,6 +681,8 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
             else {
                 ShowResult(response.data.Message, 'success');
                 $scope.GetProcessParameterData();
+                $scope.GetOrderLineCostingItemCbo();
+                $scope.GetSeperationItemAutoSequence();
             }
         }, function () {
             ShowResult(commonMessage.NetworkError, 'failure');
