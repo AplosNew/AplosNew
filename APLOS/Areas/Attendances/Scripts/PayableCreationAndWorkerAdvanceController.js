@@ -49,12 +49,8 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             "value": "DocRefNo"
         },
         {
-            "name": "MonthNo",
-            "value": "MonthNo"
-        },
-        {
-            "name": "Year No",
-            "value": "Year No"
+            "name": "Payment Advise Id",
+            "value": "PaymentAdviseId"
         },
         {
             "name": "Payment Bank",
