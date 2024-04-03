@@ -215,7 +215,7 @@ function GeneralApprovedController(accountService, addressService, $window, cboS
 		}
 		$scope.approvalUrl = '';
 		if ($scope.podata.SourceType == 'PO') { $scope.approvalUrl = 'Products/PurchaseOrder/PoApprovedAuth'; }
-		else if ($scope.podata.SourceType == 'CashJournal' || $scope.podata.SourceType == 'BankJournal' || $scope.podata.SourceType == 'JournalVoucher' || || $scope.podata.SourceType == 'VendorInvoice')
+		else if ($scope.podata.SourceType == 'CashJournal' || $scope.podata.SourceType == 'BankJournal' || $scope.podata.SourceType == 'JournalVoucher' || $scope.podata.SourceType == 'VendorInvoice')
 		{
 			$scope.approvalUrl = 'Administration/GeneralCheckedApproved/UpdateApprovalStatus';
 			$scope.podata.Id = $scope.podata.VoucherId;
