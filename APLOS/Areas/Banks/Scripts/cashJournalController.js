@@ -331,7 +331,7 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
     };
 
     $scope.advanceId = null;
-    $scope.confirmPost = function (advanceId) {
+    $scope.confirmPost = function (advanceId,data) {
         if (data.ApprovedByStatus == 'ToBeApproved' || data.ApprovedByStatus == 'Hold' || data.ApprovedByStatus == 'Reject') {
             ShowResult("Before Post, Please Approve First. Mr." + data.ApprovedBy + " is responsible for Approve", "failure");
         }

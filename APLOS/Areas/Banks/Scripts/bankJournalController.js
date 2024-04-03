@@ -431,7 +431,10 @@ function bankJournalController(bankService, accountService, cboService, commonMe
     };
 
     $scope.advanceId = null;
-    $scope.confirmPost = function (advanceId) {
+    $scope.confirmPost = function (advanceId,data) {
+        if (data.ApprovedByStatus == 'ToBeApproved' || data.ApprovedByStatus == 'Hold' || data.ApprovedByStatus == 'Reject') {
+            ShowResult("Before Post, Please Approve First. Mr." + data.ApprovedBy + " is responsible for Approve", "failure");
+        }
         $scope.advanceId = advanceId;
         $scope.message_confirmation = "Are you sure to Post?";
         angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
