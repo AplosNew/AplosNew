@@ -436,7 +436,7 @@ namespace Aplos.Areas.Parties.Controllers
 										LEFT JOIN [HKP].[Activity] AS A ON A.Id=CPGL.ActivityId
 										WHERE CPGL.PartyGLType='" + PartyGLType.SuspenseGL + @"'
                                     ) AS SGL ON SGL.CompanyPartyId=CP.Id
-                                    WHERE P.Archive=0 AND P.Active=1 AND P.CompanyGroupId='" + companyGroupId + "' AND CP.PartyType IN ('" + temp + "') AND CP.CompanyId='" + companyId + "' AND CP.PlantId='" + plantId + @"'
+                                    WHERE P.Archive=0 AND P.Active=1 AND P.IsApproved=1 AND P.CompanyGroupId='" + companyGroupId + "' AND CP.PartyType IN ('" + temp + "') AND CP.CompanyId='" + companyId + "' AND CP.PlantId='" + plantId + @"'
                                     ) AS TEMP WHERE " + strkey + " order by Code ";
                 return _sqlRepository.GetDataCollection(sql);
             }
