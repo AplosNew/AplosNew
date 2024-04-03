@@ -89,12 +89,16 @@ namespace Aplos.Areas.Banks.Controllers
         [HttpPost]
         public JsonResult UpdateBankJournal(VoucherViewModel voucherVM, IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
         {
+            if (voucherVM.ApprovedById != null && voucherVM.ApprovedByStatus == "Approved")
+                throw new CustomException("Updated is not allowed after approved !!");
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
             voucherVM.SourceType = SourceType.BankJournal.ToString();
             voucherVM.IsPark = true;
+           
+
             return Json(new { Message = string.Format(AplosMessage.VoucherUpdate, _bankJournalService.UpdateBankJournal(voucherVM, voucherDetailVMList, bankChargeDetailVMList)) });
         }
         [HttpPost,Authorize]

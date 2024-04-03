@@ -8,17 +8,12 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
     $scope.path = 'Payrolls/FinalSettlement/';
     $scope.getSTListUrl = $scope.path + 'GetSeparationTypelist';
     $scope.getSTSCUrl = $scope.path + 'SeparationTypeSelectedChange';
-    $scope.getEmployeeListUrl = $scope.path + 'LoadEmployeelist';
+    $scope.getEmployeeListUrl = $scope.path + 'GetEmployeelist';
     $scope.saveUrl = $scope.path + 'SaveFinalSettlement';
     $scope.getFSListUrl = $scope.path + 'GetEmployeeFinalSettlementlist';
     $scope.getDataForEditUrl = $scope.path + 'GetDataForEdit';
-
-    $scope.getETListUrl = $scope.path + 'GetEmploymentTypelist';
- 
-    $scope.getListUrl = $scope.path + 'GetSeparationTypelist';
-
-
-   
+    $scope.getETListUrl = $scope.path + 'GetEmploymentTypelist'; 
+    $scope.getListUrl = $scope.path + 'GetSeparationTypelist';   
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
     
@@ -83,7 +78,6 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
             ShowResult(e, "failure");
         }
     };
-
 
     $scope.FinalSettlementList = [];
     $scope.LoadAllFinalSettlementList = function () {
@@ -183,9 +177,6 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
         }
     };
 
-
-
-
     $scope.FinalSettlementRetainedHeadList = [];
     $scope.EmployeeInformationList = [];
     $scope.LoadEmployeeList = function () {
@@ -225,6 +216,12 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
                     ShowResult(response.data.Message, 'failure');
                 } else {
                     $scope.FormulaList = response.data;
+
+                    //for (var i = 0; i < $scope.FormulaList.length; i++) {
+                    //    if ($scope.FormulaList[i].) {
+
+                    //    }
+                    //}
                     angular.element(document.querySelector('#dialogEmployeeInfo')).modal('hide');
                 }
             });
@@ -232,201 +229,6 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
         } catch (e) {
             ShowResult(e, "failure");
         }
-    };
-
-
-    $scope.EmploymentTypeList = [];
-    $scope.getEmploymentType = function () {
-        try {
-            $http.get($scope.getETListUrl)
-                .then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.Message, 'failure');
-                    }
-                    else {
-                        $scope.EmploymentTypeList = response.data;
-                    }
-                },
-
-                    function errorCallBack(response) {
-                        ShowResult(response.Message, 'failure');
-                    });
-
-
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
-    $scope.getEmploymentType();
-    
-    $scope.AddDeduction = function () {
-        try {
-            
-            var total = 0;
-            for (var i = 0; i < $scope.FinalSettlementDeductionHeadList.length; i++) { 
-                if (!baseService.isUndefinedOrNull($scope.FinalSettlementDeductionHeadList[i].DeductionAmount)) {
-                    total += parseInt($scope.FinalSettlementDeductionHeadList[i].DeductionAmount);
-                }
-               
-            }
-            $scope.FinalSettlementModel.DeductionAmount = total;
-
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
-    $scope.AddEarning = function () {
-        try {
-
-            var total = 0;
-            for (var i = 0; i < $scope.FinalSettlementEarningHeadList.length; i++) {
-                if (!baseService.isUndefinedOrNull($scope.FinalSettlementEarningHeadList[i].EarningAmount)) {
-                    total += parseInt($scope.FinalSettlementEarningHeadList[i].EarningAmount);
-                }
-
-            }
-            $scope.FinalSettlementModel.EarningAmount = total;
-
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
-
-    $scope.AddNoticePeriodAmount = function () {
-        try {
-            
-           
-            if ($scope.FinalSettlementModel.NoticePeriodType == 'Deduction') {
-                $scope.FinalSettlementModel.TotalPayableAmount =$scope.FinalSettlementModel.EarningAmount +
-                    $scope.FinalSettlementModel.LastMonthNetPayAmount +
-                    $scope.FinalSettlementModel.LvEncashmentAmount +
-                    $scope.FinalSettlementModel.FixedDayAmount +
-                    $scope.FinalSettlementModel.SeparationTypeAmount;
-
-                $scope.FinalSettlementModel.NetPayAmount =$scope.FinalSettlementModel.DeductionAmount + $scope.FinalSettlementModel.EarnLvDeductionAmount + $scope.FinalSettlementModel.NoticePeriodAmount;
-
-
-            } else {
-                $scope.FinalSettlementModel.TotalPayableAmount =$scope.FinalSettlementModel.EarningAmount +
-                    $scope.FinalSettlementModel.LastMonthNetPayAmount +
-                    $scope.FinalSettlementModel.LvEncashmentAmount +
-                    $scope.FinalSettlementModel.FixedDayAmount +
-                    $scope.FinalSettlementModel.SeparationTypeAmount +
-                    $scope.FinalSettlementModel.NoticePeriodAmount;
-
-                $scope.FinalSettlementModel.NetPayAmount =$scope.FinalSettlementModel.DeductionAmount + $scope.FinalSettlementModel.EarnLvDeductionAmount;
-            }
-
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
-
-    $scope.AddRetained = function () {
-        try {
-
-            var total = 0;
-            for (var i = 0; i < $scope.FinalSettlementRetainedHeadList.length; i++) {
-                if (!baseService.isUndefinedOrNull($scope.FinalSettlementRetainedHeadList[i].DisbusmentAmount)) {
-                    total += parseInt($scope.FinalSettlementRetainedHeadList[i].DisbusmentAmount);
-                }
-
-            }
-            $scope.FinalSettlementModel.TotalRetainedAmount = total;
-
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
-
-    $scope.SeparationType = {
-        Id: null,
-        Sequence: 0,
-        Code: null,
-        ShortName: null,
-        StandardName: null,
-        UserName: null,
-        Description: null,
-        Remarks: null,
-        FormulaDes: null,
-        FormulaDesID: null,
-        IsGratuityApplicable: false,
-        IsActive: true,
-        AddedBy: null,
-        AddedDate: new Date('dd-MMM-yyyy'),
-        AddedFromIP: null,
-        UpdatedDate: null
-    };
-    $scope.SeparationTypesList = [];
-    $scope.getSeparationTypesList = function () {
-        try {
-            $http.get($scope.getListUrl)
-                .then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.Message, 'failure');
-                    }
-                    else {
-                        $scope.SeparationTypesList = response.data;
-                    }
-                },
-
-                    function errorCallBack(response) {
-                        ShowResult(response.Message, 'failure');
-                    });
-
-
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
-    $scope.getSeparationTypesList();
-
-
-    $scope.CheckIdUse = function (id) {
-        $http.get('accounts/SeparationType/checkiduse?id=' + id)
-            .then(function (response) {
-                $scope.checkIdUsedValue = response.data;
-            });
-    };
-
-
-    $scope.EditSeparationType = function (obj) {
-        var gridObj = $("#GridSeparationTypesList").data("ejGrid");
-        var data = gridObj.getSelectedRecords()[0];
-        $scope.SeparationTypeNew = data;
-        $scope.getDataForEdit(data.Id);
-
-        $scope.Action = 'Update';
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
-        // $scope.getSalaryRuleESIC();
-    };
-
-    $scope.Delete = function () {
-        if (!baseService.isUndefinedOrNull($scope.SeparationType.Id)) {
-            $http({
-                method: 'POST',
-                url: $scope.deleteUrl + $scope.SeparationType.Id,
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error == true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.SeparationTypes.splice($scope.index, 1);
-                    baseService.paginationRemove();
-                    ClearFields(response.data.Sequence);
-                }
-            }, function errorCallback(response) {
-                ShowResult(response.status.Message, 'failure');
-            });
-        }
-        else {
-            ShowResult(commonMessage.primaryKeyNullMessage, 'failure');
-        }
-        return true;
     };
 
     $scope.Clear = function () {

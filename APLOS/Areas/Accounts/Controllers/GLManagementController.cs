@@ -347,6 +347,54 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
         [HttpPost, Authorize]
+        public JsonResult CreateGlManagementDepartment(List<Dictionary<string, object>> data, string GlManagementId)
+        {
+            try
+            {
+                DataSet dsDepartment;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementDepartment] where GlManagementId='" + GlManagementId + "'", out dsDepartment, false, "1");
+
+                string Id = "";
+                #region data update
+                foreach (var item in data)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementDepartment", out Id);
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                    DataView dv = new DataView(dsDepartment.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        item["Id"] = Id;
+                        item["GlManagementId"] = GlManagementId;
+                        AddNewRow(dsDepartment.Tables[0], item);
+                    }
+                    else if (dv.Count > 0 && Convert.ToBoolean(item["CheckBoxSelect"].ToString()) == false)
+                    {
+                        DataRow drmo = dv[0].Row;
+                        drmo.Delete();
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        item["Id"] = dv[0].Row["Id"].ToString();
+                        EditRow(drmo, item);
+                    }
+                }
+                #endregion data update 
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsDepartment);
+                return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        [HttpPost, Authorize]
         public JsonResult CreateGlManagementPositionCode(List<Dictionary<string, object>> data, string GlManagementId)
         {
             try
@@ -836,6 +884,15 @@ namespace Aplos.Areas.Accounts.Controllers
                             FROM [HKP].[Designation] D   
                             left join(select * from  [HKP].[GLManagementDesignation] where GlManagementId='" + glManagementId + @"') gld on gld.DesignationId = D.Id
                             WHERE Active = 1";
+            var data = _sqlRepository.GetDataCollection(sql);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetDepartmentInformation(string glManagementId)
+        {
+            string sql = @"select CheckBoxSelect=cast(case when gld.Id is null then 0 else 1 end as bit),gld.Id,D.Id    DepartmentId,D.Code,D.Sequence,D.ShortName,D.StandardName,D.UserName DepartmentName,D.Description,D.Remarks 
+						                from ORG.Department D
+										left join(select * from  [HKP].[GLManagementDepartment] where GlManagementId='" + glManagementId + @"') gld on gld.DepartmentId = D.Id";
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
