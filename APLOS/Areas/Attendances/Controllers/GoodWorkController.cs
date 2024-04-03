@@ -15,7 +15,9 @@ using Library.OrderManagement.Sales;
 using Library.Service.Enums;
 using Library.Service.Helpers;
 using Library.Service.Logs;
+using Library.Service.SalaryDisbursement;
 using Library.Service.Setups;
+using Library.ViewModel.Vouchers;
 using Newtonsoft.Json;
 using OTSBD;
 using Syncfusion.XlsIO;
@@ -37,11 +39,13 @@ namespace Aplos.Areas.Attendances.Controllers
         #region Constructor
         private readonly ISqlRepository _sqlRepository;
         private readonly AccountVoucherReportService _accountVoucherReportService;
+        private readonly ISalaryDisbursementService _salaryDisbursementService;
         clsSales clsSales = new clsSales();
-        public GoodWorkController(ISqlRepository R, AccountVoucherReportService accountVoucherReportService)
+        public GoodWorkController(ISqlRepository R, AccountVoucherReportService accountVoucherReportService, ISalaryDisbursementService salaryDisbursementService)
         {
             _sqlRepository = R;
             _accountVoucherReportService = accountVoucherReportService;
+            _salaryDisbursementService = salaryDisbursementService;
         }
 
         #endregion Constructor
@@ -1355,7 +1359,10 @@ namespace Aplos.Areas.Attendances.Controllers
         public ActionResult GetGoodWorkPaymentAdviseApprovedList()
         {
             string sql = @"select ei.EmployeeCode,ei.EmployeeName ByWhom,gwp.Id,FORMAT(gwp.FromDate,'dd-MMM-yyy') FromDate,FORMAT(gwp.ToDate,'dd-MMM-yyy')ToDate
-						,gwp.UserRef,FORMAT(gwp.PaymentDate,'dd-MMM-yyy') PaymentDate,gwp.Remarks,gwp.PaymentSource,gwp.PaymentsStatus
+						,gwp.UserRef,FORMAT(gwp.PaymentDate,'dd-MMM-yyy') PaymentDate,gwp.Remarks,gwp.PaymentSource,ISNULL(gwp.PaymentsStatus,'Active') PaymentsStatus
+                        ,(select SUM(gwpad.Amount)DisbursementAmount
+                                from GoodWorkPaymentAdviseDetail gwpad
+                                where gwpad.PaymentAdviseId=gwp.Id and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0  AND gwpad.DisbursementVoucherId IS NULL)DisbursementAmount
 						from GoodWorkPaymentAdvise gwp 
 						left join EmployeeInformation ei on ei.SystemId=gwp.ByWhomId
                         where gwp.ApprovedStatus ='PaymentApproved' ";
@@ -1407,6 +1414,77 @@ namespace Aplos.Areas.Attendances.Controllers
             AccountsInventoryPayableReportService accountsInventoryPayableReportService = new AccountsInventoryPayableReportService(_sqlRepository);
             var reportFileName = "Good Work Payment Advise Payments Reports";
             var workbook = accountsInventoryPayableReportService.GoodWorkPaymentAdvisePaymentsReports(reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, goodWorkPaymentAdviseId);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetGoodWorkPaymentAdviseDisbursementVoucherList(GridParameter parameters)
+        {
+            AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
+            return Json(accountsSalaryPayableService.GetGoodWorkPaymentAdviseDisbursementVoucherList(parameters), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public JsonResult ParkSalaryPayableDisbursement(VoucherViewModel voucherVM, string yearNo, string monthNo, string monthName, string pMode, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.IsPark = true;
+            voucherVM.Amount = directJVList.Sum(r => r.CrAmount);
+            voucherVM.SourceType = SourceType.SalaryDisbursement.ToString();
+
+            string goodWorkPaymentAdviseDetailIds = "";
+            if (goodWorkPaymentAdviseDetail != null)
+            {
+                foreach (var item in goodWorkPaymentAdviseDetail)
+                {
+                    if (goodWorkPaymentAdviseDetailIds == "")
+                    {
+                        goodWorkPaymentAdviseDetailIds = "'" + item["Id"] + "'"; ;
+                    }
+                    else
+                    {
+                        goodWorkPaymentAdviseDetailIds += ",'" + item["Id"] + "'";
+
+                    }
+                }
+            }
+
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _salaryDisbursementService.ParkSalaryPayableDisbursement(voucherVM, yearNo, monthNo, monthName, pMode, directJVList, disbursementAdviceId, goodWorkPaymentAdviseDetailIds)) });
+        }
+        [HttpPost]
+        public JsonResult PostSalarydisbursement(string voucherId)
+        {
+            _salaryDisbursementService.PostSalarydisbursement(voucherId);
+            return Json(new { Message = AplosMessage.Posted });
+        }
+        [HttpPost]
+        public ActionResult DeleteSalaryDisbursementVoucher(string voucherId, string monthNo, string yearNo)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _salaryDisbursementService.DeleteSalaryDisbursementVoucher(identity.PlantId, voucherId, monthNo, yearNo);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSalaryDisbursementVoucherReport(ReportFormat reportFormat, string voucherId)
+        {
+            AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = accountsSalaryPayableService.GetSalaryDisbursementVoucherReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
