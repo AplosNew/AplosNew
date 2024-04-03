@@ -269,11 +269,18 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.voucherDetailList = [];
     };
 
+    $scope.validation = function () {
+        if ($scope.approvedByList.length > 0 && $scope.voucher.ApprovedById == null) {
+            ShowResult("Please select Approved By!", "failure");
+            return true;
+        }
+        return false;
+    }
     $scope.save = function () {
         $scope.$broadcast("show-errors-check-validity");
         $scope.checkDocDate();
         $scope.checkPostingDate();
-        if ($scope.form0.$valid && !$scope.invalidDocDate && !$scope.invalidPostingDate) {
+        if ($scope.form0.$valid && !$scope.invalidDocDate && !$scope.invalidPostingDate && !$scope.validation() ) {
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",
@@ -325,6 +332,9 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
 
     $scope.advanceId = null;
     $scope.confirmPost = function (advanceId) {
+        if (data.ApprovedByStatus == 'ToBeApproved' || data.ApprovedByStatus == 'Hold' || data.ApprovedByStatus == 'Reject') {
+            ShowResult("Before Post, Please Approve First. Mr." + data.ApprovedBy + " is responsible for Approve", "failure");
+        }
         $scope.advanceId = advanceId;
         $scope.message_confirmation = "Are you sure to Post?";
         angular.element(document.querySelector("#confirmPostPopUp")).modal("show");

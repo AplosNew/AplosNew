@@ -353,6 +353,14 @@ function bankJournalController(bankService, accountService, cboService, commonMe
         $scope.voucher.PostingDate = $filter("dateFiltering")(data.LastPostingDate);
         $scope.voucher.DocDate = $scope.voucher.PostingDate;
     };
+    $scope.validation = function () {
+        if ($scope.approvedByList.length > 0 && $scope.voucher.ApprovedById == null) {
+            ShowResult("Please select Approved By!", "failure");
+            return true;
+        }
+        return false;
+    }
+
     $scope.actionIsDisable = false;
     $scope.save = function () {
         $scope.$broadcast("show-errors-check-validity");
@@ -366,7 +374,7 @@ function bankJournalController(bankService, accountService, cboService, commonMe
             $scope.voucher.IsReverse = true;
         }
 
-        if ($scope.form0.$valid && !$scope.invalidDocDate && !$scope.invalidPostingDate && !$scope.invalidRow) {
+        if ($scope.form0.$valid && !$scope.invalidDocDate && !$scope.invalidPostingDate && !$scope.invalidRow && !$scope.validation() ) {
             $scope.actionIsDisable = true;
             if ($scope.Action === "Save") {
                 $http({
