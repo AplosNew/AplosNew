@@ -87,6 +87,8 @@ namespace Aplos.Areas.Banks.Controllers
         [HttpPost]
         public JsonResult UpdateCashJournal(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
         {
+            if (voucherVM.ApprovedById != null && voucherVM.ApprovedByStatus == "Approved")
+                throw new CustomException("Updated is not allowed after approved !!");
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
             voucherVM.CompanyId = identity.CompanyId;

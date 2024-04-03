@@ -339,7 +339,7 @@
                     <td>{{x.Status}}</td>
                     <td class="text-right">
                         <ul class="list-inline action-list">
-                            <li ng-show="x.IsPark"><a ng-click="confirmPost(x.Id);" href="" class="btn btn-action tooltip-here">Post</a></li>
+                            <li ng-show="x.IsPark"><a ng-click="confirmPost(x.Id,x);" href="" ng-disabled="x.ApprovedByStatus=='ToBeApproved'" class="btn btn-action tooltip-here">Post</a></li>
                             <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
     
 

@@ -941,7 +941,7 @@ LEFT JOIN  HKP.LocalLanguage AS PayableSalary ON PayableSalary.LabelName='Payabl
 
 LEFT JOIN SalaryProcChild B ON B.SystemID=(Select SystemID from SalaryProcChild C
 left join SalaryHead h on h.SalaryHeadID=C.SalaryHeadID
-where h.HeadCategory='TOTAL GROSS' AND C.SlrProcMstSystemID=SPM.SystemID AND C.EmpInfoSystemID=SPC.EmpInfoSystemID)
+where h.HeadCategory='CTC' AND C.SlrProcMstSystemID=SPM.SystemID AND C.EmpInfoSystemID=SPC.EmpInfoSystemID)
 LEFT JOIN SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
 
 LEFT JOIN SalaryProceAttdnData otstatus on isnull(concat(otstatus.EmpSystemID,otstatus.SlrProcMstSystemID),'')=(select top 1 isnull(concat(EmpSystemID,SlrProcMstSystemID),'') from  SalaryProceAttdnData Where isnull(EmpSystemID,'')=isnull(spc.EmpInfoSystemID,'') and isnull(SlrProcMstSystemID,'')=isnull(spm.SystemID ,''))
