@@ -49,10 +49,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             data: { column: $scope.searchBy, value: $scope.search },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.ModelList = response.data;
-            //for (var i = 0; i < $scope.ModelList.length; i++) {
-            //    $scope.GlManagementId = $scope.ModelList[i].Id;
-            //}
+            $scope.ModelList = response.data; 
             $scope.GetSequence();
         });
     }
@@ -124,6 +121,8 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.ModelNew.Id = response.data.Data.Id;
+                    $scope.GlManagementId = response.data.Data.Id;
                     $scope.getData();
                 }
             }), function errorCallBack(response) {

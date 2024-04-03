@@ -1001,6 +1001,10 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $scope.GoodWorkPaymentAdvisePendingPaymentSave = function (obj) {
         try {
             $scope.GetEmployeeGWListPendingPaymentItem();
+            if ($scope.EmployeeGWListPendingPayment.length === 0) {
+                ShowResult("Please select Employee!", "failure");
+                return true;
+            }
                 $http({
                     method: 'POST',
                     url: $scope.path + 'SaveGoodWorkPaymentAdvisePendingPayment',
@@ -1214,6 +1218,10 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $scope.GoodWorkPaymentAdvisePaymentsSave = function (obj) {
         try {
             $scope.GetEmployeeGWListPaymentsItem();
+            if ($scope.EmployeeGWListPayments.length === 0) {
+                ShowResult("Please select Employee!", "failure");
+                return true;
+            }
             $http({
                 method: 'POST',
                 url: $scope.path + 'SaveGoodWorkPaymentAdvisePayments',
@@ -1294,6 +1302,13 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         }
         return false;
     }
+
+    $scope.goodWorkPaymentAdvisePaymentsDownload = function (data) {
+        var reportFormat = "Pdf";
+        if (baseService.isUndefinedOrNull(data.PaymentsStatus)) return ShowResult('No Payments found', 'failure');
+        $window.open('Attendances/GoodWork/GoodWorkPaymentAdvisePaymentsReports?' + '&reportFormat=' + reportFormat + '&goodWorkPaymentAdviseId=' + data.Id );
+    };
+
     //Payments GoodWorkPaymentAdvise Payments End
 
 }

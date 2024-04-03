@@ -32,6 +32,7 @@ using Library.ViewModel.Invoices;
 using Library.ViewModel.Vouchers;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -9379,7 +9380,17 @@ namespace Library.Service.Advances
             var flag = false;
             try
             {
+                ConnectionManager.DAL.ConManager objCon1;
+                DataSet dsMaster1 = null;
+                string setOffsql = @"SELECT VoucherNo from trn.AdvanceWriteOffDetail iwd JOIN trn.AdvanceWriteOff iw on iw.Id=iwd.AdvanceWriteOffId LEFT JOIN trn.Voucher v on v.Id = iw.VoucherId
+                                            WHERE iwd.AdvanceId in (select Id from trn.Advance where VoucherId = '" + voucherId + "')";
+                objCon1 = new ConnectionManager.DAL.ConManager("1");
+                objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
 
+                if (dsMaster1.Tables[0].Rows.Count > 0)
+                {
+                    throw new CustomException("Voucher Park Mode not allowed,  Voucher No '" + dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
+                }
 
                 // Delete Loan
                 _unitOfWork.BeginTransaction();

@@ -527,7 +527,7 @@ namespace Library.Accounting.Accounts
                                         ,OI.VoucherId OtherInvoiceVoucherId
                                         ,IsExpenseDistribution=CASE WHEN ISNULL((select COUNT(ID.Id) from TRN.InvoiceDetailCharges ID
 										INNER JOIN TRN.VoucherDetail VD ON VD.Id=ID.VoucherDetailId
-										WHERE VD.VoucherId=I.VoucherId),0)>0 THEN 1 ELSE 0 END
+										WHERE VD.VoucherId=I.VoucherId),0)>0 THEN 1 ELSE 0 END,V.ApprovedByStatus,EIA.EmployeeName ApprovedBy,V.ApprovedById,V.ApprovedDate
                                         FROM TRN.[Invoice] AS I
                                         JOIN [HKP].[Party] AS P ON P.Id=I.PartyId
                                         LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=I.PartyPlantId
@@ -536,6 +536,7 @@ namespace Library.Accounting.Accounts
                                         LEFT JOIN [TRN].[Voucher] AS V ON V.Id=I.VoucherId
                                         LEFT JOIN TRN.AdditionalTax ADT ON ADT.InvoiceId=I.Id
                                         LEFT JOIN TRN.Voucher AV ON AV.Id=ADT.VoucherId
+                                        LEFT JOIN DBO.EmployeeInformation EIA ON EIA.SystemId=V.ApprovedById
                                         LEFT JOIN TRN.OtherInvoice OI ON OI.InvoiceId=I.Id
                                         WHERE I.Archive=0 AND V.Archive=0 AND I.OpeningBalanceId IS NULL AND I.SourceType='" + sourceType + @"' 
                                         AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' 
@@ -546,7 +547,7 @@ namespace Library.Accounting.Accounts
                                         ,IsAdditionalTaxPost=CASE WHEN ADT.VoucherId<>'' THEN 'Posted' WHEN  ADT.EmployeePayableId IS NULL THEN '' ELSE 'Parked' end,V.VoucherTypeId,I.CompanyCurrencyRate
                                         ,I.PartyId,I.PartyPlantId,I.EmployeeId
                                         ,AV.VoucherNo TDSVoucherNo,ADT.VoucherId TDSVoucherId,[Status]= case when I.IsPark=1 then 'Parked' else 'Posted' end
-                                        ,NULL OtherInvoiceId,NULL OtherIsPark,NULL OtherInvoiceVoucherId,0 IsExpenseDistribution
+                                        ,NULL OtherInvoiceId,NULL OtherIsPark,NULL OtherInvoiceVoucherId,0 IsExpenseDistribution,V.ApprovedByStatus,EIA.EmployeeName ApprovedBy,V.ApprovedById,V.ApprovedDate
                                         FROM TRN.[EmployeePayable] AS I
                                        LEFT JOIN [HKP].[Party] AS P ON P.Id=I.PartyId
                                         LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=I.PartyPlantId
@@ -555,6 +556,7 @@ namespace Library.Accounting.Accounts
                                         LEFT JOIN [TRN].[Voucher] AS V ON V.Id=I.VoucherId
                                         LEFT JOIN TRN.AdditionalTax ADT ON ADT.EmployeePayableId=I.Id
                                         LEFT JOIN TRN.Voucher AV ON AV.Id=ADT.VoucherId
+                                        LEFT JOIN DBO.EmployeeInformation EIA ON EIA.SystemId=V.ApprovedById
                                         WHERE I.Archive=0 AND V.Archive=0 AND I.OpeningBalanceId IS NULL AND I.SourceType='" + sourceType + @"' 
                                         AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"'  ";
                 return _sqlRepository.GetGridData(parameters);
