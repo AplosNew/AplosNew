@@ -10,6 +10,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     $scope.saveUrl = $scope.path + 'CreateGlManagementHeader';
     $scope.saveEmpCatUrl = $scope.path + 'CreateGlManagementEmployeeCategory';
     $scope.saveDesignationUrl = $scope.path + 'CreateGlManagementDesignation';
+    $scope.saveDepartmentUrl = $scope.path + 'CreateGlManagementDepartment';
     $scope.savePositionCodeUrl = $scope.path + 'CreateGlManagementPositionCode';
     $scope.saveBudgetCodeUrl = $scope.path + 'CreateGlManagementBudgetCode';
     $scope.saveEmpUrl = $scope.path + 'CreateGlManagementEmployee';
@@ -49,7 +50,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             data: { column: $scope.searchBy, value: $scope.search },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.ModelList = response.data; 
+            $scope.ModelList = response.data;
             $scope.GetSequence();
         });
     }
@@ -363,6 +364,98 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
 
     //#endregion LegalDesignation
 
+    //#region Department
+    $scope.DepartmentDataList = [];
+    $scope.GetDepartmentInformation = function () {
+        try {
+            $http({
+                method: 'GET',
+                url: 'Accounts/GLManagement/GetDepartmentInformation?GlManagementId=' + $scope.GlManagementId,
+            }).then(function successCallback(response) {
+                $scope.DepartmentDataList = response.data;
+            });
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.refreshTemplateDepartment = function (args) {
+        $("#Depheadchk").ejCheckBox({ "change": CheckBoxSelectAllDepartment });
+    };
+
+    function CheckBoxSelectAllDepartment(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#depInfoGrid").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.DepartmentDataList.length; i++) {
+                $scope.DepartmentDataList[i].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#depInfoGrid").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.DepartmentList = [];
+    $scope.OKDepartmentInformation = function () {
+        try {
+            $scope.DepartmentList = [];
+            for (var i = 0; i < $scope.DepartmentDataList.length; i++) {
+                if ($scope.DepartmentDataList[i].CheckBoxSelect == true) {
+                    $scope.DepartmentList.push($scope.DepartmentDataList[i]);
+                }
+                if ($scope.DepartmentDataList[i].CheckBoxSelect == false && $scope.DepartmentDataList[i].Id != null) {
+                    $scope.DepartmentList.push($scope.DepartmentDataList[i]);
+                }
+            }
+            $scope.SaveDepartment();
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+
+    $scope.SaveDepartment = function () {
+        if (baseService.isUndefinedOrNull($scope.GlManagementId)) {
+            return ShowResult('Please select GL Management!', 'failure');
+        }
+        for (var i = 0; i < $scope.DepartmentList.length; i++) {
+            for (var j = 0; j < $scope.DepartmentDataList.length; j++) {
+                if ($scope.DepartmentDataList[j].Id == $scope.DepartmentList[i].Id) {
+                    if ($scope.DepartmentDataList[j].CheckBoxSelect == false) {
+                        $scope.DepartmentList[i].CheckBoxSelect = false;
+                    }
+                }
+            }
+        }
+
+        $http({
+            method: 'POST',
+            url: $scope.saveDepartmentUrl,
+            data: { 'data': $scope.DepartmentList, 'GlManagementId': $scope.GlManagementId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetDepartmentInformation();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+    //#endregion Department
+
     //#region position 
     $scope.PositionCodeListData = [];
     $scope.getPositionCode = function () {
@@ -634,6 +727,10 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     //#endregion Employee
 
     //#region Control Dr 
+    $scope.ControlDr = false;
+    $scope.ControlCr = false;
+    $scope.Remarks = null;
+
     $scope.ControlDrListData = [];
     $scope.GetControlDrData = function (tab) {
         $scope.TabName = tab;
@@ -649,10 +746,20 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     $scope.OKControlDr = function (obj) {
         $scope.TabName = obj;
         $scope.ControlDrList = [];
+
+        var ob = {};
         try {
             for (var i = 0; i < $scope.ControlDrListData.length; i++) {
                 if ($scope.ControlDrListData[i].CheckBoxSelect == true) {
-                    $scope.ControlDrList.push($scope.ControlDrListData[i]);
+                    if ($scope.ControlDr == true) {
+                        ob.ActivityIdDr = $scope.ControlDrListData[i].BudgetMasterActivityIdDr;
+                    }
+                    if ($scope.ControlCr == true) {
+                        ob.ActivityIdCr = $scope.ControlDrListData[i].BudgetMasterActivityIdCr;
+                    }
+                    ob.Remarks = $scope.Remarks;
+                    $scope.ControlDrList.push(ob);
+                    ob = {};
                 }
                 if ($scope.ControlDrListData[i].CheckBoxSelect == false && $scope.ControlDrListData[i].Id != null) {
                     $scope.ControlDrList.push($scope.ControlDrListData[i]);
@@ -1019,7 +1126,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         }
     };
 
- 
+
     $scope.refreshTemplateRP = function (args) {
         $("#RPheadchk").ejCheckBox({ "change": CheckBoxSelectAllRP });
     };
@@ -1077,7 +1184,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
 
     //#endregion Responsible Person
 
-  
+
     $scope.report = {
         GLName: null,
         GLGeneralInfoId: null,
@@ -1186,7 +1293,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         return false;
     }
 
- 
+
     $scope.ExpenseGLList = [];
     $scope.selectGLBudget = function (data) {
         $http({
@@ -1203,7 +1310,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         })
     }
 
-  
+
     $scope.GLControlReport = function (data, index) {
         $scope.fileName = "GLControlReport.xlsx";
 
