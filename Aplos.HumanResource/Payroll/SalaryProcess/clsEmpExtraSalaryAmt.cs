@@ -258,7 +258,7 @@ namespace OTSBD
 		                            LEFT JOIN SCS.Currency CrDe ON CR.AmtDefinitionCurrency = CrDe.ID
                             WHERE E.PlantID = '" + sEntityID + @"'
                                    AND E.DOJ <= '" + todate + @"'
-                                            --and E.EmployeeStatus='Active'
+                                            --and E.EmployeeStatus='Active'3dszvya/,nib n
 			                              AND (E.DOS >= '" + fromdate + @"' OR ISNULL(E.DOS,'') = '' OR E.DOS = '01/01/1901')
                             ORDER BY E.EmployeeCode";
 

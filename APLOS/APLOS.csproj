@@ -1823,6 +1823,11 @@
     </Compile>
     <Compile Include="Helpers\ExcelResult.cs" />
     <Compile Include="Helpers\XlsIOExtension.cs" />
+    <Compile Include="Reports\HumanResource\Payrolls\PayrollsDataSet.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>PayrollsDataSet.xsd</DependentUpon>
+    </Compile>
     <Compile Include="Reports\Products\ProductsDataSet.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -5113,6 +5118,18 @@
     <Content Include="Areas\QMS\Views\LWQSummaryReport\Aplos.cshtml" />
     <Content Include="Areas\QMS\Views\LWQRUpdate\Aplos.cshtml" />
     <Content Include="Areas\TaskScheduler\Views\DependantTask\Aplos.cshtml" />
+    <Content Include="Reports\HumanResource\Payrolls\PayrollsDataSet.xsc">
+      <DependentUpon>PayrollsDataSet.xsd</DependentUpon>
+    </Content>
+    <None Include="Reports\HumanResource\Payrolls\PayrollsDataSet.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>PayrollsDataSet.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="Reports\HumanResource\Payrolls\PayrollsDataSet.xss">
+      <DependentUpon>PayrollsDataSet.xsd</DependentUpon>
+    </Content>
+    <Content Include="Reports\HumanResource\Payrolls\PayslipReport.rdlc" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />
