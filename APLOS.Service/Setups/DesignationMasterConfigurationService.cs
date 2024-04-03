@@ -443,7 +443,7 @@ namespace Library.Service.Setups
         {
             var _sql = @"SELECT DC.Id,DM.Id DesignationMasterId,DC.RecruitmentProcessSetId,DC.AccountsGroupId,DC.SalaryRuleMasterId,DC.PlantId,DC.LeavePolicyMasterId,DC.SalaryFixationSettingId,DC.AttdnBonusPmtPolicyMasterId,
                          DC.BonusPolicyMasterId,DC.PFPolicyMasterID,DC.ESICPolicyMasterID,DC.IsOTEntitled,DC.BnsPlcMthRetainID,DC.OverTimePmtPolicyMasterID ,D.Id DesignationId,
-                         D.UserName,D.Code,C.UserName EmployeeCategory,DC.AddedBy,DC.AddedDate,DC.AddedFromIP,DC.UpdatedBy,DC.UpdatedDate,DC.UpdatedFromIP,DC.HolidayPayDayMasterId
+                         D.UserName,D.Code,C.UserName EmployeeCategory,DC.AddedBy,DC.AddedDate,DC.AddedFromIP,DC.UpdatedBy,DC.UpdatedDate,DC.UpdatedFromIP,DC.HolidayPayDayMasterId,DC.NoticePeriod
                          ,LegalDesignation=STUFF((SELECT DISTINCT ','+LD.UserName FROM 
 							[MST].[DesignationMasterLegalDesignation] DMLD
 							LEFT JOIN HKP.LegalDesignation LD ON DMLD.LegalDesignationId=LD.Id

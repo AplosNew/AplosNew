@@ -528,5 +528,120 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
             dr.EndEdit();
         }
 
+        [HttpGet, Authorize]
+        public JsonResult GetBudgetedEmployeeData(string gwsId)
+        {
+            try
+            {
+                string CmdText = @"SELECT BE.Id,CAST (CASE WHEN BE.EmployeeId IS NULL THEN 1 ELSE 0 END AS bit) BEFlag,E.SystemId EmployeeId
+							    	,E.PlantId
+							    	,E.GroupID
+							    	,E.CompanyId
+							    	,E.EmployeeName
+							    	,PMB.Code BudgetCode
+							    	,PR.UserName PositionName
+							    	,E.TelePhnNo
+							    	,E.EmailId
+                                    ,E.DepartmentId
+                                    ,E.DivisionId
+									,E.SectionId
+							    	,E.EmpType
+							    	,E.GivenDesignationId
+									,E.EmployeeCategorySystemID EmployeeCategoryId
+							    	,EN.UserName EntityName
+							    	,D.UserName Designation
+							    	,GD.UserName GivenDesignation
+                                    ,LD.UserName LegalDesignation
+							    	,DEPT.UserName AS Department
+							    	,DV.UserName AS Division
+									,SC.UserName AS Section
+                                    ,E.EmployeeCode
+									,E.EmpPicPath
+                                    ,E.DOJ
+                                    ,P.UserName Plant
+									,SS.UserName SubSection
+                                    ,E.EmployeeCodeNumeric
+                                    ,C.UserName Company
+							    FROM EmployeeInformation E
+							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
+							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
+							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
+							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
+                                LEFT JOIN HKP.LegalDesignation LD ON E.LegalDesignationId = LD.Id
+                                LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
+								LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+                                LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
+								OUTER APPLY (Select * from dbo.ExceptionGoodWorkEmployee Where GoodWorkSetUpId='" + gwsId + @"' AND  EmployeeId=E.SystemId)BE 
+                                WHERE E.EmployeeStatus='Active' AND E.EmpType<>'Guest' 
+								 AND E.BudgetCode IN (SELECT BudgetId FROM dbo.GoodWorkBudgetSetup Where GoodWorkSetUpId='" + gwsId + @"')
+								order by EmployeeCodeNumeric";
+                return Json(_sqlRepository.GetDataCollection(CmdText, null), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateExceptionBudgetedEmployee(List<Dictionary<string, object>> data, string goodWorkSetupId)
+        {
+            MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            bplib.clsGenID genid = new bplib.clsGenID();
+            DataSet dsBC, dsDD;
+            string _Id = string.Empty;
+            try
+            {
+                #region Entity 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ExceptionGoodWorkEmployee where  GoodWorkSetupId='" + goodWorkSetupId + "'", out dsBC, false, "1");
+                objCon.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[ExceptionGoodWorkEmployee] where GoodWorkSetupId='" + goodWorkSetupId + "'", out dsDD, false, "1");
+                int ccount = Convert.ToInt32(dsDD.Tables[0].Rows[0]["countId"].ToString());
+                if (data != null)
+                {
+                   
+
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsBC.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        if (dv.Count == 0 && Convert.ToBoolean(item["BEFlag"])==false)
+                        {
+                            ccount++;
+                           
+                            item["Id"] = materialCommonService.MakePK(goodWorkSetupId, ccount, 2);
+                            item["GoodWorkSetupId"] = goodWorkSetupId;
+
+                            AddNewRow(dsBC.Tables[0], item);
+                        }
+                        else if (dv.Count > 0 && Convert.ToBoolean(item["BEFlag"]) == true)
+                        {
+                            DataRow drmo = dv[0].Row;
+                            drmo.Delete();
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+                #endregion
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsBC);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
     }
 }
