@@ -1351,7 +1351,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             from GoodWorkPaymentAdviseDetail gwpad
                             left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
 							left join GoodWorkPaymentAdvise gwpa on gwpa.Id=gwpad.PaymentAdviseId
-                            where gwpa.Id='" + paymentAdviseId + "' and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0 ";
+                            where gwpa.Id='" + paymentAdviseId + "' and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.DisbursementVoucherId IS NULL ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

@@ -63,6 +63,7 @@
                             <th>OT Entitle</th>
                             <th>OT Pmt Policy Master</th>
                             <th>Attdn Bonus New</th>
+                            <th>Notice Period</th>
                             <th style="width:10px !important;">Legal Designation</th>
                             <th>Details</th>
                         </tr>
@@ -197,6 +198,9 @@
                                         <option></option>
                                     </select>
                                 </div>
+                            </td>
+                            <td>
+                                <input type="text" name="Notice Period" ng-model="x.NoticePeriod"only-numbers class="form-control" required tabindex="5" maxlength="50">
                             </td>
                             <td style="width:10px !important;word-break: break-word;">{{x.LegalDesignation}}</td>
                             <td>
