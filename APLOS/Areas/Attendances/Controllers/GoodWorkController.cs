@@ -71,7 +71,7 @@ namespace Aplos.Areas.Attendances.Controllers
             return View();
         }
         //Load Employee
-        [HttpPost]
+        [HttpPost, Authorize]
         public ActionResult LoadEmployeelist(Dictionary<string, string> parameters, string userGroupId, string shiftId, string workDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -354,6 +354,8 @@ namespace Aplos.Areas.Attendances.Controllers
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
+
+        [HttpGet, Authorize]
         public ActionResult GetGoodWorkDetailCenter(string goodWorkId)
         {
             string str = @"select GWD.Id,EI.SystemId,EI.EmployeeCode,EI.EmployeeName,format(GWD.FromTime,'hh:mm') FromTime,format(GWD.ToTime,'hh:mm') ToTime
@@ -717,7 +719,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
-
+        [HttpGet, Authorize]
         public ActionResult GetWorkerAdvanceDetailCenter(string workAdvanceId)
         {
             string str = @"select ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,s.UserName Section,ss.UserName SubSection,wad.Id
