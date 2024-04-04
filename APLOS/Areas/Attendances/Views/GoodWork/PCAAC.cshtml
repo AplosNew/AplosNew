@@ -583,13 +583,13 @@
                                                 <td>{{x.GLName}}</td>
                                                 <td>{{x.BudgetName}}</td>
                                                 <td>{{x.ActivityName}}</td>
-                                                <td class="text-right">{{x.CrAmount}}</td>
+                                                <td class="text-right">{{x.DrAmount}}</td>
                                             </tr>
                                         </tbody>
                                         <tfoot ng-show="salaryLockPayableGLData.length">
                                             <tr>
                                                 <td colspan="3" class="text-right"><b> Total</b></td>
-                                                <td class="text-right"><b>{{ salaryLockPayableGLData | sumByKey : 'CrAmount' }}</b></td>
+                                                <td class="text-right"><b>{{ salaryLockPayableGLData | sumByKey : 'DrAmount' }}</b></td>
                                             </tr>
                                         </tfoot>
                                     </table>

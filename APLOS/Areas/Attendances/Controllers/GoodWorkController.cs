@@ -1346,12 +1346,78 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult GetGoodWorkPaymentAdviseDetailCheckedList(string paymentAdviseId)
         {
-            string sql = @"select CheckBoxSelect=cast(case when gwpad.IsDisburse is null then 0 else 1 end as bit),gwpad.Id,gwpad.PaymentAdviseId,gwpad.EmpSystemId,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour,gwpad.Hour*60 Minute,gwpad.Rate,gwpad.Amount,gwpad.Remarks
+            string sql = @"select isSelected = Convert(bit, 'True'),CheckBoxSelect=Convert(bit, 'True'),gwpad.Id,gwpad.PaymentAdviseId,gwpad.EmpSystemId,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour,gwpad.Hour*60 Minute,gwpad.Rate,gwpad.Amount,gwpad.Remarks
                             ,gwpad.IsCheck,isnull(gwpad.IsDisburse,0)IsDisburse
                             from GoodWorkPaymentAdviseDetail gwpad
                             left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
 							left join GoodWorkPaymentAdvise gwpa on gwpa.Id=gwpad.PaymentAdviseId
                             where gwpa.Id='" + paymentAdviseId + "' and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.DisbursementVoucherId IS NULL ";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpPost]
+        public JsonResult GetGoodWorkPaymentAdviseDisbursementJVDataList(string disbursementAdviceId, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string goodWorkPaymentAdviseDetailIds = "";
+            if (goodWorkPaymentAdviseDetail != null)
+            {
+                foreach (var item in goodWorkPaymentAdviseDetail)
+                {
+                    if (goodWorkPaymentAdviseDetailIds == "")
+                    {
+                        goodWorkPaymentAdviseDetailIds = "'" + item["Id"] + "'"; ;
+                    }
+                    else
+                    {
+                        goodWorkPaymentAdviseDetailIds += ",'" + item["Id"] + "'";
+
+                    }
+                }
+            }
+            
+
+            string sql = null;
+            sql = @"SELECT
+                X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAmount) CrAmount,SUM(X.Amount) Amount,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
+                FROM
+                (
+                SELECT  'GoodWorkPayment' AS OtherName, 'Dr' AS TrnType
+                , gwpad.Amount DrAmount 
+                , 0 CrAmount 
+                , gwpad.Amount
+                ,GAD.GLGeneralInfoId  ,GAD.BudgetMasterId,GAD.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
+                , B.UserName BudgetName,A.UserName ActivityName 
+				FROM GoodWorkPaymentAdviseDetail gwpad
+				LEFT JOIN GoodWorkPaymentAdvise gwpa on gwpa.Id=gwpad.PaymentAdviseId
+				LEFT JOIN HKP.GeneralAccountDeterminate GAD ON  GAD.Id='GoodWorkPayment'
+				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON GAD.GLGeneralInfoId=GL.Id
+				LEFT JOIN[MST].[BudgetMaster] AS BM ON GAD.BudgetMasterId= BM.Id
+				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+				LEFT JOIN [HKP].[Activity] AS A ON GAD.ActivityId= A.Id
+				WHERE gwpa.PaymentSource='GoodWork' and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.DisbursementVoucherId IS NULL AND gwpad.PaymentAdviseId='" + disbursementAdviceId + @"' AND gwpad.Id in (" + goodWorkPaymentAdviseDetailIds + @")
+
+                Union All
+                SELECT  'ExtraOTPayment' AS OtherName, 'Dr' AS TrnType
+                , gwpad.Amount DrAmount 
+                , 0 CrAmount 
+                , gwpad.Amount
+                ,GAD.GLGeneralInfoId  ,GAD.BudgetMasterId,GAD.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
+                , B.UserName BudgetName,A.UserName ActivityName 
+				FROM GoodWorkPaymentAdviseDetail gwpad
+				LEFT JOIN GoodWorkPaymentAdvise gwpa on gwpa.Id=gwpad.PaymentAdviseId
+				LEFT JOIN HKP.GeneralAccountDeterminate GAD ON  GAD.Id='ExtraOTPayment'
+				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON GAD.GLGeneralInfoId=GL.Id
+				LEFT JOIN[MST].[BudgetMaster] AS BM ON GAD.BudgetMasterId= BM.Id
+				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+				LEFT JOIN [HKP].[Activity] AS A ON GAD.ActivityId= A.Id
+				WHERE gwpa.PaymentSource='Attendance' and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.DisbursementVoucherId IS NULL AND gwpad.PaymentAdviseId='" + disbursementAdviceId + @"' AND gwpad.Id in (" + goodWorkPaymentAdviseDetailIds + @")
+                        
+                )X
+                GROUP BY
+
+                X.GLName,X.BudgetName,X.ActivityName,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
+                ORDER BY 5";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -1434,7 +1500,7 @@ namespace Aplos.Areas.Attendances.Controllers
             return Json(accountsSalaryPayableService.GetGoodWorkPaymentAdviseDisbursementVoucherList(parameters), JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
-        public JsonResult ParkSalaryPayableDisbursement(VoucherViewModel voucherVM, string yearNo, string monthNo, string monthName, string pMode, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail)
+        public JsonResult ParkGoodWorkPaymentAdviseDisbursement(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -1442,7 +1508,7 @@ namespace Aplos.Areas.Attendances.Controllers
             voucherVM.PlantId = identity.PlantId;
             voucherVM.IsPark = true;
             voucherVM.Amount = directJVList.Sum(r => r.CrAmount);
-            voucherVM.SourceType = SourceType.SalaryDisbursement.ToString();
+            voucherVM.SourceType = SourceType.GoodWorkDisbursement.ToString();
 
             string goodWorkPaymentAdviseDetailIds = "";
             if (goodWorkPaymentAdviseDetail != null)
@@ -1461,20 +1527,20 @@ namespace Aplos.Areas.Attendances.Controllers
                 }
             }
 
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _salaryDisbursementService.ParkSalaryPayableDisbursement(voucherVM, yearNo, monthNo, monthName, pMode, directJVList, disbursementAdviceId, goodWorkPaymentAdviseDetailIds)) });
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _salaryDisbursementService.ParkGoodWorkPaymentAdviseDisbursement(voucherVM, directJVList, disbursementAdviceId, goodWorkPaymentAdviseDetailIds)) });
         }
         [HttpPost]
-        public JsonResult PostSalarydisbursement(string voucherId)
+        public JsonResult PostGoodWorkPaymentAdviseDisbursement(string voucherId)
         {
             _salaryDisbursementService.PostSalarydisbursement(voucherId);
             return Json(new { Message = AplosMessage.Posted });
         }
         [HttpPost]
-        public ActionResult DeleteSalaryDisbursementVoucher(string voucherId, string monthNo, string yearNo)
+        public ActionResult DeleteGoodWorkPaymentAdviseDisbursement(string voucherId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            _salaryDisbursementService.DeleteSalaryDisbursementVoucher(identity.PlantId, voucherId, monthNo, yearNo);
+            _salaryDisbursementService.DeleteGoodWorkPaymentAdviseDisbursement(identity.PlantId, voucherId);
             return Json(new { Message = AplosMessage.Deleted });
         }
 
