@@ -743,23 +743,18 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     }
 
     $scope.ControlDrList = [];
-    $scope.OKControlDr = function (obj) {
-        $scope.TabName = obj;
+    $scope.OKControlDr = function () {
         $scope.ControlDrList = [];
-
-        var ob = {};
         try {
             for (var i = 0; i < $scope.ControlDrListData.length; i++) {
-                if ($scope.ControlDrListData[i].CheckBoxSelect == true) {
-                    if ($scope.ControlDr == true) {
-                        ob.ActivityIdDr = $scope.ControlDrListData[i].BudgetMasterActivityIdDr;
-                    }
-                    if ($scope.ControlCr == true) {
-                        ob.ActivityIdCr = $scope.ControlDrListData[i].BudgetMasterActivityIdCr;
-                    }
-                    ob.Remarks = $scope.Remarks;
-                    $scope.ControlDrList.push(ob);
-                    ob = {};
+                if ($scope.ControlDrListData[i].CheckBoxSelect == true && $scope.ControlDrListData[i].ControlDr == true && $scope.ControlDrListData[i].ControlCr == true) {
+                    $scope.ControlDrList.push($scope.ControlDrListData[i]);
+                }
+                if ($scope.ControlDrListData[i].CheckBoxSelect == true && $scope.ControlDrListData[i].ControlDr == true && $scope.ControlDrListData[i].ControlCr == false) {
+                    $scope.ControlDrList.push($scope.ControlDrListData[i]);
+                }
+                if ($scope.ControlDrListData[i].CheckBoxSelect == true && $scope.ControlDrListData[i].ControlDr == false && $scope.ControlDrListData[i].ControlCr == true) {
+                    $scope.ControlDrList.push($scope.ControlDrListData[i]);
                 }
                 if ($scope.ControlDrListData[i].CheckBoxSelect == false && $scope.ControlDrListData[i].Id != null) {
                     $scope.ControlDrList.push($scope.ControlDrListData[i]);
@@ -800,15 +795,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         if (baseService.isUndefinedOrNull($scope.GlManagementId)) {
             return ShowResult('Please select GL Management!', 'failure');
         }
-        for (var i = 0; i < $scope.ControlDrList.length; i++) {
-            for (var j = 0; j < $scope.ControlDrListData.length; j++) {
-                if ($scope.ControlDrListData[j].BudgetMasterActivityId == $scope.ControlDrList[i].BudgetMasterActivityIdDr) {
-                    if ($scope.ControlDrListData[j].CheckBoxSelect == false) {
-                        $scope.ControlDrList[i].CheckBoxSelect = false;
-                    }
-                }
-            }
-        }
+       
         $http({
             method: 'POST',
             url: $scope.saveDrCrUrl,
