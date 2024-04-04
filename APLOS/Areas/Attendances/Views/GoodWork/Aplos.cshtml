@@ -18,7 +18,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Purpose<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Purpose" ng-model="ModelNew.Purpose" class="form-control" maxlength="15" required tabindex="9">
+                <input type="text" name="Purpose" ng-model="ModelNew.Purpose" class="form-control" maxlength="100" required tabindex="9">
             </div>
         </div>
         <div class="form-group" show-errors>
@@ -158,7 +158,7 @@
                     <td>{{x.ToTime}}</td>
                     <td><input type="number" class="form-control" name="Minute" ng-model="x.Minute" e-width="100" /></td>
 
-                    <td><input type="text" name="Purpose" ng-model="x.Purpose" class="form-control" maxlength="15" required tabindex="3"></td>
+                    <td><input type="text" name="Purpose" ng-model="x.Purpose" class="form-control" maxlength="100" required tabindex="3"></td>
                     <td>
                         <select name="PurposeCategory" ng-model="x.PurposeCategory" id="pc" class="form-control">
                             <option value="BreakDown">BreakDown</option>

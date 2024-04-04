@@ -506,6 +506,8 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
             $scope.ModelNew.DesignationId = $scope.GoodWorkList[0].DesignationId;
             $scope.ModelNew.Designation = $scope.GoodWorkList[0].Designation;
             $scope.ModelNew.UserGroup = $scope.GoodWorkList[0].UserGroup;
+            $scope.ModelNew.Purpose = $scope.GoodWorkList[0].Purpose;
+            $scope.ModelNew.PurposeCategory = $scope.GoodWorkList[0].PurposeCategory;
             $scope.getFiltersData();
         });
     }
