@@ -40,7 +40,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
     $('.datepicker').datepicker({
-        startDate: '-100d',
+        startDate: '-1d',
         endDate: '1d',
         datesDisabled: $scope.DisabledDates,
         format: 'dd-M-yyyy',
@@ -461,6 +461,9 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         $scope.GetGoodWorkDetailCenter();
         $scope.getFiltersData();
         $scope.Action = 'Update';
+        if (baseService.arrayLength($scope.checkedByList) == 1) {
+            $scope.ModelNew.CheckedBy = $scope.checkedByList[0].Value;
+        }
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
@@ -607,6 +610,9 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
             url: 'Attendances/GoodWork/GetGoodWorkCheckByCbo'
         }).then(function successCallback(response) {
             $scope.checkedByList = response.data;
+            if (baseService.arrayLength($scope.checkedByList) == 1) {
+                $scope.ModelNew.CheckedBy = $scope.checkedByList[0].Value;
+            }
         });
     }
     $scope.GetSupervisorCboList();

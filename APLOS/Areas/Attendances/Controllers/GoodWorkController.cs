@@ -355,7 +355,7 @@ namespace Aplos.Areas.Attendances.Controllers
             return json;
         }
 
-        [HttpGet, Authorize]
+        [HttpPost, Authorize]
         public ActionResult GetGoodWorkDetailCenter(string goodWorkId)
         {
             string str = @"select GWD.Id,EI.SystemId,EI.EmployeeCode,EI.EmployeeName,format(GWD.FromTime,'hh:mm') FromTime,format(GWD.ToTime,'hh:mm') ToTime
