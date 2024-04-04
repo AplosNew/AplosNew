@@ -178,6 +178,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
             , ShortName: null
             , StandardName: null
             , HSNCodeId: null
+            , Active: true
             , MaterialMasterArticleValues: []
             , IsWorkCenterApplicable: false
             , IsMachineApplicable: false
@@ -494,6 +495,11 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         $scope.articleNew.ShortName = data.ShortName;
         $scope.articleNew.StandardName = data.StandardName;
         $scope.articleNew.UserName = data.UserName;
+        $scope.articleNew.Active = data.Active;
+        $scope.articleNew.IsWorkCenterApplicable = data.Active;
+        $scope.articleNew.IsWorkCenterApplicable = data.IsWorkCenterApplicable;
+        $scope.articleNew.IsMachineApplicable = data.IsMachineApplicable;
+        $scope.articleNew.OrderLevel = data.OrderLevel;
         if (baseService.isUndefinedOrNull(data.HSNCodeId))
             $scope.articleNew.HSNCodeId = $scope.MaterialHSNCodeId;
         else
@@ -543,6 +549,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
             $scope.articleList[$scope.index].StandardName = $scope.articleNew.StandardName;
             $scope.articleList[$scope.index].UserName = $scope.articleNew.UserName;
             $scope.articleList[$scope.index].HSNCodeId = $scope.articleNew.HSNCodeId;
+            $scope.articleList[$scope.index].Active = $scope.articleNew.Active;
 
             for (var i = 0; i < $scope.attributeList.length; i++) {
                 var _invalid = $scope.IsMandatoryButNull($scope.attributeList[i].IsMandatory, $scope.attributeList[i].MaterialAttributeValueFreeText);

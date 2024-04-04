@@ -1150,7 +1150,7 @@ FROM [dbo].[LCClauses] CT
                 var sql = @"SELECT GWB.*,E.Id EntityId,E.UserName EntityName,MB.IsOTEntitled,D.Id DivisionId,D.UserName Division,DP.Id DepartmentId
 					,DP.UserName Department,S.Id SectionId,S.UserName Section,SS.Id SubSectionId,SS.UserName SubSection
 					,DE.Id DesignationId,DE.UserName Designation,P.Activity,P.UserReportGroup UserGroup,PR.Id ProcessId
-					,PR.UserName Process,EC.UserName EmployeeType,MB.Id BudgetId,MB.Code 
+					,PR.UserName Process,EC.UserName EmployeeType,MB.Id BudgetId,MB.Code,MD.BudgetedManpower,MD.DeployedManpower 
 					FROM dbo.GoodWorkSetup GWS
 					left join dbo.GoodWorkBudgetSetup GWB on GWB.GoodWorkSetUpId=GWS.Id
 					left join mst.ManpowerBudget MB on MB.Id=GWB.BudgetId
@@ -1164,6 +1164,7 @@ FROM [dbo].[LCClauses] CT
 					LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=DE.Id					
 					LEFT JOIN hkp.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId				
 					LEFT JOIN hkp.Process PR ON PR.Id=P.ProcessId 
+                    LEFT JOIN (Select SUM(TotalNumber)BudgetedManpower,SUM(Deployment)DeployedManpower,ManpowerBudgetId from MST.ManpowerBudgetDetail Group By ManpowerBudgetId) MD ON MD.ManpowerBudgetId=MB.Id
                     where  GoodWorkSetupId='" + goodWorkSetupId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }

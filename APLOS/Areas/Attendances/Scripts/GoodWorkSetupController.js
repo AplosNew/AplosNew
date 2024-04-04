@@ -465,6 +465,8 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
                         ob.UnitId = $scope.popUpDataList[i].UnitId;
                         ob.UserGroup = $scope.popUpDataList[i].UserGroup;
                         ob.WorkGroupId = $scope.popUpDataList[i].WorkGroupId;
+                        ob.DeployedManpower = $scope.popUpDataList[i].DeployedManpower;
+                        ob.BudgetedManpower = $scope.popUpDataList[i].BudgetedManpower;
                         ob.IsGoodWorkApplicable = false;
                         ob.IsCompensatoryApplicable = false;
                         ob.IsEmployeeApplicable = false;

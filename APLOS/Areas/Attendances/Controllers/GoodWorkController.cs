@@ -113,6 +113,8 @@ namespace Aplos.Areas.Attendances.Controllers
                          ,S.UserName Section,SS.UserName SubSection, DP.UserName Department
                          , PMB.Code,PR.UserName PositionName
                          ,EI.EmployeeStatus,APD.OverStay,APD.DayStatus
+						 ,CONVERT(varchar(15),CAST(APD.Intime AS TIME),100) InTime
+						 ,CONVERT(varchar(15),CAST(APD.OutTime AS TIME),100) OutTime
 						 ,OTTitle = case when EI.ExcludeOT=0 then 'Yes' else 'No' end
                          FROM dbo.Employeeinformation EI
                          LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id							 
@@ -133,6 +135,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
                          WHERE  EI.PlantId='" + identity.PlantId + @"'  " + ec + @"  " + dep + @"  " + sec + @"   " + subsec + @"   " + des + @" " + userGr + @"
                          and ei.SystemId in (select EmpSystemID from EmployeeShiftAssign where FixSystemID='" + shiftId + @"')  
+                        AND ei.SystemId IN(Select EmployeeId From [dbo].[ExceptionGoodWorkEmployee] where GoodWorkSetUpId = '" + userGroupId + @"')
                         and EI.EmployeeStatus='Active' and EI.BudgetCode in (SELECT BudgetId FROM dbo.GoodWorkBudgetSetup where GoodWorkSetUpId = '" + userGroupId + @"') 
                          ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
             }
@@ -193,6 +196,7 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             try
             {
+                
                 MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 DataSet dsMaster;
                 DataSet dsDetail;
@@ -246,7 +250,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             item["ToTime"] = item["ToTime"];
                             item["Purpose"] = item["Purpose"];
                             item["PurposeCategory"] = item["PurposeCategory"];
-                            item["Minute"] = item["Minute"];
+                            //item["Minute"] = item["Minute"];
                             item["Remark"] = item["Remark"];
 
                             materialCommonService.AddNewRowD(dsDetail.Tables[0], item);

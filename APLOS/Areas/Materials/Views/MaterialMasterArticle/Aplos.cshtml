@@ -44,7 +44,7 @@
     <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="common-btn">
             <ul class="list-inline">
-                <li><button ng-click="articleFormPopUp();" class="btn"> Add Article</button></li>
+                <li><button ng-click="articleFormPopUp();" ng-disabled="model.UserName==null" class="btn"> Add Article</button></li>
             </ul>
         </div>
     </div>
@@ -70,6 +70,7 @@
                     <th>Machine</th>
                     <th>Work Center</th>
                     <th>Order Level</th>
+                    <th>Active</th>
                     <th ng-repeat="x in articleHead">{{x.MaterialAttributeName}}</th>
                 </tr>
             </thead>
@@ -90,6 +91,7 @@
                     <td>{{x.IsMachineApplicable?'Yes':'No'}}</td>
                     <td>{{x.IsWorkCenterApplicable?'Yes':'No'}}</td>
                     <td>{{x.OrderLevel}}</td>
+                    <td>{{x.Active?'Yes':'No'}}</td>
                     <td ng-repeat="y in x.MaterialMasterArticleValues">{{y.MaterialAttributeValueFreeText}}</td>
                 </tr>
             </tbody>
@@ -229,6 +231,17 @@
                                     <div class="checkbox-site">
                                         <label class="control-label">
                                             <input type="checkbox" ng-model="articleNew.IsWorkCenterApplicable" tabindex="8">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-8 control-label">Active</label>
+                                <div class="col-sm-4">
+                                    <div class="checkbox-site">
+                                        <label class="control-label">
+                                            <input type="checkbox" ng-model="articleNew.Active" tabindex="8">
                                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                         </label>
                                     </div>
