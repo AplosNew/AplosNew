@@ -46,6 +46,16 @@
                                     <input type="text" name="PaymentDueDate" ng-model="ModelPCNew.PaymentDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="3">
                                 </div>
                             </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Approved By<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select id="ApprovedBy" class="form-control" name="Approved By" ng-model="ModelPCNew.ApprovedById" tabindex="8" required>
+                                            <option ng-repeat="option in approvedByList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group" show-errors>

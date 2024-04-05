@@ -1262,11 +1262,13 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult GetGoodWorkPaymentAdvisePendingPaymentList()
         {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
             string sql = @"select ei.EmployeeCode,ei.EmployeeName ByWhom,gwp.Id,FORMAT(gwp.FromDate,'dd-MMM-yyy') FromDate,FORMAT(gwp.ToDate,'dd-MMM-yyy')ToDate
 						,gwp.UserRef,FORMAT(gwp.PaymentDate,'dd-MMM-yyy') PaymentDate,gwp.Remarks,gwp.PaymentSource
 						from GoodWorkPaymentAdvise gwp 
 						left join EmployeeInformation ei on ei.SystemId=gwp.ByWhomId
-                        where gwp.ApprovedStatus is null ";
+                        where gwp.ApprovedStatus is null AND gwp.ApprovedById='"+identity.EmployeeId+"' ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -1613,6 +1615,7 @@ namespace Aplos.Areas.Attendances.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+        
         #region Good work check
         [HttpGet, Authorize]
         public ActionResult GetUncheckedData()
@@ -1628,9 +1631,9 @@ namespace Aplos.Areas.Attendances.Controllers
             }
         }
         [Authorize, HttpGet]
-        public JsonResult GetGoodWorkApproveByCboList()
+        public JsonResult GetGoodWorkPaymentApproveByCboList()
         {
-            return Json(clsSales.GetGoodWorkApproveByCboList(), JsonRequestBehavior.AllowGet);
+            return Json(clsSales.GetGoodWorkPaymentApproveByCboList(), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

@@ -329,66 +329,6 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         });
     }
 
-    $scope.checkedByList = [];
-    $scope.GetSupervisorCboList = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'GetIssueSlipCheckByCbo'
-        }).then(function successCallback(response) {
-            $scope.checkedByList = response.data;
-            //for (var i = 0; i < $scope.checkedByList.length; i++) {
-            //    $scope.ModelNew.CheckedById = $scope.checkedByList[i].Value;
-            //    $scope.ModelNew.ApprovedById = $scope.checkedByList[i].Value;
-            //}
-        });
-    }
-    $scope.GetSupervisorCboList();
-
-    $scope.approvedByList = [];
-    $scope.GetApprovedByList = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'GetApprovedByCbo'
-        }).then(function successCallback(response) {
-            $scope.approvedByList = response.data;
-            //for (var i = 0; i < $scope.checkedByList.length; i++) {
-            //    $scope.ModelNew.CheckedById = $scope.checkedByList[i].Value;
-            //    $scope.ModelNew.ApprovedById = $scope.checkedByList[i].Value;
-            //}
-        });
-    }
-    $scope.GetApprovedByList();
-
-    //$scope.showEmployeeListPopUp = function (name) {
-    //    $scope.Name = name;
-    //    $scope.employee = [];
-    //    $http({
-    //        method: 'GET',
-    //        url: 'Attendances/GoodWork/GetPayableCreationEmployeeData'
-    //    }).then(function successCallback(response) {
-    //        $scope.employeeDataList = response.data;
-    //    });
-    //    angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
-    //}
-
-    //$scope.setEmpData = function (obj) {
-    //    //$scope.Clear();
-    //    var data = obj.data;
-    //    if ($scope.Name === 'AB') {
-    //        $scope.ModelNew.ApprovedById = data.SystemId;
-    //        $scope.ModelNew.ApprovedBy = data.EmployeeName;
-    //    }
-    //    else {
-    //        $scope.ModelNew.CheckedById = data.SystemId;
-    //        $scope.ModelNew.CheckedBy = data.EmployeeName;
-    //    }
-    //    angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
-    //};
-
-    //$scope.closeEmployeePopUp = function () {
-    //    angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
-    //};
-
     $scope.popUpDataList = [];
     $scope.showByWhomEmployeeListPopUp = function (name) {
         try {
@@ -573,6 +513,20 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         PaymentChildId: null
     };
     $scope.ModelPCEmpNew = Object.assign({}, $scope.ModelPCemp);
+
+    $scope.approvedByList = [];
+    $scope.GetApprovedByCboList = function () {
+        $http({
+            method: 'GET',
+            url: 'Attendances/GoodWork/GetGoodWorkPaymentApproveByCboList'
+        }).then(function successCallback(response) {
+            $scope.approvedByList = response.data;
+            if (baseService.arrayLength($scope.approvedByList) == 1) {
+                $scope.ModelNew.ApprovedById = $scope.approvedByList[0].Value;
+            }
+        });
+    }
+    $scope.GetApprovedByCboList();
 
     $scope.PCEmployeeList = [];
     $scope.PCOTEmployeeList = [];
