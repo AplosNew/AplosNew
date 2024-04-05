@@ -26,7 +26,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         #region DataSet Functions
 
-        public IEnumerable<object> GetEmployeeInformationPlantWise(string month, string year,string PlantId)
+        public IEnumerable<object> GetEmployeeInformationPlantWise(string month, string year, string PlantId)
         {
             try
             {
@@ -49,7 +49,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 LEFT JOIN ORG.Department DP ON DP.Id = E.DepartmentId
                 LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = E.SubSectionID
                 left join hkp.LegalDesignation ld on ld.Id=e.LegalDesignationId
-                where a.PlantId='"+PlantId+"' and a.WorkDate between '" + date + @"' and '" + ToDate + @"' and
+                where a.PlantId='" + PlantId + "' and a.WorkDate between '" + date + @"' and '" + ToDate + @"' and
                 SandwichReprocess=1 order by EmpSystemID,Workdate,SandwichFlag asc";
 
                 return _sqlRepository.GetDataCollection(sql);
@@ -83,7 +83,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 LEFT JOIN ORG.Department DP ON DP.Id = E.DepartmentId
                 LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = E.SubSectionID
                 left join hkp.LegalDesignation ld on ld.Id=e.LegalDesignationId
-                where a.WorkDate between '" + date+@"' and '"+ToDate+@"' and
+                where a.WorkDate between '" + date + @"' and '" + ToDate + @"' and
                 SandwichReprocess=1 order by EmpSystemID,Workdate,SandwichFlag asc";
 
                 return _sqlRepository.GetDataCollection(sql);
@@ -93,7 +93,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw (ex);
             }
         }
-        public DataTable SandWichDataTable(string PlantId, string month, string year,string EmpMaster)
+        public DataTable SandWichDataTable(string PlantId, string month, string year, string EmpMaster)
         {
             try
             {
@@ -101,22 +101,22 @@ namespace Library.HumanResource.NewAttendanceProcess
                 string jj = month.ToString() + "-" + dd.ToString() + "-" + year.ToString();
                 string date = DateTime.Parse(jj).ToString("dd-MMM-yyyy");
                 string ToDate = Convert.ToDateTime(date).AddDays(32).ToString("dd-MMM-yyyy");
-                
+
                 var str = @"select dd.* from (
                 select EmpSystemID,a.RowId,format(WorkDate, 'dd-MMM-yyyy')WorkDate,
                 SandwichFlag,SandwichReprocess,
                 (select SandwichFlag from AttdnProcessData where WorkDate = 
 				DATEADD(day, -1, a.WorkDate)
                 and EmpSystemID = a.EmpSystemID
-                and a.PlantID = '" + PlantId+ @"')PrevDayFlag,
+                and a.PlantID = '" + PlantId + @"')PrevDayFlag,
                 (select RowId from AttdnProcessData where WorkDate = 
 				DATEADD(day, -1, a.WorkDate)
                 and EmpSystemID = a.EmpSystemID
-                and a.PlantID = '"+PlantId+@"')PrevRowId
+                and a.PlantID = '" + PlantId + @"')PrevRowId
                 from attdnprocessdata a
                 left join EmployeeInformation e on e.SystemId = a.EmpSystemID
-                where a.WorkDate between '" + date+@"' and '"+ToDate+ @"' and
-                SandwichReprocess = 1 and EmpSystemID in ("+EmpMaster+") and e.PlantID = '" + PlantId+@"' )as dd				
+                where a.WorkDate between '" + date + @"' and '" + ToDate + @"' and
+                SandwichReprocess = 1 and EmpSystemID in (" + EmpMaster + ") and e.PlantID = '" + PlantId + @"' )as dd				
 				where dd.PrevDayFlag is not null
 				order by dd.WorkDate,dd.EmpSystemID asc";
 
@@ -128,7 +128,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw (ex);
             }
         }
-        public DataTable RecallUpdatedDataTable(string PlantId, string month, string year,string EmpMaster)
+        public DataTable RecallUpdatedDataTable(string PlantId, string month, string year, string EmpMaster)
         {
             try
             {
@@ -149,7 +149,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 and EmpSystemID = a.EmpSystemID
                 and a.PlantID = '" + PlantId + @"')PrevWkDate
                 from attdnprocessdata a
-                where a.WorkDate between '" + date + @"' and '"+ToDate+ @"' and
+                where a.WorkDate between '" + date + @"' and '" + ToDate + @"' and
                 SandwichReprocess = 1 and EmpSystemID in (" + EmpMaster + ") and PlantID = '" + PlantId + @"' )as dd				
 				where dd.PrevDayFlag is not null
 				order by dd.WorkDate,dd.EmpSystemID asc";
@@ -162,7 +162,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw (ex);
             }
         }
-        public void UpdatePayDayValues(string MinDate,string MaxDate,string Plant,string EmpMaster)
+        public void UpdatePayDayValues(string MinDate, string MaxDate, string Plant, string EmpMaster)
         {
 
             try
@@ -186,8 +186,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                      	left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
 						left join DayStatus ds on ds.headerId=dh.Id
 						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
-						where WorkDate between '"+MinDate+@"' and '"+MaxDate+ @"'
-						and p.EmpSystemID in (" + EmpMaster + ") and SandwichStatus is not null and ei.PlantId='" + Plant+@"'
+						where WorkDate between '" + MinDate + @"' and '" + MaxDate + @"'
+						and p.EmpSystemID in (" + EmpMaster + ") and SandwichStatus is not null and ei.PlantId='" + Plant + @"'
 						and dt.DayType=p.DayStatus)	as x where
 						x.rowidx=RowId";
 
@@ -235,8 +235,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var str = @"select distinct EmpSystemID               
                 from attdnprocessdata a
                 left join EmployeeInformation e on e.SystemId = a.EmpSystemID
-                where a.WorkDate between '"+date+@"' and '"+ToDate+@"' and
-                e.PlantID = '"+PlantId+"' and SandwichReprocess = 1";
+                where a.WorkDate between '" + date + @"' and '" + ToDate + @"' and
+                e.PlantID = '" + PlantId + "' and SandwichReprocess = 1";
 
                 DataTable dtTemp = _sqlRepository.GetDataTable(str);
                 return dtTemp;
@@ -255,20 +255,20 @@ namespace Library.HumanResource.NewAttendanceProcess
             try
             {
                 #region 
-                string EmpParameter="''";
+                string EmpParameter = "''";
                 DataTable EmpListMaster; // Build Employee DataTable For Sandwich Process
-               
+
                 EmpListMaster = EmpListCount(PlantId, month, year); // Employee FindOut
                 int empCounter = 0;
                 for (int x = 0; x < EmpListMaster.Rows.Count; x++)
-                {                  
+                {
                     empCounter++;
                     if (empCounter == 100)
                     {
                         // Calling Max 100 Employees Every Time
                         SaveLog("Sandwich Process for 100 Employees...", PlantId, false);
                         EmpWiseProcess(PlantId, month, year, EmpParameter);
-                        EmpParameter = "''"; 
+                        EmpParameter = "''";
                         empCounter = 0;
                     }
                     else
@@ -278,7 +278,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     }
 
                 }
-                if(EmpParameter!="''")
+                if (EmpParameter != "''")
                 {
                     EmpWiseProcess(PlantId, month, year, EmpParameter);
                     EmpParameter = "''";
@@ -293,7 +293,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw ex;
             }
         }
-        public void EmpWiseProcess(string PlantId, string month, string year,string EmpMaster)
+        public void EmpWiseProcess(string PlantId, string month, string year, string EmpMaster)
         {
             try
             {
@@ -416,7 +416,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 {
                     int counter = 0;
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    var sqlx = @"select * from AttdnProcessData where EmpSystemId IN("+EmpMaster+") and PlantId='" + PlantId + "' and SandwichReprocess = 1 and WorkDate between '" + MinDate + "' and '" + MaxDate + "'";
+                    var sqlx = @"select * from AttdnProcessData where EmpSystemId IN(" + EmpMaster + ") and PlantId='" + PlantId + "' and SandwichReprocess = 1 and WorkDate between '" + MinDate + "' and '" + MaxDate + "'";
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
@@ -462,7 +462,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 #region DayStatus Changing Logic
 
                 DataTable RefreshedDt; // Build DataTable For DayStatus Changing
-                RefreshedDt = RecallUpdatedDataTable(PlantId, month, year,EmpMaster);
+                RefreshedDt = RecallUpdatedDataTable(PlantId, month, year, EmpMaster);
                 if (RefreshedDt.Rows.Count > 0)
                 {
                     int ddx = 01;
@@ -528,20 +528,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                                                 {
                                                     if (FinalStatus != "")
                                                     {
-                                                        if(FinalStatus == "CL" || FinalStatus == "PL" || FinalStatus == "ML" || FinalStatus == "EM" || FinalStatus == "LWP" || FinalStatus == "CM" || FinalStatus == "SL" )
-                                                        {
-                                                            DataRow drx = MasterDataSet.Tables[0].NewRow();
-                                                            drx["DayStatus"] = FinalStatus;
-                                                            drx["RowId"] = RowxId;
-                                                            MasterDataSet.Tables[0].Rows.Add(drx);
-                                                        }
-                                                        else
-                                                        {
-                                                            DataRow drx = MasterDataSet.Tables[0].NewRow();
-                                                            drx["DayStatus"] = "A";
-                                                            drx["RowId"] = RowxId;
-                                                            MasterDataSet.Tables[0].Rows.Add(drx);
-                                                        }
+                                                        DataRow drx = MasterDataSet.Tables[0].NewRow();
+                                                        drx["DayStatus"] = FinalStatus;
+                                                        drx["RowId"] = RowxId;
+                                                        MasterDataSet.Tables[0].Rows.Add(drx);
+
                                                     }
                                                 }
                                             }
@@ -562,7 +553,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                         int x = 0;
                         ConnectionManager.DAL.ConManager newcon = new ConnectionManager.DAL.ConManager("1");
-                        var sqlx = @"select * from AttdnProcessData where EmpSystemId In("+EmpMaster+") and PlantId='" + PlantId + "' and SandwichReprocess = 1 and WorkDate between '" + MinDate + "' and '" + MaxDate + "'";
+                        var sqlx = @"select * from AttdnProcessData where EmpSystemId In(" + EmpMaster + ") and PlantId='" + PlantId + "' and SandwichReprocess = 1 and WorkDate between '" + MinDate + "' and '" + MaxDate + "'";
 
                         newcon.OpenDataSetThroughAdapter(sqlx, out DataSet dsMaster, false, false, "", "1");
 
@@ -604,7 +595,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 #region PayDay Values Change
 
-                UpdatePayDayValues(MinDate, MaxDate, PlantId,EmpMaster);
+                UpdatePayDayValues(MinDate, MaxDate, PlantId, EmpMaster);
                 SaveLog("PayDay Values Updated ...", PlantId, false);
 
                 #endregion
@@ -619,4 +610,3 @@ namespace Library.HumanResource.NewAttendanceProcess
         #endregion
     }
 }
- 
