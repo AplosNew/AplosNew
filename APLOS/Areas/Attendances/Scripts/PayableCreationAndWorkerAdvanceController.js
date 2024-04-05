@@ -970,7 +970,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $scope.GetGoodWorkPaymentAdvisePendingPaymentdetail = function () {
         $http({
             method: 'Get',
-            url: $scope.path + "GetGoodWorkPaymentAdviseDetailList?paymentAdviseId=" + $scope.ModelPCNewPendingPayment.Id,
+            url: $scope.path + "GetGoodWorkPaymentAdviseDetailForApproveList?paymentAdviseId=" + $scope.ModelPCNewPendingPayment.Id,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.PCEmployeeListPendingPayment = response.data;

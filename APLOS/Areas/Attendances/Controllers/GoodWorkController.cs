@@ -1297,12 +1297,12 @@ namespace Aplos.Areas.Attendances.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
-                con.executeQuery("UPDATE [dbo].[GoodWorkPaymentAdvise] SET PaymentCreationById='" + identity.EmployeeId + "' ,ApprovedStatus='PaymentCreation'  where Id='" + data["Id"] + "' ");
+                con.executeQuery("UPDATE [dbo].[GoodWorkPaymentAdvise] SET PaymentCreationById='" + identity.EmployeeId + "' ,ApprovedStatus='PaymentApproved'  where Id='" + data["Id"] + "' ");
                 con.executeQuery("UPDATE [dbo].[GoodWorkPaymentAdvisedetail] SET IsCheck=1  where Id in (" + goodWorkPaymentAdviseDetailIds + ") ");
                 con.CommitTransaction();
 
 
-                return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
+                return Json(new { Error = false, Data = data, Message = "Approved Successfully" });
             }
             catch (Exception ex)
             {
@@ -1348,6 +1348,18 @@ namespace Aplos.Areas.Attendances.Controllers
                             left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
 							left join GoodWorkPaymentAdvise gwpa on gwpa.Id=gwpad.PaymentAdviseId
                             where gwpa.Id='" + paymentAdviseId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetGoodWorkPaymentAdviseDetailForApproveList(string paymentAdviseId)
+        {
+            string sql = @"select isSelected = Convert(bit, 'True'),CheckBoxSelect=Convert(bit, 'True'),gwpad.Id,gwpad.PaymentAdviseId,gwpad.EmpSystemId,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour,gwpad.Hour*60 Minute,gwpad.Rate,gwpad.Amount,gwpad.Remarks
+                            ,gwpad.IsCheck,isnull(gwpad.IsDisburse,0)IsDisburse
+                            from GoodWorkPaymentAdviseDetail gwpad
+                            left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
+							left join GoodWorkPaymentAdvise gwpa on gwpa.Id=gwpad.PaymentAdviseId
+                            where gwpa.Id='" + paymentAdviseId + "' and gwpad.IsCheck IS NULL AND gwpad.IsDisburse IS NULL AND gwpad.DisbursementVoucherId IS NULL ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
