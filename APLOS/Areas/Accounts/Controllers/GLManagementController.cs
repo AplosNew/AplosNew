@@ -347,6 +347,54 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
         [HttpPost, Authorize]
+        public JsonResult CreateGlManagementDepartment(List<Dictionary<string, object>> data, string GlManagementId)
+        {
+            try
+            {
+                DataSet dsDepartment;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementDepartment] where GlManagementId='" + GlManagementId + "'", out dsDepartment, false, "1");
+
+                string Id = "";
+                #region data update
+                foreach (var item in data)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementDepartment", out Id);
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                    DataView dv = new DataView(dsDepartment.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        item["Id"] = Id;
+                        item["GlManagementId"] = GlManagementId;
+                        AddNewRow(dsDepartment.Tables[0], item);
+                    }
+                    else if (dv.Count > 0 && Convert.ToBoolean(item["CheckBoxSelect"].ToString()) == false)
+                    {
+                        DataRow drmo = dv[0].Row;
+                        drmo.Delete();
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        item["Id"] = dv[0].Row["Id"].ToString();
+                        EditRow(drmo, item);
+                    }
+                }
+                #endregion data update 
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsDepartment);
+                return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        [HttpPost, Authorize]
         public JsonResult CreateGlManagementPositionCode(List<Dictionary<string, object>> data, string GlManagementId)
         {
             try
@@ -504,8 +552,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
                 string Id = "";
                 #region data update
-                if (TabName == "ControlDr")
-                {
+                
                     con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementControlDrCr] where GlManagementId='" + GlManagementId + "'", out dsDr, false, "1");
                     foreach (var item in data)
                     {
@@ -519,9 +566,17 @@ namespace Aplos.Areas.Accounts.Controllers
                         if (dv.Count == 0)
                         {
                             item["Id"] = Id;
+                        if (Convert.ToBoolean( item["ControlDr"]) == true)
+                        {
                             item["BudgetMasterActivityIdDr"] = item["BudgetMasterActivityId"];
-                            item["BudgetMasterActivityIdCr"] = null;
-                            item["GlManagementId"] = GlManagementId;
+
+                        }
+                        if (Convert.ToBoolean(item["ControlCr"]) == true)
+                        {
+                            item["BudgetMasterActivityIdCr"] = item["BudgetMasterActivityId"];
+
+                        }
+                        item["GlManagementId"] = GlManagementId;
 
                             AddNewRow(dsDr.Tables[0], item);
                         }
@@ -539,43 +594,42 @@ namespace Aplos.Areas.Accounts.Controllers
                     }
                     clsStaticInfo _info = new clsStaticInfo();
                     _info.SaveDataSets(dsDr);
-                }
-                if (TabName == "ControlCr")
-                {
-                    con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementControlDrCr] where GlManagementId='" + GlManagementId + "'", out dsCr, false, "1");
-                    foreach (var item in data)
-                    {
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementControlDrCr", out Id);
-                        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ////if (TabName == "ControlCr")
+                ////{
+                ////    con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementControlDrCr] where GlManagementId='" + GlManagementId + "'", out dsCr, false, "1");
+                ////    foreach (var item in data)
+                ////    {
+                ////        bplib.clsGenID genid = new bplib.clsGenID();
+                ////        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementControlDrCr", out Id);
+                ////        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                        DataView dv = new DataView(dsCr.Tables[0]);
-                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                ////        DataView dv = new DataView(dsCr.Tables[0]);
+                ////        dv.RowFilter = "Id='" + item["Id"] + "'";
 
-                        if (dv.Count == 0)
-                        {
-                            item["Id"] = Id;
-                            item["BudgetMasterActivityIdDr"] = null;
-                            item["BudgetMasterActivityIdCr"] = item["BudgetMasterActivityId"];
-                            item["GlManagementId"] = GlManagementId;
+                ////        if (dv.Count == 0)
+                ////        {
+                ////            item["Id"] = Id;
+                ////            item["BudgetMasterActivityIdDr"] = null;
+                ////            item["BudgetMasterActivityIdCr"] = item["BudgetMasterActivityId"];
+                ////            item["GlManagementId"] = GlManagementId;
 
-                            AddNewRow(dsCr.Tables[0], item);
-                        }
-                        else if (dv.Count > 0 && Convert.ToBoolean(item["CheckBoxSelect"].ToString()) == false)
-                        {
-                            DataRow drmo = dv[0].Row;
-                            drmo.Delete();
-                        }
-                        else
-                        {
-                            DataRow drmo = dv[0].Row;
-                            item["Id"] = dv[0].Row["Id"].ToString();
-                            EditRow(drmo, item);
-                        }
-                    }
-                    clsStaticInfo _info = new clsStaticInfo();
-                    _info.SaveDataSets(dsCr);
-                }
+                ////            AddNewRow(dsCr.Tables[0], item);
+                ////        }
+                ////        else if (dv.Count > 0 && Convert.ToBoolean(item["CheckBoxSelect"].ToString()) == false)
+                ////        {
+                ////            DataRow drmo = dv[0].Row;
+                ////            drmo.Delete();
+                ////        }
+                ////        else
+                ////        {
+                ////            DataRow drmo = dv[0].Row;
+                ////            item["Id"] = dv[0].Row["Id"].ToString();
+                ////            EditRow(drmo, item);
+                ////        }
+                ////    }
+                ////    clsStaticInfo _info = new clsStaticInfo();
+                ////    _info.SaveDataSets(dsCr);
+                ////}
                 #endregion data update 
 
 
@@ -839,6 +893,15 @@ namespace Aplos.Areas.Accounts.Controllers
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public ActionResult GetDepartmentInformation(string glManagementId)
+        {
+            string sql = @"select CheckBoxSelect=cast(case when gld.Id is null then 0 else 1 end as bit),gld.Id,D.Id    DepartmentId,D.Code,D.Sequence,D.ShortName,D.StandardName,D.UserName DepartmentName,D.Description,D.Remarks 
+						                from ORG.Department D
+										left join(select * from  [HKP].[GLManagementDepartment] where GlManagementId='" + glManagementId + @"') gld on gld.DepartmentId = D.Id";
+            var data = _sqlRepository.GetDataCollection(sql);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet]
         public ActionResult DeleteEmployeeCategory(string Id)
@@ -954,11 +1017,13 @@ namespace Aplos.Areas.Accounts.Controllers
             try
             {
                 var sql = "";
-                if (tabName == "ControlDr")
-                {
-                    sql = @"SELECT  CheckBoxSelect=cast(case when gldr.BudgetMasterActivityIdDr is null then 0 else 1 end as bit),AG.UserName AS AccountGroupName, GLGI.Id AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                
+                    sql = @"SELECT  CheckBoxSelect=cast(CASE WHEN GLDr.BudgetMasterActivityIdDr<>'' THEN 1  WHEN GLCr.BudgetMasterActivityIdCr<>'' THEN 1 ELSE 0 END as bit),
+                                    AG.UserName AS AccountGroupName, GLGI.Id AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
                                     , BMA.BudgetMasterId, BM.RefNo, B.Code BudgetCode, B.UserName BudgetName, BMA.ActivityId, A.Code ActivityCode, A.UserName ActivityName 
-									,BMA.Active,BMA.Id BudgetMasterActivityId,gldr.Id
+									,BMA.Active,BMA.Id BudgetMasterActivityId,Id=CASE WHEN gldr.BudgetMasterActivityIdDr<>'' THEN GLDr.Id ELSE GLCr.Id END
+									,GLDr.BudgetMasterActivityIdDr,GLCr.BudgetMasterActivityIdCr,ControlDr=cast(CASE WHEN GLDr.BudgetMasterActivityIdDr<>'' THEN 1 ELSE 0 END as bit)
+									,ControlCr=cast(CASE WHEN GLCr.BudgetMasterActivityIdCr<>'' THEN 1 ELSE 0 END as bit),Remarks=case when GLDr.Remarks<>'' then GLDr.Remarks else GLCr.Remarks end
                                     FROM [MST].[BudgetMasterActivity] BMA
 									 JOIN [MST].[BudgetMaster] AS BM ON BM.Id=BMA.BudgetMasterId
 									LEFT JOIN [HKP].[Budget] B ON B.Id=BM.BudgetId
@@ -966,24 +1031,11 @@ namespace Aplos.Areas.Accounts.Controllers
 									LEFT JOIN  [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=BM.GLGeneralInfoId
                                     LEFT JOIN [HKP].[GLCompanyInfo] AS GLCI ON GLCI.GLGeneralInfoId=GLGI.Id
                                     LEFT JOIN [HKP].[AccountGroup] AS AG ON AG.Id=GLGI.AccountGroupId
-									left join(select * from  [HKP].[GLManagementControlDrCr] where GlManagementId='" + GlManagementId + @"' and BudgetMasterActivityIdDr<>'') gldr on gldr.BudgetMasterActivityIdDr=BMA.Id
-                                    WHERE GLGI.Archive=0 AND GLGI.Active=1 AND  GLCI.CompanyId='" + identity.CompanyId + @"' AND BMA.Active=1 AND BM.Active=1";
-                }
-                else
-                {
-                    sql = @"SELECT  CheckBoxSelect=cast(case when gldr.BudgetMasterActivityIdCr is null then 0 else 1 end as bit),AG.UserName AS AccountGroupName, GLGI.Id AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
-                                    , BMA.BudgetMasterId, BM.RefNo, B.Code BudgetCode, B.UserName BudgetName, BMA.ActivityId, A.Code ActivityCode, A.UserName ActivityName 
-									,BMA.Active,BMA.Id BudgetMasterActivityId,gldr.Id
-                                    FROM [MST].[BudgetMasterActivity] BMA
-									 JOIN [MST].[BudgetMaster] AS BM ON BM.Id=BMA.BudgetMasterId
-									LEFT JOIN [HKP].[Budget] B ON B.Id=BM.BudgetId
-									 JOIN [HKP].[Activity] A ON A.Id=BMA.ActivityId
-									LEFT JOIN  [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=BM.GLGeneralInfoId
-                                    LEFT JOIN [HKP].[GLCompanyInfo] AS GLCI ON GLCI.GLGeneralInfoId=GLGI.Id
-                                    LEFT JOIN [HKP].[AccountGroup] AS AG ON AG.Id=GLGI.AccountGroupId
-									left join(select * from  [HKP].[GLManagementControlDrCr] where GlManagementId='" + GlManagementId + @"' and BudgetMasterActivityIdCr<>'') gldr on gldr.BudgetMasterActivityIdCr=BMA.Id
-                                    WHERE GLGI.Archive=0 AND GLGI.Active=1 AND  GLCI.CompanyId='" + identity.CompanyId + @"' AND BMA.Active=1 AND BM.Active=1";
-                }
+									left join(select * from  [HKP].[GLManagementControlDrCr] where GlManagementId='" + GlManagementId + @"') GLDr on GLDr.BudgetMasterActivityIdDr=BMA.Id
+									left join(select * from  [HKP].[GLManagementControlDrCr] where GlManagementId= '"+GlManagementId+ @"') GLCr on GLCr.BudgetMasterActivityIdCr=BMA.Id
+                                    WHERE GLGI.Archive=0 AND GLGI.Active=1 AND  GLCI.CompanyId='"+ identity.CompanyId+ @"' 
+									AND BMA.Active=1 AND BM.Active=1";
+                
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }

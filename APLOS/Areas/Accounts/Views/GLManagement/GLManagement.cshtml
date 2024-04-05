@@ -1,84 +1,85 @@
 ﻿<togglable name="{{title}}"></togglable>
-    <div class="form-elements form-horizontal" ng-form name="ModelNewForm2">
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm2">
 
-        <input type="hidden" ng-model="ModelNew.Id">
-        <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="ModelNew.Sequence" e-width="100" required />
-                    @*<input type="text" n-decimals="2" name="Sequence" ng-model="ModelNew.Sequence" class="form-control text-right" required>*@
-
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Short Name" ng-model="ModelNew.ShortName" class="form-control" maxlength="15" required tabindex="3">
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">User Defined Name<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Description</label>
-                <div class="col-sm-8">
-                    <textarea class="form-control" rows="3" ng-model="ModelNew.Description" tabindex="7" maxlength="250"></textarea>
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Code<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required tabindex="2" maxlength="10">
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Remarks</label>
-                <div class="col-sm-8">
-                    <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Active</label>
-                <div class="col-sm-8">
-                    <div class="checkbox-site">
-                        <label>
-                            <input type="checkbox" ng-model="ModelNew.Active" tabindex="8">
-                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                        </label>
-                    </div>
-
-                </div>
+    <input type="hidden" ng-model="ModelNew.Id">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="ModelNew.Sequence" e-width="100" required />
+                @*<input type="text" n-decimals="2" name="Sequence" ng-model="ModelNew.Sequence" class="form-control text-right" required>*@
 
             </div>
         </div>
-        <div class="common-btn">
-            <ul class="list-inline text-right">
-                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
-                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-            </ul>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Short Name" ng-model="ModelNew.ShortName" class="form-control" maxlength="15" required tabindex="3">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">User Defined Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Description</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="3" ng-model="ModelNew.Description" tabindex="7" maxlength="250"></textarea>
+            </div>
         </div>
     </div>
-    <br />
-    <div class="clearfix"></div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required tabindex="2" maxlength="10">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Active</label>
+            <div class="col-sm-8">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="ModelNew.Active" tabindex="8">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<br />
+<div class="clearfix"></div>
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     <div class="tab-design" id="tab_show">
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Employee Category</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);GetDesignationInformation();" href="" aria-controls="general" role="tab" data-toggle="tab">Designation</a></li>
+                <li role="presentation" ng-class="{ active: isSet(10) }"><a ng-click="setTab(10);GetDepartmentInformation();" href="" aria-controls="general" role="tab" data-toggle="tab">Department</a></li>
                 <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);getPositionCode();" href="" aria-controls="general" role="tab" data-toggle="tab">Position Code</a></li>
                 <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);GetBudgetCodeInformation();" href="" aria-controls="general" role="tab" data-toggle="tab">Budget Code</a></li>
                 <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5);getEmployeePopUpData();" href="" aria-controls="general" role="tab" data-toggle="tab">Employee</a></li>
@@ -86,6 +87,7 @@
                 <li role="presentation" ng-class="{ active: isSet(7) }"><a ng-click="setTab(7);getActionByPopUpData();" href="" aria-controls="general" role="tab" data-toggle="tab">ActionBy</a></li>
                 <li role="presentation" ng-class="{ active: isSet(8) }"><a ng-click="setTab(8);getApproveByPopUpData();" href="" aria-controls="general" role="tab" data-toggle="tab">Approved By</a></li>
                 <li role="presentation" ng-class="{ active: isSet(9) }"><a ng-click="setTab(9);GetResponsiblePersonData();" href="" aria-controls="general" role="tab" data-toggle="tab">Responsible Person</a></li>
+                <li role="presentation" ng-class="{ active: isSet(11) }"><a ng-click="setTab(11);" href="" aria-controls="general" role="tab" data-toggle="tab">Process</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -146,7 +148,7 @@
                 <confirm-archive-generic data-modalid="EmpCategoryPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteRowEmpCategory()"></confirm-archive-generic>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                 <div class="row">
+                <div class="row">
                     <div class="form-elements">
                         <div class="common-btn">
                             <ul class="list-inline text-right">
@@ -181,6 +183,45 @@
                     </div>
                 </div>
             </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(10), active: isSet(10) }">
+                <div class="row">
+                    <div class="form-elements">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="OKDepartmentInformation();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                            </ul>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="modal-body">
+                                <div class="content-container-fluid" style="color:black;">
+                                    <div id="depInfoGrid" ej-grid e-datasource="DepartmentDataList" e-gridlines="vertical" e-templaterefresh="refreshTemplateDepartment"
+                                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                         e-allowselection="true" e-filtersettings-filterType="excel">
+                                        <div e-columns>
+                                            <div e-column e-headertext="" e-headertemplateid="#DepTemplate" e-template="#depCheckboxTemplate" e-textalign="center" e-width="30"></div>
+                                            <div e-column e-field="Sequence" e-headertext="Sequence" e-allowediting="false" e-width="50"></div>
+                                            <div e-column e-field="Code" e-headertext="Code" e-allowediting="false" e-width="80"></div>
+                                            <div e-column e-field="ShortName" e-headertext="Short Name" e-allowediting="false" e-width="80"></div>
+                                            <div e-column e-field="StandardName" e-headertext="Designation" e-allowediting="false" e-width="80"></div>
+                                            <div e-column e-field="DepartmentName" e-headertext="Department" e-allowediting="false" e-width="80"></div>
+                                            <div e-column e-field="Description" e-headertext="Description" e-allowediting="false" e-width="80"></div>
+                                            <div e-column e-field="Remarks" e-headertext="Remarks" e-allowediting="false" e-width="80"></div>
+                                        </div>
+                                    </div>
+                                    <script type="text/x-jsrender" id="DepTemplate">
+                                        <input type="checkbox" id="Depheadchk" />
+                                    </script>
+                                    <script type="text/template" id="depCheckboxTemplate">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
                 <div class="row">
                     <div class="form-elements">
@@ -196,12 +237,12 @@
                                          e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplatePC">
                                         <div e-columns>
                                             <div e-column e-headertext="" e-headertemplateid="#headerTemplatePC" e-template="#checkboxTemplateBC" e-textalign="center" e-width="30"></div>
-                                            <div e-column e-field="Code" e-headertext="Code" e-width="80"></div> 
+                                            <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
                                             <div e-column e-field="Position" e-headertext="Position" e-width="80"></div>
                                             <div e-column e-field="Activity" e-headertext="Activity" e-width="80"></div>
                                             <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
                                             <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
-                                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div> 
+                                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
                                         </div>
                                     </div>
                                     <script type="text/x-jsrender" id="headerTemplatePC">
@@ -219,7 +260,7 @@
 
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
                 <div class="row">
-                    <div class="form-elements"> 
+                    <div class="form-elements">
                         <div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li> <button ng-click="OKBudgetCode();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
@@ -255,15 +296,15 @@
                                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
                                     </script>
                                 </div>
-                            </div> 
-                        </div> 
+                            </div>
+                        </div>
                     </div>
                 </div>
 
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
                 <div class="row">
-                    <div class="form-elements"> 
+                    <div class="form-elements">
                         <div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li> <button ng-click="OKEmployee();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
@@ -301,95 +342,56 @@
                         </script>
                     </div>
                 </div>
-             </div>
+            </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(6), active: isSet(6) }">
-                <div class="tab-design" id="tab_show">
-                    <div class="site-tab">
-                        <ul class="nav nav-tabs" role="tablist">
-                            <li role="presentation" ng-class="{ active: isSet2(10) }"><a ng-click="setTab2(10);GetControlDrData('ControlDr')" href="" aria-controls="general" role="tab" data-toggle="tab">{{titleTab1}}</a></li>
-                            <li role="presentation" ng-class="{ active: isSet2(11) }"><a ng-click="setTab2(11);GetControlCrData('ControlCr');" href="" aria-controls="general" role="tab" data-toggle="tab">{{titleTab}}</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="tab-content">
-                    <div role="tabpanel" class="tab-pane fade" ng-class="{'in':isSet2(10), active: isSet2(10)}">
-                        <div class="row">
-                            <div class="form-elements">
-                                <div class="common-btn">
-                                    <ul class="list-inline text-right">
-                                        <li> <button ng-click="OKControlDr('ControlDr');" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                                    </ul>
-                                </div>
-                                <div class="col-xs-12 col-sm-12 col-md-12">
-                                    <div class="modal-body">
-                                        <div class="content-container-fluid" style="color:black;">
-                                            <div style="color:black;" id="GridCDr" ej-grid e-datasource="ControlDrListData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                                                 e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateControlDr">
-                                                <div e-columns>
-                                                    <div e-column e-headertext="" e-headertemplateid="#headerTemplateControlDr" e-template="#checkboxTemplateControlCr" e-textalign="center" e-width="30"></div>
-                                                    <div e-column e-field="AccountGroupName" e-headertext="Account Group" e-width="80"></div>
-                                                    <div e-column e-field="GLGeneralInfoName" e-headertext="GL General Info" e-width="80"></div>
-                                                    <div e-column e-field="BudgetName" e-headertext="Budget" e-width="80"></div>
-                                                    <div e-column e-field="ActivityName" e-headertext="Activity" e-width="80"></div>
-                                                    <div e-column e-field="RefNo" e-headertext="RefNo" e-width="30"></div>
-                                                    <div e-column e-headertext="Remarks" e-headertemplateid="" e-template="#remarkTemplate" e-textalign="center" e-width="120"></div>
-                                                </div>
-                                            </div>
-                                            <script type="text/x-jsrender" id="headerTemplateControlDr">
-                                                <input type="checkbox" id="CDrheadchk" />
-                                            </script>
-                                            <script type="text/template" id="checkboxTemplateControlCr">
-                                                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
-                                            </script>
-                                            <script type="text/template" id="remarkTemplate">
-                                                <input type="text" name="Remarks" ng-model="Remarks" class="form-control" maxlength="100">
-                                            </script>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(11), active: isSet2(11) }">
-                        <div class="row">
-                            <div class="form-elements">
-                                <div class="common-btn">
-                                    <ul class="list-inline text-right">
-                                        <li> <button ng-click="OKControlCr('ControlCr');" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                                    </ul>
-                                </div>
-                                <div class="col-xs-12 col-sm-12 col-md-12">
-                                    <div class="modal-body">
-                                        <div class="content-container-fluid" style="color:black;">
-                                            <div style="color:black;" id="GridCCr" ej-grid e-datasource="ControlCrListData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                                                 e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateControlCr">
-                                                <div e-columns>
-                                                    <div e-column e-headertext="" e-headertemplateid="#headerTemplateControlCr" e-template="#checkboxTemplateControlCr" e-textalign="center" e-width="30"></div>
-                                                    <div e-column e-field="AccountGroupName" e-headertext="Account Group" e-width="80"></div>
-                                                    <div e-column e-field="GLGeneralInfoName" e-headertext="GL General Info" e-width="80"></div>
-                                                    <div e-column e-field="BudgetName" e-headertext="Budget" e-width="80"></div>
-                                                    <div e-column e-field="ActivityName" e-headertext="Activity" e-width="80"></div>
-                                                    <div e-column e-field="RefNo" e-headertext="RefNo" e-width="80"></div>
-                                                    <div e-column e-headertext="Remarks" e-headertemplateid="" e-template="#remarkTemplateCr" e-textalign="center" e-width="120"></div>
-                                                </div>
-                                            </div>
-                                            <script type="text/x-jsrender" id="headerTemplateControlCr">
-                                                <input type="checkbox" id="CCrheadchk" />
-                                            </script>
-                                            <script type="text/template" id="checkboxTemplateControlCr">
-                                                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
-                                            </script>
-                                            <script type="text/template" id="remarkTemplateCr">
-                                                <input type="text" name="Remarks" ng-model="Remarks" class="form-control" maxlength="100">
-                                            </script>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
+                <div class="row">
+                    <div class="form-elements">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="OKControlDr('ControlDr');" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                            </ul>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="modal-body">
+                                <div class="content-container-fluid" style="color:black;">
+                                    <div style="color:black;" id="GridCDr" ej-grid e-datasource="ControlDrListData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                         e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateControlDr">
+                                        <div e-columns>
+                                            <div e-column e-headertext="" e-headertemplateid="#headerTemplateControlDr" e-template="#checkboxTemplateControlCr" e-textalign="center" e-width="30"></div>
+                                            <div e-column e-field="AccountGroupName" e-headertext="Account Group" e-width="80"></div>
+                                            <div e-column e-field="GLGeneralInfoName" e-headertext="GL General Info" e-width="80"></div>
+                                            <div e-column e-field="BudgetName" e-headertext="Budget" e-width="80"></div>
+                                            <div e-column e-field="ActivityName" e-headertext="Activity" e-width="80"></div>
+                                            <div e-column e-field="RefNo" e-headertext="RefNo" e-width="40"></div>
+                                            <div e-column e-headertext="Dr" e-headertemplateid="" e-template="#checkRowControlDr" e-textalign="center" e-width="30"></div>
+                                            <div e-column e-headertext="Cr" e-headertemplateid="" e-template="#checkRowControlCr" e-textalign="center" e-width="30"></div>
+                                            <div e-column e-headertext="Remarks" e-headertemplateid="" e-template="#remarkTemplate" e-textalign="center" e-width="110"></div>
+                                        </div>
+                                    </div>
+                                    <script type="text/x-jsrender" id="headerTemplateControlDr">
+                                        <input type="checkbox" id="CDrheadchk" />
+                                    </script>
+                                    <script type="text/template" id="checkboxTemplateControlCr">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+                                    </script>
+                                    <script type="text/template" id="remarkTemplate">
+                                        <input type="text" name="Remarks" ng-model="data.Remarks" class="form-control" maxlength="100">
+                                    </script>
+
+                                    <script type="text/template" id="checkRowControlDr">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.ControlDr">
+                                    </script>
+
+                                    <script type="text/template" id="checkRowControlCr">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.ControlCr">
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(7), active: isSet(7) }">
                 <div class="row">
@@ -514,6 +516,9 @@
                     </div>
                 </div>
             </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(11), active: isSet(11) }">
+
+            </div>
         </div>
     </div>
 </div>
@@ -533,8 +538,8 @@
                         <div e-column e-field="ShortName" e-headertext="Short Name" e-allowediting="false" e-width="80"></div>
                         <div e-column e-field="StandardName" e-headertext="Standard Name" e-allowediting="false" e-width="80"></div>
                         <div e-column e-field="UserName" e-headertext="User Define Name" e-allowediting="false" e-width="80"></div>-->
-                        @*<div e-column e-field="Active" e-headertext="Active" e-allowediting="false" e-width="80"></div>*@
-                    <!--</div>
+@*<div e-column e-field="Active" e-headertext="Active" e-allowediting="false" e-width="80"></div>*@
+<!--</div>
                 </div>
                 <script type="text/x-jsrender" id="headerTemplate">
                     <input type="checkbox" id="Designationheadchk" />
@@ -557,7 +562,7 @@
     </div>
 </div>-->
 
-  
+
 <div class="row text-right aplos-grid-toggle">
     <div class="col-xs-12 col-sm-12 col-sm-12">
         <div class="search-form">

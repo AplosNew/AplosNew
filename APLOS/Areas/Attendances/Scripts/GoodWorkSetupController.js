@@ -423,10 +423,56 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
 
     $scope.selectDoubleClick = function () {
         try {
+            var ob = {};
             for (var i = 0; i < $scope.popUpDataList.length; i++) {
                 if ($scope.popUpDataList[i].isSelected == true) {
                     if (checkDoubleGWS($scope.BudgetCodeList, $scope.popUpDataList[i].BudgetId) === false) {
-                        $scope.BudgetCodeList.push($scope.popUpDataList[i]);
+                        ob.Id = null;
+                        ob.Activity = $scope.popUpDataList[i].Activity;
+                        ob.BudgetId = $scope.popUpDataList[i].BudgetId;
+                        ob.Code = $scope.popUpDataList[i].Code;
+                        ob.Department = $scope.popUpDataList[i].Department;
+                        ob.DepartmentId = $scope.popUpDataList[i].DepartmentId;
+                        ob.Deployment = $scope.popUpDataList[i].Deployment;
+                        ob.Designation = $scope.popUpDataList[i].Designation;
+                        ob.DesignationId = $scope.popUpDataList[i].DesignationId;
+                        ob.Division = $scope.popUpDataList[i].Division;
+                        ob.DivisionId = $scope.popUpDataList[i].DivisionId;
+                        ob.EmployeeType = $scope.popUpDataList[i].EmployeeType;
+                        ob.EntityId = $scope.popUpDataList[i].EntityId;
+                        ob.EntityCode = $scope.popUpDataList[i].EntityCode;
+                        ob.EntityName = $scope.popUpDataList[i].EntityName;
+                        ob.Flag = $scope.popUpDataList[i].Flag;
+                        ob.IsDirect = $scope.popUpDataList[i].IsDirect;
+                        ob.IsOTEntitled = $scope.popUpDataList[i].IsOTEntitled;
+                        ob.Line = $scope.popUpDataList[i].Line;
+                        ob.LineId = $scope.popUpDataList[i].LineId;
+                        ob.PayrollGroupId = $scope.popUpDataList[i].PayrollGroupId;
+                        ob.Plant = $scope.popUpDataList[i].Plant;
+                        ob.PlantId = $scope.popUpDataList[i].PlantId;
+                        ob.PositionCode = $scope.popUpDataList[i].PositionCode;
+                        ob.PositionId = $scope.popUpDataList[i].PositionId;
+                        ob.PositionName = $scope.popUpDataList[i].PositionName;
+                        ob.Section = $scope.popUpDataList[i].Section;
+                        ob.SectionId = $scope.popUpDataList[i].SectionId;
+                        ob.ShiftDefination = $scope.popUpDataList[i].ShiftDefination;
+                        ob.ShiftDefinationId = $scope.popUpDataList[i].ShiftDefinationId;
+                        ob.SubDivision = $scope.popUpDataList[i].SubDivision;
+                        ob.SubDivisionId = $scope.popUpDataList[i].SubDivisionId;
+                        ob.SubSection = $scope.popUpDataList[i].SubSection;
+                        ob.SubSectionId = $scope.popUpDataList[i].SubSectionId;
+                        ob.Unit = $scope.popUpDataList[i].Unit;
+                        ob.UnitId = $scope.popUpDataList[i].UnitId;
+                        ob.UserGroup = $scope.popUpDataList[i].UserGroup;
+                        ob.WorkGroupId = $scope.popUpDataList[i].WorkGroupId;
+                        ob.DeployedManpower = $scope.popUpDataList[i].DeployedManpower;
+                        ob.BudgetedManpower = $scope.popUpDataList[i].BudgetedManpower;
+                        ob.IsGoodWorkApplicable = false;
+                        ob.IsCompensatoryApplicable = false;
+                        ob.IsEmployeeApplicable = false;
+                        ob.GoodWorkCategory = null;
+                        $scope.BudgetCodeList.push(ob);
+                        ob = {};
                     }
                 }
             }
@@ -819,13 +865,19 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         return string;
     }
 
-
+    $scope.dataList = [];
     $scope.removeBudgetCode = function () {
         try {
             $scope.NewBudgetCodeIds = [];
-            for (var i = 0; i < $scope.BudgetCodeList.length; i++) {
-                if ($scope.BudgetCodeList[i].isSelected == true) {
-                    $scope.NewBudgetCodeIds.push($scope.BudgetCodeList[i].BudgetId);
+            //var dataList = [];
+            var g = $("#GridBC").data("ejGrid");
+            $scope.dataList = g.getFilteredRecords();
+            if ($scope.dataList.length==0) {
+                $scope.dataList = $scope.BudgetCodeList;
+            }
+            for (var i = 0; i < $scope.dataList.length; i++) {
+                if ($scope.dataList[i].isSelected == true) {
+                    $scope.NewBudgetCodeIds.push($scope.dataList[i].BudgetId);
                 }
             } 
             $scope.message_confirmation = "Are you sure want to permanent delete ?";
@@ -848,13 +900,98 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.GetGoodWorkBudgetCodeData();
+                for (var i = 0; i < $scope.BudgetCodeList.length; i++) {
+                    for (var j = 0; j < $scope.NewBudgetCodeIds.length; j++) {
+                        if ($scope.BudgetCodeList[i].BudgetId == $scope.NewBudgetCodeIds[j]) {
+                            $scope.BudgetCodeList.splice(i, 1);
+                        }
+                    }
+                    
+                }
+                var gridObj = $("#GridBC").data("ejGrid");
+                gridObj.refreshContent();
+                gridObj.refreshTemplate();
             }
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
         });
     };
+    $scope.GWCategory = null;
+    $scope.SetGoodWorkCategory = function () {
+        for (var i = 0; i < $scope.BudgetCodeList.length; i++) {
+            $scope.BudgetCodeList[i].GoodWorkCategory = $scope.GWCategory;
+        }
+    }
+
     //#endregion
+
+    $scope.BudgetedEmployeeList = [];
+    $scope.GetBudgetedEmployee = function () {
+        try {
+            $http({
+                method: 'GET',
+                url: 'Attendances/GoodWorkSetup/GetBudgetedEmployeeData?gwsId=' + $scope.ModelNew.Id
+
+            }).then(function successCallback(response) {
+                $scope.BudgetedEmployeeList = response.data;
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.refreshTemplateBE = function (args) {
+        $("#headchkBE").ejCheckBox({ "change": CheckBoxSelectBE });
+    };
+    function CheckBoxSelectBE(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridBE").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.BudgetedEmployeeList.length; i++) {
+                $scope.BudgetedEmployeeList[i].BEFlag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].BEFlag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridBE").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.BESave = function () {
+        var savebelist = [];
+        for (var i = 0; i < $scope.BudgetedEmployeeList.length; i++) {
+            if ($scope.BudgetedEmployeeList[i].BEFlag == false || !baseService.isUndefinedOrNull($scope.BudgetedEmployeeList[i].Id)) {
+                savebelist.push($scope.BudgetedEmployeeList[i]);
+            }
+        }
+        $http({
+            method: 'POST',
+            url: $scope.path + "CreateExceptionBudgetedEmployee",
+            data: {
+                'data': savebelist
+                , 'goodWorkSetupId': $scope.ModelNew.Id
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetBudgetedEmployee();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
 
 }

@@ -464,7 +464,8 @@ namespace Library.Accounting.Accounts
 							
 							, SUM(IRD.TotalMaterialTranAmount ) AS Dr, NULL Cr
 							, SUM(IRD.TotalMaterialTranAmount ) AS Amount
-                            ,MM.IsAsset,IRD.Id AS  InventoryReceiveDetailId,BM.Active BudgetActive,BMA.Active BudgetMasterActivityActive
+                           ,MM.IsAsset,IRD.Id AS  InventoryReceiveDetailId,BudgetActive=CASE WHEN BM.Active=1 THEN BM.Active ELSE BMF.Active END
+							,BudgetMasterActivityActive=case	WHEN BMA.Active=1 THEN BMA.Active ELSE BMAF.Active END 
 						FROM [TRN].[InventoryReceiveDetail] AS IRD
 						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
 						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
@@ -483,11 +484,13 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN [HKP].[Budget] AS BF ON BMF.BudgetId= BF.Id
 						LEFT JOIN [HKP].[Activity] AS AF ON FAG.AssetUnderConstructionActivityId= AF.Id
 						LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.BudgetMasterId=BM.Id AND A.Id=BMA.ActivityId
+						LEFT JOIN [MST].[BudgetMasterActivity] BMAF ON BMAF.BudgetMasterId=BMF.Id AND AF.Id=BMAF.ActivityId
 						WHERE IRD.InventoryReceiveId=@receiveId
-						GROUP BY MM.MaterialGroupMasterId, MGGL.InventoryGLId, GL.AccountCode, GL.UserName, MGGL.InventoryBudgetMasterId, B.Code, B.UserName, MGGL.InventoryActivityId, A.Code, A.UserName
+						GROUP BY MM.MaterialGroupMasterId, MGGL.InventoryGLId, GL.AccountCode, GL.UserName, MGGL.InventoryBudgetMasterId, B.Code, B.UserName
+						, MGGL.InventoryActivityId, A.Code, A.UserName
 					    ,MM.IsAsset,MM.FixedAssetMasterId,FAG.AssetUnderConstructionGLId,GLF.AccountCode,GLF.UserName
 						,FAG.AssetUnderConstructionBudgetMasterId,BF.Code,BF.UserName
-						,FAG.AssetUnderConstructionActivityId,AF.Code,AF.UserName,IRD.Id,BM.Active,BMA.Active
+						,FAG.AssetUnderConstructionActivityId,AF.Code,AF.UserName,IRD.Id,BM.Active,BMA.Active,BMF.Active,BMAF.Active
                     ) AS T
 					GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId
                     , T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId,T.IsAsset, T.InventoryReceiveDetailId,T.BudgetActive,T.BudgetMasterActivityActive

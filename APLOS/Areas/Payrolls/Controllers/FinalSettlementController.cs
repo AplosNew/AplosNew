@@ -167,6 +167,61 @@ namespace Aplos.Areas.Payrolls.Controllers
             //return Json(data, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetEmployeelist()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = string.Empty;
+            try
+            {
+                sql = @"SELECT Flag=CAST(0 AS bit), EI.SystemId
+                         ,EI.EmployeeCode
+                         ,EI.EmployeeName
+                         , FORMAT(EI.DOB,'dd-MMM-yyyy') DOB
+                         , FORMAT(EI.DOC,'dd-MMM-yyyy') DOC
+                         , FORMAT(EI.DOJ,'dd-MMM-yyyy') DOJ
+                         , FORMAT(EI.DOS,'dd-MMM-yyyy') DOS
+						 ,ResignationDate=FORMAT((SELECT TOP 1 ResignationDate FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=EI.SystemId ORDER BY MR.UpdatedDate DESC),'dd-MMM-yyyy')
+                         , DG.UserName LegalDesignation
+                         , DP.UserName Department
+                         , PMB.Code,PR.UserName PositionName
+                         , E.UserName EntityName
+                        ,SepType=STUFF((select distinct ','+ST.UserName from [HKP].[SeparationType] ST	  
+											    LEFT JOIN [TRN].[Resignation] R ON R.SeparationTypeId=ST.Id
+												AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC)
+							                    where EI.SystemId=R.EmployeeId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                         FROM dbo.Employeeinformation EI
+                         LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id							 
+                         LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
+                         LEFT JOIN ORG.Company COM ON EI.CompanyId=COM.Id
+                         LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id                       
+                         LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
+                         LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+
+                              WHERE EI.SystemId IN (SELECT EmployeeId FROM TRN.Resignation WHERE ApprovalStatus='Approved' ) 
+							  AND EI.SystemId NOT IN (SELECT EmpSystemId FROM EmployeeFullAndFinalSettlement) AND
+                                    EI.PlantId='"+identity.PlantId+@"' and isnull(DOSDate,'')<>'' 
+									ORDER BY  ei.DOS DESC";
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+
+            }
+
+            var data = _sqlRepository.GetDataCollection(sql);
+            JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+
+
+
+            //return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
 
 
         [HttpGet, Authorize]

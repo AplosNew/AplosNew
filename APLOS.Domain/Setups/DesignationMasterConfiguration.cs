@@ -68,6 +68,7 @@ namespace Library.Model.Setups
         public string OverTimePmtPolicyMasterID { get; set; }
         public string HolidayPayDayMasterId { get; set; }
         public string AttdnBonusHeaderId { get; set; }
+        public int NoticePeriod { get; set; }
         #endregion Navigation Properties
     }
 }

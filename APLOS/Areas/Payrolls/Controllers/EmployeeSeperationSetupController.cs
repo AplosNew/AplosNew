@@ -605,7 +605,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
         [Authorize, HttpGet]
-        public ActionResult getControlDrlist(string tabName)
+        public ActionResult GetControlDrlist(string tabName)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try

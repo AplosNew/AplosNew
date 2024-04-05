@@ -206,6 +206,7 @@ function cboService($http, $window, $rootScope, baseService) {
         , getCboVoucherTypeEmployeePayableList: getCboVoucherTypeEmployeePayableList
         , getCboVoucherTypeSalaryPayableList: getCboVoucherTypeSalaryPayableList
         , getCboVoucherTypeSalaryDisbursementList: getCboVoucherTypeSalaryDisbursementList
+        , getCboVoucherTypeGoodWorkDisbursementList: getCboVoucherTypeGoodWorkDisbursementList
         , getCboVoucherTypeFinalSettlementDisbursementList: getCboVoucherTypeFinalSettlementDisbursementList
         , getCboVoucherTypeBonusDisbursementList: getCboVoucherTypeBonusDisbursementList
         , getCboVoucherTypeAccountReceivableList: getCboVoucherTypeAccountReceivableList
@@ -1455,6 +1456,9 @@ function cboService($http, $window, $rootScope, baseService) {
     }
     function getCboVoucherTypeSalaryDisbursementList(callback) {
         base('accounts/VoucherTypeMatrix/GetCboVoucherTypeSalaryDisbursementList', callback);
+    }
+    function getCboVoucherTypeGoodWorkDisbursementList(callback) {
+        base('accounts/VoucherTypeMatrix/GetCboVoucherTypeGoodWorkDisbursementList', callback);
     }
     function getCboVoucherTypeBonusDisbursementList(callback) {
         base('accounts/VoucherTypeMatrix/GetCboVoucherTypeBonusDisbursementList', callback);

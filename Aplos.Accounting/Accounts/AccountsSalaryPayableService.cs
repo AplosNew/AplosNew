@@ -2353,6 +2353,37 @@ namespace Library.Accounting.Accounts
                 throw new CustomException(ex.Message, ex);
             }
         }
+        public GridModel GetGoodWorkPaymentAdviseDisbursementVoucherList(GridParameter parameters)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                parameters.CmdText = @"SELECT V.Id PayableVoucherId, V.VoucherDate, V.PostingDate, V.DocRefNo, V.VoucherTypeId, V.CurrencyId, V.DocDate, V.EntityId, C.Code AS CurrencyCode
+                                    , VD.DrAmount, V.VoucherNo,ISNULL(BM.AccountTitle,CM.UserName) PaymentBank
+                                    ,V.IsPark,Status= case when V.IsPark=0 then 'Posted' else 'Parked' end, V.Narration
+									,GWPA.PaymentAdviseId
+                                    FROM TRN.[Voucher] AS V
+                                    LEFT JOIN SCS.Currency AS C ON C.Id = V.CurrencyId
+                                    LEFT JOIN (SELECT SUM(VD.DrAmount) AS DrAmount, VD.VoucherId,VD.BankMasterId FROM [TRN].[VoucherDetail] AS VD WHERE VD.DrAmount <> 0 
+									GROUP BY VD.VoucherId,VD.BankMasterId
+                                    ) AS VD ON VD.VoucherId=V.Id
+									left join (select distinct GWPD.DisbursementVoucherId,GWPD.PaymentAdviseId
+									from dbo.GoodWorkPaymentAdviseDetail GWPD
+									where GWPD.DisbursementVoucherId<>'' and GWPD.IsDisburse=1 
+									) GWPA on GWPA.DisbursementVoucherId=v.Id
+									LEFT JOIN TRN.VoucherDetail XVD ON XVD.VoucherId=V.Id AND XVD.BankMasterId<>''
+									LEFT JOIN TRN.VoucherDetail XVDC ON XVDC.VoucherId=V.Id AND  XVDC.CashMasterId<>''
+									left join MST.BankMaster BM ON BM.Id=XVD.BankMasterId
+									left join MST.CashMaster CM ON CM.Id=XVDC.CashMasterId
+                                    WHERE  V.Archive=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + "'AND V.CompanyId='" + identity.CompanyId + "' AND V.PlantId='" + identity.PlantId + "' AND V.SourceType='" + SourceType.GoodWorkDisbursement + "'";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex);
+            }
+        }
         public GridModel GetFinalSettlementDisbursementVoucherList(GridParameter parameters)
         {
             try
