@@ -43,7 +43,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                return Json(ml.getMedicineList(), JsonRequestBehavior.AllowGet);
+                return Json(ml.GetMedicineList(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -57,7 +57,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                return Json(ml.getMedicineByReceipt(medicinemasterId), JsonRequestBehavior.AllowGet);
+                return Json(ml.GetMedicineByReceipt(medicinemasterId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -72,7 +72,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                return Json(ml.medicallogGridView(), JsonRequestBehavior.AllowGet);
+                return Json(ml.MedicallogGridView(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -87,7 +87,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                return Json(ml.getSicknessType(), JsonRequestBehavior.AllowGet);
+                return Json(ml.GetSicknessType(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -102,7 +102,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                return Json(ml.getEmployee(), JsonRequestBehavior.AllowGet);
+                return Json(ml.GetEmployee(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

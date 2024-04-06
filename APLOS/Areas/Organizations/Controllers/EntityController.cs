@@ -182,6 +182,11 @@ namespace Aplos.Areas.Organizations.Controllers
         {
             return Json(_entityService.Query(parameters, companyId), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public JsonResult GetEntityList(GridParameter parameters, string companyId)
+        {
+            return Json(_entityService.Query(parameters, companyId), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet]
         public JsonResult QueryEntityByBuyer(GridParameter parameters, string companyId, string buyerMasterId)
