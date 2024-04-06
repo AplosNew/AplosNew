@@ -148,7 +148,7 @@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="FromDate" ng-model="ModelOTNew.FromDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="3">
+                                    <input type="text" name="FromDate" ng-model="ModelOTNew.FromDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="23">
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
@@ -160,7 +160,7 @@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Payment Date<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="PaymentDueDate" ng-model="ModelOTNew.PaymentDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="3">
+                                    <input type="text" name="PaymentDueDate" ng-model="ModelOTNew.PaymentDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="25">
                                 </div>
                             </div>
                         </div>
@@ -168,7 +168,7 @@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="ToDate" ng-model="ModelOTNew.ToDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="3">
+                                    <input type="text" name="ToDate" ng-model="ModelOTNew.ToDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="24">
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
@@ -177,15 +177,25 @@
                                     <div class="input-group">
                                         <input tabindex="1" type="text" name="By Whom" ng-model="ModelOTNew.ByWhom" class="form-control" readonly required>
                                         <span class="input-group-btn">
-                                            <button ng-click="showByWhomEmployeeListPopUp('OT');" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                                            <button ng-click="showByWhomEmployeeListPopUp('OT');" class="btn single-small-btn" tabindex="26"><i class="glyphicon glyphicon-search"></i></button>
                                         </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Approved By<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select id="ApprovedBy" class="form-control" name="Approved By" ng-model="ModelOTNew.ApprovedById" tabindex="28" required>
+                                            <option ng-repeat="option in approvedByList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Remarks</label>
                                 <div class="col-sm-8 show-message">
-                                    <textarea class="form-control" rows="3" ng-model="ModelOTNew.Remarks" maxlength="250" tabindex="8"></textarea>
+                                    <textarea class="form-control" rows="3" ng-model="ModelOTNew.Remarks" maxlength="250" tabindex="30"></textarea>
                                 </div>
                             </div>
                         </div>
