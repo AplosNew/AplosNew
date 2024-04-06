@@ -150,7 +150,7 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
     $scope.entitySearchList = [];
     $scope.entityDataList = [];
     $scope.entitySearch = [];
-    $scope.entityUrl = 'Organizations/entity/getlist?companyId=';
+    $scope.entityUrl = 'Organizations/entity/GetEntityList?companyId=';
     $scope.entityParameters = {
         limit: 10,
         offset: 0,
