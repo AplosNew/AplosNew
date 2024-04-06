@@ -1527,5 +1527,39 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
+        [Authorize, HttpGet]
+        public ActionResult GetProcesslist(string GlManagementId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                var sql = "";
+
+                sql = @"select DISTINCT GEC.EmployeeCategoryId,EC.UserName EmployeeCategory,GMD.DesignationId,DE.UserName Designation,GMDP.DepartmentId,DP.UserName Department
+                    ,GMPC.PositionCodeId,PO.UserName Position,GMBC.BudgetCodeId,GME.EmpSystemId,EI.EmployeeName,MB.Code BudgetCode,GLM.Id 
+                    from HKP.GLManagement GLM 
+                    LEFT JOIN HKP.GLManagementEmployeeCategory GEC ON GEC.GLManagementId=GLM.Id
+                    LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=GEC.EmployeeCategoryId
+                    LEFT JOIN [HKP].[GLManagementDesignation] GMD ON GMD.GLManagementId=GLM.Id
+                    LEFT JOIN [HKP].[Designation] DE ON DE.Id=GMD.DesignationId
+                    LEFT JOIN [HKP].[GLManagementDepartment] GMDP ON GMDP.GLManagementId=GLM.Id
+                    LEFT JOIN [ORG].[Department] DP ON DP.Id=GMDP.DepartmentId
+                    LEFT JOIN [HKP].[GLManagementPositionCode] GMPC ON GMPC.GLManagementId=GLM.Id
+                    LEFT JOIN [ORG].[Position] PO ON PO.Id=GMPC.PositionCodeId
+                    LEFT JOIN [HKP].[GLManagementEmployee] GME ON GME.GLManagementId=GLM.Id
+                    LEFT JOIN [DBO].[EmployeeInformation] EI ON EI.SystemId=GME.EmpSystemId
+                    LEFT JOIN [HKP].[GLManagementBudgetCode] GMBC ON GMBC.GLManagementId=GLM.Id
+                    LEFT JOIN [MST].ManpowerBudget MB ON MB.Id=GMBC.BudgetCodeId
+                    WHERE GLM.Id='" + GlManagementId + @"'";
+
+
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }

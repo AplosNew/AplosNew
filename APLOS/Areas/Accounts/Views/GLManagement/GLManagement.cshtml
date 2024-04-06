@@ -87,7 +87,7 @@
                 <li role="presentation" ng-class="{ active: isSet(7) }"><a ng-click="setTab(7);getActionByPopUpData();" href="" aria-controls="general" role="tab" data-toggle="tab">ActionBy</a></li>
                 <li role="presentation" ng-class="{ active: isSet(8) }"><a ng-click="setTab(8);getApproveByPopUpData();" href="" aria-controls="general" role="tab" data-toggle="tab">Approved By</a></li>
                 <li role="presentation" ng-class="{ active: isSet(9) }"><a ng-click="setTab(9);GetResponsiblePersonData();" href="" aria-controls="general" role="tab" data-toggle="tab">Responsible Person</a></li>
-                <li role="presentation" ng-class="{ active: isSet(11) }"><a ng-click="setTab(11);" href="" aria-controls="general" role="tab" data-toggle="tab">Process</a></li>
+                <li role="presentation" ng-class="{ active: isSet(11) }"><a ng-click="setTab(11);GetProcessData();" href="" aria-controls="general" role="tab" data-toggle="tab">Process</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -517,7 +517,45 @@
                 </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(11), active: isSet(11) }">
+                <div class="row">
+                    <div class="form-elements">
+                        <div class="common-btn">
+                            @*<ul class="list-inline text-right">
+                                <li> <button ng-click="GetProcessList();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                            </ul>*@
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="modal-body">
+                                <div class="content-container-fluid" style="color:black;">
+                                    <div style="color:black;" id="GridProcess" ej-grid e-datasource="ProcessListData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                         e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateProcess">
+                                        <div e-columns>
+                                            <div e-column e-headertext="" e-headertemplateid="#headerTemplateProcess" e-template="#checkboxTemplateProcess" e-textalign="center" e-width="30"></div>
+                                            @*<div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                                            <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="80"></div>
+                                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>*@
+                                        </div>
+                                    </div>
+                                    <script type="text/x-jsrender" id="headerTemplateProcess">
+                                        <input type="checkbox" id="Processheadchk" />
+                                    </script>
+                                    <script type="text/template" id="checkboxTemplateProcess">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+                                    </script>
+                                </div>
+                            </div>
 
+                        </div>
+                        @*<script type="text/template" id="ShowActionButtonProcess">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeEmployee(this);" style="margin: -6px;"></i></button>
+                        </script>*@
+                    </div>
+                </div>
             </div>
         </div>
     </div>

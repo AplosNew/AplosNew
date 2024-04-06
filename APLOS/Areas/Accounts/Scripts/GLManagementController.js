@@ -1318,6 +1318,58 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         });
     }
 
+    $scope.ProcessListData = [];
+    $scope.GetProcessData = function () {
+        $http({
+            method: 'GET',
+            url: 'Accounts/GLManagement/GetProcesslist?GlManagementId=' + $scope.GlManagementId
+        }).then(function successCallback(response) {
+            $scope.ProcessListData = response.data;
+        });
+    }
+
+    //$scope.ResponsiblePersonList = [];
+    //$scope.OKResponsiblePerson = function () {
+    //    $scope.ResponsiblePersonList = [];
+    //    try {
+    //        for (var i = 0; i < $scope.ResponsiblePersonListData.length; i++) {
+    //            if ($scope.ResponsiblePersonListData[i].CheckBoxSelect == true) {
+    //                $scope.ResponsiblePersonList.push($scope.ResponsiblePersonListData[i]);
+    //            }
+    //            if ($scope.ResponsiblePersonListData[i].CheckBoxSelect == false && $scope.ResponsiblePersonListData[i].Id != null) {
+    //                $scope.ResponsiblePersonList.push($scope.ResponsiblePersonListData[i]);
+    //            }
+    //        }
+    //        $scope.SaveRPData();
+    //    } catch (e) {
+    //        ShowResult(e, "failure");
+    //    }
+    //};
+
+
+    //$scope.refreshTemplateRP = function (args) {
+    //    $("#RPheadchk").ejCheckBox({ "change": CheckBoxSelectAllRP });
+    //};
+
+    //function CheckBoxSelectAllRP(e) {
+    //    var ChkOrUnchk = false;
+    //    if (e.model.checkState === "check") {
+    //        ChkOrUnchk = true;
+    //    }
+    //    var filtered = $("#GridRP").data("ejGrid").getFilteredRecords();
+    //    if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+    //        for (var i = 0; i < $scope.ResponsiblePersonListData.length; i++) {
+    //            $scope.ResponsiblePersonListData[i].CheckBoxSelect = ChkOrUnchk;
+    //        }
+    //    }
+    //    else {
+    //        for (var j = 0; j < filtered.length; j++) {
+    //            filtered[j].CheckBoxSelect = ChkOrUnchk;
+    //        }
+    //    }
+    //    var gridObj = $("#GridRP").data("ejGrid");
+    //    gridObj.refreshContent();
+    //};
 
 
 }
