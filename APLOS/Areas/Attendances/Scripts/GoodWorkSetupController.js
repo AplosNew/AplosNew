@@ -84,7 +84,6 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         $scope.closePopUp2();
     }
 
-
     $scope.clearEmp = function () {
         $scope.ModelNew.ResponsiblePersonId = null;
         $scope.ModelNew.ResponsiblePerson = null;
@@ -94,8 +93,6 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
     $scope.closePopUp2 = function () {
         angular.element(document.querySelector('#popUp')).modal('hide');
     }
-
-
 
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
@@ -143,7 +140,6 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
             });
         }
     };
-
 
     //#region Entity
 
