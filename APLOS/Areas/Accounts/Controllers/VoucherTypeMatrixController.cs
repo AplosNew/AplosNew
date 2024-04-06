@@ -99,6 +99,12 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_voucherTypeMatrixService.GetCboVoucherTypeList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.SalaryDisbursement), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
+        public JsonResult GetCboVoucherTypeGoodWorkDisbursementList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_voucherTypeMatrixService.GetCboVoucherTypeList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.GoodWorkDisbursement), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
         public JsonResult GetCboVoucherTypeFinalSettlementDisbursementList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

@@ -23,7 +23,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         Id: null,
         WorkDate: null,
         EmployeeCategoryId: null,
-        EmployeeCategory: null, 
+        EmployeeCategory: null,
         Purpose: null,
         PurposeCategory: null,
         ShiftId: null,
@@ -34,8 +34,8 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         Reason: null,
         Remarks: null,
         UserGroup: null,
-        CheckedStatus: null, 
-        WD:true
+        CheckedStatus: null,
+        WD: true
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -218,7 +218,21 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.GetSelectedEmployeeList = function () {
         try {
             for (var i = 0; i < $scope.EmployeeList.length; i++) {
-                if ($scope.EmployeeList[i].DayStatus == 'P' || $scope.EmployeeList[i].DayStatus == 'L' || $scope.EmployeeList[i].DayStatus == 'W' && $scope.EmployeeList[i].OverStay !=null) {
+                //if ($scope.EmployeeList[i].DayStatus == 'P' || $scope.EmployeeList[i].DayStatus == 'L' || $scope.EmployeeList[i].DayStatus == 'W' && $scope.EmployeeList[i].OverStay !=null) {
+                //    if (checkItemExist($scope.GoodWorkList, $scope.EmployeeList[i].SystemId) === false) {
+                //        if ($scope.EmployeeList[i].CheckBoxSelect === true) {
+                //            $scope.EmployeeList[i].FromTime = $scope.ModelNew.FromTime;
+                //            $scope.EmployeeList[i].ToTime = $scope.ModelNew.ToTime;
+                //            $scope.EmployeeList[i].Purpose = $scope.ModelNew.Purpose;
+                //            $scope.EmployeeList[i].Minute = $scope.ModelNew.Minute;
+                //            $scope.EmployeeList[i].PurposeCategory = $scope.ModelNew.PurposeCategory;
+                //            $scope.EmployeeList[i].Remark = $scope.ModelNew.Remarks;
+                //            $scope.GoodWorkList.push($scope.EmployeeList[i]);
+                //        }
+                //    }
+
+                //}
+                if (!baseService.isUndefinedOrNull($scope.EmployeeList[i].InTime)) {
                     if (checkItemExist($scope.GoodWorkList, $scope.EmployeeList[i].SystemId) === false) {
                         if ($scope.EmployeeList[i].CheckBoxSelect === true) {
                             $scope.EmployeeList[i].FromTime = $scope.ModelNew.FromTime;
@@ -230,7 +244,6 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
                             $scope.GoodWorkList.push($scope.EmployeeList[i]);
                         }
                     }
-
                 }
                 //else if ($scope.EmployeeList[i].DayStatus == 'W' && $scope.EmployeeList[i].OverStay==0) {
                 //    throw "Can't Add When DayStatus is Weekend & OverStay is O!";
@@ -288,15 +301,15 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     }
 
     $scope.getMinute = function () {
-        try { 
+        try {
             //$scope.ModelNew.YesterDay = $filter('dateFiltering')(new Date($scope.ModelNew.WorkDate).setDate(new Date($scope.ModelNew.WorkDate).getDate() + 1), 'dd-MM-yyyy');
-             
+
             if (!baseService.isUndefinedOrNull($scope.ModelNew.FromTime) && !baseService.isUndefinedOrNull($scope.ModelNew.ToTime)) {
                 $scope.MinuteUrl = 'Attendances/GoodWork/GetMinute'
                 $http({
                     method: 'POST',
                     url: $scope.MinuteUrl,
-                    data: { 'data': $scope.ModelNew},
+                    data: { 'data': $scope.ModelNew },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
 
@@ -377,59 +390,31 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
 
     $scope.Save = function () {
         try {
-            for (var i = 0; i < $scope.GoodWorkList.length; i++) {
-                if ($scope.GoodWorkList[i].Minute > $scope.GoodWorkList[i].OverStay) {
-                    if ($scope.ModelNew.CheckedStatus != 'Checked' || $scope.ModelNew.ApprovedStatus != 'Approved') {
-                        $scope.GoodWorkList[i].Minute = $scope.GoodWorkList[i].OverStay; 
+            if ($scope.ModelNew.CheckedStatus == 'Checked' || $scope.ModelNew.ApprovedStatus == 'Approved') {
+                throw "Checked or Approved data can't be updated!";
+            }
+
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.ModelNewForm.$valid) {
+                $http({
+                    method: 'POST',
+                    url: $scope.saveUrl,
+                    data: { 'data': $scope.ModelNew, 'goodWorkDetail': $scope.GoodWorkList },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
                     }
                     else {
-                        throw "Checked Or Approved data can't be updated!";
+                        ShowResult(response.data.Message, 'success');
+                        $scope.Clear();
+                        $scope.getData();
                     }
-                }
-            }
-            $http({
-                method: 'POST',
-                url: $scope.saveUrl,
-                data: { 'data': $scope.ModelNew, 'goodWorkDetail': $scope.GoodWorkList },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
+                }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.Clear();
-                    $scope.getData();
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
             }
-            //    else if ($scope.GoodWorkList[i].Minute == $scope.GoodWorkList[i].OverStay || $scope.GoodWorkList[i].Minute < $scope.GoodWorkList[i].OverStay) {
 
-            //        if ($scope.ModelNew.CheckedStatus != 'Checked' || $scope.ModelNew.ApprovedStatus != 'Approved') {
-            //            $http({
-            //                method: 'POST',
-            //                url: $scope.saveUrl,
-            //                data: { 'data': $scope.ModelNew, 'goodWorkDetail': $scope.GoodWorkList },
-            //                dataType: 'JSON'
-            //            }).then(function successCallback(response) {
-            //                if (response.data.Error === true) {
-            //                    ShowResult(response.data.Message, 'failure');
-            //                }
-            //                else {
-            //                    ShowResult(response.data.Message, 'success');
-            //                    $scope.Clear();
-            //                    $scope.getData();
-            //                }
-            //            }), function errorCallBack(response) {
-            //                ShowResult(response.data.Message, 'failure');
-            //            }
-            //        }
-            //        else {
-            //            throw "Checked Or Approved data can't be updated!";
-            //        }
-            //    }
-            //}
         }
         catch (e) {
             ShowResult(e, 'failure');
@@ -474,8 +459,11 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
             $scope.dateControlShow = false;
         }
         $scope.GetGoodWorkDetailCenter();
-        $scope.getFiltersData(); 
+        $scope.getFiltersData();
         $scope.Action = 'Update';
+        if (baseService.arrayLength($scope.checkedByList) == 1) {
+            $scope.ModelNew.CheckedBy = $scope.checkedByList[0].Value;
+        }
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
@@ -622,6 +610,9 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
             url: 'Attendances/GoodWork/GetGoodWorkCheckByCbo'
         }).then(function successCallback(response) {
             $scope.checkedByList = response.data;
+            if (baseService.arrayLength($scope.checkedByList) == 1) {
+                $scope.ModelNew.CheckedBy = $scope.checkedByList[0].Value;
+            }
         });
     }
     $scope.GetSupervisorCboList();
@@ -643,7 +634,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         $http({
             method: 'POST',
             url: $scope.path + "GetGoodWorkReport",
-            data: { 'reportFileName': $scope.fileName, 'workDate': $scope.WorkDates},
+            data: { 'reportFileName': $scope.fileName, 'workDate': $scope.WorkDates },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {

@@ -329,66 +329,6 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         });
     }
 
-    $scope.checkedByList = [];
-    $scope.GetSupervisorCboList = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'GetIssueSlipCheckByCbo'
-        }).then(function successCallback(response) {
-            $scope.checkedByList = response.data;
-            //for (var i = 0; i < $scope.checkedByList.length; i++) {
-            //    $scope.ModelNew.CheckedById = $scope.checkedByList[i].Value;
-            //    $scope.ModelNew.ApprovedById = $scope.checkedByList[i].Value;
-            //}
-        });
-    }
-    $scope.GetSupervisorCboList();
-
-    $scope.approvedByList = [];
-    $scope.GetApprovedByList = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'GetApprovedByCbo'
-        }).then(function successCallback(response) {
-            $scope.approvedByList = response.data;
-            //for (var i = 0; i < $scope.checkedByList.length; i++) {
-            //    $scope.ModelNew.CheckedById = $scope.checkedByList[i].Value;
-            //    $scope.ModelNew.ApprovedById = $scope.checkedByList[i].Value;
-            //}
-        });
-    }
-    $scope.GetApprovedByList();
-
-    //$scope.showEmployeeListPopUp = function (name) {
-    //    $scope.Name = name;
-    //    $scope.employee = [];
-    //    $http({
-    //        method: 'GET',
-    //        url: 'Attendances/GoodWork/GetPayableCreationEmployeeData'
-    //    }).then(function successCallback(response) {
-    //        $scope.employeeDataList = response.data;
-    //    });
-    //    angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
-    //}
-
-    //$scope.setEmpData = function (obj) {
-    //    //$scope.Clear();
-    //    var data = obj.data;
-    //    if ($scope.Name === 'AB') {
-    //        $scope.ModelNew.ApprovedById = data.SystemId;
-    //        $scope.ModelNew.ApprovedBy = data.EmployeeName;
-    //    }
-    //    else {
-    //        $scope.ModelNew.CheckedById = data.SystemId;
-    //        $scope.ModelNew.CheckedBy = data.EmployeeName;
-    //    }
-    //    angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
-    //};
-
-    //$scope.closeEmployeePopUp = function () {
-    //    angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
-    //};
-
     $scope.popUpDataList = [];
     $scope.showByWhomEmployeeListPopUp = function (name) {
         try {
@@ -573,6 +513,20 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         PaymentChildId: null
     };
     $scope.ModelPCEmpNew = Object.assign({}, $scope.ModelPCemp);
+
+    $scope.approvedByList = [];
+    $scope.GetApprovedByCboList = function () {
+        $http({
+            method: 'GET',
+            url: 'Attendances/GoodWork/GetGoodWorkPaymentApproveByCboList'
+        }).then(function successCallback(response) {
+            $scope.approvedByList = response.data;
+            if (baseService.arrayLength($scope.approvedByList) == 1) {
+                $scope.ModelNew.ApprovedById = $scope.approvedByList[0].Value;
+            }
+        });
+    }
+    $scope.GetApprovedByCboList();
 
     $scope.PCEmployeeList = [];
     $scope.PCOTEmployeeList = [];
@@ -1016,7 +970,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $scope.GetGoodWorkPaymentAdvisePendingPaymentdetail = function () {
         $http({
             method: 'Get',
-            url: $scope.path + "GetGoodWorkPaymentAdviseDetailList?paymentAdviseId=" + $scope.ModelPCNewPendingPayment.Id,
+            url: $scope.path + "GetGoodWorkPaymentAdviseDetailForApproveList?paymentAdviseId=" + $scope.ModelPCNewPendingPayment.Id,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.PCEmployeeListPendingPayment = response.data;
@@ -1421,8 +1375,8 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         }
     };
 
-    $scope.getCboVoucherTypeSalaryDisbursementList = function () {
-        cboService.getCboVoucherTypeSalaryDisbursementList(function (result) {
+    $scope.getCboVoucherTypeGoodWorkDisbursementList = function () {
+        cboService.getCboVoucherTypeGoodWorkDisbursementList(function (result) {
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
@@ -1430,7 +1384,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             }
         });
     }
-    $scope.getCboVoucherTypeSalaryDisbursementList();
+    $scope.getCboVoucherTypeGoodWorkDisbursementList();
     baseService.getCompanyConfiguration(function (result) {
         $scope.companyConfig = result;
     });
@@ -1481,12 +1435,12 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $scope.salaryLockPayableGLData = [];
     $scope.EmployeeListNew = [];
     $scope.getSalaryLockPayableGL = function () {
-
+        //$scope.GetEmployeeDisbursementItem();
         $scope.salaryLockPayableGLData = [];
         $http({
             method: "POST",
-            url: "Accounts/SalaryDisbursement/GetDirectSalaryPayableDisbursementDataList",
-            data: { 'yearNo': $scope.voucher.YearNo, 'monthNo': $scope.voucher.MonthNo, 'disbursementAdviceId': $scope.voucher.DisbursementAdviceId, 'employeeListNew': $scope.EmployeeListNew },
+            url: "Attendances/GoodWork/GetGoodWorkPaymentAdviseDisbursementJVDataList",
+            data: { 'disbursementAdviceId': $scope.voucher.DisbursementAdviceId, 'goodWorkPaymentAdviseDetail': $scope.EmployeeListNew },
             dataType: 'JSON'
             , contentType: "application/json charset=utf-8"
         }).then(function successCallback(response) {
@@ -1501,13 +1455,11 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             method: "GET",
             dataType: 'JSON',
             url: $scope.path + "GetGoodWorkPaymentAdviseDetailCheckedList?paymentAdviseId=" + $scope.voucher.DisbursementAdviceId,
-            //url: 'Accounts/SalaryDisbursement/GetEmployeeDisbursementDataList?yearNo=' + $scope.voucher.YearNo + '&monthNo=' + $scope.voucher.MonthNo + '&disbursementAdviceId=' + $scope.voucher.DisbursementAdviceId,
-
         }).then(function successCallback(response) {
             if (response.data.length > 0) {
                
                 $scope.employeeDisbursementDataList = response.data;
-                $scope.EmployeeListNew = $scope.employeeDisbursementDataList;
+                $scope.EmployeeListNew = response.data;
                 $scope.getSalaryLockPayableGL();
             }
             else {
@@ -1517,8 +1469,11 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         });
     };
 
+    $scope.saveGoodWorkPaymentAdviseDisbursementUrl = $scope.path + "ParkGoodWorkPaymentAdviseDisbursement";
+    $scope.postGoodWorkPaymentAdviseDisbursementUrl = $scope.path + "PostGoodWorkPaymentAdviseDisbursement";
     $scope.saveBtnDisable = false;
     $scope.SaveGoodWorkPaymentAdviseDisbursement = function () {
+        //$scope.GetEmployeeDisbursementItem();
         if ($scope.EmployeeListNew.length === 0) {
             ShowResult("Please select Employee!", "failure");
             return true;
@@ -1546,16 +1501,12 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             if ($scope.form0.$valid) {
                     $http({
                         method: "POST",
-                        url: $scope.saveUrl,
+                        url: $scope.saveGoodWorkPaymentAdviseDisbursementUrl,
                         data: {
                             "voucherVM": $scope.voucher,
-                            "yearNo": $scope.voucher.YearNo,
-                            "monthNo": $scope.voucher.MonthNo,
-                            "monthName": $scope.voucher.MonthName,
-                            "pMode": $scope.voucher.PaymentMode,
                             "directJVList": $scope.salaryLockPayableGLData,
                             "disbursementAdviceId": $scope.voucher.DisbursementAdviceId,
-                            "employeeListNew": $scope.EmployeeListNew
+                            "goodWorkPaymentAdviseDetail": $scope.EmployeeListNew
                         },
                         dataType: "JSON"
                     }).then(function successCallback(response) {
@@ -1586,11 +1537,11 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         $scope.message_confirmation = "Are you sure to Post?";
         angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
     };
-
+    $scope.postGoodWorkPaymentAdviseDisbursementUrl = $scope.path + "PostGoodWorkPaymentAdviseDisbursement";
     $scope.post = function (voucherId) {
         $http({
             method: "POST",
-            url: $scope.postUrl,
+            url: $scope.postGoodWorkPaymentAdviseDisbursementUrl,
             data: {
                 "voucherId": voucherId
             },
@@ -1618,7 +1569,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         $scope.voucher = {};
         $scope.voucher.PaymentMode = '';
         $scope.voucher.EmployeeId = null;
-        $scope.getCboVoucherTypeSalaryDisbursementList();
+        $scope.getCboVoucherTypeGoodWorkDisbursementList();
         $scope.voucher.Active = true;
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.voucher.DocRefNo = null;
@@ -1637,15 +1588,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         $scope.paymentModeList = response.data;
     });
 
-    //$scope.bankList = [];
-    //$scope.getBank = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'Accounts/salarydisbursement/GetBankList?yearNo=' + $scope.voucher.YearNo + '&monthNo=' + $scope.voucher.MonthNo
-    //    }).then(function successCallback(response) {
-    //        $scope.bankList = response.data;
-    //    });
-    //}
+    
     $scope.changePaymentMode = function () {
         if ($scope.voucher.PaymentMode == 'Bank') {
             $scope.voucher.PaymentSource = $scope.voucher.PaymentMode;
@@ -1805,16 +1748,14 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         }
     };
 
-    $scope.deleteUrl = "Accounts/SalaryDisbursement/DeleteSalaryDisbursementVoucher";
+    $scope.deleteGoodWorkPaymentAdviseDisbursementUrl = "Attendances/GoodWork/DeleteGoodWorkPaymentAdviseDisbursement";
 
     $scope.deleteSalaryDisbursement = function (voucherId, monthNo, yearNo) {
         $http({
             method: "POST",
-            url: $scope.deleteUrl,
+            url: $scope.deleteGoodWorkPaymentAdviseDisbursementUrl,
             data: {
-                "voucherId": voucherId,
-                "monthNo": monthNo,
-                "yearNo": yearNo,
+                "voucherId": voucherId
             },
             dataType: "JSON"
         }).then(function successCallback(response) {
@@ -1826,8 +1767,6 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
                 $scope.getVoucherData();
                 $scope.ClearGoodWorkPaymentAdviseDisbursement();
                 $scope.voucherId = null;
-                $scope.DelMonthNo = null;
-                $scope.DelYearNo = null;
             }
         }, function errorCallback(response) {
             ShowResult(response.status.Message, "failure");
@@ -1837,8 +1776,6 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
 
     $scope.confirmDelete = function (data) {
         $scope.voucherId = data.PayableVoucherId;
-        $scope.DelMonthNo = data.MonthNo;
-        $scope.DelYearNo = data.YearNo;
         $scope.message_delete_confirmation = "Are you sure to Delete?";
         angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
     };
@@ -1901,21 +1838,39 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
                     }
                 }
             }
+
             $scope.getSalaryLockPayableGL();
+            
         } catch (e) {
             event.currentTarget.checked = false;
             ShowResult(e, "failure");
         }
+        
     }
 
-    function checkExistTempListforConfirm(list, empSystemId) {
-        for (var i = 0; i < baseService.arrayLength(list); i++) {
-            if (list[i].EmpSystemId === empSystemId) {
-                return true;
+    //function checkExistTempListforConfirm(list, empSystemId) {
+    //    for (var i = 0; i < baseService.arrayLength(list); i++) {
+    //        if (list[i].EmpSystemId === empSystemId) {
+    //            return true;
+    //        }
+    //    }
+    //    return false;
+    //}
+    
+    $scope.GetEmployeeDisbursementItem = function () {
+        $scope.EmployeeListNew = [];
+        try {
+            for (var i = 0; i < $scope.employeeDisbursementDataList.length; i++) {
+                if ($scope.employeeDisbursementDataList[i].isSelected) {
+                    $scope.EmployeeListNew.push($scope.employeeDisbursementDataList[i]);
+                }
             }
+        } catch (e) {
+            ShowResult(e, "failure");
         }
-        return false;
-    }
+    };
+
+    
     $scope.refreshTemplateEmployeeDisbursement = function (args) {
         $("#headchkDisbursement").ejCheckBox({ "change": CheckBoxSelectAllEmployeeDisbursement });
     };

@@ -430,6 +430,10 @@ function GoodWorkCheckedController(cboService, commonMessage, $scope, $rootScope
     $scope.GetDblClick = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.GetGoodWorkDetailCenter();
+
+        if (baseService.arrayLength($scope.approvedByList) == 1) {
+            $scope.ModelNew.ApprovedBy = $scope.approvedByList[0].Value;
+        }
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -575,6 +579,9 @@ function GoodWorkCheckedController(cboService, commonMessage, $scope, $rootScope
             url: 'Attendances/GoodWork/GetGoodWorkApprovedByCbo'
         }).then(function successCallback(response) {
             $scope.approvedByList = response.data;
+            if (baseService.arrayLength($scope.approvedByList)==1) {
+                $scope.ModelNew.ApprovedBy = $scope.approvedByList[0].Value;
+            }
         });
     }
     $scope.GetSupervisorCboList();

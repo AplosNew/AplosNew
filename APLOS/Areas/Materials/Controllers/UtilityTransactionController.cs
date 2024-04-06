@@ -93,6 +93,7 @@ namespace Aplos.Areas.Materials.Controllers
                                 --left join (Select MAX(CONVERT(varchar(5),AddedDate,108))LastReadingTime,UtilityMasterId from UtilityTransaction group by AddedDate,UtilityMasterId) B on B.UtilityMasterId=UM.Id
                                 left join (Select TOP(1) Quantity as LastReading,UtilityMasterId from UtilityTransaction ORDER by AddedDate,UtilityMasterId DESC) C on C.UtilityMasterId=UM.Id
 								left join HKP.UtilityGroup UG on UG.Id=UM.UtilityGroupId
+                                Where UM.Active=1
                                     ) AS TEMP WHERE " + strkey + " ";
 
                 var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);

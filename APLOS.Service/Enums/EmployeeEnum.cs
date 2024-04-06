@@ -217,10 +217,9 @@ namespace Library.Service.Enums
 
         [Description("Capitalize Asset Register ApproveBy")]
         CapitalizeAssetRegisterApproveBy,
-        [Description("GoodWork ApproveBy")]
-        GoodWorkApproveBy,
-        [Description("GoodWork CheckBy")]
-        GoodWorkCheckBy,
+        [Description("GoodWork Payment ApproveBy")]
+        GoodWorkPaymentApproveBy,
+       
         [Description("Party ApproveBy")]
         PartyApproveBy,
 

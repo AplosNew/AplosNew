@@ -55,7 +55,7 @@ namespace Library.Service.Materials
             {
                 var _sql = @"SELECT MMA.Id, MMA.MaterialMasterId, MMA.Code, MMA.ShortName, MMA.StandardName, MMA.UserName,HC.Code as HSNCode,MMA.HSNCodeId,MMA.RPM,           MMA.MachineAllowance,MMA.StitchCodeId,MMA.MachineMasterId,MM.UserName MachineMaster,MMA.OrderLevel
                             ,MMA.IsMachineApplicable
-							,MMA.IsWorkCenterApplicable
+							,MMA.IsWorkCenterApplicable,MMA.Active
 
 		                    FROM MST.MaterialMasterArticle MMA
                            LEFT JOIN [MST].[MachineMaster] MM ON MM.Id=MMA.MachineMasterId
@@ -327,6 +327,7 @@ namespace Library.Service.Materials
                         art.ShortName = item.ShortName;
                         art.StandardName = item.StandardName;
                         art.UserName = item.UserName;
+                        art.Active = item.Active;
                         art.HSNCodeId = item.HSNCodeId;
                         art.UpdatedBy = item.UpdatedBy;
                         art.UpdatedDate = item.UpdatedDate;

@@ -4962,11 +4962,11 @@ order by SAI.SalesId";
 
 		#region Good Work Check
 
-		public IEnumerable<object> GetGoodWorkApproveByCboList()
+		public IEnumerable<object> GetGoodWorkPaymentApproveByCboList()
 		{
 			var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
-                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='GoodWorkApproveBy' AND E.EmployeeStatus='Active'";
+                          Inner Join dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where  A.ActionStatus='GoodWorkPaymentApproveBy' AND E.EmployeeStatus='Active'";
 			return _sqlRepository.GetDataCollection(sql, null);
 		}
 		public IEnumerable<object> GetUncheckedGoodWorkData(string EmployeeId)
