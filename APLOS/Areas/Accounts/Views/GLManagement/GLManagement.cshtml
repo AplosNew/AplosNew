@@ -516,29 +516,28 @@
                     </div>
                 </div>
             </div>
+
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(11), active: isSet(11) }">
                 <div class="row">
                     <div class="form-elements">
                         <div class="common-btn">
-                            @*<ul class="list-inline text-right">
-                                <li> <button ng-click="GetProcessList();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                            </ul>*@
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="OKProcess();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                            </ul>
                         </div>
                         <div class="col-xs-12 col-sm-12 col-md-12">
                             <div class="modal-body">
                                 <div class="content-container-fluid" style="color:black;">
-                                    <div style="color:black;" id="GridProcess" ej-grid e-datasource="ProcessListData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                                         e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateProcess">
+                                    <div style="color:black;" id="GridProcess" ej-grid e-datasource="ProcessListData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true"
+                                         e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateProcess">
                                         <div e-columns>
                                             <div e-column e-headertext="" e-headertemplateid="#headerTemplateProcess" e-template="#checkboxTemplateProcess" e-textalign="center" e-width="30"></div>
-                                            @*<div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
-                                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
-                                            <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="80"></div>
-                                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                                            <div e-column e-field="EmployeeCategorys" e-headertext="Employee Category" e-width="80"></div>
+                                            <div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>
                                             <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
-                                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
-                                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
-                                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>*@
+                                            <div e-column e-field="Position" e-headertext="Position" e-width="80"></div>
+                                            <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="80"></div>
+                                            <div e-column e-field="BudgetCode" e-headertext="Budget Code" e-width="80"></div>
                                         </div>
                                     </div>
                                     <script type="text/x-jsrender" id="headerTemplateProcess">
@@ -548,16 +547,12 @@
                                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
                                     </script>
                                 </div>
-                            </div>
-
+                            </div> 
                         </div>
-                        @*<script type="text/template" id="ShowActionButtonProcess">
-                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeEmployee(this);" style="margin: -6px;"></i></button>
-                        </script>*@
-                    </div>
+                     </div>
                 </div>
-            </div>
-        </div>
+            </div> 
+         </div>
     </div>
 </div>
 
@@ -734,7 +729,7 @@
         </div>
     </div>*@
 
-@Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")
+@*@Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")*@
 <confirm-archive-generic data-modalid="confirmgenericPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="RemoveRow()"></confirm-archive-generic>
 
 <!-- #endregion -->
