@@ -1584,7 +1584,6 @@ namespace Aplos.Areas.Accounts.Controllers
             try
             {
                 var sql = "";
-
                 sql = @"select '' Id,x.*,GMDC.BudgetMasterActivityIdDr ControlDrId,B.UserName BudgetMasterActivityDr,GMDC.BudgetMasterActivityIdCr ControlCrId,BB.UserName BudgetMasterActivityCr
 					,GMAB.ActionById,EIAB.EmployeeName ActionBy,GMAPB.ApproveById,EIAPB.EmployeeName ApproveBy,GMRP.ResponsiblePersonId,EIRP.EmployeeName ResponsiblePerson
 					,CheckBoxSelect=cast(case when X.GLManagementId is null then 0 else 0 end as bit)
