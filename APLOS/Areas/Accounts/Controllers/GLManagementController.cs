@@ -1585,12 +1585,12 @@ namespace Aplos.Areas.Accounts.Controllers
             {
                 var sql = "";
 
-                sql = @"select x.*,GMDC.BudgetMasterActivityIdDr,B.UserName BudgetMasterActivityDr,GMDC.BudgetMasterActivityIdCr,BB.UserName BudgetMasterActivityCr
+                sql = @"select x.*,GMDC.BudgetMasterActivityIdDr ControlDrId,B.UserName BudgetMasterActivityDr,GMDC.BudgetMasterActivityIdCr ControlCrId,BB.UserName BudgetMasterActivityCr
 					,GMAB.ActionById,EIAB.EmployeeName ActionBy,GMAPB.ApproveById,EIAPB.EmployeeName ApproveBy,GMRP.ResponsiblePersonId,EIRP.EmployeeName ResponsiblePerson
-					from(select DISTINCT GEC.EmployeeCategoryId,EC.UserName EmployeeCategorys
-					--,CheckBoxSelect=cast(case when GLMP.Id is null then 0 else 1 end as bit),GLMP.Id
-					,GMD.DesignationId,DE.UserName Designation,GMDP.DepartmentId,DP.UserName Department,GMPC.PositionCodeId,PO.UserName Position,GMBC.BudgetCodeId,GME.EmpSystemId
-					,EI.EmployeeName,MB.Code BudgetCode,GLM.Id
+					,CheckBoxSelect=cast(case when GLMP.Id is null then 0 else 1 end as bit),GLMP.Id
+					
+                    from(select DISTINCT GEC.EmployeeCategoryId,EC.UserName EmployeeCategorys
+					,GMD.DesignationId,DE.UserName Designation,GMDP.DepartmentId,DP.UserName Department,GMPC.PositionCodeId,PO.UserName Position,GMBC.BudgetCodeId,GME.EmpSystemId EmpId,EI.EmployeeName,MB.Code BudgetCode,GLM.Id GLManagementId
                     from HKP.GLManagement GLM 
                     LEFT JOIN HKP.GLManagementEmployeeCategory GEC ON GEC.GLManagementId=GLM.Id
                     LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=GEC.EmployeeCategoryId
@@ -1619,9 +1619,12 @@ namespace Aplos.Areas.Accounts.Controllers
                     LEFT JOIN [DBO].[EmployeeInformation] EIAPB ON EIAPB.SystemId=GMAPB.ApproveById 
 					LEFT JOIN [HKP].[GLManagementResponsiblePerson] GMRP ON GMRP.GLManagementId=x.Id
                     LEFT JOIN [DBO].[EmployeeInformation] EIRP ON EIRP.SystemId=GMRP.ResponsiblePersonId 
-
-                    WHERE X.Id='" + GlManagementId + @"'"; 
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                    left join(select * from  [HKP].[GLManagementProcess] where GlManagementId='" + GlManagementId + @"') glrp on glrp.GLManagementId=x.Id
+                    WHERE x.Id='" + GlManagementId + @"'"; 
+                //return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
             }
             catch (Exception ex)
             {
