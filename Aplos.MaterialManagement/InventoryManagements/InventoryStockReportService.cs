@@ -260,13 +260,13 @@ namespace Library.MaterialManagement.InventoryManagements
 							,isnull(InventoryScrapData.Qty,0) InventoryScrapQtyForThePeriod	
 							,isnull(InventoryScrapData.InventoryScrapAmount,0) InventoryScrapForThePeriodAmount	
 
-							--Inventory Transfer Data
-							,isnull(InventoryTransferData.Qty,0) InventoryTransferQtyForThePeriod	
-							,isnull(InventoryTransferData.InventoryTransferAmount,0) InventoryTransferForThePeriodAmount
+								--Inventory Transfer Data
+							,isnull(InventoryTransferData.CapitalizeQty,0) InventoryTransferQtyForThePeriod	
+							,isnull(InventoryTransferData.CapitalizeAmount,0) InventoryTransferForThePeriodAmount
 
 							--Balance    
-							,(((((((isnull(opbal.TransactionQty,0) + isnull(opbal2.TransactionQty,0))-isnull(IFD1.IssueQty,0)-isnull(PurchaseReturnData.Qty,0))-isnull(AdjustmentData.Qty,0))+isnull(IssueReturnData.Qty,0))-isnull(InventorySalesData.Qty,0))-isnull(InventoryScrapData.Qty,0))-isnull(InventoryTransferData.Qty,0)) Closing 
-							,(((((((isnull(opbal.TotalMaterialBooksCurrencyAmount-opbal.ShortageValue,0) + isnull(opbal2.TotalMaterialBooksCurrencyAmount-opbal2.ShortageValue,0))-isnull(IFD1.PolicyAmount,0)-isnull(AdjustmentData.AdjustmentAmount,0))-isnull(PurchaseReturnData.PurchaseReturnAmount,0))+isnull(IssueReturnData.IssueReturnAmount,0)-isnull(InventorySalesData.InventorySalesAmount,0))-isnull(InventoryScrapData.InventoryScrapAmount,0))-isnull(InventoryTransferData.InventoryTransferAmount,0))) ClosingAmount
+							,(((((((isnull(opbal.TransactionQty,0) + isnull(opbal2.TransactionQty,0))-isnull(IFD1.IssueQty,0)-isnull(PurchaseReturnData.Qty,0))-isnull(AdjustmentData.Qty,0))+isnull(IssueReturnData.Qty,0))-isnull(InventorySalesData.Qty,0))-isnull(InventoryScrapData.Qty,0))-isnull(InventoryTransferData.CapitalizeQty,0)) Closing 
+							,(((((((isnull(opbal.TotalMaterialBooksCurrencyAmount-opbal.ShortageValue,0) + isnull(opbal2.TotalMaterialBooksCurrencyAmount-opbal2.ShortageValue,0))-isnull(IFD1.PolicyAmount,0)-isnull(AdjustmentData.AdjustmentAmount,0))-isnull(PurchaseReturnData.PurchaseReturnAmount,0))+isnull(IssueReturnData.IssueReturnAmount,0)-isnull(InventorySalesData.InventorySalesAmount,0))-isnull(InventoryScrapData.InventoryScrapAmount,0))-isnull(InventoryTransferData.CapitalizeAmount,0))) ClosingAmount
 
 
 						from TRN.InventoryMaterial AS IM
@@ -3584,7 +3584,7 @@ namespace Library.MaterialManagement.InventoryManagements
                                     SELECT * FROM (
 									SELECT IRD.InventoryMaterialId, IRD.MaterialStorageId
                                     ,Sum(IRD.BaseQty-IRD.ShortageQty)+SUM(ISNULL(IIR.IssueReturnQty,0))- sum(isnull(II.IssueQty,0))-SUM(isnull(ISD.Qty,0))-sum(ISNULL(PurReturnOBData.Qty,0)) AS TransactionQty
-									, Sum((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount)-Round(IRD.ShortageQty*IRD.MaterialTranRate,2))-sum(ISNULL(II.IssueAmount,0))-SUM(ISNULL(ISD.InventorySalesAmount,0))-sum(ISNULL(PurReturnOBData.PurchaseReturnAmount,0)) TotalMaterialBooksCurrencyAmount
+									, Sum((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount)-Round(IRD.ShortageQty*IRD.MaterialTranRate,2))+SUM(ISNULL(IIR.IssueReturnAmount,0))-sum(ISNULL(II.IssueAmount,0))-SUM(ISNULL(ISD.InventorySalesAmount,0))-sum(ISNULL(PurReturnOBData.PurchaseReturnAmount,0)) TotalMaterialBooksCurrencyAmount
 			                        FROM [TRN].[InventoryReceiveDetail] IRD
 			                        LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
                                     
@@ -3599,7 +3599,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									    ) II ON II.InventoryReceiveDetailId=IRD.Id and II.MaterialStorageId=IRD.MaterialStorageId
                                     -- InventoryReturnIssue OB
                                     LEFT JOIN (
-									    select IRH.InventoryMaterialId,IRH.InventoryReceiveDetailId, II.MaterialStorageId, Sum(ISNULL(IRH.Qty,0)) IssueReturnQty , Sum(ISNULL(IRH.TotalAmount,0)) PolicyAmount
+									    select IRH.InventoryMaterialId,IRH.InventoryReceiveDetailId, II.MaterialStorageId, Sum(ISNULL(IRH.Qty,0)) IssueReturnQty  , Sum(ISNULL(IRH.TotalAmount,0)) IssueReturnAmount
 									    FROM TRN.InventoryIssueReturnHistory IRH  
 									    LEFT JOIN TRN.InventoryIssueReturn II ON II.Id=IRH.InventoryIssueReturnId
 										Left join trn.InventoryReceiveDetail IRD ON IRD.Id=IRH.InventoryReceiveDetailId

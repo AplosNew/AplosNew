@@ -8,14 +8,14 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Work Date<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Date" ng-model="ModelNew.WorkDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="1">
+                <input type="text" name="Date" ng-model="ModelNew.WorkDate" disabled datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="1">
             </div>
         </div>
 
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Purpose<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Purpose" ng-model="ModelNew.Purpose" class="form-control" maxlength="15" required tabindex="9">
+                <input type="text" name="Purpose" ng-model="ModelNew.Purpose" disabled class="form-control" maxlength="15" required tabindex="9">
             </div>
         </div>
         <div class="form-group" show-errors>
@@ -42,7 +42,7 @@
             <label class="col-sm-4 control-label">User Group<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select id="UserGroup" class="form-control" ng-model="ModelNew.UserGroupId" name="User Group" ng-change="getFiltersData();" tabindex="7">
+                    <select id="UserGroup" class="form-control"disabled ng-model="ModelNew.UserGroupId" name="User Group" ng-change="getFiltersData();" tabindex="7">
                         <option value="">--Select--</option>
                         <option ng-repeat="option in userGroupDataList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
@@ -52,7 +52,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Remarks</label>
             <div class="col-sm-8 show-message">
-                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="15"></textarea>
+                <textarea class="form-control" rows="3"disabled ng-model="ModelNew.Remarks" maxlength="250" tabindex="15"></textarea>
             </div>
         </div>
 
@@ -74,7 +74,7 @@
             <label class="col-sm-4 control-label">Purpose Category<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select id="PC" class="form-control" ng-model="ModelNew.PurposeCategory" name="PurposeCategory" tabindex="10">
+                    <select id="PC" class="form-control" disabled ng-model="ModelNew.PurposeCategory" name="PurposeCategory" tabindex="10">
                         <option value="">--Select--</option>
                         <option value="BreakDown">BreakDown</option>
                         <option value="Additional">Additional</option>
@@ -103,7 +103,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Reason</label>
             <div class="col-sm-8 show-message">
-                <textarea class="form-control" rows="3" ng-model="ModelNew.Reason" maxlength="250" tabindex="14"></textarea>
+                <textarea class="form-control" rows="3" disabled ng-model="ModelNew.Reason" maxlength="250" tabindex="14"></textarea>
             </div>
         </div>
     </div>

@@ -1355,8 +1355,6 @@ namespace Library.MaterialManagement.InventoryManagements
                     string sqllog = "select * from TRN.GRNApprovalLogTbl where 1=2";
                     con.OpenDataSetThroughAdapter(sqllog, out DataSet dsDetailLog, false, "1");
 
-                    //for (int i = 0; i < UserSendData.Count; i++)
-                    //{
                     dsDetail.Tables[0].DefaultView.RowFilter = "Id='" + UserSendData["Id"].ToString() + "'";
                     if (dsDetail.Tables[0].DefaultView.Count == 0)
                     {
@@ -1385,13 +1383,10 @@ namespace Library.MaterialManagement.InventoryManagements
                         drlog["AddedBy"] = identity.Name;
                         drlog["AddedDate"] = System.DateTime.Now.ToString();
                         drlog["AddedFromIP"] = identity.IPAddress;
-                        //dr["UpdatedBy"] = "";
-                        //dr["UpdatedDate"] = "";
-                        //dr["UpdatedFromIP"] = "";
+                        
                         drlog["GRNID"] = MasterId.ToString();
                         dsDetailLog.Tables[0].Rows.Add(drlog);
                     }
-                    //}
 
                     clsStaticInfo info = new clsStaticInfo();
                     info.SaveDataSets(dsDetail, dsDetailLog);
