@@ -19,7 +19,49 @@
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
             @Html.Partial("~/Areas/Accounts/Views/BalanceSheetScheduling/_BalanceSheetSchedulingDataUploadDownload.cshtml")
         </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+            <div class="form-elements form-horizontal row" ng-form name="ModelNewCheckingForm">
+                <div class="col-md-10">
+                    <div class="inputBtnSection common-btn">
+                        <label class="fileUpload col-sm-4 ">
+                            <input id="uploadImageChk" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                        </label>
+                        <input type="button" value="Import Data" class="btn btn-success" ng-click="ImportCheckingData()" />
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="GetCheckingSampleFile();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File Download</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
 
+            
+        </div>
+
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+            <div class="form-elements form-horizontal row" ng-form name="ModelNewApprovingForm">
+                <div class="col-md-10">
+                    <div class="inputBtnSection common-btn">
+                        <label class="fileUpload col-sm-4 ">
+                            <input id="uploadImageApr" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                        </label>
+                        <input type="button" value="Import Data" class="btn btn-success" ng-click="ImportApprovingData()" />
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="GetApprovingSampleFile();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File Download</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            
+        </div>
     </div>
 
 </div>
