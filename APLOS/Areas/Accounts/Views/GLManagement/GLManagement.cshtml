@@ -517,6 +517,39 @@
                 </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(11), active: isSet(11) }">
+                <div class="row">
+                    <div class="form-elements">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="OKProcess();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                            </ul>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="modal-body">
+                                <div class="content-container-fluid" style="color:black;">
+                                    <div style="color:black;" id="GridProcess" ej-grid e-datasource="ProcessListData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true"
+                                         e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateProcess">
+                                        <div e-columns>
+                                            <div e-column e-headertext="" e-headertemplateid="#headerTemplateProcess" e-template="#checkboxTemplateProcess" e-textalign="center" e-width="30"></div>
+                                            <div e-column e-field="EmployeeCategorys" e-headertext="Employee Category" e-width="60"></div>
+                                            <div e-column e-field="Designation" e-headertext="Designation" e-width="60"></div>
+                                            <div e-column e-field="Department" e-headertext="Department" e-width="60"></div>
+                                            <div e-column e-field="Position" e-headertext="Position" e-width="100"></div>
+                                            <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="80"></div>
+                                            <div e-column e-field="BudgetCode" e-headertext="Budget Code" e-width="80"></div>
+                                        </div>
+                                    </div>
+                                    <script type="text/x-jsrender" id="headerTemplateProcess">
+                                        <input type="checkbox" id="Processheadchk" />
+                                    </script>
+                                    <script type="text/template" id="checkboxTemplateProcess">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(12), active: isSet(12) }">
@@ -558,44 +591,6 @@
     </div>
 </div>
 
-<!--<div class="modal fade site-modal in" id="LDPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">Designation<button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body">
-                <div id="desInfoGrid" ej-grid e-datasource="popUpDataList" e-gridlines="vertical" e-templaterefresh="refreshTemplateDesignation"
-                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                     e-allowselection="true" e-filtersettings-filterType="excel">
-                    <div e-columns>
-                        <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
-                        <div e-column e-field="Sequence" e-headertext="Sequence" e-allowediting="false" e-width="50"></div>
-                        <div e-column e-field="Code" e-headertext="Code" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="ShortName" e-headertext="Short Name" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="StandardName" e-headertext="Standard Name" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="UserName" e-headertext="User Define Name" e-allowediting="false" e-width="80"></div>-->
-@*<div e-column e-field="Active" e-headertext="Active" e-allowediting="false" e-width="80"></div>*@
-<!--</div>
-                </div>
-                <script type="text/x-jsrender" id="headerTemplate">
-                    <input type="checkbox" id="Designationheadchk" />
-                </script>
-                <script type="text/template" id="checkboxTemplate">
-                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
-                </script>
-            </div>
-            <div class="modal-footer">
-                <div class="common-btn">
-                    <ul class="list-inline text-right" ng-show="true">
-                        <li><button ng-click="OK();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Ok </button></li>
-                        <li>
-                            <button ng-click="closeDesignationCodePopUp();" class="btn"><i class=""></i> Close</button>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>-->
 
 
 <div class="row text-right aplos-grid-toggle">
