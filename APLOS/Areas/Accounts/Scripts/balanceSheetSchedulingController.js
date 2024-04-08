@@ -467,4 +467,15 @@ function balanceSheetSchedulingController(commonMessage, $scope, $rootScope, bas
         $scope.balanceSheetScheduling.FormulaDescription = $scope.balanceSheetScheduling.FormulaDes;
 
     }
+
+    $scope.CheckingUploadedData = [];
+    $scope.ApprovingUploadedData = [];
+
+
+
+
+
+
+
+
 }

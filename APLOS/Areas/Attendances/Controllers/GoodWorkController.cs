@@ -928,12 +928,13 @@ namespace Aplos.Areas.Attendances.Controllers
             {
                 if (tabName == "GoodWork")
                 {
-                    sql = @"select CheckBoxSelect=cast(case when z.Id is null then 0 else 1 end as bit),z.Id,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,sum(gwd.Minute) Minute,(sum(gwd.Minute)/60) Hour
+                    sql = @"select CheckBoxSelect=cast(case when z.Id is null then 0 else 1 end as bit),z.Id,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,sum(gwd.Minute)*OLS.OTreductionFactor Minute,(sum(gwd.Minute)/60)*OLS.OTreductionFactor Hour
                                     ,format(g.Gross,'N2') Gross,0 Rate,0 Amount
 									,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID
                                      from [dbo].[GoodWork] gw
                                      left join  GoodWorkDetail GWD on GWD.GoodWorkId=gw.Id 
                                      left join EmployeeInformation ei on ei.SystemId=GWD.EmpSystemId  
+                                    left join (Select top 1* from [dbo].[OTLimitSetting])OLS ON OLS.PlantID=ei.PlantId
                                      LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = EI.SystemId
                                      LEFT JOIN(SELECT SID.SalaryID,SID.DefineAmount Gross,SH.SalaryHeadID GrossSalaryHeadID
                                                                           FROM SalaryInfoDefine SID 
@@ -959,7 +960,7 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
 
                                      where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and gwd.Minute<>0 and g.Gross<>0  and SIDM.IsApproved=1 AND gw.ApprovedStatus='Approved'
                                      group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross
-									 ,z.Id,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID
+									 ,z.Id,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,OLS.OTreductionFactor
                                     order by ei.EmployeeCode";
 
                 }
