@@ -97,6 +97,9 @@
                                     <div e-column e-headertext="All" e-headertemplateid="#CheckGWTemplate" e-template="#checkboxGWTemplate" e-textalign="center" e-width="30"></div>
                                     <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="60"></div>
                                     <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                                    <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                                    <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                                    <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
                                     <div e-column e-field="Minute" e-headertext="Minute" e-width="60"></div>
                                     <div e-column e-field="Hour" e-headertext="Hour" e-width="60" e-isprimarykey="true"></div>
                                     <div e-column e-field="Rate" e-headertext="Rate" e-width="60" e-isprimarykey="true"></div>
@@ -128,13 +131,11 @@
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                             <div e-columns>
-                                @*<div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="3"></div>
-                                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="3"></div>*@
+                                <div e-column e-field="Id" e-headertext="Payment Advise Id" e-width="3"></div>
                                 <div e-column e-field="FromDate" e-headertext="From Date" e-width="2" e-isprimarykey="true"></div>
                                 <div e-column e-field="ToDate" e-headertext="To Date" e-width="2" e-isprimarykey="true"></div>
                                 <div e-column e-field="UserRef" e-headertext="UserName" e-width="3"></div>
                                 <div e-column e-field="PaymentDate" e-headertext="Payment Date" e-width="3"></div>
-                                @*<div e-column e-field="Amount" e-headertext="Amount" e-width="3"></div>*@
                                 <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
                             </div>
                         </div>
@@ -163,6 +164,16 @@
                                     <input type="text" name="PaymentDueDate" ng-model="ModelOTNew.PaymentDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="25">
                                 </div>
                             </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Approved By<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select id="ApprovedBy" class="form-control" name="Approved By" ng-model="ModelOTNew.ApprovedById" tabindex="28" required>
+                                            <option ng-repeat="option in approvedByList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group" show-errors>
@@ -174,22 +185,12 @@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <div class="input-group">
+                                    @*<div class="input-group">*@
                                         <input tabindex="1" type="text" name="By Whom" ng-model="ModelOTNew.ByWhom" class="form-control" readonly required>
-                                        <span class="input-group-btn">
+                                        @*<span class="input-group-btn">
                                             <button ng-click="showByWhomEmployeeListPopUp('OT');" class="btn single-small-btn" tabindex="26"><i class="glyphicon glyphicon-search"></i></button>
                                         </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Approved By<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <div class="select-style">
-                                        <select id="ApprovedBy" class="form-control" name="Approved By" ng-model="ModelOTNew.ApprovedById" tabindex="28" required>
-                                            <option ng-repeat="option in approvedByList" value="{{option.Value}}">{{option.Text}}</option>
-                                        </select>
-                                    </div>
+                                    </div>*@
                                 </div>
                             </div>
                             <div class="form-group">
@@ -214,6 +215,9 @@
                                     <div e-column e-headertext="All" e-headertemplateid="#CheckTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
                                     <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="60"></div>
                                     <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                                    <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                                    <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                                    <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
                                     <div e-column e-field="Minute" e-headertext="Minute" e-width="60"></div>
                                     <div e-column e-field="Hour" e-headertext="Hour" e-width="60"></div>
                                     <div e-column e-field="Rate" e-headertext="Rate" e-width="60"></div>
@@ -245,13 +249,11 @@
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                             <div e-columns>
-                                @*<div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="3"></div>
-                                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="3"></div>*@
+                                <div e-column e-field="Id" e-headertext="Payment Advise Id" e-width="3"></div>
                                 <div e-column e-field="FromDate" e-headertext="From Date" e-width="2" e-isprimarykey="true"></div>
                                 <div e-column e-field="ToDate" e-headertext="To Date" e-width="2" e-isprimarykey="true"></div>
                                 <div e-column e-field="UserRef" e-headertext="UserName" e-width="3"></div>
                                 <div e-column e-field="PaymentDate" e-headertext="Payment Date" e-width="3"></div>
-                                @*<div e-column e-field="Amount" e-headertext="Amount" e-width="3"></div>*@
                                 <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
                             </div>
                         </div>

@@ -930,10 +930,18 @@ namespace Aplos.Areas.Attendances.Controllers
                 {
                     sql = @"select CheckBoxSelect=cast(case when z.Id is null then 0 else 1 end as bit),z.Id,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,sum(gwd.Minute)*OLS.OTreductionFactor Minute,(sum(gwd.Minute)/60)*OLS.OTreductionFactor Hour
                                     ,format(g.Gross,'N2') Gross,0 Rate,0 Amount
-									,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID
+									,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
                                      from [dbo].[GoodWork] gw
                                      left join  GoodWorkDetail GWD on GWD.GoodWorkId=gw.Id 
-                                     left join EmployeeInformation ei on ei.SystemId=GWD.EmpSystemId  
+                                     left join EmployeeInformation ei on ei.SystemId=GWD.EmpSystemId
+                                    left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+						            left join ORG.Position PO on PO.Id=MPB.PositionId
+                                    LEFT OUTER JOIN ORG.Entity EN ON MPB.EntityId=EN.Id
+						            LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
+						            LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = ei.GivenDesignationId
+                                    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+						            LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
+                                    LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
                                     left join (Select top 1* from [dbo].[OTLimitSetting])OLS ON OLS.PlantID=ei.PlantId
                                      LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = EI.SystemId
                                      LEFT JOIN(SELECT SID.SalaryID,SID.DefineAmount Gross,SH.SalaryHeadID GrossSalaryHeadID
@@ -960,7 +968,7 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
 
                                      where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and gwd.Minute<>0 and g.Gross<>0  and SIDM.IsApproved=1 AND gw.ApprovedStatus='Approved'
                                      group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross
-									 ,z.Id,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,OLS.OTreductionFactor
+									 ,z.Id,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,OLS.OTreductionFactor,Department.UserName,Section.UserName,SubSection.UserName 
                                     order by ei.EmployeeCode";
 
                 }
@@ -971,9 +979,17 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
                                 ,format(g.Gross,'N2') Gross
                                 ,format(g.RatePerHour,'N2') Rate 
                                 ,Amount=format(g.RatePerHour*(sum(apd.OverStay)/60),'N2'),apd.GWPaymentAdviseId 
-
+                                ,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
                                 from [dbo].[AttdnProcessData] apd 
                                 left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID  
+                                left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+						        left join ORG.Position PO on PO.Id=MPB.PositionId
+                                LEFT OUTER JOIN ORG.Entity EN ON MPB.EntityId=EN.Id
+						        LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
+						        LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = ei.GivenDesignationId
+                                LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+						        LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
+                                LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
                                 LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = EI.SystemId
 								                                  LEFT JOIN(SELECT ((SID.DefineAmount/208)*2) RatePerHour,SH.SalaryHead
 								                                  ,SID.SalaryID,SID.DefineAmount Gross
@@ -986,7 +1002,7 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
 									                                where convert( DateTime, gwpa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, gwpa.ToDate) between '" + fromDate + @"' and '" + toDate + @"'
 									                                )z on z.EmpSystemId=apd.EmpSystemID
                                 where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND OverStay<>0 AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 
-                                group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id
+                                group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id,Department.UserName,Section.UserName,SubSection.UserName
                                 order by ei.EmployeeCode";
                 }
 
@@ -1127,10 +1143,18 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
                 if (tabName == "GoodWork")
                 {
                     sql = @"select CheckBoxSelect=cast(case when z.Id is null then 0 else 1 end as bit),z.Id,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,sum(gwd.Minute) Minute,(sum(gwd.Minute)/60) Hour
-                                    ,format(g.Gross,'N2') Gross,format(g.RatePerHour,'N2') Rate,Amount=format((sum(gwd.Minute)/60)*g.RatePerHour,'N2')
+                                    ,format(g.Gross,'N2') Gross,format(g.RatePerHour,'N2') Rate,Amount=format((sum(gwd.Minute)/60)*g.RatePerHour,'N2'),Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
                                      from [dbo].[GoodWork] gw
                                      left join  GoodWorkDetail GWD on GWD.GoodWorkId=gw.Id 
-                                     left join EmployeeInformation ei on ei.SystemId=GWD.EmpSystemId  
+                                     left join EmployeeInformation ei on ei.SystemId=GWD.EmpSystemId 
+                                    left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+						            left join ORG.Position PO on PO.Id=MPB.PositionId
+                                    LEFT OUTER JOIN ORG.Entity EN ON MPB.EntityId=EN.Id
+						            LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
+						            LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = ei.GivenDesignationId
+                                    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+						            LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
+                                    LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
                                      LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = EI.SystemId
                                      LEFT JOIN(SELECT SID.DefineAmount Basic,((SID.DefineAmount/208)*2) RatePerHour,SH.SalaryHead
 								                                      ,SID.SalaryID,SID.DefineAmount Gross
@@ -1143,7 +1167,7 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
 									                                where convert( DateTime, gwpa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, gwpa.ToDate) between '" + fromDate + @"' and '" + toDate + @"'
 									                                )z on z.EmpSystemId=GWD.EmpSystemId
                                      where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and gwd.Minute<>0 and g.Gross<>0  and SIDM.IsApproved=1 AND gw.ApprovedStatus='Approved'
-                                     group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,z.Id
+                                     group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,z.Id,Department.UserName,Section.UserName,SubSection.UserName
                                     order by ei.EmployeeCode";
 
                 }
@@ -1154,9 +1178,17 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
                                 ,format(g.Gross,'N2') Gross
                                 ,format(g.RatePerHour,'N2') Rate 
                                 ,Amount=format(g.RatePerHour*(sum(apd.OverStay)/60),'N2'),apd.GWPaymentAdviseId 
-
+                                ,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
                                 from [dbo].[AttdnProcessData] apd 
-                                left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID  
+                                left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID 
+                                left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+						        left join ORG.Position PO on PO.Id=MPB.PositionId
+                                LEFT OUTER JOIN ORG.Entity EN ON MPB.EntityId=EN.Id
+						        LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
+						        LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = ei.GivenDesignationId
+                                LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+						        LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
+                                LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
                                 LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = EI.SystemId
 								                                  LEFT JOIN(SELECT ((SID.DefineAmount/208)*2) RatePerHour,SH.SalaryHead
 								                                  ,SID.SalaryID,SID.DefineAmount Gross
@@ -1169,7 +1201,7 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
 									                                where convert( DateTime, gwpa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, gwpa.ToDate) between '" + fromDate + @"' and '" + toDate + @"'
 									                                )z on z.EmpSystemId=apd.EmpSystemID
                                 where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND OverStay<>0 AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 
-                                group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id
+                                group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id,Department.UserName,Section.UserName,SubSection.UserName
                                 order by ei.EmployeeCode";
                 }
 
@@ -1433,10 +1465,10 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
         public ActionResult GetGoodWorkPaymentList(string paymentSource)
         {
             string sql = @"select ei.EmployeeCode,ei.EmployeeName ByWhom,gwp.Id,FORMAT(gwp.FromDate,'dd-MMM-yyy') FromDate,FORMAT(gwp.ToDate,'dd-MMM-yyy')ToDate
-						,gwp.UserRef,FORMAT(gwp.PaymentDate,'dd-MMM-yyy') PaymentDate,gwp.Remarks
+						,gwp.UserRef,FORMAT(gwp.PaymentDate,'dd-MMM-yyy') PaymentDate,gwp.Remarks,gwp.ApprovedById
 						from GoodWorkPaymentAdvise gwp 
 						left join EmployeeInformation ei on ei.SystemId=gwp.ByWhomId
-                        where gwp.PaymentSource='" + paymentSource + "'";
+                        where gwp.ApprovedStatus is null AND gwp.PaymentSource='" + paymentSource + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
