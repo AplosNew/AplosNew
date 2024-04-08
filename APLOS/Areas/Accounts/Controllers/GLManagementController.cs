@@ -997,8 +997,8 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                var sql = @"SELECT CheckBoxSelect=cast(case when glme.Id is null then 0 else 1 end as bit),glme.Id,Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,DeM.UserName Designation,
-                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,SE.UserName Section,EMP.SectionId,SuS.UserName SubSection
+                var sql = @"SELECT CheckBoxSelect=cast(case when glme.Id is null then 0 else 1 end as bit),glme.Id,Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,ISNULL(DeM.UserName,'') Designation,
+                                        ISNULL(PR.UserName,'') PositionName,ISNULL(DEG.UserName,'') GivenDesignation,ISNULL(DEPT.UserName,'') Department,SE.UserName Section,EMP.SectionId,SuS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation,isnull( L.UserName,'') Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
                                         EMP.EmployeeCodeNumeric, EMP.FatherName,FORMAT( EMP.DOB,'dd-MMM-yyyy')DOB,DeM.UserName DesignationGroup,
                                         EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric,EJ.JobLcSystemID,FORMAT(EJ.EffectiveDate,'dd-MMM-yyyy')EffectiveDate
@@ -1584,8 +1584,7 @@ namespace Aplos.Areas.Accounts.Controllers
             try
             {
                 var sql = "";
-
-                sql = @"select x.*,GMDC.BudgetMasterActivityIdDr ControlDrId,B.UserName BudgetMasterActivityDr,GMDC.BudgetMasterActivityIdCr ControlCrId,BB.UserName BudgetMasterActivityCr
+                sql = @"select '' Id,x.*,GMDC.BudgetMasterActivityIdDr ControlDrId,B.UserName BudgetMasterActivityDr,GMDC.BudgetMasterActivityIdCr ControlCrId,BB.UserName BudgetMasterActivityCr
 					,GMAB.ActionById,EIAB.EmployeeName ActionBy,GMAPB.ApproveById,EIAPB.EmployeeName ApproveBy,GMRP.ResponsiblePersonId,EIRP.EmployeeName ResponsiblePerson
 					,CheckBoxSelect=cast(case when glrp.Id is null then 0 else 1 end as bit),glrp.Id
 					
