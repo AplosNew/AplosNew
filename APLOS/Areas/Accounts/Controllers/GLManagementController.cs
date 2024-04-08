@@ -1587,7 +1587,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
                 sql = @"select x.*,GMDC.BudgetMasterActivityIdDr ControlDrId,B.UserName BudgetMasterActivityDr,GMDC.BudgetMasterActivityIdCr ControlCrId,BB.UserName BudgetMasterActivityCr
 					,GMAB.ActionById,EIAB.EmployeeName ActionBy,GMAPB.ApproveById,EIAPB.EmployeeName ApproveBy,GMRP.ResponsiblePersonId,EIRP.EmployeeName ResponsiblePerson
-					,CheckBoxSelect=cast(case when GLMP.Id is null then 0 else 1 end as bit),GLMP.Id
+					,CheckBoxSelect=cast(case when glrp.Id is null then 0 else 1 end as bit),glrp.Id
 					
                     from(select DISTINCT GEC.EmployeeCategoryId,EC.UserName EmployeeCategorys
 					,GMD.DesignationId,DE.UserName Designation,GMDP.DepartmentId,DP.UserName Department,GMPC.PositionCodeId,PO.UserName Position,GMBC.BudgetCodeId,GME.EmpSystemId EmpId,EI.EmployeeName,MB.Code BudgetCode,GLM.Id GLManagementId
@@ -1605,7 +1605,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     LEFT JOIN [HKP].[GLManagementBudgetCode] GMBC ON GMBC.GLManagementId=GLM.Id
                     LEFT JOIN [MST].ManpowerBudget MB ON MB.Id=GMBC.BudgetCodeId)x 					
 
-                    LEFT JOIN [HKP].[GLManagementControlDrCr] GMDC ON GMDC.GLManagementId=x.Id
+                    LEFT JOIN [HKP].[GLManagementControlDrCr] GMDC ON GMDC.GLManagementId=x.GLManagementId
                     LEFT JOIN [MST].[BudgetMasterActivity] BMA on BMA.Id=GMDC.BudgetMasterActivityIdDr
                     LEFT JOIN [MST].[BudgetMaster] BM on BM.Id=BMA.BudgetMasterId
                     LEFT JOIN [HKP].[Budget] B on B.Id=BM.BudgetId
@@ -1613,14 +1613,14 @@ namespace Aplos.Areas.Accounts.Controllers
                     LEFT JOIN [MST].[BudgetMaster] BMM on BMM.Id=BMAC.BudgetMasterId
 					LEFT JOIN [HKP].[Budget] BB on BB.Id=BMM.BudgetId
 
-					LEFT JOIN [HKP].[GLManagementActionBy] GMAB ON GMAB.GLManagementId=x.Id
+					LEFT JOIN [HKP].[GLManagementActionBy] GMAB ON GMAB.GLManagementId=x.GLManagementId
                     LEFT JOIN [DBO].[EmployeeInformation] EIAB ON EIAB.SystemId=GMAB.ActionById
-					LEFT JOIN [HKP].[GLManagementApproveBy] GMAPB ON GMAPB.GLManagementId=x.Id
+					LEFT JOIN [HKP].[GLManagementApproveBy] GMAPB ON GMAPB.GLManagementId=x.GLManagementId
                     LEFT JOIN [DBO].[EmployeeInformation] EIAPB ON EIAPB.SystemId=GMAPB.ApproveById 
-					LEFT JOIN [HKP].[GLManagementResponsiblePerson] GMRP ON GMRP.GLManagementId=x.Id
+					LEFT JOIN [HKP].[GLManagementResponsiblePerson] GMRP ON GMRP.GLManagementId=x.GLManagementId
                     LEFT JOIN [DBO].[EmployeeInformation] EIRP ON EIRP.SystemId=GMRP.ResponsiblePersonId 
-                    left join(select * from  [HKP].[GLManagementProcess] where GlManagementId='" + GlManagementId + @"') glrp on glrp.GLManagementId=x.Id
-                    WHERE x.Id='" + GlManagementId + @"'"; 
+                    left join(select * from  [HKP].[GLManagementProcess] where GlManagementId='" + GlManagementId + @"') glrp on glrp.GLManagementId=x.GLManagementId
+                    WHERE x.GLManagementId='" + GlManagementId + @"'"; 
                 //return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 json.MaxJsonLength = int.MaxValue;
