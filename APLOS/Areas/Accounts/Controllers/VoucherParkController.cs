@@ -282,7 +282,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 {
                     ConnectionManager.DAL.ConManager objCon1;
                     DataSet dsMaster1 = null;
-                    string setOffsql = @"SELECT VoucherNo from trn.InvoiceWriteOffDetail iwd JOIN trn.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId LEFT JOIN trn.Voucher v on v.Id = iw.VoucherId
+                    string setOffsql = @"SELECT VoucherNo from trn.AdvanceWriteOffDetail iwd JOIN trn.AdvanceWriteOff iw on iw.Id=iwd.AdvanceWriteOffId LEFT JOIN trn.Voucher v on v.Id = iw.VoucherId
                                             WHERE iwd.AdvanceId in (select Id from trn.Advance where VoucherId = '" + voucherId + "')";
                     objCon1 = new ConnectionManager.DAL.ConManager("1");
                     objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
