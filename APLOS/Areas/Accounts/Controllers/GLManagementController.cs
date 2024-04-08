@@ -1586,7 +1586,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 var sql = "";
                 sql = @"select '' Id,x.*,GMDC.BudgetMasterActivityIdDr ControlDrId,B.UserName BudgetMasterActivityDr,GMDC.BudgetMasterActivityIdCr ControlCrId,BB.UserName BudgetMasterActivityCr
 					,GMAB.ActionById,EIAB.EmployeeName ActionBy,GMAPB.ApproveById,EIAPB.EmployeeName ApproveBy,GMRP.ResponsiblePersonId,EIRP.EmployeeName ResponsiblePerson
-					,CheckBoxSelect=cast(case when X.GLManagementId is null then 0 else 0 end as bit)
+					,CheckBoxSelect=cast(case when glrp.Id is null then 0 else 1 end as bit),glrp.Id
 					
                     from(select DISTINCT GEC.EmployeeCategoryId,EC.UserName EmployeeCategorys
 					,GMD.DesignationId,DE.UserName Designation,GMDP.DepartmentId,DP.UserName Department,GMPC.PositionCodeId,PO.UserName Position,GMBC.BudgetCodeId,GME.EmpSystemId EmpId,EI.EmployeeName,MB.Code BudgetCode,GLM.Id GLManagementId
@@ -1618,6 +1618,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     LEFT JOIN [DBO].[EmployeeInformation] EIAPB ON EIAPB.SystemId=GMAPB.ApproveById 
 					LEFT JOIN [HKP].[GLManagementResponsiblePerson] GMRP ON GMRP.GLManagementId=x.GLManagementId
                     LEFT JOIN [DBO].[EmployeeInformation] EIRP ON EIRP.SystemId=GMRP.ResponsiblePersonId 
+                    left join(select * from  [HKP].[GLManagementProcess] where GlManagementId='" + GlManagementId + @"') glrp on glrp.GLManagementId=x.GLManagementId
                     WHERE x.GLManagementId='" + GlManagementId + @"'"; 
                 //return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
