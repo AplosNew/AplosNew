@@ -997,8 +997,8 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                var sql = @"SELECT CheckBoxSelect=cast(case when glme.Id is null then 0 else 1 end as bit),glme.Id,Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,DeM.UserName Designation,
-                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,SE.UserName Section,EMP.SectionId,SuS.UserName SubSection
+                var sql = @"SELECT CheckBoxSelect=cast(case when glme.Id is null then 0 else 1 end as bit),glme.Id,Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,ISNULL(DeM.UserName,'') Designation,
+                                        ISNULL(PR.UserName,'') PositionName,ISNULL(DEG.UserName,'') GivenDesignation,ISNULL(DEPT.UserName,'') Department,SE.UserName Section,EMP.SectionId,SuS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation,isnull( L.UserName,'') Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
                                         EMP.EmployeeCodeNumeric, EMP.FatherName,FORMAT( EMP.DOB,'dd-MMM-yyyy')DOB,DeM.UserName DesignationGroup,
                                         EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric,EJ.JobLcSystemID,FORMAT(EJ.EffectiveDate,'dd-MMM-yyyy')EffectiveDate
@@ -1584,13 +1584,12 @@ namespace Aplos.Areas.Accounts.Controllers
             try
             {
                 var sql = "";
-
-                sql = @"select x.*,GMDC.BudgetMasterActivityIdDr,B.UserName BudgetMasterActivityDr,GMDC.BudgetMasterActivityIdCr,BB.UserName BudgetMasterActivityCr
+                sql = @"select '' Id,x.*,GMDC.BudgetMasterActivityIdDr ControlDrId,B.UserName BudgetMasterActivityDr,GMDC.BudgetMasterActivityIdCr ControlCrId,BB.UserName BudgetMasterActivityCr
 					,GMAB.ActionById,EIAB.EmployeeName ActionBy,GMAPB.ApproveById,EIAPB.EmployeeName ApproveBy,GMRP.ResponsiblePersonId,EIRP.EmployeeName ResponsiblePerson
-					from(select DISTINCT GEC.EmployeeCategoryId,EC.UserName EmployeeCategorys
-					--,CheckBoxSelect=cast(case when GLMP.Id is null then 0 else 1 end as bit),GLMP.Id
-					,GMD.DesignationId,DE.UserName Designation,GMDP.DepartmentId,DP.UserName Department,GMPC.PositionCodeId,PO.UserName Position,GMBC.BudgetCodeId,GME.EmpSystemId
-					,EI.EmployeeName,MB.Code BudgetCode,GLM.Id
+					,CheckBoxSelect=cast(case when X.GLManagementId is null then 0 else 0 end as bit)
+					
+                    from(select DISTINCT GEC.EmployeeCategoryId,EC.UserName EmployeeCategorys
+					,GMD.DesignationId,DE.UserName Designation,GMDP.DepartmentId,DP.UserName Department,GMPC.PositionCodeId,PO.UserName Position,GMBC.BudgetCodeId,GME.EmpSystemId EmpId,EI.EmployeeName,MB.Code BudgetCode,GLM.Id GLManagementId
                     from HKP.GLManagement GLM 
                     LEFT JOIN HKP.GLManagementEmployeeCategory GEC ON GEC.GLManagementId=GLM.Id
                     LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=GEC.EmployeeCategoryId
@@ -1605,7 +1604,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     LEFT JOIN [HKP].[GLManagementBudgetCode] GMBC ON GMBC.GLManagementId=GLM.Id
                     LEFT JOIN [MST].ManpowerBudget MB ON MB.Id=GMBC.BudgetCodeId)x 					
 
-                    LEFT JOIN [HKP].[GLManagementControlDrCr] GMDC ON GMDC.GLManagementId=x.Id
+                    LEFT JOIN [HKP].[GLManagementControlDrCr] GMDC ON GMDC.GLManagementId=x.GLManagementId
                     LEFT JOIN [MST].[BudgetMasterActivity] BMA on BMA.Id=GMDC.BudgetMasterActivityIdDr
                     LEFT JOIN [MST].[BudgetMaster] BM on BM.Id=BMA.BudgetMasterId
                     LEFT JOIN [HKP].[Budget] B on B.Id=BM.BudgetId
@@ -1613,15 +1612,17 @@ namespace Aplos.Areas.Accounts.Controllers
                     LEFT JOIN [MST].[BudgetMaster] BMM on BMM.Id=BMAC.BudgetMasterId
 					LEFT JOIN [HKP].[Budget] BB on BB.Id=BMM.BudgetId
 
-					LEFT JOIN [HKP].[GLManagementActionBy] GMAB ON GMAB.GLManagementId=x.Id
+					LEFT JOIN [HKP].[GLManagementActionBy] GMAB ON GMAB.GLManagementId=x.GLManagementId
                     LEFT JOIN [DBO].[EmployeeInformation] EIAB ON EIAB.SystemId=GMAB.ActionById
-					LEFT JOIN [HKP].[GLManagementApproveBy] GMAPB ON GMAPB.GLManagementId=x.Id
+					LEFT JOIN [HKP].[GLManagementApproveBy] GMAPB ON GMAPB.GLManagementId=x.GLManagementId
                     LEFT JOIN [DBO].[EmployeeInformation] EIAPB ON EIAPB.SystemId=GMAPB.ApproveById 
-					LEFT JOIN [HKP].[GLManagementResponsiblePerson] GMRP ON GMRP.GLManagementId=x.Id
+					LEFT JOIN [HKP].[GLManagementResponsiblePerson] GMRP ON GMRP.GLManagementId=x.GLManagementId
                     LEFT JOIN [DBO].[EmployeeInformation] EIRP ON EIRP.SystemId=GMRP.ResponsiblePersonId 
-
-                    WHERE GLM.Id='" + GlManagementId + @"'"; 
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                    WHERE x.GLManagementId='" + GlManagementId + @"'"; 
+                //return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
             }
             catch (Exception ex)
             {

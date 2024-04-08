@@ -31,19 +31,19 @@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="FromDate" ng-model="ModelPCNew.FromDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="3">
+                                    <input type="text" name="FromDate" ng-model="ModelPCNew.FromDate" datepicker class="form-control datepicker" required placeholder="dd-Mmm-yyyy" tabindex="3">
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" class="form-control" name="UserName" ng-model="ModelPCNew.UserRef" e-width="100" />
+                                    <input type="text" class="form-control" name="UserName" ng-model="ModelPCNew.UserRef" required e-width="100" />
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Payment Date<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="PaymentDueDate" ng-model="ModelPCNew.PaymentDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="3">
+                                    <input type="text" name="PaymentDueDate" ng-model="ModelPCNew.PaymentDate" datepicker class="form-control datepicker" required placeholder="dd-Mmm-yyyy" tabindex="3">
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
@@ -61,7 +61,7 @@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="ToDate" ng-model="ModelPCNew.ToDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="3">
+                                    <input type="text" name="ToDate" ng-model="ModelPCNew.ToDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" required tabindex="3">
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
@@ -75,9 +75,9 @@
                                     @*</div>*@
                                 </div>
                             </div>
-                            <div class="form-group" show-errors>
+                            <div class="form-group">
                                 <label class="col-sm-4 control-label">Remarks</label>
-                                <div class="col-sm-8 show-message">
+                                <div class="col-sm-8">
                                     <textarea class="form-control" rows="3" ng-model="ModelPCNew.Remarks" maxlength="250" tabindex="8"></textarea>
                                 </div>
                             </div>
@@ -142,19 +142,19 @@
                 </div>
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(2), active: isSet2(2) }">
                     <togglable name="{{titleTab4}}"></togglable>
-                    <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+                    <div class="form-elements form-horizontal" ng-form name="ModelNew2Form">
                         <input type="hidden" ng-model="ModelOTNew.Id">
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="FromDate" ng-model="ModelOTNew.FromDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="23">
+                                    <input type="text" name="FromDate" ng-model="ModelOTNew.FromDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" required tabindex="23">
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" class="form-control" name="UserName" ng-model="ModelOTNew.UserRef" e-width="100" />
+                                    <input type="text" class="form-control" name="UserName" ng-model="ModelOTNew.UserRef" required e-width="100" />
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
@@ -168,7 +168,7 @@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="ToDate" ng-model="ModelOTNew.ToDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="24">
+                                    <input type="text" name="ToDate" ng-model="ModelOTNew.ToDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" required tabindex="24">
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
@@ -192,9 +192,9 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group" show-errors>
+                            <div class="form-group">
                                 <label class="col-sm-4 control-label">Remarks</label>
-                                <div class="col-sm-8 show-message">
+                                <div class="col-sm-8">
                                     <textarea class="form-control" rows="3" ng-model="ModelOTNew.Remarks" maxlength="250" tabindex="30"></textarea>
                                 </div>
                             </div>
