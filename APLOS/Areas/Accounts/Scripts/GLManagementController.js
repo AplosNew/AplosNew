@@ -1261,6 +1261,95 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
 
     //#endregion Process
 
+    //region View
+
+
+    $scope.CombineListData = [];
+    $scope.GetCombineData = function () {
+        $http({
+            method: 'GET',
+            url: 'Accounts/GLManagement/GetProcesslist?GlManagementId=' + $scope.GlManagementId
+        }).then(function successCallback(response) {
+            $scope.CombineListData = response.data;
+        });
+    }
+
+
+    $scope.CombineList = [];
+    $scope.OKCombine = function () {
+        $scope.CombineList = [];
+        try {
+            for (var i = 0; i < $scope.CombineListData.length; i++) {
+                if ($scope.CombineListData[i].CheckBoxSelect == true) {
+                    $scope.CombineList.push($scope.CombineListData[i]);
+                }
+                if ($scope.CombineListData[i].CheckBoxSelect == false && $scope.CombineListData[i].Id != null) {
+                    $scope.CombineList.push($scope.CombineListData[i]);
+                }
+            }
+            $scope.SaveCombineData();
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+
+    $scope.refreshTemplateProcess = function (args) {
+        $("#Processheadchk").ejCheckBox({ "change": CheckBoxSelectAllProcess });
+    };
+
+    function CheckBoxSelectAllCombine(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+        var filtered = $("#GridProcess").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ProcessListData.length; i++) {
+                $scope.ProcessListData[i].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridProcess").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.SaveProcessData = function () {
+        if (baseService.isUndefinedOrNull($scope.GlManagementId)) {
+            return ShowResult('Please select GL Management!', 'failure');
+        }
+        for (var i = 0; i < $scope.ProcessList.length; i++) {
+            for (var j = 0; j < $scope.ProcessListData.length; j++) {
+                if ($scope.ProcessListData[j].Id == $scope.ProcessList[i].Id) {
+                    if ($scope.ProcessListData[j].CheckBoxSelect == false) {
+                        $scope.ProcessList[i].CheckBoxSelect = false;
+                    }
+                }
+            }
+        }
+        $http({
+            method: 'POST',
+            url: $scope.saveProcessUrl,
+            data: { 'data': $scope.ProcessList, 'GlManagementId': $scope.GlManagementId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetProcessData();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+    //#End Region
     $scope.report = {
         GLName: null,
         GLGeneralInfoId: null,
@@ -1406,49 +1495,5 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             ShowResult(response.data.Message, 'failure');
         });
     }
-
-    //$scope.ResponsiblePersonList = [];
-    //$scope.OKResponsiblePerson = function () {
-    //    $scope.ResponsiblePersonList = [];
-    //    try {
-    //        for (var i = 0; i < $scope.ResponsiblePersonListData.length; i++) {
-    //            if ($scope.ResponsiblePersonListData[i].CheckBoxSelect == true) {
-    //                $scope.ResponsiblePersonList.push($scope.ResponsiblePersonListData[i]);
-    //            }
-    //            if ($scope.ResponsiblePersonListData[i].CheckBoxSelect == false && $scope.ResponsiblePersonListData[i].Id != null) {
-    //                $scope.ResponsiblePersonList.push($scope.ResponsiblePersonListData[i]);
-    //            }
-    //        }
-    //        $scope.SaveRPData();
-    //    } catch (e) {
-    //        ShowResult(e, "failure");
-    //    }
-    //};
-
-
-    //$scope.refreshTemplateRP = function (args) {
-    //    $("#RPheadchk").ejCheckBox({ "change": CheckBoxSelectAllRP });
-    //};
-
-    //function CheckBoxSelectAllRP(e) {
-    //    var ChkOrUnchk = false;
-    //    if (e.model.checkState === "check") {
-    //        ChkOrUnchk = true;
-    //    }
-    //    var filtered = $("#GridRP").data("ejGrid").getFilteredRecords();
-    //    if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-    //        for (var i = 0; i < $scope.ResponsiblePersonListData.length; i++) {
-    //            $scope.ResponsiblePersonListData[i].CheckBoxSelect = ChkOrUnchk;
-    //        }
-    //    }
-    //    else {
-    //        for (var j = 0; j < filtered.length; j++) {
-    //            filtered[j].CheckBoxSelect = ChkOrUnchk;
-    //        }
-    //    }
-    //    var gridObj = $("#GridRP").data("ejGrid");
-    //    gridObj.refreshContent();
-    //};
-
 
 }
