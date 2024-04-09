@@ -42,7 +42,7 @@
             <label class="col-sm-4 control-label">User Group<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select id="UserGroup" class="form-control"disabled ng-model="ModelNew.UserGroupId" name="User Group" ng-change="getFiltersData();" tabindex="7">
+                    <select id="UserGroup" class="form-control"disabled ng-model="ModelNew.UserGroupId" name="User Group" tabindex="7">
                         <option value="">--Select--</option>
                         <option ng-repeat="option in userGroupDataList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
@@ -125,9 +125,9 @@
                     <th>Purpose Category</th>
                     <th>Over Stay</th>
                     <th>Day Status</th>
+                    <th>Department</th>
                     <th>Section</th>
                     <th>SubSection</th>
-                    <th>Department</th>
                     <th>Remarks</th>
                 </tr>
             </thead>
@@ -160,10 +160,10 @@
                     </td>
                     <td>{{x.OverStay}}</td>
                     <td>{{x.DayStatus}}</td>
+                    <td>{{x.Department}}</td>
                     <td>{{x.Section}}</td>
                     <td>{{x.SubSection}}</td>
-                    <td>{{x.Department}}</td>
-                    <td><input type="text" name="Remarks" ng-model="x.Remark" class="form-control" maxlength="15" required tabindex="3"></td>
+                    <td><input type="text" name="Remarks" ng-model="x.Remark" class="form-control" maxlength="250" required tabindex="3"></td>
 
                 </tr>
             </tbody>
