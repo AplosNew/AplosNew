@@ -604,10 +604,10 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
 
 
     $scope.checkedByList = [];
-    $scope.GetSupervisorCboList = function () {
+    $scope.GetGoodWorkCheckByCbo = function () {
         $http({
             method: 'GET',
-            url: 'Attendances/GoodWork/GetGoodWorkCheckByCbo'
+            url: 'Attendances/GoodWork/GetGoodWorkCheckByCbo?setupId=' + $scope.ModelNew.UserGroupId
         }).then(function successCallback(response) {
             $scope.checkedByList = response.data;
             if (baseService.arrayLength($scope.checkedByList) == 1) {
@@ -615,7 +615,6 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
             }
         });
     }
-    $scope.GetSupervisorCboList();
 
     $scope.userGroupDataList = [];
     $scope.GetUserGroupList = function () {
