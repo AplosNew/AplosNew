@@ -18,7 +18,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     $scope.saveABUrl = $scope.path + 'CreateGlManagementActionBy';
     $scope.saveAPBUrl = $scope.path + 'CreateGlManagementApproveBy';
     $scope.saveRPUrl = $scope.path + 'CreateGlManagementResponsiblePersosn';
-    $scope.saveProcessUrl = $scope.path + 'CreateGlManagementProcess';
+    $scope.saveAccessControlUrl = $scope.path + 'CreateGlManagementAccessControl';
     $scope.deleteUrl = $scope.path + 'DeleteGlControl/';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
@@ -1178,7 +1178,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     $scope.GetProcessData = function () {
         $http({
             method: 'GET',
-            url: 'Accounts/GLManagement/GetProcesslist?GlManagementId=' + $scope.GlManagementId
+            url: 'Accounts/GLManagement/GetGLManagementProcessData?GlManagementId=' + $scope.GlManagementId
         }).then(function successCallback(response) {
             $scope.ProcessListData = response.data;
         });
@@ -1264,30 +1264,30 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     //region View
 
 
-    $scope.CombineListData = [];
-    $scope.GetCombineData = function () {
+    $scope.GlManagementAccessControlData = [];
+    $scope.GetGlManagementAccessControl = function () {
         $http({
             method: 'GET',
-            url: 'Accounts/GLManagement/GetProcesslist?GlManagementId=' + $scope.GlManagementId
+            url: 'Accounts/GLManagement/GlManagementAccessControl?GlManagementId=' + $scope.GlManagementId
         }).then(function successCallback(response) {
-            $scope.CombineListData = response.data;
+            $scope.GlManagementAccessControlData = response.data;
         });
     }
 
 
     $scope.CombineList = [];
-    $scope.OKCombine = function () {
-        $scope.CombineList = [];
+    $scope.OKGlManagementAccessControl = function () {
+        $scope.AccessControlList = [];
         try {
-            for (var i = 0; i < $scope.CombineListData.length; i++) {
-                if ($scope.CombineListData[i].CheckBoxSelect == true) {
-                    $scope.CombineList.push($scope.CombineListData[i]);
+            for (var i = 0; i < $scope.GlManagementAccessControlData.length; i++) {
+                if ($scope.GlManagementAccessControlData[i].CheckBoxSelect == true) {
+                    $scope.AccessControlList.push($scope.CombineListData[i]);
                 }
-                if ($scope.CombineListData[i].CheckBoxSelect == false && $scope.CombineListData[i].Id != null) {
-                    $scope.CombineList.push($scope.CombineListData[i]);
+                if ($scope.GlManagementAccessControlData[i].CheckBoxSelect == false && $scope.GlManagementAccessControlData[i].Id != null) {
+                    $scope.AccessControlList.push($scope.CombineListData[i]);
                 }
             }
-            $scope.SaveCombineData();
+            $scope.SaveAccessControl();
         } catch (e) {
             ShowResult(e, "failure");
         }
@@ -1318,23 +1318,15 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         gridObj.refreshContent();
     };
 
-    $scope.SaveProcessData = function () {
+    $scope.SaveAccessControl = function () {
         if (baseService.isUndefinedOrNull($scope.GlManagementId)) {
             return ShowResult('Please select GL Management!', 'failure');
         }
-        for (var i = 0; i < $scope.ProcessList.length; i++) {
-            for (var j = 0; j < $scope.ProcessListData.length; j++) {
-                if ($scope.ProcessListData[j].Id == $scope.ProcessList[i].Id) {
-                    if ($scope.ProcessListData[j].CheckBoxSelect == false) {
-                        $scope.ProcessList[i].CheckBoxSelect = false;
-                    }
-                }
-            }
-        }
+        
         $http({
             method: 'POST',
             url: $scope.saveProcessUrl,
-            data: { 'data': $scope.ProcessList, 'GlManagementId': $scope.GlManagementId },
+            data: { 'data': $scope.AccessControlList, 'GlManagementId': $scope.GlManagementId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {

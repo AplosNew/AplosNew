@@ -103,13 +103,13 @@ namespace Library.Accounting.Accounts
                                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=AM.EntityId
                                 LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AM.PartyPlantId
                                 LEFT JOIN [HKP].[EmployeeTransactionType] AS ETT ON ETT.Id=AM.EmployeeTransactionTypeId
-								LEFT JOIN (SELECT SUM(ARS.InstallmentAmount)SalaryWrittenOffAmount,ADV.Id AdvanceId
+								LEFT JOIN (SELECT SUM(ARS.InstallmentAmount)-ADV.WrittenOffAmount SalaryWrittenOffAmount,ADV.Id AdvanceId
                                     FROM  [TRN].EmployeeAdvanceDeduction EAD 
                                     LEFT JOIN dbo.AdvanceReqSchedule  ARS ON EAD.AdvanceReqScheduleId=ARS.Id
                                     INNER JOIN [TRN].EmployeeSalaryAdvance ESA ON ESA.Id=ARS.EmployeeSalaryAdvanceId
                                     INNER JOIN [TRN].[Advance] ADV ON ADV.VoucherId=ESA.VoucherId
                                     LEFT JOIN DBO.SalaryLock SL ON SL.YearNo=ARS.YearNo AND SL.MonthNo=ARS.MonthNo AND SL.EmpSystemId=ESA.EmployeeId AND SL.PayableVoucherId IS NULL
-									GROUP BY ADV.Id) SAVW ON SAVW.AdvanceId=AD.AdvanceId
+									GROUP BY ADV.Id,ADV.WrittenOffAmount) SAVW ON SAVW.AdvanceId=AD.AdvanceId
 								LEFT JOIN (
 								    SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
 								    VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.CrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId

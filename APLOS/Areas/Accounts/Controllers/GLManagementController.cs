@@ -791,7 +791,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-        public JsonResult CreateGlManagementProcess(List<Dictionary<string, object>> data, string GlManagementId)
+        public JsonResult CreateGlManagementAccessControl(List<Dictionary<string, object>> data, string GlManagementId)
         {
             try
             {
@@ -1240,7 +1240,22 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-
+        [Authorize, HttpGet]
+        public ActionResult GetGLManagementProcessData(string glManagementId)
+        {
+            try
+            {
+                var sql = @"SELECT CheckBoxSelect=cast(case when GMP.Id is null then 0 else 1 end as bit),GMP.Id,VT.UserName VoucherType,VTM.SourceType
+										FROM SCS.VoucherTypeMatrix VTM
+										LEFT JOIN SCS.VoucherType VT ON VT.Id=VTM.VoucherTypeId
+										LEFT JOIN (SELECT * FROM  [HKP].[GLManagementProcess] WHERE GlManagementId='"+ glManagementId + @"') GMP  ON VTM.SourceType=GMP.Process ";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
         [HttpPost, Authorize]
         public ActionResult GetGLControlReport(string glControlId)
         {
@@ -1578,7 +1593,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetProcesslist(string GlManagementId)
+        public ActionResult GetGlManagementAccessControllist(string GlManagementId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try

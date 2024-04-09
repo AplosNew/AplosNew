@@ -28,13 +28,14 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label">Advance Type<sup>*</sup></label>
                 <div class="col-sm-8 radio">
-                    <label>
-                        <input ng-click="setVisible('General');ClearAdvanceReqSchedule()" type="radio" name="source" ng-model="model.AdvanceType" value="General">
-                        <span class="cr" tabindex="17"><i class="cr-icon"></i></span>General
-                    </label>
+
                     <label>
                         <input ng-click="setVisible('Salary')" type="radio" name="source" ng-model="model.AdvanceType" value="Salary">
                         <span class="cr" tabindex="18"><i class="cr-icon"></i></span>Salary
+                    </label>
+                    <label>
+                        <input ng-click="setVisible('General');ClearAdvanceReqSchedule()" type="radio" name="source" ng-model="model.AdvanceType" value="General">
+                        <span class="cr" tabindex="17"><i class="cr-icon"></i></span>General
                     </label>
                 </div>
             </div>
