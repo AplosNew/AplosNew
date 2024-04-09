@@ -680,7 +680,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
                             ShowResult(response.data.Message, 'success');
                             $scope.ModelPCNew.Id = response.data.Data.Id;
                             //$scope.ClearPayableCreation();
-                            //$scope.GetGoodWorkPaymentData();
+                            $scope.GetGoodWorkPaymentData();
                             $scope.GetLoadEmployeeInformation($scope.SaveTabName);
                         }
                     }), function errorCallBack(response) {
@@ -707,7 +707,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
                         else {
                             ShowResult(response.data.Message, 'success');
                             $scope.ModelOTNew.Id = response.data.Data.Id;
-                            //$scope.GetGoodWorkOTPaymentData();
+                            $scope.GetGoodWorkOTPaymentData();
                             //$scope.ClearOTPayableCreation();
                             $scope.GetLoadEmployeeInformation($scope.SaveTabName);
                         }

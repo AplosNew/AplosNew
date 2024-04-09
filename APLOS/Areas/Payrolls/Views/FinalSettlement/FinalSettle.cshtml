@@ -1,87 +1,73 @@
-﻿<style>
-    #GridDeductionList.e-grid .e-gridheader {
-        display: none;
-        background-color: white;
-    }
-
-    #GridDeductionList.e-grid {
-        border-color: white;
-        background-color: white;
-        /*display: block !important;*/
-    }
-
-    #GridEarningList.e-grid .e-gridheader {
-        display: none;
-        background-color: white;
-    }
-
-    #GridEarningList.e-grid {
-        border-color: white;
-        background-color: white;
-        /*display: block !important;*/
-    }
-</style>
+﻿
 <togglable name="Final Settlement"></togglable>
 <div class="form-elements" ng-form id="FinalSettlement" name="FinalSettlementForm">
     <div class="row"></div>
     <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Employee Code<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="input-group">
-                        <input tabindex="1" type="text" name="EmployeeCode" ng-model="EmployeeModel.EmployeeCode" class="form-control" readonly required>
-                        <span class="input-group-btn">
-                            <button ng-click="LoadEmployeeList();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
-                        </span>
-                    </div>
+            @*<div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Employee Code<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input tabindex="1" type="text" name="EmployeeCode" ng-model="EmployeeModel.EmployeeCode" class="form-control" readonly required>
+                    <span class="input-group-btn">
+                        <button ng-click="LoadEmployeeList();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
                 </div>
             </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Employee Name </label>
+            <label class="col-sm-8 control-label">: {{EmployeeModel.EmployeeName}}</label>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">DOJ </label>
+            <label class="col-sm-8 control-label">: {{EmployeeModel.DOJ}}</label>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">DOS </label>
+            <label class="col-sm-8 control-label">: {{EmployeeModel.DOS}}</label>
+        </div>*@
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Employee Name </label>
-                <label class="col-sm-8 control-label">: {{EmployeeModel.EmployeeName}}</label>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">DOJ </label>
-                <label class="col-sm-8 control-label">: {{EmployeeModel.DOJ}}</label>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">DOS </label>
-                <label class="col-sm-8 control-label">: {{EmployeeModel.DOS}}</label>
+                <label class="col-sm-4 control-label">Final Settlement Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" maxlength="100" name="Final Settlement Name" ng-model="FinalSettlementModel.FinalSettlementDate" class="form-control" required tabindex="3">
+                </div>
             </div>
 
-
-
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li><button ng-click="LoadEmployeeList();" class="btn"><i class="glyphicon glyphicon-search" tabindex="9"></i> Add Employee</button></li>
+                </ul>
+            </div>
 
         </div>
         <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
-
-
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Final Settlement Date<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" maxlength="15" name="ShortName" ng-model="FinalSettlementModel.FinalSettlementDate" datepicker placeholder="dd-MMM-yyyy" class="form-control" required tabindex="3">
+                    <input type="text" maxlength="15" name="Final Settlement Date" ng-model="FinalSettlementModel.FinalSettlementDate" datepicker placeholder="dd-MMM-yyyy" class="form-control" required tabindex="3">
                 </div>
             </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Legal Designation </label>
-                <label class="col-sm-8 control-label">: {{EmployeeModel.LegalDesignation}}</label>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Department </label>
-                <label class="col-sm-8 control-label">: {{EmployeeModel.Department}}</label>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Position </label>
-                <label class="col-sm-8 control-label">: {{EmployeeModel.PositionName}}</label>
-            </div>
+            
+            @*<div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Legal Designation </label>
+            <label class="col-sm-8 control-label">: {{EmployeeModel.LegalDesignation}}</label>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Department </label>
+            <label class="col-sm-8 control-label">: {{EmployeeModel.Department}}</label>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Position </label>
+            <label class="col-sm-8 control-label">: {{EmployeeModel.PositionName}}</label>
+        </div>*@
 
 
         </div>
     </div>
     <hr />
 
-    <div clas="row">
+    @*<div clas="row">
         <div class="modal-body form-elements form-horizontal">
             <div ng-form name="CostingSOform">
                 <div class="col-xs-12">
@@ -107,7 +93,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>*@
     <hr />
     <div class="common-btn">
         <ul class="list-inline text-right">
@@ -152,7 +138,7 @@
             <div class="modal-header">Employee Information<button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body">
                 <div class="row">
-                    <div style="color:black;" id="GridEmployee" ej-grid e-datasource="EmployeeInformationList" e-allowscrolling="true"
+                    <div style="color:black;" id="GridEmp" ej-grid e-datasource="EmployeeInformationList" e-allowscrolling="true"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true" e-pagesettings-pagesize="25"
                          e-allowselection="false" e-filtersettings-filterType="excel" e-recorddoubleclick="SelectEmployee">
                         <div e-columns>

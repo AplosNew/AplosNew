@@ -134,7 +134,7 @@ namespace Aplos.Areas.Attendances.Controllers
 						 left join dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate='" + workDate + @"'
 
                          WHERE  EI.PlantId='" + identity.PlantId + @"'  " + ec + @"  " + dep + @"  " + sec + @"   " + subsec + @"   " + des + @" " + userGr + @"
-                         and ei.SystemId in (select EmpSystemID from EmployeeShiftAssign where FixSystemID='" + shiftId + @"')  
+                         and ei.SystemId in (select EmpSystemID from EmployeeShiftAssign where FixSystemID='" + shiftId + @"' AND EffectiveDate<='" + workDate + @"')  
                         AND ei.SystemId IN(Select EmployeeId From [dbo].[ExceptionGoodWorkEmployee] where GoodWorkSetUpId = '" + userGroupId + @"')
                         and EI.EmployeeStatus='Active' and EI.BudgetCode in (SELECT BudgetId FROM dbo.GoodWorkBudgetSetup where GoodWorkSetUpId = '" + userGroupId + @"') 
                          ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
@@ -966,7 +966,7 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
 												left join OverTimePmtPolicyMaster otpm on otpm.ID=dc.OverTimePmtPolicyMasterID and otpm.PlantID in ('" + identity.PlantId + @"')
 												left join OverTimePmtPolicyDetails oNW on oNW.OverTimePmtPolicyID=otpm.ID and onw.OverTimeDayType='Working Day'
 
-                                     where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and gwd.Minute<>0 and g.Gross<>0  and SIDM.IsApproved=1 AND gw.ApprovedStatus='Approved'
+                                     where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and gwd.Minute<>0 and g.Gross<>0  and SIDM.IsApproved=1 AND gw.ApprovedStatus='Approved' AND GWD.GWPaymentAdviseId IS NULL
                                      group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross
 									 ,z.Id,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,OLS.OTreductionFactor,Department.UserName,Section.UserName,SubSection.UserName 
                                     order by ei.EmployeeCode";
@@ -1821,22 +1821,22 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetGoodWorkCheckByCbo()
+        public JsonResult GetGoodWorkCheckByCbo(string setupId)
         {
             var sql = @"select distinct E.SystemId As Value,(E.EmployeeCode+'-'+ E.EmployeeName) Text  
                           from dbo.GoodWorkCheckBySetUp A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.CheckById 
-                          where E.EmployeeStatus='Active' ";
+                          where E.EmployeeStatus='Active' AND A.GoodWorkSetUpId='"+ setupId + "'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetGoodWorkApprovedByCbo()
+        public JsonResult GetGoodWorkApprovedByCbo(string setupId)
         {
             var sql = @"select distinct E.SystemId As Value,(E.EmployeeCode+'-'+ E.EmployeeName) Text  
                           from dbo.GoodWorkAuthoritySetUp A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.AuthorityId 
-                          where E.EmployeeStatus='Active'";
+                          where E.EmployeeStatus='Active' AND A.GoodWorkSetUpId='" + setupId + "'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -2143,7 +2143,7 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
                                     left join ShiftDefination S on S.SystemId=GW.ShiftId
 									left join [dbo].[GoodWorkSetup] GWS on GWS.Id=GW.UserGroupId
 									left join EmployeeInformation ei on ei.SystemId=gw.CheckedBy
-                                    where GW.CheckedBy='" + identity.EmployeeId + "'";
+                                    where GW.CheckedBy='" + identity.EmployeeId + "' AND CheckedStatus<>'Checked'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -2159,7 +2159,7 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
                                     left join ShiftDefination S on S.SystemId=GW.ShiftId
 									left join [dbo].[GoodWorkSetup] GWS on GWS.Id=GW.UserGroupId
 									left join EmployeeInformation ei on ei.SystemId=gw.CheckedBy
-                                    where GW.ApprovedBy='" + identity.EmployeeId + "'";
+                                    where GW.ApprovedBy='" + identity.EmployeeId + "'AND CheckedStatus='Checked'  AND ApprovedStatus<>'Approved'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

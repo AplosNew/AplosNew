@@ -1,0 +1,52 @@
+﻿<togglable name=" To be Uploaded & Downloaded"></togglable>
+<div class="form-elements form-horizontal row" ng-form name="ModelNewForm">
+    <div class="col-md-10">
+        <div class="inputBtnSection common-btn">
+            <label class="fileUpload col-sm-4 ">
+                <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+            </label>
+            <input type="button" value="Import Data" class="btn btn-success" ng-click="ImportCheckData()" />
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="GetCheckSampleFile();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File Download</button></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div id="GridChk"
+             ng-init="chkinit()"
+             ej-grid e-datasource="CheckingUploadedData"
+             e-allowfiltering="true"
+             e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowscrolling="true" 
+             e-pagesettings-pagesize="25"
+             e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-field="ControlId" e-headertext="ControlId" e-width="60"></div>
+                <div e-column e-field="BudgetGroup" e-headertext="BudgetGroup" e-width="60"></div>
+                <div e-column e-field="BudgetCategory" e-headertext="BudgetCategory" e-width="100"></div>
+                <div e-column e-field="Budget" e-headertext="Budget" e-width="100"></div>
+                <div e-column e-field="Activity" e-headertext="Activity" e-width="100"></div>
+                <div e-column e-field="Register" e-headertext="Register" e-width="100"></div>
+                <div e-column e-field="UserCategory" e-headertext="UserCategory" e-width="100"></div>
+                <div e-column e-field="UserSubCategory" e-headertext="UserSubCategory" e-width="100"></div>
+                <div e-column e-field="UserItem" e-headertext="UserItem" e-width="100"></div>
+                <div e-column e-field="UserReport" e-headertext="UserReport" e-width="60"></div>
+                <div e-column e-field="UserGroup" e-headertext="UserGroup" e-width="60"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 ">
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li ng-show="ShowSaveBtn"> <button ng-click="saveBalanceSheetSchedulingUploadedData();" class="btn"><i class="glyphicon glyphicon-check"></i> Update</button></li>
+            </ul>
+        </div>
+    </div>
+</div>
