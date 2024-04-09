@@ -3518,6 +3518,222 @@ Order  by B.UserName";
 
         }
 
+        public DataTable GetCheckApproveData()
+        {
+            var cmdText = @"Select NULL Id,BMA.Id ControlId,BG.UserName BudgetGroup,BC.UserName BudgetCategory,B.UserName Budget,A.UserName Activity,R.UserName Register
+,BMA.UserCategory,BMA.UserSubCategory,BMA.UserItem,BMA.UserReport,BMA.UserGroup,NULL Remark,NULL EmloyeeName,NULL Designation,NULL EmpType,NULL Department,NULL EmpCurrentStatus,NULL EmpStatus
+
+FROM MST.BudgetMasterActivity BMA
+LEFT JOIN MST.BudgetMaster BM ON BM.Id=BMA.BudgetMasterId
+LEFT JOIN HKP.BudgetGroup BG ON BG.Id=BM.BudgetGroupId
+LEFT JOIN HKP.BudgetCategory BC ON BC.Id=BM.BudgetCategoryId
+LEFT JOIN HKP.BudgetSubCategory BSC ON BSC.Id=BM.BudgetSubCategoryId
+LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
+LEFT JOIN HKP.Activity A ON A.Id=BMA.ActivityId
+LEFT JOIN [HKP].[Register] R ON R.Id=BM.RegisterId
+Order by B.UserName";
+            return _sqlRepository.GetDataTable(cmdText);
+
+
+        }
+
+
+
+        public IWorkbook GetBalanceSheetSchedulingCheckingApprovingData(string Name, string CompanyGroupId, string PlantId, string CompanyId, string PlantName)
+        {
+            #region declare
+            clsReport objRpt = null;
+            clsStaticInfo objStatic = null;
+            objStatic = new clsStaticInfo();
+            string OTConsiderOn = string.Empty;
+
+            #endregion
+            try
+            {
+                ReportUtility ru = new ReportUtility();
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                var workbook = ru.GetWorkbook(ref excelEngine, 1);
+                workbook.Version = ExcelVersion.Excel2013;
+
+                objRpt = new clsReport();
+                string toDay = DateTime.Now.ToString("dd-MMM-yyyy");
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(2);
+
+                int xlsRow = 1, xlsCol = 1;
+                int endXlsCol = 1;
+
+                #region Lunch Out
+                IWorksheet sheet = null;
+                sheet = workbook.Worksheets[0];
+                IWorksheet sheetSource = null;
+                sheetSource = workbook.Worksheets[1];
+                xlsRow = 1;
+                DataTable dtData = GetCheckApproveData();
+                #region ------------------Column Header------------------
+
+                sheet[xlsRow, xlsCol].Text = "ControlId"; sheet[xlsRow, xlsCol].ColumnWidth = 10; int colBMA = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "Budget Group"; sheet[xlsRow, xlsCol].ColumnWidth = 15; int colBGU = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "Budget Category"; sheet[xlsRow, xlsCol].ColumnWidth = 30; int colBCU = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "Budget"; sheet[xlsRow, xlsCol].ColumnWidth = 35; int colBU = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "Activity"; sheet[xlsRow, xlsCol].ColumnWidth = 35; int colA = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "Register"; sheet[xlsRow, xlsCol].ColumnWidth = 25; int colRegister = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "User Category"; sheet[xlsRow, xlsCol].ColumnWidth = 30; int colUC = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "User SubCategory"; sheet[xlsRow, xlsCol].ColumnWidth = 35; int colUSC = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "User Item"; sheet[xlsRow, xlsCol].ColumnWidth = 35; int colUI = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "User Report"; sheet[xlsRow, xlsCol].ColumnWidth = 12; int colUR = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "User Group"; sheet[xlsRow, xlsCol].ColumnWidth = 15; int colUG = xlsCol; xlsCol++;
+             
+                sheet[xlsRow, xlsCol].Text = "Employee Name"; sheet[xlsRow, xlsCol].ColumnWidth = 15; int colEN = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "Designation"; sheet[xlsRow, xlsCol].ColumnWidth = 15; int colDesignation = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "EmpType"; sheet[xlsRow, xlsCol].ColumnWidth = 15; int colEmpType = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "Department"; sheet[xlsRow, xlsCol].ColumnWidth = 15; int colDepartment = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "EmpCurrentStatus"; sheet[xlsRow, xlsCol].ColumnWidth = 15; int colEmpCurrentStatus = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "EmpStatus"; sheet[xlsRow, xlsCol].ColumnWidth = 15; int colEmpStatus = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "Remark"; sheet[xlsRow, xlsCol].ColumnWidth = 15; int colR = xlsCol;
+
+                endXlsCol = xlsCol;
+
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
+
+                xlsRow++;
+
+                #endregion ------------------Column Header------------------
+
+
+                for (int i = 0; i < dtData.Rows.Count; i++)
+                {
+                    sheet[xlsRow, colBMA].Text = dtData.Rows[i]["ControlId"].ToString();
+                    sheet.Range[xlsRow, colBMA].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colBMA].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                    sheet[xlsRow, colBGU].Text = dtData.Rows[i]["BudgetGroup"].ToString();
+                    sheet.Range[xlsRow, colBGU].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colBGU].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    
+                    sheet[xlsRow, colBCU].Text = dtData.Rows[i]["BudgetCategory"].ToString();
+                    sheet.Range[xlsRow, colBCU].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colBCU].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    
+                    
+                    sheet[xlsRow, colBU].Text = dtData.Rows[i]["Budget"].ToString();
+                    sheet.Range[xlsRow, colBU].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colBU].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    
+                    sheet[xlsRow, colA].Text = dtData.Rows[i]["Activity"].ToString();
+                    sheet.Range[xlsRow, colA].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colA].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                    sheet[xlsRow, colRegister].Text = dtData.Rows[i]["Register"].ToString();
+                    sheet.Range[xlsRow, colRegister].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colRegister].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                    sheet[xlsRow, colUC].Text = dtData.Rows[i]["UserCategory"].ToString();
+                    sheet.Range[xlsRow, colUC].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colUC].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colUSC].Text = dtData.Rows[i]["UserSubCategory"].ToString();
+                    sheet.Range[xlsRow, colUSC].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colUSC].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colUI].Text = dtData.Rows[i]["UserItem"].ToString();
+                    sheet.Range[xlsRow, colUI].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colUI].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                    sheet[xlsRow, colUR].Text = dtData.Rows[i]["UserReport"].ToString();
+                    sheet.Range[xlsRow, colUR].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colUR].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                    sheet[xlsRow, colUG].Text = dtData.Rows[i]["UserGroup"].ToString();
+                    sheet.Range[xlsRow, colUG].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colUG].VerticalAlignment = ExcelVAlign.VAlignTop;
+                   
+                    sheet[xlsRow, colR].Text = dtData.Rows[i]["Remark"].ToString();
+                    sheet.Range[xlsRow, colR].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colR].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                    sheet[xlsRow, colR].Text = dtData.Rows[i]["Remark"].ToString();
+                    sheet.Range[xlsRow, colR].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colR].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+
+                    sheet[xlsRow, colEN].Text = dtData.Rows[i]["EmloyeeName"].ToString();
+                    sheet.Range[xlsRow, colEN].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colEN].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+
+                    sheet[xlsRow, colDesignation].Text = dtData.Rows[i]["Designation"].ToString();
+                    sheet.Range[xlsRow, colDesignation].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colDesignation].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+
+                    sheet[xlsRow, colEmpType].Text = dtData.Rows[i]["EmpType"].ToString();
+                    sheet.Range[xlsRow, colEmpType].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colEmpType].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+
+                    sheet[xlsRow, colDepartment].Text = dtData.Rows[i]["Department"].ToString();
+                    sheet.Range[xlsRow, colDepartment].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colDepartment].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                    sheet[xlsRow, colEmpCurrentStatus].Text = dtData.Rows[i]["EmpCurrentStatus"].ToString();
+                    sheet.Range[xlsRow, colEmpCurrentStatus].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colEmpCurrentStatus].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                    sheet[xlsRow, colEmpStatus].Text = dtData.Rows[i]["EmpStatus"].ToString();
+                    sheet.Range[xlsRow, colEmpStatus].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colEmpStatus].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                    xlsRow++;
+                }
+
+                #region UsedRange Alignment
+
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.CellStyle.Font.Size = 10;
+                sheet.Range["A1"].CellStyle.Font.Size = 10;
+                sheet.Range["A2"].CellStyle.Font.Size = 10;
+                sheet.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+
+                #endregion UsedRange Alignment
+
+                #region Page Setup
+                sheet.PageSetup.TopMargin = 0.5;
+                sheet.PageSetup.BottomMargin = 0.7;
+                sheet.PageSetup.PrintTitleRows = "$1:$5";
+                sheet.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + Name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                sheet.PageSetup.LeftMargin = 0.5;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.IsDisplayZeros = false;
+                sheet.Name = "Sheet1";
+                #endregion Page Setup
+
+                #endregion  Lunch Out
+
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+  
+
         #endregion
 
         #region GoodWorkPaymentAdvisePayments Reports

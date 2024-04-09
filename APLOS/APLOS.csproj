@@ -4863,7 +4863,7 @@
     <Content Include="Areas\FixedAssets\Views\_CapitalizeAssetItemPopUpNew.cshtml" />
     <Content Include="Areas\Materials\Views\QRCodeGenerator\_WeighingScaleMachinePopUp.cshtml" />
     <Content Include="Areas\Materials\Views\WeighingScaleMaster\Aplos.cshtml" />
-    <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\_BalanceSheetSchedulingDataUploadDownload.cshtml" />
+    <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\_BalanceSheetSchedulingCheckingDataUploadDownload.cshtml" />
     <Content Include="Areas\Costings\Views\OrderCosting\OrderBudget.cshtml" />
     <Content Include="Areas\Materials\Views\LOTCreation\Aplos.cshtml" />
     <Content Include="Areas\FixedAssets\Views\CARApproval.cshtml" />
@@ -4945,6 +4945,8 @@
     <Content Include="Areas\Payrolls\Views\EmployeeSeperationSetup\Aplos.cshtml" />
     <Content Include="Areas\Administration\Views\GeneralCheckedApproved\GeneralApproved.cshtml" />
     <Content Include="Areas\Payrolls\Views\FinalSettlement\FinalSettle.cshtml" />
+    <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\_BalanceSheetSchedulingDataUploadDownload.cshtml" />
+    <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\_BalanceSheetSchedulingApprovingDataUploadDownload.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
