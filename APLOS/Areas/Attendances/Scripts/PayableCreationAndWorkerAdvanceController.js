@@ -571,7 +571,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
 
             $http({
                 method: 'POST',
-                url: $scope.path + "LoadPCEmployeelist",
+                url: $scope.path + "GetGoodWorkEmployeelist",
                 data: { 'fromDate': $scope.ModelOTNew.FromDate, 'toDate': $scope.ModelOTNew.ToDate, 'tabName': $scope.TabName },
                 dataType: 'JSON'
             }).then(function successCallback(response) {

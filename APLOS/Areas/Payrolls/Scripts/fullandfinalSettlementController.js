@@ -203,6 +203,74 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
             ShowResult(e, "failure");
         }
     };
+
+    // #region checkbox all
+
+    $scope.refreshTemplateOperation = function (args) {
+        $("#headchk").ejCheckBox({ "change": headCheckChangeOperation });
+    };
+
+    function headCheckChangeOperation(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridEmp").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.EmployeeInformationList.length; i++) {
+                $scope.EmployeeInformationList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridEmp").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.SelectedEmployeeList = [];
+    $scope.Close = function () {
+        try {
+            for (var i = 0; i < $scope.EmployeeInformationList.length; i++) {
+                if ($scope.EmployeeInformationList[i].Flag == true) {
+                    if (checkExists($scope.SelectedEmployeeList, $scope.EmployeeInformationList[i].EmpSystemId) === false) {
+                        var ob = {};
+                        ob.Id = null;
+                        ob.EmployeeCode = $scope.ModelNew.EmployeeCode;
+                        ob.EmpSystemId = $scope.EmployeeInformationList[i].EmpSystemId;
+                        ob.EmployeeName = $scope.EmployeeInformationList[i].EmployeeName;
+                        ob.DOJ = $scope.EmployeeInformationList[i].DOJ;
+                        ob.DOS = $scope.EmployeeInformationList[i].DOS;
+                        ob.LegalDesignation = $scope.EmployeeInformationList[i].LegalDesignation;
+                        ob.Department = $scope.EmployeeInformationList[i].Department;
+                        ob.EntityName = $scope.EmployeeInformationList[i].EntityName;
+
+                        $scope.SelectedEmployeeList.push(ob);
+                        ob = {};
+                    }
+                }
+            }
+            $scope.SaveFNF();
+            angular.element(document.querySelector('#dialogEmployeeInfo')).modal('hide');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    function checkExists(list, id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].EmpSystemId === id) {
+                return true;
+            }
+        }
+        return false;
+    }
+    // #endregion
+
+
     $scope.EmployeeModel = {};
     $scope.FormulaList = [];
     $scope.SelectEmployee = function (obj) {
