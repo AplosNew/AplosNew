@@ -267,7 +267,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								LEFT JOIN (SELECT distinct MaterialMasterId FROM TRN.InventoryMaterial) AS IM ON IM.MaterialMasterId=M.Id
 LEFT JOIN (SELECT distinct MBP.MaterialMasterId, BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
 JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id WHERE BP.BusinessProcessName ='ProductDefinition') BPM ON BPM.MaterialMasterId=M.Id
-								WHERE  M.Archive=0 AND M.Active=1 and M.CompanyGroupId=@materialGroupId " + ctype+") AS TEMP WHERE " + strkey + " ";
+								WHERE  MMA.Active=1 AND M.Archive=0 AND M.Active=1 and M.CompanyGroupId=@materialGroupId " + ctype+") AS TEMP WHERE " + strkey + " ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
