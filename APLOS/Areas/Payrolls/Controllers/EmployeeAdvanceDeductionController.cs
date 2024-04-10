@@ -86,17 +86,24 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             try
             {
-                string CmdText = @"select IsSelected = case when ead.EmployeeId is null then Convert(bit, 'False') ELSE Convert(bit, 'True') END,ars.YearNo,ars.MonthNo,a.EmployeeId,e.EmployeeCode,e.EmployeeName,
-                                    a.Amount SanctionedAmount,a.Id AdvanceId,ars.Id AdvanceReqScheduleId,
-                                    a.WrittenOffAmount RecoveredAmount,a.Amount-a.WrittenOffAmount Balance,
+                string CmdText = @"select IsSelected = case when ead.EmployeeId is null then Convert(bit, 'False') ELSE Convert(bit, 'True') END,ars.YearNo,ars.MonthNo,esa.EmployeeId,e.EmployeeCode,e.EmployeeName,
+                                    esa.Amount SanctionedAmount,a.Id AdvanceId,ars.Id AdvanceReqScheduleId,esa.Id EmployeeSalaryAdvanceId,ead.EmployeeSalaryAdvanceId
+                                    ,isnull(Recovered.RecoveredAmount,0) RecoveredAmount, esa.Amount-isnull(Recovered.RecoveredAmount,0) Balance,
                                     ars.InstallmentAmount CurrentInstallment ,ars.PrincipalAmount,ars.ProfitAmount InterestAmount
-                                    from trn.Advance a 
-                                    left join trn.EmployeeSalaryAdvance esa on esa.VoucherId=a.VoucherId
-                                    left join dbo.AdvanceReqSchedule ars on ars.EmployeeSalaryAdvanceId=esa.Id
-                                    left join EmployeeInformation e on e.SystemId=a.EmployeeId and e.SystemId=esa.EmployeeId
-                                    left join [TRN].[EmployeeAdvanceDeduction] ead on ead.EmployeeId = a.EmployeeId and ead.AdvanceId = a.Id and ead.YearNo='" + Year + @"' and ead.MonthNo='" + Month + @"'
-                                    where ars.YearNo='" + Year + "' and ars.MonthNo='" + Month + "' and a.EmployeeId<>'' and a.PlantId='" + plantId + @"'
-                                    and a.JournalType = 'Salary' and ISNULL(a.Amount,0)-ISNULL(a.WrittenOffAmount,0)>0  order by a.EmployeeId";
+                                    from trn.EmployeeSalaryAdvance esa
+                                    left join  trn.Advance a  on esa.VoucherId=a.VoucherId
+                                    join dbo.AdvanceReqSchedule ars on ars.EmployeeSalaryAdvanceId=esa.Id
+                                    left join EmployeeInformation e on e.SystemId=esa.EmployeeId
+                                    left join [TRN].[EmployeeAdvanceDeduction] ead on ead.EmployeeId = esa.EmployeeId AND ead.YearNo='" + Year + "' and ead.MonthNo='" + Month + @"'
+                                    left join (select ead.EmployeeSalaryAdvanceId,SUM(ars.InstallmentAmount) RecoveredAmount 
+									from trn.EmployeeSalaryAdvance esa 
+													left join dbo.AdvanceReqSchedule ars ON ars.EmployeeSalaryAdvanceId=esa.Id
+													 join  [TRN].[EmployeeAdvanceDeduction] ead   on esa.Id=ead.EmployeeSalaryAdvanceId
+													WHERE ars.YearNo='" + Year + "' and ars.MonthNo='"+ Month + @"' group by ead.EmployeeSalaryAdvanceId ) Recovered on Recovered.EmployeeSalaryAdvanceId = esa.Id
+													
+                                    where ars.YearNo='" + Year + "' and ars.MonthNo='" + Month + @"' and esa.EmployeeId<>'' and esa.PlantId='"+ plantId + @"'
+                                    
+									order by esa.EmployeeId";
                 return _sqlRepository.GetDataCollection(CmdText);
             }
             catch (Exception ex)
