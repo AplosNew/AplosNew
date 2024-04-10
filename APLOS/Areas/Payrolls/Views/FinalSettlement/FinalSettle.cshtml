@@ -5,28 +5,28 @@
     <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
             @*<div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Employee Code<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="input-group">
-                    <input tabindex="1" type="text" name="EmployeeCode" ng-model="EmployeeModel.EmployeeCode" class="form-control" readonly required>
-                    <span class="input-group-btn">
-                        <button ng-click="LoadEmployeeList();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
-                    </span>
+                    <label class="col-sm-4 control-label">Employee Code<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="input-group">
+                            <input tabindex="1" type="text" name="EmployeeCode" ng-model="EmployeeModel.EmployeeCode" class="form-control" readonly required>
+                            <span class="input-group-btn">
+                                <button ng-click="LoadEmployeeList();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Employee Name </label>
-            <label class="col-sm-8 control-label">: {{EmployeeModel.EmployeeName}}</label>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">DOJ </label>
-            <label class="col-sm-8 control-label">: {{EmployeeModel.DOJ}}</label>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">DOS </label>
-            <label class="col-sm-8 control-label">: {{EmployeeModel.DOS}}</label>
-        </div>*@
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Employee Name </label>
+                    <label class="col-sm-8 control-label">: {{EmployeeModel.EmployeeName}}</label>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">DOJ </label>
+                    <label class="col-sm-8 control-label">: {{EmployeeModel.DOJ}}</label>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">DOS </label>
+                    <label class="col-sm-8 control-label">: {{EmployeeModel.DOS}}</label>
+                </div>*@
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Final Settlement Name<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
@@ -48,57 +48,72 @@
                     <input type="text" maxlength="15" name="Final Settlement Date" ng-model="FinalSettlementModel.FinalSettlementDate" datepicker placeholder="dd-MMM-yyyy" class="form-control" required tabindex="3">
                 </div>
             </div>
-            
+
             @*<div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Legal Designation </label>
-            <label class="col-sm-8 control-label">: {{EmployeeModel.LegalDesignation}}</label>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Department </label>
-            <label class="col-sm-8 control-label">: {{EmployeeModel.Department}}</label>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Position </label>
-            <label class="col-sm-8 control-label">: {{EmployeeModel.PositionName}}</label>
-        </div>*@
+                    <label class="col-sm-4 control-label">Legal Designation </label>
+                    <label class="col-sm-8 control-label">: {{EmployeeModel.LegalDesignation}}</label>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Department </label>
+                    <label class="col-sm-8 control-label">: {{EmployeeModel.Department}}</label>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Position </label>
+                    <label class="col-sm-8 control-label">: {{EmployeeModel.PositionName}}</label>
+                </div>*@
 
 
         </div>
     </div>
     <hr />
-
-    @*<div clas="row">
-        <div class="modal-body form-elements form-horizontal">
-            <div ng-form name="CostingSOform">
-                <div class="col-xs-12">
-                    <div class="table-responsive modal-table">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Head</th>
-                                    <th>State</th>
-                                    <th>Value</th>
-
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr ng-repeat="x in FormulaList">
-                                    <td>{{x.UserName}}</td>
-                                    <td>{{x.EntryState}}</td>
-                                    <td><input class="form-control text-right" ng-disabled="x.FormulaId!=null" type="text" n-decimals="6" ng-model="x.Value" /></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+    <div clas="row">
+        <div id="GridEmp" ej-grid e-datasource="EmployeeInformationList" e-templaterefresh="refreshTemplateOperation"
+             e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
+            <div e-columns>
+                <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="50"></div>
+                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                <div e-column e-field="DOJ" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="DOJ" e-width="70"></div>
+                <div e-column e-field="DOS" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="DOS" e-width="70"></div>
+                <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
+                <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                <div e-column e-field="EntityName" e-headertext="Entity" e-width="80"></div>
+                <div e-column e-field="SepType" e-headertext="Separation Type" e-width="80"></div>
             </div>
         </div>
-    </div>*@
+    </div>
+    @*<div clas="row">
+            <div class="modal-body form-elements form-horizontal">
+                <div ng-form name="CostingSOform">
+                    <div class="col-xs-12">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Head</th>
+                                        <th>State</th>
+                                        <th>Value</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in FormulaList">
+                                        <td>{{x.UserName}}</td>
+                                        <td>{{x.EntryState}}</td>
+                                        <td><input class="form-control text-right" ng-disabled="x.FormulaId!=null" type="text" n-decimals="6" ng-model="x.Value" /></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Save</button></li>
+                <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="11"></i> Clear</button></li>
+                 </div>
+        </div>*@
     <hr />
     <div class="common-btn">
         <ul class="list-inline text-right">
-            <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Save</button></li>
-            <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="11"></i> Clear</button></li>
         </ul>
     </div>
 </div>
@@ -138,11 +153,11 @@
             <div class="modal-header">Employee Information<button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body">
                 <div class="row">
-                    <div style="color:black;" id="GridEmp" ej-grid e-datasource="EmployeeInformationList" e-allowscrolling="true"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true" e-pagesettings-pagesize="25"
-                         e-allowselection="false" e-filtersettings-filterType="excel" e-recorddoubleclick="SelectEmployee">
+                    <div id="GridEmp" ej-grid e-datasource="EmployeeInformationList" e-templaterefresh="refreshTemplateOperation"
+                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
                         <div e-columns>
-                            <div e-column e-headertext="" e-headertemplateid="#headerTemplateE" e-template="#checkboxTemplateE" e-textalign="center" e-width="30"></div>
+                            <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
                             <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="50"></div>
                             <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
                             <div e-column e-field="DOJ" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="DOJ" e-width="70"></div>
@@ -153,11 +168,11 @@
                             <div e-column e-field="SepType" e-headertext="Separation Type" e-width="80"></div>
                         </div>
                     </div>
-                    <script type="text/x-jsrender" id="headerTemplateE">
-                        <input type="checkbox" id="PCheadchk" />
-                    </script>
-                    <script type="text/template" id="checkboxTemplateE">
+                    <script type="text/template" id="checkboxTemplate">
                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                    </script>
+                    <script type="text/x-jsrender" id="headerTemplate">
+                        <input type="checkbox" id="headchk" />
                     </script>
                     <div class="common-btn" style="padding-right: 15px;">
                         <ul class="list-inline text-right">
