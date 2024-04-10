@@ -153,7 +153,7 @@ function employeeAdvanceRequisitionHRController(cboService, commonMessage, $scop
         Remarks: null,
         CheckedBy: null,
         ApprovedBy: null,
-        AdvanceType: "General",
+        AdvanceType: "Salary",
         RepaymentStartDate: null,
         LifeOfYear: null,
         ProfitRate: null,
