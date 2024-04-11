@@ -317,7 +317,7 @@ namespace Library.Service.SalaryDisbursement
                                     {
 
                                         var advance = _advanceService.Find(item.AdvanceId);
-                                        var advancesalaryAdvance = accountCommonExtensionService.GetEmployeeSalaryAdvane(item.AdvanceId);
+                                        var advancesalaryAdvance = accountCommonExtensionService.GetEmployeeSalaryAdvane(item.EmployeeSalaryAdvanceId);
 
                                         if (advance != null)
                                         {
@@ -703,6 +703,8 @@ namespace Library.Service.SalaryDisbursement
                                     {
 
                                         var advance = _advanceService.Find(item.AdvanceId);
+                                        var advancesalaryAdvance = accountCommonExtensionService.GetEmployeeSalaryAdvane(item.EmployeeSalaryAdvanceId);
+
                                         if (advance != null)
                                         {
                                             advance.WrittenOffAmount += item.Amount;
@@ -807,7 +809,92 @@ namespace Library.Service.SalaryDisbursement
                                             AuditService.AddedLog(EmployeeSubsequentAdvancedirect);
                                             _employeeSubsequentTransactionRepository.Insert(EmployeeSubsequentAdvancedirect);
                                         }
+                                        else
+                                        {
+                                           
 
+                                            currentAdvanceWriteOffDetailId++;
+                                            var advanceWriteOffDetail = new AdvanceWriteOffDetail
+                                            {
+                                                CompanyId = advancesalaryAdvance["CompanyId"].ToString(),
+                                                PlantId = advancesalaryAdvance["PlantId"].ToString(),
+                                                AdvanceId = item.AdvanceId,
+                                                AdvanceDetailId = null,
+                                                GLGeneralInfoId = advancesalaryAdvance["GLGeneralInfoId"].ToString(),
+                                                BudgetMasterId = advancesalaryAdvance["BudgetMasterId"].ToString(),
+                                                ActivityId = advancesalaryAdvance["ActivityId"].ToString(),
+                                                CurrencyId = indirectadvanceWriteOff.CurrencyId,
+                                                PartyType = "Employee",
+                                                Amount = item.Amount,
+                                                EmployeeId = item.EmployeeId,
+                                                EmployeeSalaryAdvanceId = item.EmployeeSalaryAdvanceId
+                                            };
+                                            InsertAdvanceWriteOffDetail(indirectadvanceWriteOff, advanceWriteOffDetail, currentAdvanceWriteOffDetailId);
+
+                                           
+                                            currentVoucherDetailId++;
+                                            // INSERT INTO VoucherDetail Debit or Credit
+                                            var VoucherDetailDr = _voucherService.InsertVoucherDetail(voucherI, new VoucherDetail
+                                            {
+                                                GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                                                BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                                                ActivityId = voucherDetailVM.ActivityId,
+                                                DrAmount = voucherDetailVM.DrAmount,
+                                                CrAmount = item.Amount,
+                                                EmployeeId = item.EmployeeId,
+                                                TrnNature = voucherDetailVM.SalaryHead,
+                                                AdvanceWriteOffDetailId = advanceWriteOffDetail.Id,
+                                                PartyType = "Employee",
+                                                SalaryHeadId = voucherDetailVM.SalaryHeadId,
+                                                SalaryType = voucherDetailVM.SalaryType
+                                            }, currentVoucherDetailId);
+                                            indirectAdvanceAmountTemp += VoucherDetailDr.CrAmount;
+
+                                            // INSERT INTO VoucherDetailCurrency
+                                            _voucherService.InsertVoucherDetailCompanyCurrency(VoucherDetailDr, new VoucherDetailCurrency
+                                            {
+                                                ParallelCurrencyId = companyCurrencyId,
+                                                FromCurrencyId = VoucherDetailDr.CurrencyId,
+                                                ToCurrencyId = companyCurrencyId,
+                                                ToCurrencyRate = directVoucherData.CompanyCurrencyRate,
+                                                ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(VoucherDetailDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                                                DrAmount = directVoucherData.CompanyCurrencyRate * VoucherDetailDr.DrAmount,
+                                                CrAmount = directVoucherData.CompanyCurrencyRate * VoucherDetailDr.CrAmount
+                                            });
+
+                                            var EmployeeSubsequentAdvancedirect = new EmployeeSubsequentTransaction
+                                            {
+                                                CompanyGroupId = voucherVM.CompanyGroupId,
+                                                CompanyId = voucherVM.CompanyId,
+                                                PlantId = voucherVM.PlantId,
+                                                EntityId = voucherVM.EntityId,
+                                                VoucherTypeId = voucherVM.VoucherTypeId,
+                                                AdvanceId = null,
+                                                EmployeeId = item.EmployeeId,
+                                                EmployeeTransactionTypeId = item.EmployeeTransactionTypeId,
+                                                AdvanceWriteOffId = indirectadvanceWriteOff.Id,
+                                                EmployeePayableWriteOffId = null,
+                                                EmployeePayableId = null,
+                                                PartyType = "Employee",
+                                                CurrencyId = companyCurrencyId,
+                                                Amount = item.Amount,
+                                                VoucherDate = voucherVM.VoucherDate,
+                                                PostingDate = voucherVM.PostingDate,
+                                                DocDate = voucherVM.DocDate,
+                                                DocRefNo = voucherVM.DocRefNo,
+                                                JournalType = AdvanceType.Salary.ToString(),
+                                                TransactionType = EmployeeSubsequentTranEnum.Advance.ToString(),
+                                                Narration = voucherVM.Narration,
+                                                SourceType = SourceType.SalaryPayable.ToString(),
+                                                IsPark = voucherVM.IsPark,
+                                                Id = "ES" + GetEmployeeSubsequentTransactionPK(),
+                                                VoucherId = InDirectVoucherId,
+                                                VoucherDetailId = VoucherDetailDr.Id,
+                                                PaymentSource = voucherVM.PaymentSource,
+                                            };
+                                            AuditService.AddedLog(EmployeeSubsequentAdvancedirect);
+                                            _employeeSubsequentTransactionRepository.Insert(EmployeeSubsequentAdvancedirect);
+                                        }
                                     }
 
                                     if (voucherDetailVM.CrAmount - indirectAdvanceAmountTemp > 0)
