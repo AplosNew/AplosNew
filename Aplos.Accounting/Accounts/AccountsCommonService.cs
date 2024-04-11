@@ -1753,13 +1753,13 @@ namespace Library.Accounting.Accounts
                             INNER JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
 							INNER JOIN SCS.Currency AS CU ON VD.CurrencyId=CU.Id
                             LEFT JOIN MST.BankMaster BM ON BM.Id=VD.BankMasterId
+							left join HKP.Party p on p.Id=vdd.PartyId
+							--LEFT JOIN (SELECT DISTINCT VoucherDetailId FROM TRN.CheckLotDetailHistory ) CDH ON CDH.VoucherDetailId=VD.Id
+							--LEFT JOIN (sELECT DISTINCT VoucherDetailId,max(CheckDate) CheckDate  FROM TRN.CheckLotDetailHistory group by VoucherDetailId) CDH ON CDH.VoucherDetailId=VD.I
 							LEFT JOIN HKP.Bank B ON B.Id=BM.BankId
                              LEFT JOIN hkp.BankBranch BB ON BB.Id=bm.BankBranchId
 							left join  TRN.VoucherDetail vdd  on vdd.VoucherId=v.Id and vdd.id=(
-							select top 1 VD.Id from TRN.VoucherDetail VD  where vd.VoucherId=v.Id and isnull(vd.PartyId,'')<>'')
-							left join HKP.Party p on p.Id=vdd.PartyId
-							--LEFT JOIN (SELECT DISTINCT VoucherDetailId FROM TRN.CheckLotDetailHistory ) CDH ON CDH.VoucherDetailId=VD.Id
-							--LEFT JOIN (sELECT DISTINCT VoucherDetailId,max(CheckDate) CheckDate  FROM TRN.CheckLotDetailHistory group by VoucherDetailId) CDH ON CDH.VoucherDetailId=VD.Id
+							select top 1 VD.Id from TRN.VoucherDetail VD  where vd.VoucherId=v.Id and isnull(vd.PartyId,'')<>'')d
 
 							--LEFT JOIN TRN.CheckLotDetailHistory CLH ON CLH.VoucherDetailId=VD.Id
 							LEFT JOIN (sELECT DISTINCT C.VoucherDetailId,max(C.CheckDate) CheckDate  
@@ -1918,5 +1918,7 @@ namespace Library.Accounting.Accounts
 
             return customerAdvanceTemp;
         }
+
+       
     }
 }
