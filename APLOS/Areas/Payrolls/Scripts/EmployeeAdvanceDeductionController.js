@@ -180,7 +180,7 @@ function EmployeeAdvanceDeductionController(cboService, commonMessage, $scope, $
                 else {
                     DataToBeDelete.push($scope.SalaryAdvanceList[i]);
                 }
-                if ($scope.SalaryAdvanceList[i].InterestAmount > 0) {
+                if ($scope.SalaryAdvanceList[i].IsSelected == true && $scope.SalaryAdvanceList[i].InterestAmount > 0) {
                     if (baseService.isUndefinedOrNull($scope.SalaryHeadInterest)) {
                         throw "Select Interest..";
                     }
