@@ -1,9 +1,9 @@
 ﻿'use strict';
-employeeAdvanceRequisitionHRController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$filter", "$window", "$http","$controller"];
+employeeAdvanceRequisitionHRController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$filter", "$window", "$http", "$controller"];
 function employeeAdvanceRequisitionHRController(cboService, commonMessage, $scope, $rootScope, baseService, $filter, $window, $http, $controller) {
-   
+
     $scope.path = 'accounts/Advance/';
-    $scope.currencyList = [];   
+    $scope.currencyList = [];
     $scope.Action = 'Save';
     //search
     $controller('currencyBaseController', { $scope: $scope, $http: $http });
@@ -34,7 +34,7 @@ function employeeAdvanceRequisitionHRController(cboService, commonMessage, $scop
     };
 
 
-   
+
     $scope.searchCol = "SystemId";
     $scope.searchVal = "";
     $scope.getData = function () {
@@ -71,7 +71,7 @@ function employeeAdvanceRequisitionHRController(cboService, commonMessage, $scop
             $scope.CheckedHoldDataList = response.data;
         });
     };
-   // $scope.getCheckedHoldData();
+    // $scope.getCheckedHoldData();
 
     $scope.CheckedRejectDataList = [];
     $scope.getCheckedRejectData = function () {
@@ -153,7 +153,7 @@ function employeeAdvanceRequisitionHRController(cboService, commonMessage, $scop
         Remarks: null,
         CheckedBy: null,
         ApprovedBy: null,
-        AdvanceType: "General",
+        AdvanceType: "Salary",
         RepaymentStartDate: null,
         LifeOfYear: null,
         ProfitRate: null,
@@ -162,7 +162,7 @@ function employeeAdvanceRequisitionHRController(cboService, commonMessage, $scop
     };
     $scope.model = Object.assign({}, $scope.modelMain);
 
- 
+
 
     cboService.getCurrencyCboForPotal(null, function (result) {
         $scope.currencyList = result;
@@ -175,7 +175,7 @@ function employeeAdvanceRequisitionHRController(cboService, commonMessage, $scop
     //    $scope.detailModel.CurrencyId = $scope.selectBaseCurrency();
     //});
 
-    
+
 
     $scope.Get = function (args) {
         $scope.model = Object.assign({}, $scope.modelMain);
@@ -221,34 +221,43 @@ function employeeAdvanceRequisitionHRController(cboService, commonMessage, $scop
             throw e;
         }
     }
+    $scope.validation = function () {
+        if ($scope.model.AdvanceType === "Salary" && $scope.loanRepaymentSchedulelist.length == 0) {
+            ShowResult("Please Input installment!", "failure");
+            return true;
+        }
+        return false;
+    }
 
     $scope.Save = function () {
         try {
             ValidationMaster();
-            
+
             var DropDownListcheckedBy = $("#ddlcheckedByList").data("ejDropDownList");
             var CheckedBy = DropDownListcheckedBy.getSelectedValue();
             $scope.model.CheckedBy = CheckedBy;
+            if (!$scope.validation()) {
+                $http({
+                    method: 'POST',
+                    data: {
+                        "EmpAdvanceReqList": $scope.model,
+                        "advanceSalarySchedulelist": $scope.loanRepaymentSchedulelist
+                    },
+                    url: $scope.path + "HREmployeeAdvanceRequisitionSave"
+                }).then(function successCallback(response) {
+                    if (response.data.Error == false) {
+                        ShowResult(response.data.Message, 'success');
 
-            $http({
-                method: 'POST',
-                data: {
-                    "EmpAdvanceReqList": $scope.model,
-                    "advanceSalarySchedulelist": $scope.loanRepaymentSchedulelist     
-                },
-                url: $scope.path + "HREmployeeAdvanceRequisitionSave"
-            }).then(function successCallback(response) {
-                if (response.data.Error == false) {
-                    ShowResult(response.data.Message, 'success');
-                    
-                    $scope.Cancel();
-                    $scope.getData();
-                    $scope.Action = 'Save';
-                }
-                else {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            });
+                        $scope.Cancel();
+                        $scope.getData();
+                        $scope.Action = 'Save';
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                });
+                return true;
+            }
         } catch (e) {
             ShowResult(e, 'failure');
         }
@@ -277,7 +286,7 @@ function employeeAdvanceRequisitionHRController(cboService, commonMessage, $scop
 
     $scope.Cancel = function () {
         $scope.Action = 'Save';
-       
+
         $("#gridEmpAdvanceReqList").ejGrid("instance").refreshContent();
         $scope.modelMain = {
             SystemId: "",
@@ -399,7 +408,7 @@ function employeeAdvanceRequisitionHRController(cboService, commonMessage, $scop
         if ($scope.model.ProfitRate === '' || $scope.model.ProfitRate == 'undefined' || $scope.model.ProfitRate === null) {
             $scope.model.ProfitRate = 0;
         }
-        
+
         if ($scope.model.NoOfInstallmentPerYear < 12) {
             $scope.model.LifeOfYear = 1;
         }
@@ -410,16 +419,16 @@ function employeeAdvanceRequisitionHRController(cboService, commonMessage, $scop
         //$scope.model.Amount = $scope.advance.Amount;
         $scope.loanRepaymentSchedulelist = [];
         $("#loanDetails").children().remove();
-        
+
         var numberOfInstallment = $scope.model.NoOfInstallmentPerYear;
         var actualAmount = parseFloat($scope.model.Amount);
         var actualAmountWithoutProfit = parseFloat($scope.model.Amount);
         var installmentPerYear = 12;
-        
+
         var rate = parseFloat((parseFloat($scope.model.ProfitRate) / 100) / installmentPerYear);
-        
+
         var repaymentStartDate = $scope.model.RepaymentStartDate;
-        
+
         var installmentDate;
         var payment = 0.00;
         var profit = 0.00;
@@ -433,7 +442,7 @@ function employeeAdvanceRequisitionHRController(cboService, commonMessage, $scop
 
         var idate;
         var periodHtml = "<div class='SearchResult'> <table><thead><tr><td style='width:220px;'>Installment date</td><td style='width:100px;'>Installment no.</td><td style='text-align:right; width:120px;'>Payment</td><td style='text-align:right; width:120px;'>Interest</td><td style='text-align:right; width:120px;'>Principal</td><td style='text-align:right; width:120px;'>Loan</td></tr></thead>";
-        
+
         for (var i = 1; i <= numberOfInstallment; i++) {
             if (i === 1) {
                 installmentDate = new Date(repaymentStartDate);
@@ -480,11 +489,11 @@ function employeeAdvanceRequisitionHRController(cboService, commonMessage, $scop
 
             periodHtml += "<tr><td style ='width:220px;'>" + FormatDate(idate) + "</td><td style ='width:100px;'>" + i + "</td><td style='text-align:right; width:120px;'>" + payment.toFixed(2) + "</td><td style='text-align:right; width:120px;'>" + profit.toFixed(2) + "</td><td style='text-align:right; width:120px;'>" + principal.toFixed(2) + "</td><td style='text-align:right; width:120px;'>" + actualAmount.toFixed(2) + "</td></tr>";
         }
-        
+
         $("#loanDetails").append(periodHtml);
         $scope.model.ProfitAmount = totalProfit.toFixed(2);
         return false;
-        
+
     };
 
     function PMT(rate, numberOfInstallment, installmentPerYear, actualAmount) {

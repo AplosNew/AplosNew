@@ -90,7 +90,7 @@ namespace Library.Service.Materials
                         LEFT JOIN HKP.MaterialType AS MT ON MG.MaterialTypeId=MT.Id
 						LEFT JOIN HKP.HSNCode MHSN ON MHSN.Id=MM.HSNCodeId
 						LEFT JOIN HKP.HSNCode HSN ON HSN.Id=ART.HSNCodeId
-                        WHERE  MaterialMasterId='" + materialMasterId + "'";
+                        WHERE  MaterialMasterId='" + materialMasterId + "' AND ART.Active=1";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)

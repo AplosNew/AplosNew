@@ -1309,11 +1309,13 @@ namespace Library.Service.Advances
         {
             var cmdText = @"SELECT VT.UserName AS VoucherTypeName, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
                             , REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, V.DocRefNo, U.FullName AddedBy,isnull(PC.EmployeeName,UP.FullName) CheckedBy,PA.EmployeeName ApprovedBy, UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
-                            , P.EmployeeName , BJ.CurrencyId, C.Code AS CurrencyCode,EAR.Remarks Purpose
+                            ,EmployeeName=case when P.EmployeeName<>'' then P.EmployeeName else  ESAE.EmployeeName End  , BJ.CurrencyId, C.Code AS CurrencyCode,EAR.Remarks Purpose
                             FROM [TRN].[Voucher] AS V
                             LEFT JOIN [TRN].[Advance] AS BJ  ON V.Id=BJ.VoucherId
+                            LEFT JOIN TRN.EmployeeSalaryAdvance AS ESA  ON V.Id=ESA.VoucherId
                             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
 							LEFT JOIN [DBO].[EmployeeInformation] AS P ON P.SystemId=BJ.EmployeeId
+							LEFT JOIN [DBO].[EmployeeInformation] AS ESAE ON ESAE.SystemId=ESA.EmployeeId
 							left join TRN.EmployeeAdvanceRequisition EAR ON EAR.SystemId=BJ.RequisitionId
 							LEFT JOIN [DBO].[EmployeeInformation] AS PA ON PA.SystemId=EAR.ApprovedBy
 							 LEFT JOIN [DBO].[EmployeeInformation] AS PC ON PC.SystemId=EAR.CheckedBy

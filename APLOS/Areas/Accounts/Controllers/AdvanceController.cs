@@ -1086,7 +1086,7 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             return View("~/Areas/Accounts/Views/EmployeeAdvanceRequisition.cshtml");
         }
-        [HttpGet, Authorize]
+        [HttpGet]
         public ActionResult HREmployeeAdvanceRequisition()
         {
             return View("~/Areas/Accounts/Views/EmployeeAdvanceRequisitionHR.cshtml");

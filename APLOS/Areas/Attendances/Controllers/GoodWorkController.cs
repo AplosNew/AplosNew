@@ -134,7 +134,7 @@ namespace Aplos.Areas.Attendances.Controllers
 						 left join dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate='" + workDate + @"'
 
                          WHERE  EI.PlantId='" + identity.PlantId + @"'  " + ec + @"  " + dep + @"  " + sec + @"   " + subsec + @"   " + des + @" " + userGr + @"
-                         and ei.SystemId in (select EmpSystemID from EmployeeShiftAssign where FixSystemID='" + shiftId + @"')  
+                         and ei.SystemId in (select EmpSystemID from EmployeeShiftAssign where FixSystemID='" + shiftId + @"' AND EffectiveDate<='" + workDate + @"')  
                         AND ei.SystemId IN(Select EmployeeId From [dbo].[ExceptionGoodWorkEmployee] where GoodWorkSetUpId = '" + userGroupId + @"')
                         and EI.EmployeeStatus='Active' and EI.BudgetCode in (SELECT BudgetId FROM dbo.GoodWorkBudgetSetup where GoodWorkSetUpId = '" + userGroupId + @"') 
                          ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
@@ -196,7 +196,7 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             try
             {
-                
+
                 MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 DataSet dsMaster;
                 DataSet dsDetail;
@@ -865,7 +865,7 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public ActionResult LoadPCAACEmployeelist(string fromDate, string toDate, string payDaysType)
         {
             string sql = string.Empty;
@@ -913,7 +913,248 @@ namespace Aplos.Areas.Attendances.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
+        public ActionResult GetGoodWorkEmployeelist(string fromDate, string toDate, string tabName)
+        {
+            string sql = string.Empty;
+            DataTable dtValue = new DataTable();
+            dtValue.TableName = "TempTable";
+            dtValue.Columns.Add("BasicSalaryHeadID");
+            dtValue.Columns.Add("Basic");
+            dtValue.Columns.Add("Rate");
+            string sFormulaResult = null;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                if (tabName == "GoodWork")
+                {
+                    sql = @"SELECT * FROM 
+(select CheckBoxSelect=cast(case when z.Id is null then 0 else 1 end as bit),z.Id,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,sum(gwd.Minute)*OLS.OTreductionFactor Minute,(sum(gwd.Minute)/60)*OLS.OTreductionFactor Hour
+                                    ,format(g.Gross,'N2') Gross,0 Rate,0 Amount
+									,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
+                                     from [dbo].[GoodWork] gw
+                                     left join  GoodWorkDetail GWD on GWD.GoodWorkId=gw.Id 
+                                     left join EmployeeInformation ei on ei.SystemId=GWD.EmpSystemId
+                                    left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+						            left join ORG.Position PO on PO.Id=MPB.PositionId
+                                    LEFT OUTER JOIN ORG.Entity EN ON MPB.EntityId=EN.Id
+						            LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
+						            LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = ei.GivenDesignationId
+                                    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+						            LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
+                                    LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
+                                    left join (Select top 1* from [dbo].[OTLimitSetting])OLS ON OLS.PlantID=ei.PlantId
+                                     LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = EI.SystemId
+                                     LEFT JOIN(SELECT SID.SalaryID,SID.DefineAmount Gross,SH.SalaryHeadID GrossSalaryHeadID
+                                                                          FROM SalaryInfoDefine SID 
+								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
+                                                                        WHERE SH.HeadCategory='Gross')g ON g.SalaryID=SIDM.SystemID
+left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.SalaryID
+                                                                          FROM SalaryInfoDefine SID 
+								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
+                                                                        WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
+
+                                    left join (select gwpad.EmpSystemId,gwpad.Id
+									                                from GoodWorkPaymentAdvise gwpa
+									                                left join GoodWorkPaymentAdviseDetail gwpad on gwpad.PaymentAdviseId=gwpa.Id
+									                                where convert( DateTime, gwpa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, gwpa.ToDate) between '" + fromDate + @"' and '" + toDate + @"'
+									                                )z on z.EmpSystemId=GWD.EmpSystemId
+
+left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
+												inner join (select DesignationMasterId,OverTimePmtPolicyMasterID,IsOTEntitled ,PlantId
+                                                            from scs.DesignationMasterConfiguration where PlantId in ('" + identity.PlantId + @"') and IsOTEntitled=1) dc 
+                                                            on dc.DesignationMasterId=dml.Id and ei.PlantId = dc.PlantId
+												left join OverTimePmtPolicyMaster otpm on otpm.ID=dc.OverTimePmtPolicyMasterID and otpm.PlantID in ('" + identity.PlantId + @"')
+												left join OverTimePmtPolicyDetails oNW on oNW.OverTimePmtPolicyID=otpm.ID and onw.OverTimeDayType='Working Day'
+
+                                     where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and gwd.Minute<>0 and g.Gross<>0  and SIDM.IsApproved=1 AND gw.ApprovedStatus='Approved' AND GWD.GWPaymentAdviseId IS NULL
+                                     group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross
+									 ,z.Id,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,OLS.OTreductionFactor,Department.UserName,Section.UserName,SubSection.UserName 
+                                    )T WHERE T.CheckBoxSelect=0
+								order by T.EmployeeCode ";
+
+                }
+                else
+                {
+                    sql = @"SELECT * FROM 
+(select CheckBoxSelect=cast(case when z.Id is null then 0 else 1 end as bit),ei.SystemId EmpSystemId,z.Id,ei.EmployeeCode,ei.EmployeeName
+,format(sum(ISNULL(apd.AdditionalOT,0)),'N2') Minute
+                                ,format((sum(ISNULL(apd.AdditionalOT,0))/60),'N2') Hour
+                                ,format(g.Gross,'N2') Gross
+                                ,0 Rate,0 Amount
+								,apd.GWPaymentAdviseId 
+								,onw.FormulaDesID
+                                ,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
+								,B.Basic,B.BasicSalaryHeadID
+                                ,format(sum(apd.OverStay),'N2') OverStayMinute
+                                ,format((sum(apd.OverStay)/60),'N2') OverStayHour
+                                from [dbo].[AttdnProcessData] apd 
+                                left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID 
+                                left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+						        left join ORG.Position PO on PO.Id=MPB.PositionId
+                                LEFT OUTER JOIN ORG.Entity EN ON MPB.EntityId=EN.Id
+						        LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
+						        LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = ei.GivenDesignationId
+                                LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+						        LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
+                                LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
+                                LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = EI.SystemId
+								                                  LEFT JOIN(SELECT ((SID.DefineAmount/208)*2) RatePerHour,SH.SalaryHead
+								                                  ,SID.SalaryID,SID.DefineAmount Gross
+                                                                      FROM SalaryInfoDefine SID 
+								                                  LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
+                                                                    WHERE SH.HeadCategory='Gross')g ON g.SalaryID=SIDM.SystemID
+								left join (select gwpad.EmpSystemId,gwpad.Id
+									                                from GoodWorkPaymentAdvise gwpa
+									                                left join GoodWorkPaymentAdviseDetail gwpad on gwpad.PaymentAdviseId=gwpa.Id
+									                                where convert( DateTime, gwpa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, gwpa.ToDate) between '" + fromDate + @"' and '" + toDate + @"'
+									                                )z on z.EmpSystemId=apd.EmpSystemID
+                                left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
+								inner join (select DesignationMasterId,OverTimePmtPolicyMasterID,IsOTEntitled ,PlantId
+                                                            from scs.DesignationMasterConfiguration where PlantId in ('" + identity.PlantId + @"') and IsOTEntitled=1) dc 
+                                                            on dc.DesignationMasterId=dml.Id and ei.PlantId = dc.PlantId
+												left join OverTimePmtPolicyMaster otpm on otpm.ID=dc.OverTimePmtPolicyMasterID and otpm.PlantID in ('" + identity.PlantId + @"')
+												left join OverTimePmtPolicyDetails oNW on oNW.OverTimePmtPolicyID=otpm.ID and onw.OverTimeDayType='Working Day'
+								left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.SalaryID
+                                                                          FROM SalaryInfoDefine SID 
+								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
+                                                                        WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
+                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND OverStay<>0 AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 
+                                group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id,Department.UserName,Section.UserName,SubSection.UserName
+								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID
+                                )T WHERE T.CheckBoxSelect=0
+								order by T.EmployeeCode ";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            DataTable dtData = _sqlRepository.GetDataTable(sql);
+            for (int i = 0; i < dtData.Rows.Count; i++)
+            {
+                //if (i == 0)
+                //{
+                DataRow dtValueRow = dtValue.NewRow();
+
+                dtValueRow["BasicSalaryHeadID"] = dtData.Rows[i]["BasicSalaryHeadID"].ToString().Trim();
+                dtValueRow["Basic"] = dtData.Rows[i]["Basic"].ToString().Trim();
+
+                dtValue.Rows.Add(dtValueRow);
+                //}
+                //else if (i > 0 && string.IsNullOrEmpty(dtData.Rows[i]["FormulaDesID"].ToString()))
+                //{
+                //    DataRow dtValueRow = dtValue.NewRow();
+
+                //    dtValueRow["BasicSalaryHeadID"] = dtData.Rows[i]["BasicSalaryHeadID"].ToString().Trim();
+                //    dtValueRow["Basic"] = dtData.Rows[i]["Basic"].ToString().Trim();
+
+                //    dtValue.Rows.Add(dtValueRow);
+                //}
+                if (!string.IsNullOrEmpty(dtData.Rows[i]["FormulaDesID"].ToString()))
+                {
+                    ReLoadFormulaWithValue(dtData.Rows[i]["FormulaDesID"].ToString(), ref dtValue, out string _formulaValue);
+                    sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("#,##0");
+
+                    //DataRow dtValueRow = dtValue.NewRow();
+
+                    dtValueRow["BasicSalaryHeadID"] = dtData.Rows[i]["BasicSalaryHeadID"].ToString().Trim();
+                    dtValueRow["Rate"] = sFormulaResult;
+
+                    //dtValue.Rows.Add(dtValueRow);
+
+                    DataView dv = new DataView(dtData);
+                    dv.RowFilter = "EmpSystemId='" + dtData.Rows[i]["EmpSystemId"].ToString() + "'";
+                    if (dv.Count > 0)
+                    {
+                        DataRow drmo = dv[0].Row;
+
+                        drmo.BeginEdit();
+                        drmo["Rate"] = sFormulaResult;
+                        drmo["Amount"] = Convert.ToDecimal(sFormulaResult) * Convert.ToDecimal(dtData.Rows[i]["Hour"].ToString());
+                        drmo.EndEdit();
+
+                    }
+                    dtValue = new DataTable();
+                    dtValue.TableName = "TempTable";
+                    dtValue.Columns.Add("BasicSalaryHeadID");
+                    dtValue.Columns.Add("Basic");
+                    dtValue.Columns.Add("Rate");
+                }
+            }
+
+
+            List<Dictionary<string, object>> data = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtData);
+            JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        public void ReLoadFormulaWithValue(string strFormulaID, ref DataTable dtValue, out string lblFormulaValue/*, ref DataTable dtSlrHd*/)
+        {
+            DataSet dsLocal = null;
+            DataView dvLocal = null;
+            DataView dvSlrHd = null;
+
+            string strTemp = "";
+
+            try
+            {
+                dsLocal = new DataSet();
+
+                string strFormulaIDTemp = strFormulaID.Trim();
+
+                lblFormulaValue = "";
+
+                string[] strIdCol = strFormulaIDTemp.Split(' ');
+
+                DataTable dt = new DataTable();
+                dt.TableName = "IDLIST";
+                dt.Columns.Add("ID");
+                DataRow dr = null;
+                foreach (string id in strIdCol)
+                {
+                    dr = dt.NewRow();
+                    dr["ID"] = id.Trim();
+                    dt.Rows.Add(dr);
+                }
+                dsLocal.Tables.Add(dt);
+
+                for (int i = 0; i < dsLocal.Tables[0].Rows.Count; i++)
+                {
+                    strTemp = "";
+
+                    strTemp = dsLocal.Tables[0].Rows[i]["ID"].ToString();
+                    if (strTemp.Trim() == "+" || strTemp.Trim() == "-" || strTemp.Trim() == "*" || strTemp.Trim() == "/" || strTemp.Trim() == "(" || strTemp.Trim() == ")")
+                    {
+                        strTemp = dsLocal.Tables[0].Rows[i]["ID"].ToString();
+                    }
+                    else
+                    {
+                        dvLocal = new DataView();
+                        dvLocal.Table = dtValue;
+
+                        dvLocal.RowFilter = "BasicSalaryHeadID = '" + strTemp.Trim() + "'";
+                        if (dvLocal.Count > 0)
+                        {
+                            strTemp = dvLocal[0]["Basic"].ToString().Trim();
+                        }
+                    }
+
+                    lblFormulaValue += strTemp.Trim();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+            }
+        }//End 
+
+        [HttpPost, Authorize]
         public ActionResult LoadPCEmployeelist(string fromDate, string toDate, string tabName)
         {
             string sql = string.Empty;
@@ -921,11 +1162,19 @@ namespace Aplos.Areas.Attendances.Controllers
             {
                 if (tabName == "GoodWork")
                 {
-                    sql = @"select CheckBoxSelect=cast(case when z.Id is null then 0 else 1 end as bit),z.Id,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,sum(gw.Minute) Minute,(sum(gw.Minute)/60) Hour
-                                    ,format(g.Gross,'N2') Gross,format(g.RatePerHour,'N2') Rate,Amount=format((sum(gw.Minute)/60)*g.RatePerHour,'N2')
+                    sql = @"select CheckBoxSelect=cast(case when z.Id is null then 0 else 1 end as bit),z.Id,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,sum(gwd.Minute) Minute,(sum(gwd.Minute)/60) Hour
+                                    ,format(g.Gross,'N2') Gross,format(g.RatePerHour,'N2') Rate,Amount=format((sum(gwd.Minute)/60)*g.RatePerHour,'N2'),Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
                                      from [dbo].[GoodWork] gw
                                      left join  GoodWorkDetail GWD on GWD.GoodWorkId=gw.Id 
-                                     left join EmployeeInformation ei on ei.SystemId=GWD.EmpSystemId  
+                                     left join EmployeeInformation ei on ei.SystemId=GWD.EmpSystemId 
+                                    left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+						            left join ORG.Position PO on PO.Id=MPB.PositionId
+                                    LEFT OUTER JOIN ORG.Entity EN ON MPB.EntityId=EN.Id
+						            LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
+						            LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = ei.GivenDesignationId
+                                    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+						            LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
+                                    LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
                                      LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = EI.SystemId
                                      LEFT JOIN(SELECT SID.DefineAmount Basic,((SID.DefineAmount/208)*2) RatePerHour,SH.SalaryHead
 								                                      ,SID.SalaryID,SID.DefineAmount Gross
@@ -937,21 +1186,29 @@ namespace Aplos.Areas.Attendances.Controllers
 									                                left join GoodWorkPaymentAdviseDetail gwpad on gwpad.PaymentAdviseId=gwpa.Id
 									                                where convert( DateTime, gwpa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, gwpa.ToDate) between '" + fromDate + @"' and '" + toDate + @"'
 									                                )z on z.EmpSystemId=GWD.EmpSystemId
-                                     where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and gw.Minute<>0 and g.Gross<>0  and SIDM.IsApproved=1
-                                     group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,z.Id
+                                     where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and gwd.Minute<>0 and g.Gross<>0  and SIDM.IsApproved=1 AND gw.ApprovedStatus='Approved'
+                                     group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,z.Id,Department.UserName,Section.UserName,SubSection.UserName
                                     order by ei.EmployeeCode";
 
                 }
-                else if (tabName == "ExtraOT")
+                else
                 {
                     sql = @"select CheckBoxSelect=cast(case when z.Id is null then 0 else 1 end as bit),ei.SystemId EmpSystemId,z.Id,ei.EmployeeCode,ei.EmployeeName,format(sum(apd.OverStay),'N2') Minute
                                 ,format((sum(apd.OverStay)/60),'N2') Hour
                                 ,format(g.Gross,'N2') Gross
                                 ,format(g.RatePerHour,'N2') Rate 
                                 ,Amount=format(g.RatePerHour*(sum(apd.OverStay)/60),'N2'),apd.GWPaymentAdviseId 
-
+                                ,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
                                 from [dbo].[AttdnProcessData] apd 
-                                left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID  
+                                left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID 
+                                left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+						        left join ORG.Position PO on PO.Id=MPB.PositionId
+                                LEFT OUTER JOIN ORG.Entity EN ON MPB.EntityId=EN.Id
+						        LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
+						        LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = ei.GivenDesignationId
+                                LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+						        LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
+                                LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
                                 LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = EI.SystemId
 								                                  LEFT JOIN(SELECT ((SID.DefineAmount/208)*2) RatePerHour,SH.SalaryHead
 								                                  ,SID.SalaryID,SID.DefineAmount Gross
@@ -964,34 +1221,10 @@ namespace Aplos.Areas.Attendances.Controllers
 									                                where convert( DateTime, gwpa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, gwpa.ToDate) between '" + fromDate + @"' and '" + toDate + @"'
 									                                )z on z.EmpSystemId=apd.EmpSystemID
                                 where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND OverStay<>0 AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 
-                                group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id
+                                group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id,Department.UserName,Section.UserName,SubSection.UserName
                                 order by ei.EmployeeCode";
                 }
-                else
-                {
-                    sql = @"select ei.SystemId EmpSystemId,'' Id,ei.EmployeeCode,ei.EmployeeName,format(sum(apd.OverStay),'N2') Minute
-                                ,format((sum(apd.OverStay)/60),'N2') Hour
-                                ,format(g.Gross,'N2') Gross
-                                ,format(g.RatePerHour,'N2') Rate 
-                                ,Amount=format(g.RatePerHour*(sum(apd.OverStay)/60),'N2'),apd.GWPaymentAdviseId 
-                                ,gwpa.Remarks
-                                from [dbo].[AttdnProcessData] apd 
-                                left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID
-                                left join GoodWorkPaymentAdvise gwpa on gwpa.Id=apd.GWPaymentAdviseId
-                                LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = EI.SystemId
-								                                  LEFT JOIN(SELECT ((SID.DefineAmount/208)*2) RatePerHour,SH.SalaryHead
-								                                  ,SID.SalaryID,SID.DefineAmount Gross
-                                                                      FROM SalaryInfoDefine SID 
-								                                  LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
-                                                                    WHERE SH.HeadCategory='Gross')g ON g.SalaryID=SIDM.SystemID
-                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND OverStay<>0 AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 
-                                and apd.EmpSystemID in (select EmpSystemId
-									                                from GoodWorkPaymentAdvise gwpa
-									                                left join GoodWorkPaymentAdviseDetail gwpad on gwpad.PaymentAdviseId=gwpa.Id
-									                                where convert( DateTime, gwpa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, gwpa.ToDate) between '" + fromDate + @"' and '" + toDate + @"' and gwpad.IsDisburse<>1
-									                                )
-                                group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,gwpa.Remarks";
-                }
+
             }
             catch (Exception ex)
             {
@@ -1252,10 +1485,10 @@ namespace Aplos.Areas.Attendances.Controllers
         public ActionResult GetGoodWorkPaymentList(string paymentSource)
         {
             string sql = @"select ei.EmployeeCode,ei.EmployeeName ByWhom,gwp.Id,FORMAT(gwp.FromDate,'dd-MMM-yyy') FromDate,FORMAT(gwp.ToDate,'dd-MMM-yyy')ToDate
-						,gwp.UserRef,FORMAT(gwp.PaymentDate,'dd-MMM-yyy') PaymentDate,gwp.Remarks
+						,gwp.UserRef,FORMAT(gwp.PaymentDate,'dd-MMM-yyy') PaymentDate,gwp.Remarks,gwp.ApprovedById
 						from GoodWorkPaymentAdvise gwp 
 						left join EmployeeInformation ei on ei.SystemId=gwp.ByWhomId
-                        where gwp.PaymentSource='" + paymentSource + "'";
+                        where gwp.ApprovedStatus is null AND gwp.PaymentSource='" + paymentSource + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -1268,7 +1501,7 @@ namespace Aplos.Areas.Attendances.Controllers
 						,gwp.UserRef,FORMAT(gwp.PaymentDate,'dd-MMM-yyy') PaymentDate,gwp.Remarks,gwp.PaymentSource
 						from GoodWorkPaymentAdvise gwp 
 						left join EmployeeInformation ei on ei.SystemId=gwp.ByWhomId
-                        where gwp.ApprovedStatus is null AND gwp.ApprovedById='"+identity.EmployeeId+"' ";
+                        where gwp.ApprovedStatus is null AND gwp.ApprovedById='" + identity.EmployeeId + "' ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -1395,7 +1628,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     }
                 }
             }
-            
+
 
             string sql = null;
             sql = @"SELECT
@@ -1608,26 +1841,26 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetGoodWorkCheckByCbo()
+        public JsonResult GetGoodWorkCheckByCbo(string setupId)
         {
             var sql = @"select distinct E.SystemId As Value,(E.EmployeeCode+'-'+ E.EmployeeName) Text  
                           from dbo.GoodWorkCheckBySetUp A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.CheckById 
-                          where E.EmployeeStatus='Active' ";
+                          where E.EmployeeStatus='Active' AND A.GoodWorkSetUpId='"+ setupId + "'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetGoodWorkApprovedByCbo()
+        public JsonResult GetGoodWorkApprovedByCbo(string setupId)
         {
             var sql = @"select distinct E.SystemId As Value,(E.EmployeeCode+'-'+ E.EmployeeName) Text  
                           from dbo.GoodWorkAuthoritySetUp A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.AuthorityId 
-                          where E.EmployeeStatus='Active'";
+                          where E.EmployeeStatus='Active' AND A.GoodWorkSetUpId='" + setupId + "'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-        
+
         #region Good work check
         [HttpGet, Authorize]
         public ActionResult GetUncheckedData()
@@ -1930,7 +2163,7 @@ namespace Aplos.Areas.Attendances.Controllers
                                     left join ShiftDefination S on S.SystemId=GW.ShiftId
 									left join [dbo].[GoodWorkSetup] GWS on GWS.Id=GW.UserGroupId
 									left join EmployeeInformation ei on ei.SystemId=gw.CheckedBy
-                                    where GW.CheckedBy='" + identity.EmployeeId + "'";
+                                    where GW.CheckedBy='" + identity.EmployeeId + "' AND CheckedStatus<>'Checked'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -1946,7 +2179,7 @@ namespace Aplos.Areas.Attendances.Controllers
                                     left join ShiftDefination S on S.SystemId=GW.ShiftId
 									left join [dbo].[GoodWorkSetup] GWS on GWS.Id=GW.UserGroupId
 									left join EmployeeInformation ei on ei.SystemId=gw.CheckedBy
-                                    where GW.ApprovedBy='" + identity.EmployeeId + "'";
+                                    where GW.ApprovedBy='" + identity.EmployeeId + "'AND CheckedStatus='Checked'  AND ApprovedStatus<>'Approved'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

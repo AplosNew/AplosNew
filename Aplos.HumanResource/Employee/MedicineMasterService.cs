@@ -1251,7 +1251,7 @@ where MRC.MedicineReceiptId = '" + masterId + @"'
         #endregion Const
 
         #region GET OP
-        public IEnumerable<object> getMedicineList()
+        public IEnumerable<object> GetMedicineList()
         {
             try
             {
@@ -1275,14 +1275,19 @@ where MRC.MedicineReceiptId = '" + masterId + @"'
             }
         }
 
-        public IEnumerable<object> getMedicineByReceipt(string medicinemasterId)
+        public IEnumerable<object> GetMedicineByReceipt(string medicinemasterId)
         {
             try
             {
-                var sql = @"select '' Id, MRC.Id MedicineReceiptChildId, MM.UserName Medicine, MRC.Quantity Stock, FORMAT(MRC.ExpiryDate, 'dd-MMM-yyyy')ExpiryDate
-                        from TRN.MedicineReceiptChild MRC
-                        
-                        left join HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
+                var sql = @"SELECT '' Id, MRC.Id MedicineReceiptChildId, MM.UserName Medicine,isnull(MR.Receipt,0)-isnull(ESM.Issue,0) Stock, FORMAT(MRC.ExpiryDate, 'dd-MMM-yyyy')ExpiryDate
+                            FROM TRN.MedicineReceiptChild MRC 
+                            LEFT JOIN hkp.MedicineMaster MM ON MM.Id=MRC.MedicineMasterId
+                            left join (select mm.Id,sum(MRC.Quantity) Receipt from hkp.MedicineMaster MM
+                            left join trn.MedicineReceiptChild MRC on MRC.MedicineMasterId = MM.id group by mm.Id) MR on MR.Id = MM.Id
+                            left join (SELECT MM.Id, SUM(ESM.Quantity) Issue FROM HKP.MedicineMaster MM
+                            LEFT JOIN TRN.MedicineReceiptChild MRC ON MRC.MedicineMasterId = MM.Id
+                            LEFT JOIN TRN.EmployeeSicknessMedicines ESM ON ESM.MedicineReceiptChildId = MRC.Id
+                            Group By mm.id) ESM on ESM.Id = MM.Id
                         where MRC.Quantity is not null and MM.Id = '" + medicinemasterId + "'order by MRC.ExpiryDate";
 
                 return _sqlRepository.GetDataCollection(sql);
@@ -1293,7 +1298,7 @@ where MRC.MedicineReceiptId = '" + masterId + @"'
             }
         }
 
-        public IEnumerable<object> getSicknessType()
+        public IEnumerable<object> GetSicknessType()
         {
             try
             {
@@ -1309,7 +1314,7 @@ where MRC.MedicineReceiptId = '" + masterId + @"'
             }
         }
 
-        public IEnumerable<object> getEmployee()
+        public IEnumerable<object> GetEmployee()
         {
             try
             {
@@ -1363,7 +1368,7 @@ where MRC.MedicineReceiptId = '" + masterId + @"'
         #endregion SEARCH SAVED DATA IN GRID
 
        
-        public IEnumerable<object> medicallogGridView()
+        public IEnumerable<object> MedicallogGridView()
         {
             try
             {

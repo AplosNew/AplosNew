@@ -451,7 +451,8 @@ namespace Aplos.Areas.IE.Controllers
 Case when MM.IsAsset = 0 then 'No' else 'Yes' end IsAsset FROM MST.MaterialMasterArticle MA
 left join MST.MaterialMaster MM on MM.Id=MA.MaterialMasterId
 left join MST.MaterialGroupMaster MGM ON MGM.Id=MM.MaterialGroupMasterId
-left join HKP.MaterialType MT ON MT.Id=MGM.MaterialTypeId";
+left join HKP.MaterialType MT ON MT.Id=MGM.MaterialTypeId
+Where  MA.Active=1";
             var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;

@@ -153,6 +153,7 @@ namespace Library.HumanResource.Payroll
                             dr.BeginEdit();
                             dr["AdvanceId"] = item.AdvanceId;
                             dr["AdvanceReqScheduleId"] = item.AdvanceReqScheduleId;
+                            dr["EmployeeSalaryAdvanceId"] = item.EmployeeSalaryAdvanceId;
                             dr["YearNo"] = item.YearNo;
                             dr["MonthNo"] = item.MonthNo;
 
@@ -171,6 +172,7 @@ namespace Library.HumanResource.Payroll
                             drBp["EmployeeId"] = item.EmployeeId;
                             drBp["AdvanceId"] = item.AdvanceId;
                             drBp["AdvanceReqScheduleId"] = item.AdvanceReqScheduleId;
+                            drBp["EmployeeSalaryAdvanceId"] = item.EmployeeSalaryAdvanceId;
                             drBp["YearNo"] = item.YearNo;
                             drBp["MonthNo"] = item.MonthNo;
 
@@ -618,6 +620,7 @@ public class SalaryAdvance
     public string EmployeeId { get; set; }
     public string AdvanceId { get; set; }
     public string AdvanceReqScheduleId { get; set; }
+    public string EmployeeSalaryAdvanceId { get; set; }
     public string YearNo { get; set; }
     public string MonthNo { get; set; }
     public string MWESAMasterSystemID { get; set; }

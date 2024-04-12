@@ -46,7 +46,7 @@
                 <label class="col-sm-4 control-label">User Group<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select id="UserGroup" class="form-control" ng-model="ModelNew.UserGroupId" name="User Group" ng-change="getFiltersData();" required tabindex="9">
+                        <select id="UserGroup" class="form-control" ng-model="ModelNew.UserGroupId" name="User Group" ng-change="getFiltersData();GetGoodWorkCheckByCbo();" required tabindex="9">
                             <option value="">--Select--</option>
                             <option ng-repeat="option in userGroupDataList" value="{{option.Value}}">{{option.Text}}</option>
                         </select>
@@ -138,9 +138,9 @@
                     <th>InTime</th>
                     <th>OutTime</th>
                     <th>Day Status</th>
+                    <th>Department</th>
                     <th>Section</th>
                     <th>SubSection</th>
-                    <th>Department</th>
                     <th>Remarks</th>
                 </tr>
             </thead>
@@ -175,9 +175,9 @@
                     <td>{{x.InTime}}</td>
                     <td>{{x.OutTime}}</td>
                     <td>{{x.DayStatus}}</td>
+                    <td>{{x.Department}}</td>
                     <td>{{x.Section}}</td>
                     <td>{{x.SubSection}}</td>
-                    <td>{{x.Department}}</td>
                     <td><input type="text" name="Remarks" ng-model="x.Remark" class="form-control" maxlength="15" required tabindex="3"></td>
 
                 </tr>

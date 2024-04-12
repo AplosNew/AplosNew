@@ -467,4 +467,119 @@ function balanceSheetSchedulingController(commonMessage, $scope, $rootScope, bas
         $scope.balanceSheetScheduling.FormulaDescription = $scope.balanceSheetScheduling.FormulaDes;
 
     }
+
+    $scope.CheckingUploadedData = [];
+   
+
+    $scope.GetCheckSampleFile = function () {
+        var ReportFormat = 'Excel';
+        location.href = 'accounts/BalanceSheetScheduling/GetCheckSampleFile?reportFormat=' + ReportFormat;
+    };
+
+    $scope.picchkdata = null;
+    $scope.ShowSaveBtn = false;
+    $("#uploadImage").change(function () {
+        $scope.picchkdata = this.files[0];
+    });
+
+    $scope.ImportCheckData = function () {
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+           
+                var picChkData = new FormData();
+                $http({
+                    method: 'POST',
+                    url: $scope.pathBalanceSheetScheduling + 'ImportCheckData',
+                    headers: { 'Content-Type': undefined },
+                    transformRequest: function (data) {
+                        picChkData.append("modelNew", angular.toJson(data.modelNew));
+                        if (baseService.isUndefinedOrNull($scope.picchkdata) === false) {
+                            picChkData.append('file', data.file);
+                        }
+                        return picChkData;
+                    },
+                    data: {
+                        'file': $scope.picchkdata
+
+                    }
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        $scope.ShowSaveBtn = false;
+                        ShowResult(response.data.Message, "failure");
+
+                    }
+                    else {
+                        $scope.CheckingUploadedData = [];
+                        $scope.CheckingUploadedData = response.data;
+                        $scope.ShowSaveBtn = true;
+                    }
+                }, function errorCallback(response) {
+
+                });
+                return true;
+
+           
+        } catch (e) {
+
+            ShowResult(e, "failure");
+        }
+    };
+
+
+    $scope.GetApproveSampleFile = function () {
+        var ReportFormat = 'Excel';
+        location.href = 'accounts/BalanceSheetScheduling/GetApproveSampleFile?reportFormat=' + ReportFormat;
+    };
+    $scope.ApprovingUploadedData = [];
+    $scope.picAppdata = null;
+    $scope.ShowSaveBtn = false;
+    $("#uploadImage").change(function () {
+        $scope.picAppdata = this.files[0];
+    });
+
+    $scope.ImportApproveData = function () {
+        try {
+           
+
+            var picAppData = new FormData();
+            $http({
+                method: 'POST',
+                url: $scope.pathBalanceSheetScheduling + 'ImportApproveData',
+                headers: { 'Content-Type': undefined },
+                transformRequest: function (data) {
+                    picAppData.append("modelNew", angular.toJson(data.modelNew));
+                    if (baseService.isUndefinedOrNull($scope.picAppdata) === false) {
+                        picAppData.append('file', data.file);
+                    }
+                    return picAppData;
+                },
+                data: {
+                    'file': $scope.picAppdata
+
+                }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    $scope.ShowSaveBtn = false;
+                    ShowResult(response.data.Message, "failure");
+
+                }
+                else {
+                    $scope.ApprovingUploadedData = [];
+                    $scope.ApprovingUploadedData = response.data;
+                    $scope.ShowSaveBtn = true;
+                }
+            }, function errorCallback(response) {
+
+            });
+            return true;
+
+
+        } catch (e) {
+
+            ShowResult(e, "failure");
+        }
+    };
+
+
+
 }

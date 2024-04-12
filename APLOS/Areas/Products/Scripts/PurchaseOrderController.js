@@ -1150,6 +1150,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
             , PartyType: $scope.partyType
             , PlantId: $window.plantId
             , IsTradingPO: false
+            , Tolerance:0
         };
 
         $scope.inventoryMaterialList = [];
@@ -1161,7 +1162,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
         //$scope.getToCurrencyRate();
         $scope.productNew.OrderSpecific = 'No';
         $scope.productNew.DiscountAmount = '0';
-        $scope.productNew.Tolerance = '0';
     }
 
 
@@ -4356,13 +4356,14 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
                 }
                 $scope.receiveTaxList.push($scope.inventoryMaterialList[i].TaxList[t]);
             }
+            if ($scope.productNew.Tolerance > 0 && $scope.inventoryMaterialList[i].Tolerance == 0) {
+                $scope.inventoryMaterialList[i].Tolerance = $scope.productNew.Tolerance;
+            }
         }
         $http({
             method: 'POST',
             url: 'Products/PurchaseOrder/UpdateMaterial',
             data: {
-                //entity: JSON.stringify($scope.inventoryMaterialList),
-                //receiveTaxList: JSON.stringify($scope.receiveTaxList)
                 entity: $scope.inventoryMaterialList,
                 receiveTaxList: $scope.receiveTaxList
             },
@@ -4372,12 +4373,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                //ShowResult(response.data.Message, 'success');
-                //$scope.productNew.Id = response.data.entity.Id;
-                //$scope.productNew.PartyName = $scope.product.PartyName;
-                //$scope.Action = "Update";
-                //getInventoryMaterialList($scope.detailModel.Id);
-
+               
             }
         }), function (response) {
             ShowResult(response.data.Message, 'failure');

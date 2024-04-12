@@ -18,6 +18,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     $scope.saveABUrl = $scope.path + 'CreateGlManagementActionBy';
     $scope.saveAPBUrl = $scope.path + 'CreateGlManagementApproveBy';
     $scope.saveRPUrl = $scope.path + 'CreateGlManagementResponsiblePersosn';
+    $scope.saveAccessControlUrl = $scope.path + 'CreateGlManagementAccessControl';
     $scope.deleteUrl = $scope.path + 'DeleteGlControl/';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
@@ -1171,7 +1172,176 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
 
     //#endregion Responsible Person
 
+    //#region Process
 
+    $scope.ProcessListData = [];
+    $scope.GetProcessData = function () {
+        $http({
+            method: 'GET',
+            url: 'Accounts/GLManagement/GetGLManagementProcessData?GlManagementId=' + $scope.GlManagementId
+        }).then(function successCallback(response) {
+            $scope.ProcessListData = response.data;
+        });
+    }
+
+
+    $scope.ProcessList = [];
+    $scope.OKProcess = function () {
+        $scope.ProcessList = [];
+        try {
+            for (var i = 0; i < $scope.ProcessListData.length; i++) {
+                if ($scope.ProcessListData[i].CheckBoxSelect == true) {
+                    $scope.ProcessList.push($scope.ProcessListData[i]);
+                }
+                if ($scope.ProcessListData[i].CheckBoxSelect == false && $scope.ProcessListData[i].Id != null) {
+                    $scope.ProcessList.push($scope.ProcessListData[i]);
+                }
+            }
+            $scope.SaveProcessData();
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+
+    $scope.refreshTemplateProcess = function (args) {
+        $("#Processheadchk").ejCheckBox({ "change": CheckBoxSelectAllProcess });
+    };
+
+    function CheckBoxSelectAllProcess(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+        var filtered = $("#GridProcess").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ProcessListData.length; i++) {
+                $scope.ProcessListData[i].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridProcess").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.SaveProcessData = function () {
+        if (baseService.isUndefinedOrNull($scope.GlManagementId)) {
+            return ShowResult('Please select GL Management!', 'failure');
+        }
+        for (var i = 0; i < $scope.ProcessList.length; i++) {
+            for (var j = 0; j < $scope.ProcessListData.length; j++) {
+                if ($scope.ProcessListData[j].Id == $scope.ProcessList[i].Id) {
+                    if ($scope.ProcessListData[j].CheckBoxSelect == false) {
+                        $scope.ProcessList[i].CheckBoxSelect = false;
+                    }
+                }
+            }
+        }
+        $http({
+            method: 'POST',
+            url: $scope.saveProcessUrl,
+            data: { 'data': $scope.ProcessList, 'GlManagementId': $scope.GlManagementId},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetProcessData();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+    //#endregion Process
+
+    //region View
+
+
+    $scope.GlManagementAccessControlData = [];
+    $scope.GetGlManagementAccessControl = function () {
+        $http({
+            method: 'GET',
+            url: 'Accounts/GLManagement/GlManagementAccessControl?GlManagementId=' + $scope.GlManagementId
+        }).then(function successCallback(response) {
+            $scope.GlManagementAccessControlData = response.data;
+        });
+    }
+
+
+    $scope.CombineList = [];
+    $scope.OKGlManagementAccessControl = function () {
+        $scope.AccessControlList = [];
+        try {
+            for (var i = 0; i < $scope.GlManagementAccessControlData.length; i++) {
+                if ($scope.GlManagementAccessControlData[i].CheckBoxSelect == true) {
+                    $scope.AccessControlList.push($scope.CombineListData[i]);
+                }
+                if ($scope.GlManagementAccessControlData[i].CheckBoxSelect == false && $scope.GlManagementAccessControlData[i].Id != null) {
+                    $scope.AccessControlList.push($scope.CombineListData[i]);
+                }
+            }
+            $scope.SaveAccessControl();
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+
+    $scope.refreshTemplateProcess = function (args) {
+        $("#Processheadchk").ejCheckBox({ "change": CheckBoxSelectAllProcess });
+    };
+
+    function CheckBoxSelectAllCombine(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+        var filtered = $("#GridProcess").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ProcessListData.length; i++) {
+                $scope.ProcessListData[i].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridProcess").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.SaveAccessControl = function () {
+        if (baseService.isUndefinedOrNull($scope.GlManagementId)) {
+            return ShowResult('Please select GL Management!', 'failure');
+        }
+        
+        $http({
+            method: 'POST',
+            url: $scope.saveProcessUrl,
+            data: { 'data': $scope.AccessControlList, 'GlManagementId': $scope.GlManagementId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetProcessData();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+    //#End Region
     $scope.report = {
         GLName: null,
         GLGeneralInfoId: null,
@@ -1317,7 +1487,5 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
             ShowResult(response.data.Message, 'failure');
         });
     }
-
-
 
 }
