@@ -10768,6 +10768,121 @@ where QAT.ParameterId='" + ParameterId + "'";
         }
 
         #endregion Quality Action 
+        #region UtilityMaster
+        public void GetUtilityTransectionDetail(out List<UtilityMasterGet> DataList, string UtilityMasterId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<UtilityMasterGet>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+
+                strSQL = @"Select TOP(1)* from (select LastReading=(select LastReading=(select top(1) Reading from UtilityTransaction Where UtilityMasterId ='" + UtilityMasterId + @"' order by Date desc))
+									, LastReadingDate=(select top(1) FORMAT([Date],'dd-MMM-yyyy') from UtilityTransaction Where UtilityMasterId='" + UtilityMasterId + @"' order by Date desc) + ' ' +
+                                     (select top(1) CONVERT(varchar(5),[AddedDate],108) from UtilityTransaction Where UtilityMasterId = '" + UtilityMasterId + @"' order by Date desc)
+                                    , MultiplyingFactor = (select top(1)  MultiplyingFactor from UtilityMaster where Id = '" + UtilityMasterId + @"' order by Date desc)
+									,UtilityMasterId = (Select distinct Id from UtilityMaster where Id = '" + UtilityMasterId + @"' )
+									,UtilityMaster = (Select distinct UserName from UtilityMaster where Id = '" + UtilityMasterId + @"' )
+                                    from UtilityTransaction
+                                    Where UtilityMasterId='" + UtilityMasterId + @"')A";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new UtilityMasterGet
+                    {
+                        LastReading = dsRef.Tables[0].Rows[i]["LastReading"].ToString(),
+                        LastReadingDate = dsRef.Tables[0].Rows[i]["LastReadingDate"].ToString(),
+                        MultiplyingFactor = dsRef.Tables[0].Rows[i]["MultiplyingFactor"].ToString(),
+                        UtilityMaster = dsRef.Tables[0].Rows[i]["UtilityMaster"].ToString(),
+                        UtilityMasterId = dsRef.Tables[0].Rows[i]["UtilityMasterId"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public string PostUtilityTransection(IEnumerable<UtilityMasterGet> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "UtilityTransaction";
+                string Id = "''";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<UtilityMasterGet> items = DataToSave.ToList();
+
+                foreach (UtilityMasterGet item in DataToSave)
+                {
+                    Id += ",'" + item.Id + "'";
+                }
+
+                con.OpenDataSetThroughAdapter("select * from UtilityTransaction where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+
+                foreach (UtilityMasterGet item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+                        dr["Id"] = "20" + _Id;
+                        dr["Date"] = item.Date;
+                        dr["UtilityMasterId"] = item.UtilityMasterId;
+                        dr["Reading"] = item.Reading;
+                        dr["Remarks"] = item.Remarks;
+                        dr["Quantity"] = item.Quantity;
+                        dr["LastReading"] = item.LastReading;
+                        dr["LastReadingDate"] = item.LastReadingDate;
+                        dr["LastReadingTime"] = item.LastReadingTime;
+                        dr["MultiplyingFactor"] = item.MultiplyingFactor;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+                    
+                }
+                
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+        }
+        #endregion UtilityMaster
     }
 
 
@@ -12099,5 +12214,27 @@ where QAT.ParameterId='" + ParameterId + "'";
         public string ConfirmBy { get; set; }
         public string ConfirmationRemarks { get; set; }
        
+    }
+
+    public class UtilityMasterGet
+    {
+        public string Id { get; set; }
+        public string Date { get; set; }
+        public string UtilityMasterId { get; set; }
+        public string Reading { get; set; }
+        public string Quantity { get; set; }
+        public string LastReading { get; set; }
+        public string LastReadingDate { get; set; }
+        public string LastReadingTime { get; set; }
+        public string Remarks { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
+        public string MultiplyingFactor { get; set; }
+        public string UtilityMaster { get; set; }
+
     }
 }
