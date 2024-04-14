@@ -319,7 +319,7 @@ namespace Library.Service.SalaryDisbursement
                                         var advance = _advanceService.Find(item.AdvanceId);
                                         var advancesalaryAdvance = accountCommonExtensionService.GetEmployeeSalaryAdvane(item.EmployeeSalaryAdvanceId);
 
-                                        if (advance != null)
+                                        if (advancesalaryAdvance == null)
                                         {
 
 
@@ -426,7 +426,7 @@ namespace Library.Service.SalaryDisbursement
                                             AuditService.AddedLog(EmployeeSubsequentAdvancedirect);
                                             _employeeSubsequentTransactionRepository.Insert(EmployeeSubsequentAdvancedirect);
                                         }
-                                        else 
+                                        else if(advancesalaryAdvance.Count>0)
                                         {
                                             currentAdvanceWriteOffDetailId++;
                                             var advanceWriteOffDetail = new AdvanceWriteOffDetail
@@ -705,7 +705,7 @@ namespace Library.Service.SalaryDisbursement
                                         var advance = _advanceService.Find(item.AdvanceId);
                                         var advancesalaryAdvance = accountCommonExtensionService.GetEmployeeSalaryAdvane(item.EmployeeSalaryAdvanceId);
 
-                                        if (advance != null)
+                                        if (advancesalaryAdvance == null)
                                         {
                                             advance.WrittenOffAmount += item.Amount;
                                             advance.IsWrittenOff = advance.Amount == advance.WrittenOffAmount;
@@ -809,7 +809,7 @@ namespace Library.Service.SalaryDisbursement
                                             AuditService.AddedLog(EmployeeSubsequentAdvancedirect);
                                             _employeeSubsequentTransactionRepository.Insert(EmployeeSubsequentAdvancedirect);
                                         }
-                                        else
+                                        else if (advancesalaryAdvance.Count > 0)
                                         {
                                            
 

@@ -146,7 +146,7 @@ namespace Library.HumanResource.Payroll
                 {
                     if (item.IsSelected == true)
                     {
-                        dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "' and AdvanceId='" + item.AdvanceId + "' ";
+                        dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "' and AdvanceId='" + item.AdvanceId + "' and EmployeeSalaryAdvanceId='"+item.EmployeeSalaryAdvanceId+"' ";
                         if (dsChild.Tables[0].DefaultView.Count == 1)
                         {
                             DataRow dr = dsChild.Tables[0].DefaultView[0].Row;

@@ -870,7 +870,7 @@ namespace Library.Service.Extension.Accounts
 
         public Dictionary<string, object> GetEmployeeSalaryAdvane(string id)
         {
-            var sql = @"select top(1) esa.*,vd.GlGeneralInfoId,vd.BudgetMasterId,vd.ActivityId from TRN.EmployeeSalaryAdvance esa 
+            var sql = @"select top(1) esa.*,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId from TRN.EmployeeSalaryAdvance esa 
                 left join trn.voucherdetail vd on vd.id=esa.VoucherDetailId where esa.Id='" + id + "'";
             var customerAdvanceTemp = _sqlRepository.GetData(sql);
 
