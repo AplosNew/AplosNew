@@ -103,7 +103,6 @@ namespace Aplos.Areas.Payrolls.Controllers
 													WHERE ars.YearNo='" + Year + "' and ars.MonthNo='"+ Month + @"' group by ead.EmployeeSalaryAdvanceId ) Recovered on Recovered.EmployeeSalaryAdvanceId = esa.Id
 													
                                     where ars.YearNo='" + Year + "' and ars.MonthNo='" + Month + @"' and esa.EmployeeId<>'' and esa.PlantId='"+ plantId + @"'
-									
                                     order by esa.EmployeeId";
                 return _sqlRepository.GetDataCollection(CmdText);
             }
