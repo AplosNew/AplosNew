@@ -1427,5 +1427,26 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
         #endregion Quality Acion 
+        #region Utility Master
+        public List<UtilityMasterGet> GetUtilityTransectionDetail(string UtilityMasterId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetUtilityTransectionDetail(out List<UtilityMasterGet> activelists, UtilityMasterId);
+            return activelists;
+        }
+
+        public string PostUtilityTransection([FromBody] IEnumerable<UtilityMasterGet> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostUtilityTransection(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+        #endregion Utility Master
     }
 }
