@@ -222,11 +222,19 @@ namespace Library.Service.SalaryDisbursement
         }
         private bool CheckAdvanceWriteOff(IEnumerable<VoucherDetailViewModel> list)
         {
+            AccountCommonExtensionService accountCommonExtensionService = new AccountCommonExtensionService();
+
             bool isAdvance = false;
             foreach (var item in list)
             {
                 var advance = _advanceService.Find(item.AdvanceId);
+                var advancesalaryAdvance = accountCommonExtensionService.GetEmployeeSalaryAdvane(item.EmployeeSalaryAdvanceId);
                 if (advance != null)
+                {
+                    isAdvance = true;
+                    break;
+                }
+                else if (advancesalaryAdvance.Count > 0)
                 {
                     isAdvance = true;
                     break;
@@ -308,7 +316,7 @@ namespace Library.Service.SalaryDisbursement
                                 directdata.VoucherId = directVoucherId;
                                 directdata.PartyType = "Employee";
                                 directdata.Amount = directSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance" && r.ActivityId == directVoucherDetailVM.ActivityId).Sum(r => r.Amount);
-                                bool isAdvance = CheckAdvanceWriteOff(directSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance" && r.ActivityId == directVoucherDetailVM.ActivityId));
+                                bool isAdvance = CheckAdvanceWriteOff(directSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance"  && r.ActivityId == directVoucherDetailVM.ActivityId));
                                 if (isAdvance)
                                 {
                                     var advanceWriteOff = InsertAdvanceWriteOff(directdata);
@@ -319,7 +327,7 @@ namespace Library.Service.SalaryDisbursement
                                         var advance = _advanceService.Find(item.AdvanceId);
                                         var advancesalaryAdvance = accountCommonExtensionService.GetEmployeeSalaryAdvane(item.EmployeeSalaryAdvanceId);
 
-                                        if (advance != null)
+                                        if (advancesalaryAdvance == null && advance!=null && advance.EmployeeId==item.EmployeeId && item.IsOrderSpecific == false)
                                         {
 
 
@@ -425,8 +433,10 @@ namespace Library.Service.SalaryDisbursement
                                             };
                                             AuditService.AddedLog(EmployeeSubsequentAdvancedirect);
                                             _employeeSubsequentTransactionRepository.Insert(EmployeeSubsequentAdvancedirect);
+                                            item.IsOrderSpecific = true;
+
                                         }
-                                        else 
+                                        else if(advancesalaryAdvance.Count>0 && advancesalaryAdvance["EmployeeId"].ToString()== item.EmployeeId && item.IsOrderSpecific == false)
                                         {
                                             currentAdvanceWriteOffDetailId++;
                                             var advanceWriteOffDetail = new AdvanceWriteOffDetail
@@ -507,8 +517,9 @@ namespace Library.Service.SalaryDisbursement
                                             };
                                             AuditService.AddedLog(EmployeeSubsequentAdvancedirect);
                                             _employeeSubsequentTransactionRepository.Insert(EmployeeSubsequentAdvancedirect);
-                                        }
+                                            item.IsOrderSpecific = true;
 
+                                        }
                                     }
                                     if (directVoucherDetailVM.CrAmount - directAmount > 0)
                                     {
@@ -705,7 +716,7 @@ namespace Library.Service.SalaryDisbursement
                                         var advance = _advanceService.Find(item.AdvanceId);
                                         var advancesalaryAdvance = accountCommonExtensionService.GetEmployeeSalaryAdvane(item.EmployeeSalaryAdvanceId);
 
-                                        if (advance != null)
+                                        if (advancesalaryAdvance == null && advance != null && advance.EmployeeId == item.EmployeeId && item.IsOrderSpecific == false)
                                         {
                                             advance.WrittenOffAmount += item.Amount;
                                             advance.IsWrittenOff = advance.Amount == advance.WrittenOffAmount;
@@ -808,8 +819,9 @@ namespace Library.Service.SalaryDisbursement
                                             };
                                             AuditService.AddedLog(EmployeeSubsequentAdvancedirect);
                                             _employeeSubsequentTransactionRepository.Insert(EmployeeSubsequentAdvancedirect);
+                                            item.IsOrderSpecific = true;
                                         }
-                                        else
+                                        else if (advancesalaryAdvance.Count > 0 && advancesalaryAdvance["EmployeeId"].ToString()==item.EmployeeId && item.IsOrderSpecific == false)
                                         {
                                            
 
@@ -894,7 +906,9 @@ namespace Library.Service.SalaryDisbursement
                                             };
                                             AuditService.AddedLog(EmployeeSubsequentAdvancedirect);
                                             _employeeSubsequentTransactionRepository.Insert(EmployeeSubsequentAdvancedirect);
+                                            item.IsOrderSpecific = true;
                                         }
+                                        
                                     }
 
                                     if (voucherDetailVM.CrAmount - indirectAdvanceAmountTemp > 0)
@@ -1940,25 +1954,30 @@ namespace Library.Service.SalaryDisbursement
                         var advancewriteOffdetail = _advanceWriteOffDetailRepository.Query(r => r.AdvanceWriteOffId == awo.Id).Select().ToList();
                         if (advancewriteOffdetail.Count > 0)
                         {
+
                             foreach (var awd in advancewriteOffdetail)
                             {
-                                var advanceDetail = _advanceService.FindAdvanceDetail(awd.AdvanceDetailId);
-                                if (null == advanceDetail)
-                                    throw new CustomException("Advance Detail Id not found!");
-                                advanceDetail.WrittenOffAmount -= awd.Amount;
-                                advanceDetail.IsWrittenOff = false; 
-                                advanceDetail.UpdatedBy = voucher.UpdatedBy;
-                                advanceDetail.UpdatedDate = voucher.UpdatedDate;
-                                advanceDetail.UpdatedFromIP = voucher.UpdatedFromIP;
-                                _advanceService.UpdateAdvanceDetail(advanceDetail);
+                                if (awd.AdvanceDetailId != null)
+                                {
+                                    var advanceDetail = _advanceService.FindAdvanceDetail(awd.AdvanceDetailId);
+                                    if (null == advanceDetail)
+                                        throw new CustomException("Advance Detail Id not found!");
+                                    advanceDetail.WrittenOffAmount -= awd.Amount;
+                                    advanceDetail.IsWrittenOff = false;
+                                    advanceDetail.UpdatedBy = voucher.UpdatedBy;
+                                    advanceDetail.UpdatedDate = voucher.UpdatedDate;
+                                    advanceDetail.UpdatedFromIP = voucher.UpdatedFromIP;
+                                    _advanceService.UpdateAdvanceDetail(advanceDetail);
 
-                                var advance = _advanceService.Find(awd.AdvanceId);
-                                advance.WrittenOffAmount -= awd.Amount;
-                                advance.IsWrittenOff = false;
-                                advance.UpdatedBy = voucher.AddedBy;
-                                advance.UpdatedDate = voucher.AddedDate;
-                                advance.UpdatedFromIP = voucher.AddedFromIP;
-                                _advanceService.Update(advance);
+                                    var advance = _advanceService.Find(awd.AdvanceId);
+                                    advance.WrittenOffAmount -= awd.Amount;
+                                    advance.IsWrittenOff = false;
+                                    advance.UpdatedBy = voucher.AddedBy;
+                                    advance.UpdatedDate = voucher.AddedDate;
+                                    advance.UpdatedFromIP = voucher.AddedFromIP;
+                                    _advanceService.Update(advance);
+                                }
+                                
 
                                 _advanceWriteOffDetailRepository.Delete(awd.Id);
                             }

@@ -678,7 +678,7 @@ namespace Library.Accounting.Accounts
                         SELECT sh.SalaryHead,sh.HeadCategory SalaryHeadCategory,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType,sl.EmpSystemId EmployeeId,ei.EmployeeName
                         ,sl.PayableVoucherId VoucherId
                         , 0 CrAmount,ESA.PrincipalAmount Amount,ESA.ProfitAmount,ESA.InstallmentAmount
-                        ,spc.DisbusmentAmount*-1 DisbusmentAmount,HeadHeadFilter='NetPay',ESA.AdvanceId,ESA.AdvanceDetailId,ESA.EmployeeSalaryAdvanceId,shgl.CrDirectActivityId ActivityId
+                        ,spc.DisbusmentAmount*-1 DisbusmentAmount,HeadHeadFilter='NetPay',ESA.AdvanceId,ESA.AdvanceDetailId,ESA.EmployeeSalaryAdvanceId,shgl.CrDirectActivityId ActivityId,0 IsOrderSpecific
                         from  dbo.SalaryProcMaster spm 
 						left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID 
 						LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
@@ -747,7 +747,7 @@ namespace Library.Accounting.Accounts
                         SELECT sh.SalaryHead,sh.HeadCategory SalaryHeadCategory,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType,sl.EmpSystemId EmployeeId,ei.EmployeeName
                         ,sl.PayableVoucherId VoucherId
                         , 0 CrAmount,ESA.PrincipalAmount Amount,ESA.ProfitAmount,ESA.InstallmentAmount
-                        ,spc.DisbusmentAmount*-1 DisbusmentAmount,HeadHeadFilter='NetPay',ESA.AdvanceId,ESA.AdvanceDetailId,ESA.EmployeeSalaryAdvanceId,shgl.CrInDirectActivityId ActivityId
+                        ,spc.DisbusmentAmount*-1 DisbusmentAmount,HeadHeadFilter='NetPay',ESA.AdvanceId,ESA.AdvanceDetailId,ESA.EmployeeSalaryAdvanceId,shgl.CrInDirectActivityId ActivityId,0 IsOrderSpecific
                         from  dbo.SalaryProcMaster spm 
 						left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID 
 						LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo

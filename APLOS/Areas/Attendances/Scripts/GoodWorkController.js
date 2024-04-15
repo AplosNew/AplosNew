@@ -67,22 +67,28 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.ModelEmpNew = Object.assign({}, $scope.ModelEmpTemp);
 
     ////Load Employee
-
-    $scope.selectShift = function () {
-        $scope.getsS();
-        angular.element(document.querySelector('#ShiftPop')).modal('show');
-    }
-
     $scope.ShiftList = [];
-    $scope.getsS = function () {
-        $http({
-            method: 'GET',
-            url: 'employees/route/getShift',
-            dataType: 'JSON'
-        }).then(function succ(resp) {
-            $scope.ShiftList = resp.data;
-        });
+    $scope.selectShift = function () {
+        try {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.UserGroupId)) {
+                throw "Select User Group.";
+            }
+
+            $http({
+                method: 'GET',
+                url: 'Attendances/GoodWork/getShift?setupId=' + $scope.ModelNew.UserGroupId,
+                dataType: 'JSON'
+            }).then(function succ(resp) {
+                $scope.ShiftList = resp.data;
+                angular.element(document.querySelector('#ShiftPop')).modal('show');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
+
+
+
 
     $scope.doubleShift = function (e) {
         $scope.ModelNew.ShiftId = e.data.ShiftId;
