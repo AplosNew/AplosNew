@@ -597,6 +597,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                             var getRow = $filter("filter")($scope.poBoqItemListNew, {
                                 "MaterialMasterId": poboqlist[i].MaterialMasterId, "ArticleId": poboqlist[i].ArticleId
                                 , "FirstCharacteristicsValueId": poboqlist[i].FirstCharacteristicsValueId
+                                , "FirstCharacteristicsValue": poboqlist[i].FirstCharacteristicsValue
                                 , "SecondCharacteristicsValueId": poboqlist[i].SecondCharacteristicsValueId
                                 , "SecondCharacteristicsValue": poboqlist[i].SecondCharacteristicsValue
                                 , "ThitrdCharacteristicsValueId": poboqlist[i].ThitrdCharacteristicsValueId
@@ -622,6 +623,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                                     if (row.MaterialMasterId == getRow[0].MaterialMasterId
                                         && row.ArticleId == getRow[0].ArticleId
                                         && row.FirstCharacteristicsValueId == getRow[0].FirstCharacteristicsValueId
+                                        && row.FirstCharacteristicsValue == getRow[0].FirstCharacteristicsValue
                                         && row.SecondCharacteristicsValueId == getRow[0].SecondCharacteristicsValueId
                                         && row.SecondCharacteristicsValue == getRow[0].SecondCharacteristicsValue
                                         && row.ThitrdCharacteristicsValueId == getRow[0].ThitrdCharacteristicsValueId
@@ -642,6 +644,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                                 if ($scope.poBoqItemList[a].MaterialMasterId == poboqlist[i].MaterialMasterId
                                     && $scope.poBoqItemList[a].ArticleId == poboqlist[i].ArticleId
                                     && $scope.poBoqItemList[a].FirstCharacteristicsValueId == poboqlist[i].FirstCharacteristicsValueId
+                                    && $scope.poBoqItemList[a].FirstCharacteristicsValue == poboqlist[i].FirstCharacteristicsValue
                                     && $scope.poBoqItemList[a].SecondCharacteristicsValueId == poboqlist[i].SecondCharacteristicsValueId
                                     && $scope.poBoqItemList[a].ThitrdCharacteristicsValueId == poboqlist[i].ThitrdCharacteristicsValueId
                                     && $scope.poBoqItemList[a].GroupId == poboqlist[i].GroupId
