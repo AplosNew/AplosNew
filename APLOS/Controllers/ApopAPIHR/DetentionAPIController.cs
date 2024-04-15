@@ -1447,6 +1447,12 @@ namespace Aplos.Controllers.ApopAPIHR
                 return ex.ToString();
             }
         }
+        public List<Default2> GetUtilityMasterList()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetUtilityMasterList(out List<Default2> activelists);
+            return activelists;
+        }
         #endregion Utility Master
     }
 }
