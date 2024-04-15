@@ -30,7 +30,7 @@
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Final Settlement Name<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" maxlength="100" name="Final Settlement Name" ng-model="FinalSettlementModel.FinalSettlementDate" class="form-control" required tabindex="3">
+                    <input type="text" maxlength="100" name="Final Settlement Name" ng-model="FinalSettlementModel.FinalSettlementName" class="form-control" required tabindex="3">
                 </div>
             </div>
 
@@ -67,7 +67,7 @@
     </div>
     <hr />
     <div clas="row">
-        <div id="GridEmp" ej-grid e-datasource="EmployeeInformationList" e-templaterefresh="refreshTemplateOperation"
+        <div id="GridSelectedEmp" ej-grid e-datasource="SelectedEmployeeList"
              e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
             <div e-columns>
@@ -78,9 +78,14 @@
                 <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
                 <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
                 <div e-column e-field="EntityName" e-headertext="Entity" e-width="80"></div>
-                <div e-column e-field="SepType" e-headertext="Separation Type" e-width="80"></div>
             </div>
         </div>
+        <div class="common-btn" ng-show="SelectedEmployeeList.length>0">
+            <ul class="list-inline text-right">
+                <li><button ng-click="Process();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="9"></i> Process</button></li>
+            </ul>
+        </div>
+
     </div>
     @*<div clas="row">
             <div class="modal-body form-elements form-horizontal">

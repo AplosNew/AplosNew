@@ -1,4 +1,5 @@
 ﻿using Aplos.Controllers;
+using Aplos.MaterialManagement.MaterialQuery;
 using Aplos.Properties;
 using Library.Crosscutting.Security;
 using Library.Data;
@@ -1739,11 +1740,133 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
         {
 
         }
+
+
+        [HttpPost]
+        public JsonResult Process(Dictionary<string, object> data, List<Dictionary<string, object>> datalist)
+        {
+            try
+            {
+                DataSet dsMaster, dsEmpMaster, dsID;
+                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from EmployeeFullAndFinalSettlementMaster where FinalSettlementName='" + data["FinalSettlementName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from EmployeeFullAndFinalSettlement where FinalSettlementId='" + data["Id"] + "'", out dsEmpMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[EmployeeFullAndFinalSettlement] where FinalSettlementId='" + data["Id"] + "'", out dsID, false, "1");
+                int ccount = Convert.ToInt32(dsID.Tables[0].Rows[0]["countId"].ToString());
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Final Settlement Name already exists!!!");
+
+               
+                con.OpenDataSetThroughAdapter("select * from EmployeeFullAndFinalSettlementMaster where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("EmployeeFullAndFinalSettlementMaster", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+                #region data update
+                foreach (var item in datalist)
+                {
+
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                    DataView dv = new DataView(dsEmpMaster.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        ccount++;
+                        item["Id"] = materialCommonService.MakePK(_Id, ccount, 2);
+                        item["FinalSettlementId"] = _Id;
+
+                        AddNewRow(dsEmpMaster.Tables[0], item);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        item["Id"] = dv[0].Row["Id"].ToString();
+                        EditRow(drmo, item);
+                    }
+
+                }
+
+                #endregion data update 
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, dsEmpMaster);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+
+
+
         #endregion
 
 
 
-      
+
     }
 
 
