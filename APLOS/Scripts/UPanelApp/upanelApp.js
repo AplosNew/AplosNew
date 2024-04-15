@@ -1213,6 +1213,7 @@ upanelApp.controller("AdditionalInfoUpdateController", AdditionalInfoUpdateContr
 upanelApp.controller("ProductParameterMasterController", ProductParameterMasterController)
 upanelApp.controller("ProcessTemplateController", ProcessTemplateController)
 upanelApp.controller("PayableCreationAndWorkerAdvanceController", PayableCreationAndWorkerAdvanceController)
+upanelApp.controller("EmployeeMultipleAdvanceController", EmployeeMultipleAdvanceController)
 upanelApp.controller("QualityActionUpdateController", QualityActionUpdateController)
 upanelApp.controller("QualityActionConfirmationController", QualityActionConfirmationController)
 upanelApp.controller('AssetsRegisterReportController', AssetsRegisterReportController);
