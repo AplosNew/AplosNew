@@ -330,6 +330,12 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
     $scope.ModelProcessPara = { Id: null, EmployeeSeperationSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, SandardName: null, Active: true, IsReportItem: false, ViewItem: null, DefaultValue: null, EntryState: 'Auto', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
     $scope.ModelProcessParaNew = Object.assign({}, $scope.ModelProcessPara);
 
+    $scope.EmployeeSeprationSetupEnumList = [];
+    cboService.getEnumCbo("enum/GetEmployeeSeprationSetupEnumCbo", function (result) {
+        $scope.EmployeeSeprationSetupEnumList = result;
+    });
+
+
     $scope.ModelProcessPara.FormulaDes = null;
     $scope.ModelProcessPara.FormulaDesID = null;
     $scope.ModelProcessPara.SalaryHeadFormula = null;
@@ -580,6 +586,16 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
             $scope.ModelProcessPara.FormulaDescription = null;
             $scope.FormulaArray = [];
             $scope.FormulaIdArray = [];
+        } else {
+            $scope.ModelProcessPara.EntryState = 'Entry';
+            $scope.ModelProcessPara.Formula = null;
+            $scope.ModelProcessPara.FormulaId = null;
+            $scope.ModelProcessPara.FormulaDes = null;
+            $scope.ModelProcessPara.FormulaDesID = null;
+            $scope.ModelProcessPara.SalaryHeadFormula = null;
+            $scope.ModelProcessPara.FormulaDescription = null;
+            $scope.FormulaArray = [];
+            $scope.FormulaIdArray = [];
         }
     }
 
@@ -622,6 +638,7 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
         $scope.ModelProcessPara = { Id: null, EmployeeSeperationSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, SandardName: null, Active: true, IsReportItem: false, ViewItem: null, DefaultValue: null, EntryState: 'Auto', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
         $scope.ModelProcessParaNew = Object.assign({}, $scope.ModelProcessPara);
         $scope.GetSeperationItemAutoSequence();
+        $scope.ProductionAction = 'Save';
     }
 
     $scope.GetSeperationItemAutoSequence = function () {

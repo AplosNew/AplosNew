@@ -40,7 +40,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
     $('.datepicker').datepicker({
-        startDate: '-1d',
+        startDate: '-31d',
         endDate: '1d',
         datesDisabled: $scope.DisabledDates,
         format: 'dd-M-yyyy',

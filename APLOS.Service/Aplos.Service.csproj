@@ -88,6 +88,7 @@
     <Compile Include="Employees\AuthorizationConfigService.cs" />
     <Compile Include="Employees\SeparationTypeService.cs" />
     <Compile Include="Employees\SkillMatrixService.cs" />
+    <Compile Include="Enums\EmployeeSeprationSetupEnum.cs" />
     <Compile Include="Enums\CostingSOEnum.cs" />
     <Compile Include="Enums\CommercialEnum.cs" />
     <Compile Include="Enums\FixedAssetDisposeStatusEnum.cs" />
