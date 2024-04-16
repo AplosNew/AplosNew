@@ -58,6 +58,10 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             return View();
         }
+        public ActionResult EmployeeMultipleAdvance()
+        {
+            return View();
+        }
         public ActionResult GoodWorkCheck()
         {
             return View();
