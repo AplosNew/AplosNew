@@ -89,12 +89,13 @@ namespace Aplos.Areas.Payrolls.Controllers
                 string CmdText = @"select IsSelected = case when ead.EmployeeId is null then Convert(bit, 'False') ELSE Convert(bit, 'True') END,ars.YearNo,ars.MonthNo,esa.EmployeeId,e.EmployeeCode,e.EmployeeName,
                                     esa.Amount SanctionedAmount,a.Id AdvanceId,ars.Id AdvanceReqScheduleId,esa.Id EmployeeSalaryAdvanceId,ead.EmployeeSalaryAdvanceId
                                     ,isnull(Recovered.RecoveredAmount,0) RecoveredAmount, esa.Amount-isnull(Recovered.RecoveredAmount,0) Balance,
-                                    ars.InstallmentAmount CurrentInstallment ,ars.PrincipalAmount,ars.ProfitAmount InterestAmount
+                                    ars.InstallmentAmount CurrentInstallment ,ars.PrincipalAmount,ars.ProfitAmount InterestAmount,v.VoucherNo
                                     from trn.EmployeeSalaryAdvance esa
+                                    left join trn.voucher v on v.Id=esa.VoucherId
                                     left join  trn.Advance a  on esa.VoucherId=a.VoucherId
                                     join dbo.AdvanceReqSchedule ars on ars.EmployeeSalaryAdvanceId=esa.Id
                                     left join EmployeeInformation e on e.SystemId=esa.EmployeeId
-                                    left join [TRN].[EmployeeAdvanceDeduction] ead on ead.EmployeeId = esa.EmployeeId AND ead.YearNo='" + Year + "' and ead.MonthNo='" + Month + @"'
+                                    left join [TRN].[EmployeeAdvanceDeduction] ead on ead.EmployeeId = esa.EmployeeId AND esa.Id=ead.EmployeeSalaryAdvanceId AND ead.YearNo='" + Year + "' and ead.MonthNo='" + Month + @"'
                                     left join (select ead.EmployeeSalaryAdvanceId,SUM(ars.InstallmentAmount) RecoveredAmount 
 									from trn.EmployeeSalaryAdvance esa 
 													left join dbo.AdvanceReqSchedule ars ON ars.EmployeeSalaryAdvanceId=esa.Id
@@ -103,7 +104,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 													
                                     where ars.YearNo='" + Year + "' and ars.MonthNo='" + Month + @"' and esa.EmployeeId<>'' and esa.PlantId='"+ plantId + @"'
                                     
-									order by esa.EmployeeId";
+                                    order by esa.EmployeeId";
                 return _sqlRepository.GetDataCollection(CmdText);
             }
             catch (Exception ex)

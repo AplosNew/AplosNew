@@ -236,11 +236,11 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
         try {
             for (var i = 0; i < $scope.EmployeeInformationList.length; i++) {
                 if ($scope.EmployeeInformationList[i].Flag == true) {
-                    if (checkExists($scope.SelectedEmployeeList, $scope.EmployeeInformationList[i].EmpSystemId) === false) {
+                    if (checkExists($scope.SelectedEmployeeList, $scope.EmployeeInformationList[i].SystemId) === false) {
                         var ob = {};
                         ob.Id = null;
-                        ob.EmployeeCode = $scope.ModelNew.EmployeeCode;
-                        ob.EmpSystemId = $scope.EmployeeInformationList[i].EmpSystemId;
+                        ob.EmployeeCode = $scope.EmployeeInformationList[i].EmployeeCode;
+                        ob.EmpSystemId = $scope.EmployeeInformationList[i].SystemId;
                         ob.EmployeeName = $scope.EmployeeInformationList[i].EmployeeName;
                         ob.DOJ = $scope.EmployeeInformationList[i].DOJ;
                         ob.DOS = $scope.EmployeeInformationList[i].DOS;
@@ -253,7 +253,7 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
                     }
                 }
             }
-            $scope.SaveFNF();
+            //$scope.SaveFNF();
             angular.element(document.querySelector('#dialogEmployeeInfo')).modal('hide');
         } catch (e) {
             ShowResult(e, 'failure');
@@ -268,6 +268,37 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
         }
         return false;
     }
+
+    $scope.Process = function () {
+        try {
+            if (baseService.arrayLength($scope.SelectedEmployeeList) < 0) {
+                throw "Select Employee.";
+            }
+
+            $http({
+                method: 'POST',
+                url: 'Payrolls/FinalSettlement/Process',
+                data: { 'data': $scope.FinalSettlementModel, 'datalist': $scope.SelectedEmployeeList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+
+
     // #endregion
 
 
@@ -298,6 +329,8 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
             ShowResult(e, "failure");
         }
     };
+
+
 
     $scope.Clear = function () {
         ClearFields($scope.GetSequence());

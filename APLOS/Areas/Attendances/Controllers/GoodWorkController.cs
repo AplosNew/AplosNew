@@ -58,6 +58,10 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             return View();
         }
+        public ActionResult EmployeeMultipleAdvance()
+        {
+            return View();
+        }
         public ActionResult GoodWorkCheck()
         {
             return View();
@@ -170,9 +174,21 @@ namespace Aplos.Areas.Attendances.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-        //Load Employee
 
-        //Good Work
+        [Authorize, HttpGet]
+        public ActionResult GetShift(string setupId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select SD.SystemID ShiftId,P.Id PlantId,P.UserName Plant,SD.ShiftDefinationDescription,SD.UserName ShiftDefination 
+						,CONVERT(varchar(5),SD.InTime,108) InTime,CONVERT(VARCHAR(5), SD.InTime, 108) OutTime						
+						from ShiftDefination SD
+						left join ORG.Plant P on P.Id=SD.PlantID
+                        Where SD.SystemID IN(	Select distinct MB.ShiftDefinationId from dbo.GoodWorkBudgetSetUp BS
+						left join MST.ManpowerBudget MB ON MB.Id=BS.BudgetId
+						Where GoodWorkSetUpId='"+ setupId + "')";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
 
         public ActionResult DeleteChildUrl(string Id)
         {
