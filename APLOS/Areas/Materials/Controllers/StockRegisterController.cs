@@ -265,7 +265,7 @@ namespace Aplos.Areas.Materials.Controllers
                     EmpAll = "AND RM.RequisitionDate between '" + requisitionFromDate + "' AND '" + requisitionToDate + "'";
                 }
 				var str = @"SELECT * FROM (
-		select EI.EmployeeCode,EI.EmployeeName EN,D.UserName Department,RM.ReqEmpId
+		select EI.EmployeeCode,rm.EntityId,EI.EmployeeName EN,ET.UserName EntityName,D.UserName Department,DV.userName Division,RM.ReqEmpId
 		,ReqStatus=case when MM.IsRegular=1 then 'Regular' else 'Irregular' end
 		,format(RM.RequisitionDate,'dd-MMM-yyy')RequisitionDate,RM.Id,RMD.Id ROWId,MM.UserName Material,ART.StandardName Article,TUoM.UserName UOM
 		,ISNULL(RMD.TransactionQty,0) ReqQty,ISNULL(RMD.TotalAmount,0) ReqAmount
@@ -302,6 +302,8 @@ namespace Aplos.Areas.Materials.Controllers
                                             LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON RMD.TransactionUoMId=TUoM.Id	
 											left join EmployeeInformation EI on EI.SystemId=RM.ReqEmpId
 											left join ORG.Department D on EI.DepartmentId=D.Id
+											left join ORG.Division DV on EI.DivisionId=DV.Id
+											left join ORG.Entity ET on ET.Id=RM.EntityId
 
                                             where RMD.Id is not null " + EmpAll + ") x ";
                 return _sqlRepository.GetDataTable(str);

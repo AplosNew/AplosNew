@@ -15,18 +15,9 @@ function RequisitionStatusController(fileReader, commonMessage, $scope, $rootSco
 	$scope.isAlternative = -1;
 	$controller("employeeBaseController", { $scope: $scope, $http: $http });
 
-
 	$scope.Employee = "AllEmployee";
-	//$scope.IsEmployee = function () {
-	//	if ($scope.EmployeeName) {
-	//		$scope.EmployeeName = 'Employee';
-	//	}
-	//	else
-	//		$scope.EmployeeAll = 'All';
-	//}
 
 	$scope.showEmployeeListPopUp = function () {
-		
 		baseService.setCurrentPage('employeeList');
 		$scope.getEmployeeData = function (pageno) {
 			var url = null;
