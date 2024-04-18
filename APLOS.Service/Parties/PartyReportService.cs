@@ -1453,6 +1453,8 @@ namespace Library.Service.Parties
 												 ,STUFF((select distinct ','+xp.EmployeeName from
 														TRN.VoucherDetail XVD JOIN [dbo].[EmployeeInformation] AS XP ON XP.SystemId=XVD.EmployeeId
 													where	XVD.VoucherId=V.Id AND XVD.EmployeeId<>'' AND VD.ActivityId!=XVD.ActivityId  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                                ,STUFF((select distinct ','+'('+XV.DocrefNo +') ' from  TRN.Voucher AS XV where V.Id=XV.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                                
                                                 , STUFF((select distinct ','+xp.UserName from
 														TRN.VoucherDetail XVD JOIN HKP.Activity AS XP ON XP.Id=XVD.ActivityId
 													where	XVD.VoucherId=V.Id AND XVD.PartyId is null AND XVD.CashMasterId IS NULL AND XVD.BankMasterId IS NULL AND XVD.EmployeeId IS NULL
