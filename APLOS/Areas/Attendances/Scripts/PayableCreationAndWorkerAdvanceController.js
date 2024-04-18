@@ -550,7 +550,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
                 method: 'POST',
                 // url: $scope.path + "LoadPCEmployeelist",
                 url: $scope.path + "GetGoodWorkEmployeelist",
-                data: { 'fromDate': $scope.ModelPCNew.FromDate, 'toDate': $scope.ModelPCNew.ToDate, 'tabName': $scope.TabName },
+                data: { 'fromDate': $scope.ModelPCNew.FromDate, 'toDate': $scope.ModelPCNew.ToDate, 'tabName': $scope.TabName, 'saveUpdate': $scope.PCAction},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.PCEmployeeList = response.data;
@@ -572,7 +572,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             $http({
                 method: 'POST',
                 url: $scope.path + "GetGoodWorkEmployeelist",
-                data: { 'fromDate': $scope.ModelOTNew.FromDate, 'toDate': $scope.ModelOTNew.ToDate, 'tabName': $scope.TabName },
+                data: { 'fromDate': $scope.ModelOTNew.FromDate, 'toDate': $scope.ModelOTNew.ToDate, 'tabName': $scope.TabName, 'saveUpdate': $scope.PCOTAction },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.PCOTEmployeeList = response.data;
@@ -634,8 +634,10 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $scope.GetGWPDblClick = function (args) {
         $scope.ModelPCNew = Object.assign({}, args.data);
         //$scope.GetGoodWorkPaymentAdvisedetail();
-        $scope.GetLoadEmployeeInformation($scope.TabGWName);
         $scope.PCAction = 'Update';
+        $scope.TabGWName = "GoodWork";
+        $scope.GetLoadEmployeeInformation($scope.TabGWName);
+        
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
@@ -767,8 +769,9 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $scope.GetGWPOTDblClick = function (args) {
         $scope.ModelOTNew = Object.assign({}, args.data);
         //$scope.GetGoodWorkPaymentOTAdvisedetail();
-        $scope.GetLoadEmployeeInformation($scope.TabsName);
         $scope.PCOTAction = 'Update';
+        $scope.GetLoadEmployeeInformation($scope.TabsName);
+        
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
