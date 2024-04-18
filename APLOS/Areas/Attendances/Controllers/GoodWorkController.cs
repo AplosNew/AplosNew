@@ -1096,7 +1096,7 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
                                                                           FROM SalaryInfoDefine SID 
 								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                                                         WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
-                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND OverStay<>0 AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 
+                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND OverStay<>0 AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 AND apd.GWPaymentAdviseId IS NULL
                                 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id,Department.UserName,Section.UserName,SubSection.UserName
 								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,za.Id
                                 )T WHERE T.CheckBoxSelect=0 and T.CheckBoxSelectAD=0
