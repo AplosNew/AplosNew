@@ -5,24 +5,24 @@
 <div class="tab-design" id="tab_show">
     <div class="site-tab">
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);GetGoodWorkPaymentData();GetGoodWorkOTPaymentData();" href="" aria-controls="general" role="tab" data-toggle="tab">{{titleTab1}}</a></li>
-            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);GetGoodWorkPaymentAdvisePendingPaymentData();" href="" aria-controls="general" role="tab" data-toggle="tab">Pending for Approval</a></li>
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);getData();" href="" aria-controls="general" role="tab" data-toggle="tab">{{titleTab1}}</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);getPendingforApprovalData();" href="" aria-controls="general" role="tab" data-toggle="tab">Pending for Approval</a></li>
             @*<li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);GetGoodWorkPaymentAdvisePendingApprovalData();" href="" aria-controls="general" role="tab" data-toggle="tab">Pending for Approval</a></li>*@
             <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);getVoucherData();" href="" aria-controls="general" role="tab" data-toggle="tab">Payments</a></li>
         </ul>
     </div>
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-            <div class="tab-design" id="tab_show">
+            @*<div class="tab-design" id="tab_show">
                 <div class="site-tab">
                     <ul class="nav nav-tabs" role="tablist">
                         <li role="presentation" ng-class="{ active: isSet2(1) }"><a ng-click="setTab2(1);GetGoodWorkPaymentData();" href="" aria-controls="general" role="tab" data-toggle="tab">{{titleTab3}}</a></li>
-                        <li role="presentation" ng-class="{ active: isSet2(2) }"><a ng-click="setTab2(2);GetGoodWorkOTPaymentData();" href="" aria-controls="general" role="tab" data-toggle="tab">{{titleTab4}}</a></li>
+                        <li role="presentation" ng-class="{ active: isSet2(1) }"><a ng-click="setTab2(1);getData();" href="" aria-controls="general" role="tab" data-toggle="tab">{{titleTab4}}</a></li>
                     </ul>
                 </div>
-            </div>
-            <div class="tab-content">
-                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(1), active: isSet2(1) }">
+            </div>*@
+            @*<div class="tab-content">*@
+                @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(1), active: isSet2(1) }">
                     <togglable name="{{titleTab3}}"></togglable>
 
                     <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
@@ -67,12 +67,12 @@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    @*<div class="input-group">*@
+                                    <div class="input-group">
                                         <input tabindex="1" type="text" name="By Whom" ng-model="ModelPCNew.ByWhom" class="form-control" readonly required>
-                                        @*<span class="input-group-btn">
+                                        <span class="input-group-btn">
                                             <button ng-click="showByWhomEmployeeListPopUp('BH');" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
-                                        </span>*@
-                                    @*</div>*@
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -140,9 +140,9 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(2), active: isSet2(2) }">
-                    <togglable name="{{titleTab4}}"></togglable>
+                </div>*@
+                @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(1), active: isSet2(1) }">*@
+                    <togglable name="Advace Creation"></togglable>
                     <div class="form-elements form-horizontal" ng-form name="ModelNew2Form">
                         <input type="hidden" ng-model="ModelOTNew.Id">
                         <div class="col-xs-12 col-sm-6 col-md-6">
@@ -159,9 +159,9 @@
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Payment Date<sup>*</sup></label>
+                                <label class="col-sm-4 control-label">Percentage<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="PaymentDueDate" ng-model="ModelOTNew.PaymentDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="25">
+                                    <input type="number" class="form-control" name="Percentage" ng-model="ModelOTNew.Percentage" @*ng-change="getCalulationAmount();"*@ e-width="100" />
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
@@ -185,12 +185,7 @@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    @*<div class="input-group">*@
-                                        <input tabindex="1" type="text" name="By Whom" ng-model="ModelOTNew.ByWhom" class="form-control" readonly required>
-                                        @*<span class="input-group-btn">
-                                            <button ng-click="showByWhomEmployeeListPopUp('OT');" class="btn single-small-btn" tabindex="26"><i class="glyphicon glyphicon-search"></i></button>
-                                        </span>
-                                    </div>*@
+                                   <input tabindex="1" type="text" name="By Whom" ng-model="ModelOTNew.ByWhom" class="form-control" readonly required>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -202,7 +197,7 @@
                         </div>
 
                         <ul class="col-md-6 common-btn list-inline text-left">
-                            <li><button ng-click="GetLoadEmployeeInformation('ExtraOT');" class="btn"><i class="glyphicon glyphicon-arrow-down"></i> Go</button></li>
+                            <li><button ng-click="GetLoadEmployeeInformation('ExtraOT_Advance');" class="btn"><i class="glyphicon glyphicon-arrow-down"></i> Go</button></li>
                         </ul>
 
                         <div class="clearfix"></div>
@@ -222,6 +217,7 @@
                                     <div e-column e-field="Hour" e-headertext="Hour" e-width="60"></div>
                                     <div e-column e-field="Rate" e-headertext="Rate" e-width="60"></div>
                                     <div e-column e-field="Amount" e-headertext="Amount" e-width="60"></div>
+                                    <div e-column e-headertext="Advance Amount" e-template="#advanceGiven" e-textalign="center" e-width="60"></div>
                                     <div e-column e-headertext="Remarks" e-template="#remarks" e-textalign="center" e-width="100"></div>
                                 </div>
                             </div>
@@ -235,31 +231,34 @@
                             <script type="text/template" id="remarks">
                                 <input type="text" class="form-control" name="Remarks" ng-model="data.Remarks" e-width="90" />
                             </script>
+                            <script type="text/template" id="advanceGiven">
+                                <input type="number" class="form-control" name="AdvanceGiven" ng-model="data.AdvanceAmount" e-width="90" />
+                            </script>
                         </div>
 
                         <div class="common-btn">
                             <ul class="list-inline text-right">
-                                <li> <button ng-click="GoodWorkPayableCreationSave('Attendance');" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{PCOTAction}}</button></li>
+                                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{PCOTAction}}</button></li>
                                 <li> <button ng-click="ClearPayableCreationOT();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                             </ul>
                         </div>
                     </div>
                     <div class="table-responsive aplos-grid-toggle">
-                        <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="GoodWorkOTPaymentList" e-recorddoubleclick="GetGWPOTDblClick"
+                        <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="WorkerAdvanceList" e-recorddoubleclick="GetGWPOTDblClick"
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                             <div e-columns>
-                                <div e-column e-field="Id" e-headertext="Payment Advise Id" e-width="3"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="3"></div>
                                 <div e-column e-field="FromDate" e-headertext="From Date" e-width="2" e-isprimarykey="true"></div>
                                 <div e-column e-field="ToDate" e-headertext="To Date" e-width="2" e-isprimarykey="true"></div>
                                 <div e-column e-field="UserRef" e-headertext="UserName" e-width="3"></div>
-                                <div e-column e-field="PaymentDate" e-headertext="Payment Date" e-width="3"></div>
+                                <div e-column e-field="Percentage" e-headertext="Percentage" e-width="3"></div>
                                 <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
+                @*</div>*@
+            @*</div>*@
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
             <togglable name="Pending for Approval"></togglable>
@@ -345,11 +344,11 @@
                 </div>
             </div>
             <div class="table-responsive aplos-grid-toggle">
-                <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="GoodWorkPaymentAdvisePendingPaymentList" e-recorddoubleclick="GetGWPendingPaymentPDblClick"
+                <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="WorkerAdvancePendingforApprovalList" e-recorddoubleclick="GetGWPendingPaymentPDblClick"
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                     <div e-columns>
-                        <div e-column e-field="Id" e-headertext="Payment Advise Id" e-width="3"></div>
+                        <div e-column e-field="Id" e-headertext="Id" e-width="3"></div>
                         <div e-column e-field="PaymentSource" e-headertext="Payment Source" e-width="2"></div>
                         <div e-column e-field="FromDate" e-headertext="From Date" e-width="2" e-isprimarykey="true"></div>
                         <div e-column e-field="ToDate" e-headertext="To Date" e-width="2" e-isprimarykey="true"></div>
@@ -573,15 +572,6 @@
                                             <input type="checkbox" id="headchkDisbursement" />
                                         </script>
                                     </div>
-                                    @*<div class="col-sm-12" ng-show="empGrid">
-                                            <div class="col-sm-6">
-                                                <div class="common-btn">
-                                                    <ul style="display:flex; justify-content:space-between">
-                                                        <li> <button ng-click="XlsSalaryDisbursement();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>*@
                                 </fieldset>
                             </div>
 
@@ -679,7 +669,6 @@
                                 <td>{{x.IsPark?'Parked':'Posted'}}</td>
                                 <td class="text-right">
                                     <ul class="list-inline action-list">
-                                        @*<li><a ng-click="XlsSalaryDisbursementVoucherWiseReport(x.PayableVoucherId);" class="btn btn-action" title="Salary Disbursement Report"><i class="fa fa-file-excel-o"></i></a></li>*@
                                         <li ng-show="x.IsPark"><a ng-click="confirmPost(x.PayableVoucherId);" href="" class="btn btn-action tooltip-here">Post</a></li>
                                         <li ng-show="x.IsPark"><a ng-click="confirmDelete(x);" href="" class="btn btn-action tooltip-here">Delete</a></li>
                                         <li><a class="btn btn-action" href="Accounts/SalaryDisbursement/GetSalaryDisbursementVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.PayableVoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
