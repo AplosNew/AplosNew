@@ -18091,12 +18091,12 @@ SELECT --ROW_NUMBER() Over(Order by  MM.Id) As[S.N],
         //	}
         //}
 
-        public IWorkbook CreateRequisitionRegisterReport(string fromDate, string toDate, string employeeId)
+        public IWorkbook CreateRequisitionRegisterReport(string status,string fromDate, string toDate, string employeeId)
         {
             try
             {
 
-                string sql = RequisitionRegisterReportSQL(fromDate, toDate, employeeId);
+                string sql = RequisitionRegisterReportSQL(status,fromDate, toDate, employeeId);
                 ExcelEngine excelEngine = new ExcelEngine();
                 //Instantiate the Excel application object
                 IApplication application = excelEngine.Excel;
@@ -18373,8 +18373,9 @@ SELECT --ROW_NUMBER() Over(Order by  MM.Id) As[S.N],
             }
         }
 
-        private string RequisitionRegisterReportSQL(string fromDate, string toDate, string employeeId)
+        private string RequisitionRegisterReportSQL(string status,string fromDate, string toDate, string employeeId)
         {
+            var tempStatus = "";
             var temp = "";
             var Servicetemp = "";
 
@@ -18387,6 +18388,15 @@ SELECT --ROW_NUMBER() Over(Order by  MM.Id) As[S.N],
                 temp = " AND IR.ReqEmpId = '" + employeeId + @"'";
                 Servicetemp = " and SRm.ReqEmpId= '" + employeeId + @"'";
             }
+            if(!string.IsNullOrEmpty(status) && status== "Regular")
+            {
+                tempStatus = " AND  MM.IsRegular=1";
+            }
+            else if(!string.IsNullOrEmpty(status) && status == "Irregular")
+            {
+                tempStatus = " AND  MM.IsRegular=0";
+            }
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return @"SELECT IM.MaterialReqqusitionMasterId AS RequisitionMasterId
 						,IM.Id	as RequisitionDetailId		
@@ -18450,42 +18460,16 @@ SELECT --ROW_NUMBER() Over(Order by  MM.Id) As[S.N],
 						LEFT JOIN [HKP].[Activity] As Act On ACT.Id=IM.ActivityId
 						left JOIN (select sum(BaseAmount) BaseAmount,RequisitionDetailId from trn.PurchaseOrderDetail group by RequisitionDetailId)POD ON POD.RequisitionDetailId=IM.Id
 
-						where IR.RequisitionDate between '" + fromDate + @"' and '" + toDate + @"' " + temp + @"
+						where IR.RequisitionDate between '" + fromDate + @"' and '" + toDate + @"' " + temp + @" "+ tempStatus + @"
 
 						union ALL
-						SELECT
-							SRD. ServiceRequisitionMasterID as RequisitionMasterId
-							,SRD. Id as RequisitionDetailId
-							,Types='Service Reqiosition'
-							,REPLACE(CONVERT(CHAR(11), SRM.RequisitionDate, 106),' ','-') AS RequisitionDate
-					  
-							,SRM.RequisitionType
-							,SRM.RequirmentType	
-							,En.UserName EntityName	
-							,SRM.ReasonWhyItIsNotPlanEarlier as RequirmentTypeReason
-							,'' MaterialGroupName
-							,SRD. ServiceMasterId as MaterialMasterId
-							,SM.StandardName MaterialName
-							,'' ArticleId
-							,'' MaterialDetail
-							,'' ArticleName
-							,'' SKU1
-							,'' SKU2	
-							,'' SKU3	
-							,0 TransactionQty
-							,'' TransactionUoM	
-							, ROUND(SRD. Rate,4) EstimatedRate
-                      
-							,CR.Code CurrencyName
-							, ROUND((SRD. TotalServiceBooksCurrencyAmount ), 2) AS TotalAmount
-					
-					  
-							,'' DeliveryDate	
-							,''Activity	
-							,''ActivityName
-							,''BudgetType
-							,''Reason
-							,SRD. Remarks
+						SELECT SRD. ServiceRequisitionMasterID as RequisitionMasterId ,SRD. Id as RequisitionDetailId
+							,Types='Service Reqiosition' ,REPLACE(CONVERT(CHAR(11), SRM.RequisitionDate, 106),' ','-') AS RequisitionDate
+							,SRM.RequisitionType ,SRM.RequirmentType ,En.UserName EntityName ,SRM.ReasonWhyItIsNotPlanEarlier as RequirmentTypeReason
+							,'' MaterialGroupName ,SRD. ServiceMasterId as MaterialMasterId ,SM.StandardName MaterialName ,'' ArticleId ,'' MaterialDetail ,'' ArticleName ,'' SKU1 ,'' SKU2	 ,'' SKU3	
+							,0 TransactionQty ,'' TransactionUoM , ROUND(SRD. Rate,4) EstimatedRate
+							,CR.Code CurrencyName , ROUND((SRD. TotalServiceBooksCurrencyAmount ), 2) AS TotalAmount ,'' DeliveryDate	
+							,''Activity	 ,''ActivityName ,''BudgetType ,''Reason ,SRD. Remarks
 							,''FutureReqApp
 							,0 PORaisedQty
 							,0 Balance
@@ -18496,19 +18480,15 @@ SELECT --ROW_NUMBER() Over(Order by  MM.Id) As[S.N],
 							,SRM.AuthorizedByStatus ApprovedByStatus
 							,E.EmployeeName  RequisitionBy
 							,SRM.RequisitionStatus
-
 						FROM TRN.ServiceRequsitionDetail SRD
-				
 						left JOIN [TRN].[ServiceRequsitionMaster]  AS SRM ON SRM.Id=SRD.ServiceRequisitionMasterID
 						left JOIN [HKP].[ServiceMaster]   AS SM ON SM.Id=SRD.ServiceMasterId 
 						left JOIN [SCS].[Currency] AS CR ON CR .Id=SRD.CurrencyId
 						left outer join EmployeeInformation as E on E.SystemId=SRm.ReqEmpId
 						LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=SRM.CheckedBy
 						LEFT JOIN EmployeeInformation AS ei1 ON ei1.SystemId=SRM.AuthorizedBy
-
 						left outer join ORG.Entity as EN on EN.Id=SRM.EntityId
-
-						where Srm.RequisitionDate between '" + fromDate + @"' and '" + toDate + @"' " + Servicetemp + @"";
+						where Srm.RequisitionDate between '" + fromDate + @"' and '" + toDate + @"' " + Servicetemp + @" ";
 
 
         }

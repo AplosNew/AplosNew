@@ -92,12 +92,12 @@ namespace Aplos.Areas.Materials.Controllers
         #endregion
 
         [HttpGet, Authorize]
-        public ActionResult GetRequisitionRegisterReport(ReportFormat reportFormat, string fromdate,string toDate,string employeeId)
+        public ActionResult GetRequisitionRegisterReport(ReportFormat reportFormat,string status, string fromdate,string toDate,string employeeId)
         {
 
             try
             {
-              var workbook =  _materialMasterService.CreateRequisitionRegisterReport(fromdate,toDate, employeeId);
+              var workbook =  _materialMasterService.CreateRequisitionRegisterReport(status,fromdate, toDate, employeeId);
                 var reportFileName = "Requisition Register" + fromdate + "To" + toDate + "";
                 switch (reportFormat)
                 {
