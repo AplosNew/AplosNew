@@ -121,8 +121,7 @@ namespace Library.Service.Materials
         IEnumerable<object> CheckItemArticleSKUList();
         GridModel GetFixedAssetMasterBudgetTagForRegister(GridParameter parameters, string BudgetMasterId, string activityId);
         void MaterialMasterReport2(string MaterialTypeId,bool Article);
-        IWorkbook CreateRequisitionRegisterReport(string fromDate,string toDate, string employeeId);
+        IWorkbook CreateRequisitionRegisterReport(string status, string fromDate,string toDate, string employeeId);
         string PurchaseOrderReportxlx(List<Dictionary<string, object>> data, string ReportHeader, string reportFileName);
-
     }
 }
