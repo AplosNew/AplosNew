@@ -657,11 +657,14 @@ namespace Library.Accounting.Accounts
 
                 var sql = @"SELECT BRM.Id BankReconciliationMapId,BRM.VoucherDetailId,BRM.BankReconciliationUploadedDataId
 								,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  BankStatementDate, BankRefNo, BankParticulars, BRUD.DrAmount UploadedAmount
-								,V.VoucherNo,VD.DocRefNo,CASE WHEN VD.CrAmount>0  THEN VD.CrAmount ELSE VD.DrAmount END VoucherAmount
+								,V.VoucherNo,VD.DocRefNo
+                                --,CASE WHEN VD.CrAmount>0  THEN VD.CrAmount ELSE VD.DrAmount END VoucherAmount
+								,CASE WHEN GLT.CrAmount>0  THEN GLT.CrAmount ELSE GLT.DrAmount END VoucherAmount
                                 FROM TRN.BankReconciliationMap BRM
 								INNER JOIN TRN.BankReconciliationUploadedData  BRUD ON BRUD.Id=BRM.BankReconciliationUploadedDataId
                                 INNER JOIN TRN.BankReconciliationUpload BRU ON BRU.Id=BRUD.BankReconciliationUploadId
                                 INNER JOIN TRN.VoucherDetail AS VD ON VD.Id=BRM.VoucherDetailId
+                                INNER JOIN TRN.GLTransactionDetail AS GLT ON GLT.VoucherDetailId=VD.Id
 								INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
                                 WHERE V.Archive=0 AND BRUD.CompanyGroupId='" + companyGroupId + "' AND BRUD.CompanyId='" + companyId + "' AND BRUD.PlantId='" + plantId + "'  AND BRU.BankMasterId='" + bankMasterId + @"' 
                                 AND BankStatementDate BETWEEN CONVERT(DATE,'" + fromDate + "') AND CONVERT(DATE,'" + toDate + @"') AND BRUD.DrAmount>0  ";
