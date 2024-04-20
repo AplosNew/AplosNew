@@ -1306,6 +1306,57 @@
         </div>
     </div>
 </div>
+<div class="modal fade site-modal in" id="CustomerPopUpNew" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header"> {{partyType}} List <button type="button" class="close" ng-click="closeCustomerPopUpNew();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchByParty">
+                                            <option ng-repeat="option in searchByPartyList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchParty" ng-enter="ShowCustomerPopUpNew()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="ShowCustomerPopUpNew()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+
+                        <div style="color:black;" id="customerPopUpGrid" ej-grid e-datasource="partyList" e-recorddoubleclick="SetCustomerData"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="50" e-filter="false"></div>
+                                <div e-column e-field="UserName" e-headertext="Party" e-width="130"></div>
+                                <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="130"></div>
+                                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                                <div e-column e-field="CountryName" e-headertext="Country" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="StateName" e-headertext="State" e-width="80" textAlign='Right'></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closeCustomerPopUpNew();" class="btn"> Close</button></li>
+                </ul>
+                <i>**Showing top 100 {{partyType}} order by Code</i>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- #endregion -->
 <!-- #region Work Center -->
 <ej-dialog id="workCenterPopUp" title=" Work Center" e-enablemodal="true" e-position-y="0" e-showoninit="false"

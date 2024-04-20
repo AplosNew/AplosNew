@@ -6,6 +6,7 @@ using Library.Data;
 using Library.Data.Sql;
 using Library.Model.Employees;
 using Library.Service.Employees;
+using Library.Service.Enums;
 using OTSBD;
 using System;
 using System.Collections.Generic;
@@ -53,11 +54,11 @@ namespace Aplos.Areas.Payrolls.Controllers
                             OUTER APPLY (SELECT * FROM dbo.EmployeeFullAndFinalSettlement WHERE EmployeeSeperationItemId=OL.Id AND ISNULL(EmpSystemId,'" + EmpSystemId + @"')='" + EmpSystemId + @"') A
 							Where OL.EmployeeSeperationSetupId=(select EmployeeSeperationSetupId from [dbo].[EmpSeperationDesignationGroup] where DesignationGroupId=(select DesignationGroupId from [dbo].EmployeeInformation Where SystemId='" + EmpSystemId + @"'))
                             ORDER BY OL.Sequence";
-         
+
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-       
+
 
         [HttpGet, Authorize]
         public ActionResult GetSeparationTypelist()
@@ -203,7 +204,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                               WHERE EI.SystemId IN (SELECT EmployeeId FROM TRN.Resignation WHERE ApprovalStatus='Approved' ) 
 							  AND EI.SystemId NOT IN (SELECT EmpSystemId FROM EmployeeFullAndFinalSettlement) AND
-                                    EI.PlantId='"+identity.PlantId+@"' and isnull(DOSDate,'')<>'' 
+                                    EI.PlantId='" + identity.PlantId + @"' and isnull(DOSDate,'')<>'' 
 									ORDER BY  ei.DOS DESC";
 
             }
@@ -331,11 +332,11 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
 								LEFT JOIN [HKP].[LegalDesignation] LD ON LD.Id=EI.LegalDesignationId
                                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=AD.CurrencyId
                                 WHERE    AD.EmployeeId<>'' AND ISNULL(AD.AdvanceId,'') <>'' 
-                                AND AD.SourceType in ('EmployeeAdvance', 'InterTransaction') AND AD.EmployeeId='" + EmpSystemId + @"' AND AD.PlantId='" + identity.PlantId+@"'
+                                AND AD.SourceType in ('EmployeeAdvance', 'InterTransaction') AND AD.EmployeeId='" + EmpSystemId + @"' AND AD.PlantId='" + identity.PlantId + @"'
                                 GROUP BY AD.CompanyId, AD.PlantId, AD.CurrencyId, C.Code , AD.EmployeeId, EI.EmployeeCode, EI.EmployeeName, DP.UserName,LD.UserName)X
                                 WHERE X.Balance > 0";
 
-           
+
 
             var avdanceData = _sqlRepository.GetDataCollection(sqlavdance);
 
@@ -740,7 +741,7 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
                                 dr["BankAccNo"] = dsLvDetails.Tables[0].Rows[0]["BankAccNo"].ToString();
                             }
 
-             
+
                         }
                         dr["Isdisburse"] = true;
                         dr["YearlyCalendarId"] = YearlyCalendarId;
@@ -1524,7 +1525,7 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
                 }
                 string lid = string.Empty;
                 DataSet dsSL = null;
-                if (UndisbursedEarningList!=null)
+                if (UndisbursedEarningList != null)
                 {
                     foreach (var item in UndisbursedEarningList)
                     {
@@ -1541,7 +1542,7 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
                     {
                         DataView dv = new DataView(dsSL.Tables[0]);
                         dv.RowFilter = "Id='" + item["Id"] + "'";
-                        
+
                         if (dv.Count > 0)
                         {
                             DataRow drmo = dv[0].Row;
@@ -1735,34 +1736,180 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-
-        public void Caculate()
+        public void ReLoadFormulaWithValue(string strFormulaID, ref DataTable dtValue, out string lblFormulaValue)
         {
+            DataSet dsLocal = null;
+            DataView dvLocal = null;
+            DataView dvSlrHd = null;
 
+            string strTemp = "";
+
+            try
+            {
+                dsLocal = new DataSet();
+
+                string strFormulaIDTemp = strFormulaID.Trim();
+
+                lblFormulaValue = "";
+
+                string[] strIdCol = strFormulaIDTemp.Split(' ');
+
+                DataTable dt = new DataTable();
+                dt.TableName = "IDLIST";
+                dt.Columns.Add("ID");
+                DataRow dr = null;
+                foreach (string id in strIdCol)
+                {
+                    dr = dt.NewRow();
+                    dr["ID"] = id.Trim();
+                    dt.Rows.Add(dr);
+                }
+                dsLocal.Tables.Add(dt);
+
+                for (int i = 0; i < dsLocal.Tables[0].Rows.Count; i++)
+                {
+                    strTemp = "";
+
+                    strTemp = dsLocal.Tables[0].Rows[i]["ID"].ToString();
+                    if (strTemp.Trim() == "+" || strTemp.Trim() == "-" || strTemp.Trim() == "*" || strTemp.Trim() == "/" || strTemp.Trim() == "(" || strTemp.Trim() == ")")
+                    {
+                        strTemp = dsLocal.Tables[0].Rows[i]["ID"].ToString();
+                    }
+                    else
+                    {
+                        dvLocal = new DataView();
+                        dvLocal.Table = dtValue;
+
+                        dvLocal.RowFilter = "EmployeeSeperationItemId = '" + strTemp.Trim() + "'";
+                        if (dvLocal.Count > 0)
+                        {
+                            strTemp = dvLocal[0]["Value"].ToString().Trim();
+                        }
+                    }
+
+                    lblFormulaValue += strTemp.Trim();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+            }
+        }//End 
+
+        public DataTable GetDataTable(string empId)
+        {
+            string fromDate = null;
+            string toDate = null;
+            DataSet dsFromTo;
+
+            try
+            {
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select top(1) a.Fromdate,a.Todate from trn.EmployeeLeaveSummary a LEFT JOIN LeaveType t on t.Id=a.LeaveTypeID where EmployeeId='" + empId + @"' AND t.LeaveType='Earn' order by fromdate desc", out dsFromTo, false, "1");
+                if (dsFromTo.Tables[0].Rows.Count > 0)
+                {
+                    fromDate = dsFromTo.Tables[0].Rows[0]["Fromdate"].ToString();
+                    toDate = dsFromTo.Tables[0].Rows[0]["Todate"].ToString();
+                }
+
+
+                string sql = @"SELECT A.Id,A.FinalSettlementId,E.SystemId EmpSystemId,OL.Id EmployeeSeperationItemId,OL.UserName,OL.Formula,OL.FormulaId
+,Value= CASE WHEN OL.UserName='" + EmployeeSeprationSetupEnum.JoiningDate + @"' THEN FORMAT(E.DOJ,'dd-MMM-yyyy')
+			 WHEN OL.UserName='" + EmployeeSeprationSetupEnum.ConfirmationDate + @"' THEN FORMAT(E.DOC,'dd-MMM-yyyy')
+			 WHEN OL.UserName='" + EmployeeSeprationSetupEnum.ResignDate + @"' THEN FORMAT(R.ResignationDate,'dd-MMM-yyyy')
+			 WHEN OL.UserName='" + EmployeeSeprationSetupEnum.SeparationDate + @"' THEN FORMAT(E.DOS,'dd-MMM-yyyy')
+			 WHEN OL.UserName='" + EmployeeSeprationSetupEnum.EarnLeave + @"' THEN CAST(LV.Balance AS varchar(100))
+			 WHEN OL.UserName='" + EmployeeSeprationSetupEnum.Basic + @"' THEN CAST(B.Basic AS varchar(100))
+			 WHEN OL.UserName='" + EmployeeSeprationSetupEnum.Gross + @"' THEN CAST(G.Gross AS varchar(100))
+			 WHEN OL.UserName='" + EmployeeSeprationSetupEnum.NoticePeriod + @"' THEN CAST(LV.NoticePeriod AS varchar(100))
+            WHEN OL.Formula='SeparationDate - ResignDate' THEN CAST(DATEDIFF(Day,(Select FORMAT(DOS,'dd-MMM-yyyy') from dbo.EmployeeInformation Where SystemId='" + empId + @"'),
+			 (Select FORMAT(R.ResignationDate,'dd-MMM-yyyy') from [TRN].[Resignation] R Where R.EmployeeId='" + empId + @"'
+AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC))
+			 ) AS varchar(100))
+ElSE CAST(A.Value as varchar(100)) END
+--,A.Value
+,OL.EntryState
+FROM EmployeeSeperationItem AS OL
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId='" + empId + @"'
+LEFT JOIN [TRN].[Resignation] R ON R.EmployeeId=E.SystemId
+AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC)
+LEFT JOIN(
+select e.SystemID
+,Balance=ISNULL((CONVERT(NUMERIC(10,2),count(CONVERT(NUMERIC(10,2),a.WorkDate))/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty))+S.BroughtForward-ISNULL(B.Availed,0)),0)
+,C.NoticePeriod
+from AttdnProcessData a
+left join EmployeeInformation e on e.SystemId=a.EmpSystemID
+left join mst.DesignationMasterLegalDesignation d on d.LegalDesignationId=e.LegalDesignationId
+left join SCS.DesignationMasterConfiguration c on c.DesignationMasterId=d.DesignationMasterId and c.PlantId=e.PlantId
+left join LeavePolicyDetail dp on dp.LPMSystemID=c.LeavePolicyMasterId
+join LeavePolicyWorkingDays p on  p.LPDetailID=dp.SystemID and a.DayStatus=p.DayType  
+left join LeaveType t on t.Id=dp.LTSystemID 
+LEFT JOIN(
+Select COUNT(a.EmpSystemID)Availed,a.EmpSystemID from AttdnProcessData a  
+LEFT JOIN LeaveType t on t.Id=a.LTSystemID 
+where a.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND EmpSystemID='" + empId + @"' AND t.LeaveType='Earn'
+Group By a.EmpSystemID
+) B ON a.EmpSystemID=B.EmpSystemID
+LEFT JOIN(
+select top(1) BroughtForward=CASE WHEN A.Closing>A.CarryForward THEN A.Closing ELSE A.CarryForward END,A.EmployeeId,0 EncashedInbetween from dbo.AnnualLeaveDataPast A
+left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+Where EmployeeId='" + empId + @"' order by A.AddedDate desc
+) S ON a.EmpSystemID=S.EmployeeId
+where a.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and e.SystemID='" + empId + @"' and t.LeaveType='Earn'
+group by E.SystemID,dp.EncashWorkingDaysQty,S.BroughtForward,B.Availed,C.NoticePeriod
+) LV ON LV.SystemID=E.SystemId
+ LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = E.SystemId
+ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.SalaryID
+                                                                          FROM SalaryInfoDefine SID 
+								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
+                                                                        WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
+ left  join (SELECT SID.DefineAmount Gross,SH.SalaryHeadID BasicSalaryHeadID,SID.SalaryID
+                                                                          FROM SalaryInfoDefine SID 
+								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
+                                                                        WHERE SH.HeadCategory='Gross') G ON G.SalaryID=SIDM.SystemID
+OUTER APPLY (SELECT * FROM dbo.EmployeeFullAndFinalSettlement WHERE EmployeeSeperationItemId=OL.Id 
+AND ISNULL(EmpSystemId,'" + empId + @"')='" + empId + @"') A
+Where OL.EmployeeSeperationSetupId=
+(select EmployeeSeperationSetupId from [dbo].[EmpSeperationDesignationGroup] where DesignationGroupId=
+(select DesignationGroupId from [dbo].EmployeeInformation Where SystemId='" + empId + @"'))
+
+ORDER BY OL.Sequence
+";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
-
 
         [HttpPost]
         public JsonResult Process(Dictionary<string, object> data, List<Dictionary<string, object>> datalist)
         {
             try
             {
-                DataSet dsMaster, dsEmpMaster, dsID;
+
+
+                DataSet dsMaster, dsID = null;
+                DataSet dsEmpMaster = null;
                 MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from EmployeeFullAndFinalSettlementMaster where FinalSettlementName='" + data["FinalSettlementName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                con.OpenDataSetThroughAdapter("select * from EmployeeFullAndFinalSettlement where FinalSettlementId='" + data["Id"] + "'", out dsEmpMaster, false, "1");
+
                 con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[EmployeeFullAndFinalSettlement] where FinalSettlementId='" + data["Id"] + "'", out dsID, false, "1");
                 int ccount = Convert.ToInt32(dsID.Tables[0].Rows[0]["countId"].ToString());
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Final Settlement Name already exists!!!");
 
-               
+
                 con.OpenDataSetThroughAdapter("select * from EmployeeFullAndFinalSettlementMaster where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
 
-                #region data update
+                #region data master
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
@@ -1777,29 +1924,115 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 #endregion data update
-                #region data update
+                #region data Detail
                 foreach (var item in datalist)
                 {
-
+                    string empId = item["EmpSystemId"].ToString();
+                    con.OpenDataSetThroughAdapter("select * from EmployeeFullAndFinalSettlement where EmpSystemId='" + empId + "'", out dsEmpMaster, false, "1");
                     var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                    string sql = string.Empty;
+                    DataTable dtValue = new DataTable();
+                    dtValue.TableName = "TempTable";
+                    dtValue.Columns.Add("EmployeeSeperationItemId");
+                    dtValue.Columns.Add("Value");
+                    string sFormulaResult = null;
 
-                    DataView dv = new DataView(dsEmpMaster.Tables[0]);
-                    dv.RowFilter = "Id='" + item["Id"] + "'";
 
-                    if (dv.Count == 0)
+                    DataTable dtData = GetDataTable(empId);
+                    for (int i = 0; i < dtData.Rows.Count; i++)
                     {
-                        ccount++;
-                        item["Id"] = materialCommonService.MakePK(_Id, ccount, 2);
-                        item["FinalSettlementId"] = _Id;
+                        if (i == 0)
+                        {
+                            DataRow dtValueRow = dtValue.NewRow();
 
-                        AddNewRow(dsEmpMaster.Tables[0], item);
+                            dtValueRow["EmployeeSeperationItemId"] = dtData.Rows[i]["EmployeeSeperationItemId"].ToString().Trim();
+                            dtValueRow["Value"] = dtData.Rows[i]["Value"].ToString().Trim();
+
+                            dtValue.Rows.Add(dtValueRow);
+                        }
+                        else if (i > 0 && string.IsNullOrEmpty(dtData.Rows[i]["FormulaId"].ToString()))
+                        {
+                            DataRow dtValueRow = dtValue.NewRow();
+
+                            dtValueRow["EmployeeSeperationItemId"] = dtData.Rows[i]["EmployeeSeperationItemId"].ToString().Trim();
+                            dtValueRow["Value"] = dtData.Rows[i]["Value"].ToString().Trim();
+
+                            dtValue.Rows.Add(dtValueRow);
+                        }
+                        else if(dtData.Rows[i]["Formula"].ToString() == "SeparationDate - ResignDate")
+                        {
+                            DataRow dtValueRow = dtValue.NewRow();
+
+                            dtValueRow["EmployeeSeperationItemId"] = dtData.Rows[i]["EmployeeSeperationItemId"].ToString().Trim();
+                            dtValueRow["Value"] = dtData.Rows[i]["Value"].ToString().Trim();
+
+                            dtValue.Rows.Add(dtValueRow);
+                        }
+                        if (!string.IsNullOrEmpty(dtData.Rows[i]["FormulaId"].ToString()) && dtData.Rows[i]["Formula"].ToString() != "SeparationDate - ResignDate")
+                        {
+                            ReLoadFormulaWithValue(dtData.Rows[i]["FormulaId"].ToString(), ref dtValue, out string _formulaValue);
+                            sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("#,##0");
+
+                            DataRow dtValueRow = dtValue.NewRow();
+
+                            dtValueRow["EmployeeSeperationItemId"] = dtData.Rows[i]["EmployeeSeperationItemId"].ToString().Trim();
+                            dtValueRow["Value"] = sFormulaResult;
+
+                            dtValue.Rows.Add(dtValueRow);
+
+                            DataView dtv = new DataView(dtData);
+                            dtv.RowFilter = "EmployeeSeperationItemId='" + dtData.Rows[i]["EmployeeSeperationItemId"].ToString() + "'";
+                            if (dtv.Count > 0)
+                            {
+                                DataRow drmo = dtv[0].Row;
+
+                                drmo.BeginEdit();
+                                drmo["Value"] = sFormulaResult;
+                                drmo.EndEdit();
+
+                            }
+                        }
                     }
-                    else
+
+
+                    for (int i = 0; i < dtData.Rows.Count; i++)
                     {
-                        DataRow drmo = dv[0].Row;
-                        item["Id"] = dv[0].Row["Id"].ToString();
-                        EditRow(drmo, item);
+
+                        DataView dv = new DataView(dsEmpMaster.Tables[0]);
+                        dv.RowFilter = "Id='" + dtData.Rows[i]["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            DataRow dr = dsEmpMaster.Tables[0].NewRow();
+                            ccount++;
+                            dr["Id"] = materialCommonService.MakePK(_Id, ccount, 2);
+                            dr["FinalSettlementId"] = _Id;
+                            dr["EmpSystemId"] = dtData.Rows[i]["EmpSystemId"].ToString();
+                            dr["EmployeeSeperationItemId"] = dtData.Rows[i]["EmployeeSeperationItemId"].ToString();
+                            dr["UserName"] = dtData.Rows[i]["UserName"].ToString();
+                            dr["Value"] = dtData.Rows[i]["Value"].ToString();
+                            dr["AddedBy"] = identity.Name;
+                            dr["AddedDate"] = DateTime.Now;
+                            dr["AddedFromIP"] = identity.IPAddress;
+
+                            dsEmpMaster.Tables[0].Rows.Add(dr);
+                        }
+                        else
+                        {
+                            DataRow dr = dsEmpMaster.Tables[0].DefaultView[0].Row;
+
+                            dr.BeginEdit();
+                            dr["EmployeeSeperationItemId"] = dtData.Rows[i]["EmployeeSeperationItemId"].ToString();
+                            dr["UserName"] = dtData.Rows[i]["UserName"].ToString();
+                            dr["Value"] = dtData.Rows[i]["Value"].ToString();
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = DateTime.Now.ToString();
+                            dr["UpdatedFromIP"] = identity.IPAddress;
+
+                            dr.EndEdit();
+                        }
                     }
+
 
                 }
 
