@@ -206,6 +206,8 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
 
     // #region checkbox all
 
+    $scope.FinalSettlementModel = { Id: null, FinalSettlementName: null, FinalSettlementDate:null}
+
     $scope.refreshTemplateOperation = function (args) {
         $("#headchk").ejCheckBox({ "change": headCheckChangeOperation });
     };
