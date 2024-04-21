@@ -7,7 +7,6 @@
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);getData();" href="" aria-controls="general" role="tab" data-toggle="tab">{{titleTab1}}</a></li>
             <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);getPendingforApprovalData();" href="" aria-controls="general" role="tab" data-toggle="tab">Pending for Approval</a></li>
-            @*<li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);GetGoodWorkPaymentAdvisePendingApprovalData();" href="" aria-controls="general" role="tab" data-toggle="tab">Pending for Approval</a></li>*@
             <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);getVoucherData();" href="" aria-controls="general" role="tab" data-toggle="tab">Payments</a></li>
         </ul>
     </div>
@@ -278,15 +277,9 @@
                         </div>
                     </div>
                     <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Payment Date<sup>*</sup></label>
+                        <label class="col-sm-4 control-label">Percentage<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="PaymentDueDate" ng-model="ModelPCNewPendingPayment.PaymentDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3" readonly>
-                        </div>
-                    </div>
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Payment Source<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" class="form-control" name="PaymentSource" ng-model="ModelPCNewPendingPayment.PaymentSource" e-width="100" readonly />
+                            <input type="text" class="form-control" name="Percentage" ng-model="ModelPCNewPendingPayment.Percentage" e-width="100" readonly />
                         </div>
                     </div>
                 </div>
@@ -320,10 +313,13 @@
                             <div e-column e-headertext="All" e-headertemplateid="#CheckGWTemplatePendingPayment" e-template="#checkboxGWTemplatePendingPayment" e-textalign="center" e-width="30"></div>
                             <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="60"></div>
                             <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
-                            <div e-column e-field="Minute" e-headertext="Minute" e-width="60"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
                             <div e-column e-field="Hour" e-headertext="Hour" e-width="60" e-isprimarykey="true"></div>
                             <div e-column e-field="Rate" e-headertext="Rate" e-width="60" e-isprimarykey="true"></div>
                             <div e-column e-field="Amount" e-headertext="Amount" e-width="60"></div>
+                            <div e-column e-field="AdvanceAmount" e-headertext="Advance Amount" e-width="60"></div>
                             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="80"></div>
 
                         </div>
@@ -349,11 +345,10 @@
                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                     <div e-columns>
                         <div e-column e-field="Id" e-headertext="Id" e-width="3"></div>
-                        <div e-column e-field="PaymentSource" e-headertext="Payment Source" e-width="2"></div>
                         <div e-column e-field="FromDate" e-headertext="From Date" e-width="2" e-isprimarykey="true"></div>
                         <div e-column e-field="ToDate" e-headertext="To Date" e-width="2" e-isprimarykey="true"></div>
                         <div e-column e-field="UserRef" e-headertext="UserName" e-width="3"></div>
-                        <div e-column e-field="PaymentDate" e-headertext="Payment Date" e-width="3"></div>
+                        <div e-column e-field="Percentage" e-headertext="Percentage" e-width="3"></div>
                         <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
                     </div>
                 </div>

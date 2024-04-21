@@ -9,8 +9,8 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
     $scope.WorkerAdvanceList = [];
     $scope.path = 'Attendances/GoodWork/';
     $scope.saveUrl = $scope.path + 'CreateWorkerAdvance';
-    $scope.savePCUrl = $scope.path + 'PayableCreationSave';
-    $scope.UpdateUrl = $scope.path + 'UpdateGoodWorkDetailEdit';
+    //$scope.savePCUrl = $scope.path + 'PayableCreationSave';
+    //$scope.UpdateUrl = $scope.path + 'UpdateGoodWorkDetailEdit';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     baseService.init($scope.getListUrl);
@@ -996,7 +996,7 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
             }
             $http({
                 method: 'POST',
-                url: $scope.path + 'SaveGoodWorkPaymentAdvisePendingPayment',
+                url: $scope.path + 'ApproveEmployeeMultipleAdvance',
                 data: { 'data': $scope.ModelPCNewPendingPayment, 'goodWorkPaymentAdviseDetail': $scope.EmployeeGWListPendingPayment },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -1007,7 +1007,7 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
                     ShowResult(response.data.Message, 'success');
 
                     $scope.ClearGoodWorkPaymentAdvisePendingPayment();
-                    $scope.GetGoodWorkPaymentAdvisePendingPaymentData();
+                    $scope.getPendingforApprovalData();
 
                 }
             }), function errorCallBack(response) {
