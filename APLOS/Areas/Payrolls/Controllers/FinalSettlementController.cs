@@ -1822,15 +1822,13 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
 			 WHEN OL.UserName='" + EmployeeSeprationSetupEnum.ResignDate + @"' THEN FORMAT(R.ResignationDate,'dd-MMM-yyyy')
 			 WHEN OL.UserName='" + EmployeeSeprationSetupEnum.SeparationDate + @"' THEN FORMAT(E.DOS,'dd-MMM-yyyy')
 			 WHEN OL.UserName='" + EmployeeSeprationSetupEnum.EarnLeave + @"' THEN CAST(LV.Balance AS varchar(100))
-			 WHEN OL.UserName='" + EmployeeSeprationSetupEnum.Basic + @"' THEN CAST(B.Basic AS varchar(100))
-			 WHEN OL.UserName='" + EmployeeSeprationSetupEnum.Gross + @"' THEN CAST(G.Gross AS varchar(100))
+			 WHEN OL.SalaryHeadID<>'' THEN CAST(SID.DefineAmount AS varchar(100))
 			 WHEN OL.UserName='" + EmployeeSeprationSetupEnum.NoticePeriod + @"' THEN CAST(LV.NoticePeriod AS varchar(100))
             WHEN OL.Formula='SeparationDate - ResignDate' THEN CAST(DATEDIFF(Day,(Select FORMAT(DOS,'dd-MMM-yyyy') from dbo.EmployeeInformation Where SystemId='" + empId + @"'),
 			 (Select FORMAT(R.ResignationDate,'dd-MMM-yyyy') from [TRN].[Resignation] R Where R.EmployeeId='" + empId + @"'
 AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC))
 			 ) AS varchar(100))
 ElSE CAST(A.Value as varchar(100)) END
---,A.Value
 ,OL.EntryState
 FROM EmployeeSeperationItem AS OL
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId='" + empId + @"'
@@ -1862,14 +1860,7 @@ where a.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and e.SystemI
 group by E.SystemID,dp.EncashWorkingDaysQty,S.BroughtForward,B.Availed,C.NoticePeriod
 ) LV ON LV.SystemID=E.SystemId
  LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = E.SystemId
- left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.SalaryID
-                                                                          FROM SalaryInfoDefine SID 
-								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
-                                                                        WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
- left  join (SELECT SID.DefineAmount Gross,SH.SalaryHeadID BasicSalaryHeadID,SID.SalaryID
-                                                                          FROM SalaryInfoDefine SID 
-								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
-                                                                        WHERE SH.HeadCategory='Gross') G ON G.SalaryID=SIDM.SystemID
+ LEFT JOIN SalaryInfoDefine SID ON SID.SalaryID=SIDM.SystemID AND OL.SalaryHeadID = SID.SalaryHeadID
 OUTER APPLY (SELECT * FROM dbo.EmployeeFullAndFinalSettlement WHERE EmployeeSeperationItemId=OL.Id 
 AND ISNULL(EmpSystemId,'" + empId + @"')='" + empId + @"') A
 Where OL.EmployeeSeperationSetupId=
@@ -1893,8 +1884,9 @@ ORDER BY OL.Sequence
             {
 
 
-                DataSet dsMaster, dsID = null;
+                DataSet dsMaster, dsID, dsEmpID = null;
                 DataSet dsEmpMaster = null;
+                DataSet dsFNFEmpMaster = null;
                 MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from EmployeeFullAndFinalSettlementMaster where FinalSettlementName='" + data["FinalSettlementName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
@@ -1925,6 +1917,9 @@ ORDER BY OL.Sequence
                 }
                 #endregion data update
                 #region data Detail
+                con.OpenDataSetThroughAdapter("select * from FullAndFinalSettlementEmployee where FinalSettlementId='" + data["Id"] + "'", out dsFNFEmpMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[EmployeeFullAndFinalSettlement] where FinalSettlementId='" + data["Id"] + "'", out dsEmpID, false, "1");
+                int empcount = Convert.ToInt32(dsEmpID.Tables[0].Rows[0]["countId"].ToString());
                 foreach (var item in datalist)
                 {
                     string empId = item["EmpSystemId"].ToString();
@@ -1936,6 +1931,24 @@ ORDER BY OL.Sequence
                     dtValue.Columns.Add("EmployeeSeperationItemId");
                     dtValue.Columns.Add("Value");
                     string sFormulaResult = null;
+
+                    DataView empdv = new DataView(dsFNFEmpMaster.Tables[0]);
+                    empdv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (empdv.Count == 0)
+                    {
+                        empcount++;
+                        item["Id"] = materialCommonService.MakePK(_Id, empcount, 2);
+                        item["FinalSettlementId"] = _Id;
+
+                        AddNewRow(dsFNFEmpMaster.Tables[0], item);
+                    }
+                    else
+                    {
+                        DataRow drmo = empdv[0].Row;
+                        EditRow(drmo, item);
+                    }
+
 
 
                     DataTable dtData = GetDataTable(empId);
@@ -1959,7 +1972,7 @@ ORDER BY OL.Sequence
 
                             dtValue.Rows.Add(dtValueRow);
                         }
-                        else if(dtData.Rows[i]["Formula"].ToString() == "SeparationDate - ResignDate")
+                        else if (dtData.Rows[i]["Formula"].ToString() == "SeparationDate - ResignDate")
                         {
                             DataRow dtValueRow = dtValue.NewRow();
 
@@ -2038,7 +2051,7 @@ ORDER BY OL.Sequence
 
                 #endregion data update 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsEmpMaster);
+                _info.SaveDataSets(dsMaster, dsEmpMaster, dsFNFEmpMaster);
 
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
 
