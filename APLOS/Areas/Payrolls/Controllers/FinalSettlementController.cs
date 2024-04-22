@@ -1829,7 +1829,6 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
 AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC))
 			 ) AS varchar(100))
 ElSE CAST(A.Value as varchar(100)) END
---,A.Value
 ,OL.EntryState
 FROM EmployeeSeperationItem AS OL
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId='" + empId + @"'
