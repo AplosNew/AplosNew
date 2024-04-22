@@ -2163,7 +2163,7 @@ ORDER BY  p1.ProductionDate,po.Id,popc.Sequence
                 string SqlCalendar = @"SELECT PC.EntityId, format(pc.WorkingDate,'dd-MMM-yyyy') AS WorkingDate FROM ProductionPlanningCalendar AS pc WHERE pc.WorkingDate 
                                         BETWEEN '" + Convert.ToDateTime(fromDate).AddDays(-30).ToString("dd-MMM-yyyy")
                                         + @"' AND '" + Convert.ToDateTime(toDate).AddDays(30).ToString("dd-MMM-yyyy")
-                                        + @"' AND ISNULL(pc.DayType,'')='' AND PC.EntityID IN(" + entityid + @") AND pc.ProcessID=(SELECT BaseProcessId FROM PlanningTypes AS pt WHERE pt.PlanningType='" + ScreenPlanningType.ToString() + @"')
+                                        + @"' AND ISNULL(pc.DayType,'')='' AND PC.EntityID IN(" + entityid + @") AND pc.ProcessID IN (SELECT BaseProcessId FROM PlanningTypes AS pt WHERE pt.PlanningType='" + ScreenPlanningType.ToString() + @"')
                                         ORDER BY CONVERT(DATE, pc.WorkingDate) ASC";
                 DataTable dtCalendar = _sqlRepository.GetDataTable(SqlCalendar);
 
