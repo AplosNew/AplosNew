@@ -2209,7 +2209,10 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             try
             {
-                var _master = _sqlRepository.GetDataCollection("select * from [TRN].[EmployeeAdvanceRequisition] where SystemId='" + Id + "'");
+                var _master = _sqlRepository.GetDataCollection(@"select EAR.*,EI.EmployeeName,DP.UserName Department from [TRN].[EmployeeAdvanceRequisition] EAR 
+                                        Join dbo.EmployeeInformation EI ON EI.SystemId = EAR.EmpSystemId
+                                        Join ORG.Department DP ON DP.Id = EI.DepartmentId
+                                        where EAR.SystemId = '" + Id + "'");
                                
                 return Json(new { master = _master}, JsonRequestBehavior.AllowGet);
             }

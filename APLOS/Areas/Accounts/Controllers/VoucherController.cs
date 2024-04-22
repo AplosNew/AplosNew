@@ -663,6 +663,15 @@ namespace Aplos.Areas.Accounts.Controllers
             return excelEngine.SaveAsActionResult(workbook, "GLVoucher_" + masterid + ".xlsx", HttpContext.ApplicationInstance.Response, ExcelDownloadType.PromptDialog, ExcelHttpContentType.Excel2013);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetEditableJournalList(string voucherId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsSalesService _accountsSalesService = new AccountsSalesService(_sqlRepository);
+            return Json(_accountsSalesService.GetEditableJournalList(identity.PlantId, voucherId), JsonRequestBehavior.AllowGet);
+        }
+
+
         [HttpPost]
         public ActionResult GenerateGLDateWise(string masterid, string fromDate, string toDate)
         {

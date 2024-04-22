@@ -3,6 +3,12 @@
     <div class="row">
         <div class="col-xs-6 col-sm-6 col-md-6">
             <div class="form-group">
+                <label class="col-sm-4 control-label">Employee<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" ng-model="model.EmployeeName" disabled e-width="100%" />
+                </div>
+            </div>
+            <div class="form-group">
                 <label class="col-sm-4 control-label">Entry Date<sup>*</sup></label>
                 <div class="col-sm-8">
                     <input e-dateformat="dd-MMM-yyyy" ej-datepicker class="form-control" e-dataBound="model.RequisitionAddedDate" e-value="model.RequisitionAddedDate" disabled e-width="100%" />
@@ -42,6 +48,12 @@
         </div>
         <div class="col-xs-6 col-sm-6 col-md-6">
             <div class="form-group">
+                <label class="col-sm-4 control-label">Department<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control"  ng-model="model.Department" disabled e-width="100%" />
+                </div>
+            </div>
+            <div class="form-group">
                 <label class="col-sm-4 control-label">Required Date<sup>*</sup></label>
                 <div class="col-sm-8">
                     <input id="RequisitionRequiredDate" e-dateformat="dd-MMM-yyyy" ej-datepicker class="form-control" e-dataBound="model.RequisitionRequiredDate" e-value="model.RequisitionRequiredDate" disabled e-width="100%" />
@@ -67,7 +79,33 @@
                 </div>
             </div>
         </div>
+        <div class="clearfix"></div>
+        <fieldset class="scheduler-border" >
+            <legend class="scheduler-border">Advance Schedule</legend>
+            <div class="table-responsive modal-table" ng-show="getAdvanceReqScheduleList.length" style="padding-top:10px;">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Installment Date</th>
+                            <th>Installment No</th>
+                            <th>Principal Amount</th>
+                            <th>Interest Amount</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in getAdvanceReqScheduleList">
+                            <td>{{x.InstallmentDate}}</td>
+                            <td>{{x.InstallmentNo}}</td>
+                            <td>{{x.PrincipalAmount}}</td>
+                            <td>{{x.ProfitAmount}}</td>
+                            <td>{{x.Balance}}</td>
+                        </tr>
+                    </tbody>
 
+                </table>
+            </div>
+        </fieldset>
     </div>
     <div class="common-btn">
         <ul class="common-btn list-inline text-right" style="padding: 20px;">
@@ -107,6 +145,8 @@
                                 <div e-column e-field="CheckedBy" e-headertext="Checked By"></div>
                                 <div e-column e-field="ApprovedBy" e-headertext="Approved By"></div>
                                 <div e-column e-field="ApprovalStatus" e-headertext="Status"></div>
+                                <div e-column e-headertext="PDF" e-commands="PdfPrint" e-isunbound=true e-textalign="center" e-width="50"></div>
+                                <div e-column e-headertext="Excel" e-commands="ExcelPrint" e-isunbound=true e-textalign="center" e-width="50"></div>
                             </div>
                         </div>
 
@@ -130,6 +170,8 @@
                                 <div e-column e-field="CheckedBy" e-headertext="Checked By"></div>
                                 <div e-column e-field="ApprovedBy" e-headertext="Approved By"></div>
                                 <div e-column e-field="ApprovalStatus" e-headertext="Status"></div>
+                                <div e-column e-headertext="PDF" e-commands="PdfPrint" e-isunbound=true e-textalign="center" e-width="50"></div>
+                                <div e-column e-headertext="Excel" e-commands="ExcelPrint" e-isunbound=true e-textalign="center" e-width="50"></div>
                             </div>
                         </div>
 
@@ -153,6 +195,8 @@
                                 <div e-column e-field="CheckedBy" e-headertext="Checked By"></div>
                                 <div e-column e-field="ApprovedBy" e-headertext="Approved By"></div>
                                 <div e-column e-field="ApprovalStatus" e-headertext="Status"></div>
+                                <div e-column e-headertext="PDF" e-commands="PdfPrint" e-isunbound=true e-textalign="center" e-width="50"></div>
+                                <div e-column e-headertext="Excel" e-commands="ExcelPrint" e-isunbound=true e-textalign="center" e-width="50"></div>
                             </div>
                         </div>
 
@@ -176,6 +220,8 @@
                                 <div e-column e-field="CheckedBy" e-headertext="Checked By"></div>
                                 <div e-column e-field="ApprovedBy" e-headertext="Approved By"></div>
                                 <div e-column e-field="ApprovalStatus" e-headertext="Status"></div>
+                                <div e-column e-headertext="PDF" e-commands="PdfPrint" e-isunbound=true e-textalign="center" e-width="50"></div>
+                                <div e-column e-headertext="Excel" e-commands="ExcelPrint" e-isunbound=true e-textalign="center" e-width="50"></div>
                             </div>
                         </div>
 

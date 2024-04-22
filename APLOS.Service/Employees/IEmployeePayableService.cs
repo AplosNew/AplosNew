@@ -3,6 +3,7 @@ using Library.Data.Repositories;
 using Library.Model.Employees;
 using Library.Model.Enums;
 using Library.Model.Systems;
+using Library.Model.Vouchers;
 using Library.ViewModel.Invoices;
 using Library.ViewModel.Vouchers;
 using System;
@@ -26,6 +27,7 @@ namespace Library.Service.Employees
         EmployeePayable InsertEmployeePayable(VoucherViewModel voucherVM);
 
         void Post(string employeePayableId);
+        void PostVoucher(Voucher voucher, string employeePayableId, string type, IEnumerable<VoucherDetailViewModel> voucherDetailList);
 
         PKGenerator GetMaxNumber();
 

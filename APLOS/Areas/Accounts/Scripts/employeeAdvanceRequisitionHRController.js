@@ -299,7 +299,7 @@ function employeeAdvanceRequisitionHRController(cboService, commonMessage, $scop
             Remarks: null,
             CheckedBy: null,
             ApprovedBy: null,
-            AdvanceType: "General",
+            AdvanceType: "Salary",
             RepaymentStartDate: null,
             LifeOfYear: null,
             ProfitRate: null,
@@ -376,8 +376,7 @@ function employeeAdvanceRequisitionHRController(cboService, commonMessage, $scop
             //$scope.advance.PartyType = $scope.partyType;
             $scope.model.EmpSystemId = employee.SystemId;
             $scope.model.EmployeeName = employee.EmployeeName;
-            //$scope.advance.CurrencyId = $scope.selectBaseCurrency();
-            //$scope.GetEmployeeTransactionNo($scope.advance.EmployeeId)
+            $scope.setVisible($scope.model.AdvanceType);
         }
         $scope.hideEmployeePopUp();
     };
