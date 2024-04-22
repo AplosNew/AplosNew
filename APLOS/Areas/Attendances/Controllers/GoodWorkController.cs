@@ -737,14 +737,14 @@ namespace Aplos.Areas.Attendances.Controllers
         public ActionResult GetWorkerAdvanceDetailCenter(string workAdvanceId)
         {
             string str = @"select ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,s.UserName Section,ss.UserName SubSection,wad.Id
-							,wa.Id workAdvanceId,d.UserName Department,wad.Amount 
+							,wa.Id workAdvanceId,d.UserName Department,wad.Hour,wad.Rate,wad.Amount,wad.AdvanceAmount,wad.Remarks 
                             from [dbo].[WorkerAdvanceDetail] wad
                             left join [dbo].[WorkerAdvance] wa on wa.Id=wad.WorkerAdvanceId
                             left join EmployeeInformation ei on ei.SystemId=wad.EmpSystemId
                             left join org.Section AS s ON s.Id=ei.SectionId
                             left join org.SubSection AS ss ON ss.Id=ei.SubSectionId
                             left join org.Department d on d.Id=ei.DepartmentId
-                            where wad.WorkerAdvanceId in ('" + workAdvanceId + "')";
+                            where wad.WorkerAdvanceId in ('" + workAdvanceId + "') AND wad.IsCheck IS NULL";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
@@ -785,6 +785,43 @@ namespace Aplos.Areas.Attendances.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
 
+        }
+        [HttpPost]
+        public JsonResult ApproveEmployeeMultipleAdvance(Dictionary<string, object> data, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail)
+        {
+            try
+            {
+                string goodWorkPaymentAdviseDetailIds = "";
+                if (goodWorkPaymentAdviseDetail != null)
+                {
+                    foreach (var item in goodWorkPaymentAdviseDetail)
+                    {
+                        if (goodWorkPaymentAdviseDetailIds == "")
+                        {
+                            goodWorkPaymentAdviseDetailIds = "'" + item["Id"] + "'"; ;
+                        }
+                        else
+                        {
+                            goodWorkPaymentAdviseDetailIds += ",'" + item["Id"] + "'";
+
+                        }
+                    }
+                }
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("UPDATE [dbo].[WorkerAdvance] SET ApprovedStatus='Approved'  where Id='" + data["Id"] + "' ");
+                con.executeQuery("UPDATE [dbo].[WorkerAdvanceDetail] SET IsCheck=1  where Id in (" + goodWorkPaymentAdviseDetailIds + ") ");
+                con.CommitTransaction();
+
+
+                return Json(new { Error = false, Data = data, Message = "Approved Successfully" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
         }
 
         [HttpPost]
@@ -852,6 +889,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             drmo["WorkerAdvanceId"] = _MasterId;
                             drmo["EmpSystemId"] = item["EmpSystemId"];
                             drmo["AdvanceAmount"] = item["AdvanceAmount"];
+                            drmo["Remarks"] = item["Remarks"];
 
                             drmo.EndEdit();
                         }
@@ -1981,6 +2019,20 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 						from GoodWorkPaymentAdvise gwp 
 						left join EmployeeInformation ei on ei.SystemId=gwp.ByWhomId
                         where gwp.ApprovedStatus ='PaymentApproved' ";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetEmployeeMultipleAdvanceApprovedList()
+        {
+            string sql = @"select ei.EmployeeCode,ei.EmployeeName ByWhom,gwp.Id,FORMAT(gwp.FromDate,'dd-MMM-yyy') FromDate,FORMAT(gwp.ToDate,'dd-MMM-yyy')ToDate
+                        ,gwp.UserRef,gwp.Remarks,ISNULL(gwp.PaymentsStatus,'Active') PaymentsStatus
+                        ,(select SUM(gwpad.AdvanceAmount)DisbursementAmount
+                        from WorkerAdvanceDetail gwpad
+                        where gwpad.WorkerAdvanceId=gwp.Id and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0  AND gwpad.DisbursementVoucherId IS NULL)DisbursementAmount
+                        from WorkerAdvance gwp 
+                        left join EmployeeInformation ei on ei.SystemId=gwp.PreparedById
+                        where gwp.ApprovedStatus ='Approved' ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

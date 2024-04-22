@@ -1080,7 +1080,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                     $scope.prdProcessSetList[i].IsProductionVerification = true;
                 }
             }
-            
+
         });
     }
 
@@ -1461,9 +1461,17 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                 }).finally(function () {
                 });
         };
-        angular.element(document.querySelector('#popUpId')).modal('show');
+       
         $scope.index = index;
-        $scope.getPopUpData();
+
+        var jobWorkType = $scope.prdProcessSetList[index].JobWorkType;
+
+        if (jobWorkType == "Party") {
+            $scope.ShowCustomerPopUpNew();
+        } else {
+            angular.element(document.querySelector('#popUpId')).modal('show');
+            $scope.getPopUpData();
+        }
     };
 
     $scope.selectDoubleClick = function (data) {
@@ -1488,6 +1496,43 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         $scope.valueData = '';
         angular.element(document.querySelector('#popUpId')).modal('hide');
     };
+
+    $scope.searchByParty = "UserName"; $scope.searchParty = "";
+    $scope.partyList = [];
+    $scope.ShowCustomerPopUpNew = function () {
+
+        $scope.partyType = "Vendor";
+        $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
+
+
+        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataSearch?partyType=' + $scope.partyType + '&CompanyId=' + $window.companyId + '&PlantId=' + $window.plantId;
+
+        $http({
+            method: 'POST',
+            url: $scope.partyUrl,
+            data: { column: $scope.searchByParty, value: $scope.searchParty },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.partyList = response.data;
+        });
+        angular.element(document.querySelector('#CustomerPopUpNew')).modal('show');
+    };
+
+    $scope.SetCustomerData = function (obj) {
+        var party = obj.data;
+        valueSetInGrid($scope.prdProcessSetList, party, $scope.index);
+        angular.element(document.querySelector('#CustomerPopUpNew')).modal('hide');
+        $scope.searchParty = '';
+    }
+
+    $scope.closeCustomerPopUpNew = function () {
+        angular.element(document.querySelector('#CustomerPopUpNew')).modal('hide');
+        $scope.hidePartyPopUp();
+        $scope.partyType = "Vendor";
+        $scope.searchParty = '';
+    }
+
+
 
     function typeCheckAndCreateUrl(list, index) {
         if (list[index].JobWorkType === 'EntityWithinCompany') {
@@ -4354,7 +4399,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                     gridObj.refreshContent();
                     gridObj.refreshTemplate();
                 }
-                
+
             });
         } catch (e) {
             ShowResult(e, 'failure');

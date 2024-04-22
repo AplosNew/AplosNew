@@ -1895,24 +1895,26 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
             {
                 //AvgStorypoints=ROUND((ISNULL(SUM(X.TaskDue),0)*2)/(NULLIF(SUM(X.CreatedTask),0)),0)
                 strSql = @"SELECT Z.* FROM (
-SELECT X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department,SUM(X.UnRead)UnRead,SUM(X.TaskDue) TaskDue,SUM(X.OnTimeTask) OnTimeTask,SUM(X.LateTask) LateTask,SUM(X.PeriviousPeriodOverdueTask)PeriviousPeriodOverdueTask,AvgStorypoints=0,SUM(X.EarlyTask)EarlyTask,EarlyColsedStoryPoint=CASE WHEN SUM(X.EarlyTask)=0 THEN 0 ELSE 1.5 END,SUM(X.OverdueTask)OverdueTask,SUM(X.ApproveBy)ApproveBy,SUM(X.CheckBy)CheckBy,SUM(X.CrossCheckBy)CrossCheckBy
+SELECT X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.EmployeeCategory,X.Department,SUM(X.UnRead)UnRead,SUM(X.TaskDue) TaskDue,SUM(X.OnTimeTask) OnTimeTask,SUM(X.LateTask) LateTask,SUM(X.PeriviousPeriodOverdueTask)PeriviousPeriodOverdueTask,AvgStorypoints=0,SUM(X.EarlyTask)EarlyTask,EarlyColsedStoryPoint=CASE WHEN SUM(X.EarlyTask)=0 THEN 0 ELSE 1.5 END,SUM(X.OverdueTask)OverdueTask,SUM(X.ApproveBy)ApproveBy,SUM(X.CheckBy)CheckBy,SUM(X.CrossCheckBy)CrossCheckBy
 FROM (
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM dbo.EmployeeInformation AS ei 
---LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit Where (Convert(date,AddedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '"+todate+ @"')) "+tcb+@") TA ON TA.ResponsiblePersonId= ei.SystemId 
+--LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit Where (Convert(date,AddedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '"+todate+ @"')) "+tcb+ @") TA ON TA.ResponsiblePersonId= ei.SystemId 
 LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,ISNULL(COUNT(UR.Id),0) UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,ISNULL(COUNT(UR.Id),0) UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit UR 
 LEFT JOIN dbo.EmployeeInformation AS ei ON UR.ResponsiblePersonId=ei.SystemId
 LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
@@ -1921,6 +1923,8 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = UR.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(UR.isRead,0)=0 AND ISNULL(UR.IsDone,0)=0 AND (Convert(date,UR.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND UR.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed' " + tcb + @"
@@ -1928,9 +1932,9 @@ AND ISNULL(UR.isRead,0)=0 AND ISNULL(UR.IsDone,0)=0 AND (Convert(date,UR.DueDate
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead,ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit TD
 LEFT JOIN dbo.EmployeeInformation AS ei ON TD.ResponsiblePersonId=ei.SystemId
 LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
@@ -1939,6 +1943,8 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1 AND ISNULL(TD.IsDone,0)=0
 AND (Convert(date,TD.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND TD.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed' " + tcb + @"
@@ -1946,9 +1952,9 @@ AND (Convert(date,TD.DueDate) Between Convert(date,'" + fromDate + @"') AND Conv
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead,0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit OTT 
 LEFT JOIN dbo.EmployeeInformation AS ei ON OTT.ResponsiblePersonId=ei.SystemId
 LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
@@ -1957,6 +1963,8 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate+@"') AND Convert(date, '"+todate+ @"')) AND ISNULL(OTT.isDone,0)=1 AND OTT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
@@ -1964,9 +1972,9 @@ AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate+@"') AND Co
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @")  
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit LT
 LEFT JOIN dbo.EmployeeInformation AS ei ON LT.ResponsiblePersonId=ei.SystemId
 LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
@@ -1975,6 +1983,8 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))  AND LT.AuthorizationType='AssignTo'  AND tmm.currentstatus='Closed' AND ISNULL(LT.isDone,0)=1 " + tcb + @"
@@ -1982,9 +1992,9 @@ AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
 LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
@@ -1993,6 +2003,8 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date, '" + todate+ @"') > Convert(date,ET.UpdatedDate) 
@@ -2002,9 +2014,9 @@ AND ISNULL(ET.isDone,0)=1 AND ET.AuthorizationType='AssignTo' AND tmm.currentsta
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask ,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask ,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
 LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
@@ -2013,6 +2025,8 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date,ET.DueDate) BETWEEN '" + fromDate+@"' AND '"+todate+ @"'
@@ -2022,9 +2036,9 @@ AND ISNULL(ET.isDone,0)=0 AND ET.AuthorizationType='AssignTo' AND tmm.currentsta
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit PPDT
 LEFT JOIN dbo.EmployeeInformation AS ei ON PPDT.ResponsiblePersonId=ei.SystemId
 --LEFT JOIN(SELECT DISTINCT ResponsiblePersonId,Id,TaskManagerMasterId FROM TaskAudit WHERE ISNULL(isDone,0)=0 AND (Convert(date,DueDate) < Convert(date,'" + fromDate + @"')) " + tcb + @") PPDT ON PPDT.ResponsiblePersonId=ei.SystemId
@@ -2034,6 +2048,8 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = PPDT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(PPDT.isDone,0)=1 AND (Convert(date,PPDT.DueDate) < Convert(date,'" + fromDate + @"')) AND PPDT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
@@ -2041,10 +2057,10 @@ AND ISNULL(PPDT.isDone,0)=1 AND (Convert(date,PPDT.DueDate) < Convert(date,'" + 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,COUNT(tmm.Id) CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,COUNT(tmm.Id) CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
@@ -2055,16 +2071,18 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CheckBy' 
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,COUNT(tmm.Id) CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,COUNT(tmm.Id) CrossCheckBy,0 ApproveBy
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
@@ -2075,16 +2093,18 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CrossCheckBy' 
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,COUNT(tmm.Id) ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,COUNT(tmm.Id) ApproveBy
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
@@ -2095,14 +2115,16 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='ApproveBy' 
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
-)X " + wt+@" GROUP BY X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department)Z "; 
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName
+)X " + wt+ @" GROUP BY X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department,X.EmployeeCategory)Z "; 
 
             }
             else if (model["Status"] == "Issue")
