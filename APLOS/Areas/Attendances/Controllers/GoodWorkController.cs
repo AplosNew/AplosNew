@@ -2022,6 +2022,20 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public ActionResult GetEmployeeMultipleAdvanceApprovedList()
+        {
+            string sql = @"select ei.EmployeeCode,ei.EmployeeName ByWhom,gwp.Id,FORMAT(gwp.FromDate,'dd-MMM-yyy') FromDate,FORMAT(gwp.ToDate,'dd-MMM-yyy')ToDate
+                        ,gwp.UserRef,gwp.Remarks,ISNULL(gwp.PaymentsStatus,'Active') PaymentsStatus
+                        ,(select SUM(gwpad.AdvanceAmount)DisbursementAmount
+                        from WorkerAdvanceDetail gwpad
+                        where gwpad.WorkerAdvanceId=gwp.Id and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0  AND gwpad.DisbursementVoucherId IS NULL)DisbursementAmount
+                        from WorkerAdvance gwp 
+                        left join EmployeeInformation ei on ei.SystemId=gwp.PreparedById
+                        where gwp.ApprovedStatus ='Approved' ";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
         [HttpPost]
         public JsonResult SaveGoodWorkPaymentAdvisePayments(Dictionary<string, object> data, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail)
         {
