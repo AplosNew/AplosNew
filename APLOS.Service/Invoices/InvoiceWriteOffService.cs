@@ -8,6 +8,7 @@ using Library.Model.Accounts;
 using Library.Model.Advances;
 using Library.Model.Banks;
 using Library.Model.Commercial;
+using Library.Model.Employees;
 using Library.Model.Enums;
 using Library.Model.Finances;
 using Library.Model.Invoices;
@@ -81,6 +82,7 @@ namespace Library.Service.Invoices
         private readonly IRepositoryAsync<AdvanceDetail> _advanceDetailRepository;
         private readonly IRepositoryAsync<AdvanceWriteOff> _advanceWriteOffRepository;
         private readonly IRepositoryAsync<AdvanceWriteOffDetail> _advanceWriteOffDetailRepository;
+        private readonly IRepositoryAsync<EmployeeSubsequentTransaction> _employeeSubsequentTransactionRepository;
 
 
         public InvoiceWriteOffService(
@@ -122,6 +124,7 @@ namespace Library.Service.Invoices
             , IRepositoryAsync<AdvanceDetail> advanceDetailRepository
             , IRepositoryAsync<AdvanceWriteOff> advanceWriteOffRepository
             , IRepositoryAsync<AdvanceWriteOffDetail> advanceWriteOffDetailRepository
+            , IRepositoryAsync<EmployeeSubsequentTransaction> employeeSubsequentTransactionRepository
 
             ) : base(invoiceWriteOffRepository, unitOfWork, pkGeneratorService)
         {
@@ -163,6 +166,7 @@ namespace Library.Service.Invoices
             _advanceDetailRepository = advanceDetailRepository;
             _advanceWriteOffRepository = advanceWriteOffRepository;
             _advanceWriteOffDetailRepository = advanceWriteOffDetailRepository;
+            _employeeSubsequentTransactionRepository = employeeSubsequentTransactionRepository;
         }
 
         public InvoiceWriteOff InsertInvoiceWriteOff(InvoiceWriteOff invoiceWriteOff)
@@ -8764,6 +8768,7 @@ namespace Library.Service.Invoices
                 var invoiceTax = _invoiceTaxRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
                 var invoicetds = _additionalTaxRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
                 var adjustmentNote = _adjustmentNoteRepository.Query(r => r.VoucherId == voucherId).Select().FirstOrDefault();
+                var advancewriteOff = _advanceWriteOffRepository.Query(r => r.VoucherId == voucherId).Select().FirstOrDefault();
                 foreach (var item in voucherdetailcurrnecy)
                 {
                     _voucherService.DeleteVoucherDetailCurrency(item.Id);
@@ -8784,9 +8789,16 @@ namespace Library.Service.Invoices
                 foreach (var item in voucherdetail)
                 {
                     var glTransactionDetail = _voucherService.QueryGLTransactionDetail(item.Id).Select().FirstOrDefault();
+                    var employeeSubsequentTran = _employeeSubsequentTransactionRepository.Query(r => r.VoucherDetailId == item.Id).Select().FirstOrDefault();
+
                     if (glTransactionDetail != null)
                     {
                         _voucherService.DeleteGLTransactionDetail(item.Id);
+                    }
+                    if (employeeSubsequentTran!=null)
+                    {
+                        _employeeSubsequentTransactionRepository.Delete(employeeSubsequentTran.Id);
+
                     }
                     _voucherService.DeleteVoucherDetail(item.Id);
                 }
@@ -8850,6 +8862,26 @@ namespace Library.Service.Invoices
                 }
 
                 _invoiceWriteOffRepository.Delete(invoiceWriteOffId);
+
+                if(advancewriteOff != null)
+                {
+                    var advanceWriteOffDetail = _advanceWriteOffDetailRepository.Query(r => r.AdvanceWriteOffId == advancewriteOff.Id).Select().ToList();
+                    foreach (var item in advanceWriteOffDetail)
+                    {
+                        var advance = _advanceRepository.Find(item.AdvanceId);
+                        var advanceDetail = _advanceDetailRepository.Find(item.AdvanceDetailId);
+                        advanceDetail.WrittenOffAmount -= item.Amount;
+                        advance.WrittenOffAmount -= item.Amount;
+                        advanceDetail.IsWrittenOff = advanceDetail.NetAmount == advanceDetail.WrittenOffAmount;
+                        advance.IsWrittenOff = advance.Amount == advance.WrittenOffAmount;
+
+                        _advanceDetailRepository.Update(advanceDetail);
+                        _advanceRepository.Update(advance);
+
+                        _advanceWriteOffDetailRepository.Delete(item.Id);
+                    }
+                    _advanceWriteOffRepository.Delete(advancewriteOff.Id);
+                }
                 if (adjustmentNote != null)
                 {
                     var adjustmentNoteDetail = _adjustmentNoteDetailRepository.Query(r => r.AdjustmentNoteId == adjustmentNote.Id).Select().ToList();
