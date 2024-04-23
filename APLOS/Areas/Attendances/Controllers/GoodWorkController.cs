@@ -2036,6 +2036,117 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public ActionResult GetEmployeeMultipleAdvanceDetailCheckedList(string paymentAdviseId)
+        {
+            string sql = @"select isSelected = Convert(bit, 'True'),CheckBoxSelect=Convert(bit, 'True'),gwpad.Id,gwpad.WorkerAdvanceId,gwpad.EmpSystemId,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour,gwpad.Hour*60 Minute,gwpad.Rate,gwpad.Amount,gwpad.AdvanceAmount,gwpad.Remarks
+                            ,gwpad.IsCheck,isnull(gwpad.IsDisburse,0)IsDisburse
+                            from WorkerAdvanceDetail gwpad
+                            left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
+							left join WorkerAdvance gwpa on gwpa.Id=gwpad.WorkerAdvanceId
+                            where gwpa.Id='" + paymentAdviseId + "' and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.DisbursementVoucherId IS NULL ";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpPost]
+        public JsonResult GetEmployeeMultipleAdvanceDisbursementJVDataList(string disbursementAdviceId, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string goodWorkPaymentAdviseDetailIds = "";
+            if (goodWorkPaymentAdviseDetail != null)
+            {
+                foreach (var item in goodWorkPaymentAdviseDetail)
+                {
+                    if (goodWorkPaymentAdviseDetailIds == "")
+                    {
+                        goodWorkPaymentAdviseDetailIds = "'" + item["Id"] + "'"; ;
+                    }
+                    else
+                    {
+                        goodWorkPaymentAdviseDetailIds += ",'" + item["Id"] + "'";
+
+                    }
+                }
+            }
+
+
+            string sql = null;
+            sql = @"SELECT
+                X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAmount) CrAmount,SUM(X.Amount) Amount,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
+                FROM
+                ( SELECT  'ExtraOTPayment' AS OtherName, 'Dr' AS TrnType
+                , gwpad.AdvanceAmount DrAmount 
+                , 0 CrAmount 
+                , gwpad.AdvanceAmount Amount
+                ,GAD.GLGeneralInfoId  ,GAD.BudgetMasterId,GAD.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
+                , B.UserName BudgetName,A.UserName ActivityName 
+				FROM WorkerAdvanceDetail gwpad
+				LEFT JOIN WorkerAdvance gwpa on gwpa.Id=gwpad.WorkerAdvanceId
+				LEFT JOIN HKP.GeneralAccountDeterminate GAD ON  GAD.Id='ExtraOTPayment'
+				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON GAD.GLGeneralInfoId=GL.Id
+				LEFT JOIN[MST].[BudgetMaster] AS BM ON GAD.BudgetMasterId= BM.Id
+				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+				LEFT JOIN [HKP].[Activity] AS A ON GAD.ActivityId= A.Id
+				WHERE gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.DisbursementVoucherId IS NULL AND gwpad.WorkerAdvanceId='" + disbursementAdviceId + @"' AND gwpad.Id in (" + goodWorkPaymentAdviseDetailIds + @")
+                        
+                )X
+                GROUP BY
+
+                X.GLName,X.BudgetName,X.ActivityName,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
+                ORDER BY 5";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public JsonResult GetEmployeeMultipleAdvanceDisbursementVoucherList(GridParameter parameters)
+        {
+            AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
+            return Json(accountsSalaryPayableService.GetEmployeeMultipleAdvanceDisbursementVoucherList(parameters), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public JsonResult ParkEmployeeMultipleAdvanceDisbursement(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.IsPark = true;
+            voucherVM.Amount = directJVList.Sum(r => r.CrAmount);
+            voucherVM.SourceType = SourceType.GoodWorkDisbursement.ToString();
+
+            string goodWorkPaymentAdviseDetailIds = "";
+            if (goodWorkPaymentAdviseDetail != null)
+            {
+                foreach (var item in goodWorkPaymentAdviseDetail)
+                {
+                    if (goodWorkPaymentAdviseDetailIds == "")
+                    {
+                        goodWorkPaymentAdviseDetailIds = "'" + item["Id"] + "'"; ;
+                    }
+                    else
+                    {
+                        goodWorkPaymentAdviseDetailIds += ",'" + item["Id"] + "'";
+
+                    }
+                }
+            }
+
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _salaryDisbursementService.ParkEmployeeMultipleAdvanceDisbursement(voucherVM, directJVList, disbursementAdviceId, goodWorkPaymentAdviseDetailIds)) });
+        }
+        [HttpPost]
+        public JsonResult PostEmployeeMultipleAdvanceDisbursement(string voucherId)
+        {
+            _salaryDisbursementService.PostSalarydisbursement(voucherId);
+            return Json(new { Message = AplosMessage.Posted });
+        }
+        [HttpPost]
+        public ActionResult DeleteEmployeeMultipleAdvanceDisbursement(string voucherId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _salaryDisbursementService.DeleteEmployeeMultipleAdvanceDisbursement(identity.PlantId, voucherId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
         [HttpPost]
         public JsonResult SaveGoodWorkPaymentAdvisePayments(Dictionary<string, object> data, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail)
         {
@@ -2145,25 +2256,6 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
             return Json(new { Message = AplosMessage.Deleted });
         }
 
-        [HttpGet, Authorize]
-        public ActionResult GetSalaryDisbursementVoucherReport(ReportFormat reportFormat, string voucherId)
-        {
-            AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
-
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var workbook = accountsSalaryPayableService.GetSalaryDisbursementVoucherReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
-            switch (reportFormat)
-            {
-                case ReportFormat.Pdf:
-                    return RenderReportAsPdf(workbook, reportFileName);
-
-                case ReportFormat.Excel:
-                    return RenderReportAsExcel(workbook, reportFileName);
-
-                default:
-                    return View();
-            }
-        }
 
         [HttpGet, Authorize]
         public ActionResult GetGoodWorkPaymentAdviseOTDetailList(string paymentAdviseId)
