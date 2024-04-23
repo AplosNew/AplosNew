@@ -946,6 +946,11 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
                 templateUrl: 'humanresource/VehicleMovementMaster/Vehiclereport',
                 controller: 'VehicleReportController'
             })
+        .when('/vehicle-report',
+            {
+                templateUrl: 'humanresource/OTConfirmationProcess/OTApprove',
+                controller: 'otApproveController'
+            })
 
         .when('/Leave-Transection',
             {

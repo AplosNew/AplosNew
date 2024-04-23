@@ -1955,6 +1955,7 @@
     <Content Include="Areas\FixedAssets\Scripts\assetDisposeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\assetDisposePostController.js" />
     <Content Include="Areas\HumanResource\Scripts\LeaveTransectionController.js" />
+    <Content Include="Areas\HumanResource\Scripts\otApproveController.js" />
     <Content Include="Areas\Materials\Scripts\BarcodeGeneratorSettingController.js" />
     <Content Include="Areas\OrderManagements\Scripts\masterOrderApproveByController.js" />
     <Content Include="Areas\OrderManagements\Scripts\masterOrderCheckByController.js" />
@@ -4952,6 +4953,7 @@
     <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\_BalanceSheetSchedulingApprovingDataUploadDownload.cshtml" />
     <Content Include="Areas\Attendances\Views\GoodWork\EmployeeMultipleAdvance.cshtml" />
     <Content Include="Areas\HumanResource\Views\LeaveTransection\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\OTConfirmationProcess\OTApprove.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
