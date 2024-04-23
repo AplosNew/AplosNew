@@ -33,6 +33,7 @@ using Syncfusion.ExcelToPdfConverter;
 using Library.ViewModel.OrderManagements;
 using Library.Security.Core;
 using Library.OrderManagement.Sales;
+using Library.Model.Vouchers;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
@@ -430,6 +431,17 @@ namespace Aplos.Areas.Accounts.Controllers
                 _employeePayableService.Post(invoiceId);
             return Json(new { Message = AplosMessage.Posted });
         }
+
+        [HttpPost]
+        public ActionResult PostVoucher(Voucher voucher,string invoiceId, string type,IEnumerable<VoucherDetailViewModel> voucherDetailList)
+        {
+            if (type == NewBeneficiaryType.Vendor.ToString())
+                _invoiceService.PostVoucher(voucher,invoiceId, type, voucherDetailList);
+            if (type == NewBeneficiaryType.Employee.ToString())
+                _employeePayableService.PostVoucher(voucher, invoiceId, type, voucherDetailList);
+            return Json(new { Message = AplosMessage.Posted });
+        }
+
         [HttpPost]
         public ActionResult PostIncentiveReceivableInvoice(string invoiceId)
         {

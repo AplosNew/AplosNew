@@ -112,7 +112,9 @@ function employeeAdvanceRequisitionApprovalController(cboService, commonMessage,
         Amount: null,
         Remarks: null,
         CheckedBy: null,
-        ApprovedBy: null       
+        ApprovedBy: null,
+        EmployeeName: null,
+        Department:null
     };
     $scope.model = Object.assign({}, $scope.modelMain);
 
@@ -124,15 +126,27 @@ function employeeAdvanceRequisitionApprovalController(cboService, commonMessage,
         }
 
     };
-    $scope.LoadData = function (Id) {
+     $scope.LoadData = function (Id) {
         $http({
             method: 'POST',
             url: $scope.path + "Get?Id=" + Id
         }).then(function successCallback(response) {
             $scope.model = response.data.master[0];
             $scope.Action = 'Update';
+            $scope.LoadschedulingData(Id);
         });
     };
+
+    $scope.getAdvanceReqScheduleList = [];
+    $scope.LoadschedulingData = function (Id) {
+        $http({
+            method: 'GET',
+            url: "accounts/Advance/GetAdvanceReqScheduleListByRequisitionId?requisitionId=" + Id
+        }).then(function successCallback(response) {
+            $scope.getAdvanceReqScheduleList = response.data;
+        });
+    };
+
 
     function CheckField(fieldValue, fieldName) {
         try {
@@ -298,4 +312,41 @@ function employeeAdvanceRequisitionApprovalController(cboService, commonMessage,
         $scope.model = Object.assign({}, $scope.modelMain);
     };
 
+    $scope.onClickPdfPrint = function (args) {
+
+        var gridObj = $("#gridEmpAdvanceReqCheckList").data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        var reportFormat = "Pdf";
+        if (baseService.isUndefinedOrNull(data.SystemId)) return ShowResult('No Id found', 'failure');
+        $window.open('Accounts/Advance/GetEmployeeAdvanceReportPortal?reportFormat=' + reportFormat + '&employeeAdvanceRequisitionId=' + data.SystemId, '_blank');
+    };
+    $scope.PdfPrint = [{
+
+        type: "details", buttonOptions: {
+            text: "PDF",
+            width: "30",
+            height: "20",
+
+            click: $scope.onClickPdfPrint
+        }
+    }];
+
+    $scope.onClickExcelPrint = function (args) {
+
+        var gridObj = $("#gridEmpAdvanceReqCheckList").data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        var reportFormat = "Excel";
+        if (baseService.isUndefinedOrNull(data.SystemId)) return ShowResult('No Id found', 'failure');
+        $window.open('Accounts/Advance/GetEmployeeAdvanceReportPortal?reportFormat=' + reportFormat + '&employeeAdvanceRequisitionId=' + data.SystemId, '_blank');
+    };
+    $scope.ExcelPrint = [{
+
+        type: "details", buttonOptions: {
+            text: "Excel",
+            width: "40",
+            height: "20",
+
+            click: $scope.onClickExcelPrint
+        }
+    }];
 }

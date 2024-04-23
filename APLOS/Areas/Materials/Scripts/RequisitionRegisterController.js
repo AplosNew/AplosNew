@@ -1,7 +1,7 @@
 ﻿'use strict';
 RequisitionRegisterController.$inject = ['fileReader', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', 'cboService', '$window', '$controller'];
 function RequisitionRegisterController(fileReader, commonMessage, $scope, $rootScope, baseService, $http, $filter, cboService, $window, $controller) {
-    $rootScope.title = "Material Ledger / Report";
+    $rootScope.title = "Requisition Register";
     $scope.Action = 'Save';
     $scope.index = -1;
     $scope.products = [];
@@ -12,33 +12,133 @@ function RequisitionRegisterController(fileReader, commonMessage, $scope, $rootS
 
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
-    $scope.RowColor = "";
-    $scope.isAlternative = -1;
 
     $scope.report.FromDate = null;
     $scope.report.ToDate = null;
 
-    $scope.productNew = {
-         Type: null
-        ,EmployeeId:null
+    $scope.report = {
+        PartyType: null,
+        Type: null,
+        EmployeeId: null
     };
-    $scope.productNew.Type = 'AllData';
+
+    $scope.employeeList = [];
+    $scope.employeeIndex = -1;
+    $scope.selectedEmployee = null;
+    $scope.searchEmployeeByList = [
+        {
+            'name': 'Employee Code',
+            'value': 'EmployeeCode'
+        },
+        {
+            'name': 'First Name',
+            'value': 'FirstName'
+        },
+        {
+            'name': 'Middle Name',
+            'value': 'MiddleName'
+        },
+        {
+            'name': 'Last Name',
+            'value': 'LastName'
+        },
+        {
+            'name': 'Employee Name',
+            'value': 'EmployeeName'
+        },
+        {
+            'name': 'Designation',
+            'value': 'DesignationName'
+        },
+        {
+            'name': 'Entity',
+            'value': 'EntityName'
+        },
+        {
+            'name': 'Department',
+            'value': 'Department'
+        },
+        {
+            'name': 'Employment Type',
+            'value': 'EmploymentType'
+        },
+        {
+            'name': 'Status',
+            'value': 'EmployeeStatus'
+        }
+    ];
+
+    $scope.employeeParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'asc',
+        sort: 'EmployeeCode',
+        searchBy: 'EmployeeCode',
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
+    $scope.showEmployeeListPopUp = function () {
+        baseService.setCurrentPage('employeeList');
+        $scope.getEmployeeData = function (pageno) {
+            var url = 'employees/EmployeeInformation/GetEmployeeListByPlant';
+            baseService.paginationBase(url, pageno, $scope.employeeParameters)
+                .then(function (result) {
+                    $scope.employeeList = result.Rows;
+                    $scope.employeeParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure');
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector('#employeePopUp')).modal('show');
+        $scope.getEmployeeData();
+
+    }
+
+    $scope.selectEmployeePopUp = function (index, id) {
+        $scope.employeeIndex = index;
+        $scope.selectedEmployee = id;
+
+    };
+    $scope.closeEmployeePopUp = function () {
+        if ($scope.employeeIndex !== -1) {
+            var employee = $scope.employeeList[$scope.employeeIndex];
+            $scope.report.PartyType = 'Employee';
+            $scope.report.EmployeeId = employee.SystemId;
+            $scope.EmployeeName = employee.EmployeeName;
+        }
+        $scope.hideEmployeePopUp();
+    };
+    $scope.hideEmployeePopUp = function () {
+        angular.element(document.querySelector('#employeePopUp')).modal('hide');
+        $scope.employeeIndex = -1;
+        $scope.selectedEmployee = null;
+    };
+
+    $scope.RowColor = "";
+    $scope.isAlternative = -1;
+
+
+    $scope.report.Type = 'AllData';
     $scope.changeSourceFrom = function (from) {
         debugger;
         if (from === 'AllData') {
             $scope.report.FromDate = null;
             $scope.report.ToDate = null;
 
-            $scope.productNew.Type = 'AllData';
+            $scope.report.Type = 'AllData';
             $scope.EmployeeList = [];
-            $scope.productNew.EmployeeId = '';
+            $scope.report.EmployeeId = '';
 
         }
         if (from === 'EmployeeWise') {
            // $scope.EmpList();
             $scope.report.FromDate = null;
             $scope.report.ToDate = null;
-            $scope.productNew.Type = 'EmployeeWise';
+            $scope.report.Type = 'EmployeeWise';
 
 
         }
@@ -59,16 +159,9 @@ function RequisitionRegisterController(fileReader, commonMessage, $scope, $rootS
             else if (new Date($scope.report.ToDate) < new Date($scope.report.FromDate)) {
                 manualValidation("div_ToDate", true, "To date must be above or equal to From Date.");
             }
-            if ($scope.productNew.Type === 'EmployeeWise' && baseService.isUndefinedOrNull($scope.productNew.EmployeeId)) {
-                ShowResult('Select the employee', 'failure');
-                return false;
-            }
-            
-            else {
 
-                var file_src = $scope.path + 'GetRequisitionRegisterReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&employeeId=' + $scope.productNew.EmployeeId;
+            var file_src = $scope.path + 'GetRequisitionRegisterReport?reportFormat=' + reportFormat + '&status=' + $scope.RequisitionStatus+ '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&employeeId=' + $scope.report.EmployeeId;
                 $rootScope.report(file_src);
-            }
 
         } catch (e) {
 
@@ -84,29 +177,11 @@ function RequisitionRegisterController(fileReader, commonMessage, $scope, $rootS
         }).then(function successCallback(response) {
             $scope.startDate1 = response.data[0].StartDate;
             $scope.endDate1 = response.data[0].EndDate;
-            //$scope.EmpList();
         });
 
     }
     $scope.GetFiscalYear1();
-    $scope.EmployeeList = [];
-    $scope.EmpList = function () {
-        if ($scope.productNew.Type === 'AllData') {
-
-        }
-        else {
-            //debugger
-            $http({
-                method: 'GET',
-                url: "Products/Requisition/RequisitionByEmpInFixsal?startDate=" + $filter('dateFiltering')($scope.report.FromDate, 'dd-M-yyyy') + '&endDate=' + $filter('dateFiltering')($scope.report.ToDate, 'dd-M-yyyy'),
-            }).then(function successCallback(response) {
-                $scope.EmployeeList = response.data;
-
-
-            });
-		}
-        
-    }
+  
 }
 
 

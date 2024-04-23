@@ -408,6 +408,12 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
         $scope.bankCrUploadedDataTempList = [];
         $scope.TempList = [];
         $scope.saveBtnDisable = false;
+        
+        $scope.bankReconciliation.DrAmount = null;
+        $scope.bankReconciliation.CrAmount = null;
+        $scope.bankReconciliationNew.DrAmount = null;
+        $scope.bankReconciliationNew.CrAmount = null;
+        
     }
     $scope.invalidDocDate = false;
     $scope.checkDocDate = function () {

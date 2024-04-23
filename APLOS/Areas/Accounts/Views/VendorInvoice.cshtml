@@ -609,7 +609,7 @@
                 <td>{{x.IsPark?'Parked':'Posted'}}</td>
                 <td class="text-right">
                     <ul class="list-inline action-list">
-                        <li ng-show="x.IsPark"><a ng-click="confirmPost(x.Id,x.BeneficiaryType,x.AdditionalTaxId,x);" ng-disabled="x.ApprovedByStatus=='ToBeApproved'" href="" class="btn btn-action tooltip-here">Post</a></li>
+                        <li ng-show="x.IsPark"><a ng-click="ShowJournalPopUp(x.Id,x.BeneficiaryType,x.AdditionalTaxId,x);" ng-disabled="x.ApprovedByStatus=='ToBeApproved'" href="" class="btn btn-action tooltip-here">Post</a></li>
                         <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId,x.BeneficiaryType,x.TDSVoucherId,x.TDSVoucherNo);" href="" class="btn btn-action tooltip-here">Delete</a></li>
                         <li ng-show="x.IsTDSTaxPost=='TDSParked'"><a ng-disabled="x.IsPark" ng-click="onClickadditionalTaxPop(x);" href="" class="btn btn-action tooltip-here">Post TDS</a></li>
                         <li><a class="btn btn-action" ng-click="VendorInvoiceReport('Pdf',x.VoucherId,x.BeneficiaryType)"><i class="fa fa-file-pdf-o"></i></a></li>
@@ -744,6 +744,70 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade site-modal in" id="JournalPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Journal</div>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <div class="form-group">
+                    <label class="col-sm-6 control-label" data-placement="top" title="Cost and Manufacture">Narration<sup>*</sup></label>
+                    <div class="col-sm-6 show-message">
+                        <input id="Narration" type="text" name="Narration" ng-model="voucherdb.Narration" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+
+                <div class="clearfix"></div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>GL</th>
+                                <th>Budget</th>
+                                <th>Activity</th>
+                                <th>Dr</th>
+                                <th>Cr</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in newJVList">
+                                <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
+                                <td>{{x.BudgetName}}</td>
+                                <td>{{x.ActivityName}}</td>
+                                <td class="text-right">{{x.DrAmount | number| setDecimal:4}}</td>
+                                <td class="text-right">{{x.CrAmount | number| setDecimal:4}}</td>
+                                <td class="text-right">
+                                    <button ng-click="popUpGL($index)" data-toggle="modal" class="btn btn-action tooltip-here" data-placement="top" title="popUp">
+                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"></td>
+                                <td class="text-right"><strong>{{newJVList | sumByKey : 'DrAmount' | number| setDecimal:4}}</strong></td>
+                                <td class="text-right"><strong>{{newJVList | sumByKey : 'CrAmount' | number| setDecimal:4}}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="postVoucher()" title="Post" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>
+                        <li><button ng-click="CloseJournalPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("~/Areas/Accounts/Views/_GLBudgetActivityPopUp.cshtml")
+
+
 <confirm-archive-generic modalid="confirmTaxCodeDelPopUp" title="Confirmation" message={{Taxmessage_confirmation}} data-ng-click-right-button="removeTaxCodeRow()"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(invoiceId,type,tdsId,data)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmTDSPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="postAdditionalTax(AdditionalTaxId,additionalTaxdata)"></confirm-archive-generic>

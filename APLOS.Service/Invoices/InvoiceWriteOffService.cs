@@ -3782,6 +3782,12 @@ namespace Library.Service.Invoices
             if (!invoiceWriteOff.IsPark)
                 throw new CustomException("Update or Delete is not allowed.");
         }
+        private static void CheckIsInvoicePosted(Invoice invoice)
+        {
+            if (!invoice.IsPark)
+                throw new CustomException("Update or Delete is not allowed.");
+        }
+
         private static void CheckIsPostedInvoice(Invoice invoice)
         {
             if (!invoice.IsPark)
@@ -8874,6 +8880,8 @@ namespace Library.Service.Invoices
                     _unitOfWork.Rollback();
             }
         }
+
+      
         public void DeleteInvoiceToAcceptance(string invoiceWriteOffId, string voucherId)
         {
             var flag = false;

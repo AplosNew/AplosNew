@@ -9,7 +9,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
     $scope.listUrl = $scope.url + "/GetVendorInvoiceList";
     $scope.saveUrl = $scope.url + "/InsertVendorInvoice";
     $scope.updateUrl = $scope.url + "/UpdateVendorInvoice";
-    $scope.postUrl = $scope.url + "/PostVendorInvoice";
+    $scope.postUrl = $scope.url + "/PostVoucher";
     $scope.reportUrl = $scope.url + "/ReportCustomerAdvance?voucherId=";
     $scope.jouranlUrl = $scope.url + "/GetAvailableJournalCustomerAdvance";
 
@@ -1241,50 +1241,6 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         location.href = "accounts/invoice/ReportVendorInvoice?voucherId=" + voucherId;
     };
 
-    $scope.post = function (invoiceId, type, tdsId,data) {
-        $http({
-            method: "POST",
-            url: $scope.postUrl,
-            data: {
-                "invoiceId": invoiceId,
-                "type": type
-            },
-            dataType: "JSON"
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, "failure");
-            }
-            else {
-                ShowResult(response.data.Message, "success");
-                if (tdsId != null) {
-                    //$scope.confirmAutoTDSPost(tdsId, data);
-                    $scope.onClickadditionalTaxPop(data);
-                }
-                $scope.getData();
-                $scope.Clear();
-                $scope.invoiceId = null;
-                $scope.type = null;
-                
-            }
-        }, function errorCallback(response) {
-            ShowResult(response.status.Message, "failure");
-        });
-        return true;
-    };
-
-    $scope.invoiceId = null;
-    $scope.confirmPost = function (invoiceId, type, tdsId, data) {
-        if (data.ApprovedByStatus == 'ToBeApproved' || data.ApprovedByStatus == 'Hold' || data.ApprovedByStatus == 'Reject') {
-            ShowResult("Before Post, Please Approve First. Mr."+data.ApprovedBy+" is responsible for Approve", "failure");
-        }
-        $scope.invoiceId = invoiceId;
-        $scope.type = type;
-        $scope.tdsId = tdsId;
-        $scope.data = data;
-
-        $scope.message_confirmation = "Are you sure to Post?";
-        angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
-    };
 
     $scope.delete = function (invoiceId, voucherId, type, tDSVoucherId, tDSVoucherNo, deletedRemarks) {
         $http({
@@ -2751,4 +2707,145 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         }
     }
 
+    $scope.postVoucher = function () {
+        $http({
+            method: "POST",
+            url: $scope.postUrl,
+            data: {
+                "voucher": $scope.voucherdb,
+                "invoiceId": $scope.voucherdb.Id,
+                "voucherDetailList": $scope.newJVList,
+                "type": $scope.Type
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                if (tdsId != null) {
+                    //$scope.confirmAutoTDSPost(tdsId, data);
+                    $scope.onClickadditionalTaxPop($scope.voucherdb);
+                }
+                $scope.getData();
+                $scope.Clear();
+                $scope.invoiceId = null;
+                $scope.type = null;
+
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+    $scope.invoiceId = null;
+    //$scope.confirmPost = function (invoiceId, type, tdsId, data) {
+       
+    //    $scope.invoiceId = invoiceId;
+    //    $scope.type = type;
+    //    $scope.tdsId = tdsId;
+    //    $scope.data = data;
+
+    //    $scope.message_confirmation = "Are you sure to Post?";
+    //    angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
+    //};
+
+    $scope.ShowJournalPopUp = function (id, BeneficiaryType, AdditionalTaxId, data) {
+        if (data.ApprovedByStatus == 'ToBeApproved' || data.ApprovedByStatus == 'Hold' || data.ApprovedByStatus == 'Reject') {
+            ShowResult("Before Post, Please Approve First. Mr." + data.ApprovedBy + " is responsible for Approve", "failure");
+        }
+        else {
+            $scope.voucherdb = {};
+            $scope.voucherdb = data;
+            getJournalList(data.VoucherId);
+            if (data.EmployeeId != null) {
+                $scope.Type = 'Employee';
+            }
+            else {
+                $scope.Type = 'Vendor';
+            }
+            angular.element(document.querySelector('#JournalPopUp')).modal('show');
+        }
+      
+    }
+
+    function getJournalList(voucherId) {
+        $http.get('Accounts/Voucher/GetEditableJournalList?voucherId=' + voucherId)
+            .then(function (response) {
+                $scope.newJVList = [];
+                $scope.newJVList = response.data;
+            });
+    }
+
+    $scope.CloseJournalPopUp = function () {
+        angular.element(document.querySelector('#JournalPopUp')).modal('hide');
+
+    }
+
+    $scope.searchglByList = [
+        {
+            "name": "GL Code",
+            "value": "GLGeneralInfoCode"
+        },
+        {
+            "name": "GL Name",
+            "value": "GLGeneralInfoName"
+        },
+        {
+            "name": "Budget",
+            "value": "BudgetName"
+        },
+        {
+            "name": "Activity",
+            "value": "ActivityName"
+        },
+        {
+            "name": "Ref No",
+            "value": "RefNo"
+        }
+    ];
+    $scope.glListParameters = {
+        limit: 10,
+        offset: 0,
+        order: "asc",
+        sort: "GLGeneralInfoName",
+        searchBy: "GLGeneralInfoName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+    $scope.indexGL = "";
+    $scope.popUpGL = function (index) {
+        $scope.indexGL = index;
+        baseService.setCurrentPage("cOAICodeList");
+        $scope.GetCOAICodeListData = function (pageno) {
+            baseService.paginationBase("Accounts/GLItem/GetVendorInvoiceGLBudgetList", pageno, $scope.glListParameters)
+                .then(function (result) {
+                    $scope.cOAICodeList = result.Rows;
+                    $scope.glListParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, "failure", "GLPopUp");
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector("#GLPopUp")).modal("show");
+        $scope.GetCOAICodeListData();
+    };
+
+    $scope.closeCOAICodeListPopUp = function () {
+        angular.element(document.querySelector("#GLPopUp")).modal("hide");
+    };
+    $scope.setSelected = function (data, index) {
+        $scope.newJVList[$scope.indexGL].GLGeneralInfoId = data.GLGeneralInfoId;
+        $scope.newJVList[$scope.indexGL].GLGeneralInfoCode = data.GLGeneralInfoCode;
+        $scope.newJVList[$scope.indexGL].GLGeneralInfoName = data.GLGeneralInfoName;
+        $scope.newJVList[$scope.indexGL].BudgetMasterId = data.BudgetMasterId;
+        $scope.newJVList[$scope.indexGL].BudgetName = data.BudgetName;
+        $scope.newJVList[$scope.indexGL].ActivityId = data.ActivityId;
+        $scope.newJVList[$scope.indexGL].ActivityName = data.ActivityName;
+        $scope.closeCOAICodeListPopUp();
+    };
 }

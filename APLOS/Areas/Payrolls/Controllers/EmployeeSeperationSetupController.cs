@@ -32,6 +32,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         #region Constructor
 
         private readonly ISqlRepository _sqlRepository;
+
         public EmployeeSeperationSetupController(ISqlRepository R)
         {
             _sqlRepository = R;
@@ -49,7 +50,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         [AllowAnonymous]
         public JsonResult GetCbo()
         {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName + ""), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection("SELECT SalaryHeadID as Value,SalaryHead AS Text FROM dbo.SalaryHead Where IsApplicableInFinalSettlement=1"), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost]
@@ -229,7 +230,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 DataSet dsEmpCat, dsDD;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                con.OpenDataSetThroughAdapter("select * from [dbo].[EmpSeperationEmployeeType] where EmployeeTypeId='" + data["EmployeeTypeId"] + "' AND  Id<>'" + data["Id"] + "'", out dsEmpCat, false, "1");
+                con.OpenDataSetThroughAdapter("select * from [dbo].[EmpSeperationEmployeeType] where EmployeeTypeId='" + data["EmployeeTypeId"] + "' AND EmployeeSeperationSetupId='" + masterId + "' AND  Id<>'" + data["Id"] + "'", out dsEmpCat, false, "1");
                 if (dsEmpCat.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Employee Type already exists!!!");
                 con.OpenDataSetThroughAdapter("select * from [dbo].[EmpSeperationEmployeeType] where Id='" + data["Id"] + "'", out dsEmpCat, false, "1");
@@ -445,6 +446,128 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         }
 
+        [HttpPost]
+        public JsonResult CreateSeperationItemWithDefault(Dictionary<string, object> data, List<Dictionary<string, object>> details, List<Dictionary<string, object>> Itemdetails)
+        {
+            try
+            {
+                SaveSeperationItemWithDefaultData(data, details, Itemdetails);
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
+
+        private void SaveSeperationItemWithDefaultData(Dictionary<string, object> data, List<Dictionary<string, object>> details, List<Dictionary<string, object>> Itemdetails)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            try
+            {
+                if (data != null)
+                {
+                    string _Id = "";
+
+                    DataSet dsMaster, dsDestination, dsID = null;
+                    DataRow drF;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.EmployeeSeperationItem WHERE EmployeeSeperationSetupId='" + data["EmployeeSeperationSetupId"] + "'", out dsMaster, false, "1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.FormulaDetail Where EmployeeSeperationItemId='" + data["Id"] + "'", out dsDestination, false, "1");
+
+                    con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[EmployeeSeperationItem] where EmployeeSeperationSetupId='" + data["EmployeeSeperationSetupId"] + "'", out dsID, false, "1");
+                    int ccount = Convert.ToInt32(dsID.Tables[0].Rows[0]["countId"].ToString());
+
+                    if (Itemdetails != null)
+                    {
+                        foreach (var item in Itemdetails)
+                        {
+                            ccount++;
+                            //genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmployeeSeperationItem", out _Id);
+
+                            drF = dsMaster.Tables[0].NewRow();
+
+                            drF["Id"] = materialCommonService.MakePK(data["EmployeeSeperationSetupId"].ToString(), ccount, 2);
+                            drF["Sequence"] = item["Sequence"];
+                            drF["EmployeeSeperationSetupId"] = item["EmployeeSeperationSetupId"];
+                            drF["DrBudgetMasterActivityId"] = item["DrBudgetMasterActivityId"];
+                            drF["CrBudgetMasterActivityId"] = item["CrBudgetMasterActivityId"];
+                            drF["UserName"] = item["UserName"];
+                            drF["SandardName"] = item["SandardName"];
+                            drF["Active"] = item["Active"];
+                            drF["IsReportItem"] = item["IsReportItem"];
+                            drF["ViewItem"] = item["ViewItem"];
+                            drF["IsDefault"] = item["IsDefault"];
+                            drF["EntryState"] = item["EntryState"];
+                            drF["FormulaId"] = item["FormulaId"];
+                            drF["Formula"] = item["Formula"];
+                            drF["AddedBy"] = identity.Name;
+                            drF["AddedDate"] = DateTime.Now;
+                            drF["AddedFromIP"] = identity.IPAddress; ;
+
+                            dsMaster.Tables[0].Rows.Add(drF);
+                        }
+                        ccount++;
+                    }
+
+                    DataView dv = new DataView(dsMaster.Tables[0]);
+                    dv.RowFilter = "Id='" + data["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        data["Id"] = materialCommonService.MakePK(data["EmployeeSeperationSetupId"].ToString(), ccount, 2);
+                        data["Sequence"] = 5;
+                        AddNewRow(dsMaster.Tables[0], data);
+                    }
+
+                    string Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                    #region NoticePeriodFormulaDetail 
+
+                    if (data["EntryState"].ToString() == "Calculate")
+                    {
+                        while (dsDestination.Tables[0].DefaultView.Count > 0)
+                            dsDestination.Tables[0].DefaultView[0].Delete();
+                        int count = 0;
+                        if (details != null)
+                        {
+
+                            foreach (var item in details)
+                            {
+                                drF = dsDestination.Tables[0].NewRow();
+                                count++;
+                                string pk = _Id + "_" + count;
+                                drF["Id"] = pk;
+                                drF["EmployeeSeperationItemId"] = _Id;
+                                drF["Sequence"] = item["Sequence"];
+                                drF["EmployeeSeperationItemHeadId"] = item["EmployeeSeperationItemHeadId"];
+                                drF["Component"] = item["Component"];
+
+                                dsDestination.Tables[0].Rows.Add(drF);
+                            }
+
+                        }
+                    }
+                    #endregion NoticePeriodFormulaDetail 
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster, dsDestination);
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
         private void SaveSeperationItemData(Dictionary<string, object> data, List<Dictionary<string, object>> details)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -455,10 +578,10 @@ namespace Aplos.Areas.Payrolls.Controllers
                 {
                     string _Id = "";
 
-                    DataSet dsMaster, dsDestination = null;
+                    DataSet dsMaster, dsDestination, dsID = null;
                     DataRow drF;
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
+                    MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                     con.OpenDataSetThroughAdapter("select * from EmployeeSeperationItem where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "' AND EmployeeSeperationSetupId='" + data["EmployeeSeperationSetupId"] + "'", out dsMaster, false, "1");
                     if (dsMaster.Tables[0].Rows.Count > 0)
                         throw new Exception("UserName already exists!!!");
@@ -466,6 +589,10 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                     con.OpenDataSetThroughAdapter("SELECT * FROM dbo.EmployeeSeperationItem WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
                     con.OpenDataSetThroughAdapter("SELECT * FROM dbo.FormulaDetail Where EmployeeSeperationItemId='" + data["Id"] + "'", out dsDestination, false, "1");
+
+                    con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[EmployeeSeperationItem] where EmployeeSeperationSetupId='" + data["EmployeeSeperationSetupId"] + "'", out dsID, false, "1");
+                    int ccount = Convert.ToInt32(dsID.Tables[0].Rows[0]["countId"].ToString());
+
 
                     if (data["EntryState"].ToString() == "Entry")
                     {
@@ -480,10 +607,10 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                     if (dsMaster.Tables[0].Rows.Count == 0)
                     {
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmployeeSeperationItem", out _Id);
+                        ccount++;
 
-                        data["Id"] = _Id;
+                        data["Id"] = materialCommonService.MakePK(data["EmployeeSeperationSetupId"].ToString(), ccount, 2);
+                        _Id = data["Id"].ToString();
                         AddNewRow(dsMaster.Tables[0], data);
                     }
                     else

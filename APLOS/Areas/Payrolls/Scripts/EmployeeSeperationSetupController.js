@@ -327,7 +327,7 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
         }
     };
 
-    $scope.ModelProcessPara = { Id: null, EmployeeSeperationSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, SandardName: null, Active: true, IsReportItem: false, ViewItem: null, DefaultValue: null, EntryState: 'Auto', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
+    $scope.ModelProcessPara = { Id: null, EmployeeSeperationSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, SandardName: null, Active: true, IsDefault: false, IsReportItem: false, ViewItem: null, DefaultValue: null, EntryState: 'Auto', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
     $scope.ModelProcessParaNew = Object.assign({}, $scope.ModelProcessPara);
 
     $scope.EmployeeSeprationSetupEnumList = [];
@@ -601,6 +601,7 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
 
 
     $scope.ProductionAction = 'Save';
+    $scope.ProcessParameterNewList = [];
     $scope.SaveProcessParameter = function () {
         try {
             $scope.ModelProcessPara.EmployeeSeperationSetupId = $scope.masterId;
@@ -608,34 +609,93 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
             CheckField($scope.ModelProcessPara.UserName, "User Name");
             CheckField($scope.ModelProcessPara.SandardName, "Sandard Name");
             $scope.AddEditRow();
+            if (baseService.arrayLength($scope.ProcessParameterList) > 0) {
 
-            $http({
-                method: 'POST',
-                url: 'Payrolls/EmployeeSeperationSetup/CreateSeperationItem',
-                data: { 'data': $scope.ModelProcessPara, 'details': $scope.FormulaDetails },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
+                $http({
+                    method: 'POST',
+                    url: 'Payrolls/EmployeeSeperationSetup/CreateSeperationItem',
+                    data: { 'data': $scope.ModelProcessPara, 'details': $scope.FormulaDetails },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.GetSeperationItemAutoSequence();
+                        $scope.GetProcessParameterData();
+                        $scope.GetOrderLineCostingItemCbo();
+                        $scope.ClearSeperationItem();
+                        $scope.FormulaDetails = [];
+                    }
+                }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.GetSeperationItemAutoSequence();
-                    $scope.GetProcessParameterData();
-                    $scope.GetOrderLineCostingItemCbo();
-                    $scope.ClearSeperationItem();
-                    $scope.FormulaDetails = [];
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            };
+                };
+            }
+            else {
+                var newobj = { Id: null, EmployeeSeperationSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, SandardName: null, Active: 1, IsReportItem: 0, ViewItem: null, EntryState: null, FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null,IsDefault:true}
 
+                for (var i = 1; i < 5; i++) {
+                    var obj = angular.copy(newobj);
+                    obj.Sequence = i;
+                    if (i == 1) {
+                        obj.EmployeeSeperationSetupId = $scope.masterId;
+                        obj.UserName = 'JoiningDate';
+                        obj.SandardName = 'JoiningDate';
+                        obj.EntryState = 'Auto';
+                        obj.IsDefault = true;
+                    }
+                    if (i == 2) {
+                        obj.EmployeeSeperationSetupId = $scope.masterId;
+                        obj.UserName = 'ConfirmationDate';
+                        obj.SandardName = 'ConfirmationDate';
+                        obj.EntryState = 'Auto';
+                        obj.IsDefault = true;
+                    }
+                    if (i == 3) {
+                        obj.EmployeeSeperationSetupId = $scope.masterId;
+                        obj.UserName = 'ResignDate';
+                        obj.SandardName = 'ResignDate';
+                        obj.EntryState = 'Auto';
+                        obj.IsDefault = true;
+                    }
+                    if (i == 4) {
+                        obj.EmployeeSeperationSetupId = $scope.masterId;
+                        obj.UserName = 'SeparationDate';
+                        obj.SandardName = 'SeparationDate';
+                        obj.EntryState = 'Auto';
+                        obj.IsDefault = true;
+                    }
+                    $scope.ProcessParameterNewList.push(obj);
+                }
+
+                $http({
+                    method: 'POST',
+                    url: 'Payrolls/EmployeeSeperationSetup/CreateSeperationItemWithDefault',
+                    data: { 'data': $scope.ModelProcessPara, 'details': $scope.FormulaDetails, 'Itemdetails': $scope.ProcessParameterNewList },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.GetSeperationItemAutoSequence();
+                        $scope.GetProcessParameterData();
+                        $scope.GetOrderLineCostingItemCbo();
+                        $scope.ClearSeperationItem();
+                        $scope.FormulaDetails = [];
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                };
+            }
         } catch (e) {
             ShowResult(e, "failure");
         }
     };
     $scope.ClearSeperationItem = function () {
-        $scope.ModelProcessPara = { Id: null, EmployeeSeperationSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, SandardName: null, Active: true, IsReportItem: false, ViewItem: null, DefaultValue: null, EntryState: 'Auto', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
+        $scope.ModelProcessPara = { Id: null, EmployeeSeperationSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, SandardName: null, Active: true, IsDefault: false, IsReportItem: false, ViewItem: null, DefaultValue: null, EntryState: 'Auto', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
         $scope.ModelProcessParaNew = Object.assign({}, $scope.ModelProcessPara);
         $scope.GetSeperationItemAutoSequence();
         $scope.ProductionAction = 'Save';
@@ -760,6 +820,18 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
 
     };
 
+    $scope.SalaryHeadList =
+    $scope.GetSalaryHeadCbo = function () {
+        $http({
+            method: 'Get',
+            url: "Payrolls/EmployeeSeperationSetup/GetCbo",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.SalaryHeadList = response.data;
+        })
+    }
+    $scope.GetSalaryHeadCbo();
+
     $scope.ControlCrListData = [];
     $scope.ControlDrListData = [];
     $scope.GetControlDrCrData = function (tab) {
@@ -773,7 +845,7 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
                 $("#CrGLPoUp").ejDialog("setTitle", "Cr GL");
                 var eDialog = $("#CrGLPoUp").data("ejDialog");
                 eDialog.open();
-                var gridObj = $("#c").data("ejGrid");
+                var gridObj = $("#CrGLPoUp").data("ejGrid");
                 gridObj.clearFiltering();  // clears all the filtering
             } else {
                 $scope.ControlDrListData = response.data;

@@ -20,6 +20,7 @@ function salaryHeadController(commonMessage, $scope, $rootScope, baseService, $r
         Sequence: null,
         PartOfNetPay: true,
         IsRetained: false,
+        IsApplicableInFinalSettlement: false,
         TransactionType: null
     };
     $scope.salaryHeadNew = Object.assign({}, $scope.salaryHead);

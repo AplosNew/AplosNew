@@ -70,7 +70,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                  ,PartOfNetPay
                                 ,IsGrossComponent
                                 ,IsRetained
-                                ,TransactionType
+                                ,TransactionType,IsApplicableInFinalSettlement
                              FROM [dbo].[SalaryHead] WHERE GroupID = '" + identity .CompanyGroupId+ @"'  ORDER BY [Sequence]";
             return Json(_sqlRepository.GetModelCollection<SalaryHeadModel>(sql), JsonRequestBehavior.AllowGet);
         }
@@ -152,6 +152,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     dr["IsGrossComponent"] = data.IsGrossComponent;
                     dr["IsRetained"] = data.IsRetained;
                     dr["TransactionType"] = data.TransactionType;
+                    dr["IsApplicableInFinalSettlement"] = data.IsApplicableInFinalSettlement;
 
                     dsMaster.Tables[0].Rows.Add(dr);
                 }
@@ -173,6 +174,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     dr["IsGrossComponent"] = data.IsGrossComponent;
                     dr["IsRetained"] = data.IsRetained;
                     dr["TransactionType"] = data.TransactionType;
+                    dr["IsApplicableInFinalSettlement"] = data.IsApplicableInFinalSettlement;
                     dr["UpdatedBy"] = identity.Name;
                     dr["DateUpdated"] = System.DateTime.Now.ToString();
 
@@ -246,6 +248,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         public DateTime DateUpdated { get; set; }
         public bool IsCTCComponent { get; set; }
         public bool IsGrossComponent { get; set; }
+        public bool IsApplicableInFinalSettlement { get; set; }
         public bool IsRetained { get; set; }
         public decimal Sequence { get; set; }
         public bool PartOfNetPay { get; set; }

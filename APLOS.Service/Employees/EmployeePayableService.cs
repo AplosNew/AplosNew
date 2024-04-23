@@ -533,6 +533,55 @@ namespace Library.Service.Employees
             return glTemp;
         }
 
+        public void PostVoucher(Voucher voucher, string employeePayableId, string type, IEnumerable<VoucherDetailViewModel> voucherDetailList)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+
+                var employeePayable =_employeePayableRepository.Find(employeePayableId);
+                CheckIsPosted(employeePayable);
+                employeePayable.IsPark = false;
+                _employeePayableRepository.Update(employeePayable);
+                if (voucherDetailList != null)
+                {
+                    foreach (var item in voucherDetailList)
+                    {
+                        if (item.EmployeePayableDetailId != null)
+                        {
+                            var invoiceDetailVM = _employeePayableDetailRepository.Find(item.EmployeePayableDetailId);
+                            invoiceDetailVM.GLGeneralInfoId = item.GLGeneralInfoId;
+                            invoiceDetailVM.BudgetMasterId = item.BudgetMasterId;
+                            invoiceDetailVM.ActivityId = item.ActivityId;
+                            _employeePayableDetailRepository.Update(invoiceDetailVM);
+                        }
+
+                    }
+                }
+                _voucherService.NewPostVoucher(voucher, employeePayable.VoucherId, voucherDetailList);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
         public void Post(string employeePayableId)
         {
             var flag = false;
