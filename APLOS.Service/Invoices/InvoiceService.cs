@@ -4455,6 +4455,55 @@ namespace Library.Service.Invoices
             }
         }
 
+        public void PostVoucher(Voucher voucher, string invoiceId, string type, IEnumerable<VoucherDetailViewModel> voucherDetailList)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                
+                    var invoice = Find(invoiceId);
+                    CheckIsPosted(invoice);
+                    invoice.IsPark = false;
+                    base.UpdateGraph(invoice);
+                if (voucherDetailList!=null)
+                {
+                    foreach (var item in voucherDetailList)
+                    {
+                        if (item.InvoiceDetailId != null)
+                        {
+                          var invoiceDetailVM=  _invoiceDetailRepository.Find(item.InvoiceDetailId);
+                            invoiceDetailVM.GLGeneralInfoId = item.GLGeneralInfoId;
+                            invoiceDetailVM.BudgetMasterId = item.BudgetMasterId;
+                            invoiceDetailVM.ActivityId = item.ActivityId;
+                            _invoiceDetailRepository.Update(invoiceDetailVM);
+                        }
+                        
+                    }
+                }
+                _voucherService.NewPostVoucher(voucher, invoice.VoucherId, voucherDetailList);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
         private static void CheckIsPosted(Invoice invoice)
         {
             if (!invoice.IsPark)

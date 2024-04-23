@@ -886,7 +886,30 @@ namespace Library.Accounting.Accounts
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
+		public IEnumerable<object> GetEditableJournalList(string plantId, string voucherId)
+		{
+			try
+			{
 
+					var sql = @"select GL.UserName GLGeneralInfoName, B.UserName BudgetName,A.UserName ActivityName,vd.*
+								from trn.VoucherDetail vd 
+								LEFT JOIN trn.voucher v on v.Id=vd.VoucherId
+								LEFT JOIN hkp.GLGeneralInfo GL ON GL.Id=vd.GLGeneralInfoId
+								LEFT JOIN mst.BudgetMaster BM ON BM.Id=vd.BudgetMasterId
+								LEFT JOIN hkp.Budget B ON B.Id=BM.BudgetId
+								LEFT JOIN hkp.Activity A ON A.Id=vd.ActivityId
+								where V.Id='" + voucherId + @"' and V.PlantId='"+ plantId + @"'
+								ORDER BY DrAmount DESC";
+					return _sqlRepository.GetDataCollection(sql);
+				
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+		}
 		public IEnumerable<object> GetInventorySalesReturnForPost(string column, string value, string plantId)
 		{
 			try

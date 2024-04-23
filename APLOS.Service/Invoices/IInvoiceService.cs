@@ -5,6 +5,7 @@ using Library.Model.Commercial;
 using Library.Model.Enums;
 using Library.Model.Invoices;
 using Library.Model.Systems;
+using Library.Model.Vouchers;
 using Library.Service.Core;
 using Library.ViewModel.Accounts;
 using Library.ViewModel.Currencies;
@@ -50,6 +51,7 @@ namespace Library.Service.Invoices
         IQueryFluent<InvoiceDetail> GetInvoiceDetailList(Expression<Func<InvoiceDetail, bool>> query);
 
         void Post(string invoiceId);
+        void PostVoucher(Voucher voucher, string invoiceId, string type, IEnumerable<VoucherDetailViewModel> voucherDetailList);
 
         InvoiceDetail FindInvoiceDetail(string invoiceDetailId);
         void DeleteInvoice(string invoiceId, string voucherId, string deletedRemarks);

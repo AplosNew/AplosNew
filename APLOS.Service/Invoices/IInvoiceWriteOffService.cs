@@ -4,6 +4,7 @@ using Library.Model.Accounts;
 using Library.Model.Commercial;
 using Library.Model.Enums;
 using Library.Model.Invoices;
+using Library.Model.Vouchers;
 using Library.Service.Core;
 using Library.Service.Extension;
 using Library.ViewModel.Accounts;

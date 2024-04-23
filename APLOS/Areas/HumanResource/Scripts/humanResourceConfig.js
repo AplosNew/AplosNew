@@ -947,5 +947,11 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
                 controller: 'VehicleReportController'
             })
 
+        .when('/Leave-Transection',
+            {
+                templateUrl: 'humanresource/LeaveTransection/Aplos',
+                controller: 'LeaveTransectionController'
+            })
+
         ;
 }
