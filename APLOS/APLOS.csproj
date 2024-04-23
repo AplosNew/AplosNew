@@ -550,6 +550,7 @@
     <Compile Include="Areas\HumanResource\Controllers\DesignationSetupController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\HRReportMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PlantInOutControllReportController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\LeaveTransectionController.cs" />
     <Compile Include="Areas\IE\Controllers\WorkcenterWiseDetentionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WebBasedPackingController.cs" />
     <Compile Include="Areas\Materials\Controllers\BarcodeGeneratorSettingController.cs" />
@@ -1953,6 +1954,7 @@
     <Content Include="Areas\Commercial\Scripts\LCPendingReportController.js" />
     <Content Include="Areas\FixedAssets\Scripts\assetDisposeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\assetDisposePostController.js" />
+    <Content Include="Areas\HumanResource\Scripts\LeaveTransectionController.js" />
     <Content Include="Areas\Materials\Scripts\BarcodeGeneratorSettingController.js" />
     <Content Include="Areas\OrderManagements\Scripts\masterOrderApproveByController.js" />
     <Content Include="Areas\OrderManagements\Scripts\masterOrderCheckByController.js" />
@@ -4949,6 +4951,7 @@
     <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\_BalanceSheetSchedulingDataUploadDownload.cshtml" />
     <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\_BalanceSheetSchedulingApprovingDataUploadDownload.cshtml" />
     <Content Include="Areas\Attendances\Views\GoodWork\EmployeeMultipleAdvance.cshtml" />
+    <Content Include="Areas\HumanResource\Views\LeaveTransection\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
