@@ -1267,6 +1267,7 @@ upanelApp.controller("GLManagementController", GLManagementController)
 upanelApp.controller("BudgetControlController", BudgetControlController)
 upanelApp.controller("EmployeeSeperationSetupController", EmployeeSeperationSetupController)
 upanelApp.controller("fullandfinalSettlementController", fullandfinalSettlementController)
+upanelApp.controller("LeaveTransectionController", LeaveTransectionController)
 
 
 

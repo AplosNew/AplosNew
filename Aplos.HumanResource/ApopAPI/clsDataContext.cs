@@ -4823,7 +4823,7 @@ else 'IN' end as RawDayStatus ,
 where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate AND rw.PType <> 'OUT'
 order by rw.PTime asc) InTime,pv.InTime as InVerificationTime, MBGT.Code BudgetCode, sd.ShiftDefinationName Shift, sd.SystemID as ShiftId, emp.CellPhnNo MobileNo,apd.WeeklyStatus, RG.StandardName Residence, TG.StandardName Transport,
 Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId , RM.Location as Location , Emp.EmployeeCurrentStatus as CurrentStatus ,MBGT.Deployment,ISNULL(A.ToDayIN , 0) as ToDayIN, Diffenence= ISNULL(A.ToDayIN,0)-MBGT.Deployment ,
-case when (ISNULL(A.ToDayIN,0)-MBGT.Deployment) > 0 then 'Access' 
+case when (ISNULL(A.ToDayIN,0)-MBGT.Deployment) > 0 then 'Excess' 
 when (ISNULL(A.ToDayIN,0)-MBGT.Deployment) < 0 then 'Short' 
 else 'Ok' end DifferenceColor
 from AttdnProcessData apd 
