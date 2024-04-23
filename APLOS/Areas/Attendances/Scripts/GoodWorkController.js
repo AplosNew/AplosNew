@@ -76,7 +76,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
 
             $http({
                 method: 'GET',
-                url: 'Attendances/GoodWork/getShift?setupId=' + $scope.ModelNew.UserGroupId,
+                url: 'Attendances/GoodWork/getShift?setupId=' + $scope.ModelNew.UserGroupId + '&date=' + $scope.ModelNew.WorkDate,
                 dataType: 'JSON'
             }).then(function succ(resp) {
                 $scope.ShiftList = resp.data;
@@ -543,7 +543,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         try {
             $http({
                 method: 'GET',
-                url: $scope.path + 'getFiltersData?userGroupId=' + $scope.ModelNew.UserGroupId + '&shiftId=' + $scope.ModelNew.ShiftId,
+                url: $scope.path + 'getFiltersData?userGroupId=' + $scope.ModelNew.UserGroupId + '&shiftId=' + $scope.ModelNew.ShiftId + '&date=' + $scope.ModelNew.WorkDate,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.filters = response.data;

@@ -19,7 +19,7 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
     $controller("employeeBaseController", { $scope: $scope, $http: $http });
     $controller("currencyBaseController", { $scope: $scope, $http: $http });
     $controller("cashBaseController", { $scope: $scope, $http: $http });
-    $scope.getVoucherListUrl = $scope.path + "GetGoodWorkPaymentAdviseDisbursementVoucherList";
+    $scope.getVoucherListUrl = $scope.path + "GetEmployeeMultipleAdvanceDisbursementVoucherList";
     baseService.init($scope.getVoucherListUrl, null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
 
     $scope.downloadgriddataUrl = 'GridReports/Download';
@@ -982,7 +982,7 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
         $scope.salaryLockPayableGLData = [];
         $http({
             method: "POST",
-            url: "Attendances/GoodWork/GetGoodWorkPaymentAdviseDisbursementJVDataList",
+            url: "Attendances/GoodWork/GetEmployeeMultipleAdvanceDisbursementJVDataList",
             data: { 'disbursementAdviceId': $scope.voucher.DisbursementAdviceId, 'goodWorkPaymentAdviseDetail': $scope.EmployeeListNew },
             dataType: 'JSON'
             , contentType: "application/json charset=utf-8"
@@ -997,7 +997,7 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: $scope.path + "GetGoodWorkPaymentAdviseDetailCheckedList?paymentAdviseId=" + $scope.voucher.DisbursementAdviceId,
+            url: $scope.path + "GetEmployeeMultipleAdvanceDetailCheckedList?paymentAdviseId=" + $scope.voucher.DisbursementAdviceId,
         }).then(function successCallback(response) {
             if (response.data.length > 0) {
 
@@ -1012,8 +1012,7 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
         });
     };
 
-    $scope.saveGoodWorkPaymentAdviseDisbursementUrl = $scope.path + "ParkGoodWorkPaymentAdviseDisbursement";
-    $scope.postGoodWorkPaymentAdviseDisbursementUrl = $scope.path + "PostGoodWorkPaymentAdviseDisbursement";
+    $scope.saveGoodWorkPaymentAdviseDisbursementUrl = $scope.path + "ParkEmployeeMultipleAdvanceDisbursement";
     $scope.saveBtnDisable = false;
     $scope.SaveGoodWorkPaymentAdviseDisbursement = function () {
         //$scope.GetEmployeeDisbursementItem();
@@ -1080,7 +1079,7 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
         $scope.message_confirmation = "Are you sure to Post?";
         angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
     };
-    $scope.postGoodWorkPaymentAdviseDisbursementUrl = $scope.path + "PostGoodWorkPaymentAdviseDisbursement";
+    $scope.postGoodWorkPaymentAdviseDisbursementUrl = $scope.path + "PostEmployeeMultipleAdvanceDisbursement";
     $scope.post = function (voucherId) {
         $http({
             method: "POST",
@@ -1291,7 +1290,7 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
         }
     };
 
-    $scope.deleteGoodWorkPaymentAdviseDisbursementUrl = "Attendances/GoodWork/DeleteGoodWorkPaymentAdviseDisbursement";
+    $scope.deleteGoodWorkPaymentAdviseDisbursementUrl = "Attendances/GoodWork/DeleteEmployeeMultipleAdvanceDisbursement";
 
     $scope.deleteSalaryDisbursement = function (voucherId, monthNo, yearNo) {
         $http({
@@ -1348,7 +1347,6 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
         $scope.voucher.ToDate = data.ToDate;
         $scope.voucher.UserRef = data.UserRef;
         $scope.voucher.Remarks = data.Remarks;
-        $scope.voucher.AdvicePaymentSource = data.PaymentSource;
 
         $scope.GetemployeeDisbursement();
 

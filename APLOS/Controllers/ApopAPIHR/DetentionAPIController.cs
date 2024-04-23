@@ -1454,5 +1454,13 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
         #endregion Utility Master
+        #region Production Entry
+        public List<Default2> GetDateFilter(string Time)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetDateFilter(out List<Default2> activelists , Time);
+            return activelists;
+        }
+        #endregion Production Entry
     }
 }

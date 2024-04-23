@@ -30,6 +30,10 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             return View();
         }
+        public ActionResult OTApprove()
+        {
+            return View();
+        }
 
         #endregion -- Pages
 
@@ -258,6 +262,26 @@ namespace Aplos.Areas.HumanResource.Controllers
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
             return workbook;
         }
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetOTData(string Data)
+        {
+            try
+            {
+                //ot.ProcessData(Data, OTWeek, SelectedOT);
+            }
+            catch (Exception ex)
+            {
+                ot.CommonLogFunction(ex);
+                return Json(new { Error = true, Message = "Error Occured..." }, JsonRequestBehavior.AllowGet);
+
+            }
+            return Json(new { Error = false, Message = "OT Confirmation Process Ran Successfully..." }, JsonRequestBehavior.AllowGet);
+
+        }
+
+
 
         #endregion Operations
     }
