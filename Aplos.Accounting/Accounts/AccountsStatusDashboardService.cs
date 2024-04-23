@@ -22782,7 +22782,14 @@ group by Id) O60 ON O60.Id=IV.Id
                     sheet[ROW, ColCurrency].Text = data[i]["Currency"].ToString();
                     sheet[ROW, ColInvoiceAmount].Number = clsStaticInfo.dbl(data[i]["InvoiceAmount"].ToString());
                     sheet[ROW, ColInvoiceAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    sheet[ROW, ColInvoiceNo].Text = data[i]["InvoiceNo"].ToString();
+                    if (data[i]["InvoiceNo"] != null)
+                    {
+                        sheet[ROW, ColInvoiceNo].Text = data[i]["InvoiceNo"].ToString();
+                    }
+                    else
+                    {
+                        sheet[ROW, ColInvoiceNo].Text = null;
+                    }
                     sheet[ROW, ColReceived].Number = clsStaticInfo.dbl(data[i]["Received"].ToString());
                     sheet[ROW, ColReceived].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                     sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(data[i]["Balance"].ToString());
@@ -22790,10 +22797,32 @@ group by Id) O60 ON O60.Id=IV.Id
                     sheet[ROW, ColCreditNote].Number = clsStaticInfo.dbl(data[i]["CreditNote"].ToString());
                     sheet[ROW, ColCreditNote].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                     sheet[ROW, ColInvoiceVoucherNo].Text = data[i]["InvoiceVoucherNo"].ToString();
-                    sheet[ROW, ColInvoiceDate].Text = data[i]["InvoiceDate"].ToString();
-                    sheet[ROW, ColInvoiceDocRefNo].Text = data[i]["InvoiceDocRefNo"].ToString();
+                    if (data[i]["InvoiceDate"] != null)
+                    {
+                        sheet[ROW, ColInvoiceDate].Text = data[i]["InvoiceDate"].ToString();
+                    }
+                    else
+                    {
+                        sheet[ROW, ColInvoiceDate].Text = null;
+                    }
+                    if (data[i]["InvoiceDocRefNo"] != null)
+                    {
+                        sheet[ROW, ColInvoiceDocRefNo].Text = data[i]["InvoiceDocRefNo"].ToString();
+                    }
+                    else
+                    {
+                        sheet[ROW, ColInvoiceDocRefNo].Text = null;
+                    }
                     sheet[ROW, ColPaymentSource].Text = data[i]["PaymentSource"].ToString();
-                    sheet[ROW, ColBankDetail].Text = data[i]["BankDetail"].ToString();
+                    if (data[i]["BankDetail"] != null)
+                    {
+                        sheet[ROW, ColBankDetail].Text = data[i]["BankDetail"].ToString();
+                    }
+                    else
+                    {
+                        sheet[ROW, ColBankDetail].Text = null;
+                    }
+                    
                     if (data[i]["CashDetail"]!= null) 
                     {
                         sheet[ROW, ColCashDetail].Text = data[i]["CashDetail"].ToString(); 
