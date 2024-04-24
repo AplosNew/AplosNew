@@ -148,6 +148,15 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
             if (baseService.isUndefinedOrNull($scope.ModelNew.WorkDate)) {
                 $scope.ModelNew.WorkDate = $scope.DT;
             }
+            if (baseService.isUndefinedOrNull($scope.ModelNew.WorkDate)) {
+                throw"Select Work Date.";
+            }
+            if (baseService.isUndefinedOrNull($scope.ModelNew.UserGroupId)) {
+                throw "Select User Group.";
+            }
+            if (baseService.isUndefinedOrNull($scope.ModelNew.ShiftId)) {
+                throw "Select Shift.";
+            }
             $scope.filterComplete();
             if (!baseService.isUndefinedOrNull($scope.ModelNew.FromTime)) {
                 if (!baseService.isUndefinedOrNull($scope.ModelNew.ToTime)) {
@@ -579,6 +588,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
 
     $scope.parameters = [];
     $scope.filterComplete = function () {
+       
         var g = $("#filters").data("ejGrid");
         var fl = g.getFilteredRecords();
         if (fl.length == 0) {
