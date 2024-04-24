@@ -9,6 +9,9 @@ using System.Data;
 using Library.Crosscutting.Security;
 using System.Threading;
 using System.IO;
+using Library.HumanResource.NewAttendanceProcess;
+using Library.Security.Core;
+using Aplos.Properties;
 
 namespace Aplos.Areas.HumanResource.Controllers
 {
@@ -284,5 +287,196 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
         #endregion Operations
+
+        #region OTApprove
+
+        [HttpGet, Authorize]
+        public ActionResult GetWorkOverStayData(string workDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var json = Json(ot.GetWorkOverStayData(workDate, identity.PlantId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        private string GetOTPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(OTfromApp), out sID);
+            return sID;
+        }
+
+        [HttpPost]
+        public JsonResult SaveOTData(Dictionary<string, object> data, IEnumerable<OTfromAppNew> SaveMultipleEmpOTExcel)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                DataSet EmpExistOrNot;
+                DataSet EmpDayStatus;
+                DataSet IsEmpSalaryLocked;
+                DataSet EmpExistInAttProData;
+                string RowsEdit = "''";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                var empdetails = "' '";
+                var empworkingdates = "''";
+                var empcode = "''";
+                foreach (var empitem in SaveMultipleEmpOTExcel)
+                {
+                    empdetails += ",'" + empitem.EmployeeSystemId + "' ";
+                    empworkingdates += ",'" + empitem.APDEmpWorkDate + "' ";
+                    //     empcode += ",'" + empitem.EmployeeCode + "' ";
+                }
+                con.OpenDataSetThroughAdapter("select * from dbo.OTfromApp where EmpSystemId IN ( " + empdetails + " ) and WorkDate IN (" + empworkingdates + ")  ", out EmpExistOrNot, false, "1");
+                con.OpenDataSetThroughAdapter("select * from AttdnProcessData where EmpSystemId IN ( " + empdetails + " ) and WorkDate IN (" + empworkingdates + ") ", out EmpExistInAttProData, false, "1");
+
+                string EmpYear = Convert.ToDateTime(data["FromDate"]).ToString("yyyy");
+                string EmpMonth = Convert.ToDateTime(data["FromDate"]).ToString("MM");
+                con.OpenDataSetThroughAdapter("select Id, EmpSystemId, YearNo, MonthNo, IsLocked from SalaryLock where YearNo = '" + EmpYear + "' and MonthNo = '" + EmpMonth + "' and EmpSystemId IN ( " + empdetails + " ) ", out IsEmpSalaryLocked, false, "1");
+
+                foreach (var item in SaveMultipleEmpOTExcel)
+                {
+                    IsEmpSalaryLocked.Tables[0].DefaultView.RowFilter = "EmpSystemId='" + item.EmployeeSystemId + "'";
+                    bool islocked = false;
+                    if (IsEmpSalaryLocked.Tables[0].DefaultView.Count > 0)
+                    {
+                        islocked = bplib.clsWebLib.GetBoolData(IsEmpSalaryLocked.Tables[0].DefaultView[0]["IsLocked"].ToString());
+
+                    }
+                    if (islocked == false)
+                    {
+                        //  EmpDayStatus.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "' and WorkDate='" + item.WorkDate + "' ";
+
+                        //if (EmpDayStatus.Tables[0].DefaultView.Count > 0)
+                        //{
+                        //    if (EmpDayStatus.Tables[0].DefaultView[0]["Category"].ToString() == "Present" || EmpDayStatus.Tables[0].DefaultView[0]["Category"].ToString() == "Late" || EmpDayStatus.Tables[0].DefaultView[0]["Category"].ToString() == "Weekend" || EmpDayStatus.Tables[0].DefaultView[0]["Category"].ToString() == "Holiday")
+
+                        //    {
+
+                        string newformat = Convert.ToDateTime(item.APDEmpWorkDate).ToString("yyyyMMdd");
+
+                        //        EmpExistInAttProData.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "' and WorkDate='" + item.APDEmpWorkDate + "' ";
+                        EmpExistInAttProData.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "' and WorkDate='" + item.APDEmpWorkDate + "' and RowId='" + newformat + item.EmployeeSystemId + "' ";
+
+                        if (EmpExistInAttProData.Tables[0].DefaultView.Count != 0)
+                        {
+                            bool ManFlag = true;
+                            //edit
+                            DataRow dr = EmpExistInAttProData.Tables[0].DefaultView[0].Row;
+
+                            dr.BeginEdit();
+
+                            dr["ManualOt"] = item.OTHr;
+
+                            dr["ManualByWhom"] = identity.Name;
+                            dr["ManualEntryTime"] = System.DateTime.Now.ToString();
+                            dr["ManualFlag"] = ManFlag;
+
+                            dr["OTComfirmBy"] = DBNull.Value;
+                            dr["DateOTComfirm"] = DBNull.Value;
+                            dr["IsOTComfirm"] = false;
+
+                            dr["PlanOT"] = DBNull.Value;
+                            dr["AllowedOTLimit"] = DBNull.Value;
+                            dr["AppliedOTLimit"] = DBNull.Value;
+                            dr["StandardOT"] = DBNull.Value;
+                            dr["AdditionalOT"] = DBNull.Value;
+                            dr["TargetOT"] = DBNull.Value;
+
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["DateUpdated"] = System.DateTime.Now.ToString();
+
+
+                            dr.EndEdit();
+                            RowsEdit = RowsEdit + ",'" + dr["RowId"].ToString() + "'";
+
+                        }
+                        else
+                        {
+                            EmpExistOrNot.Tables[0].DefaultView.RowFilter = "EmpSystemId ='" + item.EmployeeSystemId + "' and WorkDate='" + item.APDEmpWorkDate + "' ";
+
+                            //     EmpExistInAttProData.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "' and WorkDate='" + item.APDEmpWorkDate + "' and RowId='" + newformat + item.EmployeeSystemId + "' ";
+
+                            if (EmpExistOrNot.Tables[0].DefaultView.Count > 0)
+                            {
+
+                                //edit
+                                DataRow drr = EmpExistOrNot.Tables[0].DefaultView[0].Row;
+
+                                drr.BeginEdit();
+
+                                drr["WorkDate"] = item.APDEmpWorkDate;
+
+                                drr["OThour"] = item.OTHr;
+                                drr["EmpSystemId"] = item.EmployeeSystemId;
+
+                                drr["Remarks"] = data["Remarks"];
+                                drr["IsConfirmed"] = data["IsConfirmed"];
+
+                                drr["AddedBy"] = identity.Name;
+                                drr["AddedDate"] = System.DateTime.Now.ToString();
+
+                                drr["UpdatedBy"] = identity.Name;
+                                drr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+
+                                drr.EndEdit();
+                                //        RowsEdit = RowsEdit + ",'" + drr["RowId"].ToString() + "'";
+
+
+                            }
+                            if (EmpExistOrNot.Tables[0].DefaultView.Count == 0)
+                            {
+                                DataRow dr = EmpExistOrNot.Tables[0].NewRow();
+                                dr["Id"] = "OT" + GetOTPK();
+
+                                dr["WorkDate"] = item.APDEmpWorkDate;
+
+                                dr["OThour"] = item.OTHr;
+                                dr["EmpSystemId"] = item.EmployeeSystemId;
+
+                                dr["Remarks"] = data["Remarks"];
+                                dr["IsConfirmed"] = data["IsConfirmed"];
+
+                                dr["AddedBy"] = identity.Name;
+                                dr["AddedDate"] = System.DateTime.Now.ToString();
+
+                                dr["UpdatedBy"] = identity.Name;
+                                dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+
+                                EmpExistOrNot.Tables[0].Rows.Add(dr);
+                                //        RowsEdit = RowsEdit + ",'" + dr["RowId"].ToString() + "'";
+                            }
+
+                        }
+                        //         }
+                        //       }
+
+                    }
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(EmpExistInAttProData, EmpExistOrNot);
+
+                NewAttendanceProcessService ap = new NewAttendanceProcessService();
+                ap.ManualScheduler(identity.PlantId, RowsEdit);
+
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+
+            }
+
+
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+        #endregion
+
+
     }
 } 
