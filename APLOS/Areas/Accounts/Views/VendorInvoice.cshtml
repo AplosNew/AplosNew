@@ -761,110 +761,21 @@
 
                 <div class="form-horizontal form-elements" ng-form id="form1" name="form1">
                     <div class="col-xs-12 col-sm-5 col-md-5">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Type<sup>*</sup></label>
-                            <div class="col-sm-9 radio">
-                                <label>
-                                    <input ng-disabled="voucher.Id" type="radio" name="InvoiceType" ng-model="voucher.InvoiceType" value="Vendor">
-                                    <span class="cr" tabindex="17"><i class="cr-icon"></i></span>Vendor
-                                </label>
-                                <label>
-                                    <input ng-disabled="voucher.Id" type="radio" name="InvoiceType" ng-model="voucher.InvoiceType" value="LC">
-                                    <span class="cr" tabindex="18"><i class="cr-icon"></i></span>LC
-                                </label>
-                            </div>
-                        </div>
-                        <div class="form-group" ng-show="voucher.InvoiceType=='LC'">
-                            <label class="col-sm-3 control-label">LC No<sup>*</sup></label>
-                            <div class="col-sm-9 show-message">
-                                <div class="input-group">
-                                    <input type="text" name="LCRef" ng-model="voucher.LCRef" class="form-control" readonly>
-                                    <span class="input-group-btn">
-                                        <button ng-click="getPurchaseLCData();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+                        
                         <div class="form-group" show-errors>
                             <label class="col-sm-3 control-label">@Library.Model.Parties.PartyType.Vendor.ToString()<sup>*</sup></label>
                             <div class="col-sm-9 show-message">
                                 <div class="input-group">
                                     <input type="text" name="@Library.Model.Parties.PartyType.Vendor.ToString()" ng-model="voucher.PartyName" class="form-control" readonly required>
-                                    <span class="input-group-btn">
-                                        @*<button ng-click="showPartyPopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>*@
-                                        <button ng-click="showPartyPopUpNew();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                    </span>
+                                    
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-3 control-label">Invoicing @Library.Model.Parties.PartyType.Vendor.ToString()<sup>*</sup></label>
-                            <div class="col-sm-9 show-message">
-                                <div class="input-group">
-                                    <div class="select-style">
-                                        <select tabindex="1" class="form-control" name="Location" ng-model="voucher.PartyPlantId" ng-options="item.Value as item.Text for item in partyPlantList| filter:{ PartyId: x.PartyId }" ng-change="billShippAddress(advance.PartyPlantId,'billTo'); updateCrAmount();" required>
-                                            <option value=""></option>
-                                        </select>
-                                    </div>
-                                    <span class="input-group-btn">
-                                        <button ng-click="showPartyPlantPopUp(voucher.PartyPlantId);" class="btn single-small-btn"><i class="glyphicon glyphicon-list"></i></button>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-3 control-label">Payment Term<sup>*</sup></label>
-                            <div class="col-sm-3 show-message">
-                                <div class="select-style">
-                                    <select tabindex="10" required id="paymentTermId" class="form-control" name="Payment Term" ng-model="voucher.PaymentTermId" ng-change="changePaymentTerm(voucher.PaymentTermId);">
-                                        <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <label class="col-sm-3 control-label">Due Date BaseOn<sup>*</sup></label>
-                            <div class="col-sm-3 show-message">
-                                <input type="text" name="BaseOnDueDate" ng-model="voucher.BaseOnDueDate" ng-change="getMatureDate(voucher.BaseOnDueDate,voucher.BaseNoOfDays)" datepicker class="form-control datepicker" tabindex="11" required>
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-3 control-label">No Of Days</label>
-                            <div class="col-sm-3 show-message">
-                                <input id="baseNoOfday" type="number" name="No Of Days" ng-model="voucher.BaseNoOfDays" ng-change="getMatureDate(voucher.BaseOnDueDate, voucher.BaseNoOfDays)" class="form-control" tabindex="12" required>
-                            </div>
-                            <label class="col-sm-3 control-label">Mature Date</label>
-                            <div class="col-sm-3 show-message">
-                                <input type="text" name="Mature Date" ng-model="voucher.MatureDate" class="form-control" readonly required>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Source<sup>*</sup></label>
-                            <div class="col-sm-9 radio">
-                                <label>
-                                    <input ng-click="clearSourceInfo()" ng-disabled="voucher.InvoiceType=='LC'" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.PaymentSource.GL.ToString()">
-                                    <span class="cr" tabindex="17"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.GL.ToString()
-                                </label>
-                                <label>
-                                    <input ng-click="clearSourceInfo()" ng-disabled="voucher.Id" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.PaymentSource.Cash.ToString()">
-                                    <span class="cr" tabindex="18"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Cash.ToString()
-                                </label>
-                                <label ng-show="voucher.InvoiceType=='LC'">
-                                    <input ng-disabled="voucher.Id" ng-click="clearSourceInfo()" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.PaymentSource.Loan.ToString()">
-                                    <span class="cr" tabindex="18"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Loan.ToString()
-                                </label>
-                                <label ng-show="voucher.InvoiceType=='LC'">
-                                    <input ng-disabled="voucher.Id" ng-click="clearSourceInfo()" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.PaymentSource.Bank.ToString()">
-                                    <span class="cr" tabindex="18"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Bank.ToString()
-                                </label>
-                            </div>
-                        </div>
+                        
+                       
                     </div>
                     <div class="col-xs-12 col-sm-3 col-md-3">
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Entry Date<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" name="VoucherDate" ng-model="voucher.VoucherDate" datepicker class="form-control" disabled required>
-                            </div>
-                        </div>
+                        
                         <div id="div_PostingDate" class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Posting Date<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
@@ -891,45 +802,8 @@
                                 <input type="text" maxlength="50" id="Rate" name="Rate" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="5" autocomplete="off" ng-disabled="voucher.CurrencyId==companyCurrencyId">
                             </div>
                         </div>
-                        <div class="form-group" ng-show="voucher.PaymentSource=='@Library.Model.Payments.PaymentSource.Cash.ToString()'">
-                            <label class="col-sm-4 control-label">Cash<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select name="Cash" class="form-control" ng-disabled="voucher.Id" ng-model="voucher.CashMasterId" ng-options="item.Id as item.UserName for item in cashMasterList">
-                                        <option value="">--Select--</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group" ng-show="voucher.PaymentSource=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">
-                            <label class="col-sm-4 control-label">Bank<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="input-group">
-                                    <input type="text" name="CashName" ng-model="voucher.BankName" class="form-control" readonly data-toggle="tooltip" data-placement="top" title="{{voucher.BankName}}" tooltip>
-                                    <span class="input-group-btn">
-                                        <button ng-click="showBankPopUp(voucher.EntityId);" class="btn single-small-btn" tabindex="23"><i class="glyphicon glyphicon-search"></i></button>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group" ng-show="voucher.CurrencyId!=voucher.BankCurrencyId && voucher.PaymentSource=='@Library.Model.Payments.PaymentSource.Bank.ToString()' && voucher.BankMasterId!=null">
-                            <label class="col-sm-4 control-label">Bank Amount<sup>*</sup></label>
-                            <div class="col-sm-2 show-message" style="padding-right:0px;">
-                                <input type="text" readonly class="form-control text-right" name="BankCurrencyCode" ng-model="voucher.BankCurrencyCode">
-                            </div>
-                            <div class="col-sm-6 show-message" style="padding-left:0px;" ng-disabled="voucher.CurrencyId==voucher.BankCurrencyId">
-                                <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="BankAmount" ng-model="voucher.BankAmount" ng-keyup="recalBankAmount()" autocomplete="off">
-                            </div>
-                        </div>
-                        <div class="form-group" ng-show="approvedByList.length">
-                            <label class="col-sm-4 control-label">Approved By<sup>*</sup></label>
-                            <div class="col-sm-8">
-                                <div class="select-style" style="font-size:smaller">
-                                    <select name="ApprovedById" id="ApprovedById" ng-model="voucher.ApprovedById" class="form-control"
-                                            ng-options="item.Id as item.Value for item in approvedByList" tabindex="6"></select>
-                                </div>
-                            </div>
-                        </div>
+                        
+                        
                     </div>
                     <div class="col-xs-12 col-sm-4 col-md-4">
                        
