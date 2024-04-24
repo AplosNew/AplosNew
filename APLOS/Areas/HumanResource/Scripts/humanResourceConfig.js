@@ -957,6 +957,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
                 templateUrl: 'humanresource/LeaveTransection/Aplos',
                 controller: 'LeaveTransectionController'
             })
-
+        .when('/ot-approve',
+            {
+                templateUrl: 'humanresource/OTConfirmationProcess/OTApprove',
+                controller: 'otApproveController'
+            })
         ;
 }
