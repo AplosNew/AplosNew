@@ -1,32 +1,92 @@
 ﻿'use strict';
-otApproveController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'toaster', 'cboService', '$controller','$window'];
+otApproveController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'toaster', 'cboService', '$controller', '$window'];
 function otApproveController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, toaster, cboService, $controller, $window) {
-     
+    $scope.title = "OT Approve";
 
-    $scope.ClanderYearModel = {
+
+    $scope.ModelTemp = {
         Id: null,
-        YearNo: null
+        EmpSystemId: null,
+        ToDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
+        FromDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
+        WorkDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
+        InTime: null,
+        OutTime: null,
+        OThour: null,
+        EmpName: null,
+        EmployeeCode: null,
+        EmployeeStatus: null,
+        Remarks: null,
+        IsConfirmed: false,
+        APDEmpWorkDate: null,
+        PlantId: $window.plantId,
     };
-    $scope.Id = null;
-    $scope.ClanderYear = [];
-    $scope.GetClanderYear = function () {
-        $http({
-            method: "GET",
-            dataType: 'JSON',
-            url: 'HumanResource/AttendanceManagement/GetClanderYear'
+    $scope.OTManual = Object.assign({}, $scope.ModelTemp);
 
-        }).then(function successCallback(response) {
-            $scope.ClanderYear = response.data.data;
+    $scope.otApproveList = [];
+    $scope.GetWorkOverStayData = function () {
+        try {
+            if (baseService.isUndefinedOrNull($scope.OTManual.WorkDate)) {
+                throw "Select Work Date.";
+            }
+            $http({
+                method: "GET",
+                dataType: 'JSON',
+                url: 'HumanResource/OTConfirmationProcess/GetWorkOverStayData?workDate=' + $scope.OTManual.WorkDate
+            }).then(function successCallback(response) {
+                $scope.otApproveList = response.data;
 
-        });
+            });
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
     };
-    $scope.GetClanderYear();
+
+    $scope.Save = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.ModelNewForm.$valid) {
+
+            try {
+                if ($scope.otApproveList.length == 0) {
+                    throw 'Enter atleast one Employee OT';
+                }
+
+                var dataList = [];
+                var g = $("#GridEmployeeInfoList").data("ejGrid");
+                dataList = g.getFilteredRecords();
+
+                if (dataList.length == 0) {
+                    dataList = $scope.otApproveList;
+                }
 
 
-    $scope.GetOtFinalReport = function () {
-        var ReportFormat = 'Excel';
-        location.href = 'HumanResource/AttendanceManagement/GetOtFinalReport?reportFormat=' + ReportFormat + '&year=' + $scope.Year + '&month=' + $scope.Month;
-    };
+
+                $http({
+                    method: 'POST',
+                    data: { data: $scope.OTManual, SaveMultipleEmpOTExcel: dataList },
+                    url: 'HumanResource/OTConfirmationProcess/SaveOTData'
+
+                }).then(function successCallback(response) {
+                    if (response.data.Error == true) {
+                        ShowResult(response.data.Message, "failure");
+                    }
+                    else {
+                        ShowResult(response.data.Message, "success");
+                        
+                        ClearFields();
+                    }
+                });
+            }
+            catch (e) {
+                ShowResult(e, "failure");
+            }
+
+        }
+    }
 
 
+    function ClearFields() {
+        $scope.OTManual = Object.assign({}, $scope.ModelTemp);
+        $scope.otApproveList = [];
+    }
 }
