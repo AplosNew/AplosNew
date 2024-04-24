@@ -766,7 +766,7 @@
                             <label class="col-sm-3 control-label">@Library.Model.Parties.PartyType.Vendor.ToString()<sup>*</sup></label>
                             <div class="col-sm-9 show-message">
                                 <div class="input-group">
-                                    <input type="text" name="@Library.Model.Parties.PartyType.Vendor.ToString()" ng-model="voucher.PartyName" class="form-control" readonly required>
+                                    <input type="text" name="@Library.Model.Parties.PartyType.Vendor.ToString()" ng-model="voucherdb.PartyName" class="form-control" readonly >
                                     
                                 </div>
                             </div>
@@ -776,30 +776,22 @@
                     </div>
                     <div class="col-xs-12 col-sm-3 col-md-3">
                         
-                        <div id="div_PostingDate" class="form-group" show-errors>
+                        <div  class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Posting Date<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input required datepicker="checkPostingDate();checkDocDate();changePostingGetTaxCode();" id="postingDate" type="text" name="Posting Date" ng-model="voucher.PostingDate" class="form-control" tabindex="1">
+                                <input   id="postingDate" type="text" name="Posting Date" ng-model="voucherdb.PostingDate"  ng-disabled="true" class="form-control" tabindex="1">
                             </div>
                         </div>
-                        <div id="div_DocDate" class="form-group" show-errors>
+                        <div  class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Doc Date<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="DocDate" ng-model="voucher.DocDate" datepicker="checkDocDate();" required class="form-control" tabindex="3">
+                                <input type="text" name="DocDate" ng-model="voucherdb.DocDate" ng-disabled="true" class="form-control" tabindex="3">
                             </div>
                         </div>
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
-                            <div class="col-sm-5 show-message" style="padding-right:0px;">
-                                <div class="select-style">
-                                    <select id="currencyId" class="form-control" ng-disabled="currencyDisable" tabindex="5" name="Currency" ng-model="voucher.CurrencyId" ng-change="GetCurrencyExchangeRateList();checkBankAmount();" required>
-                                        <option value="">--Select--</option>
-                                        <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-sm-3 show-message" style="padding-left:0px;">
-                                <input type="text" maxlength="50" id="Rate" name="Rate" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="5" autocomplete="off" ng-disabled="voucher.CurrencyId==companyCurrencyId">
+                            <div class="col-sm-8 show-message" style="padding-right:0px;">
+                                <input type="text" name="DocDate" ng-model="voucherdb.Currency" ng-disabled="true" class="form-control" tabindex="3">
                             </div>
                         </div>
                         
@@ -810,13 +802,13 @@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Doc Ref<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" maxlength="50" name="Doc Ref" ng-model="voucher.DocRefNo" class="form-control" ng-keyup="CheckSpecialCharecter();" tabindex="4" required capitalize autocomplete="off">
+                                <input type="text" maxlength="50" name="Doc Ref" ng-model="voucherdb.DocRefNo" class="form-control" tabindex="4" ng-disabled="true">
                             </div>
                         </div>
                         <div class="form-group" show-errors>
                             <label class="col-sm-2 control-label">Narration<sup>*</sup></label>
                             <div class="col-sm-10 show-message">
-                                <textarea rows="1" type="text" name="Narration" tabindex="8" class="form-control" ng-model="voucher.Narration" maxlength="500" required capitalize></textarea>
+                                <textarea rows="1" type="text" name="Narration" tabindex="8" class="form-control" ng-model="voucherdb.Narration" maxlength="500" required capitalize></textarea>
                             </div>
                         </div>
                     </div>
