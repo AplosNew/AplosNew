@@ -2114,6 +2114,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
             voucherVM.Amount = directJVList.Sum(r => r.CrAmount);
             voucherVM.SourceType = SourceType.GoodWorkDisbursement.ToString();
 
+
             string goodWorkPaymentAdviseDetailIds = "";
             if (goodWorkPaymentAdviseDetail != null)
             {
