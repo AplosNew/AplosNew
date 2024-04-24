@@ -1268,6 +1268,7 @@ upanelApp.controller("BudgetControlController", BudgetControlController)
 upanelApp.controller("EmployeeSeperationSetupController", EmployeeSeperationSetupController)
 upanelApp.controller("fullandfinalSettlementController", fullandfinalSettlementController)
 upanelApp.controller("LeaveTransectionController", LeaveTransectionController)
+upanelApp.controller("otApproveController", otApproveController)
 
 
 

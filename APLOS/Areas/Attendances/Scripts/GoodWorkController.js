@@ -76,7 +76,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
 
             $http({
                 method: 'GET',
-                url: 'Attendances/GoodWork/getShift?setupId=' + $scope.ModelNew.UserGroupId,
+                url: 'Attendances/GoodWork/getShift?setupId=' + $scope.ModelNew.UserGroupId + '&date=' + $scope.ModelNew.WorkDate,
                 dataType: 'JSON'
             }).then(function succ(resp) {
                 $scope.ShiftList = resp.data;
@@ -147,6 +147,15 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         try {
             if (baseService.isUndefinedOrNull($scope.ModelNew.WorkDate)) {
                 $scope.ModelNew.WorkDate = $scope.DT;
+            }
+            if (baseService.isUndefinedOrNull($scope.ModelNew.WorkDate)) {
+                throw"Select Work Date.";
+            }
+            if (baseService.isUndefinedOrNull($scope.ModelNew.UserGroupId)) {
+                throw "Select User Group.";
+            }
+            if (baseService.isUndefinedOrNull($scope.ModelNew.ShiftId)) {
+                throw "Select Shift.";
             }
             $scope.filterComplete();
             if (!baseService.isUndefinedOrNull($scope.ModelNew.FromTime)) {
@@ -543,7 +552,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         try {
             $http({
                 method: 'GET',
-                url: $scope.path + 'getFiltersData?userGroupId=' + $scope.ModelNew.UserGroupId + '&shiftId=' + $scope.ModelNew.ShiftId,
+                url: $scope.path + 'getFiltersData?userGroupId=' + $scope.ModelNew.UserGroupId + '&shiftId=' + $scope.ModelNew.ShiftId + '&date=' + $scope.ModelNew.WorkDate,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.filters = response.data;
@@ -579,6 +588,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
 
     $scope.parameters = [];
     $scope.filterComplete = function () {
+       
         var g = $("#filters").data("ejGrid");
         var fl = g.getFilteredRecords();
         if (fl.length == 0) {

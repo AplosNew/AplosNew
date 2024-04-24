@@ -133,12 +133,9 @@ namespace Aplos.Areas.Attendances.Controllers
 						 LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
                          LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
                          LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-                         LEFT JOIN GoodWorkDetail GWD on GWD.EmpSystemId=EI.SystemId
-                         left join GoodWork GW on GW.Id=GWD.GoodWorkId
 						 left join dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate='" + workDate + @"'
-
                          WHERE  EI.PlantId='" + identity.PlantId + @"'  " + ec + @"  " + dep + @"  " + sec + @"   " + subsec + @"   " + des + @" " + userGr + @"
-                         and ei.SystemId in (select EmpSystemID from EmployeeShiftAssign where FixSystemID='" + shiftId + @"' AND EffectiveDate<='" + workDate + @"')  
+                         and ei.SystemId in (select EmpSystemID from dbo.AttdnProcessData where ShiftSystemId='" + shiftId + @"' and WorkDate='" + workDate + @"')  
                         AND ei.SystemId IN(Select EmployeeId From [dbo].[ExceptionGoodWorkEmployee] where GoodWorkSetUpId = '" + userGroupId + @"')
                         and EI.EmployeeStatus='Active' and EI.BudgetCode in (SELECT BudgetId FROM dbo.GoodWorkBudgetSetup where GoodWorkSetUpId = '" + userGroupId + @"') 
                          ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
@@ -176,16 +173,21 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetShift(string setupId)
+        public ActionResult GetShift(string setupId,string date)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select SD.SystemID ShiftId,P.Id PlantId,P.UserName Plant,SD.ShiftDefinationDescription,SD.UserName ShiftDefination 
+            string xstr = @"select SD.SystemID ShiftId,P.Id PlantId,P.UserName Plant,SD.ShiftDefinationDescription,SD.UserName ShiftDefination 
 						,CONVERT(varchar(5),SD.InTime,108) InTime,CONVERT(VARCHAR(5), SD.InTime, 108) OutTime						
 						from ShiftDefination SD
 						left join ORG.Plant P on P.Id=SD.PlantID
                         Where SD.SystemID IN(	Select distinct MB.ShiftDefinationId from dbo.GoodWorkBudgetSetUp BS
 						left join MST.ManpowerBudget MB ON MB.Id=BS.BudgetId
 						Where GoodWorkSetUpId='"+ setupId + "')";
+
+            string str = @"SELECT SD.SystemID ShiftId,P.Id PlantId,P.UserName Plant,SD.ShiftDefinationDescription,SD.UserName ShiftDefination 
+,CONVERT(varchar(5),SD.InTime,108) InTime,CONVERT(VARCHAR(5), SD.InTime, 108) OutTime	from ShiftDefination SD
+left join ORG.Plant P on P.Id=SD.PlantID
+WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Where p.WorkDate='"+ date + "')";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
@@ -411,7 +413,7 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult getFiltersData(string userGroupId, string shiftId)
+        public ActionResult getFiltersData(string userGroupId, string shiftId,string date)
         {
             try
             {
@@ -428,7 +430,7 @@ namespace Aplos.Areas.Attendances.Controllers
 						 LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
                          LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
                          LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-						 where EI.EmployeeStatus='Active' and ei.SystemId in (select EmpSystemID from EmployeeShiftAssign where FixSystemID='" + shiftId + @"') and EI.BudgetCode in (SELECT BudgetId FROM dbo.GoodWorkBudgetSetup where GoodWorkSetUpId= '" + userGroupId + @"')";
+						 where EI.EmployeeStatus='Active' and ei.SystemId in (select EmpSystemID from dbo.AttdnProcessData where WorkDate='"+ date + @"') and EI.BudgetCode in (SELECT BudgetId FROM dbo.GoodWorkBudgetSetup where GoodWorkSetUpId= '" + userGroupId + @"')";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
