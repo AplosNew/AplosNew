@@ -6,7 +6,7 @@
                 <label class="col-sm-4 control-label">Company<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select name="Company" class="form-control" ng-model="planningTypesNew.CompanyId" ng-change="getPlantCbo();" ng-options="item.Value as item.Text for item in companyList" required>
+                        <select name="Company" class="form-control" ng-model="planningTypesNew.CompanyId" ng-change="getPlantCbo();getAllEntities();" ng-options="item.Value as item.Text for item in companyList" required>
                             <option value="">--Select--</option>
                         </select>
                     </div>
@@ -18,6 +18,16 @@
                     <div class="select-style">
                         <select submit-="true" ng-model="planningTypesNew.PlanningType" class="form-control" name="Planning Type" ng-change="ChangeType();"
                                 ng-options="item.Value as item.Text for item in planningTypesList" tabindex="10" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="planningTypesNew.EntityId" ng-change="loadProcessList(planningTypesNew.EntityId)" name="Entity" ng-options="item.Id as item.UserName for item in entityList" required>
                             <option value=""></option>
                         </select>
                     </div>
