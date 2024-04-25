@@ -745,7 +745,8 @@ namespace Library.HumanResource.NewOTProcess
                          ,EI.EmployeeName
                          , FORMAT(EI.DOJ,'dd-MMM-yyyy') DOJ
                          , DG.UserName LegalDesignation
-                         ,S.UserName Section,SS.UserName SubSection, DP.UserName Department,PR.UserName PositionName
+                         ,E.UserName Entity,S.UserName Section, DP.UserName Department,PR.UserName PositionName
+						 ,SD.ShiftDefinationName,PMB.Code BudgetCode
                          ,EI.EmployeeStatus,APD.OverStay,APD.DayStatus
 						 ,CONVERT(varchar(15),CAST(APD.Intime AS TIME),100) InTime
 						 ,CONVERT(varchar(15),CAST(APD.OutTime AS TIME),100) OutTime
@@ -760,7 +761,7 @@ namespace Library.HumanResource.NewOTProcess
 				from OTPerMinutePolicy ot
                 where ot.PlantId=APD.PlantID and ot.OverstayOrEarlyOut=APD.OverStay-APD.EarlyIn) 
 				end ELSE APD.ProcessedOT END
-						 ,CalculatedOT=
+				,CalculatedOT=
                 case when APD.DayTypeOTApplicable='1' then 
                 (select distinct ot.AllotedOT from OTPerMinutePolicy ot
                 where ot.PlantId=APD.PlantID and ot.OverstayOrEarlyOut=APD.OverStay) 
@@ -782,10 +783,10 @@ namespace Library.HumanResource.NewOTProcess
                          LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId	
                          LEFT JOIN MST.DesignationMaster DM on DM.DesignationId=EI.GivenDesignationId
 						 LEFT JOIN HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
-                         LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-                         LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-						 left JOIN dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate='" + workDate + @"'
-                         WHERE EI.PlantId='"+plantId+ @"' AND ISNULL(APD.OverStay,0)<>0 AND EI.ExcludeOT=0 AND EI.SystemId IN (Select EmployeeId from dbo.ExceptionGoodWorkEmployee)
+                         LEFT JOIN ORG.Section S ON S.Id=EI.SectionId                         
+						 LEFT JOIN dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate='" + workDate + @"'
+                         LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=APD.ShiftSystemID
+                         WHERE EI.PlantId='" + plantId+ @"' AND ISNULL(APD.OverStay,0)<>0 AND EI.ExcludeOT=0 AND EI.SystemId IN (Select EmployeeId from dbo.ExceptionGoodWorkEmployee)
 						 and APD.IsOTEntitled='1'and APD.DayTypeOTApplicable != 0 and APD.Duration>0";
                 return _sqlRepository.GetDataCollection(str);
 
