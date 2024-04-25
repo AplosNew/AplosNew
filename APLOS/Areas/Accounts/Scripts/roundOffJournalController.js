@@ -157,7 +157,7 @@ function roundOffJournalController(accountService, cboService, commonMessage, $s
             for (var i = 0; i < $scope.trailBalanceRoundOffList.length; i++) {
                 var getRow = $filter("filter")($scope.voucherDetailList, {
                     "BudgetMasterId": $scope.trailBalanceRoundOffList[i].BudgetMasterId, "ActivityId": $scope.trailBalanceRoundOffList[i].ActivityId
-                    , "PartyId": $scope.trailBalanceRoundOffList[i].PartyId
+                    , "PartyId": $scope.trailBalanceRoundOffList[i].PartyId, "Particulars": $scope.trailBalanceRoundOffList[i].Particulars
                 });
                 if (getRow.length == 0 && $scope.trailBalanceRoundOffList[i].Active) {
                     $scope.voucherDetailList.push($scope.trailBalanceRoundOffList[i]);

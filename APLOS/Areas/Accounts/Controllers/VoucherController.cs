@@ -6990,7 +6990,7 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
         {
             AccountsGLService accountsGLService = new AccountsGLService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var res = accountsGLService.GetInvoiceRoundOffList(identity.PlantId, trnType);
+            var res = accountsGLService.GetInvoiceRoundOffList(identity.CompanyId,identity.PlantId, trnType);
             var jsondata = Json(res, JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
