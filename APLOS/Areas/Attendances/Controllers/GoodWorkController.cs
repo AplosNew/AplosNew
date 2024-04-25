@@ -713,7 +713,7 @@ WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Wh
         [HttpGet, Authorize]
         public ActionResult GetWorkerAdvanceList()
         {
-            string sql = @"select wa.Id,FORMAT(FromDate,'dd-MMM-yy')FromDate,FORMAT(ToDate,'dd-MMM-yy')ToDate,UserRef,wa.YearNo,wa.MonthNo
+            string sql = @"select wa.Id,FORMAT(FromDate,'dd-MMM-yy')FromDate,FORMAT(ToDate,'dd-MMM-yy')ToDate,UserRef,UserName,wa.YearNo,wa.MonthNo
 						        ,wa.PayDaysType,wa.Percentage,wa.Remarks,wa.ApprovedById
                                 ,ei.SystemId PreparedById,ei.EmployeeName ByWhom
                                   from [dbo].[WorkerAdvance] wa
@@ -726,7 +726,7 @@ WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Wh
         public ActionResult GetWorkerAdvancePendingforApprovalList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select wa.Id,FORMAT(FromDate,'dd-MMM-yy')FromDate,FORMAT(ToDate,'dd-MMM-yy')ToDate,UserRef,wa.YearNo,wa.MonthNo
+            string sql = @"select wa.Id,FORMAT(FromDate,'dd-MMM-yy')FromDate,FORMAT(ToDate,'dd-MMM-yy')ToDate,UserRef,UserName,wa.YearNo,wa.MonthNo
 						        ,wa.PayDaysType,wa.Percentage,wa.Remarks,wa.ApprovedById
                                 ,ei.SystemId PreparedById,ei.EmployeeName ByWhom
                                 from [dbo].[WorkerAdvance] wa
@@ -1032,13 +1032,14 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
 ,format(sum(ISNULL(apd.AdditionalOT,0)),'N2') Minute
                                 ,format((sum(ISNULL(apd.AdditionalOT,0))/60),'N2') Hour
                                 ,format(g.Gross,'N2') Gross
-                                ,0 Rate,0 Amount,0 AdvanceAmount
+                                ,0 PayDays,0 Rate,0 Amount,0 AdvanceAmount
 								,apd.GWPaymentAdviseId 
 								,onw.FormulaDesID
-                                ,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
+                                ,EN.UserName Entity,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
 								,B.Basic,B.BasicSalaryHeadID
                                 ,format(sum(apd.OverStay),'N2') OverStayMinute
                                 ,format((sum(apd.OverStay)/60),'N2') OverStayHour
+                                ,DesM.UserName GivenDesignation,DG.UserName LegalDesignation
                                 from [dbo].[AttdnProcessData] apd 
                                 left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID 
                                 left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
@@ -1046,6 +1047,7 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
                                 LEFT OUTER JOIN ORG.Entity EN ON MPB.EntityId=EN.Id
 						        LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
 						        LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = ei.GivenDesignationId
+                                LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
                                 LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
 						        LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
                                 LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
@@ -1076,9 +1078,9 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
                                                                           FROM SalaryInfoDefine SID 
 								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                                                         WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
-                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND OverStay<>0 AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 
+                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 and EI.EmployeeStatus='Active'
                                 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id,Department.UserName,Section.UserName,SubSection.UserName
-								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,z.Id
+								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,z.Id,EN.UserName,DesM.UserName,DG.UserName
                                 )T WHERE T.CheckBoxSelect=0 and T.CheckBoxSelectGW=0
 								order by T.EmployeeCode ";
 
@@ -1203,13 +1205,14 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                 ,format(sum(ISNULL(apd.AdditionalOT,0)),'N2') Minute
                                 ,format((sum(ISNULL(apd.AdditionalOT,0))/60),'N2') Hour
                                 ,format(g.Gross,'N2') Gross
-                                ,0 Rate,0 Amount,isnull(za.AdvanceAmount,0) AdvanceAmount
+                                ,0 PayDays,0 Rate,0 Amount,isnull(za.AdvanceAmount,0) AdvanceAmount
 								,apd.GWPaymentAdviseId 
 								,onw.FormulaDesID
-                                ,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
+                                ,EN.UserName Entity,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
 								,B.Basic,B.BasicSalaryHeadID
                                 ,format(sum(apd.OverStay),'N2') OverStayMinute
                                 ,format((sum(apd.OverStay)/60),'N2') OverStayHour
+                                ,DesM.UserName GivenDesignation,DG.UserName LegalDesignation
                                 from [dbo].[AttdnProcessData] apd 
                                 left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID 
                                 left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
@@ -1217,6 +1220,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                                 LEFT OUTER JOIN ORG.Entity EN ON MPB.EntityId=EN.Id
 						        LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
 						        LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = ei.GivenDesignationId
+                                LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
                                 LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
 						        LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
                                 LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
@@ -1246,9 +1250,9 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                                                                           FROM SalaryInfoDefine SID 
 								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                                                         WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
-                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND OverStay<>0 AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 
+                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 and EI.EmployeeStatus='Active'
                                 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id,Department.UserName,Section.UserName,SubSection.UserName
-								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,za.Id,za.AdvanceAmount
+								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,za.Id,za.AdvanceAmount,EN.UserName,DesM.UserName,DG.UserName
                                 )T WHERE T.CheckBoxSelectGW=0
 								order by T.EmployeeCode ";
 
@@ -2028,7 +2032,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
         public ActionResult GetEmployeeMultipleAdvanceApprovedList()
         {
             string sql = @"select ei.EmployeeCode,ei.EmployeeName ByWhom,gwp.Id,FORMAT(gwp.FromDate,'dd-MMM-yyy') FromDate,FORMAT(gwp.ToDate,'dd-MMM-yyy')ToDate
-                        ,gwp.UserRef,gwp.Remarks,ISNULL(gwp.PaymentsStatus,'Active') PaymentsStatus
+                        ,gwp.UserRef,gwp.UserName,gwp.Remarks,ISNULL(gwp.PaymentsStatus,'Active') PaymentsStatus
                         ,(select SUM(gwpad.AdvanceAmount)DisbursementAmount
                         from WorkerAdvanceDetail gwpad
                         where gwpad.WorkerAdvanceId=gwp.Id and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0  AND gwpad.DisbursementVoucherId IS NULL)DisbursementAmount
