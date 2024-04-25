@@ -18,6 +18,12 @@
 
         </div>
         <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li><button ng-click="DownloadOTData();" class="btn"><i class="glyphicon glyphicon-download" tabindex="9"></i> DownLoad</button></li>
+                    <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Save</button></li>
+                </ul>
+            </div>
             <div style="color:black;" id="GridEmployeeInfoList" ej-grid e-datasource="otApproveList"
                  e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true"
                  e-allowsorting="true" e-allowselection="true" e-pagesettings-pagesize="25" e-filtersettings-filterType="excel" e-allowtouch="true">
@@ -27,8 +33,10 @@
                     <div e-column e-field="DOJ" e-headertext="DOJ" e-width="70"></div>
                     <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
                     <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                    <div e-column e-field="EmployeeCategory" e-headertext="Emp Category" e-width="80"></div>
                     <div e-column e-field="EmployeeStatus" e-headertext="EmployeeStatus" e-width="80"></div>
                     <div e-column e-field="OverStay" e-headertext="Over Stay" e-textalign="right" e-width="80"></div>
+                    <div e-column e-field="CalculatedOT" e-headertext="Calculated OT" e-textalign="right" e-width="80"></div>
                     <div e-column e-headertext="OT Hour" e-template="#ProcessedOT" e-textalign="right" e-type="number" e-width="80"></div>
                     <div e-column e-field="DayStatus" e-headertext="Day Status" e-width="80"></div>
                     <div e-column e-field="InTime" e-headertext="InTime" e-width="80"></div>

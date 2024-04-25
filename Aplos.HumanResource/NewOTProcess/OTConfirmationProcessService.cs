@@ -745,13 +745,32 @@ namespace Library.HumanResource.NewOTProcess
                          ,EI.EmployeeName
                          , FORMAT(EI.DOJ,'dd-MMM-yyyy') DOJ
                          , DG.UserName LegalDesignation
-                         ,S.UserName Section,SS.UserName SubSection, DP.UserName Department
-                         , PMB.Code,PR.UserName PositionName
+                         ,S.UserName Section,SS.UserName SubSection, DP.UserName Department,PR.UserName PositionName
                          ,EI.EmployeeStatus,APD.OverStay,APD.DayStatus
 						 ,CONVERT(varchar(15),CAST(APD.Intime AS TIME),100) InTime
 						 ,CONVERT(varchar(15),CAST(APD.OutTime AS TIME),100) OutTime
 						 ,OTTitle = case when EI.ExcludeOT=0 then 'Yes' else 'No' end
-						 ,EC.UserName EmployeeCategory,APD.ProcessedOT
+						 ,EC.UserName EmployeeCategory,OTHr=CASE WHEN ISNULL(APD.ProcessedOT,0)=0 THEN case when APD.DayTypeOTApplicable='1' then 
+                (select distinct ot.AllotedOT from OTPerMinutePolicy ot
+                where ot.PlantId=APD.PlantID and ot.OverstayOrEarlyOut=APD.OverStay) 
+                when APD.DayTypeOTApplicable='2' then (select distinct ot.OffDayAllotedOT 
+				from OTPerMinutePolicy ot
+                where ot.PlantId=APD.PlantID and ot.OverstayOrEarlyOut=APD.Duration)
+				when APD.DayTypeOTApplicable='3' then (select distinct ot.AllotedOT 
+				from OTPerMinutePolicy ot
+                where ot.PlantId=APD.PlantID and ot.OverstayOrEarlyOut=APD.OverStay-APD.EarlyIn) 
+				end ELSE APD.ProcessedOT END
+						 ,CalculatedOT=
+                case when APD.DayTypeOTApplicable='1' then 
+                (select distinct ot.AllotedOT from OTPerMinutePolicy ot
+                where ot.PlantId=APD.PlantID and ot.OverstayOrEarlyOut=APD.OverStay) 
+                when APD.DayTypeOTApplicable='2' then (select distinct ot.OffDayAllotedOT 
+				from OTPerMinutePolicy ot
+                where ot.PlantId=APD.PlantID and ot.OverstayOrEarlyOut=APD.Duration)
+				when APD.DayTypeOTApplicable='3' then (select distinct ot.AllotedOT 
+				from OTPerMinutePolicy ot
+                where ot.PlantId=APD.PlantID and ot.OverstayOrEarlyOut=APD.OverStay-APD.EarlyIn) 
+				end
                          FROM dbo.Employeeinformation EI
                          LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id							 
                          LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
@@ -761,12 +780,13 @@ namespace Library.HumanResource.NewOTProcess
                          LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id                       
                          LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
                          LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId	
-                         LEFT join MST.DesignationMaster DM on DM.DesignationId=EI.GivenDesignationId
-						 LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
+                         LEFT JOIN MST.DesignationMaster DM on DM.DesignationId=EI.GivenDesignationId
+						 LEFT JOIN HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
                          LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
                          LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-						 left join dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate='" + workDate + @"'
-                         WHERE  EI.PlantId='"+plantId+@"' AND ISNULL(APD.OverStay,0)<>0 AND EI.ExcludeOT=0";
+						 left JOIN dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate='" + workDate + @"'
+                         WHERE EI.PlantId='"+plantId+ @"' AND ISNULL(APD.OverStay,0)<>0 AND EI.ExcludeOT=0 AND EI.SystemId IN (Select EmployeeId from dbo.ExceptionGoodWorkEmployee)
+						 and APD.IsOTEntitled='1'and APD.DayTypeOTApplicable != 0 and APD.Duration>0";
                 return _sqlRepository.GetDataCollection(str);
 
             }

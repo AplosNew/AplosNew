@@ -18,9 +18,9 @@ namespace Aplos.Areas.HumanResource.Controllers
 
     public class OTConfirmationProcessController : BaseController
     {
-        
+
         #region Constructor
-        
+
         OTConfirmationProcessService ot = new OTConfirmationProcessService();
         public OTConfirmationProcessController()
         {
@@ -43,7 +43,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #region Operations
 
-        [Authorize , HttpGet]
+        [Authorize, HttpGet]
         public ActionResult getFilters()
         {
             return Json(ot.getFilters(), JsonRequestBehavior.AllowGet);
@@ -58,23 +58,23 @@ namespace Aplos.Areas.HumanResource.Controllers
         [HttpGet, Authorize]
         public ActionResult GetWorkDateRange(string Year, string Month, string Week)
         {
-            return Json(ot.GetWorkDateRange(Year,Month,Week), JsonRequestBehavior.AllowGet);
+            return Json(ot.GetWorkDateRange(Year, Month, Week), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
-        public ActionResult getGridData(string Week, string FromDate, string ToDate, Dictionary<string , string> Parameters)
+        public ActionResult getGridData(string Week, string FromDate, string ToDate, Dictionary<string, string> Parameters)
         {
-            var json = Json(ot.getGridData(Week, FromDate, ToDate,  Parameters), JsonRequestBehavior.AllowGet);
+            var json = Json(ot.getGridData(Week, FromDate, ToDate, Parameters), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
 
-        [HttpPost , Authorize]
-        public ActionResult ProcessData(string Data,string OTWeek , string SelectedOT)
+        [HttpPost, Authorize]
+        public ActionResult ProcessData(string Data, string OTWeek, string SelectedOT)
         {
             try
             {
-                ot.ProcessData(Data, OTWeek , SelectedOT);             
+                ot.ProcessData(Data, OTWeek, SelectedOT);
             }
             catch (Exception ex)
             {
@@ -92,7 +92,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         , string DSApp, Dictionary<string, string> Parameters)
         {
             var json = Json(ot.getReportData(Week, FromDate, ToDate, OTConfirmationValue, OTLimit, Process, ProcessValue, DayStatus
-                            , DSApp, Parameters) , JsonRequestBehavior.AllowGet);
+                            , DSApp, Parameters), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
@@ -197,7 +197,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             report.SetHeaderText(ref sheet, ROW, COL, "AdditionalOT", 13, ExcelHAlign.HAlignCenter);
             int ColAOT = COL;
-            COL++; 
+            COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "StandardOT", 13, ExcelHAlign.HAlignCenter);
             int ColSOT = COL;
@@ -475,8 +475,176 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             }
         }
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetOTDataXls(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                DataTable dt = new DataTable("DD");
+                foreach (string item in data[0].Keys)
+                {
+                    if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        continue;
+
+                    dt.Columns.Add(item);
+                }
+
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    foreach (string item in data[i].Keys)
+                    {
+                        if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                            continue;
+
+                        dr[item] = data[i][item];
+                    }
+
+                    dt.Rows.Add(dr);
+                }
+
+                string fileName = "";
+                fileName = OTDataReport(dt, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public string OTDataReport(DataTable data, string ReportHeader, string reportFileName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "OTData";
+                sheet = workbook.Worksheets[0];
+
+                int ROW = 6; int COL = 1;
+
+                #region columns
+
+                sheet[ROW, COL].Text = "Employee Code"; sheet[ROW, COL].ColumnWidth = 16; int ColEC = COL; COL++;
+                sheet[ROW, COL].Text = "Employee Name"; sheet[ROW, COL].ColumnWidth = 16; int ColEN = COL; COL++;
+                sheet[ROW, COL].Text = "DOJ"; sheet[ROW, COL].ColumnWidth = 16; int ColDOJ = COL; COL++;
+                sheet[ROW, COL].Text = "Legal Designation"; sheet[ROW, COL].ColumnWidth = 16; int ColDesg = COL; COL++;
+                sheet[ROW, COL].Text = "Department"; sheet[ROW, COL].ColumnWidth = 16; int ColDep = COL; COL++;
+                sheet[ROW, COL].Text = "Emp Category"; sheet[ROW, COL].ColumnWidth = 16; int ColEcg = COL; COL++;
+                sheet[ROW, COL].Text = "Employee Status"; sheet[ROW, COL].ColumnWidth = 16; int ColEmpS = COL; COL++;
+                sheet[ROW, COL].Text = "Over Stay"; sheet[ROW, COL].ColumnWidth = 16; int ColOS = COL; COL++;
+                sheet[ROW, COL].Text = "Calculated OT"; sheet[ROW, COL].ColumnWidth = 16; int ColCOT = COL; COL++;
+                sheet[ROW, COL].Text = "OTHr"; sheet[ROW, COL].ColumnWidth = 16; int ColOTHr = COL; COL++;
+                sheet[ROW, COL].Text = "Day Status"; sheet[ROW, COL].ColumnWidth = 16; int ColDayStatus = COL; COL++;
+                sheet[ROW, COL].Text = "InTime"; sheet[ROW, COL].ColumnWidth = 16; int ColInTime = COL; COL++;
+                sheet[ROW, COL].Text = "OutTime"; sheet[ROW, COL].ColumnWidth = 16; int ColOutTime = COL; COL++;
+                sheet[ROW, COL].Text = "OTTitle"; sheet[ROW, COL].ColumnWidth = 16; int ColOTTitle = COL;
+
+
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+                int LastRow = ROW + (data.Rows.Count - 1);
+
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, ColEC].Text = data.Rows[i]["Code"].ToString();
+                    sheet[ROW, ColEN].Text = data.Rows[i]["EmployeeName"].ToString();
+                    sheet[ROW, ColDOJ].Text = data.Rows[i]["DOJ"].ToString();
+                    sheet[ROW, ColDesg].Text = data.Rows[i]["LegalDesignation"].ToString();
+                    sheet[ROW, ColDep].Text = data.Rows[i]["Department"].ToString();
+                    sheet[ROW, ColEcg].Text = data.Rows[i]["EmployeeCategory"].ToString();
+                    sheet[ROW, ColEmpS].Text = data.Rows[i]["EmployeeStatus"].ToString();
+                    sheet[ROW, ColOS].Number = clsStaticInfo.dbl(data.Rows[i]["OverStay"].ToString());
+                    sheet[ROW, ColCOT].Number = clsStaticInfo.dbl(data.Rows[i]["CalculatedOT"].ToString());
+                    sheet[ROW, ColOTHr].Number = clsStaticInfo.dbl(data.Rows[i]["OTHr"].ToString());
+                    sheet[ROW, ColDayStatus].Text = data.Rows[i]["DayStatus"].ToString();
+                    sheet[ROW, ColInTime].Text = data.Rows[i]["InTime"].ToString();
+                    sheet[ROW, ColOutTime].Text = data.Rows[i]["OutTime"].ToString();
+                    sheet[ROW, ColOTTitle].Text = data.Rows[i]["OTTitle"].ToString();
+                    
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+
+                sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, ROW, endCol];
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "OT Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+
         #endregion
 
 
     }
-} 
+}
