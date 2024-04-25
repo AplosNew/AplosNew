@@ -13,6 +13,7 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
     $scope.updateUrl = $scope.url + '/UpdateEmployeeAdvanceRequisitionPost';
     $scope.postUrl = $scope.url + '/PostEmployeeAdvanceRequisitionPost';
     $scope.unPostUrl = $scope.url + '/UnPostEmployeeAdvanceRequisitionPost';
+    $scope.deleteUrl = $scope.url + "/DeleteEmployeeAdvance";
 
     $scope.partyType = "Employee";
     $scope.partyGLType = "DownPayment";
@@ -824,6 +825,40 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
         $scope.advanceDetailList.push($scope.advanceDetail);
         $scope.advanceDetail = {};
         $scope.closeEmployeeReconGLListPopUp();
+    };
+
+
+    $scope.delete = function (advanceId, voucherId) {
+        $http({
+            method: "POST",
+            url: $scope.deleteUrl,
+            data: {
+                "advanceId": advanceId, "voucherId": voucherId
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.Clear();
+                $scope.advanceId = null;
+                $scope.voucherId = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+    $scope.advanceId = null;
+    $scope.confirmDelete = function (advanceId, voucherId) {
+        $scope.advanceId = advanceId;
+        $scope.voucherId = voucherId;
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
     };
 
 }

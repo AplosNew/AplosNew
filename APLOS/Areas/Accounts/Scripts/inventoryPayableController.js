@@ -1393,4 +1393,69 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
         angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
     };
 
+
+    $scope.searchglByList = [
+        {
+            "name": "GL Code",
+            "value": "GLGeneralInfoCode"
+        },
+        {
+            "name": "GL Name",
+            "value": "GLGeneralInfoName"
+        },
+        {
+            "name": "Budget",
+            "value": "BudgetName"
+        },
+        {
+            "name": "Activity",
+            "value": "ActivityName"
+        },
+        {
+            "name": "Ref No",
+            "value": "RefNo"
+        }
+    ];
+    $scope.glListParameters = {
+        limit: 10,
+        offset: 0,
+        order: "asc",
+        sort: "GLGeneralInfoName",
+        searchBy: "GLGeneralInfoName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+    $scope.indexGL = "";
+    $scope.popUpGL = function (index) {
+        $scope.indexGL = index;
+        baseService.setCurrentPage("cOAICodeList");
+        $scope.GetCOAICodeListData = function (pageno) {
+            baseService.paginationBase("Accounts/GLItem/GetVendorInvoiceGLBudgetList", pageno, $scope.glListParameters)
+                .then(function (result) {
+                    $scope.cOAICodeList = result.Rows;
+                    $scope.glListParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, "failure", "GLPopUp");
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector("#GLPopUp")).modal("show");
+        $scope.GetCOAICodeListData();
+    };
+
+    $scope.closeCOAICodeListPopUp = function () {
+        angular.element(document.querySelector("#GLPopUp")).modal("hide");
+    };
+    $scope.setSelected = function (data, index) {
+        $scope.newList[$scope.indexGL].GLGeneralInfoId = data.GLGeneralInfoId;
+        $scope.newList[$scope.indexGL].GLGeneralInfoCode = data.GLGeneralInfoCode;
+        $scope.newList[$scope.indexGL].GLGeneralInfoName = data.GLGeneralInfoName;
+        $scope.newList[$scope.indexGL].BudgetMasterId = data.BudgetMasterId;
+        $scope.newList[$scope.indexGL].BudgetName = data.BudgetName;
+        $scope.newList[$scope.indexGL].ActivityId = data.ActivityId;
+        $scope.newList[$scope.indexGL].ActivityName = data.ActivityName;
+        $scope.closeCOAICodeListPopUp();
+    };
 }

@@ -142,11 +142,12 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult PostJournal(string id)
+        public JsonResult PostJournal(Voucher voucher, IEnumerable<VoucherDetailViewModel> voucherDetailList)
         {
-            _voucharService.PostJournalVoucher(id);
+            _voucharService.PostJournalVoucher(voucher, voucher.Id, voucherDetailList);
             return Json(new { Message = AplosMessage.Posted });
         }
+
 
         [HttpGet, Authorize]
         public JsonResult GetJournalVoucherList(GridParameter parameters)
@@ -6983,6 +6984,18 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
+
+        [HttpPost, Authorize]
+        public JsonResult GetInvoiceRoundOffList(string trnType)
+        {
+            AccountsGLService accountsGLService = new AccountsGLService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var res = accountsGLService.GetInvoiceRoundOffList(identity.CompanyId,identity.PlantId, trnType);
+            var jsondata = Json(res, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
         [HttpPost]
         public JsonResult ParkRoundOffJournal(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
         {

@@ -42,6 +42,41 @@ function otApproveController(commonMessage, $scope, $rootScope, baseService, $ro
         }
     };
 
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+    $scope.DownloadOTData = function () {
+        try {
+            var dataList = [];
+            var g = $("#GridEmployeeInfoList").data("ejGrid");
+            dataList = g.getFilteredRecords();
+
+            if (dataList.length == 0) {
+                dataList = $scope.otApproveList;
+            }
+           
+            $scope.fileName = "OTDataReport.xlsx";
+
+            $http({
+                method: 'POST',
+                url: "HumanResource/OTConfirmationProcess/GetOTDataXls",
+                data: {'data': dataList, 'reportFileName': $scope.fileName },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+
+
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
@@ -59,6 +94,12 @@ function otApproveController(commonMessage, $scope, $rootScope, baseService, $ro
                     dataList = $scope.otApproveList;
                 }
 
+
+                for (var i = 0; i < dataList.length; i++) {
+                    if (dataList[i].OTHr > dataList[i].CalculatedOT) {
+                        throw "Extra OT will not exceed OverStay for this Employee " + dataList[i].Code+".";
+                    }
+                }
 
 
                 $http({

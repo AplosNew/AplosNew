@@ -414,11 +414,11 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
     };
 
     $scope.voucherId = null;
-    $scope.confirmPost = function (voucherId) {
-        $scope.voucherId = voucherId;
-        $scope.message_confirmation = "Are you sure to Post?";
-        angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
-    };
+    //$scope.confirmPost = function (voucherId) {
+    //    $scope.voucherId = voucherId;
+    //    $scope.message_confirmation = "Are you sure to Post?";
+    //    angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
+    //};
 
     $scope.post = function (id) {
         $http({
@@ -436,6 +436,31 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
                 ShowResult(response.data.Message, "success");
                 $scope.getData();
                 $scope.clear();
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+    $scope.postVoucher = function () {
+        $http({
+            method: "POST",
+            url: $scope.postUrl,
+            data: {
+                "voucher": $scope.voucherdb,
+                "voucherDetailList": $scope.newJVList
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.Clear();
+                angular.element(document.querySelector('#JournalPopUp')).modal('hide');
             }
         }, function errorCallback(response) {
             ShowResult(response.status.Message, "failure");
@@ -474,4 +499,94 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
         angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
     };
 
+    $scope.ShowJournalPopUp = function (id, data) {
+        if (data.ApprovedByStatus == 'ToBeApproved' || data.ApprovedByStatus == 'Hold' || data.ApprovedByStatus == 'Reject') {
+            ShowResult("Before Post, Please Approve First. Mr." + data.ApprovedBy + " is responsible for Approve", "failure");
+        }
+        else {
+            $scope.voucherdb = {};
+            $scope.voucherdb = data;
+            getJournalList(id);
+            angular.element(document.querySelector('#JournalPopUp')).modal('show');
+        }
+
+    }
+
+    function getJournalList(voucherId) {
+        $http.get('Accounts/Voucher/GetEditableJournalList?voucherId=' + voucherId)
+            .then(function (response) {
+                $scope.newJVList = [];
+                $scope.newJVList = response.data;
+            });
+    }
+
+    $scope.CloseJournalPopUp = function () {
+        angular.element(document.querySelector('#JournalPopUp')).modal('hide');
+
+    }
+
+    $scope.searchglByList = [
+        {
+            "name": "GL Code",
+            "value": "GLGeneralInfoCode"
+        },
+        {
+            "name": "GL Name",
+            "value": "GLGeneralInfoName"
+        },
+        {
+            "name": "Budget",
+            "value": "BudgetName"
+        },
+        {
+            "name": "Activity",
+            "value": "ActivityName"
+        },
+        {
+            "name": "Ref No",
+            "value": "RefNo"
+        }
+    ];
+    $scope.glListParameters = {
+        limit: 10,
+        offset: 0,
+        order: "asc",
+        sort: "GLGeneralInfoName",
+        searchBy: "GLGeneralInfoName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+    $scope.indexGL = "";
+    $scope.popUpGL = function (index) {
+        $scope.indexGL = index;
+        baseService.setCurrentPage("cOAICodeList");
+        $scope.GetCOAICodeListData = function (pageno) {
+            baseService.paginationBase("Accounts/GLItem/GetVendorInvoiceGLBudgetList", pageno, $scope.glListParameters)
+                .then(function (result) {
+                    $scope.cOAICodeList = result.Rows;
+                    $scope.glListParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, "failure", "GLPopUp");
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector("#GLNewPopUp")).modal("show");
+        $scope.GetCOAICodeListData();
+    };
+
+    $scope.closeCOAICodeListPopUp = function () {
+        angular.element(document.querySelector("#GLNewPopUp")).modal("hide");
+    };
+    $scope.setSelected = function (data, index) {
+        $scope.newJVList[$scope.indexGL].GLGeneralInfoId = data.GLGeneralInfoId;
+        $scope.newJVList[$scope.indexGL].GLGeneralInfoCode = data.GLGeneralInfoCode;
+        $scope.newJVList[$scope.indexGL].GLGeneralInfoName = data.GLGeneralInfoName;
+        $scope.newJVList[$scope.indexGL].BudgetMasterId = data.BudgetMasterId;
+        $scope.newJVList[$scope.indexGL].BudgetName = data.BudgetName;
+        $scope.newJVList[$scope.indexGL].ActivityId = data.ActivityId;
+        $scope.newJVList[$scope.indexGL].ActivityName = data.ActivityName;
+        $scope.closeCOAICodeListPopUp();
+    };
 }

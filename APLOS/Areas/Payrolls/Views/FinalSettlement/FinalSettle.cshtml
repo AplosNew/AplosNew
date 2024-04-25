@@ -4,29 +4,6 @@
     <div class="row"></div>
     <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
-            @*<div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Employee Code<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <div class="input-group">
-                            <input tabindex="1" type="text" name="EmployeeCode" ng-model="EmployeeModel.EmployeeCode" class="form-control" readonly required>
-                            <span class="input-group-btn">
-                                <button ng-click="LoadEmployeeList();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Employee Name </label>
-                    <label class="col-sm-8 control-label">: {{EmployeeModel.EmployeeName}}</label>
-                </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">DOJ </label>
-                    <label class="col-sm-8 control-label">: {{EmployeeModel.DOJ}}</label>
-                </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">DOS </label>
-                    <label class="col-sm-8 control-label">: {{EmployeeModel.DOS}}</label>
-                </div>*@
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Final Settlement Name<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
@@ -49,20 +26,6 @@
                 </div>
             </div>
 
-            @*<div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Legal Designation </label>
-                    <label class="col-sm-8 control-label">: {{EmployeeModel.LegalDesignation}}</label>
-                </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Department </label>
-                    <label class="col-sm-8 control-label">: {{EmployeeModel.Department}}</label>
-                </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Position </label>
-                    <label class="col-sm-8 control-label">: {{EmployeeModel.PositionName}}</label>
-                </div>*@
-
-
         </div>
     </div>
     <hr />
@@ -76,8 +39,7 @@
                 <div e-column e-field="DOJ" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="DOJ" e-width="70"></div>
                 <div e-column e-field="DOS" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="DOS" e-width="70"></div>
                 <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
-                <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
-                <div e-column e-field="EntityName" e-headertext="Entity" e-width="80"></div>
+                <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>x
             </div>
         </div>
         <div class="common-btn" ng-show="SelectedEmployeeList.length>0">
@@ -128,6 +90,7 @@
         <div style="color:black;"
              id="GridFinalSettlementList"
              ej-grid e-datasource="FinalSettlementList"
+              e-recorddoubleclick="SelectEmpDetail"
              e-gridlines="vertical"
              e-allowfiltering="true"
              e-allowpaging="true"
@@ -135,16 +98,19 @@
              e-allowselection="true"
              e-filtersettings-filterType="excel" e-allowtouch="true">
             <div e-columns>
-                <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="80"></div>
-                <div e-column e-field="EmployeeName" e-headertext="Name" e-width="100"></div>
+                <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
+                <div e-column e-field="FinalSettlementName" e-headertext="Name" e-width="100"></div>
                 <div e-column e-field="FinalSettlementDate" e-headertext="Date" e-width="80"></div>
-                <div e-column e-field="DOJ" e-headertext="DOJ" e-width="80"></div>
-                <div e-column e-field="DOS" e-headertext="DOS" e-width="80"></div>
-                <div e-column e-field="TenureYearNo" e-headertext="TenureYear" e-width="50"></div>
-                <div e-column e-field="TenureMonthNo" e-headertext="TenureMonth" e-width="50"></div>
-                <div e-column e-field="TenureDayNo" e-headertext="TenureDay" e-width="50"></div>
-                <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
-                <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                @*<div e-column e-field="EmployeeCode" e-headertext="Code" e-width="80"></div>
+        <div e-column e-field="EmployeeName" e-headertext="Name" e-width="100"></div>
+        <div e-column e-field="FinalSettlementDate" e-headertext="Date" e-width="80"></div>
+        <div e-column e-field="DOJ" e-headertext="DOJ" e-width="80"></div>
+        <div e-column e-field="DOS" e-headertext="DOS" e-width="80"></div>
+        <div e-column e-field="TenureYearNo" e-headertext="TenureYear" e-width="50"></div>
+        <div e-column e-field="TenureMonthNo" e-headertext="TenureMonth" e-width="50"></div>
+        <div e-column e-field="TenureDayNo" e-headertext="TenureDay" e-width="50"></div>
+        <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
+        <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>*@
             </div>
         </div>
     </div>

@@ -42,9 +42,21 @@ function planningTypesController(cboService, commonMessage, $scope, $rootScope, 
         PlanningType: null,
         Description: null,
         CompanyId: null,
-        PlantId: null
+        PlantId: null,
+        EntityId:null
     };
     $scope.planningTypesNew = Object.assign({}, $scope.planningTypes);
+
+    $scope.entityList = [];
+    $scope.getAllEntities = function () {
+        $http({
+            method: 'POST',
+            url: 'Productions/PlanningTypes/GetAllEntity?CompanyId=' + $scope.planningTypesNew.CompanyId
+        }).then(function successCallback(response) {
+            $scope.entityList = response.data;
+        });
+    }
+    
 
     $scope.companyList = [];
     cboService.getCboCompanyByCompanyGroup(null, function (response) {
@@ -64,9 +76,19 @@ function planningTypesController(cboService, commonMessage, $scope, $rootScope, 
     });
 
     $scope.processList = [];
-    cboService.getProductionProcessCbo(function (response) {
-        $scope.processList = response;
-    });
+    //cboService.getProductionProcessCbo(function (response) {
+    //    $scope.processList = response;
+    //});
+    $scope.loadProcessList = function (entityid) {
+        cboService.GetEntityProcessCbo(entityid, function (result) {
+            $scope.processList = result;
+            if (baseService.arrayLength(result) === 1) {
+                $scope.productionSummaryNew.ProcessId = $scope.processList[0].Value;
+            }
+        });
+    };
+
+
 
     $scope.ChangeType = function () {
         if ($scope.planningTypes.PlanningType === 'PlanningType1') {
