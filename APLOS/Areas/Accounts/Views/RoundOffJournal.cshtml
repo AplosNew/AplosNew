@@ -77,7 +77,15 @@
     <div class="col-xs-12 col-sm-4 col-md-4">
         <div class="form-group">
             <label class="col-sm-4 control-label">Select<sup>*</sup></label>
-            <div class="radio col-sm-6 col-xs-6">
+            <div class="col-sm-3 show-message">
+                <div class="select-style">
+                    <select name="Type" ng-model="voucher.Type" ng-disabled="voucherDetailList.length==1" class="col-sm-3 form-control">
+                        <option value="TrailBalance">Trail Balance</option>
+                        <option value="Invoice">Invoice</option>
+                    </select>
+                </div>
+            </div>
+            <div class="radio col-sm-3 col-xs-3">
                 <label>
                     <input type="radio" name="Transaction Type" ng-click="changeTransactionType('Dr')" ng-model="voucher.TransactionType" value="Dr">
                     <span class="cr" tabindex="15"><i class="cr-icon"></i></span>Dr
@@ -90,7 +98,7 @@
             </div>
             <div class="col-sm-2 input-group">
                 <span class="input-group-btn">
-                    <button ng-click="GetTrailBalanceRoundOff();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                    <button ng-click="GetTrailBalanceRoundOff();"  ng-disabled="voucher.Type==null" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
                 </span>
             </div>
         </div>

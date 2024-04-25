@@ -818,5 +818,66 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
             }
         }
+
+        public List<Dictionary<string, object>> GetInvoiceRoundOffList(string plantId, string trnType)
+        {
+            try
+            {
+                var sql = @"Select * from ( SELECT x.Particulars,x.GL,x.Budget,x.Activity,x.MainHead,x.BalanceType
+                            ,TrnType=case when (case when x.CRcumulative<0 then abs(x.CRcumulative) when x.DRcumulative>0 then  x.DRcumulative  else 0 end)>0 then 'Cr' else 'Dr' end
+                            ,DrAmount=case  when x.DRcumulative<0 then abs(x.DRcumulative) when x.CRcumulative>0 then  x.CRcumulative else 0 end
+                            ,CrAmount=case when x.CRcumulative<0 then abs(x.CRcumulative) when x.DRcumulative>0 then  x.DRcumulative  else 0 end
+                            ,x.GLGeneralInfoId,x.BudgetMasterId,x.ActivityId,X.PartyId,0 Active,X.PartyType,X.PartyPlantId
+                            FROM
+                            ( SELECT distinct	
+		                         sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VD.PartyPlantId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative--, VD.PartyPlantId
+                                , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VD.PartyPlantId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative ,--, VD.PartyPlantId
+                                            ACT.BalanceType,
+                                            ACT.Id AS [MainHead],
+		                                    VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
+                                            VD.BudgetMasterId,
+		                                    BUD.UserName AS Budget,
+											A.UserName AS Activity,
+											[Particulars]=CASE 
+											WHEN BA.AccountTitle<>'' THEN BA.AccountTitle
+											WHEN CM.UserName<>'' THEN CM.UserName
+											WHEN P.UserName<>'' THEN P.UserName
+											ELSE ''	END
+                                            ,PartyType=CASE WHEN CPC.PartyType='Customer' AND CPV.PartyType IN ('Vendor') THEN 'Both' WHEN CPC.PartyType<>'' THEN CPC.PartyType ELSE CPV.PartyType END
+                                            ,A.Id AS ActivityId , VD.PartyId, VD.PartyPlantId
+	                                        FROM TRN.VoucherDetailCurrency AS VDC
+		                                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
+		                                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+		                                    LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+                                            LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+                                            LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+                                            LEFT JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
+											LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
+                                            LEFT JOIN [HKP].[Budget] AS BUD ON BM.BudgetId=BUD.Id
+											LEFT JOIN HKP.Activity A ON VD.ActivityId=A.Id
+											LEFT JOIN [MST].BankMaster AS BA ON BA.Id=VD.BankMasterId
+											LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
+											LEFT JOIN [HKP].Party AS P ON P.Id=VD.PartyId
+											LEFT JOIN [HKP].PartyPlant AS PP ON PP.Id=VD.PartyPlantId
+                                            LEFT JOIN [HKP].[CompanyParty] AS CPC ON CPC.PartyId=P.Id AND CPC.PartyType IN ('Customer') AND CPC.PlantId='" + plantId + @"'
+											LEFT JOIN [HKP].[CompanyParty] AS CPV ON CPV.PartyId=P.Id AND CPV.PartyType IN ('Vendor')  AND CPV.PlantId='" + plantId + @"'
+                                            WHERE  V.PlantId='" + plantId + @"' 
+                                            AND  v.IsPark=0 and vd.PartyId<>''
+                                            GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName, 
+											GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId, A.UserName, BUD.UserName, v.PostingDate, A.Id, BA.AccountTitle, CM.UserName
+											,VD.BankMasterId, VD.CashMasterId, P.UserName, VD.PartyId,VD.PartyPlantId,CPC.PartyType,CPV.PartyType ) x 
+                                            WHERE
+											  (ISNULL(DRcumulative,0.00) between   -2 and 2   and ISNULL(DRcumulative,0.00) <> 0.00) OR 
+											  (ISNULL(CRcumulative,0.00) <> 0 and ISNULL(CRcumulative,0.00) between   -2 and 2 )) tb  where tb.TrnType='" + trnType + @"'
+											  ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
+            }
+        }
     }
 }

@@ -66,7 +66,7 @@ function roundOffJournalController(accountService, cboService, commonMessage, $s
         Narration: null,
         EmployeeTransactionTypeName: null,
         CompanyCurrencyRate: 1,
-        TransactionType:'Dr'
+        TransactionType: 'Dr'
     };
 
     $scope.voucherDetail = {
@@ -89,10 +89,10 @@ function roundOffJournalController(accountService, cboService, commonMessage, $s
 
     baseService.getCompanyConfiguration(function (result) {
         $scope.companyConfig = result;
-       
-            cboService.getCboEntityByPlant(null, null, "", function (result) {
-                $scope.entityList = result;
-            });
+
+        cboService.getCboEntityByPlant(null, null, "", function (result) {
+            $scope.entityList = result;
+        });
     });
 
     cboService.getCboTransactionCurrencyByCompany("", function (result) {
@@ -121,13 +121,19 @@ function roundOffJournalController(accountService, cboService, commonMessage, $s
         });
     }
     $scope.getFinancingType();
-   
+
     $scope.trailBalanceRoundOffList = [];
     $scope.GetTrailBalanceRoundOff = function () {
+        if ($scope.voucher.Type == 'TrailBalance') {
+            $scope.roundOffUrl = 'Accounts/Voucher/GetTrailBalanceRoundOffList?trnType=' + $scope.voucher.TransactionType
+        }
+        else {
+            $scope.roundOffUrl = 'Accounts/Voucher/GetInvoiceRoundOffList?trnType=' + $scope.voucher.TransactionType
+        }
         $http({
             method: "POST",
             dataType: 'JSON',
-            url: 'Accounts/Voucher/GetTrailBalanceRoundOffList?trnType=' + $scope.voucher.TransactionType,
+            url: $scope.roundOffUrl,
         }).then(function successCallback(response) {
             $scope.trailBalanceRoundOffList = response.data;
         });
@@ -141,11 +147,11 @@ function roundOffJournalController(accountService, cboService, commonMessage, $s
     $scope.totalDrAmount = 0;
     $scope.totalCrAmount = 0;
 
-    
+
 
     $scope.clickCheckedTBItem = function () {
         var totalDrAm = 0;
-        var totalCrAm= 0;
+        var totalCrAm = 0;
 
         try {
             for (var i = 0; i < $scope.trailBalanceRoundOffList.length; i++) {
@@ -189,33 +195,33 @@ function roundOffJournalController(accountService, cboService, commonMessage, $s
         }
 
         var data = $filter('filter')($scope.financingTypeList, { FinancingTypeId: id }, true);
-                if (baseService.arrayLength(data) > 0) {
-                    $scope.voucherDetail.GLGeneralInfoId = data[0].ExpensesGLId;
-                    $scope.voucherDetail.GLGeneralInfoCode = data[0].ExpensesGLCode;
-                    $scope.voucherDetail.GL = data[0].ExpensesGLName;
-                    $scope.voucherDetail.BudgetMasterId = data[0].ExpensesBudgetMasterId;
-                    $scope.voucherDetail.BudgetCode = data[0].ExpensesBudgetCode;
-                    $scope.voucherDetail.Budget = data[0].ExpensesBudgetName;
-                    $scope.voucherDetail.ActivityId = data[0].ExpensesActivityId;
-                    $scope.voucherDetail.ActivityCode = data[0].ExpensesActivityCode;
-                    $scope.voucherDetail.Activity = data[0].ExpensesActivityName;
-                    $scope.voucherDetail.Particulars = 'GL';
-                    $scope.voucherDetail.DocDate = $filter("dateFiltering")($scope.voucher.DocDate);
-                    $scope.voucherDetail.DocRefNo = $scope.voucher.DocRefNo;
-                    $scope.voucherDetail.Narration = $scope.voucher.Narration;
-                    $scope.voucherDetail.EntityId = $scope.voucher.EntityId;
-                    $scope.voucherDetail.PlantId = $scope.voucher.PlantId;
-                    $scope.voucherDetail.CrAmount = null;
-                    $scope.voucherDetail.DrAmount = null;
-                    $scope.voucherDetail.Id = null;
-                    $scope.voucherDetail.PartyType = $scope.voucher.PartyType;
-                    $scope.voucherDetailList.splice(0, 0, $scope.voucherDetail);
-                    $scope.voucherDetail = {};
-                }
+        if (baseService.arrayLength(data) > 0) {
+            $scope.voucherDetail.GLGeneralInfoId = data[0].ExpensesGLId;
+            $scope.voucherDetail.GLGeneralInfoCode = data[0].ExpensesGLCode;
+            $scope.voucherDetail.GL = data[0].ExpensesGLName;
+            $scope.voucherDetail.BudgetMasterId = data[0].ExpensesBudgetMasterId;
+            $scope.voucherDetail.BudgetCode = data[0].ExpensesBudgetCode;
+            $scope.voucherDetail.Budget = data[0].ExpensesBudgetName;
+            $scope.voucherDetail.ActivityId = data[0].ExpensesActivityId;
+            $scope.voucherDetail.ActivityCode = data[0].ExpensesActivityCode;
+            $scope.voucherDetail.Activity = data[0].ExpensesActivityName;
+            $scope.voucherDetail.Particulars = 'GL';
+            $scope.voucherDetail.DocDate = $filter("dateFiltering")($scope.voucher.DocDate);
+            $scope.voucherDetail.DocRefNo = $scope.voucher.DocRefNo;
+            $scope.voucherDetail.Narration = $scope.voucher.Narration;
+            $scope.voucherDetail.EntityId = $scope.voucher.EntityId;
+            $scope.voucherDetail.PlantId = $scope.voucher.PlantId;
+            $scope.voucherDetail.CrAmount = null;
+            $scope.voucherDetail.DrAmount = null;
+            $scope.voucherDetail.Id = null;
+            $scope.voucherDetail.PartyType = $scope.voucher.PartyType;
+            $scope.voucherDetailList.splice(0, 0, $scope.voucherDetail);
+            $scope.voucherDetail = {};
+        }
     };
 
 
-    $scope.removeDetaillRow = function (id,voucherId,index) {
+    $scope.removeDetaillRow = function (id, voucherId, index) {
         $scope.voucherDetailList.splice(index, 1);
     };
 
