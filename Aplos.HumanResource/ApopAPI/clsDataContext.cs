@@ -3063,8 +3063,9 @@ left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.Author
 
                 strSQL = @"select Tm.Id, AuthorizationType, tm.TaskDescription,tm.TaskDetailDescription, 
 tm.CurrentStatus, ResponsiblePersonId,format(ta.AddedDate, 'dd-MM-yy')AddedDate,format(ta.DueDate,'dd-MM-yy') as DueDate,format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate from dbo.TaskManagerMaster As tm
-left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.AuthorizationType = 
-'AssignTo' and tm.CurrentStatus <> 'Closed' and ta.ResponsiblePersonId = '" + UserId + "'";
+left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  
+where ta.AuthorizationType = 'AssignTo' and tm.CurrentStatus <> 'Closed' AND isnull(ta.isDone,0)=0
+AND tm.TaskType IN ('ToDo','TNA','Issue')  and ta.ResponsiblePersonId = '" + UserId + "'";
 
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -3296,7 +3297,7 @@ left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.Author
                 strSQL = @"select Tm.Id, AuthorizationType, tm.TaskDescription,tm.TaskDetailDescription, 
 tm.CurrentStatus, ResponsiblePersonId,format(ta.AddedDate, 'dd-MM-yy')AddedDate,format(ta.DueDate,'dd-MM-yy') as DueDate,format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate from dbo.TaskManagerMaster As tm
 left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.AuthorizationType = 
-'AssignTo' and tm.CurrentStatus = 'Closed' and ta.ResponsiblePersonId = '" + UserId + "'";
+'AssignTo' and tm.CurrentStatus = 'Closed' AND isnull(ta.isDone,0)=0 AND tm.TaskType IN ('ToDo','TNA','Issue') and ta.ResponsiblePersonId = '" + UserId + "'";
 
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -10952,6 +10953,156 @@ where QAT.ParameterId='" + ParameterId + "'";
                 objCon = null;
             }
         }
+
+        /*public List<OpenHeadModelNew> Calculate(IEnumerable<OpenHeadModelNew> OpenHeadNew)
+        {
+            DataTable dtValue = new DataTable();
+            dtValue.TableName = "TempTable";
+            dtValue.Columns.Add("ProductionBookingParameterId");
+            dtValue.Columns.Add("Amount");
+            string sFormulaResult = null;
+
+            DataSet dsOpenHead = Library.Service.Helpers.DataTableExtensions.ToDataSet<OpenHeadModelNew>(OpenHeadNew);
+            for (int i = 0; i < dsOpenHead.Tables[0].Rows.Count; i++)
+            {
+                if (i == 0)
+                {
+                    DataRow dtValueRow = dtValue.NewRow();
+
+                    dtValueRow["ProductionBookingParameterId"] = dsOpenHead.Tables[0].Rows[i]["ProductionBookingParameterId"].ToString().Trim();
+                    dtValueRow["Amount"] = dsOpenHead.Tables[0].Rows[i]["Value"].ToString().Trim();
+
+                    dtValue.Rows.Add(dtValueRow);
+                }
+                else if (i > 0 && string.IsNullOrEmpty(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString()))
+                {
+                    DataRow dtValueRow = dtValue.NewRow();
+
+                    dtValueRow["ProductionBookingParameterId"] = dsOpenHead.Tables[0].Rows[i]["ProductionBookingParameterId"].ToString().Trim();
+                    dtValueRow["Amount"] = dsOpenHead.Tables[0].Rows[i]["Value"].ToString().Trim();
+
+                    dtValue.Rows.Add(dtValueRow);
+                }
+
+                if (!string.IsNullOrEmpty(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString()))
+                {
+                    ReLoadFormulaWithValue(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString(), ref dtValue, out string _formulaValue);
+                    sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("#####");
+
+                    DataRow dtValueRow = dtValue.NewRow();
+
+                    dtValueRow["ProductionBookingParameterId"] = dsOpenHead.Tables[0].Rows[i]["ProductionBookingParameterId"].ToString().Trim();
+
+                    if (sFormulaResult == "" || sFormulaResult == "∞")
+                    {
+                        dtValueRow["Amount"] = 0;
+                    }
+                    else
+                    {
+                        dtValueRow["Amount"] = sFormulaResult;
+                    }
+
+                    dtValue.Rows.Add(dtValueRow);
+
+                    DataView dv = new DataView(dsOpenHead.Tables[0]);
+                    dv.RowFilter = "ProductionBookingParameterId='" + dsOpenHead.Tables[0].Rows[i]["ProductionBookingParameterId"].ToString() + "'";
+                    if (dv.Count > 0)
+                    {
+                        DataRow drmo = dv[0].Row;
+
+                        drmo.BeginEdit();
+                        if (sFormulaResult == "" || sFormulaResult == "∞" || sFormulaResult == "NaN")
+                        {
+                            drmo["Value"] = 0;
+                        }
+                        else
+                        {
+                            drmo["Value"] = sFormulaResult;
+                        }
+                        drmo.EndEdit();
+
+                    }
+
+
+                }
+           
+
+            }
+
+
+            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(dsOpenHead.Tables[0]);
+           // return Json(new { NewData, Message = AplosMessage.Success });
+        }*/
+
+        public void ReLoadFormulaWithValue(string strFormulaID, ref DataTable dtValue, out string lblFormulaValue)
+        {
+            DataSet dsLocal = null;
+            DataView dvLocal = null;
+            DataView dvSlrHd = null;
+
+            string strTemp = "";
+
+            try
+            {
+                dsLocal = new DataSet();
+
+                string strFormulaIDTemp = strFormulaID.Trim();
+
+                lblFormulaValue = "";
+
+                string[] strIdCol = strFormulaIDTemp.Split(' ');
+
+                DataTable dt = new DataTable();
+                dt.TableName = "IDLIST";
+                dt.Columns.Add("ID");
+                DataRow dr = null;
+                foreach (string id in strIdCol)
+                {
+                    dr = dt.NewRow();
+                    dr["ID"] = id.Trim();
+                    dt.Rows.Add(dr);
+                }
+                dsLocal.Tables.Add(dt);
+
+                for (int i = 0; i < dsLocal.Tables[0].Rows.Count; i++)
+                {
+                    strTemp = "";
+
+                    strTemp = dsLocal.Tables[0].Rows[i]["ID"].ToString();
+                    if (strTemp.Trim() == "+" || strTemp.Trim() == "-" || strTemp.Trim() == "*" || strTemp.Trim() == "/" || strTemp.Trim() == "(" || strTemp.Trim() == ")")
+                    {
+                        strTemp = dsLocal.Tables[0].Rows[i]["ID"].ToString();
+                    }
+                    else
+                    {
+                        dvLocal = new DataView();
+                        dvLocal.Table = dtValue;
+
+                        dvLocal.RowFilter = "ProductionBookingParameterId = '" + strTemp.Trim() + "'";
+                        if (dvLocal.Count > 0)
+                        {
+                            if (dvLocal[0]["Amount"].ToString().Trim() == "")
+                            {
+                                strTemp = "0";
+                            }
+                            else
+                            {
+                                strTemp = dvLocal[0]["Amount"].ToString().Trim();
+                            }
+                        }
+                    }
+
+                    lblFormulaValue += strTemp.Trim();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+            }
+        }
         #endregion Production Entry
     }
 
@@ -12306,5 +12457,20 @@ where QAT.ParameterId='" + ParameterId + "'";
         public string MultiplyingFactor { get; set; }
         public string UtilityMaster { get; set; }
 
+    }
+
+    public class OpenHeadModelNew
+    {
+        public string Id { get; set; }
+        public string ProductionSummaryId { get; set; }
+        public string ProductionBookingParameterId { get; set; }
+        public string DetentionMasterMachineParameterId { get; set; }
+        public string UserName { get; set; }
+        public string Formula { get; set; }
+        public string FormulaId { get; set; }
+        public decimal Value { get; set; }
+        public string EntryState { get; set; }
+        public string ValueIN { get; set; }
+        public bool IsProduction { get; set; }
     }
 }

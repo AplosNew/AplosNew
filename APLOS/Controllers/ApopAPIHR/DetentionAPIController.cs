@@ -1461,6 +1461,20 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetDateFilter(out List<Default2> activelists , Time);
             return activelists;
         }
+
+       /* public string Calculate([FromBody] IEnumerable<OpenHeadModelNew> OpenHeadNew)
+        {
+            try
+            {
+                string Id = clsData.Calculate(OpenHeadNew);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }*/
         #endregion Production Entry
+
     }
 }
