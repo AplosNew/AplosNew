@@ -4203,7 +4203,7 @@ where  WorkDate = DATEADD(day, -1, CAST(GETDATE() AS date))
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select SandardName As Name , Sequence As Value from dbo.ProductionBookingParameter
+                strSQL = @"select SandardName As Name , Id As Value from dbo.ProductionBookingParameter
 where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState = 'Entry' and Active = 1";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
