@@ -4264,6 +4264,39 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
             }
         }
 
+        public void GetProductionCalculateValue(out List<Default2> DataList, string Formula)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select " + Formula + " Value , 'Name' Name";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
         public void GetPoWisereport(out List<POWiseReport> DataList, string POId, string POStatusId, string CustomerId)
         {
             clsConnectionManager objCon = null;
