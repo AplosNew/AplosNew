@@ -113,96 +113,6 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
     $scope.ModelWADNew = Object.assign({}, $scope.ModelWADTemp);
 
 
-    $scope.yearlist = [];
-    $scope.GetCbo = function () {
-        $http.get('Attendances/AttendanceProcessUI/GetCbo')
-            .then(
-                function successCallback(response) {
-                    if (baseService.arrayLength(response.data) > 0) {
-                        $scope.yearlist = [];
-                        $scope.yearlist = response.data;
-                    }
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
-    };
-    $scope.GetCbo();
-
-    $scope.ModelNew.YearNo = new Date().getFullYear().toString();
-
-    $scope.monthList = [
-        {
-            Value: 1,
-            Text: 'January'
-        },
-        {
-            Value: 2,
-            Text: 'February'
-        },
-        {
-            Value: 3,
-            Text: 'March'
-        },
-        {
-            Value: 4,
-            Text: 'April'
-        },
-        {
-            Value: 5,
-            Text: 'May'
-        },
-        {
-            Value: 6,
-            Text: 'June'
-        },
-        {
-            Value: 7,
-            Text: 'July'
-        },
-        {
-            Value: 8,
-            Text: 'August'
-        },
-        {
-            Value: 9,
-            Text: 'September'
-        },
-        {
-            Value: 10,
-            Text: 'October'
-        },
-        {
-            Value: 11,
-            Text: 'November'
-        },
-        {
-            Value: 12,
-            Text: 'December'
-        }
-    ];
-    $scope.ModelNew.MonthNo = (new Date().getMonth() + 1).toString();
-
-    $scope.CalenderFunc = function () {
-        $scope._firstDay = $filter('dateFiltering')(new Date($scope.ModelNew.YearNo, $scope.ModelNew.MonthNo - 1, 1), 'dd-MM-yyyy');
-        $scope._lastDay = $filter('dateFiltering')(new Date($scope.ModelNew.YearNo, $scope.ModelNew.MonthNo, 0), 'dd-MM-yyyy');
-
-        $('.datepic').datepicker({
-            startDate: $scope._firstDay,
-            endDate: $scope._lastDay,
-            datesDisabled: $scope.DisabledDates,
-            format: 'dd-MM-yyyy',
-            todayHighlight: true,
-            autoclose: true,
-            inline: true,
-            changeMonth: true
-        });
-
-    };
-    $scope.CalenderFunc();
-
-
-
     $scope.removeRow = function (data) {
         $scope.empSystemId = data.SystemId;
         $scope.Id = data.Id;
@@ -559,6 +469,8 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
     $scope.ClearPayableCreationOT = function () {
         $scope.Action = 'Save';
         $scope.ModelOTNew = Object.assign({}, $scope.ModelOTemp);
+        $scope.ModelOTNew.YearNo = new Date().getFullYear().toString();
+        $scope.ModelOTNew.MonthNo = (new Date().getMonth() + 1).toString();
         $scope.PCOTEmployeeList = [];
         return true;
     };
@@ -569,9 +481,14 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
     //***********************************Payable Creation Extra OT Start********************************************************//
     $scope.ModelOTemp = {
         Id: null,
+        YearNo: null,
+        MonthNo: null,
         FromDate: null,
         ToDate: null,
+        UserName: null,
         UserRef: null,
+        NoOfDays: null,
+        PayDaysType: "ExtraOT",
         Percentage: null,
         PaymentDate: null,
         ByWhom: $window.employeeName,
@@ -580,6 +497,95 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
         Remarks: null
     };
     $scope.ModelOTNew = Object.assign({}, $scope.ModelOTemp);
+
+
+    $scope.yearlist = [];
+    $scope.GetCbo = function () {
+        $http.get('Attendances/AttendanceProcessUI/GetCbo')
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.yearlist = [];
+                        $scope.yearlist = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
+    $scope.GetCbo();
+
+    $scope.ModelOTNew.YearNo = new Date().getFullYear().toString();
+
+    $scope.monthList = [
+        {
+            Value: 1,
+            Text: 'January'
+        },
+        {
+            Value: 2,
+            Text: 'February'
+        },
+        {
+            Value: 3,
+            Text: 'March'
+        },
+        {
+            Value: 4,
+            Text: 'April'
+        },
+        {
+            Value: 5,
+            Text: 'May'
+        },
+        {
+            Value: 6,
+            Text: 'June'
+        },
+        {
+            Value: 7,
+            Text: 'July'
+        },
+        {
+            Value: 8,
+            Text: 'August'
+        },
+        {
+            Value: 9,
+            Text: 'September'
+        },
+        {
+            Value: 10,
+            Text: 'October'
+        },
+        {
+            Value: 11,
+            Text: 'November'
+        },
+        {
+            Value: 12,
+            Text: 'December'
+        }
+    ];
+    $scope.ModelOTNew.MonthNo = (new Date().getMonth() + 1).toString();
+
+    $scope.CalenderFunc = function () {
+        $scope._firstDay = $filter('dateFiltering')(new Date($scope.ModelOTNew.YearNo, $scope.ModelOTNew.MonthNo - 1, 1), 'dd-MM-yyyy');
+        $scope._lastDay = $filter('dateFiltering')(new Date($scope.ModelOTNew.YearNo, $scope.ModelOTNew.MonthNo, 0), 'dd-MM-yyyy');
+
+        $('.datepic').datepicker({
+            startDate: $scope._firstDay,
+            endDate: $scope._lastDay,
+            datesDisabled: $scope.DisabledDates,
+            format: 'dd-MM-yyyy',
+            todayHighlight: true,
+            autoclose: true,
+            inline: true,
+            changeMonth: true
+        });
+
+    };
+    $scope.CalenderFunc();
 
     $scope.ClearOTPayableCreation = function () {
         $scope.Action = 'Save';
@@ -593,6 +599,8 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
     $scope.GetGWPOTDblClick = function (args) {
         $scope.ModelOTNew = Object.assign({}, args.data);
         //$scope.GetGoodWorkPaymentOTAdvisedetail();
+        $scope.ModelOTNew.YearNo = $scope.ModelOTNew.YearNo.toString();
+        $scope.ModelOTNew.MonthNo = $scope.ModelOTNew.MonthNo.toString();
         $scope.PCOTAction = 'Update';
         $scope.GetLoadEmployeeInformation($scope.TabsName);
         
@@ -747,6 +755,8 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
 
     $scope.GetGWPendingPaymentPDblClick = function (args) {
         $scope.ModelPCNewPendingPayment = Object.assign({}, args.data);
+        $scope.ModelPCNewPendingPayment.YearNo = $scope.ModelPCNewPendingPayment.YearNo.toString();
+        $scope.ModelPCNewPendingPayment.MonthNo = $scope.ModelPCNewPendingPayment.MonthNo.toString();
         $scope.GetGoodWorkPaymentAdvisePendingPaymentdetail();
 
         if (!$rootScope.isCollapsed) {

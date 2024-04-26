@@ -1727,6 +1727,40 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
 
 
         [HttpGet, Authorize]
+        public ActionResult GetFNFMasterData()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select * from EmployeeFullAndFinalSettlementMaster";
+            var data = _sqlRepository.GetDataCollection(sql);
+
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetEmployeeFNFMasterData(string masterId)
+        {
+            string sql = @"select E.*,EI.EmployeeCode,EI.EmployeeName,FORMAT(EI.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EI.DOS,'dd-MMM-yyyy')DOS,LD.UserName LegalDesignation,D.UserName Department
+from FullAndFinalSettlementEmployee  E
+LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=E.EmpSystemId
+LEFT JOIN HKP.LegalDesignation LD ON LD.UserName=EI.LegalDesignationId
+LEFT JOIN ORG.Department D ON D.Id=EI.DepartmentId
+where FinalSettlementId='" + masterId + "'";
+            var data = _sqlRepository.GetDataCollection(sql);
+
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult XGetFNFMasterData(string masterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select * from EmployeeFullAndFinalSettlementMaster";
+            var data = _sqlRepository.GetDataCollection(sql);
+
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetAutoSequence()
         {
 

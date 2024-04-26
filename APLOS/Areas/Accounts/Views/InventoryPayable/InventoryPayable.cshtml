@@ -444,20 +444,27 @@
                                 <th>Activity</th>
                                 <th>Dr</th>
                                 <th>Cr</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="x in newList| orderBy:'Dr'| groupBy: 'MaterialGroupMasterId'">
+                            <tr ng-repeat="x in newList | groupBy: 'MaterialGroupMasterId'">
                                 <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
                                 <td>{{x.BudgetName}}</td>
                                 <td>{{x.ActivityName}}</td>
                                 <td class="text-right">{{x.Dr | number| setDecimal:4}}</td>
                                 <td class="text-right">{{x.Cr | number| setDecimal:4}}</td>
+                                <td class="text-right">
+                                    <button ng-click="popUpGL($index)" data-toggle="modal" class="btn btn-action tooltip-here" data-placement="top" title="popUp">
+                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                    </button>
+                                </td>
                             </tr>
                             <tr>
                                 <td colspan="3"></td>
                                 <td class="text-right"><strong>{{newList | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
                                 <td class="text-right"><strong>{{newList | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
+                                <td></td>
                             </tr>
                         </tbody>
                     </table>
@@ -725,6 +732,8 @@
 @Html.Partial("~/Areas/Accounts/Views/_ShortageQtyPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_PartyFiscalInvoiceAmountPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_InvoiceSetOffDetailByInvoicePopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_GLBudgetActivityPopUp.cshtml")
+
 
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(GRNId,VoucherId,InvoiceId,Type,TDSTaxVoucherId,TDSVoucherNo)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(invoiceId,type,tdsId,data)"></confirm-archive-generic>

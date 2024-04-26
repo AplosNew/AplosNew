@@ -386,7 +386,8 @@ namespace Library.Service.SalaryDisbursement
                                                 AdvanceWriteOffDetailId = advanceWriteOffDetail.Id,
                                                 PartyType = "Employee",
                                                 SalaryHeadId = directVoucherDetailVM.SalaryHeadId,
-                                                SalaryType = directVoucherDetailVM.SalaryType
+                                                SalaryType = directVoucherDetailVM.SalaryType,
+                                                AccountsGroupId = directVoucherDetailVM.AccountsGroupId
                                             }, currentVoucherDetailId);
                                             directAmount += directVoucherDetailDr.CrAmount;
                                             // INSERT INTO VoucherDetailCurrency
@@ -470,7 +471,8 @@ namespace Library.Service.SalaryDisbursement
                                                 AdvanceWriteOffDetailId = advanceWriteOffDetail.Id,
                                                 PartyType = "Employee",
                                                 SalaryHeadId = directVoucherDetailVM.SalaryHeadId,
-                                                SalaryType = directVoucherDetailVM.SalaryType
+                                                SalaryType = directVoucherDetailVM.SalaryType,
+                                                AccountsGroupId = directVoucherDetailVM.AccountsGroupId
                                             }, currentVoucherDetailId);
                                             directAmount += directVoucherDetailDr.CrAmount;
                                             // INSERT INTO VoucherDetailCurrency
@@ -564,7 +566,8 @@ namespace Library.Service.SalaryDisbursement
                                         CrAmount = directVoucherDetailVM.CrAmount,
                                         TrnNature = directVoucherDetailVM.SalaryHead,
                                         SalaryHeadId = directVoucherDetailVM.SalaryHeadId,
-                                        SalaryType = directVoucherDetailVM.SalaryType
+                                        SalaryType = directVoucherDetailVM.SalaryType,
+                                        AccountsGroupId = directVoucherDetailVM.AccountsGroupId
                                     }, currentVoucherDetailId);
 
                                     // INSERT INTO VoucherDetailCurrency
@@ -602,7 +605,8 @@ namespace Library.Service.SalaryDisbursement
                                         TrnNature = directVoucherDetailVM.SalaryHead,
                                         PartyType = "Employee",
                                         SalaryHeadId = directVoucherDetailVM.SalaryHeadId,
-                                        SalaryType = directVoucherDetailVM.SalaryType
+                                        SalaryType = directVoucherDetailVM.SalaryType,
+                                        AccountsGroupId = directVoucherDetailVM.AccountsGroupId
                                     }, currentVoucherDetailId);
 
                                     // INSERT INTO VoucherDetailCurrency
@@ -681,7 +685,8 @@ namespace Library.Service.SalaryDisbursement
                                 CrAmount = voucherDetailVM.CrAmount,
                                 TrnNature = voucherDetailVM.SalaryHead,
                                 SalaryHeadId = voucherDetailVM.SalaryHeadId,
-                                SalaryType = voucherDetailVM.SalaryType
+                                SalaryType = voucherDetailVM.SalaryType,
+                                AccountsGroupId = voucherDetailVM.AccountsGroupId
                             }, currentVoucherDetailId);
 
                             // INSERT INTO VoucherDetailCurrency
@@ -771,7 +776,9 @@ namespace Library.Service.SalaryDisbursement
                                                 AdvanceWriteOffDetailId = advanceWriteOffDetail.Id,
                                                 PartyType = "Employee",
                                                 SalaryHeadId = voucherDetailVM.SalaryHeadId,
-                                                SalaryType = voucherDetailVM.SalaryType
+                                                SalaryType = voucherDetailVM.SalaryType,
+                                                AccountsGroupId = voucherDetailVM.AccountsGroupId
+
                                             }, currentVoucherDetailId);
                                             indirectAdvanceAmountTemp += VoucherDetailDr.CrAmount;
 
@@ -858,7 +865,8 @@ namespace Library.Service.SalaryDisbursement
                                                 AdvanceWriteOffDetailId = advanceWriteOffDetail.Id,
                                                 PartyType = "Employee",
                                                 SalaryHeadId = voucherDetailVM.SalaryHeadId,
-                                                SalaryType = voucherDetailVM.SalaryType
+                                                SalaryType = voucherDetailVM.SalaryType,
+                                                AccountsGroupId = voucherDetailVM.AccountsGroupId
                                             }, currentVoucherDetailId);
                                             indirectAdvanceAmountTemp += VoucherDetailDr.CrAmount;
 
@@ -924,7 +932,8 @@ namespace Library.Service.SalaryDisbursement
                                             CrAmount = voucherDetailVM.CrAmount - indirectAdvanceAmountTemp,
                                             TrnNature = voucherDetailVM.SalaryHead,
                                             SalaryHeadId = voucherDetailVM.SalaryHeadId,
-                                            SalaryType = voucherDetailVM.SalaryType
+                                            SalaryType = voucherDetailVM.SalaryType,
+                                            AccountsGroupId = voucherDetailVM.AccountsGroupId
                                         }, currentVoucherDetailId);
 
                                         // INSERT INTO VoucherDetailCurrency
@@ -952,7 +961,8 @@ namespace Library.Service.SalaryDisbursement
                                         CrAmount = voucherDetailVM.CrAmount,
                                         TrnNature = voucherDetailVM.SalaryHead,
                                         SalaryHeadId = voucherDetailVM.SalaryHeadId,
-                                        SalaryType = voucherDetailVM.SalaryType
+                                        SalaryType = voucherDetailVM.SalaryType,
+                                        AccountsGroupId = voucherDetailVM.AccountsGroupId
                                     }, currentVoucherDetailId);
 
                                     // INSERT INTO VoucherDetailCurrency
@@ -986,7 +996,8 @@ namespace Library.Service.SalaryDisbursement
                                         CrAmount = item.ProfitAmount,
                                         TrnNature = voucherDetailVM.SalaryHead,
                                         SalaryHeadId = voucherDetailVM.SalaryHeadId,
-                                        SalaryType = voucherDetailVM.SalaryType
+                                        SalaryType = voucherDetailVM.SalaryType,
+                                        AccountsGroupId = voucherDetailVM.AccountsGroupId
                                     }, currentVoucherDetailId);
 
                                     currentVoucherDetailId++;

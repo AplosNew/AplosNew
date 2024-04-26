@@ -9,15 +9,18 @@ using System.Data;
 using Library.Crosscutting.Security;
 using System.Threading;
 using System.IO;
+using Library.HumanResource.NewAttendanceProcess;
+using Library.Security.Core;
+using Aplos.Properties;
 
 namespace Aplos.Areas.HumanResource.Controllers
 {
 
     public class OTConfirmationProcessController : BaseController
     {
-        
+
         #region Constructor
-        
+
         OTConfirmationProcessService ot = new OTConfirmationProcessService();
         public OTConfirmationProcessController()
         {
@@ -30,13 +33,17 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             return View();
         }
+        public ActionResult OTApprove()
+        {
+            return View();
+        }
 
         #endregion -- Pages
 
 
         #region Operations
 
-        [Authorize , HttpGet]
+        [Authorize, HttpGet]
         public ActionResult getFilters()
         {
             return Json(ot.getFilters(), JsonRequestBehavior.AllowGet);
@@ -51,23 +58,23 @@ namespace Aplos.Areas.HumanResource.Controllers
         [HttpGet, Authorize]
         public ActionResult GetWorkDateRange(string Year, string Month, string Week)
         {
-            return Json(ot.GetWorkDateRange(Year,Month,Week), JsonRequestBehavior.AllowGet);
+            return Json(ot.GetWorkDateRange(Year, Month, Week), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
-        public ActionResult getGridData(string Week, string FromDate, string ToDate, Dictionary<string , string> Parameters)
+        public ActionResult getGridData(string Week, string FromDate, string ToDate, Dictionary<string, string> Parameters)
         {
-            var json = Json(ot.getGridData(Week, FromDate, ToDate,  Parameters), JsonRequestBehavior.AllowGet);
+            var json = Json(ot.getGridData(Week, FromDate, ToDate, Parameters), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
 
-        [HttpPost , Authorize]
-        public ActionResult ProcessData(string Data,string OTWeek , string SelectedOT)
+        [HttpPost, Authorize]
+        public ActionResult ProcessData(string Data, string OTWeek, string SelectedOT)
         {
             try
             {
-                ot.ProcessData(Data, OTWeek , SelectedOT);             
+                ot.ProcessData(Data, OTWeek, SelectedOT);
             }
             catch (Exception ex)
             {
@@ -85,7 +92,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         , string DSApp, Dictionary<string, string> Parameters)
         {
             var json = Json(ot.getReportData(Week, FromDate, ToDate, OTConfirmationValue, OTLimit, Process, ProcessValue, DayStatus
-                            , DSApp, Parameters) , JsonRequestBehavior.AllowGet);
+                            , DSApp, Parameters), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
@@ -190,7 +197,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             report.SetHeaderText(ref sheet, ROW, COL, "AdditionalOT", 13, ExcelHAlign.HAlignCenter);
             int ColAOT = COL;
-            COL++; 
+            COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "StandardOT", 13, ExcelHAlign.HAlignCenter);
             int ColSOT = COL;
@@ -259,6 +266,385 @@ namespace Aplos.Areas.HumanResource.Controllers
             return workbook;
         }
 
+
+        [HttpPost, Authorize]
+        public ActionResult GetOTData(string Data)
+        {
+            try
+            {
+                //ot.ProcessData(Data, OTWeek, SelectedOT);
+            }
+            catch (Exception ex)
+            {
+                ot.CommonLogFunction(ex);
+                return Json(new { Error = true, Message = "Error Occured..." }, JsonRequestBehavior.AllowGet);
+
+            }
+            return Json(new { Error = false, Message = "OT Confirmation Process Ran Successfully..." }, JsonRequestBehavior.AllowGet);
+
+        }
+
+
+
         #endregion Operations
+
+        #region OTApprove
+
+        [HttpGet, Authorize]
+        public ActionResult GetWorkOverStayData(string workDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var json = Json(ot.GetWorkOverStayData(workDate, identity.PlantId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        private string GetOTPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(OTfromApp), out sID);
+            return sID;
+        }
+
+        [HttpPost]
+        public JsonResult SaveOTData(Dictionary<string, object> data, IEnumerable<OTfromAppNew> SaveMultipleEmpOTExcel)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                DataSet EmpExistOrNot;
+                DataSet EmpDayStatus;
+                DataSet IsEmpSalaryLocked;
+                DataSet EmpExistInAttProData;
+                string RowsEdit = "''";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                var empdetails = "' '";
+                var empworkingdates = "''";
+                var empcode = "''";
+                foreach (var empitem in SaveMultipleEmpOTExcel)
+                {
+                    empdetails += ",'" + empitem.EmployeeSystemId + "' ";
+                    empworkingdates += ",'" + empitem.APDEmpWorkDate + "' ";
+                    //     empcode += ",'" + empitem.EmployeeCode + "' ";
+                }
+                con.OpenDataSetThroughAdapter("select * from dbo.OTfromApp where EmpSystemId IN ( " + empdetails + " ) and WorkDate IN (" + empworkingdates + ")  ", out EmpExistOrNot, false, "1");
+                con.OpenDataSetThroughAdapter("select * from AttdnProcessData where EmpSystemId IN ( " + empdetails + " ) and WorkDate IN (" + empworkingdates + ") ", out EmpExistInAttProData, false, "1");
+
+                string EmpYear = Convert.ToDateTime(data["FromDate"]).ToString("yyyy");
+                string EmpMonth = Convert.ToDateTime(data["FromDate"]).ToString("MM");
+                con.OpenDataSetThroughAdapter("select Id, EmpSystemId, YearNo, MonthNo, IsLocked from SalaryLock where YearNo = '" + EmpYear + "' and MonthNo = '" + EmpMonth + "' and EmpSystemId IN ( " + empdetails + " ) ", out IsEmpSalaryLocked, false, "1");
+
+                foreach (var item in SaveMultipleEmpOTExcel)
+                {
+                    IsEmpSalaryLocked.Tables[0].DefaultView.RowFilter = "EmpSystemId='" + item.EmployeeSystemId + "'";
+                    bool islocked = false;
+                    if (IsEmpSalaryLocked.Tables[0].DefaultView.Count > 0)
+                    {
+                        islocked = bplib.clsWebLib.GetBoolData(IsEmpSalaryLocked.Tables[0].DefaultView[0]["IsLocked"].ToString());
+
+                    }
+                    if (islocked == false)
+                    {
+                        //  EmpDayStatus.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "' and WorkDate='" + item.WorkDate + "' ";
+
+                        //if (EmpDayStatus.Tables[0].DefaultView.Count > 0)
+                        //{
+                        //    if (EmpDayStatus.Tables[0].DefaultView[0]["Category"].ToString() == "Present" || EmpDayStatus.Tables[0].DefaultView[0]["Category"].ToString() == "Late" || EmpDayStatus.Tables[0].DefaultView[0]["Category"].ToString() == "Weekend" || EmpDayStatus.Tables[0].DefaultView[0]["Category"].ToString() == "Holiday")
+
+                        //    {
+
+                        string newformat = Convert.ToDateTime(item.APDEmpWorkDate).ToString("yyyyMMdd");
+
+                        //        EmpExistInAttProData.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "' and WorkDate='" + item.APDEmpWorkDate + "' ";
+                        EmpExistInAttProData.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "' and WorkDate='" + item.APDEmpWorkDate + "' and RowId='" + newformat + item.EmployeeSystemId + "' ";
+
+                        if (EmpExistInAttProData.Tables[0].DefaultView.Count != 0)
+                        {
+                            bool ManFlag = true;
+                            //edit
+                            DataRow dr = EmpExistInAttProData.Tables[0].DefaultView[0].Row;
+
+                            dr.BeginEdit();
+
+                            dr["ManualOt"] = item.OTHr;
+
+                            dr["ManualByWhom"] = identity.Name;
+                            dr["ManualEntryTime"] = System.DateTime.Now.ToString();
+                            dr["ManualFlag"] = ManFlag;
+
+                            dr["OTComfirmBy"] = DBNull.Value;
+                            dr["DateOTComfirm"] = DBNull.Value;
+                            dr["IsOTComfirm"] = false;
+
+                            dr["PlanOT"] = DBNull.Value;
+                            dr["AllowedOTLimit"] = DBNull.Value;
+                            dr["AppliedOTLimit"] = DBNull.Value;
+                            dr["StandardOT"] = DBNull.Value;
+                            dr["AdditionalOT"] = DBNull.Value;
+                            dr["TargetOT"] = DBNull.Value;
+
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["DateUpdated"] = System.DateTime.Now.ToString();
+
+
+                            dr.EndEdit();
+                            RowsEdit = RowsEdit + ",'" + dr["RowId"].ToString() + "'";
+
+                        }
+                        else
+                        {
+                            EmpExistOrNot.Tables[0].DefaultView.RowFilter = "EmpSystemId ='" + item.EmployeeSystemId + "' and WorkDate='" + item.APDEmpWorkDate + "' ";
+
+                            //     EmpExistInAttProData.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "' and WorkDate='" + item.APDEmpWorkDate + "' and RowId='" + newformat + item.EmployeeSystemId + "' ";
+
+                            if (EmpExistOrNot.Tables[0].DefaultView.Count > 0)
+                            {
+
+                                //edit
+                                DataRow drr = EmpExistOrNot.Tables[0].DefaultView[0].Row;
+
+                                drr.BeginEdit();
+
+                                drr["WorkDate"] = item.APDEmpWorkDate;
+
+                                drr["OThour"] = item.OTHr;
+                                drr["EmpSystemId"] = item.EmployeeSystemId;
+
+                                drr["Remarks"] = data["Remarks"];
+                                drr["IsConfirmed"] = data["IsConfirmed"];
+
+                                drr["AddedBy"] = identity.Name;
+                                drr["AddedDate"] = System.DateTime.Now.ToString();
+
+                                drr["UpdatedBy"] = identity.Name;
+                                drr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+
+                                drr.EndEdit();
+                                //        RowsEdit = RowsEdit + ",'" + drr["RowId"].ToString() + "'";
+
+
+                            }
+                            if (EmpExistOrNot.Tables[0].DefaultView.Count == 0)
+                            {
+                                DataRow dr = EmpExistOrNot.Tables[0].NewRow();
+                                dr["Id"] = "OT" + GetOTPK();
+
+                                dr["WorkDate"] = item.APDEmpWorkDate;
+
+                                dr["OThour"] = item.OTHr;
+                                dr["EmpSystemId"] = item.EmployeeSystemId;
+
+                                dr["Remarks"] = data["Remarks"];
+                                dr["IsConfirmed"] = data["IsConfirmed"];
+
+                                dr["AddedBy"] = identity.Name;
+                                dr["AddedDate"] = System.DateTime.Now.ToString();
+
+                                dr["UpdatedBy"] = identity.Name;
+                                dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+
+                                EmpExistOrNot.Tables[0].Rows.Add(dr);
+                                //        RowsEdit = RowsEdit + ",'" + dr["RowId"].ToString() + "'";
+                            }
+
+                        }
+                        //         }
+                        //       }
+
+                    }
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(EmpExistInAttProData, EmpExistOrNot);
+
+                NewAttendanceProcessService ap = new NewAttendanceProcessService();
+                ap.ManualScheduler(identity.PlantId, RowsEdit);
+
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+
+            }
+
+
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetOTDataXls(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                DataTable dt = new DataTable("DD");
+                foreach (string item in data[0].Keys)
+                {
+                    if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        continue;
+
+                    dt.Columns.Add(item);
+                }
+
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    foreach (string item in data[i].Keys)
+                    {
+                        if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                            continue;
+
+                        dr[item] = data[i][item];
+                    }
+
+                    dt.Rows.Add(dr);
+                }
+
+                string fileName = "";
+                fileName = OTDataReport(dt, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public string OTDataReport(DataTable data, string ReportHeader, string reportFileName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "OTData";
+                sheet = workbook.Worksheets[0];
+
+                int ROW = 6; int COL = 1;
+
+                #region columns
+
+                sheet[ROW, COL].Text = "Employee Code"; sheet[ROW, COL].ColumnWidth = 16; int ColEC = COL; COL++;
+                sheet[ROW, COL].Text = "Employee Name"; sheet[ROW, COL].ColumnWidth = 16; int ColEN = COL; COL++;
+                sheet[ROW, COL].Text = "DOJ"; sheet[ROW, COL].ColumnWidth = 16; int ColDOJ = COL; COL++;
+                sheet[ROW, COL].Text = "Legal Designation"; sheet[ROW, COL].ColumnWidth = 16; int ColDesg = COL; COL++;
+                sheet[ROW, COL].Text = "Department"; sheet[ROW, COL].ColumnWidth = 16; int ColDep = COL; COL++;
+                sheet[ROW, COL].Text = "Emp Category"; sheet[ROW, COL].ColumnWidth = 16; int ColEcg = COL; COL++;
+                sheet[ROW, COL].Text = "Employee Status"; sheet[ROW, COL].ColumnWidth = 16; int ColEmpS = COL; COL++;
+                sheet[ROW, COL].Text = "Over Stay"; sheet[ROW, COL].ColumnWidth = 16; int ColOS = COL; COL++;
+                sheet[ROW, COL].Text = "Calculated OT"; sheet[ROW, COL].ColumnWidth = 16; int ColCOT = COL; COL++;
+                sheet[ROW, COL].Text = "OTHr"; sheet[ROW, COL].ColumnWidth = 16; int ColOTHr = COL; COL++;
+                sheet[ROW, COL].Text = "Day Status"; sheet[ROW, COL].ColumnWidth = 16; int ColDayStatus = COL; COL++;
+                sheet[ROW, COL].Text = "InTime"; sheet[ROW, COL].ColumnWidth = 16; int ColInTime = COL; COL++;
+                sheet[ROW, COL].Text = "OutTime"; sheet[ROW, COL].ColumnWidth = 16; int ColOutTime = COL; COL++;
+                sheet[ROW, COL].Text = "OTTitle"; sheet[ROW, COL].ColumnWidth = 16; int ColOTTitle = COL;
+
+
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+                int LastRow = ROW + (data.Rows.Count - 1);
+
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, ColEC].Text = data.Rows[i]["Code"].ToString();
+                    sheet[ROW, ColEN].Text = data.Rows[i]["EmployeeName"].ToString();
+                    sheet[ROW, ColDOJ].Text = data.Rows[i]["DOJ"].ToString();
+                    sheet[ROW, ColDesg].Text = data.Rows[i]["LegalDesignation"].ToString();
+                    sheet[ROW, ColDep].Text = data.Rows[i]["Department"].ToString();
+                    sheet[ROW, ColEcg].Text = data.Rows[i]["EmployeeCategory"].ToString();
+                    sheet[ROW, ColEmpS].Text = data.Rows[i]["EmployeeStatus"].ToString();
+                    sheet[ROW, ColOS].Number = clsStaticInfo.dbl(data.Rows[i]["OverStay"].ToString());
+                    sheet[ROW, ColCOT].Number = clsStaticInfo.dbl(data.Rows[i]["CalculatedOT"].ToString());
+                    sheet[ROW, ColOTHr].Number = clsStaticInfo.dbl(data.Rows[i]["OTHr"].ToString());
+                    sheet[ROW, ColDayStatus].Text = data.Rows[i]["DayStatus"].ToString();
+                    sheet[ROW, ColInTime].Text = data.Rows[i]["InTime"].ToString();
+                    sheet[ROW, ColOutTime].Text = data.Rows[i]["OutTime"].ToString();
+                    sheet[ROW, ColOTTitle].Text = data.Rows[i]["OTTitle"].ToString();
+                    
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+
+                sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, ROW, endCol];
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "OT Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+
+        #endregion
+
+
     }
-} 
+}

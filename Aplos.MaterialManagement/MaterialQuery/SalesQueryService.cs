@@ -1286,7 +1286,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 										+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))
 										+round(isnull(TAxInfo6.TaxAmount,0),2)-isnull(IV.SetOff,0)
 									,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,SA.PartyType,PAG.UserName PartyAccountGroup
-									,P.TINNO GSTINNo
+									,P.TINNO GSTINNo,CN.UserName Country
 									FROM TRN.Sales AS SA
 									LEFT JOIN (select Id, SalesId,SalesOrderId, Sum(TransactionAmount) TransactionAmount,Sum(NetAmount) NetAmount,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from TRN.SalesMaterial Group BY SalesId,SalesOrderId,Id)SMD  ON SA.Id=SMD.SalesId
 									LEFT JOIN SCS.Currency AS CU ON CU.Id=SA.CurrencyId
@@ -1298,6 +1298,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
 									LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=SA.InvoicingPartyPlantId
 									LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
+									LEFT JOIN [SCS].[Country] AS CN ON CN.Id=AM.CountryId
 									LEFT JOIN [SCS].[State] AS ST ON ST.Id=AM.StateId
 									LEFT JOIN [SCS].[Currency] AS C ON C.Id=SA.CurrencyId
 									LEFT JOIN (SELECT PartyId,PartyPlantId,sum(WrittenOffAmount) SetOff,SourceType 
@@ -1367,7 +1368,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 											group by ISS.SalesId
 											)ServiceData on ServiceData.SalesId=SA.Id
 									WHERE SA.PlantId='" + PlantId + @"' AND convert(Date,SA.InvoiceDate) between '" + FromDate + @"' AND '" + ToDate + @"'
-									Group By P.Id,iv.setOff, p.Code	 ,PPI.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,SA.PartyType,PAG.UserName ,TAxInfo6.TaxAmount,TAxInfo6.BooksTaxAmount,P.TINNO
+									Group By P.Id,iv.setOff, p.Code	 ,PPI.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,SA.PartyType,PAG.UserName ,TAxInfo6.TaxAmount,TAxInfo6.BooksTaxAmount,P.TINNO,CN.UserName 
 								UNION ALL
 
 								SELECT  P.Code PartyCode, P.UserName AS PartyName,PPI.UserName AS BillTo
@@ -1392,7 +1393,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,(Sum(IId.BooksCurrencyTransactionAmount)+sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)))  BooksTotalTaxableAmount
 								,0 SetOff,0 Balance
 								 ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,'' PartyType,PAG.UserName PartyAccountGroup
-								,P.TINNO GSTINNo
+								,P.TINNO GSTINNo,CN.UserName Country
 								FROM[TRN].[InventorySales] AS II
 								left JOIN (select InventoryMaterialId,Id,InventorySalesId,sum(PolicyRate) PolicyRate, sum(TransactionQty) Qty ,Sum(SalesRate) SalesRate,(Sum(SalesRate)*sum(TransactionQty)) TransactionAmount, IsAsset,BaseUOMId,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from  TRN.InventorySalesDetail group by InventoryMaterialId,InventorySalesId,IsAsset,BaseUOMId,Id) AS IID ON IID.InventorySalesId= II.Id AND IID.IsAsset= 0
 								left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId=TUoM.Id	
@@ -1401,6 +1402,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								Left JOIN [ORG].[Entity] E On E.id= II.EntityId
 								LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=II.InvoicingPartyPlantId
 								left Join hkp.Party P On p.id=II.CustomerId
+								left Join MST.AddressMaster AM On AM.id=P.AddressMasterId
+								left Join SCS.Country  CN On CN.id=AM.CountryId
 								LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'  AND CP.PlantId=II.PlantId
 									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
 									LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
@@ -1463,7 +1466,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 											GROUP BY A.InventorySalesId
 								) TAxInfo6 ON TAxInfo6.InventorySalesId=II.Id
 								WHERE II.PlantId='" + PlantId + @"' and II.CustomerId<>'' AND convert(Date,II.SalesDate) between '" + FromDate + @"' AND '" + ToDate + @"'
-								GROUP BY P.Id, p.Code, PPI.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName,TAxInfo6.TaxAmount,TAxInfo6.BooksTaxAmount,P.TINNO";
+								GROUP BY P.Id, p.Code, PPI.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName,TAxInfo6.TaxAmount,TAxInfo6.BooksTaxAmount,P.TINNO,CN.UserName";
 
                 if (isreport)
                 {

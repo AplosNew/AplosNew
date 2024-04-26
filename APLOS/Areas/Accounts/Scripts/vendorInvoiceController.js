@@ -2724,7 +2724,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
             }
             else {
                 ShowResult(response.data.Message, "success");
-                if (tdsId != null) {
+                if ($scope.tdsId != null) {
                     //$scope.confirmAutoTDSPost(tdsId, data);
                     $scope.onClickadditionalTaxPop($scope.voucherdb);
                 }
@@ -2732,7 +2732,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
                 $scope.Clear();
                 $scope.invoiceId = null;
                 $scope.type = null;
-
+                angular.element(document.querySelector('#JournalPopUp')).modal('hide');
             }
         }, function errorCallback(response) {
             ShowResult(response.status.Message, "failure");
@@ -2759,13 +2759,15 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         else {
             $scope.voucherdb = {};
             $scope.voucherdb = data;
+            $scope.tdsId = AdditionalTaxId;
+            $scope.Type = BeneficiaryType;
             getJournalList(data.VoucherId);
-            if (data.EmployeeId != null) {
-                $scope.Type = 'Employee';
-            }
-            else {
-                $scope.Type = 'Vendor';
-            }
+            //if (data.EmployeeId != null) {
+            //    $scope.Type = 'Employee';
+            //}
+            //else {
+            //    $scope.Type = 'Vendor';
+            //}
             angular.element(document.querySelector('#JournalPopUp')).modal('show');
         }
       

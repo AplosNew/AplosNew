@@ -99,7 +99,7 @@
                 </div>
             </fieldset>
         </fieldset>
-</div>
+    </div>
     <div class="col-xs-12 col-sm-4 col-md-4">
         <div class="form-group" show-errors>
             <label class="col-sm-3 control-label">Entry Date<sup>*</sup></label>
@@ -283,12 +283,12 @@
                     <label class="col-sm-4 control-label">Total Interest Paid</label>
                     <div class="col-sm-8 show-message">
                         {{TotalInterestPaid}}
-                    </div>                    
+                    </div>
                 </div>
             </div>
             <div class="col-xs-12 col-sm-4 col-md-4">
                 @*<div class="form-group col-sm-12">
-            </div>*@
+                    </div>*@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label" title="No. Of Installment Per Year" tooltip>Advance Loan Term (monthly)<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
@@ -296,7 +296,7 @@
                         <input type="text" maxlength="10" ng-show="false" name="Total No Of Installment" ng-model="voucher.TotalNoOfInstallment" class="form-control text-right" tabindex="9" disabled autocomplete="off">
                     </div>
                     @*<label class="col-sm-3 control-label" title="Total No. Of Installment " tooltip>Total No.Install<sup>*</sup></label>
-                <div class="col-sm-9 show-message">*@
+                        <div class="col-sm-9 show-message">*@
                     @*</div>*@
                 </div>
             </div>
@@ -305,30 +305,30 @@
             <div class="col-xs-12 col-sm-4 col-md-4">
                 <div class="form-group">
                     @*<label class="col-sm-3 control-label">Total Payments </label>
-                    <div class="col-sm-9 show-message">
-                        {{TotalPayments}}
-                    </div>*@
+                        <div class="col-sm-9 show-message">
+                            {{TotalPayments}}
+                        </div>*@
                 </div>
                 @*<div class="form-group">
-                    <label class="col-sm-3 control-label"></label>
-                    <div class="col-sm-9 show-message">
-                      
-                    </div>
-                </div>*@
+                        <label class="col-sm-3 control-label"></label>
+                        <div class="col-sm-9 show-message">
+
+                        </div>
+                    </div>*@
             </div>
             <div class="col-xs-12 col-sm-4 col-md-4">
                 <div class="form-group">
                     @*<label class="col-sm-3 control-label">Total Interest Paid</label>
-                    <div class="col-sm-9 show-message">
-                        {{TotalInterestPaid}}
-                    </div>*@
+                        <div class="col-sm-9 show-message">
+                            {{TotalInterestPaid}}
+                        </div>*@
                 </div>
                 @*<div class="form-group">
-                    <label class="col-sm-3 control-label">Total Payments </label>
-                    <div class="col-sm-9 show-message">
-                        {{TotalPayments}}
-                    </div>
-                </div>*@
+                        <label class="col-sm-3 control-label">Total Payments </label>
+                        <div class="col-sm-9 show-message">
+                            {{TotalPayments}}
+                        </div>
+                    </div>*@
             </div>
 
         </fieldset>
@@ -350,170 +350,173 @@
         </ul>
     </div>
 </div>
-    <div class="aplos-grid-toggle">
-        <div class="row text-right">
-            <div class="col-xs-12 col-sm-12 col-sm-12">
-                <div class="search-form">
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-3 col-md-3">
-                            <div class="select-style">
-                                <select ng-model="$root.parameters.searchBy">
-                                    <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-                                </select>
-                            </div>
+<div class="aplos-grid-toggle">
+    <div class="row text-right">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="$root.parameters.searchBy">
+                                <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
                         </div>
-                        <div class="col-xs-12 col-sm-7 col-md-7">
-                            <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
-                        </div>
-                        <div class="col-xs-12 col-sm-2 col-md-2">
-                            <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="table-responsive modal-table">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>VoucherNo</th>
-                        <th>@Library.Model.Parties.PartyType.Employee.ToString()</th>
-                        <th>Posting Date</th>
-                        <th>Currency</th>
-                        <th>Advance Type</th>
-                        <th>Amount</th>
-                        <th>Set-off Amount</th>
-                        <th>Balance</th>
-                        <th>Checked By</th>
-                        <th>Approved By</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr dir-paginate="x in voucherList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="getById(x.Id,x.EmployeeCode,x.EmployeeName,x.ResponsibleCode,x.ResponsibleName);">
-                        <td>{{x.VoucherNo}}</td>
-                        <td>{{x.EmployeeCode}} - {{x.EmployeeName}}</td>
-                        <td>{{x.PostingDate | dateFiltering}}</td>
-                        <td>{{x.CurrencyCode}}</td>
-                        <td>{{x.AdvanceType}}</td>
-                        <td class="text-right">{{x.Amount | number:2}}</td>
-                        <td class="text-right">{{x.WrittenOffAmount | number:2}}</td>
-                        <td class="text-right">{{x.Amount-x.WrittenOffAmount | number:2}}</td>
-                        <td class="text-right">{{x.CheckedBy}}</td>
-                        <td class="text-right">{{x.ApprovedBy}}</td>
-                        <td>{{x.IsPark?'Parked':'Posted'}}</td>
-                        <td class="text-right">
-                            <ul class="list-inline action-list">
-                                <li ng-show="x.IsPark"><a ng-click="confirmPost(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Post</a></li>
-                                <li><a class="btn btn-action" href="Accounts/Advance/GetEmployeeAdvanceReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
-                                <li><a class="btn btn-action" href="Accounts/Advance/GetEmployeeAdvanceReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
-                            </ul>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+    </div>
+    <div class="table-responsive modal-table">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>VoucherNo</th>
+                    <th>@Library.Model.Parties.PartyType.Employee.ToString()</th>
+                    <th>Posting Date</th>
+                    <th>Currency</th>
+                    <th>Advance Type</th>
+                    <th>Amount</th>
+                    <th>Set-off Amount</th>
+                    <th>Balance</th>
+                    <th>Checked By</th>
+                    <th>Approved By</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr dir-paginate="x in voucherList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="getById(x.Id,x.EmployeeCode,x.EmployeeName,x.ResponsibleCode,x.ResponsibleName);">
+                    <td>{{x.VoucherNo}}</td>
+                    <td>{{x.EmployeeCode}} - {{x.EmployeeName}}</td>
+                    <td>{{x.PostingDate | dateFiltering}}</td>
+                    <td>{{x.CurrencyCode}}</td>
+                    <td>{{x.AdvanceType}}</td>
+                    <td class="text-right">{{x.Amount | number:2}}</td>
+                    <td class="text-right">{{x.WrittenOffAmount | number:2}}</td>
+                    <td class="text-right">{{x.Amount-x.WrittenOffAmount | number:2}}</td>
+                    <td class="text-right">{{x.CheckedBy}}</td>
+                    <td class="text-right">{{x.ApprovedBy}}</td>
+                    <td>{{x.IsPark?'Parked':'Posted'}}</td>
+                    <td class="text-right">
+                        <ul class="list-inline action-list">
+                            <li ng-show="x.IsPark"><a ng-click="confirmPost(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Post</a></li>
+                            <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
+                            <li><a class="btn btn-action" href="Accounts/Advance/GetEmployeeAdvanceReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                            <li><a class="btn btn-action" href="Accounts/Advance/GetEmployeeAdvanceReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+    </div>
+</div>
+@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")
+@Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
+@Html.Partial("~/Areas/Employees/Views/Shared/_ResponsiblePersonPopUp.cshtml")
+
+<style>
+    .modellgModify {
+        width: 1400px;
+    }
+</style>
+<div class="modal fade site-modal in" id="EmployeeAdvanceRequisitionPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Employee Advance Requisition <button type="button" class="close" ng-click="closePopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="employeeAdvanceRequisitionId" ej-grid e-datasource="getEmployeeAdvanceRequisitionList" e-recorddoubleclick="selectDoubleClick"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-field="EmployeeName" e-headertext="EmployeeName" e-width="150"></div>
+                                <div e-column e-field="SystemId" e-headertext="Requisition No" e-width="60"></div>
+                                <div e-column e-field="RequisitionAddedDate" e-headertext="Requisition Date" e-width="60" e-format="{0:dd-MMM-yyyy}" type="date"></div>
+                                <div e-column e-field="RequisitionRequiredDate" e-headertext="Required Date" e-width="60" e-format="{0:dd-MMM-yyyy}" type="date"></div>
+                                <div e-column e-field="Amount" e-headertext="Amount" e-width="60" textAlign='Right'></div>
+                                <div e-column e-field="AdvanceType" e-headertext="AdvanceType" e-width="60" textAlign='Right'></div>
+                                <div e-column e-field="CheckedBy" e-headertext="CheckedBy" e-width="100"></div>
+                                <div e-column e-field="ApprovedBy" e-headertext="ApprovedBy" e-width="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closePopUp();" class="btn"> Close</button></li>
+                </ul>
+            </div>
         </div>
     </div>
-    @Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")
-    @Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
-    @Html.Partial("~/Areas/Employees/Views/Shared/_ResponsiblePersonPopUp.cshtml")
+</div>
 
-    <style>
-        .modellgModify {
-            width: 1400px;
-        }
-    </style>
-    <div class="modal fade site-modal in" id="EmployeeAdvanceRequisitionPopUp" role="dialog" data-backdrop="static">
-        <div class="modal-dialog modal-lg modellgModify">
-            <div class="modal-content">
-                <div class="modal-header"> Employee Advance Requisition <button type="button" class="close" ng-click="closePopUp();">&times;</button></div>
-                <div class="modal-body form-elements form-horizontal">
-                    <div class="col-md-12">
-                        <div class="content-container-fluid" style="color:black;overflow:scroll">
-                            <div style="color:black;" id="employeeAdvanceRequisitionId" ej-grid e-datasource="getEmployeeAdvanceRequisitionList" e-recorddoubleclick="selectDoubleClick"
-                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                                 e-filtersettings-filterType="excel">
-                                <div e-columns>
-                                    <div e-column e-field="EmployeeName" e-headertext="EmployeeName" e-width="150"></div>
-                                    <div e-column e-field="SystemId" e-headertext="Requisition No" e-width="60"></div>
-                                    <div e-column e-field="RequisitionAddedDate" e-headertext="Requisition Date" e-width="60" e-format="{0:dd-MMM-yyyy}" type="date"></div>
-                                    <div e-column e-field="RequisitionRequiredDate" e-headertext="Required Date" e-width="60" e-format="{0:dd-MMM-yyyy}" type="date"></div>
-                                    <div e-column e-field="Amount" e-headertext="Amount" e-width="60" textAlign='Right'></div>
-                                    <div e-column e-field="AdvanceType" e-headertext="AdvanceType" e-width="60" textAlign='Right'></div>
-                                    <div e-column e-field="CheckedBy" e-headertext="CheckedBy" e-width="100"></div>
-                                    <div e-column e-field="ApprovedBy" e-headertext="ApprovedBy" e-width="100"></div>
+<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceId,voucherId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(advanceId,voucherId)"></confirm-archive-generic>
+
+<div class="modal fade site-modal in" id="employeeReconGLPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-form name="glPopUpForm1">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">GL List</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="employeeReconglListParameters.searchBy">
+                                            <option ng-repeat="option in searchglemployeeReconGLByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="employeeReconglListParameters.search" ng-enter="GetemployeeReconGLListData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="GetemployeeReconGLListData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <ul class="common-btn list-inline text-right">
-                        <li><button ng-click="closePopUp();" class="btn"> Close</button></li>
-                    </ul>
                 </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Account Group</th>
+                                <th>GL</th>
+                                <th>Budget</th>
+                                <th>Activity</th>
+                                <th>RefNo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in employeeReconGLList |itemsPerPage:employeeReconglListParameters.pageSize" pagination-id="metaData.name + 'employeeReconGLList'" total-items="employeeReconglListParameters.total_count"
+                                ng-dblclick="setemployeeReconGSelected(x, $index)" ng-class="{selected : x.BudgetMasterId === rowSelected}">
+                                <td>{{x.AccountGroupName}}</td>
+                                <td>{{x.GLGeneralInfoCode}} - {{x.GLGeneralInfoName}}</td>
+                                <td>{{x.BudgetName}}</td>
+                                <td>{{x.ActivityName}}</td>
+                                <td>{{x.RefNo}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'employeeReconGLList'" direction-links="true" boundary-links="true" on-page-change="GetemployeeReconGLListData(newPageNumber)"></dir-pagination-controls>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn btn-default" ng-click="closeEmployeeReconGLListPopUp()">Close</button>
             </div>
         </div>
     </div>
-
-    <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceId,voucherId)"></confirm-archive-generic>
-    <div class="modal fade site-modal in" id="employeeReconGLPopUp" role="dialog" data-backdrop="static">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content" ng-form name="glPopUpForm1">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">GL List</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="row text-right">
-                        <div class="col-xs-12 col-sm-12 col-sm-12">
-                            <div class="search-form">
-                                <div class="row">
-                                    <div class="col-xs-12 col-sm-3 col-md-3">
-                                        <div class="select-style">
-                                            <select ng-model="employeeReconglListParameters.searchBy">
-                                                <option ng-repeat="option in searchglemployeeReconGLByList" value="{{option.value}}">{{option.name}}</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-7 col-md-7">
-                                        <input type="text" class="form-control" placeholder="Search" ng-model="employeeReconglListParameters.search" ng-enter="GetemployeeReconGLListData()">
-                                    </div>
-                                    <div class="col-xs-12 col-sm-2 col-md-2">
-                                        <button type="button" ng-click="GetemployeeReconGLListData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="table-responsive modal-table">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Account Group</th>
-                                    <th>GL</th>
-                                    <th>Budget</th>
-                                    <th>Activity</th>
-                                    <th>RefNo</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr dir-paginate="x in employeeReconGLList |itemsPerPage:employeeReconglListParameters.pageSize" pagination-id="metaData.name + 'employeeReconGLList'" total-items="employeeReconglListParameters.total_count"
-                                    ng-dblclick="setemployeeReconGSelected(x, $index)" ng-class="{selected : x.BudgetMasterId === rowSelected}">
-                                    <td>{{x.AccountGroupName}}</td>
-                                    <td>{{x.GLGeneralInfoCode}} - {{x.GLGeneralInfoName}}</td>
-                                    <td>{{x.BudgetName}}</td>
-                                    <td>{{x.ActivityName}}</td>
-                                    <td>{{x.RefNo}}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'employeeReconGLList'" direction-links="true" boundary-links="true" on-page-change="GetemployeeReconGLListData(newPageNumber)"></dir-pagination-controls>
-                </div>
-                <div class="modal-footer common-btn">
-                    <button type="button" class="btn btn-default" ng-click="closeEmployeeReconGLListPopUp()">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
+</div>

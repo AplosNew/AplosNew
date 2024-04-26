@@ -326,6 +326,7 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         $scope.BudgetCodeList = [];
         $scope.authorizationList = [];
         $scope.CheckByList = [];
+        $scope.BudgetedEmployeeList = [];
         return true;
     };
 
@@ -569,6 +570,7 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
             url: $scope.path + "GetGoodWorkBudgetCodeSetupData?goodWorkSetupId=" + $scope.ModelNew.Id
         }).then(function (response) {
             $scope.BudgetCodeList = response.data;
+            $scope.GetBudgetedEmployee();
         });
     }
 
@@ -925,6 +927,7 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
     $scope.BudgetedEmployeeList = [];
     $scope.GetBudgetedEmployee = function () {
         try {
+            $scope.BudgetedEmployeeList = [];
             $http({
                 method: 'GET',
                 url: 'Attendances/GoodWorkSetup/GetBudgetedEmployeeData?gwsId=' + $scope.ModelNew.Id

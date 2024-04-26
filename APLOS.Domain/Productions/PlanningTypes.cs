@@ -9,6 +9,7 @@ namespace Library.Model.Productions
 
         public string Id { get; set; }
         public string PlantId { get; set; }
+        public string EntityId { get; set; }
         public string CompanyGroupId { get; set; }
         public string BaseProcessId { get; set; }
         public string SubProcessId { get; set; }
