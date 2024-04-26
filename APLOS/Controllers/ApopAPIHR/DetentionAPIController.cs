@@ -562,6 +562,13 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
+        public List<Default2> GetProductionCalculate(string ParameterId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetProductionCalculate(out List<Default2> activelists, ParameterId);
+            return activelists;
+        }
+
         public List<POWiseReport> GetPoWisereport(string POId, string POStatusId, string CustomerId)
         {
             clsDataContext clsData = new clsDataContext();
