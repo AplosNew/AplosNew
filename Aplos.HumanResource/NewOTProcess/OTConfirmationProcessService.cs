@@ -786,8 +786,8 @@ namespace Library.HumanResource.NewOTProcess
                          LEFT JOIN ORG.Section S ON S.Id=EI.SectionId                         
 						 LEFT JOIN dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate='" + workDate + @"'
                          LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=APD.ShiftSystemID
-                         WHERE EI.PlantId='" + plantId+ @"' AND ISNULL(APD.OverStay,0)<>0 AND EI.ExcludeOT=0 AND EI.SystemId IN (Select EmployeeId from dbo.ExceptionGoodWorkEmployee)
-						 and APD.IsOTEntitled='1'and APD.DayTypeOTApplicable != 0 and APD.Duration>0";
+                         WHERE EI.PlantId='" + plantId+ @"' AND ISNULL(APD.OverStay,0)<>0 AND EI.ExcludeOT=0 AND EI.SystemId NOT IN (Select EmployeeId from dbo.ExceptionGoodWorkEmployee)
+						 and APD.IsOTEntitled=1 and APD.DayTypeOTApplicable != 0 and APD.Duration>0";
                 return _sqlRepository.GetDataCollection(str);
 
             }
