@@ -128,7 +128,11 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
 
     $scope.SelectEmpDetail = function (args) {
         $scope.FinalSettlementModel = Object.assign({}, args.data);
+        $scope.FinalSettlementModel.FinalSettlementDate = $filter('dateFiltering')($scope.FinalSettlementModel.FinalSettlementDate, 'dd-M-yyyy');
         $scope.GetEmployeeFNFMasterData();
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
     }
 
 

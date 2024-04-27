@@ -37,6 +37,8 @@ namespace Library.Model.OrderManagements
         public string RequiredTimeUnit { get; set; }
         public string UserDefineLotNo { get; set; }
         public bool IsPreDefineLotApplicable { get; set; }
+        public bool IsWorkCenterValidateApplicable { get; set; }
+
         //public string ProductionStage { get; set; }
         //public string color { get; set; } = "#ffffff";
         #endregion Scalar Properties

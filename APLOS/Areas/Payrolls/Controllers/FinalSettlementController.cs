@@ -1921,7 +1921,8 @@ ORDER BY OL.Sequence
                 DataSet dsMaster, dsID, dsEmpID = null;
                 DataSet dsEmpMaster = null;
                 DataSet dsFNFEmpMaster = null;
-                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+                string esql = "";
+            MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from EmployeeFullAndFinalSettlementMaster where FinalSettlementName='" + data["FinalSettlementName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
 
@@ -1954,10 +1955,19 @@ ORDER BY OL.Sequence
                 con.OpenDataSetThroughAdapter("select * from FullAndFinalSettlementEmployee where FinalSettlementId='" + data["Id"] + "'", out dsFNFEmpMaster, false, "1");
                 con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[EmployeeFullAndFinalSettlement] where FinalSettlementId='" + data["Id"] + "'", out dsEmpID, false, "1");
                 int empcount = Convert.ToInt32(dsEmpID.Tables[0].Rows[0]["countId"].ToString());
+                var empIds = "' '";
+                foreach (var item in datalist)
+                {
+                    empIds += ",'" + item["EmpSystemId"].ToString() + "' ";
+                }
+
+
+                 esql = "select * from EmployeeFullAndFinalSettlement where EmpSystemId IN(" + empIds + ")";
+                con.OpenDataSetThroughAdapter(esql, out dsEmpMaster, false, "1");
+
                 foreach (var item in datalist)
                 {
                     string empId = item["EmpSystemId"].ToString();
-                    con.OpenDataSetThroughAdapter("select * from EmployeeFullAndFinalSettlement where EmpSystemId='" + empId + "'", out dsEmpMaster, false, "1");
                     var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                     string sql = string.Empty;
                     DataTable dtValue = new DataTable();
@@ -1967,7 +1977,7 @@ ORDER BY OL.Sequence
                     string sFormulaResult = null;
 
                     DataView empdv = new DataView(dsFNFEmpMaster.Tables[0]);
-                    empdv.RowFilter = "Id='" + item["Id"] + "'";
+                    empdv.RowFilter = "EmpSystemId='" + item["EmpSystemId"] + "'";
 
                     if (empdv.Count == 0)
                     {
@@ -1982,8 +1992,6 @@ ORDER BY OL.Sequence
                         DataRow drmo = empdv[0].Row;
                         EditRow(drmo, item);
                     }
-
-
 
                     DataTable dtData = GetDataTable(empId);
                     for (int i = 0; i < dtData.Rows.Count; i++)
@@ -2039,6 +2047,9 @@ ORDER BY OL.Sequence
 
                             }
                         }
+
+
+
                     }
 
 
@@ -2046,7 +2057,7 @@ ORDER BY OL.Sequence
                     {
 
                         DataView dv = new DataView(dsEmpMaster.Tables[0]);
-                        dv.RowFilter = "Id='" + dtData.Rows[i]["Id"] + "'";
+                        dv.RowFilter = "Id='" + dtData.Rows[i]["Id"] + "' AND EmployeeSeperationItemId = '" + dtData.Rows[i]["EmployeeSeperationItemId"] + "' AND EmpSystemId = '" + dtData.Rows[i]["EmpSystemId"] + "'";
 
                         if (dv.Count == 0)
                         {
