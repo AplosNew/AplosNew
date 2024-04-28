@@ -1948,6 +1948,7 @@
     <Content Include="Areas\Administration\Scripts\GeneralApprovedController.js" />
     <Content Include="Areas\Attendances\Scripts\GoodWorkCheckedController.js" />
     <Content Include="Areas\Attendances\Scripts\GoodWorkApproveController.js" />
+    <Content Include="Areas\Attendances\Scripts\GoodWorkReportController.js" />
     <Content Include="Areas\Attendances\Scripts\GoodWorkPaymentDisburseController.js" />
     <Content Include="Areas\Attendances\Scripts\EmployeeMultipleAdvanceController.js" />
     <Content Include="Areas\Commercial\Scripts\ContractSummaryController.js" />
@@ -4954,6 +4955,7 @@
     <Content Include="Areas\Attendances\Views\GoodWork\EmployeeMultipleAdvance.cshtml" />
     <Content Include="Areas\HumanResource\Views\LeaveTransection\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\OTConfirmationProcess\OTApprove.cshtml" />
+    <Content Include="Areas\Attendances\Views\GoodWork\GWReport.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
