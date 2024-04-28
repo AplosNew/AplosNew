@@ -498,7 +498,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                             drF["EmployeeSeperationSetupId"] = item["EmployeeSeperationSetupId"];
                             drF["DrBudgetMasterActivityId"] = item["DrBudgetMasterActivityId"];
                             drF["CrBudgetMasterActivityId"] = item["CrBudgetMasterActivityId"];
-                            drF["UserName"] = item["UserName"];
+                            drF["UserName"] = item["UserName"].ToString().Trim();
                             drF["SandardName"] = item["SandardName"];
                             drF["Active"] = item["Active"];
                             drF["IsReportItem"] = item["IsReportItem"];
@@ -603,7 +603,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                         while (dsDestination.Tables[0].DefaultView.Count > 0)
                             dsDestination.Tables[0].DefaultView[0].Delete();
                     }
-
+                    data["UserName"] = data["UserName"].ToString().Replace(" ", "");
 
                     if (dsMaster.Tables[0].Rows.Count == 0)
                     {
@@ -616,6 +616,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     else
                     {
                         _Id = data["Id"].ToString();
+                    
                         EditRow(dsMaster.Tables[0].Rows[0], data);
                     }
 
