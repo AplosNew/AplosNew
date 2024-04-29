@@ -555,6 +555,14 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetProductionParameterId(out List<Default2> activelists, ProcessId);
             return activelists;
         }
+
+        public List<ProductionEntryDetail> GetProductionOrderDetail(string ProcessId, string entityId, string productionDate, string shiftId , string Workcenter )
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetProductionOrderDetail(out List<ProductionEntryDetail> activelists, ProcessId, entityId, productionDate, shiftId, Workcenter );
+            return activelists;
+        }
+
         public List<Default2> GetProductionParameter(string ParameterId)
         {
             clsDataContext clsData = new clsDataContext();
