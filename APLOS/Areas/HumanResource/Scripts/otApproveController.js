@@ -95,6 +95,12 @@ function otApproveController(commonMessage, $scope, $rootScope, baseService, $ro
                 }
 
 
+                for (var i = 0; i < dataList.length; i++) {
+                    if (dataList[i].OTHr > dataList[i].CalculatedOT) {
+                        throw "Extra OT will not exceed OverStay for this Employee " + dataList[i].Code+".";
+                    }
+                }
+
 
                 $http({
                     method: 'POST',

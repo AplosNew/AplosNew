@@ -533,7 +533,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                 workbook = application.Workbooks.Create(1);
                 workbook.Worksheets[0].Name = "OTData";
                 sheet = workbook.Worksheets[0];
-
+                sheet[5, 1].Text = data.Rows[0]["APDEmpWorkDate"].ToString();
+                sheet[5, 1].CellStyle.Font.Bold = true;
                 int ROW = 6; int COL = 1;
 
                 #region columns

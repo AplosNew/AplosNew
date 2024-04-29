@@ -146,15 +146,26 @@
                         <input type="hidden" ng-model="ModelOTNew.Id">
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Year<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select id="LeaveTypeID" class="form-control" ng-model="ModelOTNew.YearNo" required tabindex="1" ng-disabled="true">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in yearlist" value="{{option.YearNo}}">{{option.YearNo}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="FromDate" ng-model="ModelOTNew.FromDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" required tabindex="23">
+                                    <input type="text" name="FromDate" ng-model="ModelOTNew.FromDate" class="form-control datepic" datepic placeholder="dd-Mmm-yyyy" required tabindex="23">
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" class="form-control" name="UserName" ng-model="ModelOTNew.UserRef" required e-width="100" />
+                                    <input type="text" class="form-control" name="UserName" ng-model="ModelOTNew.UserName" required e-width="100" />
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
@@ -176,15 +187,38 @@
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Month<sup style="color:red">*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style" style="color:red">
+                                        <select id="MonthId" class="form-control" ng-model="ModelOTNew.MonthNo" name="MonthId" required tabindex="1" ng-disabled="true">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in monthList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="ToDate" ng-model="ModelOTNew.ToDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" required tabindex="24">
+                                    <input type="text" name="ToDate" ng-model="ModelOTNew.ToDate" datepic class="form-control datepic" placeholder="dd-Mmm-yyyy" required tabindex="24">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">User Ref<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" class="form-control" name="UserRef" ng-model="ModelOTNew.UserRef" required e-width="100" />
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors ng-hide="true">
+                                <label class="col-sm-4 control-label">No Of Days<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="number" class="form-control" name="NoOfDays" ng-model="ModelOTNew.NoOfDays" e-width="100" />
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                   <input tabindex="1" type="text" name="By Whom" ng-model="ModelOTNew.ByWhom" class="form-control" readonly required>
+                                    <input tabindex="1" type="text" name="By Whom" ng-model="ModelOTNew.ByWhom" class="form-control" readonly required>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -209,10 +243,13 @@
                                     <div e-column e-headertext="All" e-headertemplateid="#CheckTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
                                     <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="60"></div>
                                     <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                                    <div e-column e-field="Entity" e-headertext="Entity" e-width="80"></div>
                                     <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
                                     <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
                                     <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
-                                    <div e-column e-field="Minute" e-headertext="Minute" e-width="60"></div>
+                                    <div e-column e-field="GivenDesignation" e-headertext="Given Designation" e-width="80"></div>
+                                    <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
+                                    <div e-column e-field="PayDays" e-headertext="Pay Days" e-width="60"></div>
                                     <div e-column e-field="Hour" e-headertext="Hour" e-width="60"></div>
                                     <div e-column e-field="Rate" e-headertext="Rate" e-width="60"></div>
                                     <div e-column e-field="Amount" e-headertext="Amount" e-width="60"></div>
@@ -250,7 +287,8 @@
                                 <div e-column e-field="Id" e-headertext="Id" e-width="3"></div>
                                 <div e-column e-field="FromDate" e-headertext="From Date" e-width="2" e-isprimarykey="true"></div>
                                 <div e-column e-field="ToDate" e-headertext="To Date" e-width="2" e-isprimarykey="true"></div>
-                                <div e-column e-field="UserRef" e-headertext="UserName" e-width="3"></div>
+                                <div e-column e-field="UserName" e-headertext="User Name" e-width="3"></div>
+                                <div e-column e-field="UserRef" e-headertext="User Ref" e-width="3"></div>
                                 <div e-column e-field="Percentage" e-headertext="Percentage" e-width="3"></div>
                                 <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
                             </div>
@@ -265,6 +303,17 @@
                 <input type="hidden" ng-model="ModelPCNewPendingPayment.Id">
                 <div class="col-xs-12 col-sm-6 col-md-6">
                     <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Year<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select id="LeaveTypeID" class="form-control" ng-model="ModelPCNewPendingPayment.YearNo" required tabindex="1" ng-disabled="true">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in yearlist" value="{{option.YearNo}}">{{option.YearNo}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <input type="text" name="FromDate" ng-model="ModelPCNewPendingPayment.FromDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3" readonly>
@@ -273,7 +322,7 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" class="form-control" name="UserName" ng-model="ModelPCNewPendingPayment.UserRef" e-width="100" readonly />
+                            <input type="text" class="form-control" name="UserName" ng-model="ModelPCNewPendingPayment.UserName" e-width="100" readonly />
                         </div>
                     </div>
                     <div class="form-group" show-errors>
@@ -285,9 +334,26 @@
                 </div>
                 <div class="col-xs-12 col-sm-6 col-md-6">
                     <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Month<sup style="color:red">*</sup></label>
+                        <div class="col-sm-8">
+                            <div class="select-style" style="color:red">
+                                <select id="MonthId" class="form-control" ng-model="ModelPCNewPendingPayment.MonthNo" name="MonthId" required tabindex="1" ng-disabled="true">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in monthList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <input type="text" name="ToDate" ng-model="ModelPCNewPendingPayment.ToDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">User Ref<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" class="form-control" name="UserRef" ng-model="ModelPCNewPendingPayment.UserRef" e-width="100" readonly />
                         </div>
                     </div>
                     <div class="form-group" show-errors>
@@ -316,6 +382,7 @@
                             <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
                             <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
                             <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-field="PayDays" e-headertext="Pay Days" e-width="60"></div>
                             <div e-column e-field="Hour" e-headertext="Hour" e-width="60" e-isprimarykey="true"></div>
                             <div e-column e-field="Rate" e-headertext="Rate" e-width="60" e-isprimarykey="true"></div>
                             <div e-column e-field="Amount" e-headertext="Amount" e-width="60"></div>
@@ -347,7 +414,8 @@
                         <div e-column e-field="Id" e-headertext="Id" e-width="3"></div>
                         <div e-column e-field="FromDate" e-headertext="From Date" e-width="2" e-isprimarykey="true"></div>
                         <div e-column e-field="ToDate" e-headertext="To Date" e-width="2" e-isprimarykey="true"></div>
-                        <div e-column e-field="UserRef" e-headertext="UserName" e-width="3"></div>
+                        <div e-column e-field="UserName" e-headertext="User Name" e-width="3"></div>
+                        <div e-column e-field="UserRef" e-headertext="User Ref" e-width="3"></div>
                         <div e-column e-field="Percentage" e-headertext="Percentage" e-width="3"></div>
                         <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
                     </div>
@@ -552,6 +620,7 @@
                                                 <div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkDisbursementProcess" e-textalign="center" e-width="30"></div>
                                                 <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="80"></div>
                                                 <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="80"></div>
+                                                <div e-column e-field="PayDays" e-headertext="Pay Days" e-width="60"></div>
                                                 <div e-column e-field="Hour" e-headertext="Hour" e-width="60" e-isprimarykey="true"></div>
                                                 <div e-column e-field="Rate" e-headertext="Rate" e-width="60" e-isprimarykey="true"></div>
                                                 <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Amount" e-headertext="Amount" e-width="80" e-textalign="right" style="height: 20px;"></div>
@@ -689,6 +758,7 @@
                                         <div e-column e-field="Id" e-headertext="Master Id" e-width="80"></div>
                                         <div e-column e-field="FromDate" e-headertext="From Date" e-width="80"></div>
                                         <div e-column e-field="ToDate" e-headertext="To Date" e-width="80"></div>
+                                        <div e-column e-field="UserName" e-headertext="User Name" e-width="80"></div>
                                         <div e-column e-field="UserRef" e-headertext="User Ref" e-width="80"></div>
                                         <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
                                         <div e-column e-field="PaymentsStatus" e-headertext="Payments Status" e-width="80"></div>

@@ -4,29 +4,6 @@
     <div class="row"></div>
     <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
-            @*<div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Employee Code<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <div class="input-group">
-                            <input tabindex="1" type="text" name="EmployeeCode" ng-model="EmployeeModel.EmployeeCode" class="form-control" readonly required>
-                            <span class="input-group-btn">
-                                <button ng-click="LoadEmployeeList();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Employee Name </label>
-                    <label class="col-sm-8 control-label">: {{EmployeeModel.EmployeeName}}</label>
-                </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">DOJ </label>
-                    <label class="col-sm-8 control-label">: {{EmployeeModel.DOJ}}</label>
-                </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">DOS </label>
-                    <label class="col-sm-8 control-label">: {{EmployeeModel.DOS}}</label>
-                </div>*@
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Final Settlement Name<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
@@ -49,20 +26,6 @@
                 </div>
             </div>
 
-            @*<div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Legal Designation </label>
-                    <label class="col-sm-8 control-label">: {{EmployeeModel.LegalDesignation}}</label>
-                </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Department </label>
-                    <label class="col-sm-8 control-label">: {{EmployeeModel.Department}}</label>
-                </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Position </label>
-                    <label class="col-sm-8 control-label">: {{EmployeeModel.PositionName}}</label>
-                </div>*@
-
-
         </div>
     </div>
     <hr />
@@ -77,8 +40,11 @@
                 <div e-column e-field="DOS" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="DOS" e-width="70"></div>
                 <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
                 <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
-                <div e-column e-field="EntityName" e-headertext="Entity" e-width="80"></div>
+                <div e-column e-headertext="Actions" e-template="#ShowActionButtons" e-width="30"></div>
             </div>
+            <script type="text/template" id="ShowActionButtons">
+                <button style="color: #f3f3ec;background-color: #1c1f32;" ng-hide="data.Id==null" title="Items" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.GetEmployeeItems(this);" style="margin: -6px;"></i></button>
+            </script>
         </div>
         <div class="common-btn" ng-show="SelectedEmployeeList.length>0">
             <ul class="list-inline text-right">
@@ -87,35 +53,7 @@
         </div>
 
     </div>
-    @*<div clas="row">
-            <div class="modal-body form-elements form-horizontal">
-                <div ng-form name="CostingSOform">
-                    <div class="col-xs-12">
-                        <div class="table-responsive modal-table">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Head</th>
-                                        <th>State</th>
-                                        <th>Value</th>
 
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat="x in FormulaList">
-                                        <td>{{x.UserName}}</td>
-                                        <td>{{x.EntryState}}</td>
-                                        <td><input class="form-control text-right" ng-disabled="x.FormulaId!=null" type="text" n-decimals="6" ng-model="x.Value" /></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Save</button></li>
-                <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="11"></i> Clear</button></li>
-                 </div>
-        </div>*@
     <hr />
     <div class="common-btn">
         <ul class="list-inline text-right">
@@ -125,26 +63,12 @@
 
 <div class="row aplos-grid-toggle">
     <div class="col-xs-12 col-sm-12 col-sm-12">
-        <div style="color:black;"
-             id="GridFinalSettlementList"
-             ej-grid e-datasource="FinalSettlementList"
-             e-gridlines="vertical"
-             e-allowfiltering="true"
-             e-allowpaging="true"
-             e-allowsorting="true"
-             e-allowselection="true"
-             e-filtersettings-filterType="excel" e-allowtouch="true">
+        <div style="color:black;" id="GridFinalSettlementList" ej-grid e-datasource="FinalSettlementList" e-recorddoubleclick="SelectEmpDetail"
+             e-gridlines="vertical"e-allowfiltering="true" e-allowpaging="true"e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
             <div e-columns>
-                <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="80"></div>
-                <div e-column e-field="EmployeeName" e-headertext="Name" e-width="100"></div>
-                <div e-column e-field="FinalSettlementDate" e-headertext="Date" e-width="80"></div>
-                <div e-column e-field="DOJ" e-headertext="DOJ" e-width="80"></div>
-                <div e-column e-field="DOS" e-headertext="DOS" e-width="80"></div>
-                <div e-column e-field="TenureYearNo" e-headertext="TenureYear" e-width="50"></div>
-                <div e-column e-field="TenureMonthNo" e-headertext="TenureMonth" e-width="50"></div>
-                <div e-column e-field="TenureDayNo" e-headertext="TenureDay" e-width="50"></div>
-                <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
-                <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
+                <div e-column e-field="FinalSettlementName" e-headertext="Name" e-width="100"></div>
+                <div e-column e-field="FinalSettlementDate" e-type="date" e-format="{0:dd-MMM-yyyy}"  e-headertext="Date" e-width="80"></div>
             </div>
         </div>
     </div>
@@ -186,6 +110,80 @@
                     </div>
                 </div>
 
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="FormulaInfo" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">Seperation Items<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div clas="row">
+                    <div class="modal-body form-elements form-horizontal">
+                        <div ng-form name="CostingSOform">
+                            <div class="col-xs-12">
+                                <div class="table-responsive modal-table">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Head</th>
+                                                <th>State</th>
+                                                <th>Value</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="x in FormulaList">
+                                                <td>{{x.UserName}}</td>
+                                                <td>{{x.EntryState}}</td>
+                                                <td><input class="form-control text-right" ng-disabled="x.EntryState=='Auto' || x.EntryState=='Calculate'" type="text" n-decimals="6" ng-model="x.Value" /></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+
+                            <fieldset class="scheduler-border">
+                                <legend class="scheduler-border">Undisbursed Salary Info</legend>
+                                <div class="table-responsive modal-table">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>YearNo</th>
+                                                <th>Month Name</th>
+                                                <th>Amount</th>
+                                            </tr>
+
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="x in FinalSettlementUndisbursedEarningList">
+                                                <td>{{x.YearNo}}</td>
+                                                <td>{{x.MonthName}}</td>
+                                                <td class="text-right">{{x.DisbusmentAmount}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2">Total</td>
+                                                <td class="text-right">
+                                                    {{FinalSettlementUndisbursedEarningList | sumByKey : 'DisbusmentAmount'|number:0}}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                Salary Amount: {{FinalSettlementModel.LastMonthNetPayAmount}}
+                            </fieldset>
+                        </div>
+                        <div class="common-btn" style="padding-right: 15px;">
+                            <ul class="list-inline text-right">
+                                <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Save</button></li>
+                                <li><button ng-click="CloseFormulaPopUp();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="11"></i> Close</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

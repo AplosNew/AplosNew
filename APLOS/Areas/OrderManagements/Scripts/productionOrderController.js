@@ -393,6 +393,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         , Remarks: null
         , color: '#ffffff'
         , IsPreDefineLotApplicable: false
+        , IsWorkCenterValidateApplicable: true
         , UserDefineLotNo: null
         , UsedInPB: false
     };

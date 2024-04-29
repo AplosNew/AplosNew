@@ -74,6 +74,10 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             return View();
         }
+        public ActionResult GWReport()
+        {
+            return View();
+        }
         //Load Employee
         [HttpPost, Authorize]
         public ActionResult LoadEmployeelist(Dictionary<string, string> parameters, string userGroupId, string shiftId, string workDate)
@@ -173,7 +177,7 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetShift(string setupId,string date)
+        public ActionResult GetShift(string setupId, string date)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string xstr = @"select SD.SystemID ShiftId,P.Id PlantId,P.UserName Plant,SD.ShiftDefinationDescription,SD.UserName ShiftDefination 
@@ -182,12 +186,12 @@ namespace Aplos.Areas.Attendances.Controllers
 						left join ORG.Plant P on P.Id=SD.PlantID
                         Where SD.SystemID IN(	Select distinct MB.ShiftDefinationId from dbo.GoodWorkBudgetSetUp BS
 						left join MST.ManpowerBudget MB ON MB.Id=BS.BudgetId
-						Where GoodWorkSetUpId='"+ setupId + "')";
+						Where GoodWorkSetUpId='" + setupId + "')";
 
             string str = @"SELECT SD.SystemID ShiftId,P.Id PlantId,P.UserName Plant,SD.ShiftDefinationDescription,SD.UserName ShiftDefination 
 ,CONVERT(varchar(5),SD.InTime,108) InTime,CONVERT(VARCHAR(5), SD.InTime, 108) OutTime	from ShiftDefination SD
 left join ORG.Plant P on P.Id=SD.PlantID
-WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Where p.WorkDate='"+ date + "')";
+WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Where p.WorkDate='" + date + "')";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
@@ -413,7 +417,7 @@ WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Wh
         }
 
         [HttpGet, Authorize]
-        public ActionResult getFiltersData(string userGroupId, string shiftId,string date)
+        public ActionResult getFiltersData(string userGroupId, string shiftId, string date)
         {
             try
             {
@@ -430,7 +434,7 @@ WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Wh
 						 LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
                          LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
                          LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-						 where EI.EmployeeStatus='Active' and ei.SystemId in (select EmpSystemID from dbo.AttdnProcessData where WorkDate='"+ date + @"') and EI.BudgetCode in (SELECT BudgetId FROM dbo.GoodWorkBudgetSetup where GoodWorkSetUpId= '" + userGroupId + @"')";
+						 where EI.EmployeeStatus='Active' and ei.SystemId in (select EmpSystemID from dbo.AttdnProcessData where WorkDate='" + date + @"') and EI.BudgetCode in (SELECT BudgetId FROM dbo.GoodWorkBudgetSetup where GoodWorkSetUpId= '" + userGroupId + @"')";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -707,13 +711,175 @@ WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Wh
             }
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetGoodWorkReportInDateRange(string reportFileName, string fromDate, string toDate)
+        {
+            try
+            {
+                string fileName = "";
+                fileName = GetGoodWorkReportInDateRangexlx("", reportFileName, fromDate, toDate);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string GetGoodWorkReportInDateRangexlx(string ReportHeader, string reportFileName, string fromDate, string toDate)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Good Work Report";
+                sheet = workbook.Worksheets[0];
+                int ROW = 5; int COL = 1;
+                DataTable data = GetGWReportDataInDateRange(fromDate, toDate);
+
+                #region columns
+                sheet[ROW, COL].Text = "Employee Code"; sheet[ROW, COL].ColumnWidth = 15; int ColEmployeeCode = COL; COL++;
+                sheet[ROW, COL].Text = "Employee Name"; sheet[ROW, COL].ColumnWidth = 20; int ColEmployeeName = COL; COL++;
+                sheet[ROW, COL].Text = "Good Work Group Name"; sheet[ROW, COL].ColumnWidth = 20; int ColGWGN = COL; COL++;
+                sheet[ROW, COL].Text = "Responsible Person Name"; sheet[ROW, COL].ColumnWidth = 20; int ColRP = COL; COL++;
+                sheet[ROW, COL].Text = "Entity"; sheet[ROW, COL].ColumnWidth = 15; int ColEntity = COL; COL++;
+                sheet[ROW, COL].Text = "Good Work Entry Date"; sheet[ROW, COL].ColumnWidth = 10; int ColGWED = COL; COL++;
+                sheet[ROW, COL].Text = "Checked Status"; sheet[ROW, COL].ColumnWidth = 10; int ColCheckedStatus = COL; COL++;
+                sheet[ROW, COL].Text = "Approved Status"; sheet[ROW, COL].ColumnWidth = 10; int ColApprovedStatus = COL; COL++;
+                sheet[ROW, COL].Text = "Payment Creation Date"; sheet[ROW, COL].ColumnWidth = 10; int ColPCD = COL; COL++;
+                sheet[ROW, COL].Text = "Payment ApprovedBy"; sheet[ROW, COL].ColumnWidth = 20; int ColPAB = COL; COL++;
+                sheet[ROW, COL].Text = "Employee Category"; sheet[ROW, COL].ColumnWidth = 10; int ColEC = COL; COL++;
+                sheet[ROW, COL].Text = "Legal Designation"; sheet[ROW, COL].ColumnWidth = 20; int ColLD = COL; COL++;
+                sheet[ROW, COL].Text = "Section"; sheet[ROW, COL].ColumnWidth = 12; int ColSection = COL; COL++;
+                sheet[ROW, COL].Text = "Department"; sheet[ROW, COL].ColumnWidth = 12; int ColDepartment = COL; COL++;
+                sheet[ROW, COL].Text = "Work Date"; sheet[ROW, COL].ColumnWidth = 8; int ColWorkDate = COL; COL++;
+                sheet[ROW, COL].Text = "Over Time"; sheet[ROW, COL].ColumnWidth = 10; int ColOverTime = COL; COL++;
+                sheet[ROW, COL].Text = "Over Stay"; sheet[ROW, COL].ColumnWidth = 10; int ColOverStay = COL; COL++;
+                sheet[ROW, COL].Text = "Day Status"; sheet[ROW, COL].ColumnWidth = 10; int ColDayStatus = COL;
+                #endregion columns
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                ROW++;
+
+                int startRow = ROW;
+
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, ColEmployeeCode].Text = data.Rows[i]["EmployeeCode"].ToString();
+                    sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
+                    sheet[ROW, ColGWGN].Text = data.Rows[i]["GoodWorkGroupName"].ToString();
+                    sheet[ROW, ColRP].Text = data.Rows[i]["ResponsiblePersonName"].ToString();
+                    sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
+                    sheet[ROW, ColGWED].Text = data.Rows[i]["GoodWorkEntryDate"].ToString();
+                    sheet[ROW, ColCheckedStatus].Text = data.Rows[i]["CheckedStatus"].ToString();
+                    sheet[ROW, ColApprovedStatus].Text = data.Rows[i]["ApprovedStatus"].ToString();
+                    sheet[ROW, ColPCD].Text = data.Rows[i]["PaymentCreationDate"].ToString();
+                    sheet[ROW, ColPAB].Text = data.Rows[i]["PaymentApprovedBy"].ToString();
+                    sheet[ROW, ColEC].Text = data.Rows[i]["EmployeeCategory"].ToString();
+                    sheet[ROW, ColLD].Text = data.Rows[i]["LegalDesignation"].ToString();
+                    sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
+                    sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
+                    sheet[ROW, ColWorkDate].Text = data.Rows[i]["WorkDate"].ToString();
+                    sheet[ROW, ColOverTime].Number = clsStaticInfo.dbl(data.Rows[i]["OverTime"].ToString());
+                    sheet[ROW, ColOverTime].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColOverStay].Number = clsStaticInfo.dbl(data.Rows[i]["OverStay"].ToString());
+                    sheet[ROW, ColOverStay].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColDayStatus].Text = data.Rows[i]["DayStatus"].ToString();
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+                }
+
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Good Work Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                //sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //#endregion ******************Report Header******************
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetGWReportDataInDateRange(string fromDate, string toDate)
+        {
+            try
+            {
+                var sql = @"select EI.EmployeeCode,EI.EmployeeName,GWS.UserName GoodWorkGroupName,R.EmployeeName ResponsiblePersonName,EN.UserName Entity
+,FORMAT(GW.AddedDate,'dd-MMM-yyyy')GoodWorkEntryDate,GW.CheckedStatus,GW.ApprovedStatus,FORMAT(GPA.AddedDate,'dd-MMM-yyyy')PaymentCreationDate
+,GPAP.EmployeeName PaymentApprovedBy,EC.UserName EmployeeCategory,D.UserName LegalDesignation,S.UserName Section,DEPT.UserName Department
+,format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,GWD.Minute OverTime,APD.OverStay,APD.DayStatus
+from GoodWork GW 
+left join GoodworkDetail GWD on GW.Id=GWD.GoodWorkId
+left join EmployeeInformation EI on EI.SystemId=GWD.EmpSystemId 
+LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
+LEFT JOIN ORG.Department DEPT ON EI.DepartmentId=DEPT.Id
+LEFT join MST.DesignationMaster DM on DM.DesignationId=EI.GivenDesignationId
+LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
+LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+left join hkp.LegalDesignation D on D.Id=ei.LegalDesignationId
+left join dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate=GW.WorkDate
+LEFT JOIN dbo.GoodWorkSetup GWS ON GWS.Id=GW.UserGroupId
+LEFT JOIN dbo.EmployeeInformation R ON GWS.ResponsiblePersonId=R.SystemId
+LEFT JOIN [dbo].[GoodWorkPaymentAdvise] GPA ON GPA.Id=GWD.GWPaymentAdviseId
+LEFT JOIN dbo.EmployeeInformation GPAP ON GPAP.SystemId=GPA.ApprovedById
+LEFT JOIN ORG.Entity EN ON EN.Id=PMB.EntityId
+where GW.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' and APD.DayStatus <> 'A'
+Order By GW.WorkDate";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
 
         #region Payable Creation and Worker Advance
 
         [HttpGet, Authorize]
         public ActionResult GetWorkerAdvanceList()
         {
-            string sql = @"select wa.Id,FORMAT(FromDate,'dd-MMM-yy')FromDate,FORMAT(ToDate,'dd-MMM-yy')ToDate,UserRef,wa.YearNo,wa.MonthNo
+            string sql = @"select wa.Id,FORMAT(FromDate,'dd-MMM-yy')FromDate,FORMAT(ToDate,'dd-MMM-yy')ToDate,UserRef,UserName,wa.YearNo,wa.MonthNo
 						        ,wa.PayDaysType,wa.Percentage,wa.Remarks,wa.ApprovedById
                                 ,ei.SystemId PreparedById,ei.EmployeeName ByWhom
                                   from [dbo].[WorkerAdvance] wa
@@ -726,7 +892,7 @@ WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Wh
         public ActionResult GetWorkerAdvancePendingforApprovalList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select wa.Id,FORMAT(FromDate,'dd-MMM-yy')FromDate,FORMAT(ToDate,'dd-MMM-yy')ToDate,UserRef,wa.YearNo,wa.MonthNo
+            string sql = @"select wa.Id,FORMAT(FromDate,'dd-MMM-yy')FromDate,FORMAT(ToDate,'dd-MMM-yy')ToDate,UserRef,UserName,wa.YearNo,wa.MonthNo
 						        ,wa.PayDaysType,wa.Percentage,wa.Remarks,wa.ApprovedById
                                 ,ei.SystemId PreparedById,ei.EmployeeName ByWhom
                                 from [dbo].[WorkerAdvance] wa
@@ -739,7 +905,7 @@ WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Wh
         public ActionResult GetWorkerAdvanceDetailCenter(string workAdvanceId)
         {
             string str = @"select ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,s.UserName Section,ss.UserName SubSection,wad.Id
-							,wa.Id workAdvanceId,d.UserName Department,wad.Hour,wad.Rate,wad.Amount,wad.AdvanceAmount,wad.Remarks 
+							,wa.Id workAdvanceId,d.UserName Department,wad.PayDays,wad.Hour,wad.Rate,wad.Amount,wad.AdvanceAmount,wad.Remarks 
                             from [dbo].[WorkerAdvanceDetail] wad
                             left join [dbo].[WorkerAdvance] wa on wa.Id=wad.WorkerAdvanceId
                             left join EmployeeInformation ei on ei.SystemId=wad.EmpSystemId
@@ -878,7 +1044,7 @@ WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Wh
                             item["Id"] = detailId;
                             item["WorkerAdvanceId"] = _MasterId;
                             item["EmpSystemId"] = item["EmpSystemId"];
-                            
+
                             materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
                         }
                         if (dv.Count > 0)
@@ -890,6 +1056,7 @@ WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Wh
 
                             drmo["WorkerAdvanceId"] = _MasterId;
                             drmo["EmpSystemId"] = item["EmpSystemId"];
+                            drmo["PayDays"] = item["PayDays"];
                             drmo["AdvanceAmount"] = item["AdvanceAmount"];
                             drmo["Remarks"] = item["Remarks"];
 
@@ -972,11 +1139,11 @@ WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Wh
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                if(saveUpdate == "Save")
-                { 
+                if (saveUpdate == "Save")
+                {
                     if (tabName == "GoodWork")
                     {
-                    sql = @"SELECT * FROM 
+                        sql = @"SELECT * FROM 
 (select CheckBoxSelect=cast(case when z.Id is null then 0 else 1 end as bit)
 ,z.Id,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,sum(gwd.Minute)*OLS.OTreductionFactor Minute,(sum(gwd.Minute)/60)*OLS.OTreductionFactor Hour
                                     ,format(g.Gross,'N2') Gross,0 Rate,0 Amount
@@ -1022,23 +1189,24 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
                                     )T WHERE T.CheckBoxSelect=0
 								order by T.EmployeeCode ";
 
-                }
-                    else if(tabName == "ExtraOT_Advance")
-                {
-                    sql = @"SELECT * FROM 
+                    }
+                    else if (tabName == "ExtraOT_Advance")
+                    {
+                        sql = @"SELECT * FROM 
 (select CheckBoxSelect=cast(case when z.Id is null then 0 else 1 end as bit)
 ,CheckBoxSelectGW=cast(case when z.Id is null then 0 else 1 end as bit)
 ,ei.SystemId EmpSystemId,z.Id,ei.EmployeeCode,ei.EmployeeName
 ,format(sum(ISNULL(apd.AdditionalOT,0)),'N2') Minute
                                 ,format((sum(ISNULL(apd.AdditionalOT,0))/60),'N2') Hour
                                 ,format(g.Gross,'N2') Gross
-                                ,0 Rate,0 Amount,0 AdvanceAmount
+                                ,(DATEDIFF(DAY, '" + fromDate + @"', '" + toDate + @"' )+1) PayDays,0 Rate,0 Amount,0 AdvanceAmount
 								,apd.GWPaymentAdviseId 
 								,onw.FormulaDesID
-                                ,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
+                                ,EN.UserName Entity,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
 								,B.Basic,B.BasicSalaryHeadID
                                 ,format(sum(apd.OverStay),'N2') OverStayMinute
                                 ,format((sum(apd.OverStay)/60),'N2') OverStayHour
+                                ,DesM.UserName GivenDesignation,DG.UserName LegalDesignation
                                 from [dbo].[AttdnProcessData] apd 
                                 left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID 
                                 left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
@@ -1046,6 +1214,7 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
                                 LEFT OUTER JOIN ORG.Entity EN ON MPB.EntityId=EN.Id
 						        LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
 						        LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = ei.GivenDesignationId
+                                LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
                                 LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
 						        LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
                                 LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
@@ -1076,16 +1245,16 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
                                                                           FROM SalaryInfoDefine SID 
 								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                                                         WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
-                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND OverStay<>0 AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 
+                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 and EI.EmployeeStatus='Active' and ISNULL(apd.AdditionalOT,0)>0
                                 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id,Department.UserName,Section.UserName,SubSection.UserName
-								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,z.Id
+								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,z.Id,EN.UserName,DesM.UserName,DG.UserName
                                 )T WHERE T.CheckBoxSelect=0 and T.CheckBoxSelectGW=0
 								order by T.EmployeeCode ";
 
-                }
-                else
-                {
-                    sql = @"SELECT * FROM 
+                    }
+                    else
+                    {
+                        sql = @"SELECT * FROM 
 (select CheckBoxSelect=cast(case when z.Id is null then 0 else 1 end as bit)
 ,CheckBoxSelectAD=cast(case when za.Id is null then 0 else 1 end as bit)
 ,ei.SystemId EmpSystemId,z.Id,ei.EmployeeCode,ei.EmployeeName
@@ -1136,13 +1305,13 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
                                                                           FROM SalaryInfoDefine SID 
 								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                                                         WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
-                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND OverStay<>0 AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 AND apd.GWPaymentAdviseId IS NULL
+                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 AND apd.GWPaymentAdviseId IS NULL and EI.EmployeeStatus='Active' and ISNULL(apd.AdditionalOT,0)>0
                                 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id,Department.UserName,Section.UserName,SubSection.UserName
 								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,za.Id
                                 )T WHERE T.CheckBoxSelect=0 and T.CheckBoxSelectAD=0
 								order by T.EmployeeCode ";
+                    }
                 }
-               }
                 else
                 {
                     if (tabName == "GoodWork")
@@ -1194,7 +1363,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 								order by T.EmployeeCode ";
 
                     }
-                    else if(tabName == "ExtraOT_Advance")
+                    else if (tabName == "ExtraOT_Advance")
                     {
                         sql = @"SELECT * FROM 
 (select CheckBoxSelect=cast(case when za.Id is null then 0 else 1 end as bit)
@@ -1203,13 +1372,14 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                 ,format(sum(ISNULL(apd.AdditionalOT,0)),'N2') Minute
                                 ,format((sum(ISNULL(apd.AdditionalOT,0))/60),'N2') Hour
                                 ,format(g.Gross,'N2') Gross
-                                ,0 Rate,0 Amount,isnull(za.AdvanceAmount,0) AdvanceAmount
+                                ,(DATEDIFF(DAY, '" + fromDate + @"', '" + toDate + @"' )+1) PayDays,0 Rate,0 Amount,isnull(za.AdvanceAmount,0) AdvanceAmount
 								,apd.GWPaymentAdviseId 
 								,onw.FormulaDesID
-                                ,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
+                                ,EN.UserName Entity,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
 								,B.Basic,B.BasicSalaryHeadID
                                 ,format(sum(apd.OverStay),'N2') OverStayMinute
                                 ,format((sum(apd.OverStay)/60),'N2') OverStayHour
+                                ,DesM.UserName GivenDesignation,DG.UserName LegalDesignation
                                 from [dbo].[AttdnProcessData] apd 
                                 left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID 
                                 left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
@@ -1217,6 +1387,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                                 LEFT OUTER JOIN ORG.Entity EN ON MPB.EntityId=EN.Id
 						        LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
 						        LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = ei.GivenDesignationId
+                                LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
                                 LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
 						        LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
                                 LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
@@ -1246,9 +1417,9 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                                                                           FROM SalaryInfoDefine SID 
 								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                                                         WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
-                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND OverStay<>0 AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 
+                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 and EI.EmployeeStatus='Active' and ISNULL(apd.AdditionalOT,0)>0
                                 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id,Department.UserName,Section.UserName,SubSection.UserName
-								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,za.Id,za.AdvanceAmount
+								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,za.Id,za.AdvanceAmount,EN.UserName,DesM.UserName,DG.UserName
                                 )T WHERE T.CheckBoxSelectGW=0
 								order by T.EmployeeCode ";
 
@@ -1305,7 +1476,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                                                                           FROM SalaryInfoDefine SID 
 								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                                                         WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
-                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND OverStay<>0 AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 
+                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 and EI.EmployeeStatus='Active' and ISNULL(apd.AdditionalOT,0)>0
                                 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id,Department.UserName,Section.UserName,SubSection.UserName
 								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,za.Id
                                 )T WHERE T.CheckBoxSelectAD=0
@@ -1371,7 +1542,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                                 drmo["AdvanceAmount"] = Convert.ToDecimal(dtData.Rows[i]["AdvanceAmount"].ToString());
 
                             }
-                                
+
                             drmo.EndEdit();
                         }
                         else
@@ -1382,7 +1553,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                             drmo.EndEdit();
 
                         }
-                            
+
 
                     }
                     dtValue = new DataTable();
@@ -1761,8 +1932,8 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                 //        left join (SELECT C.IsOTEntitled,D.Id FROM SCS.DesignationMasterConfiguration C
                 //                                            LEFT JOIN MST.DesignationMaster M ON M.Id=C.DesignationMasterId
                 //                                            LEFT JOIN HKP.Designation D ON D.Id=M.DesignationId
-									       //                 where C.IsOTEntitled=1
-							         //                       )D on D.Id=ei.GivenDesignationId
+                //                 where C.IsOTEntitled=1
+                //                       )D on D.Id=ei.GivenDesignationId
                 //        )", out dsExtraOT, false, "1");
 
                 //    for (int i = 0; i < dsExtraOT.Tables[0].Rows.Count; i++)
@@ -2028,7 +2199,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
         public ActionResult GetEmployeeMultipleAdvanceApprovedList()
         {
             string sql = @"select ei.EmployeeCode,ei.EmployeeName ByWhom,gwp.Id,FORMAT(gwp.FromDate,'dd-MMM-yyy') FromDate,FORMAT(gwp.ToDate,'dd-MMM-yyy')ToDate
-                        ,gwp.UserRef,gwp.Remarks,ISNULL(gwp.PaymentsStatus,'Active') PaymentsStatus
+                        ,gwp.UserRef,gwp.UserName,gwp.Remarks,ISNULL(gwp.PaymentsStatus,'Active') PaymentsStatus
                         ,(select SUM(gwpad.AdvanceAmount)DisbursementAmount
                         from WorkerAdvanceDetail gwpad
                         where gwpad.WorkerAdvanceId=gwp.Id and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0  AND gwpad.DisbursementVoucherId IS NULL)DisbursementAmount
@@ -2041,7 +2212,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
         [HttpGet, Authorize]
         public ActionResult GetEmployeeMultipleAdvanceDetailCheckedList(string paymentAdviseId)
         {
-            string sql = @"select isSelected = Convert(bit, 'True'),CheckBoxSelect=Convert(bit, 'True'),gwpad.Id,gwpad.WorkerAdvanceId,gwpad.EmpSystemId,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour,gwpad.Hour*60 Minute,gwpad.Rate,gwpad.Amount,gwpad.AdvanceAmount,gwpad.Remarks
+            string sql = @"select isSelected = Convert(bit, 'True'),CheckBoxSelect=Convert(bit, 'True'),gwpad.Id,gwpad.WorkerAdvanceId,gwpad.EmpSystemId,ei.EmployeeCode,ei.EmployeeName,gwpad.PayDays,gwpad.Hour,gwpad.Hour*60 Minute,gwpad.Rate,gwpad.Amount,gwpad.AdvanceAmount,gwpad.Remarks
                             ,gwpad.IsCheck,isnull(gwpad.IsDisburse,0)IsDisburse
                             from WorkerAdvanceDetail gwpad
                             left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
@@ -2289,7 +2460,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
             var sql = @"select distinct E.SystemId As Value,(E.EmployeeCode+'-'+ E.EmployeeName) Text  
                           from dbo.GoodWorkCheckBySetUp A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.CheckById 
-                          where E.EmployeeStatus='Active' AND A.GoodWorkSetUpId='"+ setupId + "'";
+                          where E.EmployeeStatus='Active' AND A.GoodWorkSetUpId='" + setupId + "'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 

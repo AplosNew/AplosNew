@@ -533,21 +533,10 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
         {
             try
             {
-                string CmdText = @"SELECT BE.Id,CAST (CASE WHEN BE.EmployeeId IS NULL THEN 1 ELSE 0 END AS bit) BEFlag,E.SystemId EmployeeId
-							    	,E.PlantId
-							    	,E.GroupID
-							    	,E.CompanyId
+                string CmdText = @"SELECT BE.Id,CAST (CASE WHEN BE.EmployeeId IS NULL THEN 1 ELSE 0 END AS bit) BEFlag,E.SystemId EmployeeId						    	
 							    	,E.EmployeeName
 							    	,PMB.Code BudgetCode
 							    	,PR.UserName PositionName
-							    	,E.TelePhnNo
-							    	,E.EmailId
-                                    ,E.DepartmentId
-                                    ,E.DivisionId
-									,E.SectionId
-							    	,E.EmpType
-							    	,E.GivenDesignationId
-									,E.EmployeeCategorySystemID EmployeeCategoryId
 							    	,EN.UserName EntityName
 							    	,D.UserName Designation
 							    	,GD.UserName GivenDesignation
@@ -556,12 +545,12 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
 							    	,DV.UserName AS Division
 									,SC.UserName AS Section
                                     ,E.EmployeeCode
-									,E.EmpPicPath
                                     ,E.DOJ
                                     ,P.UserName Plant
 									,SS.UserName SubSection
                                     ,E.EmployeeCodeNumeric
                                     ,C.UserName Company
+                                    ,EC.UserName EmployeeCategory
 							    FROM EmployeeInformation E
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
@@ -572,6 +561,8 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
 							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
 							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
                                 LEFT JOIN HKP.LegalDesignation LD ON E.LegalDesignationId = LD.Id
+                                LEFT JOIN MST.DesignationMaster DM on DM.DesignationId=E.GivenDesignationId
+						        LEFT JOIN HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
                                 LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
 								LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
                                 LEFT JOIN ORG.Company C ON C.Id=E.CompanyId

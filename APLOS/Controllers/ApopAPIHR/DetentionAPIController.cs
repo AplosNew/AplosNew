@@ -562,6 +562,20 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
+        public List<Default2> GetProductionCalculateValue(string Formula)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetProductionCalculateValue(out List<Default2> activelists, Formula);
+            return activelists;
+        }
+
+        public List<Default2> GetProductionCalculate(string ParameterId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetProductionCalculate(out List<Default2> activelists, ParameterId);
+            return activelists;
+        }
+
         public List<POWiseReport> GetPoWisereport(string POId, string POStatusId, string CustomerId)
         {
             clsDataContext clsData = new clsDataContext();
@@ -1461,6 +1475,20 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetDateFilter(out List<Default2> activelists , Time);
             return activelists;
         }
+
+       /* public string Calculate([FromBody] IEnumerable<OpenHeadModelNew> OpenHeadNew)
+        {
+            try
+            {
+                string Id = clsData.Calculate(OpenHeadNew);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }*/
         #endregion Production Entry
+
     }
 }
