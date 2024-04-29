@@ -402,4 +402,24 @@ function incedentUpdateController(cboService, commonMessage, $scope, $rootScope,
     };
 
     //#endregion
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+    $scope.IncedentReport = function () {
+        $scope.fileName = "IncedentReport.xlsx";
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetIncedentReport",
+            data: { 'reportFileName': $scope.fileName},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
 }
