@@ -10930,7 +10930,7 @@ where QAT.ParameterId='" + ParameterId + "'";
                         dr["LastReadingTime"] = item.LastReadingTime;
                         dr["MultiplyingFactor"] = item.MultiplyingFactor;
                         dr["UoMId"] = item.UoMId;
-                        dr["IsMobileEntry"] = true;
+                        dr["IsAppEntry"] = true;
 
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedFromIP"] = item.AddedFromIP;
