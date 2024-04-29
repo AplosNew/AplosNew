@@ -83,7 +83,7 @@ function planningTypesController(cboService, commonMessage, $scope, $rootScope, 
         cboService.GetEntityProcessCbo(entityid, function (result) {
             $scope.processList = result;
             if (baseService.arrayLength(result) === 1) {
-                $scope.productionSummaryNew.ProcessId = $scope.processList[0].Value;
+                $scope.planningTypesNew.ProcessId = $scope.processList[0].Value;
             }
         });
     };
@@ -115,6 +115,8 @@ function planningTypesController(cboService, commonMessage, $scope, $rootScope, 
             $scope.planningTypesNew.CompanyId = $scope.CompanyId;
         }
         $scope.getPlantCbo();
+        $scope.getAllEntities();
+        $scope.loadProcessList($scope.planningTypesNew.EntityId);
         if ($scope.planningTypes.PlanningType === 'PlanningType1') {
             $scope.planningTypes.Description = 'WC wise';
         }

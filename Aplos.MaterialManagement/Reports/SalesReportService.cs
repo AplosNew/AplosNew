@@ -4705,6 +4705,7 @@ LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
 LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
 LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
 LEFT JOIN dbo.PostSalesInvoice PSI ON PSI.SalesId = IR.Id
+AND PSI.Id=(SELECT TOP 1 Id FROM dbo.PostSalesInvoice MR WHERE MR.SalesId=PSI.SalesId ORDER BY MR.UpdatedDate DESC)
 LEFT JOIN SCS.Currency CRNC ON CRNC.Id = IR.CurrencyId
 LEFT JOIN SCS.Currency BASECRNC ON BASECRNC.Id = cmp.BaseCurrencyId
 LEFT JOIN MST.PaymentTerm PayTerm ON PayTerm.Id = IR.PaymentTermId
@@ -5325,6 +5326,7 @@ LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
 LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
 LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
 LEFT JOIN dbo.PostSalesInvoice PSI ON PSI.SalesId = IR.Id
+AND PSI.Id=(SELECT TOP 1 Id FROM dbo.PostSalesInvoice MR WHERE MR.SalesId=PSI.SalesId ORDER BY MR.UpdatedDate DESC)
 LEFT JOIN SCS.Currency CRNC ON CRNC.Id = IR.CurrencyId
 LEFT JOIN SCS.Currency BASECRNC ON BASECRNC.Id = cmp.BaseCurrencyId
 LEFT JOIN MST.PaymentTerm PayTerm ON PayTerm.Id = IR.PaymentTermId
@@ -8856,6 +8858,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
                          LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
                          LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
                          LEFT JOIN dbo.PostSalesInvoice PSI ON PSI.SalesId = IR.Id
+AND PSI.Id=(SELECT TOP 1 Id FROM dbo.PostSalesInvoice MR WHERE MR.SalesId=PSI.SalesId ORDER BY MR.UpdatedDate DESC)
                          LEFT JOIN MST.[Port] as PL on PL.Id = PSI.PortOfLoadingId
                          LEFT JOIN MST.[Port] as PD on PD.Id = PSI.PortOfDischargeId
                          LEFT JOIN MST.[Port] as PoD on PoD.Id = PSI.PortOfDelivaryId
@@ -9021,6 +9024,7 @@ LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
 LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
 LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
 LEFT JOIN dbo.PostSalesInvoice PSI ON PSI.SalesId = IR.Id
+AND PSI.Id=(SELECT TOP 1 Id FROM dbo.PostSalesInvoice MR WHERE MR.SalesId=PSI.SalesId ORDER BY MR.UpdatedDate DESC)
 LEFT JOIN MST.[Port] AS PL ON PL.Id = PSI.PortOfLoadingId
 LEFT JOIN MST.[Port] AS PD ON PD.Id = PSI.PortOfDischargeId
 LEFT JOIN MST.[Port] AS PoD ON PoD.Id = PSI.PortOfDelivaryId
@@ -9202,6 +9206,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                          LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
                          LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
                          LEFT JOIN dbo.PostSalesInvoice PSI ON PSI.SalesId = IR.Id
+AND PSI.Id=(SELECT TOP 1 Id FROM dbo.PostSalesInvoice MR WHERE MR.SalesId=PSI.SalesId ORDER BY MR.UpdatedDate DESC)
                          LEFT JOIN MST.[Port] as PL on PL.Id = PSI.PortOfLoadingId
                          LEFT JOIN MST.[Port] as PD on PD.Id = PSI.PortOfDischargeId
                          LEFT JOIN MST.[Port] as PoD on PoD.Id = PSI.PortOfDelivaryId
@@ -9405,6 +9410,7 @@ LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
 LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
 LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
 LEFT JOIN dbo.PostSalesInvoice PSI ON PSI.SalesId = IR.Id
+AND PSI.Id=(SELECT TOP 1 Id FROM dbo.PostSalesInvoice MR WHERE MR.SalesId=PSI.SalesId ORDER BY MR.UpdatedDate DESC)
 LEFT JOIN MST.[Port] AS PL ON PL.Id = PSI.PortOfLoadingId
 LEFT JOIN MST.[Port] AS PD ON PD.Id = PSI.PortOfDischargeId
 LEFT JOIN MST.[Port] AS PoD ON PoD.Id = PSI.PortOfDelivaryId
@@ -9589,6 +9595,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                          LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
                          LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
                          LEFT JOIN dbo.PostSalesInvoice PSI ON PSI.SalesId = IR.Id
+AND PSI.Id=(SELECT TOP 1 Id FROM dbo.PostSalesInvoice MR WHERE MR.SalesId=PSI.SalesId ORDER BY MR.UpdatedDate DESC)
                          LEFT JOIN MST.[Port] as PL on PL.Id = PSI.PortOfLoadingId
                          LEFT JOIN MST.[Port] as PD on PD.Id = PSI.PortOfDischargeId
                          LEFT JOIN MST.[Port] as PoD on PoD.Id = PSI.PortOfDelivaryId
@@ -10692,6 +10699,7 @@ Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage,SM.UserName";
                          LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
                          LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
                          LEFT JOIN dbo.PostSalesInvoice PSI ON PSI.SalesId = IR.Id
+AND PSI.Id=(SELECT TOP 1 Id FROM dbo.PostSalesInvoice MR WHERE MR.SalesId=PSI.SalesId ORDER BY MR.UpdatedDate DESC)
                          LEFT JOIN MST.[Port] as PL on PL.Id = PSI.PortOfLoadingId
                          LEFT JOIN MST.[Port] as PD on PD.Id = PSI.PortOfDischargeId
                          LEFT JOIN MST.[Port] as PoD on PoD.Id = PSI.PortOfDelivaryId

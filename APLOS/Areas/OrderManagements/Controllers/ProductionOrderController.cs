@@ -102,6 +102,15 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
 
+        [Authorize, HttpGet]
+        public JsonResult GetPlanningTypeProcessCbo(string entityId)
+        {
+            return Json(_sqlRepository.GetDataCollection(@"Select P.Id [Value], P.UserName AS [Text]
+from dbo.PlanningTypes PT
+LEFT JOIN HKP.Process P ON P.Id = PT.BaseProcessId
+Where PT.EntityId = '"+ entityId + "'"), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetProductionHistory(string ProductionOrderId)
         {
