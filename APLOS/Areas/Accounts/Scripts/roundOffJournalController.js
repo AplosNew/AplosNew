@@ -239,9 +239,13 @@ function roundOffJournalController(accountService, cboService, commonMessage, $s
         $scope.$broadcast("show-errors-check-validity");
         if ($scope.form0.$valid) {
             if ($scope.Action === "Save") {
+                if ($scope.voucher.Type=='TrailBalance')
+                    $scope.parkUrl = "accounts/voucher/ParkRoundOffJournal"
+                else
+                    $scope.parkUrl = "accounts/Invoice/ParkInvoiceRoundOffJournal"
                 $http({
                     method: "POST",
-                    url: "accounts/voucher/ParkRoundOffJournal",
+                    url: $scope.parkUrl,
                     data: {
                         "voucherVM": $scope.voucher,
                         "voucherDetailVMList": $scope.voucherDetailList
@@ -295,33 +299,65 @@ function roundOffJournalController(accountService, cboService, commonMessage, $s
         return true;
     };
 
-    $scope.deleteUrl = "accounts/voucher/DeleteRoundOffJV";
-    $scope.delete = function (voucherId) {
-        $http({
-            method: "POST",
-            url: $scope.deleteUrl,
-            data: {
-                "voucherId": voucherId
-            },
-            dataType: "JSON"
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, "failure");
-            }
-            else {
-                ShowResult(response.data.Message, "success");
-                $scope.getData();
-                $scope.Clear();
-                $scope.voucherId = null;
-            }
-        }, function errorCallback(response) {
-            ShowResult(response.status.Message, "failure");
-        });
+    $scope.delete = function (voucherId, isInvoice,invoiceWriteOffId) {
+        if (isInvoice == false) {
+            $scope.deleteUrl = "accounts/voucher/DeleteRoundOffJV";
+            $http({
+                method: "POST",
+                url: $scope.deleteUrl,
+                data: {
+                    "voucherId": voucherId,
+                },
+                dataType: "JSON"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    $scope.getData();
+                    $scope.Clear();
+                    $scope.voucherId = null;
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, "failure");
+            });
+        }
+        else if (isInvoice == true) {
+            $scope.deleteUrl = "accounts/Invoice/DeleteInvoiceRoundOff";
+            $http({
+                method: "POST",
+                url: $scope.deleteUrl,
+                data: {
+                    "invoiceWriteOffId": invoiceWriteOffId,
+                    "voucherId": voucherId,
+                    "deletedRemarks":null
+                },
+                dataType: "JSON"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    $scope.getData();
+                    $scope.Clear();
+                    $scope.voucherId = null;
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, "failure");
+            });
+
+        }
+
+       
         return true;
     };
 
-    $scope.confirmDelete = function (voucherId) {
+    $scope.confirmDelete = function (voucherId,data) {
         $scope.voucherId = voucherId;
+        $scope.isInvoice = data.IsInvoice;
+        $scope.invoiceWriteOffId = data.InvoiceWriteOffId;
         $scope.message_delete_confirmation = "Are you sure to Delete?";
         angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
     };

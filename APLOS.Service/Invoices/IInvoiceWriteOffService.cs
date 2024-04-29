@@ -47,6 +47,7 @@ namespace Library.Service.Invoices
         void PostInvoiceToAcceptance(string invoiceWriteOffId);
         string InsertCustomerInvoiceReceipt(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
                , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList);
+        string InsertInvoiceRoundOffJournal(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList);
         string InsertCustomerInvoiceBanksReceipt(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
               , IEnumerable<VoucherDetailViewModel> banksDetailVMList, IEnumerable<BankChargeViewModel> bankChargeDetailVMList);
         GridModel CustomerInvoiceBanksQuery(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType);

@@ -3210,8 +3210,8 @@ namespace Library.Accounting.Accounts
                     }
                     else
                     {
-                        reportUtility.SetText(ref sheet, row, colinrDebit, Convert.ToDouble(dsLocal.Rows[i]["CompanyCurrencyDrAmount"].ToString()));
-                        reportUtility.SetText(ref sheet, row, colinrCredit, Convert.ToDouble(dsLocal.Rows[i]["CompanyCurrencyCrAmount"].ToString()));
+                        reportUtility.NumberFormatDecimalFour(ref sheet, row, colinrDebit, Convert.ToDouble(dsLocal.Rows[i]["CompanyCurrencyDrAmount"].ToString()));
+                        reportUtility.NumberFormatDecimalFour(ref sheet, row, colinrCredit, Convert.ToDouble(dsLocal.Rows[i]["CompanyCurrencyCrAmount"].ToString()));
                     }
                     totalBookCurrencyAmount += Convert.ToDouble(dsLocal.Rows[i]["CompanyCurrencyDrAmount"].ToString());
 
@@ -3260,14 +3260,14 @@ namespace Library.Accounting.Accounts
                 else
                 {
                     sheet.Range[row, colinrDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colinrDebit) + xRow + ":" + reportUtility.GetColumnNameForXls(colinrDebit) + (lastRow) + ")";
-                    sheet.Range[row, colinrDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                    sheet.Range[row, colinrDebit].NumberFormat = reportUtility.NumberFormatDecimalFour();
                     sheet.Range[row, colinrDebit].CellStyle.Font.Bold = true;
                     sheet.Range[row, colinrDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet.Range[row, colinrDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                     sheet.Range[row, colinrDebit].BorderAround(ExcelLineStyle.Hair);
 
                     sheet.Range[row, colinrCredit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colinrCredit) + xRow + ":" + reportUtility.GetColumnNameForXls(colinrCredit) + (lastRow) + ")";
-                    sheet.Range[row, colinrCredit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                    sheet.Range[row, colinrCredit].NumberFormat = reportUtility.NumberFormatDecimalFour();
                     sheet.Range[row, colinrCredit].CellStyle.Font.Bold = true;
                     sheet.Range[row, colinrCredit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet.Range[row, colinrCredit].HorizontalAlignment = ExcelHAlign.HAlignRight;

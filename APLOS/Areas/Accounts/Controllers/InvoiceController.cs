@@ -894,6 +894,15 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = AplosMessage.Deleted });
         }
 
+        [HttpPost]
+        public ActionResult DeleteInvoiceRoundOff(string invoiceWriteOffId, string voucherId, string deletedRemarks)
+        {
+            //if (deletedRemarks == null || deletedRemarks == "")
+            //    throw new CustomException("Deleted Remarks is required!");
+            _invoiceWriteOffService.DeleteWriteOff(invoiceWriteOffId, voucherId, deletedRemarks);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
         [HttpGet, Authorize]
         public ActionResult VendorInvoicePaymentReport(ReportFormat reportFormat, string voucherId)
         {
@@ -952,6 +961,31 @@ namespace Aplos.Areas.Accounts.Controllers
                     throw new CustomException("Transaction currency and Payable currency should be same.!!!");
             }
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertCustomerInvoiceReceipt(voucherVM, voucherDetailVMList, bankChargeDetailVMList, taxDetailVMList)) });
+        }
+
+        [HttpPost]
+        public JsonResult ParkInvoiceRoundOffJournal(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.SourceType = SourceType.JournalVoucher.ToString();
+            if (voucherDetailVMList == null)
+                throw new CustomException("Please Add GL.");
+            if (voucherDetailVMList.Sum(r => r.DrAmount) != voucherDetailVMList.Sum(r => r.CrAmount))
+                throw new CustomException("Dr Cr not match!");
+            foreach (var item in voucherDetailVMList)
+            {
+                if ((item.DrAmount + item.CrAmount == 0) || (item.DrAmount + item.CrAmount < 0))
+                    throw new CustomException("Please input amount !");
+                if (string.IsNullOrEmpty(item.EntityId))
+                {
+                    item.EntityId = voucherVM.EntityId;
+                }
+            }
+            voucherVM.IsPark = true;
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertInvoiceRoundOffJournal(voucherVM, voucherDetailVMList)) });
         }
 
         [HttpPost]

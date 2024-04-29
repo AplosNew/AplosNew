@@ -4602,7 +4602,7 @@ namespace Library.Accounting.Accounts
 											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
 											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
 											LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
-											LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId
+											LEFT JOIN (SELECT iwd.InvoiceDetailId,iwd.PartyId
 												,SUM(VDC.CrAmount) SetOffBooksAmount
 												FROM  [TRN].[InvoiceWriteOffDetail] iwd 
 												JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
@@ -4610,7 +4610,7 @@ namespace Library.Accounting.Accounts
 												LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
 													JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
 												WHERE WV.IsPark=0 AND ( convert(Date,WV.PostingDate) <= '" + toDate + @"' )
-												GROUP BY iwd.InvoiceDetailId,iw.PartyId
+												GROUP BY iwd.InvoiceDetailId,iwd.PartyId
 												)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
 											WHERE VI.IsPark=0 and VD.PartyType='Customer'
 											GROUP BY IDE.InvoiceId,VD.PartyId

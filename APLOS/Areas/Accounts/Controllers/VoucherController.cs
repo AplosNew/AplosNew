@@ -7003,6 +7003,7 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
+            
             if (voucherDetailVMList == null)
                 throw new CustomException("Please Add GL.");
             if (voucherDetailVMList.Sum(r => r.DrAmount) != voucherDetailVMList.Sum(r => r.CrAmount))
@@ -7018,6 +7019,7 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
             }
             voucherVM.IsPark = true;
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _voucharService.InsertVoucher(voucherVM, voucherDetailVMList)) });
+
         }
         [HttpPost]
         public JsonResult PostRoundOffJournal(string id)
