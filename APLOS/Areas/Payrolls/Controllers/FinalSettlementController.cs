@@ -49,13 +49,33 @@ namespace Aplos.Areas.Payrolls.Controllers
         [HttpGet, Authorize]
         public ActionResult GetEmployeeSeperationItemFormulaData(string EmpSystemId)
         {
-            string sql = @"SELECT A.Id,A.EmpSystemId,OL.Id EmployeeSeperationItemId,OL.UserName,OL.Formula,OL.FormulaId,A.Value,OL.EntryState
+            try
+            {
+                string sql = @"SELECT A.Id,A.EmpSystemId,OL.Id EmployeeSeperationItemId,OL.UserName,OL.Formula,OL.FormulaId,A.Value,OL.EntryState
                             FROM EmployeeSeperationItem AS OL
-                            OUTER APPLY (SELECT * FROM dbo.EmployeeFullAndFinalSettlement WHERE EmployeeSeperationItemId=OL.Id AND ISNULL(EmpSystemId,'" + EmpSystemId + @"')='" + EmpSystemId + @"') A
+                            OUTER APPLY (SELECT * FROM dbo.EmployeeFullAndFinalSettlementItem WHERE EmployeeSeperationItemId=OL.Id AND ISNULL(EmpSystemId,'" + EmpSystemId + @"')='" + EmpSystemId + @"') A
 							Where OL.EmployeeSeperationSetupId=(select EmployeeSeperationSetupId from [dbo].[EmpSeperationDesignationGroup] where DesignationGroupId=(select DesignationGroupId from [dbo].EmployeeInformation Where SystemId='" + EmpSystemId + @"'))
                             ORDER BY OL.Sequence";
+                var SeperationItem = _sqlRepository.GetDataCollection(sql);
 
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                string sqlundisbursed = @"SELECT sl.Id,sl.YearNo,sl.MonthNo
+,[MonthName]=CASE WHEN sl.MonthNo=1 THEN 'Jan' WHEN sl.MonthNo=2 THEN 'Feb' WHEN sl.MonthNo=3 THEN 'Mar'
+WHEN sl.MonthNo=4 THEN 'Apr' WHEN sl.MonthNo=5 THEN 'May' WHEN sl.MonthNo=6 THEN 'Jun'
+WHEN sl.MonthNo=7 THEN 'Jul' WHEN sl.MonthNo=8 THEN 'Aug' WHEN sl.MonthNo=9 THEN 'Sep'
+WHEN sl.MonthNo=10 THEN 'Oct' WHEN sl.MonthNo=11 THEN 'Nov' ELSE 'Dec' END
+,spc.DisbusmentAmount FROM SalaryProcChild AS spc
+LEFT JOIN SalaryProcMaster AS spm ON spm.SystemID = spc.SlrProcMstSystemID 
+LEFT JOIN SalaryHead AS sh ON sh.SalaryHeadID = spc.SalaryHeadID
+LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
+WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND ISNULL(sl.IsDisbursed,0)=0  AND sh.SalaryHead='Net Pay'";
+                var FinalSettlementUndisbursedEarning = _sqlRepository.GetDataCollection(sqlundisbursed);
+
+                return Json(new { SeperationItem, FinalSettlementUndisbursedEarning }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
 
@@ -1740,9 +1760,9 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
         public ActionResult GetEmployeeFNFMasterData(string masterId)
         {
             string sql = @"select E.*,EI.EmployeeCode,EI.EmployeeName,FORMAT(EI.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EI.DOS,'dd-MMM-yyyy')DOS,LD.UserName LegalDesignation,D.UserName Department
-from FullAndFinalSettlementEmployee  E
+from EmployeeFullAndFinalSettlement  E
 LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=E.EmpSystemId
-LEFT JOIN HKP.LegalDesignation LD ON LD.UserName=EI.LegalDesignationId
+LEFT JOIN HKP.LegalDesignation LD ON LD.Id=EI.LegalDesignationId
 LEFT JOIN ORG.Department D ON D.Id=EI.DepartmentId
 where FinalSettlementId='" + masterId + "'";
             var data = _sqlRepository.GetDataCollection(sql);
@@ -1895,7 +1915,7 @@ group by E.SystemID,dp.EncashWorkingDaysQty,S.BroughtForward,B.Availed,C.NoticeP
 ) LV ON LV.SystemID=E.SystemId
  LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = E.SystemId
  LEFT JOIN SalaryInfoDefine SID ON SID.SalaryID=SIDM.SystemID AND OL.SalaryHeadID = SID.SalaryHeadID
-OUTER APPLY (SELECT * FROM dbo.EmployeeFullAndFinalSettlement WHERE EmployeeSeperationItemId=OL.Id 
+OUTER APPLY (SELECT * FROM dbo.EmployeeFullAndFinalSettlementItem WHERE EmployeeSeperationItemId=OL.Id 
 AND ISNULL(EmpSystemId,'" + empId + @"')='" + empId + @"') A
 Where OL.EmployeeSeperationSetupId=
 (select EmployeeSeperationSetupId from [dbo].[EmpSeperationDesignationGroup] where DesignationGroupId=
@@ -1921,11 +1941,12 @@ ORDER BY OL.Sequence
                 DataSet dsMaster, dsID, dsEmpID = null;
                 DataSet dsEmpMaster = null;
                 DataSet dsFNFEmpMaster = null;
-                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+                string esql = "";
+            MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from EmployeeFullAndFinalSettlementMaster where FinalSettlementName='" + data["FinalSettlementName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
 
-                con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[EmployeeFullAndFinalSettlement] where FinalSettlementId='" + data["Id"] + "'", out dsID, false, "1");
+                con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[EmployeeFullAndFinalSettlementItem] where FinalSettlementId='" + data["Id"] + "'", out dsID, false, "1");
                 int ccount = Convert.ToInt32(dsID.Tables[0].Rows[0]["countId"].ToString());
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Final Settlement Name already exists!!!");
@@ -1951,13 +1972,22 @@ ORDER BY OL.Sequence
                 }
                 #endregion data update
                 #region data Detail
-                con.OpenDataSetThroughAdapter("select * from FullAndFinalSettlementEmployee where FinalSettlementId='" + data["Id"] + "'", out dsFNFEmpMaster, false, "1");
-                con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[EmployeeFullAndFinalSettlement] where FinalSettlementId='" + data["Id"] + "'", out dsEmpID, false, "1");
+                con.OpenDataSetThroughAdapter("select * from EmployeeFullAndFinalSettlement where FinalSettlementId='" + data["Id"] + "'", out dsFNFEmpMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[EmployeeFullAndFinalSettlementItem] where FinalSettlementId='" + data["Id"] + "'", out dsEmpID, false, "1");
                 int empcount = Convert.ToInt32(dsEmpID.Tables[0].Rows[0]["countId"].ToString());
+                var empIds = "' '";
+                foreach (var item in datalist)
+                {
+                    empIds += ",'" + item["EmpSystemId"].ToString() + "' ";
+                }
+
+
+                 esql = "select * from EmployeeFullAndFinalSettlementItem where EmpSystemId IN(" + empIds + ")";
+                con.OpenDataSetThroughAdapter(esql, out dsEmpMaster, false, "1");
+
                 foreach (var item in datalist)
                 {
                     string empId = item["EmpSystemId"].ToString();
-                    con.OpenDataSetThroughAdapter("select * from EmployeeFullAndFinalSettlement where EmpSystemId='" + empId + "'", out dsEmpMaster, false, "1");
                     var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                     string sql = string.Empty;
                     DataTable dtValue = new DataTable();
@@ -1967,7 +1997,7 @@ ORDER BY OL.Sequence
                     string sFormulaResult = null;
 
                     DataView empdv = new DataView(dsFNFEmpMaster.Tables[0]);
-                    empdv.RowFilter = "Id='" + item["Id"] + "'";
+                    empdv.RowFilter = "EmpSystemId='" + item["EmpSystemId"] + "'";
 
                     if (empdv.Count == 0)
                     {
@@ -1982,8 +2012,6 @@ ORDER BY OL.Sequence
                         DataRow drmo = empdv[0].Row;
                         EditRow(drmo, item);
                     }
-
-
 
                     DataTable dtData = GetDataTable(empId);
                     for (int i = 0; i < dtData.Rows.Count; i++)
@@ -2039,6 +2067,9 @@ ORDER BY OL.Sequence
 
                             }
                         }
+
+
+
                     }
 
 
@@ -2046,7 +2077,7 @@ ORDER BY OL.Sequence
                     {
 
                         DataView dv = new DataView(dsEmpMaster.Tables[0]);
-                        dv.RowFilter = "Id='" + dtData.Rows[i]["Id"] + "'";
+                        dv.RowFilter = "Id='" + dtData.Rows[i]["Id"] + "' AND EmployeeSeperationItemId = '" + dtData.Rows[i]["EmployeeSeperationItemId"] + "' AND EmpSystemId = '" + dtData.Rows[i]["EmpSystemId"] + "'";
 
                         if (dv.Count == 0)
                         {

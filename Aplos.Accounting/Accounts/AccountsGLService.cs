@@ -826,9 +826,9 @@ namespace Library.Accounting.Accounts
                 var sql = @"Select * from (
                     SELECT    V.VoucherNo+' '+P.UserName Particulars,IVD.GL,IVD.Budget,IVD.Activity,'Asset' MainHead,'Debit' BalanceType,'Cr' TrnType
 					,0 DrAmount,CrAmount=ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0),IVD.GLGeneralInfoId,IVD.BudgetMasterId,ivd.ActivityId,IVD.BudgetMasterActivityId
-						,IV.PartyType,IV.PartyId,IV.PartyPlantId				
+						,IV.PartyType,IV.PartyId,IV.PartyPlantId,IVD.InvoiceId,IVD.InvoiceDetailId				
                                         FROM  [TRN].[Invoice] AS IV 
-										 JOIN (select IDE.InvoiceId,VD.PartyId,SUM(VDC.DrAmount) InvoiceBooksAmount ,SUM(IwV.SetOffBooksAmount) SetOffBooksAmount
+										 JOIN (select IDE.InvoiceId,IDE.Id InvoiceDetailId,VD.PartyId,SUM(VDC.DrAmount) InvoiceBooksAmount ,SUM(IwV.SetOffBooksAmount) SetOffBooksAmount
 										 ,GL.UserName GL ,B.UserName Budget,AC.UserName Activity,VD.GLGeneralInfoId,VD.BudgetMasterId,vd.ActivityId,bma.Id BudgetMasterActivityId
 											FROM  [TRN].[InvoiceDetail] IDE
 						LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
@@ -839,18 +839,17 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
 						LEFT JOIN HKP.Activity AC ON AC.Id=VD.ActivityId
 						LEFT JOIN MST.BudgetMasterActivity BMA ON BMA.BudgetMasterId=BM.Id AND BMA.ActivityId=AC.Id
-						LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId
+						LEFT JOIN (SELECT iwd.InvoiceDetailId,iwd.PartyId
 								,SUM(VDC.CrAmount) SetOffBooksAmount
 								FROM  [TRN].[InvoiceWriteOffDetail] iwd 
 								JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
 								LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
 								LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
 									JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
-								WHERE WV.IsPark=0 
-								GROUP BY iwd.InvoiceDetailId,iw.PartyId
+								GROUP BY iwd.InvoiceDetailId,iwd.PartyId
 								)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
 							WHERE VI.IsPark=0 and VD.PartyType='Customer'
-							GROUP BY IDE.InvoiceId,VD.PartyId,GL.UserName
+							GROUP BY IDE.InvoiceId,VD.PartyId,GL.UserName,IDE.Id
 						 ,B.UserName ,AC.UserName ,VD.GLGeneralInfoId,VD.BudgetMasterId,vd.ActivityId,bma.Id 
 										) AS IVD ON IVD.InvoiceId=IV.Id AND IVD.PartyId=IV.PartyId
 						    LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
@@ -864,7 +863,7 @@ namespace Library.Accounting.Accounts
 						UNION ALL
                         SELECT        V.VoucherNo+' '+P.UserName Particulars,GL.UserName GL,B.UserName Budget,AC.UserName Activity,'Asset' MainHead,'Debit' BalanceType,'Cr' TrnType
 					    ,0 DrAmount,CrAmount=ISNULL(IVD.Amount * CC.CompanyCurrencyRate,0) - ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0),VD.GLGeneralInfoId,VD.BudgetMasterId,vd.ActivityId,VD.BudgetMasterActivityId
-                        ,IV.PartyType,IV.PartyId,IV.PartyPlantId	
+                        ,IV.PartyType,IV.PartyId,IV.PartyPlantId,NULL InvoiceId,NULL InvoiceDetailId	
                             FROM [TRN].[AdjustmentNoteDetail] AS IVD
 							LEFT JOIN [TRN].[AdjustmentNote] AS IV ON IVD.AdjustmentNoteId=IV.Id
 							LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId

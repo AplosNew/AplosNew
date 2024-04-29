@@ -1269,6 +1269,7 @@ upanelApp.controller("EmployeeSeperationSetupController", EmployeeSeperationSetu
 upanelApp.controller("fullandfinalSettlementController", fullandfinalSettlementController)
 upanelApp.controller("LeaveTransectionController", LeaveTransectionController)
 upanelApp.controller("otApproveController", otApproveController)
+upanelApp.controller("GoodWorkReportController", GoodWorkReportController)
 
 
 
