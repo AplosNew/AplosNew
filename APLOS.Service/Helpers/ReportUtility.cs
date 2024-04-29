@@ -198,6 +198,10 @@ namespace Library.Service.Helpers
         {
             return "#,##0.000;(#,##0.000);* ??;@";
         }
+        public string NumberFormatDecimalFour()
+        {
+            return "#,##0.000;(#,##0.0000);* ??;@";
+        }
         public string NumberFormatNegativeSignDelimeterDecimalTwo()
         {
             return "#,##0.00_);#,##0.00";
@@ -225,10 +229,7 @@ namespace Library.Service.Helpers
             else { return "#,##0.00;(#,##0.00);* ??;@"; }
 
         }
-        public string NumberFormatDecimalFour()
-        {
-            return "#,##0.0000;(#,##0.0000)";
-        }
+       
         public void SetSLText(ref IWorksheet sheet, int row, int col, int txt)
         {
             sheet.Range[row, col].Number = txt;
@@ -371,6 +372,16 @@ namespace Library.Service.Helpers
         {
             sheet.Range[row, col].Number = txt;
             sheet.Range[row, col].NumberFormat = NumberFormatDecimalThree();
+            sheet.Range[row, col].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet.Range[row, col].VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[row, col].BorderAround(ExcelLineStyle.Thin);
+
+        }
+
+        public void NumberFormatDecimalFour(ref IWorksheet sheet, int row, int col, double txt)
+        {
+            sheet.Range[row, col].Number = txt;
+            sheet.Range[row, col].NumberFormat = NumberFormatDecimalFour();
             sheet.Range[row, col].HorizontalAlignment = ExcelHAlign.HAlignRight;
             sheet.Range[row, col].VerticalAlignment = ExcelVAlign.VAlignTop;
             //sheet.Range[row, col].BorderAround(ExcelLineStyle.Thin);

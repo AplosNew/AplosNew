@@ -210,7 +210,7 @@
                     <td class="text-right">
                         <ul class="list-inline action-list">
                             <li ng-show="x.IsPark"><a ng-click="confirmPost(x.Id);" href="" class="btn btn-action tooltip-here">Post</a></li>
-                            <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id);" href="" class="btn btn-action tooltip-here">Delete</a></li>
+                            <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x);" href="" class="btn btn-action tooltip-here">Delete</a></li>
                             <li><a class="btn btn-action" href="Accounts/Voucher/GetAdvanceJournalVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.Id}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
                             <li><a class="btn btn-action" href="Accounts/Voucher/GetAdvanceJournalVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.Id}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
                         </ul>
@@ -261,5 +261,5 @@
         </div>
     </div>
 </div>
-<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(voucherId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(voucherId,isInvoice,invoiceWriteOffId)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(voucherId)"></confirm-archive-generic>
