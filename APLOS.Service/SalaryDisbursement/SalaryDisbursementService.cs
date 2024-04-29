@@ -1657,7 +1657,7 @@ namespace Library.Service.SalaryDisbursement
                     _unitOfWork.Rollback();
             }
         }
-        public string ParkEmployeeMultipleAdvanceDisbursement(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, string goodWorkPaymentAdviseDetailIds)
+        public string ParkEmployeeMultipleAdvanceDisbursement(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, string goodWorkPaymentAdviseDetailIds, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail)
         {
             var flag = false;
             try
@@ -1785,16 +1785,81 @@ namespace Library.Service.SalaryDisbursement
                 _unitOfWork.Commit();
                 //**************update salary lock VoucherPayableId Direct and InDirect Salary ****************
                 _unitOfWork.BeginTransaction();
+
+                int count = 0;
+                DataSet dsChild;
+                DataSet dsAdvanceReqSchedule;
+                string BPId = string.Empty;
+                DataRow drAdvanceReqSchedule = null;
+                DataRow drBp = null;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                string sqlAdvanceReqSchedule = "SELECT * FROM [dbo].[AdvanceReqSchedule] where 1=2 ";
+                con.OpenDataSetThroughAdapter(sqlAdvanceReqSchedule, out dsAdvanceReqSchedule, false, "1");
+                string sql = "SELECT * FROM [TRN].[EmployeeAdvanceDeduction] where 1=2 ";
+                con.OpenDataSetThroughAdapter(sql, out dsChild, false, "1");
+                bplib.clsGenID objGenID = null;
+                objGenID = new bplib.clsGenID();
+                objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "EmployeeAdvanceDeduction", out BPId);
+                if (goodWorkPaymentAdviseDetail != null)
+                {
+                    foreach (var item in goodWorkPaymentAdviseDetail)
+                    {
+                        count++;
+                        string pkAdvanceReqSchedule = directVoucherId + "0" + count;
+                        drAdvanceReqSchedule = dsAdvanceReqSchedule.Tables[0].NewRow();
+                        drAdvanceReqSchedule["Id"] = pkAdvanceReqSchedule;
+                        drAdvanceReqSchedule["InstallmentAmount"] = item["AdvanceAmount"];
+                        drAdvanceReqSchedule["InstallmentDate"] = System.DateTime.Now.ToString();
+                        drAdvanceReqSchedule["InstallmentNo"] = 1;
+                        drAdvanceReqSchedule["PrincipalAmount"] = item["AdvanceAmount"];
+                        drAdvanceReqSchedule["ProfitAmount"] = 0;
+                        drAdvanceReqSchedule["OtherAmount"] = 0;
+                        drAdvanceReqSchedule["TaxAmount"] = 0;
+                        drAdvanceReqSchedule["Arrear"] = 0;
+                        drAdvanceReqSchedule["Balance"] = 0;
+                        drAdvanceReqSchedule["ScheduleNo"] = 1;
+                        drAdvanceReqSchedule["IsRepaid"] = false;
+                        drAdvanceReqSchedule["IsReScheduled"] = false;
+                        drAdvanceReqSchedule["IsDeferred"] = false;
+                        drAdvanceReqSchedule["DeferredAdjustmentNumber"] = 0;
+                        drAdvanceReqSchedule["YearNo"] = item["YearNo"];
+                        drAdvanceReqSchedule["MonthNo"] = item["MonthNo"];
+                        drAdvanceReqSchedule["WorkerAdvanceDetailId"] = item["Id"];
+
+                        drAdvanceReqSchedule["AddedBy"] = identity.Name;
+                        drAdvanceReqSchedule["AddedDate"] = System.DateTime.Now.ToString();
+                        drAdvanceReqSchedule["AddedFromIP"] = identity.IPAddress;
+                        dsAdvanceReqSchedule.Tables[0].Rows.Add(drAdvanceReqSchedule);
+
+                        string pk = "EAD" + BPId + "_" + count;
+                        drBp = dsChild.Tables[0].NewRow();
+                        drBp["Id"] = pk;
+                        drBp["CompanyGroupId"] = identity.CompanyGroupId;
+                        drBp["EmployeeId"] = item["EmpSystemId"];
+                        drBp["YearNo"] = item["YearNo"];
+                        drBp["MonthNo"] = item["MonthNo"];
+                        drBp["WorkerAdvanceDetailId"] = item["Id"];
+                        drBp["AdvanceReqScheduleId"] = pkAdvanceReqSchedule;
+
+                        drBp["AddedBy"] = identity.Name;
+                        drBp["AddedDate"] = System.DateTime.Now.ToString();
+                        drBp["AddedFromIP"] = identity.IPAddress;
+                        dsChild.Tables[0].Rows.Add(drBp);
+                    }
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsAdvanceReqSchedule,dsChild);
+
                 flag = true;
                 if (directVoucherId != null)
                 {
-                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                     var direct = new System.Text.StringBuilder();
                     var directsql = "";
                     directsql = @"UPDATE [dbo].[WorkerAdvanceDetail] SET IsDisburse=1,PaymentsDate=GETDATE(), DisbursementVoucherId='" + directVoucherId + @"', PaymentsById='" + identity.EmployeeId + "'  where Id in (" + goodWorkPaymentAdviseDetailIds + @") ";
                     direct.Append(directsql);
                     directsql = @"
-                        UPDATE [dbo].[WorkerAdvance] SET PaymentsStatus=CASE WHEN (SELECT COUNT(Id)Id FROM [dbo].[WorkerAdvanceDetail]   where WorkerAdvanceId= '" + disbursementAdviceId + "' AND ISNULL(IsCheck,0)=1 AND ISNULL(IsDisburse,0)=0 AND DisbursementVoucherId IS NULL)>0 THEN 'Partial Payments' ELSE 'Full Payments' END  where Id='" + disbursementAdviceId + @"' ";
+                        UPDATE [dbo].[WorkerAdvance] SET ApprovedStatus= 'Paid',PaymentsStatus= 'Paid' where Id='" + disbursementAdviceId + @"' ";
                     direct.Append(directsql);
                     _sqlRepository.ExecuteSqlCommand(direct.ToString());
 
@@ -2380,14 +2445,21 @@ namespace Library.Service.SalaryDisbursement
                 var direct = new System.Text.StringBuilder();
                 var directsql = "";
 
-                directsql = @"UPDATE  gwpa SET gwpa.PaymentsStatus=NULL
+                directsql = @"UPDATE  gwpa SET gwpa.ApprovedStatus ='Approved',gwpa.PaymentsStatus=NULL
 					from WorkerAdvance gwpa
 					left join  WorkerAdvanceDetail gwpad on gwpad.WorkerAdvanceId=gwpa.Id
 					WHERE  gwpad.DisbursementVoucherId='" + voucherId + @"' ";
                 direct.Append(directsql);
                 directsql = @"
+                              DELETE from [TRN].[EmployeeAdvanceDeduction] where WorkerAdvanceDetailId in (SELECT Id FROM [dbo].[WorkerAdvanceDetail]  where DisbursementVoucherId='" + voucherId + @"' ) ";
+                direct.Append(directsql);
+                directsql = @"
+                              DELETE from dbo.AdvanceReqSchedule where WorkerAdvanceDetailId in (SELECT Id FROM [dbo].[WorkerAdvanceDetail]  where DisbursementVoucherId='" + voucherId + @"' ) ";
+                direct.Append(directsql);
+                directsql = @"
                               UPDATE [dbo].[WorkerAdvanceDetail] SET IsDisburse=NULL,PaymentsDate=NULL, DisbursementVoucherId=NULL, PaymentsById=NULL  where DisbursementVoucherId='" + voucherId + @"' ";
                 direct.Append(directsql);
+                
                 _sqlRepository.ExecuteSqlCommand(direct.ToString());
                 _unitOfWork.SaveChanges();
                 flag = false;
