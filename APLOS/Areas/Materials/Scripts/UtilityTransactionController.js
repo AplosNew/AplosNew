@@ -26,7 +26,8 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
         LastReadingDate: null,
         LastReadingTime: null,
         MultiplyingFactor: null,
-        Remarks: null
+        Remarks: null,
+        UoM:null,
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -105,6 +106,8 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
         $scope.ModelNew.UtilityMaster = obj.data.UtilityMaster;
         $scope.ModelNew.UtilityMasterId = obj.data.UtilityMasterId;
         $scope.ModelNew.MultiplyingFactor = obj.data.MultiplyingFactor;
+        $scope.ModelNew.UoMId = obj.data.UoMId;
+        $scope.ModelNew.UoM = obj.data.UoM;
 
         $scope.GetEditReadingList();
         $scope.GetUoMAndReadingApplicable();
