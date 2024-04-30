@@ -546,17 +546,7 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
 
             $scope.ModelProcessPara.SalaryHead = $("#SH option:selected").text();
 
-            $scope.Row = 'Add Row';
-            $scope.ModelProcessPara.FormulaDescription = null;
-            $scope.ModelProcessPara.FormulaIDDescription = null;
 
-            $scope.ModelProcessPara.HeadIdFormula = null;
-            $scope.ModelProcessPara.Operator = null;
-            $scope.ModelProcessPara.Precedence = null;
-            $scope.ModelProcessPara.Value = null;
-
-            $scope.FormulaArray = [];
-            $scope.FormulaIdArray = [];
         } catch (e) {
             ShowResult(e, 'failure');
         }
@@ -627,6 +617,17 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
                         $scope.GetOrderLineCostingItemCbo();
                         $scope.ClearSeperationItem();
                         $scope.FormulaDetails = [];
+                        $scope.Row = 'Add Row';
+                        $scope.ModelProcessPara.FormulaDescription = null;
+                        $scope.ModelProcessPara.FormulaIDDescription = null;
+
+                        $scope.ModelProcessPara.HeadIdFormula = null;
+                        $scope.ModelProcessPara.Operator = null;
+                        $scope.ModelProcessPara.Precedence = null;
+                        $scope.ModelProcessPara.Value = null;
+
+                        $scope.FormulaArray = [];
+                        $scope.FormulaIdArray = [];
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
