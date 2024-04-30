@@ -4443,6 +4443,191 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
             }
         }
 
+        public void GetPOBaseArticle(out List<PODetailsArtilce> DataList, string ProcessId, string entityId, string POId, string Workcenter, string BookingLevel)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<PODetailsArtilce>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                #region SQl
+                if(BookingLevel == "MasterOrderItem")
+                {
+                    strSQL = @"SELECT DISTINCT mo.MasterOrderNo,so.MasterOrderItemId MOIId
+	                                ,ISNULL(so.Id, '') SOId
+                                    ,PM.Code as ProductCode
+	                                ,SO.CustomerPOId
+	                                ,CPO.PONumber
+	                                ,mm.Id MaterialMasterId
+                                    , mm.UserName MaterialMaster
+                                     , ISNULL(mma.StandardName, '') Article
+	                                ,b.UserName Customer
+                                    , mo.TotalQty MOQty
+                                     , ISNULL(u.UserName, '') UOM
+	                                ,moi.ExtraOrderPercentage[ExtraP]
+	                                ,moi.OrderWastagePercentage[WastageP]
+	                                ,ISNULL(mma.Id, '') ArticleId
+	                                ,mmc.CharCount
+	                                ,ISNULL(POD.ProductionOrderId, '') POId
+	                                ,B.UserName Buyer
+                                    , PM.UserName AS ProductMasterName
+	                                ,CEILING(SO.PlannedQty) PlannedQty
+	                               	,CEILING(ISNULL(PRS.TotalProductionQty, 0)) TotalProductionQty
+	                                ,CEILING(ISNULL((SO.PlannedQty - ISNULL(PRS.TotalProductionQty, 0)), 0)) RemainingQty
+                                    ,SO.Description,MO.BuyerReferenceNo BuyerOrder, MO.OwnReferenceNo OwnOrder, moi.BuyerReferenceNo BuyerItem, moi.OwnReferenceNo OwnItem
+                                FROM TRN.ProductionOrderDetail POD
+                               LEFT JOIN(
+                                    SELECT SUM((isnull(qty, 0) *(1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) *(100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) AS PlannedQty
+                                      , s.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description
+                                   FROM trn.SalesOrder AS s
+                                   INNER JOIN trn.MasterOrderItem AS moi ON moi.Id = s.MasterOrderItemId
+
+                                    GROUP BY S.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description
+	                                ) so ON POD.SalesOrderId = SO.Id
+                                LEFT JOIN TRN.[MasterOrderItem] moi ON moi.id = so.MasterOrderItemId
+                                LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
+                                LEFT JOIN(SELECT SUM(PS.Quantity) TotalProductionQty, PS.SalesOrderId, PS.ProcessId, PS.MasterOrderItemId
+                                    FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + ProcessId + @"' GROUP BY PS.SalesOrderId, PS.ProcessId, PS.MasterOrderItemId
+
+                                    ) AS PRS ON PRS.SalesOrderId = SO.Id AND PRS.ProcessId = '" + ProcessId + @"'
+                                LEFT JOIN HKP.Party b ON b.id = mo.PartyId
+                                LEFT JOIN SCS.UnitOfMeasurement u ON u.id = mo.TotalQtyUOMId
+                                LEFT JOIN MST.MaterialMaster mm ON mm.id = moi.MaterialMasterId
+                                LEFT JOIN MST.MaterialMasterArticle mma ON mma.id = moi.ArticleId
+                                LEFT JOIN(SELECT COUNT(Id) CharCount, MaterialMasterId FROM [MST].[MaterialMasterCharacteristics] GROUP BY MaterialMasterId
+
+                                    ) mmc ON mmc.MaterialMasterId = mm.id
+                                LEFT JOIN HKP.Buyer BU ON BU.Id = mo.BuyerId
+                                LEFT JOIN[TRN].ProductDefinition AS PD ON PD.MaterialMasterId = MM.Id
+                                LEFT JOIN[MST].[ProductMaster] AS PM ON PD.ProductMasterId = PM.Id
+                                LEFT JOIN(SELECT PS.UserName, PO.Id ProductionOrderId FROM[HKP].[ProductionStatus] PS
+                                    INNER JOIN TRN.ProductionOrder PO ON PO.ProductionStatusId = PS.Id
+                                    ) OS ON OS.ProductionOrderId = POD.ProductionOrderId
+                                LEFT JOIN TRN.ProductionOrder PO ON PO.Id = POD.ProductionOrderId
+                                LEFT JOIN[HKP].[ProductionStatus] PS ON PS.Id = PO.ProductionStatusId
+                                LEFT JOIN[HKP].[ProductCategory] PC on pc.Id = pm.ProductCategoryId
+                                LEFT JOIN[TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
+                                LEFT JOIN[SCS].[WorkCenterMasterProductPriority] WC ON WC.ProductMasterId = PM.Id AND WC.WorkCenterMasterId = '" + Workcenter + @"'
+                                LEFT JOIN[TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
+                                WHERE
+--PO.EntityId = '" + entityId + @"'AND 
+PS.UserName = 'Running' AND POSP.ProcessId = '" + ProcessId + "' AND PO.Id = '" + POId + "'";
+                }
+                if (BookingLevel == "SalesOrder")
+                {
+                    strSQL = @"SELECT DISTINCT mo.MasterOrderNo
+	                                ,ISNULL(so.Id,'') SOId
+                                    ,ISNULL(moi.Id,'') MOIId
+									,Format(so.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate
+									,PM.Code as ProductCode
+	                                ,SO.CustomerPOId
+	                                ,CPO.PONumber
+	                                ,mm.Id MaterialMasterId
+	                                ,mm.UserName MaterialMaster
+	                                ,ISNULL(mma.StandardName, '') Article
+	                                ,b.UserName Customer
+	                                ,mo.TotalQty MOQty
+	                                ,ISNULL(u.UserName, '') UOM
+	                                ,moi.ExtraOrderPercentage [ExtraP]
+	                                ,moi.OrderWastagePercentage [WastageP]
+	                                ,ISNULL(mma.Id, '') ArticleId
+	                                ,mmc.CharCount
+	                                ,ISNULL(POD.ProductionOrderId, '') POId
+	                                ,B.UserName Buyer
+	                                ,PM.UserName AS ProductMasterName
+	                                ,CEILING(SO.PlannedQty) PlannedQty
+	                               	,CEILING(ISNULL(PRS.TotalProductionQty,0)) TotalProductionQty
+	                                ,CEILING(ISNULL((SO.PlannedQty - ISNULL(PRS.TotalProductionQty,0)),0)) RemainingQty
+                                    ,SO.Description,MO.BuyerReferenceNo BuyerOrder,MO.OwnReferenceNo OwnOrder,moi.BuyerReferenceNo BuyerItem,moi.OwnReferenceNo OwnItem
+                                FROM TRN.ProductionOrderDetail POD
+                               LEFT JOIN (
+	                                SELECT SUM((isnull(qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) AS PlannedQty
+		                                ,s.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description,s.DeliveryDate
+	                                FROM trn.SalesOrder AS s
+	                                INNER JOIN trn.MasterOrderItem AS moi ON moi.Id = s.MasterOrderItemId
+	                                GROUP BY S.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description,s.DeliveryDate
+	                                ) so ON POD.SalesOrderId = SO.Id
+                                LEFT JOIN TRN.[MasterOrderItem] moi ON moi.id = so.MasterOrderItemId
+                                LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
+                                LEFT JOIN (SELECT SUM(PS.Quantity) TotalProductionQty,PS.SalesOrderId,PS.ProcessId
+	                                FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + ProcessId + @"' GROUP BY PS.SalesOrderId,PS.ProcessId
+	                                ) AS PRS ON PRS.SalesOrderId = SO.Id AND PRS.ProcessId = '" + ProcessId + @"'
+                                LEFT JOIN HKP.Party b ON b.id = mo.PartyId
+                                LEFT JOIN SCS.UnitOfMeasurement u ON u.id = mo.TotalQtyUOMId
+                                LEFT JOIN MST.MaterialMaster mm ON mm.id = moi.MaterialMasterId
+                                LEFT JOIN MST.MaterialMasterArticle mma ON mma.id = moi.ArticleId
+                                LEFT JOIN (SELECT COUNT(Id) CharCount, MaterialMasterId	FROM [MST].[MaterialMasterCharacteristics] GROUP BY MaterialMasterId
+	                                ) mmc ON mmc.MaterialMasterId = mm.id
+                                LEFT JOIN HKP.Buyer BU ON BU.Id = mo.BuyerId
+                                LEFT JOIN [TRN].ProductDefinition AS PD ON PD.MaterialMasterId = MM.Id
+                                LEFT JOIN [MST].[ProductMaster] AS PM ON PD.ProductMasterId = PM.Id
+                                LEFT JOIN (SELECT PS.UserName, PO.Id ProductionOrderId FROM [HKP].[ProductionStatus] PS
+	                                INNER JOIN TRN.ProductionOrder PO ON PO.ProductionStatusId = PS.Id
+	                                ) OS ON OS.ProductionOrderId = POD.ProductionOrderId
+                                LEFT JOIN TRN.ProductionOrder PO ON PO.Id = POD.ProductionOrderId
+                                LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id = PO.ProductionStatusId
+                                LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
+                                LEFT JOIN [SCS].[WorkCenterMasterProductPriority] WC ON WC.ProductMasterId = PM.Id AND WC.WorkCenterMasterId = '" + Workcenter + @"'
+                                LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
+                                LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
+                                WHERE 
+--PO.EntityId = '" + entityId + @"'	AND 
+PS.UserName = 'Running'	AND POSP.ProcessId = '" + ProcessId + "' AND PO.Id='" + POId + "'";
+                }
+                #endregion SQl
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new PODetailsArtilce
+                    {
+                        MasterOrderNo = dsRef.Tables[0].Rows[i]["MasterOrderNo"].ToString(),
+                        MOIId = dsRef.Tables[0].Rows[i]["MOIId"].ToString(),
+                        SOId = dsRef.Tables[0].Rows[i]["SOId"].ToString(),
+                        ProductCode = dsRef.Tables[0].Rows[i]["ProductCode"].ToString(),
+                        CustomerPOId = dsRef.Tables[0].Rows[i]["CustomerPOId"].ToString(),
+                        PONumber = dsRef.Tables[0].Rows[i]["PONumber"].ToString(),
+                        MaterialMasterId = dsRef.Tables[0].Rows[i]["MaterialMasterId"].ToString(),
+                        MaterialMaster = dsRef.Tables[0].Rows[i]["MaterialMaster"].ToString(),
+                        Article = dsRef.Tables[0].Rows[i]["Article"].ToString(),
+                        Customer = dsRef.Tables[0].Rows[i]["Customer"].ToString(),
+                        MOQty = dsRef.Tables[0].Rows[i]["MOQty"].ToString(),
+                        UOM = dsRef.Tables[0].Rows[i]["UOM"].ToString(),
+                        ExtraP = dsRef.Tables[0].Rows[i]["ExtraP"].ToString(),
+                        WastageP = dsRef.Tables[0].Rows[i]["WastageP"].ToString(),
+                        ArticleId = dsRef.Tables[0].Rows[i]["ArticleId"].ToString(),
+                        CharCount = dsRef.Tables[0].Rows[i]["CharCount"].ToString(),
+                        POId = dsRef.Tables[0].Rows[i]["POId"].ToString(),
+                        Buyer = dsRef.Tables[0].Rows[i]["Buyer"].ToString(),
+                        ProductMasterName = dsRef.Tables[0].Rows[i]["ProductMasterName"].ToString(),
+                        PlannedQty = dsRef.Tables[0].Rows[i]["PlannedQty"].ToString(),
+                        TotalProductionQty = dsRef.Tables[0].Rows[i]["TotalProductionQty"].ToString(),
+                        RemainingQty = dsRef.Tables[0].Rows[i]["RemainingQty"].ToString(),
+                        Description = dsRef.Tables[0].Rows[i]["Description"].ToString(),
+                        BuyerOrder = dsRef.Tables[0].Rows[i]["BuyerOrder"].ToString(),
+                        OwnOrder = dsRef.Tables[0].Rows[i]["OwnOrder"].ToString(),
+                        BuyerItem = dsRef.Tables[0].Rows[i]["BuyerItem"].ToString(),
+                        OwnItem = dsRef.Tables[0].Rows[i]["OwnItem"].ToString(),
+
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
         public void GetProductionParameter(out List<Default2> DataList, string ParameterId)
         {
             clsConnectionManager objCon = null;
@@ -12886,6 +13071,37 @@ where QAT.ParameterId='" + ParameterId + "'";
         public string ProductCode { get; set; }
         public string ProductDetails { get; set; }
         public string CustomerRefNo { get; set; }
+
+    }
+    public class PODetailsArtilce
+    {
+        public string MasterOrderNo { get; set; }
+        public string MOIId { get; set; }
+        public string SOId { get; set; }
+        public string ProductCode { get; set; }
+        public string CustomerPOId { get; set; }
+        public string PONumber { get; set; }
+        public string MaterialMasterId { get; set; }
+        public string MaterialMaster { get; set; }
+        public string Article { get; set; }
+        public string Customer { get; set; }
+        public string MOQty { get; set; }
+        public string UOM { get; set; }
+        public string ExtraP { get; set; }
+        public string WastageP { get; set; }
+        public string ArticleId { get; set; }
+        public string CharCount { get; set; }
+        public string POId { get; set; }
+        public string Buyer { get; set; }
+        public string ProductMasterName { get; set; }
+        public string PlannedQty { get; set; }
+        public string TotalProductionQty { get; set; }
+        public string RemainingQty { get; set; }
+        public string Description { get; set; }
+        public string BuyerOrder { get; set; }
+        public string OwnOrder { get; set; }
+        public string BuyerItem { get; set; }
+        public string OwnItem { get; set; }
 
     }
 }
