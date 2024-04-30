@@ -2257,13 +2257,13 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
             try
             {
                 DataSet dsMaster;
-                string TableName = "dbo.ProductionService";
+                string TableName = "trn.ProductionSummary";
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 if (DataToSave.Count() == 0)
                     return "";
                 List<ProcessService> items = DataToSave.ToList();
 
-                con.OpenDataSetThroughAdapter("select * from dbo.ProductionService where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from trn.ProductionSummary where Id='" + items[0].Id + "'", out dsMaster, false, "1");
 
                 foreach (ProcessService item in DataToSave)
                 {
@@ -2281,17 +2281,20 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
 
                         dr["Id"] = "PS" + _Id;
                         dr["ProductionDate"] = item.ProductionDate;
-                        dr["EntityId"] = item.EntityID;
-                        dr["ProcessId"] = item.ProcessID;
-                        dr["ShiftId"] = item.ShiftID;
-                        dr["ResponsiblePerson"] = item.ResponsiblePerson;
-                        dr["Entity"] = item.Entity;
-                        dr["Process"] = item.Process;
-                        dr["Shift"] = item.shift;
-                        dr["ResponsiblePersonID"] = item.ResponsiblePersonID;
+                        dr["EntityId"] = item.EntityId;
+                        dr["ProcessId"] = item.ProcessId;
+                        dr["ProductionShiftId"] = item.ProductionShiftId;
+                        dr["WorkCenterMasterId"] = item.WorkCenterMasterId;
+                        dr["ProductionGrade"] = item.ProductionGrade;
+                        dr["Quantity"] = item.Quantity;
+                        dr["ProductionOrderId"] = item.ProductionOrderId;
+                        dr["LotNumber"] = item.LotNumber;
+                        dr["MasterOrderItemId"] = item.MasterOrderItemId;
+                        dr["QtyWithoutScan"] = item.QtyWithoutScan;
+                        dr["ResponsiblePersonID"] = item.ResponsiblePersonId;
 
                         dr["AddedBy"] = item.AddedBy;
-                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedFromIP"] = "::1";
                         dr["AddedDate"] = System.DateTime.Now.ToString();
 
 
@@ -2303,14 +2306,18 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
 
-                        dr["EntityId"] = item.EntityID;
-                        dr["ProcessId"] = item.ProcessID;
-                        dr["ShiftId"] = item.ShiftID;
-                        dr["ResponsiblePerson"] = item.ResponsiblePerson;
-                        dr["Entity"] = item.Entity;
-                        dr["Process"] = item.Process;
-                        dr["Shift"] = item.shift;
-                        dr["ResponsiblePersonID"] = item.ResponsiblePersonID;
+                        dr["ProductionDate"] = item.ProductionDate;
+                        dr["EntityId"] = item.EntityId;
+                        dr["ProcessId"] = item.ProcessId;
+                        dr["ProductionShiftId"] = item.ProductionShiftId;
+                        dr["WorkCenterMasterId"] = item.WorkCenterMasterId;
+                        dr["ProductionGrade"] = item.ProductionGrade;
+                        dr["Quantity"] = item.Quantity;
+                        dr["ProductionOrderId"] = item.ProductionOrderId;
+                        dr["LotNumber"] = item.LotNumber;
+                        dr["MasterOrderItemId"] = item.MasterOrderItemId;
+                        dr["QtyWithoutScan"] = item.QtyWithoutScan;
+                        dr["ResponsiblePersonID"] = item.ResponsiblePersonId;
 
 
                         dr["UpdatedBy"] = item.UpdatedBy;
@@ -4326,7 +4333,7 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
 
                         LEFT JOIN(select ISNULL(sum(Minute),0) as SumMinute,WorkCenterId, ProductionSummaryId from MachineMasterTransaction MT where MT.ProcessId = '" + ProcessId + "'  and MT.EntityId = '" + entityId + "' AND MT.Date = '" + productionDate + "' AND MT.ShiftId = '" + shiftId + @"'
                         group by WorkCenterId,ProductionSummaryId) SM ON SM.WorkCenterId = wc.Id and SM.ProductionSummaryId = pw.Id
-                        where wc.Active = 1 and wc.ProcessId = '" + ProcessId + "'  and wc.EntityId = '" + entityId + "' and wc.UserName = '" + Workcenter + "' order by wc.UserName";
+                        where wc.Active = 1 and wc.ProcessId = '" + ProcessId + "'  and wc.EntityId = '" + entityId + "' and wc.Id = '" + Workcenter + "' order by wc.UserName";
                 #endregion SQl
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -11677,21 +11684,54 @@ where QAT.ParameterId='" + ParameterId + "'";
     public class ProcessService
     {
         public string Id { get; set; }
+        public string PlantId { get; set; }
+        public string EntityId { get; set; }
+        public string ProcessId { get; set; }
+        public string SalesOrderId { get; set; }
+        public string MaterialMasterId { get; set; }
+        public string ArticleId { get; set; }
+        public string WorkCenterMasterId { get; set; }
         public string ProductionDate { get; set; }
-        public string Entity { get; set; }
-        public string EntityID { get; set; }
-        public string Process { get; set; }
-        public string ProcessID { get; set; }
-        public string shift { get; set; }
-        public string ShiftID { get; set; }
-        public string ResponsiblePerson { get; set; }
-        public string ResponsiblePersonID { get; set; }
+        public string ProductionGrade { get; set; }
+        public string Quantity { get; set; }
+        public string ProductionShiftId { get; set; }
         public string AddedBy { get; set; }
         public DateTime AddedDate { get; set; }
         public string AddedFromIP { get; set; }
         public string UpdatedBy { get; set; }
-        public DateTime? UpdatedDate { get; set; }
+        public DateTime UpdatedDate { get; set; }
         public string UpdatedFromIP { get; set; }
+        public string ProductionBookingPeriodId { get; set; }
+        public string ProductionOrderId { get; set; }
+        public string MentorId { get; set; }
+        public string ResponsiblePersonId { get; set; }
+        public string InTime { get; set; }
+        public string OutTime { get; set; }
+        public string ConsumeHour { get; set; }
+        public string ManPower { get; set; }
+        public string CheckedBy { get; set; }
+        public string Remarks { get; set; }
+        public string ToProcessId { get; set; }
+        public string ToWorkCenterMasterId { get; set; }
+        public string FromSFGInventoryId { get; set; }
+        public string ToSFGInventoryId { get; set; }
+        public string LotNumber { get; set; }
+        public string PackingConfirmationId { get; set; }
+        public string ToEntityId { get; set; }
+        public string FinishGoodsBookingId { get; set; }
+        public string MasterOrderItemId { get; set; }
+        public string ProductLibraryId { get; set; }
+        public string QtyWithoutScan { get; set; }
+        public string ScanQty { get; set; }
+        public string InChargeId { get; set; }
+        public string ProductionInChargeId { get; set; }
+        public string PPQFlag { get; set; }
+        public string SKUQty { get; set; }
+        public string IsInventory { get; set; }
+        public string SourceType { get; set; }
+        public string IsJobWork { get; set; }
+        public string JobWorkQty { get; set; }
+
     }
 
     public class ProcessServiceChild
