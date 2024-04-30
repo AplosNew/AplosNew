@@ -85,7 +85,7 @@ namespace Aplos.Areas.Materials.Controllers
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
                 var sql = @"select top 1000 * from (select distinct UM.Id as UtilityMasterId, UM.UserName as UtilityMaster,UOM.UserName UoM,UM.IsReadingApplicable,C.LastReading
-								,UG.UserName UtilityGroup,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory,UM.MultiplyingFactor
+								,UG.UserName UtilityGroup,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory,UM.MultiplyingFactor,UM.UoMId
 
                                 from UtilityMaster UM
                                 left join SCS.UnitOfMeasurement UOM on UOM.Id=UM.UoMId
