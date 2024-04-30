@@ -977,6 +977,20 @@ namespace Aplos.Areas.Accounts.Controllers
         [Authorize, HttpGet]
         public ActionResult GetPositionCode(string GlManagementId)
         {
+            string designationsql = @"select DesignationId from  [HKP].[GLManagementDesignation] where GlManagementId='"+ GlManagementId + "'";
+            var tempDesignationData = _sqlRepository.GetDataCollection(designationsql);
+            var tempDesignationQuery = "";
+            if (tempDesignationData.Count > 0)
+            {
+                tempDesignationQuery = @"AND P.DesignationId IN (select DesignationId from  [HKP].[GLManagementDesignation] where GlManagementId='" + GlManagementId + "')";
+            }
+            string departmentsql = @"select DepartmentId from  [HKP].[GLManagementDepartment] where GlManagementId='" + GlManagementId + "'";
+            var tempDepartmentData = _sqlRepository.GetDataCollection(departmentsql);
+            var tempDepartmentQuery = "";
+            if (tempDepartmentData.Count > 0)
+            {
+                tempDepartmentQuery = @"AND P.DepartmentId IN (select DepartmentId from  [HKP].[GLManagementDepartment] where GlManagementId='" + GlManagementId + "')";
+            }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string str = @"select CheckBoxSelect=cast(case when glpc.Id is null then 0 else 1 end as bit),glpc.Id,P.Id PositionCodeId,P.Code,P.UserName Position,P.Activity,
                         DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection
@@ -986,7 +1000,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
                         left outer join MST.DesignationMaster DM ON DM.DesignationId=P.DesignationId
                         left join(select * from  [HKP].[GLManagementPositionCode] where GlManagementId='" + GlManagementId + @"') glpc on glpc.PositionCodeId=p.Id
-						where P.Active = 1";
+						where P.Active = 1  "+ tempDesignationQuery + "  "+ tempDepartmentQuery + "";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
@@ -1035,8 +1049,30 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
         [Authorize, HttpGet]
-        public ActionResult getbudgetcodelist(string GlManagementId)
+        public ActionResult GetBudgetCodeList(string GlManagementId)
         {
+            string designationsql = @"select DesignationId from  [HKP].[GLManagementDesignation] where GlManagementId='" + GlManagementId + "'";
+            var tempDesignationData = _sqlRepository.GetDataCollection(designationsql);
+            var tempDesignationQuery = "";
+            if (tempDesignationData.Count > 0)
+            {
+                tempDesignationQuery = @" AND  PRD.DesignationId IN (select DesignationId from  [HKP].[GLManagementDesignation] where GlManagementId='" + GlManagementId + "')";
+            }
+            string departmentsql = @"select DepartmentId from  [HKP].[GLManagementDepartment] where GlManagementId='" + GlManagementId + "'";
+            var tempDepartmentData = _sqlRepository.GetDataCollection(departmentsql);
+            var tempDepartmentQuery = "";
+            if (tempDepartmentData.Count > 0)
+            {
+                tempDepartmentQuery = @" AND PRD.DepartmentId IN (select DepartmentId from  [HKP].[GLManagementDepartment] where GlManagementId='" + GlManagementId + "')";
+            }
+
+            string positionsql = @"select PositionCodeId from  [HKP].[GLManagementPositionCode] where GlManagementId='" + GlManagementId + "'";
+            var tempPositionData = _sqlRepository.GetDataCollection(positionsql);
+            var tempPositionQuery = "";
+            if (tempPositionData.Count > 0)
+            {
+                tempPositionQuery = @" AND PMB.PositionId IN (select PositionCodeId from  [HKP].[GLManagementPositionCode] where GlManagementId='" + GlManagementId + "')";
+            }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
@@ -1051,7 +1087,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     FROM [MST].[ManpowerBudget] AS PMB INNER JOIN ORG.Entity AS ERD ON PMB.EntityId=ERD.Id 
                     INNER JOIN ORG.Position AS PRD ON PMB.PositionId = PRD.Id 
                     LEFT JOIN (select * from  [HKP].[GLManagementBudgetCode] where GlManagementId='" + GlManagementId + @"') BC ON BC.BudgetCodeId=PMB.Id                 WHERE PMB.Active=1 AND PMB.Archive=0 AND ERD.CompanyGroupId='" + identity.CompanyGroupId + @"' AND ERD.CompanyId='" + identity.CompanyId + @"'
-                    AND ERD.PlantId='" + identity.PlantId + @"' AND ERD.Active=1 AND ERD.Archive=0";
+                    AND ERD.PlantId='" + identity.PlantId + @"' AND ERD.Active=1 AND ERD.Archive=0  "+ tempDesignationQuery + "  "+ tempDepartmentQuery + "  "+ tempPositionQuery + "";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -1061,7 +1097,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [Authorize, HttpGet]
-        public ActionResult getControlDrlist(string GlManagementId, string tabName)
+        public ActionResult GetControlDrlist(string GlManagementId, string tabName)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
@@ -1095,7 +1131,7 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
         [Authorize, HttpGet]
-        public ActionResult getActionBylist(string GlManagementId)
+        public ActionResult GetActionBylist(string GlManagementId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
@@ -1138,7 +1174,7 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
         [Authorize, HttpGet]
-        public ActionResult getApproveBylist(string GlManagementId)
+        public ActionResult GetApproveBylist(string GlManagementId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
@@ -1181,7 +1217,7 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
         [Authorize, HttpGet]
-        public ActionResult getResponsiblePersonlist(string GlManagementId)
+        public ActionResult GetResponsiblePersonlist(string GlManagementId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
