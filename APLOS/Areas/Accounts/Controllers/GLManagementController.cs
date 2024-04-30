@@ -1006,11 +1006,42 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [Authorize, HttpGet]
-        public ActionResult getemployeelist(string GlManagementId)
+        public ActionResult Getemployeelist(string GlManagementId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
+                string designationsql = @"select DesignationId from  [HKP].[GLManagementDesignation] where GlManagementId='" + GlManagementId + "'";
+                var tempDesignationData = _sqlRepository.GetDataCollection(designationsql);
+                var tempDesignationQuery = "";
+                if (tempDesignationData.Count > 0)
+                {
+                    tempDesignationQuery = @" AND  EMP.GivenDesignationId IN (select DesignationId from  [HKP].[GLManagementDesignation] where GlManagementId='" + GlManagementId + "')";
+                }
+                string departmentsql = @"select DepartmentId from  [HKP].[GLManagementDepartment] where GlManagementId='" + GlManagementId + "'";
+                var tempDepartmentData = _sqlRepository.GetDataCollection(departmentsql);
+                var tempDepartmentQuery = "";
+                if (tempDepartmentData.Count > 0)
+                {
+                    tempDepartmentQuery = @" AND EMP.DepartmentId IN (select DepartmentId from  [HKP].[GLManagementDepartment] where GlManagementId='" + GlManagementId + "')";
+                }
+
+                string positionsql = @"select PositionCodeId from  [HKP].[GLManagementPositionCode] where GlManagementId='" + GlManagementId + "'";
+                var tempPositionData = _sqlRepository.GetDataCollection(positionsql);
+                var tempPositionQuery = "";
+                if (tempPositionData.Count > 0)
+                {
+                    tempPositionQuery = @" AND EMP.PositionId IN (select PositionCodeId from  [HKP].[GLManagementBudgetCode] where GlManagementId='" + GlManagementId + "')";
+                }
+
+                string manpowerbudgetsql = @"select BudgetCodeId from  [HKP].[GLManagementBudgetCode] where GlManagementId='" + GlManagementId + "'";
+                var tempManpowerbudgetData = _sqlRepository.GetDataCollection(positionsql);
+                var tempManpowerbudgetQuery = "";
+                if (tempManpowerbudgetData.Count > 0)
+                {
+                    tempManpowerbudgetQuery = @" AND EMP.BudgetCode IN (select BudgetCodeId from  [HKP].[GLManagementPositionCode] where GlManagementId='" + GlManagementId + "')";
+                }
+
                 var sql = @"SELECT CheckBoxSelect=cast(case when glme.Id is null then 0 else 1 end as bit),glme.Id,Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,ISNULL(DeM.UserName,'') Designation,
                                         ISNULL(PR.UserName,'') PositionName,ISNULL(DEG.UserName,'') GivenDesignation,ISNULL(DEPT.UserName,'') Department,SE.UserName Section,EMP.SectionId,SuS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation,isnull( L.UserName,'') Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
@@ -1039,7 +1070,8 @@ namespace Aplos.Areas.Accounts.Controllers
                                         LEFT JOIN dbo.EmpDateWiseJobLocation EJ ON EJ.EmpsystemId=EMP.SystemId
 										 AND EJ.SystemId=(Select top(1) SystemId from dbo.EmpDateWiseJobLocation JB Where JB.EmpSystemID=EMP.SystemId Order by EffectiveDate desc)
                                         left join(select * from  [HKP].[GLManagementEmployee] where GlManagementId='" + GlManagementId + @"') glme on glme.EmpSystemId=EMP.SystemId
-                                        WHERE emp.PlantID='" + identity.PlantId + @"'  and EMP.CompanyId='" + identity.CompanyId + @"' and EMP.EmployeeStatus='Active' ORDER BY EmployeeCodePreFix,EMP.EmployeeCodeNumeric";
+                                        WHERE emp.PlantID='" + identity.PlantId + @"'  and EMP.CompanyId='" + identity.CompanyId + @"' and EMP.EmployeeStatus='Active' 
+                                        " + tempDesignationQuery + "  " + tempDepartmentQuery + "  " + tempPositionQuery + " " + tempManpowerbudgetQuery + "  ORDER BY EmployeeCodePreFix,EMP.EmployeeCodeNumeric";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
