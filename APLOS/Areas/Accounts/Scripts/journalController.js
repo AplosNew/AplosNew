@@ -576,10 +576,10 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
         $scope.GetCOAICodeListData();
     };
 
-    $scope.closeCOAICodeListPopUp = function () {
+    $scope.closeNewGLListPopUp = function () {
         angular.element(document.querySelector("#GLNewPopUp")).modal("hide");
     };
-    $scope.setSelected = function (data, index) {
+    $scope.setNewSelected = function (data, index) {
         $scope.newJVList[$scope.indexGL].GLGeneralInfoId = data.GLGeneralInfoId;
         $scope.newJVList[$scope.indexGL].GLGeneralInfoCode = data.GLGeneralInfoCode;
         $scope.newJVList[$scope.indexGL].GLGeneralInfoName = data.GLGeneralInfoName;
@@ -587,6 +587,6 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
         $scope.newJVList[$scope.indexGL].BudgetName = data.BudgetName;
         $scope.newJVList[$scope.indexGL].ActivityId = data.ActivityId;
         $scope.newJVList[$scope.indexGL].ActivityName = data.ActivityName;
-        $scope.closeCOAICodeListPopUp();
+        $scope.closeNewGLListPopUp();
     };
 }

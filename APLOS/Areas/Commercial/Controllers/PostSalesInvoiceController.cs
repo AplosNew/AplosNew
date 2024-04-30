@@ -306,7 +306,7 @@ namespace Aplos.Areas.Commercial.Controllers
             try
             {
 
-                string sql = "SELECT * FROM [dbo].[PostSalesInvoice] WHERE Id='" + data.Id + "'";
+                string sql = "SELECT * FROM [dbo].[PostSalesInvoice] WHERE SalesId='" + data.SalesId + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 if (!string.IsNullOrEmpty(data.ExportRefNo))
                 {
@@ -332,7 +332,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 {
                     DataRow dr = dsMaster.Tables[0].NewRow();
 
-                    dr["Id"] = GetPK();
+                    dr["Id"] = data.SalesId;
                     dr["SalesId"] = data.SalesId;
                     dr["InvoiceDate"] = data.InvoiceDate;
                     dr["BankMasterId"] = data.BankMasterId;

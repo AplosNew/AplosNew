@@ -1395,7 +1395,7 @@ LEFT JOIN dbo.EmployeeInformation IEI ON IEI.SystemId=RC.InformToId) AS TEMP WHE
                                     WHERE P.Archive=0 AND P.Active=1 AND P.CompanyGroupId='" + companyGroupId + "' AND CP.PartyType IN ('" + temp + "') AND CP.CompanyId='" + companyId + "' AND CP.PlantId='" + plantId + @"'
                                     AND P.Id IN(Select DISTINCT M.PartyId from TRN.MasterOrder M
                                     LEFT JOIN TRN.MasterOrderItem I ON I.MasterOrderId=M.Id
-                                    LEFT JOIN TRN.SalesOrder S ON S.MasterOrderItemId=I.Id where S.OrderStatusId NOT IN('Closed','Cancelled'))
+                                    LEFT JOIN TRN.SalesOrder S ON S.MasterOrderItemId=I.Id where S.OrderStatusId NOT IN('Closed','Cancelled') OR S.OrderStatusId IS NULL)
                                     ) AS TEMP WHERE " + strkey + " order by Code ";
                 return _sqlRepository.GetDataCollection(sql);
             }

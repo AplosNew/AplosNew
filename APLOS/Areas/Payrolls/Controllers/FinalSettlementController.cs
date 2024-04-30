@@ -1871,13 +1871,13 @@ where FinalSettlementId='" + masterId + "'";
 
 
                 string sql = @"SELECT A.Id,A.FinalSettlementId,E.SystemId EmpSystemId,OL.Id EmployeeSeperationItemId,OL.UserName,OL.Formula,OL.FormulaId
-,Value= CASE WHEN OL.UserName='" + EmployeeSeprationSetupEnum.JoiningDate + @"' THEN FORMAT(E.DOJ,'dd-MMM-yyyy')
-			 WHEN OL.UserName='" + EmployeeSeprationSetupEnum.ConfirmationDate + @"' THEN FORMAT(E.DOC,'dd-MMM-yyyy')
-			 WHEN OL.UserName='" + EmployeeSeprationSetupEnum.ResignDate + @"' THEN FORMAT(R.ResignationDate,'dd-MMM-yyyy')
-			 WHEN OL.UserName='" + EmployeeSeprationSetupEnum.SeparationDate + @"' THEN FORMAT(E.DOS,'dd-MMM-yyyy')
-			 WHEN OL.UserName='" + EmployeeSeprationSetupEnum.EarnLeave + @"' THEN CAST(LV.Balance AS varchar(100))
+,Value= CASE WHEN OL.UserName='JoiningDate' THEN FORMAT(E.DOJ,'dd-MMM-yyyy')
+			 WHEN OL.UserName='ConfirmationDate' THEN FORMAT(E.DOC,'dd-MMM-yyyy')
+			 WHEN OL.UserName='ResignDate' THEN FORMAT(R.ResignationDate,'dd-MMM-yyyy')
+			 WHEN OL.UserName='SeparationDate' THEN FORMAT(E.DOS,'dd-MMM-yyyy')
+			 WHEN OL.UserName='EarnLeave' THEN CAST(LV.Balance AS varchar(100))
 			 WHEN OL.SalaryHeadID<>'' THEN CAST(SID.DefineAmount AS varchar(100))
-			 WHEN OL.UserName='" + EmployeeSeprationSetupEnum.NoticePeriod + @"' THEN CAST(LV.NoticePeriod AS varchar(100))
+			 WHEN OL.UserName='NoticePeriod' THEN CAST(LV.NoticePeriod AS varchar(100))
             WHEN OL.Formula='SeparationDate - ResignDate' THEN CAST(DATEDIFF(Day,(Select FORMAT(DOS,'dd-MMM-yyyy') from dbo.EmployeeInformation Where SystemId='" + empId + @"'),
 			 (Select FORMAT(R.ResignationDate,'dd-MMM-yyyy') from [TRN].[Resignation] R Where R.EmployeeId='" + empId + @"'
 AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC))
