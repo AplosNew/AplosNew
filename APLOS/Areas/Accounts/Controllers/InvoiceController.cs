@@ -963,7 +963,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertCustomerInvoiceReceipt(voucherVM, voucherDetailVMList, bankChargeDetailVMList, taxDetailVMList)) });
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult ParkInvoiceRoundOffJournal(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

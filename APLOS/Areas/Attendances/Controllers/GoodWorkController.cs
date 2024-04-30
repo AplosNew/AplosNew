@@ -2213,7 +2213,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
         public ActionResult GetEmployeeMultipleAdvanceDetailCheckedList(string paymentAdviseId)
         {
             string sql = @"select isSelected = Convert(bit, 'True'),CheckBoxSelect=Convert(bit, 'True'),gwpad.Id,gwpad.WorkerAdvanceId,gwpad.EmpSystemId,ei.EmployeeCode,ei.EmployeeName,gwpad.PayDays,gwpad.Hour,gwpad.Hour*60 Minute,gwpad.Rate,gwpad.Amount,gwpad.AdvanceAmount,gwpad.Remarks
-                            ,gwpad.IsCheck,isnull(gwpad.IsDisburse,0)IsDisburse
+                            ,gwpad.IsCheck,isnull(gwpad.IsDisburse,0)IsDisburse,gwpa.YearNo,gwpa.MonthNo
                             from WorkerAdvanceDetail gwpad
                             left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
 							left join WorkerAdvance gwpa on gwpa.Id=gwpad.WorkerAdvanceId
@@ -2305,7 +2305,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                 }
             }
 
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _salaryDisbursementService.ParkEmployeeMultipleAdvanceDisbursement(voucherVM, directJVList, disbursementAdviceId, goodWorkPaymentAdviseDetailIds)) });
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _salaryDisbursementService.ParkEmployeeMultipleAdvanceDisbursement(voucherVM, directJVList, disbursementAdviceId, goodWorkPaymentAdviseDetailIds, goodWorkPaymentAdviseDetail)) });
         }
         [HttpPost]
         public JsonResult PostEmployeeMultipleAdvanceDisbursement(string voucherId)
