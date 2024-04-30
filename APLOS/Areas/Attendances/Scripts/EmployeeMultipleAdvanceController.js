@@ -413,57 +413,38 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
     $scope.PCEmployeeList = [];
     $scope.PCOTEmployeeList = [];
     $scope.SaveTabName = "ExtraOT_Advance";
-    $scope.GetLoadEmployeeInformation = function (obj) {
-        if (baseService.isUndefinedOrNull(obj)) {
-            $scope.TabName = $scope.SaveTabName;
-        } else {
-            $scope.TabName = obj;
+    $scope.GetLoadEmployeeInformation = function () {
+       
+        if ($scope.ModelOTNew.ToDate === "" || $scope.ModelOTNew.ToDate === null || $scope.ModelOTNew.ToDate === undefined) {
+            ShowResult('Select To Date', 'failure');
+            return false;
         }
-        if ($scope.TabName == "GoodWork") {
-            if ($scope.ModelPCNew.ToDate === "" || $scope.ModelPCNew.ToDate === null || $scope.ModelPCNew.ToDate === undefined) {
-                ShowResult('Select To Date', 'failure');
-                return false;
-            }
-            if ($scope.ModelPCNew.FromDate === "" || $scope.ModelPCNew.FromDate === null || $scope.ModelPCNew.FromDate === undefined) {
-                ShowResult('Select From Date', 'failure');
-                return false;
-            }
+        if ($scope.ModelOTNew.FromDate === "" || $scope.ModelOTNew.FromDate === null || $scope.ModelOTNew.FromDate === undefined) {
+            ShowResult('Select From Date', 'failure');
+            return false;
+        }
+        if (angular.isUndefinedOrNull($scope.ModelOTNew.Percentage)) {
+            ShowResult("Please Input Percentage", 'failure');
+        }
+        if (angular.isUndefinedOrNull($scope.ModelOTNew.Multiple)) {
+            ShowResult("Please Input Multiple", 'failure');
+        }
+        if (angular.isUndefinedOrNull($scope.ModelOTNew.MinimumPresentDay)) {
+            ShowResult("Please Input Minimum Present Day", 'failure');
+        }
 
-            $http({
-                method: 'POST',
-                // url: $scope.path + "LoadPCEmployeelist",
-                url: $scope.path + "GetGoodWorkEmployeelist",
-                data: { 'fromDate': $scope.ModelPCNew.FromDate, 'toDate': $scope.ModelPCNew.ToDate, 'tabName': $scope.TabName, 'saveUpdate': $scope.PCAction },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                $scope.PCEmployeeList = response.data;
-                for (var i = 0; i < $scope.PCEmployeeList.length; i++) {
-                    $scope.PCEmployeeList[i].Remarks = $scope.ModelPCNew.Remarks;
-                }
-            });
-        }
-        else {
-            if ($scope.ModelOTNew.ToDate === "" || $scope.ModelOTNew.ToDate === null || $scope.ModelOTNew.ToDate === undefined) {
-                ShowResult('Select To Date', 'failure');
-                return false;
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetEmployeeMultipleAdvanceEmployeelist",
+            data: { 'fromDate': $scope.ModelOTNew.FromDate, 'toDate': $scope.ModelOTNew.ToDate, 'saveUpdate': $scope.PCOTAction, 'percentage': $scope.ModelOTNew.Percentage, 'multiple': $scope.ModelOTNew.Multiple, 'minimumPresentDay': $scope.ModelOTNew.MinimumPresentDay, 'isPayDay': $scope.ModelOTNew.IsPayDay, 'isStandardOT': $scope.ModelOTNew.IsStandardOT, 'isAdditionalOT': $scope.ModelOTNew.IsAdditionalOT},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.PCOTEmployeeList = response.data;
+            for (var i = 0; i < $scope.PCOTEmployeeList.length; i++) {
+                $scope.PCOTEmployeeList[i].Remarks = $scope.ModelOTNew.Remarks;
             }
-            if ($scope.ModelOTNew.FromDate === "" || $scope.ModelOTNew.FromDate === null || $scope.ModelOTNew.FromDate === undefined) {
-                ShowResult('Select From Date', 'failure');
-                return false;
-            }
-
-            $http({
-                method: 'POST',
-                url: $scope.path + "GetGoodWorkEmployeelist",
-                data: { 'fromDate': $scope.ModelOTNew.FromDate, 'toDate': $scope.ModelOTNew.ToDate, 'tabName': $scope.TabName, 'saveUpdate': $scope.PCOTAction },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                $scope.PCOTEmployeeList = response.data;
-                for (var i = 0; i < $scope.PCOTEmployeeList.length; i++) {
-                    $scope.PCOTEmployeeList[i].Remarks = $scope.ModelOTNew.Remarks;
-                }
-            });
-        }
+        });
+        
     }
 
     $scope.ClearPayableCreationOT = function () {
@@ -489,7 +470,13 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
         UserRef: null,
         NoOfDays: null,
         PayDaysType: "ExtraOT",
+        ApprovedStatus: "TobeApproved",
         Percentage: null,
+        Multiple: null,
+        MinimumPresentDay: null,
+        IsPayDay: true,
+        IsStandardOT: true,
+        IsAdditionalOT: true,
         PaymentDate: null,
         ByWhom: $window.employeeName,
         PreparedById: $window.employeeId,

@@ -12,135 +12,6 @@
     </div>
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-            @*<div class="tab-design" id="tab_show">
-                <div class="site-tab">
-                    <ul class="nav nav-tabs" role="tablist">
-                        <li role="presentation" ng-class="{ active: isSet2(1) }"><a ng-click="setTab2(1);GetGoodWorkPaymentData();" href="" aria-controls="general" role="tab" data-toggle="tab">{{titleTab3}}</a></li>
-                        <li role="presentation" ng-class="{ active: isSet2(1) }"><a ng-click="setTab2(1);getData();" href="" aria-controls="general" role="tab" data-toggle="tab">{{titleTab4}}</a></li>
-                    </ul>
-                </div>
-            </div>*@
-            @*<div class="tab-content">*@
-                @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(1), active: isSet2(1) }">
-                    <togglable name="{{titleTab3}}"></togglable>
-
-                    <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
-                        <input type="hidden" ng-model="ModelPCNew.Id">
-                        <div class="col-xs-12 col-sm-6 col-md-6">
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <input type="text" name="FromDate" ng-model="ModelPCNew.FromDate" datepicker class="form-control datepicker" required placeholder="dd-Mmm-yyyy" tabindex="3">
-                                </div>
-                            </div>
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <input type="text" class="form-control" name="UserName" ng-model="ModelPCNew.UserRef" required e-width="100" />
-                                </div>
-                            </div>
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Payment Date<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <input type="text" name="PaymentDueDate" ng-model="ModelPCNew.PaymentDate" datepicker class="form-control datepicker" required placeholder="dd-Mmm-yyyy" tabindex="3">
-                                </div>
-                            </div>
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Approved By<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <div class="select-style">
-                                        <select id="ApprovedBy" class="form-control" name="Approved By" ng-model="ModelPCNew.ApprovedById" tabindex="8" required>
-                                            <option ng-repeat="option in approvedByList" value="{{option.Value}}">{{option.Text}}</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 col-sm-6 col-md-6">
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <input type="text" name="ToDate" ng-model="ModelPCNew.ToDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" required tabindex="3">
-                                </div>
-                            </div>
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <div class="input-group">
-                                        <input tabindex="1" type="text" name="By Whom" ng-model="ModelPCNew.ByWhom" class="form-control" readonly required>
-                                        <span class="input-group-btn">
-                                            <button ng-click="showByWhomEmployeeListPopUp('BH');" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Remarks</label>
-                                <div class="col-sm-8">
-                                    <textarea class="form-control" rows="3" ng-model="ModelPCNew.Remarks" maxlength="250" tabindex="8"></textarea>
-                                </div>
-                            </div>
-                        </div>
-
-                        <ul class="col-md-6 common-btn list-inline text-left">
-                            <li><button ng-click="GetLoadEmployeeInformation('GoodWork');" class="btn"><i class="glyphicon glyphicon-arrow-down"></i> Go</button></li>
-                        </ul>
-
-                        <div class="clearfix"></div>
-                        <div class="table-responsive modal-table ">
-
-                            <div id="GridGWChildEdit" ej-grid e-datasource="PCEmployeeList" e-allowfiltering="true" e-allowpaging="true"
-                                 e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-allowselection="true"
-                                 e-filtersettings-filterType="excel" e-allowtextwrap="true" e-templaterefresh="refreshTemplateGWemployees">
-                                <div e-columns>
-                                    <div e-column e-headertext="All" e-headertemplateid="#CheckGWTemplate" e-template="#checkboxGWTemplate" e-textalign="center" e-width="30"></div>
-                                    <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="60"></div>
-                                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
-                                    <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
-                                    <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
-                                    <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
-                                    <div e-column e-field="Minute" e-headertext="Minute" e-width="60"></div>
-                                    <div e-column e-field="Hour" e-headertext="Hour" e-width="60" e-isprimarykey="true"></div>
-                                    <div e-column e-field="Rate" e-headertext="Rate" e-width="60" e-isprimarykey="true"></div>
-                                    <div e-column e-field="Amount" e-headertext="Amount" e-width="60"></div>
-                                    <div e-column e-headertext="Remarks" e-template="#remarks" e-textalign="center" e-width="100"></div>
-                                </div>
-                            </div>
-                            <script type="text/x-jsrender" id="CheckGWTemplate">
-                                <input type="checkbox" id="GWheadchk" />
-                            </script>
-                            <script type="text/template" id="checkboxGWTemplate">
-                                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
-                            </script>
-
-                            <script type="text/template" id="remarks">
-                                <input type="text" class="form-control" name="Remarks" ng-model="data.Remarks" e-width="90" />
-                            </script>
-                        </div>
-
-                        <div class="common-btn">
-                            <ul class="list-inline text-right">
-                                <li> <button ng-click="GoodWorkPayableCreationSave('GoodWork');" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{PCAction}}</button></li>
-                                <li> <button ng-click="ClearPayableCreation();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="table-responsive aplos-grid-toggle">
-                        <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="GoodWorkPaymentList" e-recorddoubleclick="GetGWPDblClick"
-                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                            <div e-columns>
-                                <div e-column e-field="Id" e-headertext="Payment Advise Id" e-width="3"></div>
-                                <div e-column e-field="FromDate" e-headertext="From Date" e-width="2" e-isprimarykey="true"></div>
-                                <div e-column e-field="ToDate" e-headertext="To Date" e-width="2" e-isprimarykey="true"></div>
-                                <div e-column e-field="UserRef" e-headertext="UserName" e-width="3"></div>
-                                <div e-column e-field="PaymentDate" e-headertext="Payment Date" e-width="3"></div>
-                                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>*@
-                @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(1), active: isSet2(1) }">*@
                     <togglable name="Advace Creation"></togglable>
                     <div class="form-elements form-horizontal" ng-form name="ModelNew2Form">
                         <input type="hidden" ng-model="ModelOTNew.Id">
@@ -171,13 +42,82 @@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Percentage<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="number" class="form-control" name="Percentage" ng-model="ModelOTNew.Percentage" @*ng-change="getCalulationAmount();"*@ e-width="100" />
+                                    <input type="number" class="form-control" name="Percentage" ng-model="ModelOTNew.Percentage" @*ng-change="GetLoadEmployeeInformation();"*@ e-width="100" />
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Multiple<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="number" class="form-control" name="Multiple" ng-model="ModelOTNew.Multiple" @*ng-change="getCalulationAmount();"*@ e-width="100" />
+                                    <input type="number" class="form-control" name="Multiple" ng-model="ModelOTNew.Multiple"  e-width="100" />
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Minimum PresentDay<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="number" class="form-control" name="MinimumPresentDay" ng-model="ModelOTNew.MinimumPresentDay" e-width="100" />
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-4 ">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Pay Day</label>
+                                        <div class="col-sm-8">
+                                            <input type="checkbox" ej-checkbox class="nodetext" e-value="ModelOTNew.IsPayDay" e-checked="ModelOTNew.IsPayDay" ng-model="ModelOTNew.IsPayDay" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 ">
+                                    <div class="form-group">
+                                        <label class="col-sm-6 control-label">Standard OT</label>
+                                        <div class="col-sm-6">
+                                            <input type="checkbox" ej-checkbox class="nodetext" e-value="ModelOTNew.IsStandardOT" e-checked="ModelOTNew.IsStandardOT" ng-model="ModelOTNew.IsStandardOT" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 ">
+                                    <div class="form-group">
+                                        <label class="col-sm-6 control-label">Additional OT</label>
+                                        <div class="col-sm-6">
+                                            <input type="checkbox" ej-checkbox class="nodetext" e-value="ModelOTNew.IsAdditionalOT" e-checked="ModelOTNew.IsAdditionalOT" ng-model="ModelOTNew.IsAdditionalOT"  />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Month<sup style="color:red">*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style" style="color:red">
+                                        <select id="MonthId" class="form-control" ng-model="ModelOTNew.MonthNo" name="MonthId" required tabindex="1" ng-disabled="true">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in monthList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="ToDate" ng-model="ModelOTNew.ToDate" datepic class="form-control datepic" placeholder="dd-Mmm-yyyy" required tabindex="24">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">User Ref<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" class="form-control" name="UserRef" ng-model="ModelOTNew.UserRef" required e-width="100" />
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors ng-hide="true">
+                                <label class="col-sm-4 control-label">No Of Days<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="number" class="form-control" name="NoOfDays" ng-model="ModelOTNew.NoOfDays" e-width="100" />
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input tabindex="1" type="text" name="By Whom" ng-model="ModelOTNew.ByWhom" class="form-control" readonly required>
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
@@ -190,79 +130,16 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-12">
-                                <div class="col-md-4 ">
-                                    <div class="form-group">
-                                        <label class="col-sm-4 control-label">Pay Day</label>
-                                        <div class="col-sm-8">
-                                            <input type="checkbox" ej-checkbox class="nodetext" e-value="IsPayDay" e-checked="IsPayDay" ng-model="ModelOTNew.IsPayDay" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 ">
-                                    <div class="form-group">
-                                        <label class="col-sm-6 control-label">Standard OT</label>
-                                        <div class="col-sm-6">
-                                            <input type="checkbox" ej-checkbox class="nodetext" e-value="IsStandardOT" e-checked="IsStandardOT" ng-model="ModelOTNew.IsStandardOT" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 ">
-                                    <div class="form-group">
-                                        <label class="col-sm-6 control-label">Additional OT</label>
-                                        <div class="col-sm-6">
-                                            <input type="checkbox" ej-checkbox class="nodetext" e-value="IsAdditionalOT" e-checked="IsAdditionalOT" ng-model="ModelOTNew.IsAdditionalOT" />
-                                        </div>
-                                    </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Remarks</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="3" ng-model="ModelOTNew.Remarks" maxlength="250" tabindex="30"></textarea>
                                 </div>
                             </div>
                         </div>
-                            <div class="col-xs-12 col-sm-6 col-md-6">
-                                <div class="form-group" show-errors>
-                                    <label class="col-sm-4 control-label">Month<sup style="color:red">*</sup></label>
-                                    <div class="col-sm-8">
-                                        <div class="select-style" style="color:red">
-                                            <select id="MonthId" class="form-control" ng-model="ModelOTNew.MonthNo" name="MonthId" required tabindex="1" ng-disabled="true">
-                                                <option value="">--Select--</option>
-                                                <option ng-repeat="option in monthList" value="{{option.Value}}">{{option.Text}}</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group" show-errors>
-                                    <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <input type="text" name="ToDate" ng-model="ModelOTNew.ToDate" datepic class="form-control datepic" placeholder="dd-Mmm-yyyy" required tabindex="24">
-                                    </div>
-                                </div>
-                                <div class="form-group" show-errors>
-                                    <label class="col-sm-4 control-label">User Ref<sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <input type="text" class="form-control" name="UserRef" ng-model="ModelOTNew.UserRef" required e-width="100" />
-                                    </div>
-                                </div>
-                                <div class="form-group" show-errors ng-hide="true">
-                                    <label class="col-sm-4 control-label">No Of Days<sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <input type="number" class="form-control" name="NoOfDays" ng-model="ModelOTNew.NoOfDays" e-width="100" />
-                                    </div>
-                                </div>
-                                <div class="form-group" show-errors>
-                                    <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <input tabindex="1" type="text" name="By Whom" ng-model="ModelOTNew.ByWhom" class="form-control" readonly required>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Remarks</label>
-                                    <div class="col-sm-8">
-                                        <textarea class="form-control" rows="3" ng-model="ModelOTNew.Remarks" maxlength="250" tabindex="30"></textarea>
-                                    </div>
-                                </div>
-                            </div>
 
                             <ul class="col-md-6 common-btn list-inline text-left">
-                                <li><button ng-click="GetLoadEmployeeInformation('ExtraOT_Advance');" class="btn"><i class="glyphicon glyphicon-arrow-down"></i> Go</button></li>
+                                <li><button ng-click="GetLoadEmployeeInformation();" class="btn"><i class="glyphicon glyphicon-arrow-down"></i> Go</button></li>
                             </ul>
 
                             <div class="clearfix"></div>
@@ -279,11 +156,13 @@
                                         <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
                                         <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
                                         <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
-                                        <div e-column e-field="GivenDesignation" e-headertext="Given Designation" e-width="80"></div>
-                                        <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
+                                        @*<div e-column e-field="GivenDesignation" e-headertext="Given Designation" e-width="80"></div>
+                                          <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>*@
                                         <div e-column e-field="PayDays" e-headertext="Pay Days" e-width="60"></div>
-                                        <div e-column e-field="Hour" e-headertext="Hour" e-width="60"></div>
+                                        <div e-column e-field="StandardOTHour" e-headertext="S.OTHour" e-width="60"></div>
+                                        <div e-column e-field="AdditionalOTHour" e-headertext="Add.OTHour" e-width="60"></div>
                                         <div e-column e-field="Rate" e-headertext="Rate" e-width="60"></div>
+                                        <div e-column e-field="PresentDays" e-headertext="Present Days" e-width="60"></div>
                                         <div e-column e-field="Amount" e-headertext="Amount" e-width="60"></div>
                                         <div e-column e-headertext="Advance Amount" e-template="#advanceGiven" e-textalign="center" e-width="60"></div>
                                         <div e-column e-headertext="Remarks" e-template="#remarks" e-textalign="center" e-width="100"></div>
@@ -326,8 +205,6 @@
                             </div>
                         </div>
                     </div>
-                @*</div>*@
-            @*</div>*@
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
             <togglable name="Pending for Approval"></togglable>
