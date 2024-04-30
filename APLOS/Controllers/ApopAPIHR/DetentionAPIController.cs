@@ -556,6 +556,13 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
+        public List<Default2> GetShifByProcess(string ProcessId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetShifByProcess(out List<Default2> activelists, ProcessId);
+            return activelists;
+        }
+
         public List<ProductionEntryDetail> GetProductionOrderDetail(string ProcessId, string entityId, string productionDate, string shiftId , string Workcenter )
         {
             clsDataContext clsData = new clsDataContext();
