@@ -2277,9 +2277,8 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
                         genid.GenID(TableName, out string _Id);
 
 
-
-
-                        dr["Id"] = "PS" + _Id;
+                        dr["Id"] = "PS24" + _Id;
+                        dr["PlantId"] = "202034";
                         dr["ProductionDate"] = item.ProductionDate;
                         dr["EntityId"] = item.EntityId;
                         dr["ProcessId"] = item.ProcessId;
