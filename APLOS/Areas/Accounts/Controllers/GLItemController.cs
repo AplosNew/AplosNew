@@ -225,6 +225,16 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_glGeneralInfoService.GetGLBudgetActivityList(parameters, identity.CompanyGroupId, identity.CompanyId, AccountTypeEnum.Expense), JsonRequestBehavior.AllowGet);
         }
+
+        [Authorize, HttpGet]
+        public ActionResult GetIssuePostingGLBudgetActivityList(GridParameter parameters)
+        {
+            AccountsGLService _accountsGLService = new AccountsGLService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsGLService.GetIssuePostingGLBudgetActivityList(parameters, identity.CompanyGroupId, identity.CompanyId, AccountTypeEnum.Expense), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpGet]
         public ActionResult GetNonReconAssetLiabilityGLBudgetActivityList(GridParameter parameters)
         {

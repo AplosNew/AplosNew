@@ -362,7 +362,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
 
         $scope.GetCOAICodeList = function (index) {
             $scope.index = index;
-            $scope.GLUrl1 = "Accounts/glitem/GetExpenseTypeGLBudgetActivityList";
+            $scope.GLUrl1 = "Accounts/glitem/GetIssuePostingGLBudgetActivityList";
             $scope.GetCOAICodeListData = function (pageno) {
                 baseService.paginationBase($scope.GLUrl1, pageno, $scope.glListParameters)
                     .then(function (result) {
@@ -690,7 +690,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
             $scope.TempData.bMasterId = data.BudgetMasterId;
             $scope.TempData.AId = data.ActivityId;
             $scope.TempData.Amount = data.TrnAmount;
-            $scope.GLUrl1MB = "Accounts/glitem/GetExpenseTypeGLBudgetActivityList";
+            $scope.GLUrl1MB = "Accounts/glitem/GetIssuePostingGLBudgetActivityList";
             $scope.GetCOAICodeListDataMB = function (pageno) {
                 baseService.paginationBase($scope.GLUrl1MB, pageno, $scope.glListParametersMB)
                     .then(function (result) {
