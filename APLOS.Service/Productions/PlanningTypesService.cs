@@ -196,11 +196,12 @@ namespace Library.Service.Productions
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                parameters.CmdText = @"SELECT PT.*,P.UserName BaseProcess,PN.UserName Plant,C.UserName Company,C.Id CompanyId,SP.UserName SubProcess FROM dbo.PlanningTypes PT
+                parameters.CmdText = @"SELECT PT.*,P.UserName BaseProcess,PN.UserName Plant,C.UserName Company,C.Id CompanyId,SP.UserName SubProcess,EN.UserName Entity FROM dbo.PlanningTypes PT
                                     LEFT JOIN HKP.Process P ON P.Id=PT.BaseProcessId
                                     LEFT JOIN HKP.SubProcess SP ON SP.Id=PT.SubProcessId
 									LEFT JOIN [ORG].[Plant] PN ON PN.Id=PT.PlantId
                                     LEFT JOIN [ORG].[Company] C ON C.Id=PN.CompanyId
+                                    LEFT JOIN [ORG].[Entity] EN ON EN.Id=PT.EntityId
                                     WHERE PT.CompanyGroupId='" + identity.CompanyGroupId + "'";
                 return _sqlRepository.GetGridData(parameters);
             }

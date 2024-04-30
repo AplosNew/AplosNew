@@ -2257,13 +2257,13 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
             try
             {
                 DataSet dsMaster;
-                string TableName = "dbo.ProductionService";
+                string TableName = "trn.ProductionSummary";
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 if (DataToSave.Count() == 0)
                     return "";
                 List<ProcessService> items = DataToSave.ToList();
 
-                con.OpenDataSetThroughAdapter("select * from dbo.ProductionService where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from trn.ProductionSummary where Id='" + items[0].Id + "'", out dsMaster, false, "1");
 
                 foreach (ProcessService item in DataToSave)
                 {
@@ -2277,21 +2277,23 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
                         genid.GenID(TableName, out string _Id);
 
 
-
-
-                        dr["Id"] = "PS" + _Id;
+                        dr["Id"] = "PS24" + _Id;
+                        dr["PlantId"] = "202034";
                         dr["ProductionDate"] = item.ProductionDate;
-                        dr["EntityId"] = item.EntityID;
-                        dr["ProcessId"] = item.ProcessID;
-                        dr["ShiftId"] = item.ShiftID;
-                        dr["ResponsiblePerson"] = item.ResponsiblePerson;
-                        dr["Entity"] = item.Entity;
-                        dr["Process"] = item.Process;
-                        dr["Shift"] = item.shift;
-                        dr["ResponsiblePersonID"] = item.ResponsiblePersonID;
+                        dr["EntityId"] = item.EntityId;
+                        dr["ProcessId"] = item.ProcessId;
+                        dr["ProductionShiftId"] = item.ProductionShiftId;
+                        dr["WorkCenterMasterId"] = item.WorkCenterMasterId;
+                        dr["ProductionGrade"] = item.ProductionGrade;
+                        dr["Quantity"] = item.Quantity;
+                        dr["ProductionOrderId"] = item.ProductionOrderId;
+                        dr["LotNumber"] = item.LotNumber;
+                        dr["MasterOrderItemId"] = item.MasterOrderItemId;
+                        dr["QtyWithoutScan"] = item.QtyWithoutScan;
+                        dr["ResponsiblePersonID"] = item.ResponsiblePersonId;
 
                         dr["AddedBy"] = item.AddedBy;
-                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedFromIP"] = "::1";
                         dr["AddedDate"] = System.DateTime.Now.ToString();
 
 
@@ -2303,14 +2305,18 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
 
-                        dr["EntityId"] = item.EntityID;
-                        dr["ProcessId"] = item.ProcessID;
-                        dr["ShiftId"] = item.ShiftID;
-                        dr["ResponsiblePerson"] = item.ResponsiblePerson;
-                        dr["Entity"] = item.Entity;
-                        dr["Process"] = item.Process;
-                        dr["Shift"] = item.shift;
-                        dr["ResponsiblePersonID"] = item.ResponsiblePersonID;
+                        dr["ProductionDate"] = item.ProductionDate;
+                        dr["EntityId"] = item.EntityId;
+                        dr["ProcessId"] = item.ProcessId;
+                        dr["ProductionShiftId"] = item.ProductionShiftId;
+                        dr["WorkCenterMasterId"] = item.WorkCenterMasterId;
+                        dr["ProductionGrade"] = item.ProductionGrade;
+                        dr["Quantity"] = item.Quantity;
+                        dr["ProductionOrderId"] = item.ProductionOrderId;
+                        dr["LotNumber"] = item.LotNumber;
+                        dr["MasterOrderItemId"] = item.MasterOrderItemId;
+                        dr["QtyWithoutScan"] = item.QtyWithoutScan;
+                        dr["ResponsiblePersonID"] = item.ResponsiblePersonId;
 
 
                         dr["UpdatedBy"] = item.UpdatedBy;
@@ -4195,6 +4201,42 @@ where  WorkDate = DATEADD(day, -1, CAST(GETDATE() AS date))
             }
         }
 
+        public void GetShifByProcess(out List<Default2> DataList, string ProcessId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"SELECT distinct sd.SystemID [Value],sd.UserName [Name] FROM [dbo].[WorkCenterWiseShift] WCS
+                                        LEFT JOIN dbo.ShiftDefination AS sd ON sd.SystemID = WCS.ShiftDefinationID
+                                        WHERE WorkCenterMasterId IN(SELECT Id FROM SCS.WorkCenterMaster AS wcm WHERE wcm.ProcessId='" + ProcessId + "')";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public void GetProductionOrderDetail(out List<ProductionEntryDetail> DataList, string ProcessId, string entityId, string productionDate, string shiftId, string Workcenter)
         {
             clsConnectionManager objCon = null;
@@ -4400,6 +4442,191 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                 objCon = null;
             }
         }
+
+        public void GetPOBaseArticle(out List<PODetailsArtilce> DataList, string ProcessId, string entityId, string POId, string Workcenter, string BookingLevel)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<PODetailsArtilce>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                #region SQl
+                if(BookingLevel == "MasterOrderItem")
+                {
+                    strSQL = @"SELECT DISTINCT mo.MasterOrderNo,so.MasterOrderItemId MOIId
+	                                ,ISNULL(so.Id, '') SOId
+                                    ,PM.Code as ProductCode
+	                                ,SO.CustomerPOId
+	                                ,CPO.PONumber
+	                                ,mm.Id MaterialMasterId
+                                    , mm.UserName MaterialMaster
+                                     , ISNULL(mma.StandardName, '') Article
+	                                ,b.UserName Customer
+                                    , mo.TotalQty MOQty
+                                     , ISNULL(u.UserName, '') UOM
+	                                ,moi.ExtraOrderPercentage[ExtraP]
+	                                ,moi.OrderWastagePercentage[WastageP]
+	                                ,ISNULL(mma.Id, '') ArticleId
+	                                ,mmc.CharCount
+	                                ,ISNULL(POD.ProductionOrderId, '') POId
+	                                ,B.UserName Buyer
+                                    , PM.UserName AS ProductMasterName
+	                                ,CEILING(SO.PlannedQty) PlannedQty
+	                               	,CEILING(ISNULL(PRS.TotalProductionQty, 0)) TotalProductionQty
+	                                ,CEILING(ISNULL((SO.PlannedQty - ISNULL(PRS.TotalProductionQty, 0)), 0)) RemainingQty
+                                    ,SO.Description,MO.BuyerReferenceNo BuyerOrder, MO.OwnReferenceNo OwnOrder, moi.BuyerReferenceNo BuyerItem, moi.OwnReferenceNo OwnItem
+                                FROM TRN.ProductionOrderDetail POD
+                               LEFT JOIN(
+                                    SELECT SUM((isnull(qty, 0) *(1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) *(100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) AS PlannedQty
+                                      , s.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description
+                                   FROM trn.SalesOrder AS s
+                                   INNER JOIN trn.MasterOrderItem AS moi ON moi.Id = s.MasterOrderItemId
+
+                                    GROUP BY S.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description
+	                                ) so ON POD.SalesOrderId = SO.Id
+                                LEFT JOIN TRN.[MasterOrderItem] moi ON moi.id = so.MasterOrderItemId
+                                LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
+                                LEFT JOIN(SELECT SUM(PS.Quantity) TotalProductionQty, PS.SalesOrderId, PS.ProcessId, PS.MasterOrderItemId
+                                    FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + ProcessId + @"' GROUP BY PS.SalesOrderId, PS.ProcessId, PS.MasterOrderItemId
+
+                                    ) AS PRS ON PRS.SalesOrderId = SO.Id AND PRS.ProcessId = '" + ProcessId + @"'
+                                LEFT JOIN HKP.Party b ON b.id = mo.PartyId
+                                LEFT JOIN SCS.UnitOfMeasurement u ON u.id = mo.TotalQtyUOMId
+                                LEFT JOIN MST.MaterialMaster mm ON mm.id = moi.MaterialMasterId
+                                LEFT JOIN MST.MaterialMasterArticle mma ON mma.id = moi.ArticleId
+                                LEFT JOIN(SELECT COUNT(Id) CharCount, MaterialMasterId FROM [MST].[MaterialMasterCharacteristics] GROUP BY MaterialMasterId
+
+                                    ) mmc ON mmc.MaterialMasterId = mm.id
+                                LEFT JOIN HKP.Buyer BU ON BU.Id = mo.BuyerId
+                                LEFT JOIN[TRN].ProductDefinition AS PD ON PD.MaterialMasterId = MM.Id
+                                LEFT JOIN[MST].[ProductMaster] AS PM ON PD.ProductMasterId = PM.Id
+                                LEFT JOIN(SELECT PS.UserName, PO.Id ProductionOrderId FROM[HKP].[ProductionStatus] PS
+                                    INNER JOIN TRN.ProductionOrder PO ON PO.ProductionStatusId = PS.Id
+                                    ) OS ON OS.ProductionOrderId = POD.ProductionOrderId
+                                LEFT JOIN TRN.ProductionOrder PO ON PO.Id = POD.ProductionOrderId
+                                LEFT JOIN[HKP].[ProductionStatus] PS ON PS.Id = PO.ProductionStatusId
+                                LEFT JOIN[HKP].[ProductCategory] PC on pc.Id = pm.ProductCategoryId
+                                LEFT JOIN[TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
+                                LEFT JOIN[SCS].[WorkCenterMasterProductPriority] WC ON WC.ProductMasterId = PM.Id AND WC.WorkCenterMasterId = '" + Workcenter + @"'
+                                LEFT JOIN[TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
+                                WHERE
+--PO.EntityId = '" + entityId + @"'AND 
+PS.UserName = 'Running' AND POSP.ProcessId = '" + ProcessId + "' AND PO.Id = '" + POId + "'";
+                }
+                if (BookingLevel == "SalesOrder")
+                {
+                    strSQL = @"SELECT DISTINCT mo.MasterOrderNo
+	                                ,ISNULL(so.Id,'') SOId
+                                    ,ISNULL(moi.Id,'') MOIId
+									,Format(so.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate
+									,PM.Code as ProductCode
+	                                ,SO.CustomerPOId
+	                                ,CPO.PONumber
+	                                ,mm.Id MaterialMasterId
+	                                ,mm.UserName MaterialMaster
+	                                ,ISNULL(mma.StandardName, '') Article
+	                                ,b.UserName Customer
+	                                ,mo.TotalQty MOQty
+	                                ,ISNULL(u.UserName, '') UOM
+	                                ,moi.ExtraOrderPercentage [ExtraP]
+	                                ,moi.OrderWastagePercentage [WastageP]
+	                                ,ISNULL(mma.Id, '') ArticleId
+	                                ,mmc.CharCount
+	                                ,ISNULL(POD.ProductionOrderId, '') POId
+	                                ,B.UserName Buyer
+	                                ,PM.UserName AS ProductMasterName
+	                                ,CEILING(SO.PlannedQty) PlannedQty
+	                               	,CEILING(ISNULL(PRS.TotalProductionQty,0)) TotalProductionQty
+	                                ,CEILING(ISNULL((SO.PlannedQty - ISNULL(PRS.TotalProductionQty,0)),0)) RemainingQty
+                                    ,SO.Description,MO.BuyerReferenceNo BuyerOrder,MO.OwnReferenceNo OwnOrder,moi.BuyerReferenceNo BuyerItem,moi.OwnReferenceNo OwnItem
+                                FROM TRN.ProductionOrderDetail POD
+                               LEFT JOIN (
+	                                SELECT SUM((isnull(qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) AS PlannedQty
+		                                ,s.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description,s.DeliveryDate
+	                                FROM trn.SalesOrder AS s
+	                                INNER JOIN trn.MasterOrderItem AS moi ON moi.Id = s.MasterOrderItemId
+	                                GROUP BY S.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description,s.DeliveryDate
+	                                ) so ON POD.SalesOrderId = SO.Id
+                                LEFT JOIN TRN.[MasterOrderItem] moi ON moi.id = so.MasterOrderItemId
+                                LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
+                                LEFT JOIN (SELECT SUM(PS.Quantity) TotalProductionQty,PS.SalesOrderId,PS.ProcessId
+	                                FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + ProcessId + @"' GROUP BY PS.SalesOrderId,PS.ProcessId
+	                                ) AS PRS ON PRS.SalesOrderId = SO.Id AND PRS.ProcessId = '" + ProcessId + @"'
+                                LEFT JOIN HKP.Party b ON b.id = mo.PartyId
+                                LEFT JOIN SCS.UnitOfMeasurement u ON u.id = mo.TotalQtyUOMId
+                                LEFT JOIN MST.MaterialMaster mm ON mm.id = moi.MaterialMasterId
+                                LEFT JOIN MST.MaterialMasterArticle mma ON mma.id = moi.ArticleId
+                                LEFT JOIN (SELECT COUNT(Id) CharCount, MaterialMasterId	FROM [MST].[MaterialMasterCharacteristics] GROUP BY MaterialMasterId
+	                                ) mmc ON mmc.MaterialMasterId = mm.id
+                                LEFT JOIN HKP.Buyer BU ON BU.Id = mo.BuyerId
+                                LEFT JOIN [TRN].ProductDefinition AS PD ON PD.MaterialMasterId = MM.Id
+                                LEFT JOIN [MST].[ProductMaster] AS PM ON PD.ProductMasterId = PM.Id
+                                LEFT JOIN (SELECT PS.UserName, PO.Id ProductionOrderId FROM [HKP].[ProductionStatus] PS
+	                                INNER JOIN TRN.ProductionOrder PO ON PO.ProductionStatusId = PS.Id
+	                                ) OS ON OS.ProductionOrderId = POD.ProductionOrderId
+                                LEFT JOIN TRN.ProductionOrder PO ON PO.Id = POD.ProductionOrderId
+                                LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id = PO.ProductionStatusId
+                                LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
+                                LEFT JOIN [SCS].[WorkCenterMasterProductPriority] WC ON WC.ProductMasterId = PM.Id AND WC.WorkCenterMasterId = '" + Workcenter + @"'
+                                LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
+                                LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
+                                WHERE 
+--PO.EntityId = '" + entityId + @"'	AND 
+PS.UserName = 'Running'	AND POSP.ProcessId = '" + ProcessId + "' AND PO.Id='" + POId + "'";
+                }
+                #endregion SQl
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new PODetailsArtilce
+                    {
+                        MasterOrderNo = dsRef.Tables[0].Rows[i]["MasterOrderNo"].ToString(),
+                        MOIId = dsRef.Tables[0].Rows[i]["MOIId"].ToString(),
+                        SOId = dsRef.Tables[0].Rows[i]["SOId"].ToString(),
+                        ProductCode = dsRef.Tables[0].Rows[i]["ProductCode"].ToString(),
+                        CustomerPOId = dsRef.Tables[0].Rows[i]["CustomerPOId"].ToString(),
+                        PONumber = dsRef.Tables[0].Rows[i]["PONumber"].ToString(),
+                        MaterialMasterId = dsRef.Tables[0].Rows[i]["MaterialMasterId"].ToString(),
+                        MaterialMaster = dsRef.Tables[0].Rows[i]["MaterialMaster"].ToString(),
+                        Article = dsRef.Tables[0].Rows[i]["Article"].ToString(),
+                        Customer = dsRef.Tables[0].Rows[i]["Customer"].ToString(),
+                        MOQty = dsRef.Tables[0].Rows[i]["MOQty"].ToString(),
+                        UOM = dsRef.Tables[0].Rows[i]["UOM"].ToString(),
+                        ExtraP = dsRef.Tables[0].Rows[i]["ExtraP"].ToString(),
+                        WastageP = dsRef.Tables[0].Rows[i]["WastageP"].ToString(),
+                        ArticleId = dsRef.Tables[0].Rows[i]["ArticleId"].ToString(),
+                        CharCount = dsRef.Tables[0].Rows[i]["CharCount"].ToString(),
+                        POId = dsRef.Tables[0].Rows[i]["POId"].ToString(),
+                        Buyer = dsRef.Tables[0].Rows[i]["Buyer"].ToString(),
+                        ProductMasterName = dsRef.Tables[0].Rows[i]["ProductMasterName"].ToString(),
+                        PlannedQty = dsRef.Tables[0].Rows[i]["PlannedQty"].ToString(),
+                        TotalProductionQty = dsRef.Tables[0].Rows[i]["TotalProductionQty"].ToString(),
+                        RemainingQty = dsRef.Tables[0].Rows[i]["RemainingQty"].ToString(),
+                        Description = dsRef.Tables[0].Rows[i]["Description"].ToString(),
+                        BuyerOrder = dsRef.Tables[0].Rows[i]["BuyerOrder"].ToString(),
+                        OwnOrder = dsRef.Tables[0].Rows[i]["OwnOrder"].ToString(),
+                        BuyerItem = dsRef.Tables[0].Rows[i]["BuyerItem"].ToString(),
+                        OwnItem = dsRef.Tables[0].Rows[i]["OwnItem"].ToString(),
+
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
 
         public void GetProductionParameter(out List<Default2> DataList, string ParameterId)
         {
@@ -11677,21 +11904,54 @@ where QAT.ParameterId='" + ParameterId + "'";
     public class ProcessService
     {
         public string Id { get; set; }
+        public string PlantId { get; set; }
+        public string EntityId { get; set; }
+        public string ProcessId { get; set; }
+        public string SalesOrderId { get; set; }
+        public string MaterialMasterId { get; set; }
+        public string ArticleId { get; set; }
+        public string WorkCenterMasterId { get; set; }
         public string ProductionDate { get; set; }
-        public string Entity { get; set; }
-        public string EntityID { get; set; }
-        public string Process { get; set; }
-        public string ProcessID { get; set; }
-        public string shift { get; set; }
-        public string ShiftID { get; set; }
-        public string ResponsiblePerson { get; set; }
-        public string ResponsiblePersonID { get; set; }
+        public string ProductionGrade { get; set; }
+        public string Quantity { get; set; }
+        public string ProductionShiftId { get; set; }
         public string AddedBy { get; set; }
         public DateTime AddedDate { get; set; }
         public string AddedFromIP { get; set; }
         public string UpdatedBy { get; set; }
-        public DateTime? UpdatedDate { get; set; }
+        public DateTime UpdatedDate { get; set; }
         public string UpdatedFromIP { get; set; }
+        public string ProductionBookingPeriodId { get; set; }
+        public string ProductionOrderId { get; set; }
+        public string MentorId { get; set; }
+        public string ResponsiblePersonId { get; set; }
+        public string InTime { get; set; }
+        public string OutTime { get; set; }
+        public string ConsumeHour { get; set; }
+        public string ManPower { get; set; }
+        public string CheckedBy { get; set; }
+        public string Remarks { get; set; }
+        public string ToProcessId { get; set; }
+        public string ToWorkCenterMasterId { get; set; }
+        public string FromSFGInventoryId { get; set; }
+        public string ToSFGInventoryId { get; set; }
+        public string LotNumber { get; set; }
+        public string PackingConfirmationId { get; set; }
+        public string ToEntityId { get; set; }
+        public string FinishGoodsBookingId { get; set; }
+        public string MasterOrderItemId { get; set; }
+        public string ProductLibraryId { get; set; }
+        public string QtyWithoutScan { get; set; }
+        public string ScanQty { get; set; }
+        public string InChargeId { get; set; }
+        public string ProductionInChargeId { get; set; }
+        public string PPQFlag { get; set; }
+        public string SKUQty { get; set; }
+        public string IsInventory { get; set; }
+        public string SourceType { get; set; }
+        public string IsJobWork { get; set; }
+        public string JobWorkQty { get; set; }
+
     }
 
     public class ProcessServiceChild
@@ -12811,6 +13071,37 @@ where QAT.ParameterId='" + ParameterId + "'";
         public string ProductCode { get; set; }
         public string ProductDetails { get; set; }
         public string CustomerRefNo { get; set; }
+
+    }
+    public class PODetailsArtilce
+    {
+        public string MasterOrderNo { get; set; }
+        public string MOIId { get; set; }
+        public string SOId { get; set; }
+        public string ProductCode { get; set; }
+        public string CustomerPOId { get; set; }
+        public string PONumber { get; set; }
+        public string MaterialMasterId { get; set; }
+        public string MaterialMaster { get; set; }
+        public string Article { get; set; }
+        public string Customer { get; set; }
+        public string MOQty { get; set; }
+        public string UOM { get; set; }
+        public string ExtraP { get; set; }
+        public string WastageP { get; set; }
+        public string ArticleId { get; set; }
+        public string CharCount { get; set; }
+        public string POId { get; set; }
+        public string Buyer { get; set; }
+        public string ProductMasterName { get; set; }
+        public string PlannedQty { get; set; }
+        public string TotalProductionQty { get; set; }
+        public string RemainingQty { get; set; }
+        public string Description { get; set; }
+        public string BuyerOrder { get; set; }
+        public string OwnOrder { get; set; }
+        public string BuyerItem { get; set; }
+        public string OwnItem { get; set; }
 
     }
 }
