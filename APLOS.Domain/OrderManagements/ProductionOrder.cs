@@ -9,7 +9,7 @@ namespace Library.Model.OrderManagements
         #region Scalar Properties
 
         public string Id { get; set; }
-        //public string RefId { get; set; }
+        public string PlanningTypeProcessId { get; set; }
         //public DateTime? TargetCommitmentDate { get; set; }
         public DateTime? Lsd { get; set; }
         public DateTime? ClosingDate { get; set; }

@@ -150,6 +150,16 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     }
     $scope.getAllEntities();
 
+    $scope.planningTypeProcessList = [];
+    $scope.GetPlanningTypeProcess = function () {
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/ProductionOrder/GetPlanningTypeProcessCbo?entityId=' + $scope.model.EntityId
+        }).then(function successCallback(response) {
+            $scope.planningTypeProcessList = response.data;
+        });
+    }
+
     cboService.getProductionStatusCboByGroup(function (result) {
         $scope.productionStatusList = result;
     });
@@ -396,6 +406,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         , IsWorkCenterValidateApplicable: true
         , UserDefineLotNo: null
         , UsedInPB: false
+        , PlanningTypeProcessId:null
     };
     $scope.model = Object.assign({}, $scope.model);
 
@@ -429,6 +440,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         if (baseService.isUndefinedOrNull($scope.model.UserDefineLotNo)) {
             $scope.model.UserDefineLotNo = $scope.model.Id;
         }
+        $scope.GetPlanningTypeProcess();
         getProductionRecipeMaterialList();
 
         //$scope.GetBulletinTamplate2ndIndexReport(Row.data.Id);
