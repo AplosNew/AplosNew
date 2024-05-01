@@ -173,7 +173,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
             method: "GET",
             dataType: 'JSON',
             //url: $scope.getSearchListUrl,
-            url: 'Products/PurchaseOrder/GetListForHold11?ApproveRejectHold=' + $scope.ApproveRejectHold,
+            url: 'Products/PurchaseOrder/GetIndependentPOListByStatus?ApproveRejectHold=' + $scope.ApproveRejectHold,
         }).then(function successCallback(response) {
             $scope.GriddataPoApp = response.data;
             //entrydata = copy(searchdata);

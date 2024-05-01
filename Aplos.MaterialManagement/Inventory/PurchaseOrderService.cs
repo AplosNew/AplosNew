@@ -979,7 +979,7 @@ namespace Library.MaterialManagement.Inventory
 
             }
         }
-        public IEnumerable<object> GetListForHold11(string plantId, string ApproveRejectHold)
+        public IEnumerable<object> GetIndependentPOListByStatus(string plantId, string ApproveRejectHold)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
