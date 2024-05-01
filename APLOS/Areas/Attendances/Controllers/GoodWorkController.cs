@@ -884,7 +884,7 @@ Order By GW.WorkDate";
                                 ,ei.SystemId PreparedById,ei.EmployeeName ByWhom
                                   from [dbo].[WorkerAdvance] wa
                                   LEFT JOIN dbo.EmployeeInformation AS ei ON ei.SystemId=wa.PreparedById
-                                  WHERE wa.ApprovedStatus IS NULL ";
+                                  WHERE wa.ApprovedStatus='TobeApproved' ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -897,7 +897,7 @@ Order By GW.WorkDate";
                                 ,ei.SystemId PreparedById,ei.EmployeeName ByWhom
                                 from [dbo].[WorkerAdvance] wa
                                 LEFT JOIN dbo.EmployeeInformation AS ei ON ei.SystemId=wa.PreparedById
-                                WHERE wa.ApprovedStatus IS NULL AND wa.ApprovedById='" + identity.EmployeeId + "' ";
+                                WHERE wa.ApprovedStatus='TobeApproved' AND wa.ApprovedById='" + identity.EmployeeId + "' ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -905,7 +905,7 @@ Order By GW.WorkDate";
         public ActionResult GetWorkerAdvanceDetailCenter(string workAdvanceId)
         {
             string str = @"select ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,s.UserName Section,ss.UserName SubSection,wad.Id
-							,wa.Id workAdvanceId,d.UserName Department,wad.PayDays,wad.Hour,wad.Rate,wad.Amount,wad.AdvanceAmount,wad.Remarks 
+							,wa.Id workAdvanceId,d.UserName Department,wad.PayDays,wad.StandardOTHour,wad.AdditionalOTHour,wad.Rate,wad.Amount,wad.AdvanceAmount,wad.Remarks 
                             from [dbo].[WorkerAdvanceDetail] wad
                             left join [dbo].[WorkerAdvance] wa on wa.Id=wad.WorkerAdvanceId
                             left join EmployeeInformation ei on ei.SystemId=wad.EmpSystemId
@@ -1432,10 +1432,11 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
             {
                 if (saveUpdate == "Save")
                 {
-                    sql = @"SELECT * FROM 
-(select CheckBoxSelect=cast(case when z.Id is null then 0 else 1 end as bit)
-,CheckBoxSelectGW=cast(case when z.Id is null then 0 else 1 end as bit)
-,ei.SystemId EmpSystemId,z.Id,ei.EmployeeCode,ei.EmployeeName
+                    sql = @"SELECT T.*,ISNULL(WRTobeApproved.TobeApprovedAmount,0)TobeApprovedAmount
+								,ISNULL(WRApproved.ApprovedAmount,0)ApprovedAmount
+								,ISNULL(WRPaid.PaidAmount,0)PaidAmount FROM 
+(select CheckBoxSelect=cast(0 as bit)
+,'' Id,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName
 ,format(sum(ISNULL(apd.AdditionalOT,0)),'N2') Minute
                                 ,format(sum(ISNULL(apd.PayDayValue,0)),'N2') PayDays
                                 ,format((sum(ISNULL(apd.StandardOT,0))/60),'N2') StandardOTHour
@@ -1467,17 +1468,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                                                                       FROM SalaryInfoDefine SID 
 								                                  LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                                                     WHERE SH.HeadCategory='Gross')g ON g.SalaryID=SIDM.SystemID
-								left join (select gwpad.EmpSystemId,gwpad.Id
-									                                from GoodWorkPaymentAdvise gwpa
-									                                left join GoodWorkPaymentAdviseDetail gwpad on gwpad.PaymentAdviseId=gwpa.Id
-									                                where convert( DateTime, gwpa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, gwpa.ToDate) between '" + fromDate + @"' and '" + toDate + @"'
-									                                )z on z.EmpSystemId=apd.EmpSystemID
-                                left join (select gwpad.EmpSystemId,gwpad.Id,gwpad.AdvanceAmount
-									                                from WorkerAdvance gwpa
-									                                left join WorkerAdvanceDetail gwpad on gwpad.WorkerAdvanceId=gwpa.Id
-									                                where convert( DateTime, gwpa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, gwpa.ToDate) between '" + fromDate + @"' and '" + toDate + @"'
-									                                )za on za.EmpSystemId=apd.EmpSystemID
-
+								
                                 left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
 								inner join (select DesignationMasterId,OverTimePmtPolicyMasterID,IsOTEntitled ,PlantId
                                                             from scs.DesignationMasterConfiguration where PlantId in ('" + identity.PlantId + @"') and IsOTEntitled=1) dc 
@@ -1489,9 +1480,28 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                                                         WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
                                 where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 and EI.EmployeeStatus='Active' and ISNULL(apd.AdditionalOT,0)>0
-                                group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id,Department.UserName,Section.UserName,SubSection.UserName
-								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,z.Id,EN.UserName,DesM.UserName,DG.UserName
-                                )T WHERE T.PresentDays >= '" + minimumPresentDay + @"' 
+                                group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,Department.UserName,Section.UserName,SubSection.UserName
+								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,EN.UserName,DesM.UserName,DG.UserName
+                                )T 
+                                left join (select wad.EmpSystemId,SUM(wad.AdvanceAmount)TobeApprovedAmount
+									                                from WorkerAdvance wa
+									                                left join WorkerAdvanceDetail wad on wad.WorkerAdvanceId=wa.Id
+									                                where convert( DateTime, wa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, wa.ToDate) between '" + fromDate + @"' and '" + toDate + @"'
+																	AND wa.ApprovedStatus='TobeApproved' GROUP BY wad.EmpSystemId
+									                                )WRTobeApproved on WRTobeApproved.EmpSystemId=T.EmpSystemID
+								left join (select wad.EmpSystemId,SUM(wad.AdvanceAmount)ApprovedAmount
+									                                from WorkerAdvance wa
+									                                left join WorkerAdvanceDetail wad on wad.WorkerAdvanceId=wa.Id
+									                                where convert( DateTime, wa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, wa.ToDate) between '" + fromDate + @"' and '" + toDate + @"'
+																	AND wa.ApprovedStatus='Approved' GROUP BY wad.EmpSystemId
+									                                )WRApproved on WRApproved.EmpSystemId=T.EmpSystemID
+								left join (select wad.EmpSystemId,SUM(wad.AdvanceAmount)PaidAmount
+									                                from WorkerAdvance wa
+									                                left join WorkerAdvanceDetail wad on wad.WorkerAdvanceId=wa.Id
+									                                where convert( DateTime, wa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, wa.ToDate) between '" + fromDate + @"' and '" + toDate + @"'
+																	AND wa.ApprovedStatus='Paid' GROUP BY wad.EmpSystemId
+									                                )WRPaid on WRPaid.EmpSystemId=T.EmpSystemID
+                                WHERE T.PresentDays >= '" + minimumPresentDay + @"' 
 								order by T.EmployeeCode ";
 
                     }
@@ -1589,6 +1599,9 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                     var payDays = 0.0M;
                     var standardOTHour = 0.0M;
                     var additionalOTHour = 0.0M;
+                    var tobeApprovedAmount = 0.0M;
+                    var approvedAmount = 0.0M;
+                    var paidAmount = 0.0M;
                     var rate = 0.0M;
                     rate = Convert.ToDecimal(sFormulaResult);
 
@@ -1604,6 +1617,9 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                     {
                         additionalOTHour = Convert.ToDecimal(dtData.Rows[i]["AdditionalOTHour"].ToString());
                     }
+                    tobeApprovedAmount = Convert.ToDecimal(dtData.Rows[i]["TobeApprovedAmount"].ToString());
+                    approvedAmount = Convert.ToDecimal(dtData.Rows[i]["ApprovedAmount"].ToString());
+                    paidAmount = Convert.ToDecimal(dtData.Rows[i]["PaidAmount"].ToString());
                     if (dv.Count > 0)
                     {
                         DataRow drmo = dv[0].Row;
@@ -1611,11 +1627,11 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                         
                             drmo.BeginEdit();
                             drmo["Rate"] = sFormulaResult;
-                            drmo["Amount"] = ((payDays * 208 + standardOTHour + additionalOTHour) * rate) * percentage/100;
+                            drmo["Amount"] = (((payDays * 208 + standardOTHour + additionalOTHour) * rate) * percentage/100) - tobeApprovedAmount- approvedAmount- paidAmount;
                             if (saveUpdate == "Save")
                             {
-                                drmo["AdvanceAmount"] = ((payDays * 208 + standardOTHour + additionalOTHour) * rate) * percentage / 100;
-                        }
+                                drmo["AdvanceAmount"] = (((payDays * 208 + standardOTHour + additionalOTHour) * rate) * percentage / 100) - tobeApprovedAmount - approvedAmount - paidAmount;
+                            }
                             else
                             {
                                 drmo["AdvanceAmount"] = Convert.ToDecimal(dtData.Rows[i]["AdvanceAmount"].ToString());
@@ -2281,7 +2297,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
         [HttpGet, Authorize]
         public ActionResult GetEmployeeMultipleAdvanceDetailCheckedList(string paymentAdviseId)
         {
-            string sql = @"select isSelected = Convert(bit, 'True'),CheckBoxSelect=Convert(bit, 'True'),gwpad.Id,gwpad.WorkerAdvanceId,gwpad.EmpSystemId,ei.EmployeeCode,ei.EmployeeName,gwpad.PayDays,gwpad.Hour,gwpad.Hour*60 Minute,gwpad.Rate,gwpad.Amount,gwpad.AdvanceAmount,gwpad.Remarks
+            string sql = @"select isSelected = Convert(bit, 'True'),CheckBoxSelect=Convert(bit, 'True'),gwpad.Id,gwpad.WorkerAdvanceId,gwpad.EmpSystemId,ei.EmployeeCode,ei.EmployeeName,gwpad.PayDays,gwpad.StandardOTHour,gwpad.AdditionalOTHour,gwpad.Rate,gwpad.Amount,gwpad.AdvanceAmount,gwpad.Remarks
                             ,gwpad.IsCheck,isnull(gwpad.IsDisburse,0)IsDisburse,gwpa.YearNo,gwpa.MonthNo
                             from WorkerAdvanceDetail gwpad
                             left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
