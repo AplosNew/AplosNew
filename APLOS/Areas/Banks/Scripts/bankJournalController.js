@@ -374,7 +374,7 @@ function bankJournalController(bankService, accountService, cboService, commonMe
             $scope.voucher.IsReverse = true;
         }
 
-        if ($scope.form0.$valid && !$scope.invalidDocDate && !$scope.invalidPostingDate && !$scope.invalidRow && !$scope.validation() ) {
+        if ($scope.form0.$valid && !$scope.invalidDocDate && !$scope.invalidPostingDate && !$scope.invalidRow && !$scope.validation()) {
             $scope.actionIsDisable = true;
             if ($scope.Action === "Save") {
                 $http({
@@ -431,35 +431,41 @@ function bankJournalController(bankService, accountService, cboService, commonMe
     };
 
     $scope.advanceId = null;
-    $scope.confirmPost = function (advanceId,data) {
+    $scope.confirmPost = function (advanceId, data) {
         if (data.ApprovedByStatus == 'ToBeApproved' || data.ApprovedByStatus == 'Hold' || data.ApprovedByStatus == 'Reject') {
             ShowResult("Before Post, Please Approve First. Mr." + data.ApprovedBy + " is responsible for Approve", "failure");
         }
         $scope.advanceId = advanceId;
+        $scope.ApprovedByStatus = data.ApprovedByStatus;
         $scope.message_confirmation = "Are you sure to Post?";
         angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
     };
 
     $scope.post = function (id) {
-        $http({
-            method: "POST",
-            url: $scope.postUrl,
-            data: {
-                "id": id
-            },
-            dataType: "JSON"
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, "failure");
-            }
-            else {
-                ShowResult(response.data.Message, "success");
-                $scope.getData();
-                $scope.clear();
-            }
-        }, function errorCallback(response) {
-            ShowResult(response.status.Message, "failure");
-        });
+        if ($scope.ApprovedByStatus == 'ToBeApproved' || $scope.ApprovedByStatus == 'Hold' || $scope.ApprovedByStatus == 'Reject') {
+            ShowResult("Before Post, Please Approve First!!", "failure");
+        } else {
+            $http({
+                method: "POST",
+                url: $scope.postUrl,
+                data: {
+                    "id": id
+                },
+                dataType: "JSON"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    $scope.getData();
+                    $scope.clear();
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, "failure");
+            });
+        }
+
         return true;
     };
 
@@ -676,7 +682,7 @@ function bankJournalController(bankService, accountService, cboService, commonMe
         $scope.voucher.FinancingTypeId = null;
         $scope.voucherDetailList = [];
     }
-   
+
     $scope.delete = function (bankJournalId, voucherId) {
         $http({
             method: "POST",

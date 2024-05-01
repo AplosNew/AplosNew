@@ -1313,10 +1313,10 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             try
             {
-                var sql = @"SELECT CheckBoxSelect=cast(case when GMP.Id is null then 0 else 1 end as bit),GMP.Id,VT.UserName VoucherType,VTM.SourceType
+                var sql = @"SELECT CheckBoxSelect=cast(case when GMP.Id is null then 0 else 1 end as bit),GMP.Id,VT.UserName VoucherType,VTM.SourceType Process
 										FROM SCS.VoucherTypeMatrix VTM
 										LEFT JOIN SCS.VoucherType VT ON VT.Id=VTM.VoucherTypeId
-										LEFT JOIN (SELECT * FROM  [HKP].[GLManagementProcess] WHERE GlManagementId='"+ glManagementId + @"') GMP  ON VTM.SourceType=GMP.Process ";
+										LEFT JOIN (SELECT * FROM  [HKP].[GLManagementProcess] WHERE GlManagementId='" + glManagementId + @"') GMP  ON VTM.SourceType=GMP.Process order by VTM.SourceType ";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)

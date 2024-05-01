@@ -343,7 +343,7 @@
                         </thead>
                         <tbody>
                             <tr dir-paginate="x in cOAICodeList |itemsPerPage:glListParameters.pageSize" pagination-id="metaData.name + 'cOAICodeList'" total-items="glListParameters.total_count"
-                                ng-dblclick="setSelected(x,$index)" ng-class="{selected : x.BudgetMasterId === rowSelected}">
+                                ng-dblclick="setNewSelected(x,$index)" ng-class="{selected : x.BudgetMasterId === rowSelected}">
                                 <td>{{x.GLGeneralInfoCode}} - {{x.GLGeneralInfoName}}</td>
                                 <td>{{x.BudgetName}}</td>
                                 <td>{{x.ActivityName}}</td>
@@ -354,7 +354,7 @@
                 <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'cOAICodeList'" direction-links="true" boundary-links="true" on-page-change="GetCOAICodeListData(newPageNumber)"></dir-pagination-controls>
             </div>
             <div class="modal-footer common-btn">
-                <button type="button" class="btn btn-default" ng-click="closeCOAICodeListPopUp()">OK</button>
+                <button type="button" class="btn btn-default" ng-click="closeNewGLListPopUp()">OK</button>
             </div>
         </div>
     </div>

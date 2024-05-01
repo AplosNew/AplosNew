@@ -661,6 +661,10 @@ function InvoiceStatusController(cboService, commonMessage, $window, $scope, $ro
 
     $scope.SavePostSales = function () {
         try {
+            $scope.ModelNew.SalesId = $scope.salesVM.Id;
+            if (baseService.isUndefinedOrNull($scope.ModelNew.SalesId)) {
+                throw "Select Invoice No.";
+            }
             if (baseService.isUndefinedOrNull($scope.ModelNew.ExpDate)) {
                 if (new Date($scope.ModelNew.InvoiceDate) < new Date($scope.ModelNew.ExpDate)) {
                     throw "Expected Date should greater than Invoice Date";
@@ -703,7 +707,7 @@ function InvoiceStatusController(cboService, commonMessage, $window, $scope, $ro
                 }
             }
             //ValidationMaster();
-            $scope.ModelNew.SalesId = $scope.salesVM.Id;
+            
             $scope.$broadcast('show-errors-check-validity');
             if ($scope.ModelNewForm.$valid) {
                 $http({

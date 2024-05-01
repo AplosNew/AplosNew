@@ -21,7 +21,7 @@ namespace Library.MaterialManagement.Inventory
 		IEnumerable<object> GetListForHold(string plantId);
 		IEnumerable<object> GetPOTypeList(string plantId, string POTypeStatus,string poType);
 		IEnumerable<object> POCheckedRollBack(string plantId, string POTypeStatus);
-		IEnumerable<object> GetListForHold11(string plantId, string ApproveRejectHold);
+		IEnumerable<object> GetIndependentPOListByStatus(string plantId, string ApproveRejectHold);
 		IEnumerable<object> GetListForHold11BOQ(string plantId, string ApproveRejectHold,string poType);
 		IEnumerable<object> PORollBackApproved(string plantId, string ApproveRejectHold);
 		

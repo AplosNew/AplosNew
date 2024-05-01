@@ -761,10 +761,12 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetListForHold11(string ApproveRejectHold)
+        public JsonResult GetIndependentPOListByStatus(string ApproveRejectHold)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_purchaseOrderService.GetListForHold11(identity.PlantId, ApproveRejectHold), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(_purchaseOrderService.GetIndependentPOListByStatus(identity.PlantId, ApproveRejectHold), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         [Authorize, HttpGet]
