@@ -310,6 +310,19 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
 
+        [HttpPost]
+        public string PostProductionSummaryParameterValue([FromBody] IEnumerable<ParameterGetset> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostProductionSummaryParameterValue(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
 
         [HttpPost]
         public string PostProductionServiceParameter([FromBody] IEnumerable<ProcessServiceParameter> DataToSave)

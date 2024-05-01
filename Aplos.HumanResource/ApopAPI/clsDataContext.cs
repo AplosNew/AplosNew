@@ -2433,6 +2433,68 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
             }
         }
 
+        public string PostProductionSummaryParameterValue(IEnumerable<ParameterGetset> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "dbo.ProductionSummaryParameterValue";
+                string Id = "''";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<ParameterGetset> items = DataToSave.ToList();
+
+                foreach (ParameterGetset item in DataToSave)
+                {
+                    Id += ",'" + item.Id + "'";
+                }
+
+                con.OpenDataSetThroughAdapter("select * from dbo.ProductionSummaryParameterValue where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+
+                foreach (ParameterGetset item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+                        dr["Id"] = "PSP24" + _Id;
+                        dr["ProductionBookingParameterId"] = item.ProductionBookingParameterId;
+                        dr["ProductionSummaryId"] = item.ProductionSummaryId;
+                        dr["Value"] = item.Value;
+                        dr["UserName"] = item.UserName;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+        }
 
         public string PostProductionServiceParameter(IEnumerable<ProcessServiceParameter> DataToSave)
         {
@@ -13104,4 +13166,23 @@ where QAT.ParameterId='" + ParameterId + "'";
         public string OwnItem { get; set; }
 
     }
+
+    public class ParameterGetset
+    {
+        public string Id { get; set; }
+        public string ProductionBookingParameterId { get; set; }
+        public string ProductionSummaryId { get; set; }
+        public string Value { get; set; }
+        public string UserName { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
+       
+
+    }
+
+
 }
