@@ -30,7 +30,7 @@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="FromDate" ng-model="ModelOTNew.FromDate" class="form-control datepic" datepic placeholder="dd-Mmm-yyyy" required tabindex="23">
+                                    <input type="text" name="FromDate" ng-model="ModelOTNew.FromDate" class="form-control datepicker" datepicker  @*class="form-control datepic" datepic*@ placeholder="dd-Mmm-yyyy" required tabindex="23">
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
@@ -163,6 +163,9 @@
                                         <div e-column e-field="AdditionalOTHour" e-headertext="Add.OTHour" e-width="60"></div>
                                         <div e-column e-field="Rate" e-headertext="Rate" e-width="60"></div>
                                         <div e-column e-field="PresentDays" e-headertext="Present Days" e-width="60"></div>
+                                        <div e-column e-field="TobeApprovedAmount" e-headertext="Tobe Approved Amount" e-width="60"></div>
+                                        <div e-column e-field="ApprovedAmount" e-headertext="Approved Amount" e-width="60"></div>
+                                        <div e-column e-field="PaidAmount" e-headertext="Paid Amount" e-width="60"></div>
                                         <div e-column e-field="Amount" e-headertext="Amount" e-width="60"></div>
                                         <div e-column e-headertext="Advance Amount" e-template="#advanceGiven" e-textalign="center" e-width="60"></div>
                                         <div e-column e-headertext="Remarks" e-template="#remarks" e-textalign="center" e-width="100"></div>
@@ -195,7 +198,7 @@
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                             <div e-columns>
-                                <div e-column e-field="Id" e-headertext="Id" e-width="3"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="2"></div>
                                 <div e-column e-field="FromDate" e-headertext="From Date" e-width="2" e-isprimarykey="true"></div>
                                 <div e-column e-field="ToDate" e-headertext="To Date" e-width="2" e-isprimarykey="true"></div>
                                 <div e-column e-field="UserName" e-headertext="User Name" e-width="3"></div>
@@ -292,7 +295,8 @@
                             <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
                             <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
                             <div e-column e-field="PayDays" e-headertext="Pay Days" e-width="60"></div>
-                            <div e-column e-field="Hour" e-headertext="Hour" e-width="60" e-isprimarykey="true"></div>
+                            <div e-column e-field="StandardOTHour" e-headertext="Standard OT Hour" e-width="60" e-isprimarykey="true"></div>
+                            <div e-column e-field="AdditionalOTHour" e-headertext="Additional OT Hour" e-width="60" e-isprimarykey="true"></div>
                             <div e-column e-field="Rate" e-headertext="Rate" e-width="60" e-isprimarykey="true"></div>
                             <div e-column e-field="Amount" e-headertext="Amount" e-width="60"></div>
                             <div e-column e-field="AdvanceAmount" e-headertext="Advance Amount" e-width="60"></div>
@@ -331,98 +335,6 @@
                 </div>
             </div>
         </div>
-        @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
-            <togglable name="Pending for Approval"></togglable>
-            <div class="form-elements form-horizontal" ng-form name="ModelNewFormPendingPaymentApproval">
-                <input type="hidden" ng-model="ModelPCNewPendingPaymentApproval.Id">
-                <div class="col-xs-12 col-sm-6 col-md-6">
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="FromDate" ng-model="ModelPCNewPendingPaymentApproval.FromDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3" readonly>
-                        </div>
-                    </div>
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" class="form-control" name="UserName" ng-model="ModelPCNewPendingPaymentApproval.UserRef" e-width="100" readonly />
-                        </div>
-                    </div>
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Payment Date<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="PaymentDueDate" ng-model="ModelPCNewPendingPaymentApproval.PaymentDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3" readonly>
-                        </div>
-                    </div>
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Payment Source<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" class="form-control" name="PaymentSource" ng-model="ModelPCNewPendingPaymentApproval.PaymentSource" e-width="100" readonly />
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-6 col-md-6">
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="ToDate" ng-model="ModelPCNewPendingPaymentApproval.ToDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3" readonly>
-                        </div>
-                    </div>
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input tabindex="1" type="text" name="By Whom" ng-model="ModelPCNewPendingPaymentApproval.ByWhom" class="form-control" readonly required>
-                        </div>
-                    </div>
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Remarks</label>
-                        <div class="col-sm-8 show-message">
-                            <textarea class="form-control" rows="3" ng-model="ModelPCNewPendingPaymentApproval.Remarks" maxlength="250" tabindex="8" readonly></textarea>
-                        </div>
-                    </div>
-                </div>
-                <div class="clearfix"></div>
-                <div class="table-responsive modal-table ">
-
-                    <div id="GridGWChildEditPendingPaymentApproval" ej-grid e-datasource="PCEmployeeListPendingPaymentApproval" e-allowfiltering="true" e-allowpaging="true"
-                         e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-allowselection="true"
-                         e-filtersettings-filterType="excel" e-allowtextwrap="true" e-templaterefresh="">
-                        <div e-columns>
-                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="60"></div>
-                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
-                            <div e-column e-field="Minute" e-headertext="Minute" e-width="60"></div>
-                            <div e-column e-field="Hour" e-headertext="Hour" e-width="60" e-isprimarykey="true"></div>
-                            <div e-column e-field="Rate" e-headertext="Rate" e-width="60" e-isprimarykey="true"></div>
-                            <div e-column e-field="Amount" e-headertext="Amount" e-width="60"></div>
-                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="80"></div>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li> <button ng-click="GoodWorkPaymentAdvisePendingApprovalSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Approve</button></li>
-                        <li> <button ng-click="ClearGoodWorkPaymentAdvisePendingApproval();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="table-responsive aplos-grid-toggle">
-                <div id="GridEditApproval" ng-init="chkinit()" ej-grid e-datasource="GoodWorkPaymentAdvisePendingApprovalList" e-recorddoubleclick="GetGWPendingPaymentApprovalPDblClick"
-                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                    <div e-columns>
-                        <div e-column e-field="Id" e-headertext="Payment Advise Id" e-width="3"></div>
-                        <div e-column e-field="PaymentSource" e-headertext="Payment Source" e-width="2"></div>
-                        <div e-column e-field="FromDate" e-headertext="From Date" e-width="2" e-isprimarykey="true"></div>
-                        <div e-column e-field="ToDate" e-headertext="To Date" e-width="2" e-isprimarykey="true"></div>
-                        <div e-column e-field="UserRef" e-headertext="UserName" e-width="3"></div>
-                        <div e-column e-field="PaymentDate" e-headertext="Payment Date" e-width="3"></div>
-                        <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
-                    </div>
-                </div>
-            </div>
-        </div>*@
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
             <togglable name="Payments"></togglable>
 
@@ -530,7 +442,8 @@
                                                 <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="80"></div>
                                                 <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="80"></div>
                                                 <div e-column e-field="PayDays" e-headertext="Pay Days" e-width="60"></div>
-                                                <div e-column e-field="Hour" e-headertext="Hour" e-width="60" e-isprimarykey="true"></div>
+                                                <div e-column e-field="StandardOTHour" e-headertext="Standard OT Hour" e-width="60" e-isprimarykey="true"></div>
+                                                <div e-column e-field="AdditionalOTHour" e-headertext="Additional OT Hour" e-width="60" e-isprimarykey="true"></div>
                                                 <div e-column e-field="Rate" e-headertext="Rate" e-width="60" e-isprimarykey="true"></div>
                                                 <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Amount" e-headertext="Amount" e-width="80" e-textalign="right" style="height: 20px;"></div>
                                                 <div e-column e-type="numeric" e-format="{0:0.00}" e-field="AdvanceAmount" e-headertext="Advance Amount" e-width="80" e-textalign="right" style="height: 20px;"></div>

@@ -342,8 +342,9 @@ where DetentionMasterId='" + detentionId + "'";
 										left Join SCS.WorkCenterMaster WC on WC.id=MMT.WorkCenterId
 										left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
 										where --MMT.addedby in ('devendras', 'talwinders') and 
-                                        Format(MMT.AddedDate, 'dd-MMM-yyyy') between dateadd(month,datediff(month,0,getdate()),0)
-										and dateadd(day,-1,dateadd(month,datediff(month,-1,getdate()),0))
+                                        --Format(MMT.AddedDate, 'dd-MMM-yyyy') between dateadd(month,datediff(month,0,getdate()),0)
+										--and dateadd(day,-1,dateadd(month,datediff(month,-1,getdate()),0))
+                                        MMT.AddedDate BETWEEN DATEADD(day, -2, GETDATE()) AND DATEADD(day, 0, GETDATE())
                                         order by FORMAT(MMT.AddedDate, 'dd-MMM-yyyy') DESC";
             var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;

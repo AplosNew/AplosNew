@@ -292,5 +292,9 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             templateUrl: 'OrderManagements/masterOrder/ApproveBy',
             controller: 'masterOrderApproveByController'
         })
+        .when('/productionOrderSchedulingParametersType1New', {
+            templateUrl: 'OrderManagements/ProductionOrderSchedulingParametersType1/AplosNew',
+            controller: 'productionOrderSchedulingParametersType1NewController'
+        })
         ;
 }
