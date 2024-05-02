@@ -1271,7 +1271,7 @@ upanelApp.controller("fullandfinalSettlementController", fullandfinalSettlementC
 upanelApp.controller("LeaveTransectionController", LeaveTransectionController)
 upanelApp.controller("otApproveController", otApproveController)
 upanelApp.controller("GoodWorkReportController", GoodWorkReportController)
-upanelApp.controller("productionOrderSchedulingParametersType1NewController", productionOrderSchedulingParametersType1NewController);
+upanelApp.controller("productionOrderSchedulingParametersType1NewController", ProductionOrderSchedulingParametersType1NewController);
 
 
 
