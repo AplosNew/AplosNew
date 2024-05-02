@@ -13,6 +13,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     $scope.saveDepartmentUrl = $scope.path + 'CreateGlManagementDepartment';
     $scope.savePositionCodeUrl = $scope.path + 'CreateGlManagementPositionCode';
     $scope.saveBudgetCodeUrl = $scope.path + 'CreateGlManagementBudgetCode';
+    $scope.saveProcessUrl = $scope.path + 'CreateGlManagementProcess';
     $scope.saveEmpUrl = $scope.path + 'CreateGlManagementEmployee';
     $scope.saveDrCrUrl = $scope.path + 'CreateGlManagementControlDrCr';
     $scope.saveABUrl = $scope.path + 'CreateGlManagementActionBy';
@@ -1263,6 +1264,16 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
 
     //region View
 
+    $scope.AllCombineData = [];
+    $scope.GetData = function () {
+        $http({
+            method: 'GET',
+            url: 'Accounts/GLManagement/GetGLManagementViewData?GlManagementId=' + $scope.GlManagementId
+        }).then(function successCallback(response) {
+            $scope.AllCombineData = response.data;
+        });
+    }
+
 
     $scope.GlManagementAccessControlData = [];
     $scope.GetGlManagementAccessControl = function () {
@@ -1325,7 +1336,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         
         $http({
             method: 'POST',
-            url: $scope.saveProcessUrl,
+            url: $scope.saveAccessControlUrl,
             data: { 'data': $scope.AccessControlList, 'GlManagementId': $scope.GlManagementId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
