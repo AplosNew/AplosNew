@@ -1,4 +1,5 @@
-﻿"use strict";
+﻿
+"use strict";
 var upanelApp = angular
     .module("upanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.dirPagination", "toaster", "angucomplete-alt", "angularjs-dropdown-multiselect", "ejangular"]);
 upanelApp.controller("ProductLibraryController", ProductLibraryController);
@@ -1270,6 +1271,7 @@ upanelApp.controller("fullandfinalSettlementController", fullandfinalSettlementC
 upanelApp.controller("LeaveTransectionController", LeaveTransectionController)
 upanelApp.controller("otApproveController", otApproveController)
 upanelApp.controller("GoodWorkReportController", GoodWorkReportController)
+upanelApp.controller("productionOrderSchedulingParametersType1NewController", productionOrderSchedulingParametersType1NewController);
 
 
 
