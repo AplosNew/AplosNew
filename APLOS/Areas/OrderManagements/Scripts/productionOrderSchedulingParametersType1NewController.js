@@ -28,6 +28,18 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
     cboService.getProductionStatusCboByGroup(function (result) {
         $scope.productionStatusList = result;
     });
+
+    $scope.planningTypeProcessList = [];
+    $scope.GetPlanningTypeProcess = function () {
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/ProductionOrder/GetPlanningTypeProcessCbo?entityId=' + $scope.EntityId
+        }).then(function successCallback(response) {
+            $scope.planningTypeProcessList = response.data;
+        });
+    }
+
+
     $scope.modelFilterByList = [
         { 'name': 'Prod. Order#', 'value': 'Id' },
         { 'name': 'Prod. Status', 'value': 'ProductionStatus' },

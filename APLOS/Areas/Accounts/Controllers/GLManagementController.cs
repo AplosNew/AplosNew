@@ -594,42 +594,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 }
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsDr);
-                ////if (TabName == "ControlCr")
-                ////{
-                ////    con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementControlDrCr] where GlManagementId='" + GlManagementId + "'", out dsCr, false, "1");
-                ////    foreach (var item in data)
-                ////    {
-                ////        bplib.clsGenID genid = new bplib.clsGenID();
-                ////        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementControlDrCr", out Id);
-                ////        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-                ////        DataView dv = new DataView(dsCr.Tables[0]);
-                ////        dv.RowFilter = "Id='" + item["Id"] + "'";
-
-                ////        if (dv.Count == 0)
-                ////        {
-                ////            item["Id"] = Id;
-                ////            item["BudgetMasterActivityIdDr"] = null;
-                ////            item["BudgetMasterActivityIdCr"] = item["BudgetMasterActivityId"];
-                ////            item["GlManagementId"] = GlManagementId;
-
-                ////            AddNewRow(dsCr.Tables[0], item);
-                ////        }
-                ////        else if (dv.Count > 0 && Convert.ToBoolean(item["CheckBoxSelect"].ToString()) == false)
-                ////        {
-                ////            DataRow drmo = dv[0].Row;
-                ////            drmo.Delete();
-                ////        }
-                ////        else
-                ////        {
-                ////            DataRow drmo = dv[0].Row;
-                ////            item["Id"] = dv[0].Row["Id"].ToString();
-                ////            EditRow(drmo, item);
-                ////        }
-                ////    }
-                ////    clsStaticInfo _info = new clsStaticInfo();
-                ////    _info.SaveDataSets(dsCr);
-                ////}
+               
                 #endregion data update 
 
 
@@ -841,6 +806,56 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public JsonResult CreateGlManagementProcess(List<Dictionary<string, object>> data, string GlManagementId)
+        {
+            try
+            {
+                DataSet dsPCode;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementProcess] where GlManagementId='" + GlManagementId + "'", out dsPCode, false, "1");
+                string Id = "";
+
+                #region data update
+                foreach (var item in data)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementProcess", out Id);
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                    DataView dv = new DataView(dsPCode.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        item["Id"] = Id;
+                        item["GlManagementId"] = GlManagementId;
+
+                        AddNewRow(dsPCode.Tables[0], item);
+                    }
+                    else if (dv.Count > 0 && Convert.ToBoolean(item["CheckBoxSelect"].ToString()) == false)
+                    {
+                        DataRow drmo = dv[0].Row;
+                        drmo.Delete();
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        item["Id"] = dv[0].Row["Id"].ToString();
+                        EditRow(drmo, item);
+                    }
+                }
+                #endregion data update 
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsPCode);
+                return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
         private double GetSequence()
         {
             DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM [MST].[GLControlMaster]");
@@ -1324,6 +1339,24 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+
+        [Authorize, HttpGet]
+        public ActionResult GetGLManagementViewData(string glManagementId)
+        {
+            try
+            {
+                var sql = @"SELECT CheckBoxSelect=cast(case when GMP.Id is null then 0 else 1 end as bit),GMP.Id,VT.UserName VoucherType,VTM.SourceType Process
+										FROM SCS.VoucherTypeMatrix VTM
+										LEFT JOIN SCS.VoucherType VT ON VT.Id=VTM.VoucherTypeId
+										LEFT JOIN (SELECT * FROM  [HKP].[GLManagementProcess] WHERE GlManagementId='" + glManagementId + @"') GMP  ON VTM.SourceType=GMP.Process order by VTM.SourceType ";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         [HttpPost, Authorize]
         public ActionResult GetGLControlReport(string glControlId)
         {
@@ -1674,18 +1707,21 @@ namespace Aplos.Areas.Accounts.Controllers
                     from(select DISTINCT GEC.EmployeeCategoryId,EC.UserName EmployeeCategorys
 					,GMD.DesignationId,DE.UserName Designation,GMDP.DepartmentId,DP.UserName Department,GMPC.PositionCodeId,PO.UserName Position,GMBC.BudgetCodeId,GME.EmpSystemId EmpId,EI.EmployeeName,MB.Code BudgetCode,GLM.Id GLManagementId
                     from HKP.GLManagement GLM 
+                    from HKP.GLManagement GLM 
                     LEFT JOIN HKP.GLManagementEmployeeCategory GEC ON GEC.GLManagementId=GLM.Id
                     LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=GEC.EmployeeCategoryId
-                    LEFT JOIN [HKP].[GLManagementDesignation] GMD ON GMD.GLManagementId=GLM.Id
-                    LEFT JOIN [HKP].[Designation] DE ON DE.Id=GMD.DesignationId
-                    LEFT JOIN [HKP].[GLManagementDepartment] GMDP ON GMDP.GLManagementId=GLM.Id
-                    LEFT JOIN [ORG].[Department] DP ON DP.Id=GMDP.DepartmentId
-                    LEFT JOIN [HKP].[GLManagementPositionCode] GMPC ON GMPC.GLManagementId=GLM.Id
-                    LEFT JOIN [ORG].[Position] PO ON PO.Id=GMPC.PositionCodeId
+					LEFT JOIN [HKP].[GLManagementPositionCode] GMPC ON GMPC.GLManagementId=GLM.Id
+                    LEFT JOIN ORG.Position PO  ON PO.Id=GMPC.PositionCodeId  
+                    LEFT JOIN [HKP].[GLManagementDesignation] GMD ON GMD.GLManagementId=GLM.Id AND PO.DesignationId=GMD.DesignationId
+                    LEFT JOIN [HKP].[Designation] DE ON DE.Id=GMD.DesignationId AND PO.DesignationId=GMD.DesignationId
+                    LEFT JOIN [HKP].[GLManagementDepartment] GMDP ON GMDP.GLManagementId=GLM.Id AND PO.DepartmentId=GMDP.DepartmentId
+                    LEFT JOIN [ORG].[Department] DP ON DP.Id=GMDP.DepartmentId AND PO.DepartmentId=GMDP.DepartmentId
+					 LEFT JOIN [HKP].[GLManagementBudgetCode] GMBC ON GMBC.GLManagementId=GLM.Id
+                    LEFT JOIN [MST].ManpowerBudget MB ON MB.Id=GMBC.BudgetCodeId AND MB.PositionId=PO.Id
                     LEFT JOIN [HKP].[GLManagementEmployee] GME ON GME.GLManagementId=GLM.Id
-                    LEFT JOIN [DBO].[EmployeeInformation] EI ON EI.SystemId=GME.EmpSystemId
-                    LEFT JOIN [HKP].[GLManagementBudgetCode] GMBC ON GMBC.GLManagementId=GLM.Id
-                    LEFT JOIN [MST].ManpowerBudget MB ON MB.Id=GMBC.BudgetCodeId)x 					
+                    LEFT JOIN [DBO].[EmployeeInformation] EI ON EI.SystemId=GME.EmpSystemId AND EI.BudgetCode=GMBC.BudgetCodeId 
+										AND EI.DepartmentId=GMDP.DepartmentId  AND EI.GivenDesignationId=GMD.DesignationId AND GMPC.PositionCodeId=EI.PositionID
+                   WHERE GLM.Id='"+ GlManagementId + @"')x 					
 
                     LEFT JOIN [HKP].[GLManagementControlDrCr] GMDC ON GMDC.GLManagementId=x.GLManagementId
                     LEFT JOIN [MST].[BudgetMasterActivity] BMA on BMA.Id=GMDC.BudgetMasterActivityIdDr

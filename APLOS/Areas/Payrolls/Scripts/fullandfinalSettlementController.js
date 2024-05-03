@@ -136,7 +136,20 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
         }
     }
 
-    
+    $scope.approvedByList = [];
+    $scope.GetApprovedByCboList = function () {
+        $http({
+            method: 'GET',
+            url: 'Payrolls/FinalSettlement/GetApprovedByCbo'
+        }).then(function successCallback(response) {
+            $scope.approvedByList = response.data;
+            if (baseService.arrayLength($scope.approvedByList) == 1) {
+                $scope.FinalSettlementModel.ApproveById = $scope.approvedByList[0].Value;
+            }
+        });
+    }
+    $scope.GetApprovedByCboList();
+
 
     $scope.Save = function () {
         try {
@@ -245,7 +258,7 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
 
     // #region checkbox all
 
-    $scope.FinalSettlementModel = { Id: null, FinalSettlementName: null, FinalSettlementDate: null }
+    $scope.FinalSettlementModel = { Id: null, FinalSettlementName: null, FinalSettlementDate: null, ApproveById:null }
 
     $scope.refreshTemplateOperation = function (args) {
         $("#headchk").ejCheckBox({ "change": headCheckChangeOperation });
@@ -339,16 +352,40 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
         }
     };
 
+    $scope.UpdateItemData = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: 'Payrolls/FinalSettlement/UpdateItemData',
+                data: { 'datalist': $scope.FormulaList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                } else {
+                    $scope.GetSavedEmployeeItems();
+                }
+            }, function errorCallback(response) {
+                $scope.ShowResultCustom(response.status.Message, "failure");
+            });
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 
 
     // #endregion
 
+    $scope.EmpSystemId = null;
     $scope.FormulaList = [];
     $scope.FinalSettlementUndisbursedEarningList = [];
     $scope.GetEmployeeItems = function (obj) {
+        $scope.FormulaList = [];
+        $scope.EmpSystemId = obj.data.EmpSystemId;
         $http({
             method: 'GET',
-            url: 'Payrolls/FinalSettlement/GetEmployeeSeperationItemFormulaData?EmpSystemId=' + obj.data.EmpSystemId
+            url: 'Payrolls/FinalSettlement/GetEmployeeSeperationItemFormulaData?EmpSystemId=' + $scope.EmpSystemId
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
@@ -359,6 +396,22 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
             }
         });
     }
+
+    $scope.GetSavedEmployeeItems = function () {
+
+        $http({
+            method: 'GET',
+            url: 'Payrolls/FinalSettlement/GetEmployeeSeperationItemFormulaData?EmpSystemId=' + $scope.EmpSystemId
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            } else {
+                $scope.FormulaList = response.data.SeperationItem;
+                $scope.FinalSettlementUndisbursedEarningList = response.data.FinalSettlementUndisbursedEarning;
+            }
+        });
+    }
+
 
     $scope.CloseFormulaPopUp = function () {
         angular.element(document.querySelector('#FormulaInfo')).modal('hide');
