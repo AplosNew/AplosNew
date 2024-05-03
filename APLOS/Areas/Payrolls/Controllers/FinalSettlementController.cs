@@ -49,6 +49,11 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             return View();
         }
+        [Authorize]
+        public ActionResult Payment()
+        {
+            return View();
+        }
         #endregion
 
         #region -- Operations
@@ -1766,6 +1771,19 @@ Order By M.AddedDate DESC";
 FROM dbo.EmployeeFullAndFinalSettlementMaster M
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ApproveById
 Where ISNULL(M.IsApproved,0)=0 AND M.ApproveById='" + identity.EmployeeId + "'";
+            var data = _sqlRepository.GetDataCollection(sql);
+
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetFNFApprovedMasterData()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT M.Id,M.FinalSettlementName,FORMAT(M.FinalSettlementDate,'dd-MMM-yyyy')FinalSettlementDate,M.ApproveById,E.EmployeeName ApproveBy,ApproveStatus= CASE WHEN M.IsApproved=1 THEN 'Yes' ELSE 'No' END,M.IsApproved
+FROM dbo.EmployeeFullAndFinalSettlementMaster M
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ApproveById
+Where ISNULL(M.IsApproved,0)=1";
             var data = _sqlRepository.GetDataCollection(sql);
 
             return Json(data, JsonRequestBehavior.AllowGet);
