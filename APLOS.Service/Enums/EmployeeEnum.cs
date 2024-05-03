@@ -219,7 +219,7 @@ namespace Library.Service.Enums
         CapitalizeAssetRegisterApproveBy,
         [Description("GoodWork Payment ApproveBy")]
         GoodWorkPaymentApproveBy,
-       
+
         [Description("Party ApproveBy")]
         PartyApproveBy,
 
@@ -232,6 +232,8 @@ namespace Library.Service.Enums
         [Description("Sales Order ApproveBy")]
         SalesOrderApproveBy,
         [Description("Journal ApproveBy")]
-        JournalApproveBy
+        JournalApproveBy,
+        [Description("Full And Final ApproveBy")]
+        FullAndFinalApproveBy
     }
 }
