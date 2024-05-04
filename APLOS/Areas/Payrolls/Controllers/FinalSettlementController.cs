@@ -2061,14 +2061,24 @@ ORDER BY OL.Sequence";
                     clsFS.GetSalaryDataEmpWise(item["EmpSystemId"].ToString(), Convert.ToDateTime(item["DOS"]).ToString("dd-MMM-yyyy"), out dsSalaryData);
                     if (dsSalaryData.Tables[0].Rows.Count == 0)
                     {
-                        throw new Exception("This Employee has no Approved Salary Structure.");
+                        throw new Exception("This Employee " + item["EmpSystemId"].ToString() + " has no Approved Salary Structure.");
                     }
 
 
                     clsFS.GetLastMonthSalaryInfoByEmpId(item["EmpSystemId"].ToString(), Convert.ToDateTime(item["DOS"]).ToString("dd-MMM-yyyy"), out dsProcSalaryData);
-                    if (dsProcSalaryData.Tables[0].Rows.Count == 0)
+
+                    if (dsProcSalaryData.Tables[0].Rows.Count > 0)
                     {
-                        throw new Exception("Salary [ of " + Convert.ToDateTime(item["DOS"]).ToString("MMMM") + "] is not processed. ");
+                        DataView dvSPAprovedData = new DataView(dsProcSalaryData.Tables[0]);
+                        dvSPAprovedData.RowFilter = "IsLocked=" + true;
+                        if (dvSPAprovedData.Count == 0)
+                        {
+                            throw new Exception("Salary of [" + Convert.ToDateTime(item["DOS"]).ToString("MMMM") + "] is not Locked for "+ item["EmpSystemId"].ToString() + ".");
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception("Salary [ of " + Convert.ToDateTime(item["DOS"]).ToString("MMMM") + "] is not processed for " + item["EmpSystemId"].ToString() + ". ");
                     }
 
                 }
@@ -2163,41 +2173,33 @@ ORDER BY OL.Sequence";
 
                     }
 
+                    List<Dictionary<string, object>> itemdata = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtData);
 
-                    for (int i = 0; i < dtData.Rows.Count; i++)
+                    foreach (var itm in itemdata)
                     {
                         DataView dv = new DataView(dsEmpMaster.Tables[0]);
-                        dv.RowFilter = "Id='" + dtData.Rows[i]["Id"] + "' AND EmployeeSeperationItemId = '" + dtData.Rows[i]["EmployeeSeperationItemId"] + "' AND EmpSystemId = '" + dtData.Rows[i]["EmpSystemId"] + "'";
+                        dv.RowFilter = "Id='" + itm["Id"] + "' AND EmployeeSeperationItemId = '" + itm["EmployeeSeperationItemId"] + "' AND EmpSystemId = '" + itm["EmpSystemId"] + "'";
 
-                        if (dv.Count == 0)
+                        if (dv.Count > 0)
                         {
-                            DataRow dr = dsEmpMaster.Tables[0].NewRow();
-                            ccount++;
-                            dr["Id"] = materialCommonService.MakePK(_Id, ccount, 2);
-                            dr["FinalSettlementId"] = _Id;
-                            dr["EmpSystemId"] = dtData.Rows[i]["EmpSystemId"].ToString();
-                            dr["EmployeeSeperationItemId"] = dtData.Rows[i]["EmployeeSeperationItemId"].ToString();
-                            dr["UserName"] = dtData.Rows[i]["UserName"].ToString();
-                            dr["Value"] = dtData.Rows[i]["Value"].ToString();
-                            dr["AddedBy"] = identity.Name;
-                            dr["AddedDate"] = DateTime.Now;
-                            dr["AddedFromIP"] = identity.IPAddress;
+                            DataRow drmo = dv[0].Row;
 
-                            dsEmpMaster.Tables[0].Rows.Add(dr);
+                            drmo.BeginEdit();
+
+                            drmo["Value"] = itm["Value"];
+                            drmo["UpdatedBy"] = identity.Name;
+                            drmo["UpdatedDate"] = DateTime.Now.ToString();
+                            drmo["UpdatedFromIP"] = identity.IPAddress;
+
+                            drmo.EndEdit();
+
                         }
                         else
                         {
-                            DataRow dr = dsEmpMaster.Tables[0].DefaultView[0].Row;
-
-                            dr.BeginEdit();
-                            dr["EmployeeSeperationItemId"] = dtData.Rows[i]["EmployeeSeperationItemId"].ToString();
-                            dr["UserName"] = dtData.Rows[i]["UserName"].ToString();
-                            dr["Value"] = dtData.Rows[i]["Value"].ToString();
-                            dr["UpdatedBy"] = identity.Name;
-                            dr["UpdatedDate"] = DateTime.Now.ToString();
-                            dr["UpdatedFromIP"] = identity.IPAddress;
-
-                            dr.EndEdit();
+                            ccount++;
+                            itm["Id"] = materialCommonService.MakePK(_Id, ccount, 2);
+                            itm["FinalSettlementId"] = _Id;
+                            AddNewRow(dsEmpMaster.Tables[0], itm);
                         }
                     }
 
