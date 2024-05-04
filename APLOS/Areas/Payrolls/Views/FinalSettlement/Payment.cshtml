@@ -305,5 +305,9 @@
         </div>
     </div>
 </div>
+
+<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(voucherId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="deleteSalaryDisbursement(voucherId)"></confirm-archive-generic>
+
 @Html.Partial("~/Areas/Banks/Views/_CashPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/SalaryDisbursement/_BankPopUp.cshtml")

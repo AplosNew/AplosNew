@@ -2511,10 +2511,10 @@ namespace Library.Service.SalaryDisbursement
                 var direct = new System.Text.StringBuilder();
                 var directsql = "";
 
-                directsql = @"UPDATE [dbo].[EmployeeFinalSettlement] SET DisbursementVoucherId=NULL where DisbursementVoucherId='" + voucherId + @"' ";
+                directsql = @"UPDATE [dbo].[EmployeeFullAndFinalSettlement] SET VoucherId=NULL where VoucherId='" + voucherId + @"' ";
                 direct.Append(directsql);
                 directsql = @"
-                              update [dbo].[SalaryLock] set DisbursementVoucherId=NULL  where DisbursementVoucherId='" + voucherId + @"' ";
+                              update [dbo].[SalaryLock] set FNFSettlementVoucherId=NULL  where FNFSettlementVoucherId='" + voucherId + @"' ";
                 direct.Append(directsql);
                 _sqlRepository.ExecuteSqlCommand(direct.ToString());
                 _unitOfWork.SaveChanges();

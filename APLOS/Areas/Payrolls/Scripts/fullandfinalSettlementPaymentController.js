@@ -36,14 +36,6 @@ function fullandfinalSettlementPaymentController(cboService, commonMessage, $sco
             "value": "DocRefNo"
         },
         {
-            "name": "EmployeeCode",
-            "value": "EmployeeCode"
-        },
-        {
-            "name": "EmployeeName",
-            "value": "EmployeeName"
-        },
-        {
             "name": "Payment Bank",
             "value": "PaymentBank"
         },
@@ -504,7 +496,7 @@ function fullandfinalSettlementPaymentController(cboService, commonMessage, $sco
 
     }
 
-    $scope.deleteSalaryDisbursement = function (voucherId, monthNo, yearNo) {
+    $scope.deleteSalaryDisbursement = function (voucherId) {
         $http({
             method: "POST",
             url: $scope.deleteUrl,
