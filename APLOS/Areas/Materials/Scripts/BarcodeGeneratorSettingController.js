@@ -172,8 +172,9 @@ function BarcodeGeneratorSettingController(cboService, commonMessage, $scope, $r
         var gridObj = $("#GridEPopUp").data("ejGrid");
         gridObj.refreshContent();
     };
-  
-    $scope.CloseMasterOrder = function () {
+
+    $scope.SavedEntityList = [];
+    $scope.CloseEntityPopUp = function () {
         for (var i = 0; i < $scope.entityList.length; i++) {
             if ($scope.entityList[i].Flag == true) {
                 if (checkItemExist($scope.SavedEntityList, $scope.entityList[i].Id) === false) {
