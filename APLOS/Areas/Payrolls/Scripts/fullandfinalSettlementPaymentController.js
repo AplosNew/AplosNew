@@ -1,8 +1,57 @@
 ﻿'use strict';
-fullandfinalSettlementPaymentController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function fullandfinalSettlementPaymentController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+fullandfinalSettlementPaymentController.$inject = ["cboService",'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function fullandfinalSettlementPaymentController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = 'Final Settlement Payments';
     $scope.path = 'Payrolls/FinalSettlement/';
+    $scope.getListUrl = $scope.path + "GetFinalSettlementDisbursementVoucherList";
+    $scope.saveUrl = $scope.path + "ParkFinalSettlementDisbursement";
+    $scope.postUrl = $scope.path + "PostFinalSettlementdisbursement";
+    $scope.deleteUrl = $scope.path + "DeleteFinalSettlementDisbursementVoucher";
+
+    baseService.init($scope.getListUrl, null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
+
+
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+
+    $scope.goodWorkAdviseDisbursementVoucherList = [];
+    $scope.getVoucherData = function (pageno) {
+        baseService.pagination(pageno, $scope.parameters)
+            .then(function (result) {
+                $scope.goodWorkAdviseDisbursementVoucherList = result.Rows;
+                $scope.parameters.total_count = result.Total;
+            }, function () {
+                ShowResult(commonMessage.NetworkError, "failure");
+            }).finally(function () {
+            });
+    };
+    $scope.getVoucherData();
+
+    $scope.searchByList = [
+        {
+            "name": "VoucherNo",
+            "value": "VoucherNo"
+        },
+        {
+            "name": "Doc Ref No",
+            "value": "DocRefNo"
+        },
+        {
+            "name": "EmployeeCode",
+            "value": "EmployeeCode"
+        },
+        {
+            "name": "EmployeeName",
+            "value": "EmployeeName"
+        },
+        {
+            "name": "Payment Bank",
+            "value": "PaymentBank"
+        },
+        {
+            "name": "Status",
+            "value": "Status"
+        }
+    ];
 
     $scope.tabVoucher = 1;
     $scope.setTabVoucher = function (newTabVoucher) {
@@ -58,6 +107,36 @@ function fullandfinalSettlementPaymentController(commonMessage, $scope, $rootSco
         IsMaternity: false
     };
 
+    $scope.GetCurrencyExchangeRateList = function () {
+        if (!baseService.isUndefinedOrNull($scope.voucher.PostingDate) && !baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
+            $http({
+                method: "GET",
+                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $scope.voucher.PostingDate + "&currencyId=" + $scope.voucher.CurrencyId
+            }).then(function successCallback(response) {
+                $scope.currencyExchangeRate = response.data;
+                $scope.voucher.CompanyCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
+                $scope.voucherBonus.CompanyCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
+            });
+        }
+        else {
+            $scope.currencyExchangeRate = null;
+        }
+    };
+
+    $scope.getCboVoucherTypeFinalSettlementDisbursementList = function () {
+        cboService.getCboVoucherTypeFinalSettlementDisbursementList(function (result) {
+            $scope.voucherTypeList = result;
+            if ($scope.voucherTypeList.length === 1) {
+                $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
+                $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
+            }
+        });
+    }
+    $scope.getCboVoucherTypeFinalSettlementDisbursementList();
+    baseService.getCompanyConfiguration(function (result) {
+        $scope.companyConfig = result;
+    });
+
     $scope.FinalSettlementList = [];
     $scope.getMasterData = function () {
         try {
@@ -88,6 +167,21 @@ function fullandfinalSettlementPaymentController(commonMessage, $scope, $rootSco
         angular.element(document.querySelector('#DisbursementAdvicepopUp')).modal('hide');
     };
 
+    $scope.salaryLockPayableGLData = [];
+    $scope.EmployeeListNew = [];
+    $scope.getSalaryLockPayableGL = function () {
+        //$scope.GetEmployeeDisbursementItem();
+        $scope.salaryLockPayableGLData = [];
+        $http({
+            method: "POST",
+            url: "Payrolls/FinalSettlement/GetFinalSettlementDisbursementJVDataList",
+            data: { 'disbursementAdviceId': $scope.voucher.DisbursementAdviceId, 'goodWorkPaymentAdviseDetail': $scope.EmployeeListNew },
+            dataType: 'JSON'
+            , contentType: "application/json charset=utf-8"
+        }).then(function successCallback(response) {
+            $scope.salaryLockPayableGLData = response.data;
+        });
+    };
     $scope.SelectedEmployeeList = [];
     $scope.GetemployeeDisbursement = function () {
         $scope.SelectedEmployeeList = [];
@@ -99,6 +193,8 @@ function fullandfinalSettlementPaymentController(commonMessage, $scope, $rootSco
                     }
                     else {
                         $scope.SelectedEmployeeList = response.data;
+                        $scope.EmployeeListNew = response.data;
+                        $scope.getSalaryLockPayableGL();
                     }
                 },
                     function errorCallBack(response) {
@@ -299,12 +395,119 @@ function fullandfinalSettlementPaymentController(commonMessage, $scope, $rootSco
         }
     };
 
-    $scope.deleteGoodWorkPaymentAdviseDisbursementUrl = "Attendances/GoodWork/DeleteGoodWorkPaymentAdviseDisbursement";
+    $scope.saveBtnDisable = false;
+    $scope.SaveGoodWorkPaymentAdviseDisbursement = function () {
+        //$scope.GetEmployeeDisbursementItem();
+        if ($scope.EmployeeListNew.length === 0) {
+            ShowResult("Please select Employee!", "failure");
+            return true;
+        }
+        if (baseService.isUndefinedOrNull($scope.voucher.PaymentMode)) {
+            ShowResult("Please select Payment Mode!", "failure");
+            return true;
+        }
+        if ($scope.voucher.PaymentMode === "Bank") {
+            if ($scope.voucher.BankName === "" || baseService.isUndefinedOrNull($scope.voucher.BankMasterId)) {
+                ShowResult("Please select Bank!", "failure");
+                return true;
+            }
+        }
+        if ($scope.voucher.PaymentMode === "Cash") {
+            if ($scope.voucher.CashName === "" || baseService.isUndefinedOrNull($scope.voucher.CashMasterId)) {
+                ShowResult("Please select Cash!", "failure");
+                return true;
+            }
+        }
+
+        $scope.$broadcast("show-errors-check-validity");
+        $scope.saveBtnDisable = true;
+        try {
+            if ($scope.form0.$valid) {
+                $http({
+                    method: "POST",
+                    url: $scope.saveUrl,
+                    data: {
+                        "voucherVM": $scope.voucher,
+                        "directJVList": $scope.salaryLockPayableGLData,
+                        "disbursementAdviceId": $scope.voucher.DisbursementAdviceId,
+                        "goodWorkPaymentAdviseDetail": $scope.EmployeeListNew
+                    },
+                    dataType: "JSON"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        $scope.saveBtnDisable = false;
+                        ShowResult(response.data.Message, "failure");
+                    }
+                    else {
+                        ShowResult(response.data.Message, "success");
+                        $scope.getVoucherData();
+                        $scope.ClearGoodWorkPaymentAdviseDisbursement();
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.status.Message, "failure");
+                });
+                return true;
+
+            }
+        } catch (e) {
+            throw ShowResult(e, "failure");
+        }
+        return true;
+    };
+
+    $scope.voucherId = null;
+    $scope.confirmPost = function (voucherId) {
+        $scope.voucherId = voucherId;
+        $scope.message_confirmation = "Are you sure to Post?";
+        angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
+    };
+    
+    $scope.post = function (voucherId) {
+        $http({
+            method: "POST",
+            url: $scope.postUrl,
+            data: {
+                "voucherId": voucherId
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getVoucherData();
+                $scope.ClearGoodWorkPaymentAdviseDisbursement();
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+    $scope.ClearGoodWorkPaymentAdviseDisbursement = function () {
+        ClearGoodWorkPaymentAdviseDisbursementFields();
+    };
+
+    function ClearGoodWorkPaymentAdviseDisbursementFields() {
+        $scope.voucher = {};
+        $scope.voucher.PaymentMode = '';
+        $scope.voucher.EmployeeId = null;
+        $scope.getCboVoucherTypeFinalSettlementDisbursementList();
+        $scope.voucher.Active = true;
+        $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
+        $scope.voucher.DocRefNo = null;
+        $scope.SelectedEmployeeList = [];
+        $scope.salaryLockPayableGLData = [];
+        $scope.EmployeeListNew = [];
+        $scope.saveBtnDisable = false;
+
+    }
 
     $scope.deleteSalaryDisbursement = function (voucherId, monthNo, yearNo) {
         $http({
             method: "POST",
-            url: $scope.deleteGoodWorkPaymentAdviseDisbursementUrl,
+            url: $scope.deleteUrl,
             data: {
                 "voucherId": voucherId
             },

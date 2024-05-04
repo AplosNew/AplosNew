@@ -1,12 +1,17 @@
 ﻿using Aplos.Controllers;
 using Aplos.MaterialManagement.MaterialQuery;
 using Aplos.Properties;
+using Library.Accounting.Accounts;
+using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.Model.Employees;
+using Library.Model.Enums;
 using Library.Service.Employees;
 using Library.Service.Enums;
+using Library.Service.SalaryDisbursement;
+using Library.ViewModel.Vouchers;
 using OTSBD;
 using System;
 using System.Collections.Generic;
@@ -24,9 +29,11 @@ namespace Aplos.Areas.Payrolls.Controllers
         /// <summary>   The separationTypeService service. </summary>
 
         private readonly ISqlRepository _sqlRepository;
-        public FinalSettlementController(ISqlRepository sqlRepository)
+        private readonly ISalaryDisbursementService _salaryDisbursementService;
+        public FinalSettlementController(ISqlRepository sqlRepository, ISalaryDisbursementService salaryDisbursementService)
         {
             _sqlRepository = sqlRepository;
+            _salaryDisbursementService = salaryDisbursementService;
         }
         #endregion
 
@@ -2378,7 +2385,105 @@ ORDER BY OL.Sequence";
             dr.EndEdit();
         }
 
+        [Authorize, HttpPost]
+        public JsonResult GetFinalSettlementDisbursementJVDataList(string disbursementAdviceId, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string goodWorkPaymentAdviseDetailIds = "";
+            if (goodWorkPaymentAdviseDetail != null)
+            {
+                foreach (var item in goodWorkPaymentAdviseDetail)
+                {
+                    if (goodWorkPaymentAdviseDetailIds == "")
+                    {
+                        goodWorkPaymentAdviseDetailIds = "'" + item["Id"] + "'"; ;
+                    }
+                    else
+                    {
+                        goodWorkPaymentAdviseDetailIds += ",'" + item["Id"] + "'";
 
+                    }
+                }
+            }
+
+
+            string sql = null;
+            sql = @"SELECT X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAmount) CrAmount,SUM(X.Amount) Amount,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
+                FROM
+                ( SELECT  'EmployeeFullAndFinalSettlement' AS OtherName, 'Dr' AS TrnType
+                , CAST(EI.Value AS decimal(18,2)) DrAmount 
+                , 0 CrAmount 
+                , CAST(EI.Value AS decimal(18,2)) Amount
+                ,vd.GLGeneralInfoId  ,vd.BudgetMasterId,vd.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
+                , B.UserName BudgetName,A.UserName ActivityName 
+				FROM EmployeeFullAndFinalSettlement  E
+				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='NetPay'
+				LEFT JOIN [dbo].[EmployeeSeperationItem] ESI ON  ESI.Id=EI.EmployeeSeperationItemId
+				LEFT JOIN [dbo].[SalaryLock] sl ON  sl.EmployeeFinalSettlementId=E.FinalSettlementId
+				left join trn.VoucherDetail vd on vd.VoucherId=sl.PayableVoucherId and vd.TrnNature ='Net Pay' and vd.SalaryHeadId=ESI.SalaryHeadID and Vd.AccountsGroupId=sl.AccountsGroupId
+				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON vd.GLGeneralInfoId=GL.Id
+				LEFT JOIN[MST].[BudgetMaster] AS BM ON vd.BudgetMasterId= BM.Id
+				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+				LEFT JOIN [HKP].[Activity] AS A ON vd.ActivityId= A.Id
+				WHERE  E.VoucherId IS NULL AND sl.EmployeeFinalSettlementId='" + disbursementAdviceId + @"' AND E.Id in (" + goodWorkPaymentAdviseDetailIds + @")
+                        
+                )X
+                GROUP BY
+
+                X.GLName,X.BudgetName,X.ActivityName,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
+                ORDER BY 5";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public JsonResult GetFinalSettlementDisbursementVoucherList(GridParameter parameters)
+        {
+            AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
+            return Json(accountsSalaryPayableService.GetFinalSettlementDisbursementVoucherList(parameters), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult ParkFinalSettlementDisbursement(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.IsPark = true;
+            voucherVM.Amount = directJVList.Sum(r => r.DrAmount);
+            voucherVM.SourceType = SourceType.FinalSettlementJournal.ToString();
+            string goodWorkPaymentAdviseDetailIds = "";
+            if (goodWorkPaymentAdviseDetail != null)
+            {
+                foreach (var item in goodWorkPaymentAdviseDetail)
+                {
+                    if (goodWorkPaymentAdviseDetailIds == "")
+                    {
+                        goodWorkPaymentAdviseDetailIds = "'" + item["EmpSystemId"] + "'"; ;
+                    }
+                    else
+                    {
+                        goodWorkPaymentAdviseDetailIds += ",'" + item["EmpSystemId"] + "'";
+
+                    }
+                }
+            }
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _salaryDisbursementService.ParkFinalSettlementDisbursement(voucherVM, directJVList, disbursementAdviceId, goodWorkPaymentAdviseDetailIds, goodWorkPaymentAdviseDetail)) });
+        }
+        [HttpPost]
+        public JsonResult PostFinalSettlementdisbursement(string voucherId)
+        {
+            _salaryDisbursementService.PostSalarydisbursement(voucherId);
+            return Json(new { Message = AplosMessage.Posted });
+        }
+        [HttpPost]
+        public ActionResult DeleteFinalSettlementDisbursementVoucher(string voucherId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _salaryDisbursementService.DeleteFinalSettlementDisbursementVoucher(identity.PlantId, voucherId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
 
         #endregion
 

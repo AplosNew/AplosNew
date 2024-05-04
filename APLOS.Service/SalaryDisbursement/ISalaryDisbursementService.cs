@@ -20,7 +20,7 @@ namespace Library.Service.SalaryDisbursement
         string ParkSalaryPayableDisbursement(VoucherViewModel voucherVM, string yearNo, string monthNo, string monthName, string pMode, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, string empSystemIds);
         string ParkGoodWorkPaymentAdviseDisbursement(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, string goodWorkPaymentAdviseDetailIds);
         string ParkEmployeeMultipleAdvanceDisbursement(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, string goodWorkPaymentAdviseDetailIds, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail);
-        string ParkFinalSettlementDisbursement(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId);
+        string ParkFinalSettlementDisbursement(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, string goodWorkPaymentAdviseDetailIds, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail);
         string SaveBonusDisbursementPosting(VoucherViewModel voucherVM, string fromDate, string toDate, string pMode, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, string empSystemIds);
          GridModel GetSalaryPayableVoucherList(GridParameter parameters);
 

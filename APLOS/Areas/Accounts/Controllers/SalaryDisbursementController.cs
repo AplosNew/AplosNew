@@ -772,18 +772,18 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(accountsSalaryPayableService.GetFinalSettlementDisbursementVoucherList(parameters), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
-        public JsonResult ParkFinalSettlementDisbursement(VoucherViewModel voucherVM, string pMode, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            voucherVM.CompanyGroupId = identity.CompanyGroupId;
-            voucherVM.CompanyId = identity.CompanyId;
-            voucherVM.PlantId = identity.PlantId;
-            voucherVM.IsPark = true;
-            voucherVM.Amount = directJVList.Sum(r => r.CrAmount);
-            voucherVM.SourceType = SourceType.FinalSettlementJournal.ToString();
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _salaryDisbursementService.ParkFinalSettlementDisbursement(voucherVM, directJVList, disbursementAdviceId)) });
-        }
+        //[HttpPost]
+        //public JsonResult ParkFinalSettlementDisbursement(VoucherViewModel voucherVM, string pMode, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    voucherVM.CompanyGroupId = identity.CompanyGroupId;
+        //    voucherVM.CompanyId = identity.CompanyId;
+        //    voucherVM.PlantId = identity.PlantId;
+        //    voucherVM.IsPark = true;
+        //    voucherVM.Amount = directJVList.Sum(r => r.CrAmount);
+        //    voucherVM.SourceType = SourceType.FinalSettlementJournal.ToString();
+        //    return Json(new { Message = string.Format(AplosMessage.VoucherSave, _salaryDisbursementService.ParkFinalSettlementDisbursement(voucherVM, directJVList, disbursementAdviceId)) });
+        //}
         [HttpPost]
         public JsonResult PostFinalSettlementdisbursement(string voucherId)
         {
