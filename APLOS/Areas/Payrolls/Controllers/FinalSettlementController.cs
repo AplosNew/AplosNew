@@ -1985,7 +1985,7 @@ ORDER BY OL.Sequence";
         }
 
         [HttpPost]
-        public JsonResult Approve(Dictionary<string, object> data)
+        public JsonResult ApproveFNF(Dictionary<string, object> data)
         {
             try
             {

@@ -74,7 +74,7 @@ function fullandfinalSettlementApproveController(commonMessage, $scope, $rootSco
 
             $http({
                 method: 'POST',
-                url: 'Payrolls/FinalSettlement/Approve',
+                url: 'Payrolls/FinalSettlement/ApproveFNF',
                 data: { 'data': $scope.FinalSettlementModel },
                 dataType: 'JSON'
             }).then(function successCallback(response) {

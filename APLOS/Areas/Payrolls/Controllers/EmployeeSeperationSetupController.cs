@@ -41,7 +41,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         #endregion Constructor
 
 
-        [Authorize]
+  
         public ActionResult Aplos()
         {
             return View();
@@ -430,7 +430,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             return Json(_sqlRepository.GetDataCollection("SELECT Id AS Value, UserName AS Text FROM [dbo].[EmployeeSeperationItem] WHERE Id<>'" + id + "' AND EmployeeSeperationSetupId='" + masterId + "' Order By Sequence"), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult CreateSeperationItem(Dictionary<string, object> data, List<Dictionary<string, object>> details)
         {
             try
@@ -446,7 +446,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult CreateSeperationItemWithDefault(Dictionary<string, object> data, List<Dictionary<string, object>> details, List<Dictionary<string, object>> Itemdetails)
         {
             try
