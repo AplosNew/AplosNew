@@ -38,18 +38,18 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             return View();
         }
-        [Authorize]
+  
         public ActionResult FinalSettle()
         {
             return View();
         }
 
-        [Authorize]
+        
         public ActionResult Approve()
         {
             return View();
         }
-        [Authorize]
+       
         public ActionResult Payment()
         {
             return View();
