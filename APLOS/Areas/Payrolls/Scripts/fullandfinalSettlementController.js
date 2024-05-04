@@ -54,7 +54,6 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
     $scope.FinalSettlementEarningHeadList = [];
     $scope.FinalSettlementDeductionHeadList = [];
     $scope.SeparationTypeDetails = {};
-    $scope.FinalSettlementModel = {};
     $scope.SeparationTypeSelectedChange = function () {
         try {
             $http.get($scope.getSTSCUrl + '?SeparationTypeId=' + $scope.CustomPara.SeparationTypeId + '&EmpSystemId=' + $scope.EmployeeModel.SystemId)
@@ -258,7 +257,7 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
 
     // #region checkbox all
 
-    $scope.FinalSettlementModel = { Id: null, FinalSettlementName: null, FinalSettlementDate: null, ApproveById:null }
+    $scope.FinalSettlementModel = { Id: null, FinalSettlementName: null, FinalSettlementDate: null, ApproveById: null, IsApproved: false };
 
     $scope.refreshTemplateOperation = function (args) {
         $("#headchk").ejCheckBox({ "change": headCheckChangeOperation });
@@ -312,6 +311,18 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
         } catch (e) {
             ShowResult(e, 'failure');
         }
+    }
+
+    $scope.RemoveEmployee = function (obj) {
+        if ($scope.FinalSettlementModel.IsApproved == false) {
+            for (var i = 0; i < $scope.SelectedEmployeeList.length; i++) {
+                if ($scope.SelectedEmployeeList[i].EmpSystemId == obj.data.EmpSystemId) {
+                    $scope.SelectedEmployeeList.splice(i, 1);
+                    break;
+                }
+            }
+        }
+
     }
 
     function checkExists(list, id) {
@@ -424,8 +435,11 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
 
     function ClearFields() {
         $scope.Action = 'Save';
-        $scope.FinalSettlementModel = {};
-        $scope.EmployeeModel = {};
-        $scope.CreateTempList();
+        $scope.FinalSettlementModel = { Id: null, FinalSettlementName: null, FinalSettlementDate: null, ApproveById: null, IsApproved: false };
+        $scope.SelectedEmployeeList = [];
+        $scope.FormulaList = [];
+        if (baseService.arrayLength($scope.approvedByList) == 1) {
+            $scope.FinalSettlementModel.ApproveById = $scope.approvedByList[0].Value;
+        }
     }
 };
