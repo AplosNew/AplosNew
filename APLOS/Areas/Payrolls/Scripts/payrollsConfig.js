@@ -391,7 +391,14 @@
             templateUrl: 'payrolls/FinalSettlement/FinalSettle',
             controller: 'fullandfinalSettlementController'
         })
-
+        .when('/fnfapprove', {
+            templateUrl: 'payrolls/FinalSettlement/Approve',
+            controller: 'fullandfinalSettlementApproveController'
+        })
+        .when('/fnfpayment', {
+            templateUrl: 'payrolls/FinalSettlement/Payment',
+            controller: 'fullandfinalSettlementPaymentController'
+        })
         ;
 
 

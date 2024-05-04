@@ -3658,6 +3658,7 @@ namespace Aplos.MaterialManagement
 						   ,ISNULL(MT.UserName,'') MaterialType
 						  ,ISNULL(MGM.UserName,'') AS MaterialGroupMasterName
 						  ,MM.UserName MaterialMasterName
+						  ,MC.UserName MaterialCategory
 						, ART.StandardName ArticleName, '' ServiceName
 						, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
 						, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
@@ -3792,6 +3793,7 @@ namespace Aplos.MaterialManagement
 						,IR.PartyType
 					from TRN.InventoryMaterial AS IM
 					JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
+					left join hkp.MaterialCategory MC on MC.Id = MM.MaterialCategoryId
 					LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
 					LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
 					LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
@@ -3930,6 +3932,7 @@ namespace Aplos.MaterialManagement
 						  ,'' MaterialType
 						  ,'' MaterialGroupMasterName
 						    ,'' MaterialMasterName
+							,'' MaterialCategory
 						, '' ArticleName, SM.UserName ServiceName
 						, NULL FirstCharacteristicsValue
 						, NULL SecondCharacteristicsValue
@@ -5073,10 +5076,16 @@ namespace Aplos.MaterialManagement
                 int ColMaterialGroup = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "MaterialCategory";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColMaterialCategory = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Material";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int ColMaterial = COL;
                 COL++;
+
 
                 sheet[ROW, COL].Text = "Article";
                 sheet[ROW, COL].ColumnWidth = 16;
@@ -5517,6 +5526,7 @@ namespace Aplos.MaterialManagement
                     sheet[ROW, ColGRNRowID].Text = data.Rows[i]["GrnDetailId"].ToString();
                     sheet[ROW, ColMaterialType].Text = data.Rows[i]["MaterialType"].ToString();
                     sheet[ROW, ColMaterialGroup].Text = data.Rows[i]["MaterialGroupMasterName"].ToString();
+                    sheet[ROW, ColMaterialCategory].Text = data.Rows[i]["MaterialCategory"].ToString();
                     sheet[ROW, ColMaterial].Text = data.Rows[i]["MaterialMasterName"].ToString();
                     sheet[ROW, ColArticle].Text = data.Rows[i]["ArticleName"].ToString();
                     sheet[ROW, ColMMIsAsset].Text = data.Rows[i]["IsAsset"].ToString();

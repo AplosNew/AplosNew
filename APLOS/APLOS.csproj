@@ -1960,8 +1960,11 @@
     <Content Include="Areas\Materials\Scripts\BarcodeGeneratorSettingController.js" />
     <Content Include="Areas\OrderManagements\Scripts\masterOrderApproveByController.js" />
     <Content Include="Areas\OrderManagements\Scripts\masterOrderCheckByController.js" />
+    <Content Include="Areas\OrderManagements\Scripts\productionOrderSchedulingParametersType1NewController.js" />
     <Content Include="Areas\OrderManagements\Scripts\TermsandConditionGroupController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeSeperationSetupController.js" />
+    <Content Include="Areas\Payrolls\Scripts\fullandfinalSettlementPaymentController.js" />
+    <Content Include="Areas\Payrolls\Scripts\fullandfinalSettlementApproveController.js" />
     <Content Include="Areas\Payrolls\Scripts\fullandfinalSettlementController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanEditController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
@@ -4956,6 +4959,9 @@
     <Content Include="Areas\HumanResource\Views\LeaveTransection\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\OTConfirmationProcess\OTApprove.cshtml" />
     <Content Include="Areas\Attendances\Views\GoodWork\GWReport.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\productionOrderSchedulingParametersType1\AplosNew.cshtml" />
+    <Content Include="Areas\Payrolls\Views\FinalSettlement\Approve.cshtml" />
+    <Content Include="Areas\Payrolls\Views\FinalSettlement\Payment.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

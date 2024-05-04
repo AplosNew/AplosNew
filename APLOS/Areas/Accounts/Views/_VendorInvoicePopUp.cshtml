@@ -46,6 +46,7 @@
                                 <th>Currency</th>
                                 <th>Payable</th>
                                 <th>Add.Payable</th>
+                                <th>LCTagged Amount</th>
                                 <th>Write-off</th>
                                 <th>Balance</th>
                                 <th>Particular</th>
@@ -58,7 +59,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr dir-paginate="x in invoiceList |itemsPerPage:invoiceParameters.pageSize" pagination-id="metaData.name + 'invoiceList'" 
+                            <tr dir-paginate="x in invoiceList |itemsPerPage:invoiceParameters.pageSize" pagination-id="metaData.name + 'invoiceList'"
                                 total-items="invoiceParameters.total_count" ng-class="{selected : x.VoucherDetailId == selectedInvoiceId}">
                                 <td>
                                     <div class="checkbox-site">
@@ -77,6 +78,7 @@
                                 <td>{{x.CurrencyCode}}</td>
                                 <td class="text-right">{{x.Receivable | number:2}}</td>
                                 <td class="text-right">{{x.AdditionalAmount | number:2}}</td>
+                                <td class="text-right">{{x.LCTaggedAmount | number:2}}</td>
                                 <td class="text-right">{{x.Received | number:2}}</td>
                                 <td class="text-right">{{x.Balance | number:2}}</td>
                                 <td>{{x.Particular}}</td>

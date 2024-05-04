@@ -1,0 +1,1215 @@
+﻿<div id="tarekcontainer">
+
+</div>
+<togglable name="Production Order Scheduling Parameters: Type-1"></togglable>
+
+<div class="form-horizontal form-elements" ng-form="modelNewForm" id="entrycontainer">
+    <div class="row">
+        <div class="col-xs-2 col-sm-2 col-md-2">
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li><button ng-click="AddNewOrder();" class="btn"><i class="glyphicon glyphicon-hourglass"></i> Load New Production Order</button></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-10 col-sm-10 col-md-10">
+        </div>
+    </div>
+
+    @Html.Partial("~/Areas/OrderManagements/Views/productionOrderSchedulingParametersType1/parametersEntry.cshtml")
+
+
+</div>
+
+
+@*EDIT Search*@
+
+<div class="aplos-grid-toggle" id="maincontainer">
+    <div class="form-group">
+
+        <div class="col-md-12">
+            <div class="col-md-6">
+                <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                <div class="col-sm-8 show-message text-left">
+                    <div class="select-style">
+                        <select name="EntityId" ng-model="EntityId" ng-change="GetPlanningTypeProcess();" class="form-control"
+                                ng-options="item.Id as item.UserName for item in entityList" tabindex="1" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label class="col-sm-4 control-label">Planning Type Process<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select name="Planning Type Process" ng-model="PlanningTypeProcessId" ng-change="getData();getSettingsData();" class="form-control"
+                                ng-options="item.Value as item.Text for item in planningTypeProcessList" tabindex="2" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12" style="color:blue;font-weight:bold;">
+            {{NotificationMessage}}
+        </div>
+    </div>
+
+    <div id="Tab" ej-tab e-itemactive="onactivetab" e-create="oncreatetab">
+        <ul>
+            <li><a href="#TabEdit">Production Orders</a></li>
+            <li><a href="#TabSimulation">Production Plan Simulation</a></li>
+            <li><a href="#TabPlanningSchedule">View Planning Schedule</a></li>
+            <li><a href="#TabPriorityUpdate">Priority Update</a></li>
+        </ul>
+        <div id="TabEdit">
+            <div class="row text-right">
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="search-form">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="PRSearchColumn">
+                                        <option ng-repeat="option in modelFilterByList" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="PRSearchValue" ng-enter="getData()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-right">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right small">
+                            <li>
+                                <button ng-click="Simulate();" class="btn small" style="height: 28px; width: 100px; padding: 0px; margin: 0px;">
+                                    <i class="glyphicon glyphicon-play"></i>Simulate
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-xs-12" style="color:black;">
+                    <div id="Gridunassigned" ng-init="chkinit()" e-load="actionCompleteSearch" ej-grid e-datasource="modelList" e-recorddoubleclick="Get" e-rowdatabound="rowDataBoundOrder"
+                         e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                         e-cellselected="cellSelected" e-selectiontype="single" e-actioncomplete="syncfusiongriddatabound"
+                         e-allowscrolling="true" e-minwidth="450" e-minheight="400"
+                         e-allowselection="false" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-template="#showPRPlanList" e-headertext="" e-width="28"></div>
+                            <div e-column e-type="string" e-field="Id" e-headertext="Prd.Order ID" e-width="50"></div>
+                            <div e-column e-type="number" e-field="ProductionPriority" e-headertext="Priority" e-format="{0:N2}" e-width="30"></div>
+                            <div e-column e-type="string" e-field="BuyerRefNo" e-headertext="Cust. Order#" e-width="100"></div>
+                            <div e-column e-type="string" e-field="SONo" e-headertext="SO Nos" e-width="100"></div>
+                            <div e-column e-type="string" e-field="SODesc" e-headertext="SO Desc" e-width="100"></div>
+                            <div e-column e-type="string" e-field="TargetPerDay" e-headertext="Target Per Day" e-width="80"></div>
+                            <div e-column e-type="string" e-field="POQuantity" e-headertext="Qty" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SOQuantity" e-headertext="Plan SO Qty" e-width="80"></div>
+
+                            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="FirstShipmentDate" e-headertext="First Delivery Date" e-width="80"></div>
+                            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LastShipmentDate" e-headertext="Last Delivery Date" e-width="80"></div>
+
+
+                            <div e-column e-type="string" e-field="ProductionStatus" e-headertext="Production Status" e-width="80"></div>
+                            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LSD" e-headertext="LSD" e-width="80"></div>
+
+                            @*<div e-column e-type="string" e-field="buyer" e-headertext="Buyer" e-width="180"></div>*@
+                            <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="180"></div>
+                            <div e-column e-type="string" e-field="EntityName" e-headertext="Entity" e-width="90"></div>
+
+                            <div e-column e-type="string" e-field="ProductCategory" e-headertext="Product Category" e-width="180"></div>
+                            <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="180"></div>
+                            <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="180"></div>
+                            <div e-column e-type="string" e-field="article" e-headertext="Article" e-width="180"></div>
+
+                            <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order#" e-width="180"></div>
+                            <div e-column e-type="string" e-field="OwnRefNo" e-headertext="Own Order#" e-width="100"></div>
+                            <div e-column e-type="string" e-field="StyleNo" e-headertext="Customer Item#" e-width="100"></div>
+                            <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Item#" e-width="100"></div>
+
+                            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LSD" e-headertext="LSD" e-width="80"></div>
+                            <div e-column e-type="string" e-field="CommitmentDate" e-headertext="Commitment Date" e-width="80"></div>
+
+                            <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="200"></div>
+                        </div>
+
+                    </div>
+                    <script type="text/template" id="showPRPlanList">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right small">
+
+                                <li>
+                                    <button ng-click="$parent.GetProductionPlanningData('',data.Id);" class="btn small" style="height: 20px;width: 20px; padding: 0px; margin: 0px;">
+                                        <i class="glyphicon glyphicon-th-list"></i>
+                                    </button>
+                                </li>
+
+                            </ul>
+                        </div>
+                        @*<button type="button" ng-click="$parent.getSalesOrderOfProdOrderList(data.Id);" class="btn"><i class="glyphicon glyphicon-th-list"></i></button>*@
+                    </script>
+                </div>
+            </div>
+        </div>
+        <div id="TabSimulation">
+
+            <div class="form-element-ctrl form-horizontal">
+
+                <ul id="centermenu" class="ang-menu" ej-menu e-enablecenteralign="false">
+
+                    <li>
+                        <a>Reports</a>
+                        <ul>
+                            <li ng-click="DownloadOS2();"><a>OS-2  </a></li>
+                            <li ng-click="OrderMaster();"><a>OS-3  </a></li>
+                            <li ng-click="LineBookingStatus();"><a>Workcenter Booking Status  </a></li>
+                            <li ng-click="LadderPlanStatus();"><a>Ladder Plan</a></li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <a>Simulation</a>
+                        <ul>
+                            <li ng-click="OpenSimulatedData();"><a>Load Latest Simulation  </a></li>
+                            <li ng-click="Simulate();"><a>Simulate New  </a></li>
+                            @*<li ng-click="getFreezeConfig();"><a>Freeze  </a></li>*@
+                        </ul>
+                    </li>
+
+                    <li>
+                        <a>Snapshot-1</a>
+                        <ul>
+                            <li ng-click="showSnapshotPanel();"><a>Take Snapshot</a></li>
+                            <li ng-click="getSnapshotList();"><a>Load Snapshot</a></li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <a>Snapshot-2</a>
+                        <ul>
+                            <li ng-click="showSnapshotPanel2();"><a>Take Snapshot</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a>Tools</a>
+                        <ul>
+                            <li ng-click="openPopup('dialogresetpriority');loadDataForPriority();"><a>Reset Priority</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <div class="row" style="padding:0px;margin:0px;position:relative;border:none;">
+                    <div id="GridPlanFilter" ng-init="chkinit()" e-cssclass="wrap" e-allowtextwrap="true" e-load="getModelFilter" ej-grid e-datasource="ModelFilter"
+                         e-allowfiltering="true" e-actioncomplete="filterComplete" e-allowpaging="true" e-allowsorting="false" e-enabletouch="false" e-responsive="true"
+                         e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            @*<div e-column e-field="Entity" e-headertext="Entity" e-width="5"></div>*@
+                            <div e-column e-field="MasterOrderNo" e-headertext="Mst.Order.No" e-width="5"></div>
+                            <div e-column e-field="ProductOrderId" e-headertext="PR Order" e-width="5"></div>
+                            <div e-column e-field="BuyerOrderNo" e-headertext="Buyer.Ord" e-width="5"></div>
+                            <div e-column e-field="BuyerItemNo" e-headertext="Buyer.Item" e-width="5"></div>
+                            <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="5"></div>
+                            <div e-column e-field="ProductCategory" e-headertext="Product Cat." e-width="5"></div>
+                            <div e-column e-field="ProductMaster" e-headertext="Product" e-width="5"></div>
+                            <div e-column e-field="MaterialMaster" e-headertext="Material" e-width="5"></div>
+                            <div e-column e-field="Customer" e-headertext="Customer" e-width="5"></div>
+                            <div e-column e-field="Buyer" e-headertext="Buyer" e-width="5"></div>
+                            <div e-column e-field="AccountIncharge" e-headertext="Acc. Incharge" e-width="5"></div>
+                            <div e-column e-field="AccountHolder" e-headertext="Acc. Holder" e-width="5"></div>
+                            <div e-column e-field="ProductionStatus" e-headertext="Prod. Status" e-width="5"></div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <ej-schedule id="ResourceGroupSchedule" e-renderdates="renderDates" e-appointmentsettings-datasource="appointments" e-allowdelete="false" e-enableappointmentresize="false"
+                             e-appointmentsettings-id="Id" e-appointmentsettings-subject="Subject" e-readonly="false" e-showquickwindow="false"
+                             e-appointmentsettings-starttime="StartTime" e-views="viewtype" e-workweek="workweek"
+                             e-appointmentsettings-endtime="EndTime" e-appointmentsettings-description="Description"
+                             e-appointmentsettings-allday="true" e-allowdraganddrop="false"
+                             e-appointmentsettings-resourcefields="WorkCenterMasterId" e-navigation="navigation"
+                             e-querycellinfo="plancolorchange" e-appointmentclick="OpenSchedule" e-appointmentwindowopen="clickonschedule"
+                             e-cellclick="clickonschedule" e-celldoubleclick="clickonschedule" e-appointmenthover="clickonschedule"
+                             @*e-beforeContextMenuOpen="actionBegin" *@
+                             e-firstdayofweek="Saturday"
+                             @*e-dateformat="dd-MMM-yyyy"*@ @*e-create="scOnCreate" e-appointmenthover="scappmouseover"*@
+                             e-width="100%" e-height="500px" e-cellheight="30px"
+                             e-orientation="horizontal" e-currentdate="setDate"
+                             e-currentview="Month" e-group="group">
+                    <e-resources>
+                        <e-resource e-allowmultiple="true" e-field="WorkCenterMasterId" e-title="Work Center" e-name="WorkCenters" e-resourcesettings="resourcedata2"></e-resource>
+                    </e-resources>
+                </ej-schedule>
+
+
+                <div class="row" style="        padding-top: 10px;">
+                    <div class="col-xs-2">
+                        <div style="        border-color: yellow;
+        border-style: groove;
+        border-width: 3px;
+        height: 30px;
+        width: 30px;">
+
+                        </div>
+                        Style Change
+                    </div>
+                    <div class="col-xs-2">
+                        <div style="        border-color: blue;
+        font-size: 20px;
+        border-style: groove;
+        border-width: 1px;
+        border-radius: 100%;
+        height: 30px;
+        width: 50px;">
+
+                        </div>
+                        Buildup
+                    </div>
+                    <div class="col-xs-2">
+                        <div style="        border-color: blue;
+        border-style: groove;
+        border-width: 2px;
+        height: 30px;
+        width: 30px;">
+
+                        </div>
+                        Normal Distribution
+                    </div>
+
+                    <div class="col-xs-2">
+                        <div style="        border: 1px solid #e1e1e1;
+        border-bottom: 6px groove blue;
+        height: 30px;
+        width: 30px;">
+
+                        </div>
+                        Freeze
+                    </div>
+                    <div class="col-xs-2">
+                        <div style="        border: 1px solid #e1e1e1;
+        border-bottom: 6px groove green;
+        height: 30px;
+        width: 30px;">
+
+                        </div>
+                        Running
+                    </div>
+                    <div class="col-xs-2">
+                        <div style="        border: 1px solid #e1e1e1;
+        border-top: 6px groove red;
+        height: 30px;
+        width: 30px;">
+
+                        </div>
+                        Exceeding Commitment Date
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="TabPlanningSchedule">
+            <div class="row">
+
+                <div class="col-md-12">
+                    <div id="GridWorkCenterList" ng-init="chkinit()" ej-grid e-datasource="WorkAllCenterPlanList"
+                         e-allowpaging="true" e-enabletouch="false" e-responsive="true">
+                        <div e-columns>
+                            <div e-column e-field="Plant" e-headertext="Plant" e-width="120"></div>
+                            <div e-column e-field="Entity" e-headertext="Entity" e-width="120"></div>
+                            <div e-column e-field="WorkCenterCode" e-headertext="Code" e-width="80"></div>
+                            <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="120"></div>
+                            <div e-column e-field="WorkCenterStartDate" e-headertext="WC Effective Date" e-width="80"></div>
+
+                            <div e-column e-field="PlanningStartDate" e-headertext="Planning Start Date" e-width="80"></div>
+                            <div e-column e-field="PlanningEndDate" e-headertext="Planning End Date" e-width="80"></div>
+                            <div e-column e-template="#ShowWotkcenterWisePlanList" e-headertext="" e-width="60"></div>
+
+                        </div>
+                    </div>
+                </div>
+                <script type="text/template" id="ShowWotkcenterWisePlanList">
+
+                    <div class="common-btn">
+                        <ul class="list-inline text-right small">
+                            <li>
+                                <button ng-click="$parent.GetWorkCenterParametersData(data.Id);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </button>
+                            </li>
+                            <li>
+                                <button ng-click="$parent.GetSingleWorkcenterWisePlanningSummary(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                    <i class="glyphicon glyphicon-list-alt"></i>
+                                </button>
+                            </li>
+
+                        </ul>
+                    </div>
+                </script>
+            </div>
+        </div>
+        <div id="TabPriorityUpdate" class="form-elements form-horizontal" ng-form name="HeaderForm">
+            <div class="row">
+
+
+                <div class="col-md-10">
+
+                    <div class="inputBtnSection common-btn">
+                        <label class="fileUpload col-sm-4 " style="padding: 0 0 0 0 ; margin-right:8px;">
+                            <input id="uploadFile" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                        </label>
+                        <input type="button" style="margin-right: 8px;" value="Import Data" ng-disabled="enable" class="btn btn-success" ng-click="ImportData()" />
+                        <button ng-click="GetSample();" class="btn" style="margin-right: 8px;"><i class="glyphicon glyphicon-download"></i> Get Sample Report File </button>
+
+                    </div>
+                </div>
+
+
+
+            </div>
+            <div class="common-btn" style="margin-top:10px;">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="saveFileList();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Save </button></li>
+                    <li> <button ng-click="clearFileList();" class="btn" tabindex="12"><i class="glyphicon glyphicon-repeat"></i> Clear </button></li>
+
+                </ul>
+            </div>
+
+            <div id="RosterBudgetGrid" ej-grid e-datasource="ExcelUploadData" e-templaterefresh="refreshTemplate"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true" style="margin-top:30px;">
+                <div e-columns>
+                    <div e-column e-field="ProductionId" e-type="string" e-headertext="Id" e-width="80"></div>
+                    <div e-column e-field="Status" e-type="string" e-headertext="Status" e-width="80"></div>
+                    <div e-column e-field="ProductionPriority" e-type="string" e-headertext="Priority" e-width="80"></div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+
+<div class="modal fade site-modal in" id="searchNewPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" id="ordermodal">
+        <div class="modal-content">
+            <div class="modal-header"> Production Order<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="NewSearchParameters.searchBy">
+                                            <option ng-repeat="option in modelFilterByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="NewSearchParameters.search" ng-enter="getNewData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getNewData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div id="GridSearch" ng-init="chkinit()" ej-grid e-datasource="modelListNew" e-recorddoubleclick="Get" e-allowscrolling="true"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-actioncomplete="syncfusiongriddatabound"
+                     e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-template="#showSOList" e-headertext="" e-width="30"></div>
+
+                        <div e-column e-field="Id" e-headertext="ID" e-width="80"></div>
+                        <div e-column e-field="BuyerRefNo" e-headertext="Customer Ord#" e-width="80"></div>
+                        <div e-column e-field="OwnRefNo" e-headertext="Own Ord#" e-width="80"></div>
+                        <div e-column e-field="SODesc" e-headertext="So.Description" e-width="150"></div>
+                        <div e-column e-field="SOQuantity" e-headertext="Qty" e-width="60"></div>
+                        <div e-column e-field="LSD" e-headertext="LSD" e-width="80"></div>
+                        <div e-column e-field="PlanExFactoryDate" e-headertext="Ex. Fty Dt" e-width="80"></div>
+                        <div e-column e-field="ProductionStatus" e-headertext="Production Status" e-width="90"></div>
+                        <div e-column e-field="DeliveryDate" e-headertext="So.Delivery Date" e-width="80"></div>
+                        <div e-column e-field="NoOfArticle" e-headertext="NoOfArticle" e-width="40"></div>
+                        <div e-column e-field="Article" e-headertext="Article" e-width="130"></div>
+                        <div e-column e-field="ProductCategory" e-headertext="Product Cat." e-width="130"></div>
+                        <div e-column e-field="Product" e-headertext="Product" e-width="150"></div>
+                        <div e-column e-field="buyer" e-headertext="Buyer" e-width="150"></div>
+                        <div e-column e-field="Customer" e-headertext="Customer" e-width="150"></div>
+                        <div e-column e-field="MasterOrderId" e-headertext="Order#" e-width="80"></div>
+                        <div e-column e-field="StyleNo" e-headertext="Customer Item#" e-width="80"></div>
+                        <div e-column e-field="OwnStyleNo" e-headertext="Own Item#" e-width="80"></div>
+
+                        <div e-column e-field="EntityName" e-headertext="Entity" e-width="90"></div>
+                        <div e-column e-field="ProductionRemarks" e-headertext="Remarks" e-width="150"></div>
+
+                    </div>
+
+                </div>
+                <script type="text/template" id="showSOList">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right small">
+
+                            <li>
+                                <button ng-click="$parent.getSalesOrderOfProdOrderList(data.Id);" class="btn small" style="        height: 20px;
+        width: 20px;
+        padding: 0px;
+        margin: 0px;">
+                                    <i class="glyphicon glyphicon-th-list"></i>
+                                </button>
+                            </li>
+
+                        </ul>
+                    </div>
+                    @*<button type="button" ng-click="$parent.getSalesOrderOfProdOrderList(data.Id);" class="btn"><i class="glyphicon glyphicon-th-list"></i></button>*@
+                </script>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="closeSearch();" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<style type="text/css">
+    .mouseHand {
+        cursor: pointer;
+    }
+</style>
+
+<ej-dialog id="dialogProductionPlanView" title=" Production Planning Information" e-enablemodal="true" e-position-y="0" e-target="#tarekcontainer" e-showoninit="false" e-close="onDialogClose" e-minwidth="900px" e-open="enableBtn">
+
+
+    <div class="row">
+        <div class="form-element-ctrl form-horizontal">
+
+
+
+            <div class="col-xs-4" ng-hide="!VROWDATA.ProductionOrderId">
+
+                <label class="col-sm-8 control-label">Production Order No.</label>
+                <label class="col-sm-4 control-label mouseHand" style="color:blue; font-weight:bold;" ng-click="GetProductionPlanningParametersData('dialogProductionOrderParameters','entrypop')">{{VROWDATA.ProductionOrderId}}</label>
+
+
+
+                <label class="col-sm-8 control-label">Plan Qty For Selected Date</label>
+                <label class="col-sm-4 control-label">{{VROWDATA.Quantity}}</label>
+
+
+
+
+                <label class="col-sm-8 control-label">Production Hours</label>
+                <label class="col-sm-4 control-label">{{VROWDATA.ProductionHours}}</label>
+
+
+
+                <label class="col-sm-8 control-label">WorkCenter</label>
+                <label class="col-sm-4 control-label mouseHand" style="color:blue; font-weight:bold;" ng-click="GetWorkCenterParametersData(VROWDATA.WorkCenterMasterId)">{{VROWDATA.WorkCenter}}</label>
+
+            </div>
+            <div class="col-xs-6" ng-hide="!VROWDATA.ProductionOrderId">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Selected Plan Date</label>
+                    <label class="col-sm-8 control-label">{{VROWDATA.ProductionDate}}</label>
+
+                    <label class="col-sm-4 control-label">Product</label>
+                    <label class="col-sm-8 control-label mouseHand" ng-click="GetProductPlanningData()" style="color:blue; font-weight:bold;">{{VROWDATA.ProductName}}</label>
+
+                    <label class="col-sm-4 control-label">Material</label>
+                    <label class="col-sm-8 control-label">{{VROWDATA.Material}}</label>
+
+                    <label class="col-sm-4 control-label">Style</label>
+                    <label class="col-sm-8 control-label">
+                        <label class="col-sm-12 control-label mouseHand" style="padding:0px;margin:0px;color:blue;font-weight:bold;" ng-repeat="x in VSTYLEDATA" ng-click="GetStyleGraphData(x.BuyerReferenceNo);">
+                            {{x.BuyerReferenceNo}}
+                        </label>
+                    </label>
+                </div>
+            </div>
+            <div class="col-xs-2" ng-hide="!VROWDATA.ProductionOrderId">
+
+
+
+                <div class="col-sm-12 right">
+                    <div style="background-color:{{VPRDATA.Color}};height:30px;width:100%">
+                    </div>
+                </div>
+
+
+                <div class="col-sm-12">
+                    <img src="{{MaterialImagePath}}{{VPRDATA.PicFileName}}" style="height:100px;width:100%" />
+                </div>
+
+
+            </div>
+
+            <div class="col-sm-12">
+                <div class="common-btn">
+                    <ul class="list-inline text-right small">
+
+                        <li>
+                            <button ng-click="showlinegraphPRWise();" class="btn small" style=" height: 20px; width: 60px; padding: 0px; margin: 0px;">
+                                Plan  <i class="glyphicon glyphicon-signal small"></i>
+                            </button>
+                        </li>
+                        <li>
+                            <button ng-click="showProductionlinegraphPRWise();" class="btn small" style=" height: 20px; width: 90px; padding: 0px; margin: 0px;">
+                                Production  <i class="glyphicon glyphicon-signal small"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <label class="col-sm-12">This production order has been scheduled for:</label>
+            <div class="col-sm-12">
+                <div id="gridprview" ng-init="chkinit()" ej-grid e-datasource="VWCDATA" e-showsummary="true" e-summaryrows="summaryRowsForWorkCenter"
+                     e-responsive="true">
+                    @*e-recorddoubleclick="workcenterclick"*@
+                    <div e-columns>
+                        <div e-column e-field="Entity" e-headertext="Entity" e-width="4" e-isprimarykey="true"></div>
+                        <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="4" e-isprimarykey="true"></div>
+                        <div e-column e-field="FromDate" e-headertext="From Plan Date" e-width="3"></div>
+                        <div e-column e-field="ToDate" e-headertext="To Plan Date" e-width="3"></div>
+                        <div e-column e-field="LSD" e-headertext="LSD" e-width="3"></div>
+                        <div e-column e-field="CommitmentDate" e-headertext="Comm. Dt" e-width="3"></div>
+                        <div e-column e-type="number" e-field="DelayedProductionDaysOnCommitmentDate" e-headertext="Delay(On Comm. Dt)" e-width="2"></div>
+
+                        <div e-column e-field="PlannedQuantity" e-headertext="Plan Qty" e-width="2"></div>
+                        <div e-column e-template="#showGraph" e-headertext="" e-width="3"></div>
+                    </div>
+
+                </div>
+            </div>
+            <script type="text/template" id="showGraph">
+
+                <div class="common-btn">
+                    <ul class="list-inline text-right small">
+
+                        <li>
+                            <button ng-click="$parent.showlinegraph(this);" class="btn small" style="        height: 20px;
+        width: 20px;
+        padding: 0px;
+        margin: 0px;">
+                                <i class="glyphicon glyphicon-signal small"></i>
+                            </button>
+                        </li>
+                        <li>
+                            <button ng-click="$parent.workcenterclick(this);" class="btn small" style="        height: 20px;
+        width: 20px;
+        padding: 0px;
+        margin: 0px;">
+                                <i class="glyphicon glyphicon-list small"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </script>
+
+
+
+            <label class="col-sm-12">This production order has been produced in:</label>
+
+            <div class="col-sm-12">
+
+
+                <div id="gridprview" ng-init="chkinit()" ej-grid e-datasource="VWPRODDATA" e-showsummary="true" e-summaryrows="summaryRowsForProduction"
+                     e-responsive="true">
+                    <div e-columns>
+                        <div e-column e-field="Entity" e-headertext="Entity" e-width="4" e-isprimarykey="true"></div>
+                        <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="4" e-isprimarykey="true"></div>
+                        <div e-column e-field="FromDate" e-headertext="First Prd. Date" e-width="3"></div>
+                        <div e-column e-field="ToDate" e-headertext="Last Prod. Date" e-width="3"></div>
+                        <div e-column e-field="ProductionQuantity" e-headertext="Qty" e-width="2"></div>
+                        <div e-column e-template="#showProdGraph" e-headertext="" e-width="1.5"></div>
+                    </div>
+
+                </div>
+
+            </div>
+            <script type="text/template" id="showProdGraph">
+
+                <div class="common-btn">
+                    <ul class="list-inline text-right small">
+
+                        <li>
+                            <button ng-click="$parent.showProductionlinegraph(this);" class="btn small" style="height: 20px;width: 20px;padding: 0px;margin: 0px;">
+                                <i class="glyphicon glyphicon-signal small"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </script>
+
+            <div class="row" ng-show="SAMEDAYDATA.length>0" style="padding-right:10px;padding-left:10px;">
+                <label class="col-sm-12">Also planned following order(s) on {{VROWDATA.ProductionDate}}:</label>
+                <div class="col-sm-12">
+                    <div style="width:100%;">
+
+                        <div id="GridSameDayPlanning" ng-init="chkinit()" ej-grid e-datasource="SAMEDAYDATA" e-allowscrolling="true" e-actioncomplete="syncfusiongriddatabound"
+                             e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-recorddoubleclick="EditProductionPlanningDataSameDay"
+                             e-allowselection="true" e-filtersettings-filterType="excel">
+                            <div e-columns>
+
+                                <div e-column e-template="#showPRPlanListForSameDay" e-headertext="" e-width="28"></div>
+                                <div e-column e-type="string" e-field="ProductionOrderID" e-headertext="Production Order ID" e-width="80"></div>
+                                <div e-column e-type="number" e-field="Quantity" e-headertext="Qty" e-width="80"></div>
+                                <div e-column e-type="string" e-field="PlanningStartDate" e-headertext="Planning Start Date" e-width="80"></div>
+                                <div e-column e-type="string" e-field="PlanningEndDate" e-headertext="Planning End Date" e-width="80"></div>
+                                <div e-column e-type="string" e-field="buyer" e-headertext="Buyer" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
+                                <div e-column e-type="string" e-field="BuyerRefNo" e-headertext="Customer Order#" e-width="60"></div>
+                                <div e-column e-type="string" e-field="OwnRefNo" e-headertext="Own Order#" e-width="60"></div>
+                                <div e-column e-type="string" e-field="ProductionStatus" e-headertext="Production Status" e-width="60"></div>
+                                <div e-column e-type="string" e-field="ProductionPriority" e-headertext="Production Priority" e-width="50"></div>
+                                <div e-column e-type="number" e-field="PlannedQty" e-headertext="Total Planned Qty" e-width="80"></div>
+                                <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order Id" e-width="80"></div>
+                                <div e-column e-type="string" e-field="StyleNo" e-headertext="Customer Item#" e-width="80"></div>
+                                <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Item#" e-width="80"></div>
+                                <div e-column e-type="string" e-field="SONo" e-headertext="SO No" e-width="80"></div>
+                                <div e-column e-type="string" e-field="SODesc" e-headertext="SO Desc" e-width="80"></div>
+
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <script type="text/template" id="showPRPlanListForSameDay">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right small">
+
+                            <li>
+                                <button ng-click="$parent.GetProductionPlanningData(data.Id,'');" class="btn small" style="height: 20px;width: 20px; padding: 0px; margin: 0px;">
+                                    <i class="glyphicon glyphicon-th-list"></i>
+                                </button>
+                            </li>
+
+                        </ul>
+                    </div>
+                </script>
+            </div>
+
+            <style type="text/css">
+                .e-grid .e-templatecell {
+                    padding: 0px 4px 0px 0px;
+                }
+            </style>
+        </div>
+    </div>
+</ej-dialog>
+
+<div class="row"></div>
+<style type="text/css">
+    #chartContainer_svg {
+        overflow: visible;
+    }
+
+    #chartContainer {
+        overflow: visible;
+    }
+
+    e-datavisualization-chart e-js {
+        overflow: visible;
+    }
+
+    element.style {
+        overflow: visible;
+    }
+</style>
+
+<ej-dialog id="graph" title=" Product Plan Quantity Distribution" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-width="900" e-target="#tarekcontainer" e-open="enableBtn">
+    <div class="common-btn">
+        <ul class="list-inline text-left">
+            <li> <button ng-click="printChart('chartContainer');" class="btn">Print</button></li>
+        </ul>
+    </div>
+    <div id="graphdiv" style="position:relative;overflow:scroll;width:880px;">
+        <div id="chartContainer" ej-chart e-isresponsive="true" style="width:{{graphmaxwidth}};"
+             e-primaryxaxis-title-text="Day"
+             e-load=onchartload e-size-height="500px" e-size-width="graphmaxwidth"
+             e-legend-visible="true" e-legend-position="bottom"
+             e-title-text="Qty"
+             e-primaryyaxis-title-text="Qty" e-primaryyaxis-range-min="0"
+             e-primaryyaxis-range-max="graphmaxheight"
+             e-commonseriesoptions-type="column"
+             e-commonseriesoptions-enableanimation="true" e-commonseriesoptions-tooltip-visible="true"
+             e-commonseriesoptions-tooltip-format="#point.x# : #point.y# #series.name#">
+
+            <e-series>
+                <e-series e-name="Production Plan" e-marker-dataLabel-visible="true"
+                          e-marker-dataLabel-verticaltextalignment="near"
+                          e-marker-dataLabel-angle="270"
+                          e-marker-dataLabel-font-fontweight="bold"
+                          e-marker-dataLabel-font-color="yellow"
+                          e-marker-dataLabel-enablecontrastcolor="true" e-datasource=dataSourceLineGraph e-xname="PlanDate" e-yname="Quantity" e-fill="VPRDATA.Color">
+                </e-series>
+            </e-series>
+        </div>
+    </div>
+
+</ej-dialog>
+
+
+
+
+
+<ej-dialog id="Stylegraph" title=" Style Wise Plan" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-width="900" e-target="#tarekcontainer" e-open="enableBtn">
+    <div style="position:relative;overflow:scroll;width:880px;">
+        <div id="chartContainer" ej-chart e-isresponsive="true" style="width:{{graphmaxwidth}};"
+             e-primaryxaxis-title-text="Day" e-size-width="graphmaxwidth"
+             e-load=onchartload e-size-height="500px"
+             e-legend-visible="true" e-legend-position="bottom"
+             e-title-text="Qty"
+             e-primaryyaxis-title-text="Qty" e-primaryyaxis-range-min="0"
+             e-primaryyaxis-range-max="graphmaxheight"
+             e-commonseriesoptions-type="column"
+             e-commonseriesoptions-enableanimation="true" e-commonseriesoptions-tooltip-visible="true"
+             e-commonseriesoptions-tooltip-format="#point.x# : #point.y# #series.name#">
+
+            @*<e-series>
+                    <e-series e-marker-dataLabel-visible="true"
+                              e-marker-dataLabel-verticaltextalignment="near"
+                              e-marker-dataLabel-angle="270"
+                              e-marker-dataLabel-font-color="yellow"
+                              e-marker-dataLabel-font-fontweight="bold"
+                              e-marker-dataLabel-enablecontrastcolor="true"
+                              e-name="Production Plan" e-datasource=StyleGraph e-xname="PlanDate" e-yname="PlanQty" e-fill="VPRDATA.Color">
+                    </e-series>
+                    <e-series e-type="line"
+                              e-marker-dataLabel-visible="true"
+                              e-marker-dataLabel-verticaltextalignment="near"
+                              e-marker-dataLabel-font-fontweight="bold"
+                              e-marker-dataLabel-enablecontrastcolor="true"
+                              e-marker-shape="circle" e-marker-visible="true"
+                              e-marker-size-height="10" e-marker-size-width="10"
+                              e-border-width="2"
+                              e-enableanimation="true" e-tooltip-visible="true" e-name="Production" e-datasource=StyleGraph
+                              e-xname="PlanDate" e-yname="ProductionQty" e-fill="#0000ff">
+                    </e-series>
+                </e-series>*@
+            <e-series>
+                <e-series e-marker-dataLabel-visible="true"
+                          e-marker-dataLabel-verticaltextalignment="near"
+                          e-marker-dataLabel-angle="270"
+                          e-marker-dataLabel-font-color="yellow"
+                          e-marker-dataLabel-font-fontweight="bold"
+                          e-marker-dataLabel-enablecontrastcolor="true"
+                          e-name="Production" e-datasource=StyleGraph e-xname="PlanDate" e-yname="ProductionQty" e-fill="VPRDATA.Color">
+                </e-series>
+                <e-series e-type="line"
+                          e-marker-dataLabel-visible="true"
+                          e-marker-dataLabel-verticaltextalignment="near"
+                          e-marker-dataLabel-font-fontweight="bold"
+                          e-marker-dataLabel-enablecontrastcolor="true"
+                          e-marker-shape="circle" e-marker-visible="true"
+                          e-marker-size-height="10" e-marker-size-width="10"
+                          e-border-width="2"
+                          e-enableanimation="true" e-tooltip-visible="true" e-name="Production Plan" e-datasource=StyleGraph
+                          e-xname="PlanDate" e-yname="PlanQty" e-fill="#0000ff">
+                </e-series>
+            </e-series>
+        </div>
+
+        <table style="width:{{(StyleGraph.length*80)+140}}px;font-size:8pt;">
+            <tr style="height:30px; background-color:#fcf7f7;">
+                <td style="padding:4px;width:140px;border:1px solid #e1e1e1;border:1px solid #e1e1e1;font-weight:bold;">
+                    Date
+                </td>
+                <td ng-repeat="x in StyleGraph" style="padding:4px;border:1px solid #e1e1e1; text-align:right;font-weight:bold;">
+                    {{x.PlanDate}}
+                </td>
+            </tr>
+            <tr style="height:30px;">
+                <td style="padding:4px;width:140px;border:1px solid #e1e1e1;font-weight:bold;">
+                    Plan Qty
+                </td>
+                <td ng-repeat="x in StyleGraph" style="padding:4px;border:1px solid #e1e1e1; text-align:right;">
+                    {{x.PlanQty==0?'':x.PlanQty}}
+                </td>
+            </tr>
+            <tr style="height:30px;">
+                <td style="padding:4px;width:140px;border:1px solid #e1e1e1;font-weight:bold;">
+                    Production Qty
+                </td>
+                <td ng-repeat="x in StyleGraph" style="padding:4px;border:1px solid #e1e1e1; text-align:right;">
+                    {{x.ProductionQty==0?'':x.ProductionQty}}
+                </td>
+            </tr>
+            <tr style="height:30px; background-color:#fcf7f7;">
+                <td style="padding:4px;width:140px;border:1px solid #e1e1e1;font-weight:bold;">
+                    Variance
+                </td>
+                <td ng-repeat="x in StyleGraph" style="padding:4px;font-weight:bold;border:1px solid #e1e1e1; text-align:right; color: {{x.Variance!=0?x.Variance<0?'#ff0000':'#008d14':'#000000'}};">
+                    {{x.Variance==0?'':x.Variance}}
+                </td>
+            </tr>
+        </table>
+    </div>
+</ej-dialog>
+
+
+<ej-dialog id="workCenterPopUp" title=" Work Center" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-width="550" e-target="#tarekcontainer" e-open="enableBtn">
+    <div class="row" style="width:540px">
+        <div class="col-xs-12 col-sm-12">
+            <div id="GridSelectWC" ej-grid e-datasource="workCenterList"
+                 e-allowfiltering="true" e-allowpaging="true" e-enabletouch="true" e-responsive="true"
+                 e-allowscrolling="true"
+                 e-allowselection="false" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-template="#workcenterselect" e-headertext="" e-width="1"></div>
+                    <div e-column e-field="Plant" e-headertext="Plant" e-width="3"></div>
+                    <div e-column e-field="Entity" e-headertext="Entity" e-width="3"></div>
+                    <div e-column e-field="Code" e-headertext="Code" e-width="2"></div>
+                    <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                </div>
+
+            </div>
+            <script type="text/template" id="workcenterselect">
+                @*<input type="checkbox" ej-checkbox class="nodetext" e-value="data.Flag" e-checked="data.Flag" />*@
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="data.Flag" ng-checked="data.Flag" ng-click="$parent.workcenterfor=='RUNNING'?$parent.genericPushInTempList(data,$event, $parent.runningWorkCenterList, 'WorkCenterMasterId', 'WorkCenterMasterId'):$parent.genericPushInTempList(data,$event, $parent.productionWorkCenterList, 'WorkCenterMasterId', 'WorkCenterMasterId')">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </script>
+        </div>
+
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="AddNewWorkCenter();" class="btn">Done</button></li>
+            </ul>
+        </div>
+    </div>
+</ej-dialog>
+<ej-dialog id="graphProduction" title=" Production Info" e-enablemodal="true"
+           e-position-y="0" e-showoninit="false" e-width="900" e-target="#tarekcontainer" e-open="enableBtn">
+    <div style="position:relative;overflow:scroll;width:880px;">
+        <div id="chartProductionContainer" ej-chart e-isresponsive="true" style="width:{{graphmaxwidth}};"
+             e-primaryxaxis-title-text="Day" e-size-width="graphmaxwidth"
+             e-load=onchartload e-size-height="500px"
+             e-legend-visible="true" e-legend-position="bottom"
+             e-title-text="Qty"
+             e-primaryyaxis-range-max="graphmaxheight">
+
+            <e-series>
+                <e-series e-type="column"
+                          e-marker-dataLabel-visible="true"
+                          e-marker-dataLabel-verticaltextalignment="near"
+                          e-marker-dataLabel-angle="270"
+                          e-marker-dataLabel-font-fontweight="bold"
+                          e-marker-dataLabel-font-color="yellow"
+                          e-marker-dataLabel-enablecontrastcolor="true"
+                          e-enableanimation="true" e-tooltip-visible="true"
+                          e-tooltip-format="#point.x# Qty: #point.y#" e-name="Production" e-datasource=dataSourceProductionLineGraph
+                          e-xname="ProductionDate" e-yname="Quantity" e-fill="VPRDATA.Color">
+                </e-series>
+
+
+
+                <e-series e-type="line"
+                          e-marker-dataLabel-visible="true"
+                          e-marker-dataLabel-verticaltextalignment="near"
+                          e-marker-dataLabel-font-fontweight="bold"
+                          e-marker-dataLabel-enablecontrastcolor="true"
+                          e-marker-shape="circle" e-marker-visible="true"
+                          e-marker-size-height="10" e-marker-size-width="10"
+                          e-border-width="2"
+                          e-enableanimation="true" e-tooltip-visible="true" e-name="Target" e-datasource=dataSourceProductionLineGraph
+                          e-xname="ProductionDate" e-yname="TargetQty" e-fill="#0000ff">
+                </e-series>
+            </e-series>
+        </div>
+    </div>
+
+</ej-dialog>
+
+
+
+
+<ej-dialog id="dialogProductMasterParameters" title=" Product Parameters" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#tarekcontainer" e-minwidth="900" e-open="enableBtn">
+    <div class="form-element-ctrl form-horizontal">
+        @Html.Partial("~/Areas/OrderManagements/Views/productionOrderSchedulingParametersType1/productParameters.cshtml")
+    </div>
+</ej-dialog>
+
+
+
+<ej-dialog id="dialogProductionOrderParameters" title=" Production Order Parameters" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-close="oncloseprparams" e-target="#tarekcontainer" e-width="900" e-open="enableBtn">
+
+    @*@Html.Partial("~/Areas/OrderManagements/Views/productionOrderSchedulingParametersType1/productionOrderParameters.cshtml")*@
+    <div class="row" style="padding:10px;font-weight:400;color:black; width:900px;" id="entrypop">
+        @Html.Partial("~/Areas/OrderManagements/Views/productionOrderSchedulingParametersType1/parametersEntry.cshtml")
+    </div>
+</ej-dialog>
+<ej-dialog id="dialogProductionOrderParameters1" title=" Production Order Parameters" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-close="oncloseprparams" e-target="#TabPlanningSchedule" e-width="900" e-open="enableBtn">
+
+    @*@Html.Partial("~/Areas/OrderManagements/Views/productionOrderSchedulingParametersType1/productionOrderParameters.cshtml")*@
+    <div class="row" style="padding:10px;font-weight:400;color:black;" id="entrypop1">
+        @Html.Partial("~/Areas/OrderManagements/Views/productionOrderSchedulingParametersType1/parametersEntry.cshtml")
+    </div>
+</ej-dialog>
+
+
+<ej-dialog id="dialogFreezeDate" title=" Freeze Date" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#tarekcontainer" e-width="400" e-open="enableBtn">
+
+    @Html.Partial("~/Areas/OrderManagements/Views/productionOrderSchedulingParametersType1/freezeDate.cshtml")
+
+</ej-dialog>
+
+<div class="form-horizontal">
+    <ej-dialog id="dialogresetpriority" title=" Reset Priority" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#tarekcontainer" e-width="900" e-open="enableBtn">
+
+        @Html.Partial("~/Areas/OrderManagements/Views/productionOrderSchedulingParametersType1/ResetPriority.cshtml")
+
+    </ej-dialog>
+</div>
+
+<ej-dialog id="dialogWorkCenterParameters" title=" Product Parameters" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#tarekcontainer" e-minwidth="900" e-open="enableBtn">
+    @*<div class="form-element-ctrl form-horizontal">*@
+    @Html.Partial("~/Areas/OrderManagements/Views/productionOrderSchedulingParametersType1/workCenterParameters.cshtml")
+    @*</div>*@
+</ej-dialog>
+
+<div class="row" id="dialogSnapshot1">
+    @*snapshot save*@
+    <ej-dialog id="dialogSnapshot" title=" Planning Snapshot" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#tarekcontainer" e-minwidth="500" e-open="enableBtn">
+        <div class="row">
+            <div class="form-group">
+                <label class="col-sm-6 control-label">Snapshot Id</label>
+                <div class="col-sm-6 control-label">
+                    <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="snapshotmasterNew.ID" maxlength="250" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-6 control-label">Snapshot Name</label>
+                <div class="col-sm-6 control-label">
+                    <input type="text" class="form-control" rows="2" ng-model="snapshotmasterNew.SnapshotName" maxlength="250" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-6 control-label">Snapshot Desc</label>
+                <div class="col-sm-6 control-label">
+                    <input type="text" class="form-control" rows="2" ng-model="snapshotmasterNew.SnapshotDesc" maxlength="250" />
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <ul class="common-btn list-inline text-left">
+                    <li><button ng-click="takeSnapshot();" class="btn"><i class="glyphicon glyphicon-save"></i> Take Snapshot</button></li>
+                </ul>
+            </div>
+        </div>
+    </ej-dialog>
+</div>
+@*snapshot save*@
+<ej-dialog id="dialogSnapshotSelect" title=" Planning Snapshots" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-target="#maincontainer" e-minheight="450" e-minwidth="800" e-open="enableBtn">
+
+    <div id="GridWorkCenterProduct" ng-init="chkinit()" ej-grid e-datasource="snapshotList"
+         e-gridlines="none"
+         e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="false" e-filtersettings-filterType="excel">
+        <div e-columns>
+            <div e-column e-field="ID" e-headertext="ID" e-width="40"></div>
+            <div e-column e-field="SnapshotDate" e-headertext="Date" e-width="100"></div>
+            <div e-column e-field="SnapshotName" e-headertext="Name" e-width="120"></div>
+            <div e-column e-field="SnapshotDesc" e-headertext="Description" e-width="180"></div>
+            <div e-column e-template="#restore" e-width="50"></div>
+        </div>
+    </div>
+
+</ej-dialog>
+<ej-dialog id="dialogWorkCenterWisePlanning" title=" Planning" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-target="#TabPlanningSchedule" e-minwidth="1000" e-open="enableBtn">
+
+    <div id="GridWorkCenterWisePlanning" ng-init="chkinit()" ej-grid e-datasource="WorkCenterPlanList" e-allowscrolling="true"
+         e-actioncomplete="syncfusiongriddatabound"
+         e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-recorddoubleclick="EditProductionPlanningData"
+         e-allowselection="false" e-filtersettings-filterType="excel">
+        <div e-columns>
+
+
+            <div e-column e-field="ProductionOrderID" e-headertext="Production Order ID" e-width="100"></div>
+            <div e-column e-field="buyer" e-headertext="Buyer" e-width="120"></div>
+            <div e-column e-field="Customer" e-headertext="Customer" e-width="120"></div>
+            <div e-column e-field="BuyerRefNo" e-headertext="Customer Order#" e-width="100"></div>
+            <div e-column e-field="OwnRefNo" e-headertext="Own Order#" e-width="100"></div>
+            <div e-column e-field="ProductionStatus" e-headertext="Production Status" e-width="100"></div>
+            <div e-column e-field="ProductionPriority" e-headertext="Production Priority" e-width="50"></div>
+            <div e-column e-field="PlannedQty" e-headertext="Planned Qty" e-width="100"></div>
+            <div e-column e-field="MasterOrderId" e-headertext="Master Order Id" e-width="100"></div>
+            <div e-column e-field="StyleNo" e-headertext="Customer Item#" e-width="100"></div>
+            <div e-column e-field="OwnStyleNo" e-headertext="Own Item#" e-width="100"></div>
+            <div e-column e-field="SONo" e-headertext="SO No" e-width="100"></div>
+            <div e-column e-field="SODesc" e-headertext="SO Desc" e-width="100"></div>
+
+            <div e-column e-field="PlanningStartDate" e-headertext="Planning Start Date" e-width="100"></div>
+            <div e-column e-field="PlanningEndDate" e-headertext="Planning End Date" e-width="100"></div>
+        </div>
+    </div>
+
+</ej-dialog>
+<script type="text/template" id="restore">
+
+    <ul class="common-btn list-inline text-left">
+
+
+        <li>
+            <button ng-click="$parent.PromtRestoreSnapshot(this);" class="btn small" style="height: 30px;width: 30px; padding: 0px; margin: 0px;">
+                <i class="glyphicon glyphicon-floppy-disk"></i>
+            </button>
+        </li>
+        <li>
+            <button ng-click="$parent.GetSnapshotExcel(this);" class="btn small" style="height: 30px;width: 30px;padding: 0px;margin: 0px;">
+                <i class="glyphicon glyphicon-download"></i>
+            </button>
+        </li>
+
+        @*<li><button ng-click="$parent.PromtRestoreSnapshot(this)" class="btn small"><i class="glyphicon glyphicon-cloud-download"></i></button></li>
+            <li><button ng-click="$parent.GetSnapshotExcel(this)" class="btn small"><i class="glyphicon glyphicon-open-file"></i></button></li>*@
+    </ul>
+
+</script>
+<ej-dialog id="dialogSnapshotRestoreConfirm" title=" Confirm" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-target="#dialogSnapshotSelect" e-minheight="200" e-minwidth="500" e-open="enableBtn">
+
+    <div>
+        This action will delete all existing plannig data with the old one. <br /> <br />
+        Are you sure to restore the snapshot?
+    </div>
+
+    <ul class="common-btn list-inline text-right">
+        <li><button ng-click="RestoreSnapshot()" class="btn"><i class="glyphicon glyphicon-ok"> Restore</i></button></li>
+    </ul>
+
+
+</ej-dialog>
+
+<ej-dialog id="dialogSOItemsForProductionOrder" title=" Sales Order Detail" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-target="#searchNewPopup" e-minheight="200" e-width="900" e-open="enableBtn">
+
+    <div class="row" style="width:890px!important;">
+        @*<div class="col-sm-12">*@
+
+
+        <div id="GridSOItemsForProductionOrder" ng-init="chkinit()" ej-grid e-datasource="SalesOrderListForProductionOrderId"
+             e-allowscrolling="true" e-summaryrows="summaryRows" e-actioncomplete="syncfusiongriddatabound"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-showsummary="true"
+             e-allowselection="true" e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-field="MasterOrderNo" e-headertext="M. Order No" e-width="120"></div>
+                <div e-column e-field="SalesOrderId" e-headertext="SO. ID" e-width="120"></div>
+                <div e-column e-field="BuyerOrderNo" e-headertext="Customer Order#" e-width="100"></div>
+                <div e-column e-field="Description" e-headertext="Description" e-width="80" e-textalign="right"></div>
+                <div e-column e-field="Qty" e-headertext="Qty" e-width="80" e-textalign="right"></div>
+                @*<div e-column e-field="Rate" e-headertext="Rate" e-width="80" e-textalign="right"></div>*@
+                <div e-column e-field="DeliveryDate" e-headertext="Del. Date" e-width="80"></div>
+
+
+                <div e-column e-field="Customer" e-headertext="Customer" e-width="180"></div>
+                <div e-column e-field="Buyer" e-headertext="Buyer" e-width="180"></div>
+                <div e-column e-field="OwnOrderNo" e-headertext="Own Order#" e-width="100"></div>
+
+                <div e-column e-field="BuyerReferenceNo" e-headertext="Customer Item#" e-width="100"></div>
+                <div e-column e-field="OwnReferenceNo" e-headertext="Own Item#" e-width="100"></div>
+
+
+
+                <div e-column e-field="ProductName" e-headertext="Product" e-width="180" e></div>
+                <div e-column e-field="ProductionGrouping" e-headertext="Product Grouping" e-width="120" e></div>
+
+                <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="180" e></div>
+                <div e-column e-field="ArticleName" e-headertext="Article" e-width="180"></div>
+                <div e-column e-field="CommitmentDate" e-headertext="Commi.Date" e-width="80"></div>
+                <div e-column e-field="DestinationName" e-headertext="Dest." e-width="80"></div>
+                <div e-column e-field="ShipmentModeName" e-headertext="Ship.Mode" e-width="80"></div>
+                <div e-column e-field="PONumber" e-headertext="PO No" e-width="80"></div>
+
+                <div e-column e-field="OrderStatusName" e-headertext="Ord. Status" e-width="80"></div>
+                <div e-column e-field="OrderCategoryName" e-headertext="Ord. Cat." e-width="80"></div>
+
+            </div>
+        </div>
+        @*</div>*@
+        <ul class="common-btn list-inline text-right">
+            <li><button ng-click="closePopup('dialogSOItemsForProductionOrder')" class="btn"><i> Close</i></button></li>
+        </ul>
+    </div>
+
+
+</ej-dialog>
+
+
+<div class="row" id="dialogSnapshot2">
+    @*snapshot save*@
+    <ej-dialog id="dialogSnapshot2" title=" Planning Snapshot" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#tarekcontainer" e-minwidth="500" e-open="enableBtn">
+        <div class="row">
+            <div class="form-group">
+                <label class="col-sm-6 control-label">Snapshot Id</label>
+                <div class="col-sm-6 control-label">
+                    <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="snapshotmasterNew2.ID" maxlength="250" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-6 control-label">Snapshot Name</label>
+                <div class="col-sm-6 control-label">
+                    <input type="text" class="form-control" rows="2" ng-model="snapshotmasterNew2.SnapshotName" maxlength="250" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-6 control-label">Snapshot Desc</label>
+                <div class="col-sm-6 control-label">
+                    <input type="text" class="form-control" rows="2" ng-model="snapshotmasterNew2.SnapshotDesc" maxlength="250" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-6 control-label">Snapshot TakenBy</label>
+                <div class="col-sm-6 control-label">
+                    <input type="text" class="form-control" rows="2" ng-model="snapshotmasterNew2.SnapshotTakenBy" maxlength="250" />
+                </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <ul class="common-btn list-inline text-left">
+                    <li><button ng-click="SaveSnapshot2();" class="btn"><i class="glyphicon glyphicon-save"></i> Take Snapshot</button></li>
+                </ul>
+            </div>
+        </div>
+    </ej-dialog>
+</div>
+
+<style>
+
+    #Gridunassigned.e-grid .e-rowcell {
+        white-space: normal !important;
+        font-size: 0.9em !important;
+        font-weight: 500 !important;
+        line-height: normal !important;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+        /* filter: invert(1);*/
+    }
+</style>
+
