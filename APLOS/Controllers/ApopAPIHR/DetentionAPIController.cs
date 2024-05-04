@@ -1510,18 +1510,25 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
-       /* public string Calculate([FromBody] IEnumerable<OpenHeadModelNew> OpenHeadNew)
+        public List<Default2> GetTaskEmployee()
         {
-            try
-            {
-                string Id = clsData.Calculate(OpenHeadNew);
-                return Id;
-            }
-            catch (Exception ex)
-            {
-                return ex.ToString();
-            }
-        }*/
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetTaskEmployee(out List<Default2> activelists);
+            return activelists;
+        }
+
+        /* public string Calculate([FromBody] IEnumerable<OpenHeadModelNew> OpenHeadNew)
+         {
+             try
+             {
+                 string Id = clsData.Calculate(OpenHeadNew);
+                 return Id;
+             }
+             catch (Exception ex)
+             {
+                 return ex.ToString();
+             }
+         }*/
         #endregion Production Entry
 
     }

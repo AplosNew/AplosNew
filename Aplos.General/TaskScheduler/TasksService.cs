@@ -1537,7 +1537,7 @@ namespace Library.General.TaskScheduler
                     emp.EmpType,d.StandardName as Designation
                                 from dbo.EmployeeInformation emp left join hkp.LegalDesignation d
                     on d.Id=emp.LegalDesignationId left join org.Department dx on dx.Id=emp.DepartmentId
-                                where EmployeeName='" + Name + "'";
+                                where emp.SystemId = '" + Name + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
 
 
