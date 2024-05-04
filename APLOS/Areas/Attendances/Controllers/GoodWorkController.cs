@@ -1627,11 +1627,11 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                         
                             drmo.BeginEdit();
                             drmo["Rate"] = sFormulaResult;
-                            drmo["Amount"] = (((payDays * 208 + standardOTHour + additionalOTHour) * rate) * percentage/100) - tobeApprovedAmount- approvedAmount- paidAmount;
+                            drmo["Amount"] = Math.Floor(((((payDays * 208 + standardOTHour + additionalOTHour) * rate) * percentage/100)/multiple)) * multiple - tobeApprovedAmount- approvedAmount- paidAmount;
                             if (saveUpdate == "Save")
                             {
-                                drmo["AdvanceAmount"] = (((payDays * 208 + standardOTHour + additionalOTHour) * rate) * percentage / 100) - tobeApprovedAmount - approvedAmount - paidAmount;
-                            }
+                                drmo["AdvanceAmount"] = Math.Floor(((((payDays * 208 + standardOTHour + additionalOTHour) * rate) * percentage / 100) / multiple)) * multiple - tobeApprovedAmount - approvedAmount - paidAmount;
+                        }
                             else
                             {
                                 drmo["AdvanceAmount"] = Convert.ToDecimal(dtData.Rows[i]["AdvanceAmount"].ToString());
@@ -2578,6 +2578,11 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
         public JsonResult GetGoodWorkPaymentApproveByCboList()
         {
             return Json(clsSales.GetGoodWorkPaymentApproveByCboList(), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetEmployeeMultipleAdvanceApproveByCboList()
+        {
+            return Json(clsSales.GetEmployeeMultipleAdvanceApproveByCboList(), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

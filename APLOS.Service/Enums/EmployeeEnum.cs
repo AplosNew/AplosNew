@@ -107,6 +107,9 @@ namespace Library.Service.Enums
         [Description("Employee Advance ApproveBy")]
         EmployeeAdvanceApproveBy,
 
+        [Description("Employee Multiple Advance ApproveBy")]
+        EmployeeMultipleAdvanceApproveBy,
+
         [Description("Expense Booking CheckedBy")]
         ExpenseBookingCheckedBy,
 

@@ -4970,6 +4970,13 @@ order by SAI.SalesId";
                           where  A.ActionStatus='GoodWorkPaymentApproveBy' AND E.EmployeeStatus='Active'";
 			return _sqlRepository.GetDataCollection(sql, null);
 		}
+		public IEnumerable<object> GetEmployeeMultipleAdvanceApproveByCboList()
+		{
+			var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                          Inner Join dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where  A.ActionStatus='EmployeeMultipleAdvanceApproveBy' AND E.EmployeeStatus='Active'";
+			return _sqlRepository.GetDataCollection(sql, null);
+		}
 		public IEnumerable<object> GetUncheckedGoodWorkData(string EmployeeId)
 		{
 			try
