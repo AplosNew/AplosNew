@@ -38,18 +38,18 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             return View();
         }
-        [Authorize]
+  
         public ActionResult FinalSettle()
         {
             return View();
         }
 
-        [Authorize]
+        
         public ActionResult Approve()
         {
             return View();
         }
-        [Authorize]
+       
         public ActionResult Payment()
         {
             return View();
@@ -2011,13 +2011,13 @@ ORDER BY OL.Sequence";
             try
             {
 
-
                 DataSet dsMaster, dsID, dsEmpID = null;
                 DataSet dsEmpMaster = null;
+                DataSet dsEmpSL = null;
                 DataSet dsSalaryData = null;
                 DataSet dsProcSalaryData = null;
                 DataSet dsFNFEmpMaster = null;
-                string esql = "";
+                string esql, elocksql = "";
 
                 clsFinalSettlement clsFS = new clsFinalSettlement();
                 MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
@@ -2086,6 +2086,9 @@ ORDER BY OL.Sequence";
                 esql = "select * from EmployeeFullAndFinalSettlementItem where EmpSystemId IN(" + empIds + ")";
                 con.OpenDataSetThroughAdapter(esql, out dsEmpMaster, false, "1");
 
+                elocksql = "Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND ISNULL(IsDisbursed,0)=0 ";
+                con.OpenDataSetThroughAdapter(elocksql, out dsEmpSL, false, "1");
+
                 foreach (var item in datalist)
                 {
                     string empId = item["EmpSystemId"].ToString();
@@ -2113,6 +2116,25 @@ ORDER BY OL.Sequence";
                         DataRow drmo = empdv[0].Row;
                         EditRow(drmo, item);
                     }
+
+
+                    DataView empsldv = new DataView(dsEmpSL.Tables[0]);
+                    empsldv.RowFilter = "EmpSystemId='" + item["EmpSystemId"] + "'";
+
+                    if (empsldv.Count > 0)
+                    {
+
+                        DataRow drsl = empsldv[0].Row;
+
+                        drsl.BeginEdit();
+                        drsl["EmployeeFinalSettlementId"] = _Id;
+                        drsl["UpdatedBy"] = identity.Name;
+                        drsl["UpdatedDate"] = DateTime.Now.ToString();
+                        drsl["UpdatedFromIP"] = identity.IPAddress;
+                        drsl.EndEdit();
+
+                    }
+
 
                     DataTable dtData = GetDataTable(empId);
                     for (int i = 0; i < dtData.Rows.Count; i++)
@@ -2208,7 +2230,7 @@ ORDER BY OL.Sequence";
 
                 #endregion data update 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsEmpMaster, dsFNFEmpMaster);
+                _info.SaveDataSets(dsMaster, dsEmpMaster, dsFNFEmpMaster, dsEmpSL);
 
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
 
