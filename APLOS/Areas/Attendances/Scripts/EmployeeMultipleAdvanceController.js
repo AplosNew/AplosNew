@@ -400,7 +400,7 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
     $scope.GetApprovedByCboList = function () {
         $http({
             method: 'GET',
-            url: 'Attendances/GoodWork/GetGoodWorkPaymentApproveByCboList'
+            url: 'Attendances/GoodWork/GetEmployeeMultipleAdvanceApproveByCboList'
         }).then(function successCallback(response) {
             $scope.approvedByList = response.data;
             if (baseService.arrayLength($scope.approvedByList) == 1) {
@@ -1384,6 +1384,13 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
             ShowResult(e, "failure");
         }
 
+    }
+
+    $scope.checkAdvanceAmountByNetAmount = function (event, data) {
+        if (data.AdvanceAmount > data.Amount) {
+            data.AdvanceAmount = data.Amount;
+            ShowResult("Advance Amount can't be greater than Net Amount!!", 'failure');
+        }
     }
 
     //function checkExistTempListforConfirm(list, empSystemId) {
