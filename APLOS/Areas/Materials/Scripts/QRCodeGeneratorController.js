@@ -26,7 +26,9 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
         CustomerId: null,
         PO: null,
         Portno: null,
-        GrossWeight:null
+        GrossWeight: null,
+        ByWhomId: $window.employeeId,
+        ByWhomName: $window.employeeName
     }
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
