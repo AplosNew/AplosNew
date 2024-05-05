@@ -151,6 +151,9 @@ function fullandfinalSettlementPaymentController(cboService, commonMessage, $sco
             ShowResult(e, "failure");
         }
     };
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#DisbursementAdvicepopUp')).modal('hide');
+    }
     $scope.masterId = null;
     $scope.SelectMaster = function (obj) {
         $scope.masterId = obj.data.Id;
