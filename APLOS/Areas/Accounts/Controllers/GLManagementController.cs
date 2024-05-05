@@ -1700,28 +1700,28 @@ namespace Aplos.Areas.Accounts.Controllers
             try
             {
                 var sql = "";
-                sql = @"select '' Id,x.*,GMDC.BudgetMasterActivityIdDr ControlDrId,B.UserName BudgetMasterActivityDr,GMDC.BudgetMasterActivityIdCr ControlCrId,BB.UserName BudgetMasterActivityCr
+                sql = @"select distinct x.EmployeeName,x.*,GMDC.BudgetMasterActivityIdDr ControlDrId,B.UserName BudgetMasterActivityDr,GMDC.BudgetMasterActivityIdCr ControlCrId,BB.UserName BudgetMasterActivityCr
 					,GMAB.ActionById,EIAB.EmployeeName ActionBy,GMAPB.ApproveById,EIAPB.EmployeeName ApproveBy,GMRP.ResponsiblePersonId,EIRP.EmployeeName ResponsiblePerson
 					,CheckBoxSelect=cast(case when glrp.Id is null then 0 else 1 end as bit),glrp.Id
 					
                     from(select DISTINCT GEC.EmployeeCategoryId,EC.UserName EmployeeCategorys
-					,GMD.DesignationId,DE.UserName Designation,GMDP.DepartmentId,DP.UserName Department,GMPC.PositionCodeId,PO.UserName Position,GMBC.BudgetCodeId,GME.EmpSystemId EmpId,EI.EmployeeName,MB.Code BudgetCode,GLM.Id GLManagementId
-                    from HKP.GLManagement GLM 
+					,GMD.DesignationId,DE.UserName Designation,GMDP.DepartmentId,DP.UserName Department,GMPC.PositionCodeId,PO.UserName Position
+					,GMBC.BudgetCodeId,GME.EmpSystemId EmpId,EI.EmployeeName,MB.Code BudgetCode,GLM.Id GLManagementId
                     from HKP.GLManagement GLM 
                     LEFT JOIN HKP.GLManagementEmployeeCategory GEC ON GEC.GLManagementId=GLM.Id
                     LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=GEC.EmployeeCategoryId
-					LEFT JOIN [HKP].[GLManagementPositionCode] GMPC ON GMPC.GLManagementId=GLM.Id
+					LEFT JOIN [HKP].[GLManagementEmployee] GME ON GME.GLManagementId=GLM.Id
+                    LEFT JOIN [DBO].[EmployeeInformation] EI ON EI.SystemId=GME.EmpSystemId 
+										   
+					LEFT JOIN [HKP].[GLManagementPositionCode] GMPC ON GMPC.GLManagementId=GLM.Id AND GMPC.PositionCodeId=EI.PositionID
                     LEFT JOIN ORG.Position PO  ON PO.Id=GMPC.PositionCodeId  
-                    LEFT JOIN [HKP].[GLManagementDesignation] GMD ON GMD.GLManagementId=GLM.Id AND PO.DesignationId=GMD.DesignationId
+                    LEFT JOIN [HKP].[GLManagementDesignation] GMD ON GMD.GLManagementId=GLM.Id AND PO.DesignationId=GMD.DesignationId AND EI.GivenDesignationId=GMD.DesignationId
                     LEFT JOIN [HKP].[Designation] DE ON DE.Id=GMD.DesignationId AND PO.DesignationId=GMD.DesignationId
                     LEFT JOIN [HKP].[GLManagementDepartment] GMDP ON GMDP.GLManagementId=GLM.Id AND PO.DepartmentId=GMDP.DepartmentId
-                    LEFT JOIN [ORG].[Department] DP ON DP.Id=GMDP.DepartmentId AND PO.DepartmentId=GMDP.DepartmentId
-					 LEFT JOIN [HKP].[GLManagementBudgetCode] GMBC ON GMBC.GLManagementId=GLM.Id
-                    LEFT JOIN [MST].ManpowerBudget MB ON MB.Id=GMBC.BudgetCodeId AND MB.PositionId=PO.Id
-                    LEFT JOIN [HKP].[GLManagementEmployee] GME ON GME.GLManagementId=GLM.Id
-                    LEFT JOIN [DBO].[EmployeeInformation] EI ON EI.SystemId=GME.EmpSystemId AND EI.BudgetCode=GMBC.BudgetCodeId 
-										AND EI.DepartmentId=GMDP.DepartmentId  AND EI.GivenDesignationId=GMD.DesignationId AND GMPC.PositionCodeId=EI.PositionID
-                   WHERE GLM.Id='"+ GlManagementId + @"')x 					
+                    LEFT JOIN [ORG].[Department] DP ON DP.Id=GMDP.DepartmentId AND PO.DepartmentId=GMDP.DepartmentId AND EI.DepartmentId=GMDP.DepartmentId
+					 LEFT JOIN [HKP].[GLManagementBudgetCode] GMBC ON GMBC.GLManagementId=GLM.Id    AND EI.BudgetCode=GMBC.BudgetCodeId 
+                    LEFT JOIN [MST].ManpowerBudget MB ON MB.Id=GMBC.BudgetCodeId AND MB.PositionId=PO.Id 
+                   WHERE GLM.Id='" + GlManagementId + @"')x 					
 
                     LEFT JOIN [HKP].[GLManagementControlDrCr] GMDC ON GMDC.GLManagementId=x.GLManagementId
                     LEFT JOIN [MST].[BudgetMasterActivity] BMA on BMA.Id=GMDC.BudgetMasterActivityIdDr

@@ -560,14 +560,14 @@
                 <div class="col-sm-3 show-message ">
                     <div class="select-style">
                         <select class="form-control" id="currency" ng-model="productNew.CurrencyId" ng-options="item.Value as item.Text for item in currencyList"
-                                ng-change="GetCurrencyExchangeRateList();manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');" tabindex="8">
+                                @*ng-change="GetCurrencyExchangeRateList();manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');"*@ tabindex="8">
                             <option value=""></option>
                         </select>
                     </div>
                 </div>
                 <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Rate<sup ng-hide="productNew.CurrencyId==productNew.BaseCurrencyId">*</sup></label>
                 <div class="col-sm-2 show-message pdl3">
-                    <input type="text" n-decimals="2" name="GRN Date" ng-model="productNew.ToCurrencyRate" ng-disabled="productNew.CurrencyId==productNew.BaseCurrencyId" ng-keyup="manualValidationAddRemove('div_rate', 'productNew', 'ToCurrencyRate');" class="form-control text-right" tabindex="9">
+                    <input type="text" n-decimals="2" name="GRN Date" ng-model="productNew.ToCurrencyRate" ng-disabled="productNew.CurrencyId==productNew.BaseCurrencyId" ng-keyup="changeCurrencyRate();manualValidationAddRemove('div_rate', 'productNew', 'ToCurrencyRate');" class="form-control text-right" tabindex="9">
                 </div>
             </div>
         </div>

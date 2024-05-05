@@ -2704,5 +2704,11 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     }
 
     //#endregion 
+    $scope.changeCurrencyRate = function () {
+        for (var i = 0; i < $scope.poBoqItemListNew.length; i++) {
+            $scope.poBoqItemListNew[i].TransactionRate = $scope.poBoqItemListNew[i].TransactionRate / $scope.productNew.ToCurrencyRate;
+            $scope.poBoqItemListNew[i].TrnAmount = $scope.poBoqItemListNew[i].TrnAmount / $scope.productNew.ToCurrencyRate;
+        } 
 
+    }
 }

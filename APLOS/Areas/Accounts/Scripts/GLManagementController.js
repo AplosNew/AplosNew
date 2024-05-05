@@ -1268,7 +1268,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     $scope.GetData = function () {
         $http({
             method: 'GET',
-            url: 'Accounts/GLManagement/GetGLManagementViewData?GlManagementId=' + $scope.GlManagementId
+            url: 'Accounts/GLManagement/GetGlManagementAccessControllist?GlManagementId=' + $scope.GlManagementId
         }).then(function successCallback(response) {
             $scope.AllCombineData = response.data;
         });
@@ -1279,7 +1279,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     $scope.GetGlManagementAccessControl = function () {
         $http({
             method: 'GET',
-            url: 'Accounts/GLManagement/GlManagementAccessControl?GlManagementId=' + $scope.GlManagementId
+            url: 'Accounts/GLManagement/GetGlManagementAccessControllist?GlManagementId=' + $scope.GlManagementId
         }).then(function successCallback(response) {
             $scope.GlManagementAccessControlData = response.data;
         });
