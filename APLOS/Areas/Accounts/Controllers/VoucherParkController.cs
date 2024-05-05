@@ -263,7 +263,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     rdBuilder.Append(voucherSql);
                     rdBuilder.Append(bankJournalSql);
                 }
-                if (sourceType == SourceType.SalaryPayable.ToString() || sourceType == SourceType.SalaryDisbursement.ToString() || sourceType == SourceType.BonusDisbursement.ToString() || sourceType == SourceType.PFESICDisbursement.ToString() || sourceType == SourceType.GoodWorkDisbursement.ToString())
+                if (sourceType == SourceType.SalaryPayable.ToString() || sourceType == SourceType.SalaryDisbursement.ToString() || sourceType == SourceType.BonusDisbursement.ToString() || sourceType == SourceType.PFESICDisbursement.ToString() || sourceType == SourceType.GoodWorkDisbursement.ToString() || sourceType == SourceType.FinalSettlementJournal.ToString())
                 {
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);

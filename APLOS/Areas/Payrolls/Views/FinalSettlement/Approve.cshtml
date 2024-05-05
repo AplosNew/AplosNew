@@ -1,5 +1,5 @@
 ﻿
-<togglable name="Final Settlement"></togglable>
+<togglable name="Final Settlement Approve"></togglable>
 <div class="form-elements" ng-form id="FinalSettlement" name="FinalSettlementForm">
     <div class="row"></div>
     <div class="row">
@@ -10,21 +10,12 @@
                     <input type="text" maxlength="100" name="Final Settlement Name" ng-model="FinalSettlementModel.FinalSettlementName" class="form-control" required tabindex="3">
                 </div>
             </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Approved By<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select id="ApprovedBy" class="form-control" name="ApprovedBy" ng-model="FinalSettlementModel.ApproveById" tabindex="8" required>
-                            <option ng-repeat="option in approvedByList" value="{{option.Value}}">{{option.Text}}</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="common-btn">
+
+            @*<div class="common-btn">
                 <ul class="list-inline text-left">
-                    <li><button ng-click="LoadEmployeeList();"  ng-disabled="FinalSettlementModel.IsApproved==true" class="btn"><i class="glyphicon glyphicon-search" tabindex="9"></i> Add Employee</button></li>
+                    <li><button ng-click="LoadEmployeeList();" class="btn"><i class="glyphicon glyphicon-search" tabindex="9"></i> Add Employee</button></li>
                 </ul>
-            </div>
+            </div>*@
 
         </div>
         <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
@@ -53,18 +44,21 @@
             </div>
             <script type="text/template" id="ShowActionButtons">
                 <button style="color: #f3f3ec;background-color: #1c1f32;" ng-hide="data.Id==null" title="Items" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.GetEmployeeItems(this);" style="margin: -6px;"></i></button>
-                <button style="color: #f3f3ec;background-color: #1c1f32;" ng-disabled="data.Id!=null" title="Remove" class="btn"><i class="glyphicon glyphicon-remove" ng-click="$parent.RemoveEmployee(this);" style="margin: -6px;"></i></button>
             </script>
         </div>
         <div class="common-btn" ng-show="SelectedEmployeeList.length>0">
             <ul class="list-inline text-right">
-                <li><button ng-click="Process();" ng-disabled="FinalSettlementModel.IsApproved==true" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Process</button></li>
-                <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="9"></i> Clear</button></li>
+                <li><button ng-click="Approve();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="9"></i> Approve</button></li>
             </ul>
         </div>
 
     </div>
 
+    <hr />
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+        </ul>
+    </div>
 </div>
 
 <div class="row aplos-grid-toggle">
@@ -74,7 +68,7 @@
             <div e-columns>
                 <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
                 <div e-column e-field="FinalSettlementName" e-headertext="Name" e-width="100"></div>
-                <div e-column e-field="FinalSettlementDate" e-type="date" e-format="{0:dd-MMM-yyyy}"  e-headertext="Final Settlement Date" e-width="80"></div>
+                <div e-column e-field="FinalSettlementDate" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="Final Settlement Date" e-width="80"></div>
                 <div e-column e-field="ApproveBy" e-headertext="ApproveBy" e-width="80"></div>
                 <div e-column e-field="ApproveStatus" e-headertext="Approve Status" e-width="80"></div>
             </div>
@@ -84,44 +78,7 @@
 
 <confirm-modal></confirm-modal>
 
-<div class="modal fade site-modal in" id="dialogEmployeeInfo" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">Employee Information<button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body">
-                <div class="row">
-                    <div id="GridEmp" ej-grid e-datasource="EmployeeInformationList" e-templaterefresh="refreshTemplateOperation"
-                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
-                        <div e-columns>
-                            <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
-                            <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="50"></div>
-                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
-                            <div e-column e-field="DOJ" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="DOJ" e-width="70"></div>
-                            <div e-column e-field="DOS" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="DOS" e-width="70"></div>
-                            <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
-                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
-                            <div e-column e-field="EntityName" e-headertext="Entity" e-width="80"></div>
-                            <div e-column e-field="SepType" e-headertext="Separation Type" e-width="80"></div>
-                        </div>
-                    </div>
-                    <script type="text/template" id="checkboxTemplate">
-                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
-                    </script>
-                    <script type="text/x-jsrender" id="headerTemplate">
-                        <input type="checkbox" id="headchk" />
-                    </script>
-                    <div class="common-btn" style="padding-right: 15px;">
-                        <ul class="list-inline text-right">
-                            <li> <button ng-click="Close();" class="btn">Apply</button></li>
-                        </ul>
-                    </div>
-                </div>
 
-            </div>
-        </div>
-    </div>
-</div>
 
 <div class="modal fade site-modal in" id="FormulaInfo" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-md">
@@ -146,7 +103,7 @@
                                             <tr ng-repeat="x in FormulaList">
                                                 <td>{{x.UserName}}</td>
                                                 <td>{{x.EntryState}}</td>
-                                                <td><input class="form-control text-right" ng-disabled="x.EntryState=='Auto' || x.EntryState=='Calculate'" type="text" n-decimals="6" ng-model="x.Value" /></td>
+                                                <td><input class="form-control text-right" ng-disabled="true" type="text" n-decimals="6" ng-model="x.Value" /></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -185,7 +142,7 @@
                         </div>
                         <div class="common-btn" style="padding-right: 15px;">
                             <ul class="list-inline text-right">
-                                <li><button ng-click="UpdateItemData();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Save</button></li>
+                                @*<li><button ng-click="UpdateItemData();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Save</button></li>*@
                                 <li><button ng-click="CloseFormulaPopUp();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="11"></i> Close</button></li>
                             </ul>
                         </div>

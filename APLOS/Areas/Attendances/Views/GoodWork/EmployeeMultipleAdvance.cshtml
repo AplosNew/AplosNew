@@ -99,7 +99,7 @@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="ToDate" ng-model="ModelOTNew.ToDate" datepic class="form-control datepic" placeholder="dd-Mmm-yyyy" required tabindex="24">
+                                    <input type="text" name="ToDate" ng-model="ModelOTNew.ToDate" class="form-control datepicker" datepicker @*datepic class="form-control datepic"*@ placeholder="dd-Mmm-yyyy" required tabindex="24">
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
@@ -166,7 +166,7 @@
                                         <div e-column e-field="TobeApprovedAmount" e-headertext="Tobe Approved Amount" e-width="60"></div>
                                         <div e-column e-field="ApprovedAmount" e-headertext="Approved Amount" e-width="60"></div>
                                         <div e-column e-field="PaidAmount" e-headertext="Paid Amount" e-width="60"></div>
-                                        <div e-column e-field="Amount" e-headertext="Amount" e-width="60"></div>
+                                        <div e-column e-field="Amount" e-headertext="Net Amount" e-width="60"></div>
                                         <div e-column e-headertext="Advance Amount" e-template="#advanceGiven" e-textalign="center" e-width="60"></div>
                                         <div e-column e-headertext="Remarks" e-template="#remarks" e-textalign="center" e-width="100"></div>
                                     </div>
@@ -182,7 +182,7 @@
                                     <input type="text" class="form-control" name="Remarks" ng-model="data.Remarks" e-width="90" />
                                 </script>
                                 <script type="text/template" id="advanceGiven">
-                                    <input type="number" class="form-control" name="AdvanceGiven" ng-model="data.AdvanceAmount" e-width="90" />
+                                    <input type="number" class="form-control" name="AdvanceGiven" ng-model="data.AdvanceAmount" e-width="90"  ng-change="$parent.checkAdvanceAmountByNetAmount($event,data);" />
                                 </script>
                             </div>
 

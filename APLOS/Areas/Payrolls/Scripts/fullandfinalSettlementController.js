@@ -54,7 +54,6 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
     $scope.FinalSettlementEarningHeadList = [];
     $scope.FinalSettlementDeductionHeadList = [];
     $scope.SeparationTypeDetails = {};
-    $scope.FinalSettlementModel = {};
     $scope.SeparationTypeSelectedChange = function () {
         try {
             $http.get($scope.getSTSCUrl + '?SeparationTypeId=' + $scope.CustomPara.SeparationTypeId + '&EmpSystemId=' + $scope.EmployeeModel.SystemId)
@@ -136,7 +135,20 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
         }
     }
 
-    
+    $scope.approvedByList = [];
+    $scope.GetApprovedByCboList = function () {
+        $http({
+            method: 'GET',
+            url: 'Payrolls/FinalSettlement/GetApprovedByCbo'
+        }).then(function successCallback(response) {
+            $scope.approvedByList = response.data;
+            if (baseService.arrayLength($scope.approvedByList) == 1) {
+                $scope.FinalSettlementModel.ApproveById = $scope.approvedByList[0].Value;
+            }
+        });
+    }
+    $scope.GetApprovedByCboList();
+
 
     $scope.Save = function () {
         try {
@@ -245,7 +257,7 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
 
     // #region checkbox all
 
-    $scope.FinalSettlementModel = { Id: null, FinalSettlementName: null, FinalSettlementDate: null }
+    $scope.FinalSettlementModel = { Id: null, FinalSettlementName: null, FinalSettlementDate: null, ApproveById: null, IsApproved: false };
 
     $scope.refreshTemplateOperation = function (args) {
         $("#headchk").ejCheckBox({ "change": headCheckChangeOperation });
@@ -301,6 +313,18 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
         }
     }
 
+    $scope.RemoveEmployee = function (obj) {
+        if ($scope.FinalSettlementModel.IsApproved == false) {
+            for (var i = 0; i < $scope.SelectedEmployeeList.length; i++) {
+                if ($scope.SelectedEmployeeList[i].EmpSystemId == obj.data.EmpSystemId) {
+                    $scope.SelectedEmployeeList.splice(i, 1);
+                    break;
+                }
+            }
+        }
+
+    }
+
     function checkExists(list, id) {
         for (var i = 0; i < list.length; i++) {
             if (list[i].EmpSystemId === id) {
@@ -339,16 +363,40 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
         }
     };
 
+    $scope.UpdateItemData = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: 'Payrolls/FinalSettlement/UpdateItemData',
+                data: { 'datalist': $scope.FormulaList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                } else {
+                    $scope.GetSavedEmployeeItems();
+                }
+            }, function errorCallback(response) {
+                $scope.ShowResultCustom(response.status.Message, "failure");
+            });
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 
 
     // #endregion
 
+    $scope.EmpSystemId = null;
     $scope.FormulaList = [];
     $scope.FinalSettlementUndisbursedEarningList = [];
     $scope.GetEmployeeItems = function (obj) {
+        $scope.FormulaList = [];
+        $scope.EmpSystemId = obj.data.EmpSystemId;
         $http({
             method: 'GET',
-            url: 'Payrolls/FinalSettlement/GetEmployeeSeperationItemFormulaData?EmpSystemId=' + obj.data.EmpSystemId
+            url: 'Payrolls/FinalSettlement/GetEmployeeSeperationItemFormulaData?EmpSystemId=' + $scope.EmpSystemId
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
@@ -359,6 +407,22 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
             }
         });
     }
+
+    $scope.GetSavedEmployeeItems = function () {
+
+        $http({
+            method: 'GET',
+            url: 'Payrolls/FinalSettlement/GetEmployeeSeperationItemFormulaData?EmpSystemId=' + $scope.EmpSystemId
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            } else {
+                $scope.FormulaList = response.data.SeperationItem;
+                $scope.FinalSettlementUndisbursedEarningList = response.data.FinalSettlementUndisbursedEarning;
+            }
+        });
+    }
+
 
     $scope.CloseFormulaPopUp = function () {
         angular.element(document.querySelector('#FormulaInfo')).modal('hide');
@@ -371,8 +435,11 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
 
     function ClearFields() {
         $scope.Action = 'Save';
-        $scope.FinalSettlementModel = {};
-        $scope.EmployeeModel = {};
-        $scope.CreateTempList();
+        $scope.FinalSettlementModel = { Id: null, FinalSettlementName: null, FinalSettlementDate: null, ApproveById: null, IsApproved: false };
+        $scope.SelectedEmployeeList = [];
+        $scope.FormulaList = [];
+        if (baseService.arrayLength($scope.approvedByList) == 1) {
+            $scope.FinalSettlementModel.ApproveById = $scope.approvedByList[0].Value;
+        }
     }
 };
