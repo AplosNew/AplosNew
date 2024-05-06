@@ -7,7 +7,7 @@
                 <div class="select-style">
                     <select class="form-control" ng-model="ModelNew.EntityId" name="Entity" ng-change="loadProcessList(ModelNew.EntityId)" required tabindex="2">
                         <option value="">--Select--</option>
-                        <option ng-repeat="option in EntityList" value="{{option.Value}}">{{option.Text}}</option>
+                        <option ng-repeat="option in EntityList" value="{{option.Id}}">{{option.UserName}}</option>
                     </select>
                 </div>
             </div>
@@ -19,9 +19,10 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-4 control-label">Production Order<sup>*</sup></label>
-            <div class="col-sm-8">
-                <button ng-click="GetProductionOrderPopUp();" ng-disabled="ModelNew.Id" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li> <button ng-click="GetProductionOrderPopUp();" ng-disabled="ModelNew.Id" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search">Production Order</i></button></li>
+                </ul>
             </div>
         </div>
     </div>
@@ -40,7 +41,6 @@
             <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="input-group">
-                    <span class="input-group-addon">{{ModelNew.ByWhomCode}}</span>
                     <input type="text" name="By Whom" ng-model="ModelNew.ByWhomName" class="form-control" readonly required>
                     <span class="input-group-btn">
                         <button name="submit" ng-click="GetByWhomPopupData()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>

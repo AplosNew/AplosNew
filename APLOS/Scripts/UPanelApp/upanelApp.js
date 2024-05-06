@@ -1274,6 +1274,7 @@ upanelApp.controller("GoodWorkReportController", GoodWorkReportController)
 upanelApp.controller("productionOrderSchedulingParametersType1NewController", ProductionOrderSchedulingParametersType1NewController);
 upanelApp.controller("fullandfinalSettlementApproveController", fullandfinalSettlementApproveController);
 upanelApp.controller("fullandfinalSettlementPaymentController", fullandfinalSettlementPaymentController);
+upanelApp.controller("OrderLineCostingItemServiceMasterMappingController", OrderLineCostingItemServiceMasterMappingController);
 
 
 

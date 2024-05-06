@@ -90,7 +90,10 @@ function CostingsConfig($routeProvider, $locationProvider) {
             templateUrl: 'costings/BOMDetailMaster/Aplos',
             controller: 'BOMDetailMasterController'
         })
-
+        .when('/olcsmmap', {
+            templateUrl: 'costings/OrderLineCostingItem/OLCSMMap',
+            controller: 'OrderLineCostingItemServiceMasterMappingController'
+        })
 
         ;
 }
