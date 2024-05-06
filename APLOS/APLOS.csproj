@@ -1953,6 +1953,7 @@
     <Content Include="Areas\Attendances\Scripts\EmployeeMultipleAdvanceController.js" />
     <Content Include="Areas\Commercial\Scripts\ContractSummaryController.js" />
     <Content Include="Areas\Commercial\Scripts\LCPendingReportController.js" />
+    <Content Include="Areas\Costings\Scripts\OrderLineCostingItemServiceMasterMappingController.js" />
     <Content Include="Areas\FixedAssets\Scripts\assetDisposeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\assetDisposePostController.js" />
     <Content Include="Areas\HumanResource\Scripts\LeaveTransectionController.js" />
@@ -4962,6 +4963,7 @@
     <Content Include="Areas\OrderManagements\Views\productionOrderSchedulingParametersType1\AplosNew.cshtml" />
     <Content Include="Areas\Payrolls\Views\FinalSettlement\Approve.cshtml" />
     <Content Include="Areas\Payrolls\Views\FinalSettlement\Payment.cshtml" />
+    <Content Include="Areas\Costings\Views\OrderLineCostingItem\OLCSMMap.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
