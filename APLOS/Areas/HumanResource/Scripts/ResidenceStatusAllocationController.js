@@ -221,6 +221,8 @@ function ResidenceStatusAllocationController(cboService, $window,commonMessage, 
             $scope.UnallocationView();
 
         });
+        var gridObj = $("#GridEmp").data("ejGrid");
+        gridObj.clearFiltering();  // clears all the filtering
         angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
     }
 
@@ -869,10 +871,8 @@ function ResidenceStatusAllocationController(cboService, $window,commonMessage, 
         }).then(function successCallback(response) {
             $scope.OccupiedEmployeeList = response.data;
 
-            //$scope.getResidence();
-
-            //$scope.UnallocationView();
-
+            var gridObj = $("#GridEOccupiedUnallocation").data("ejGrid");
+            gridObj.clearFiltering();  // clears all the filtering
         });
         angular.element(document.querySelector('#OccupiedemployeeNewPopUp')).modal('show');
     }

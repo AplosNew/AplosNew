@@ -2424,14 +2424,11 @@ namespace Library.Accounting.Accounts
                 parameters.CmdText = @"SELECT V.Id PayableVoucherId, V.VoucherDate, V.PostingDate, V.DocRefNo, V.VoucherTypeId, V.CurrencyId, V.DocDate, V.EntityId, C.Code AS CurrencyCode
                                     , VD.DrAmount, V.VoucherNo,ISNULL(BM.AccountTitle,CM.UserName) PaymentBank
                                     ,V.IsPark,Status= case when V.IsPark=0 then 'Posted' else 'Parked' end, V.Narration
-									,ISNULL(E.EmployeeCode,'') EmployeeCode ,ISNULL(E.EmployeeName,'') EmployeeName	
                                     FROM TRN.[Voucher] AS V
                                     LEFT JOIN SCS.Currency AS C ON C.Id = V.CurrencyId
                                     LEFT JOIN (SELECT SUM(VD.DrAmount) AS DrAmount, VD.VoucherId,VD.BankMasterId FROM [TRN].[VoucherDetail] AS VD WHERE VD.DrAmount <> 0 
 									GROUP BY VD.VoucherId,VD.BankMasterId
                                     ) AS VD ON VD.VoucherId=V.Id
-									LEFT JOIN [dbo].[EmployeeFinalSettlement] EFS ON EFS.DisbursementVoucherId=V.Id 
-									LEFT JOIN EmployeeInformation E on E.SystemId= EFS.EmpSystemId
 									LEFT JOIN TRN.VoucherDetail XVD ON XVD.VoucherId=V.Id AND XVD.BankMasterId<>''
 									LEFT JOIN TRN.VoucherDetail XVDC ON XVDC.VoucherId=V.Id AND  XVDC.CashMasterId<>''
 									left join MST.BankMaster BM ON BM.Id=XVD.BankMasterId

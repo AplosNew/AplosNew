@@ -88,7 +88,7 @@
                 <li role="presentation" ng-class="{ active: isSet(8) }"><a ng-click="setTab(8);getApproveByPopUpData();" href="" aria-controls="general" role="tab" data-toggle="tab">Approved By</a></li>
                 <li role="presentation" ng-class="{ active: isSet(9) }"><a ng-click="setTab(9);GetResponsiblePersonData();" href="" aria-controls="general" role="tab" data-toggle="tab">Responsible Person</a></li>
                 <li role="presentation" ng-class="{ active: isSet(11) }"><a ng-click="setTab(11);GetProcessData();" href="" aria-controls="general" role="tab" data-toggle="tab">Process</a></li>
-                <li role="presentation" ng-class="{ active: isSet(12) }"><a ng-click="setTab(12);GetData()" href="" aria-controls="general" role="tab" data-toggle="tab">View</a></li>
+                <li role="presentation" ng-class="{ active: isSet(12) }"><a ng-click="setTab(12);GetGlManagementAccessControl()" href="" aria-controls="general" role="tab" data-toggle="tab">View</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -559,7 +559,7 @@
                         <div class="col-xs-12 col-sm-12 col-md-12">
                             <div class="modal-body">
                                 <div class="content-container-fluid" style="color:black;">
-                                    <div style="color:black;" id="GridProcess" ej-grid e-datasource="GlManagementAccessControlData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true"
+                                    <div style="color:black;" id="GridAccessControl" ej-grid e-datasource="GlManagementAccessControlData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true"
                                          e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateProcess">
                                         <div e-columns>
                                             <div e-column e-headertext="" e-headertemplateid="#headerTemplateProcess" e-template="#checkboxTemplateProcess" e-textalign="center" e-width="30"></div>

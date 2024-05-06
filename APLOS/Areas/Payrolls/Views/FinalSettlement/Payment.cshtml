@@ -178,7 +178,6 @@
                     <th>Doc Ref</th>
                     <th>Doc Date</th>
                     <th>Posting Date</th>
-                    <th>Payment Advise Id</th>
                     <th>Payment Bank/Cash</th>
                     <th>Amount</th>
                     <th>Status</th>
@@ -191,7 +190,6 @@
                     <td>{{x.DocRefNo}}</td>
                     <td>{{x.DocDate | dateFiltering}}</td>
                     <td>{{x.PostingDate | dateFiltering}}</td>
-                    <td>{{x.PaymentAdviseId}}</td>
                     <td>{{x.PaymentBank}}</td>
                     <td class="text-right">{{x.DrAmount | number:2}}</td>
                     <td>{{x.IsPark?'Parked':'Posted'}}</td>
@@ -307,5 +305,9 @@
         </div>
     </div>
 </div>
+
+<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(voucherId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="deleteSalaryDisbursement(voucherId)"></confirm-archive-generic>
+
 @Html.Partial("~/Areas/Banks/Views/_CashPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/SalaryDisbursement/_BankPopUp.cshtml")

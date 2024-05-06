@@ -247,7 +247,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                 });
     }
 
-    $scope.ConvertedDataRow = function (data,list, trnuomId) {
+    $scope.ConvertedDataRow = function (data, list, trnuomId) {
         var BaseUOMFactortemp = $.grep(list, function (item) {
             return item.Value === trnuomId;
         })[0].BaseUOMFactor;
@@ -528,6 +528,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
 
     };
     $scope.poBoqItemListNew = [];
+    $scope.poBoqItemCloneList = [];
     $scope.tempList = [];
     $scope.submitBOQItem = function () {
         var poboqlist = [];
@@ -663,6 +664,9 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             //$scope.processgroupList($scope.GetListForMasterOrdernew, $scope.groupList);
         } catch (e) {
         }
+        $scope.poBoqItemCloneList = [];
+        //$scope.poBoqItemCloneList = $scope.poBoqItemListNew.slice();
+        $scope.poBoqItemCloneList = JSON.parse(JSON.stringify($scope.poBoqItemListNew));
     };
 
     $scope.groupList = [];
@@ -1418,7 +1422,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                         var getRow3 = $filter("filter")($scope.updatePOBOQListS, {
                             "BOQDetailId": $scope.UpdatepoBoqItemList[i].BOQId, "MaterialMasterId": $scope.UpdatepoBoqItemList[i].MaterialMasterId
                             , "ArticleId": $scope.UpdatepoBoqItemList[i].ArticleId, "FirstCharacteristicsValueId": $scope.UpdatepoBoqItemList[i].FirstCharacteristicsValueId
-                                
+
                         });
                         if (getRow3.length > 0) {
                             throw "Already taken";
@@ -1676,6 +1680,25 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         var gridObj = $("#GridPrint").data("ejGrid");
         gridObj.refreshContent();
     };
- 
+
+    $scope.changeCurrencyRate = function () {
+        for (var i = 0; i < $scope.poBoqItemListNew.length; i++) {
+            var getRow = $filter("filter")($scope.poBoqItemCloneList, {
+                "MaterialMasterId": $scope.poBoqItemListNew[i].MaterialMasterId, "ArticleId": $scope.poBoqItemListNew[i].ArticleId
+                , "FirstCharacteristicsValueId": $scope.poBoqItemListNew[i].FirstCharacteristicsValueId
+                , "SecondCharacteristicsValueId": $scope.poBoqItemListNew[i].SecondCharacteristicsValueId
+                , "ThitrdCharacteristicsValueId": $scope.poBoqItemListNew[i].ThitrdCharacteristicsValueId
+                , "GroupId": $scope.poBoqItemListNew[i].GroupId
+                , "BOMId": $scope.poBoqItemListNew[i].BOMId
+            });
+            if (getRow.length > 0) {
+                var rate = parseFloat(getRow[0].TransactionRate / $scope.productNew.ToCurrencyRate.toFixed(4));
+                var amount = parseFloat(getRow[0].TrnAmount / $scope.productNew.ToCurrencyRate.toFixed(4));
+                $scope.poBoqItemListNew[i].TransactionRate = parseFloat(rate.toFixed(4));
+                $scope.poBoqItemListNew[i].TrnAmount = parseFloat(amount.toFixed(4));
+            }
+        }
+    }
+
 }//End Of main
 
