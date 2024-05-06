@@ -2432,7 +2432,7 @@ ORDER BY OL.Sequence";
             string sql = null;
             sql = @"SELECT X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAmount) CrAmount,SUM(X.Amount) Amount,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
                 FROM
-                ( SELECT  'EmployeeFullAndFinalSettlement' AS OtherName, 'Dr' AS TrnType
+                ( SELECT  'NetPay' AS OtherName, 'Dr' AS TrnType
                 , CAST(EI.Value AS decimal(18,2)) DrAmount 
                 , 0 CrAmount 
                 , CAST(EI.Value AS decimal(18,2)) Amount
@@ -2448,6 +2448,23 @@ ORDER BY OL.Sequence";
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON vd.ActivityId= A.Id
 				WHERE  E.VoucherId IS NULL AND sl.EmployeeFinalSettlementId='" + disbursementAdviceId + @"' AND E.Id in (" + goodWorkPaymentAdviseDetailIds + @")
+
+                Union All
+				SELECT  'LeaveEnchasment' AS OtherName, 'Dr' AS TrnType
+                , CAST(EI.Value AS decimal(18,2)) DrAmount 
+                , 0 CrAmount 
+                , CAST(EI.Value AS decimal(18,2)) Amount
+                ,BM.GLGeneralInfoId ,BMA.BudgetMasterId,BMA.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
+                , B.UserName BudgetName,A.UserName ActivityName 
+				FROM EmployeeFullAndFinalSettlement  E
+				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='LeaveEnchasment'
+				LEFT JOIN [dbo].[EmployeeSeperationItem] ESI ON  ESI.Id=EI.EmployeeSeperationItemId
+				LEFT JOIN [MST].[BudgetMasterActivity] BMA ON  BMA.Id=ESI.DrBudgetMasterActivityId
+				LEFT JOIN[MST].[BudgetMaster] AS BM ON BMA.BudgetMasterId= BM.Id
+				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
+				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+				LEFT JOIN [HKP].[Activity] AS A ON BMA.ActivityId= A.Id
+				WHERE  E.VoucherId IS NULL AND EI.FinalSettlementId='" + disbursementAdviceId + @"' AND E.Id in (" + goodWorkPaymentAdviseDetailIds + @")
                         
                 )X
                 GROUP BY
