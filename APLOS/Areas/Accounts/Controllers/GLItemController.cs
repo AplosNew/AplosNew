@@ -227,6 +227,14 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [Authorize, HttpGet]
+        public ActionResult GetGLControlList(GridParameter parameters,string companyId)
+        {
+            AccountsGLService _accountsGLService = new AccountsGLService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsGLService.GetInvoiceGLBudgetList(parameters, identity.CompanyGroupId, companyId, AccountTypeEnum.Expense.ToString()), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public ActionResult GetIssuePostingGLBudgetActivityList(GridParameter parameters)
         {
             AccountsGLService _accountsGLService = new AccountsGLService(_sqlRepository);

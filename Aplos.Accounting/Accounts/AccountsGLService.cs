@@ -241,21 +241,18 @@ namespace Library.Accounting.Accounts
             try
             {
                 parameters.CmdText = @"SELECT distinct GLGI.COAId, C.UserName AS COA, GLGI.AccountGroupId, AG.UserName AS AccountGroupName, GLGI.Id AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
-                                    , BU.BudgetMasterId, BU.BudgetCode, BU.BudgetName,BU.RefNo, A.ActivityId, A.ActivityCode, A.ActivityName,ACT.Id AccountType,A.IsOrderSpecific,A.ActivityOrderType,A.ValueOfDistribution
-                                    FROM [HKP].[GLGeneralInfo] AS GLGI
+                                    , BMA.BudgetMasterId, B.Code BudgetCode, B.UserName BudgetName,BM.RefNo, BMA.ActivityId, A.Code ActivityCode, A.UserName ActivityName,ACT.Id AccountType,A.IsOrderSpecific,A.ActivityOrderType,A.ValueOfDistribution
+									,BMA.Id BudgetMasterActivityId
+                                    FROM [MST].[BudgetMasterActivity] BMA 
+									LEFT OUTER JOIN [MST].[BudgetMaster] AS BM ON BMA.BudgetMasterId=BM.Id
+									LEFT JOIN HKP.Budget AS B ON BM.BudgetId = B.Id
+									LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=BM.GLGeneralInfoId
+									LEFT JOIN HKP.Activity AS A ON A.Id=BMA.ActivityId
                                     LEFT JOIN HKP.[GLCompanyInfo]AS GLCI ON GLCI.GLGeneralInfoId = GLGI.Id
                                     LEFT JOIN HKP.[AccountGroup]  AS AG ON AG.Id = GLGI.AccountGroupId
                                     LEFT JOIN HKP.[AccountType]  AS ACT ON ACT.Id = AG.AccountTypeId
                                     LEFT JOIN HKP.[GLCompanyGroup] AS glcg ON glcg.GLGeneralInfoId = GLGI.Id
                                     LEFT JOIN HKP.[COA] AS C ON C.Id = GLGI.COAId
-                                    LEFT JOIN (SELECT BM.Id AS BudgetMasterId,BM.RefNo, B.Code AS BudgetCode, B.UserName AS BudgetName, BM.GLGeneralInfoId FROM HKP.Budget AS B
-                                        LEFT JOIN [MST].[BudgetMaster] AS BM ON B.Id=BM.BudgetId
-                                    ) AS BU ON BU.GLGeneralInfoId=GLGI.Id
-                                    LEFT OUTER JOIN (SELECT A.Id AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, BM.Id AS BudgetMasterId,A.IsOrderSpecific,A.ActivityOrderType,A.ValueOfDistribution  FROM HKP.Activity AS A
-										LEFT OUTER JOIN [MST].[BudgetMasterActivity] AS BA ON A.Id= BA.ActivityId
-										LEFT OUTER JOIN [MST].[BudgetMaster] AS BM ON BA.BudgetMasterId=BM.Id
-										LEFT OUTER JOIN HKP.Budget AS B ON BM.BudgetId = B.Id
-									) AS A ON A.BudgetMasterId=BU.BudgetMasterId
                                     WHERE glcg.CompanyGroupId='" + companyGroupId + @"' AND GLCI.CompanyId='" + companyId + @"' AND GLGI.IsPostingAutomaticOnly=0 AND ACT.Id in ('" + AccountType + @"','Asset','Liability') AND GLGI.Active = 1 AND GLGI.Archive = 0
                                     AND GLGI.Id NOT IN(SELECT BM.GLGeneralInfoId FROM [MST].[BankMaster] AS BM  WHERE BM.GLGeneralInfoId <> '')
                                     AND GLGI.Id NOT IN(SELECT CM.GLGeneralInfoId FROM [MST].[CashMaster] AS CM  WHERE CM.GLGeneralInfoId <> '') 
