@@ -85,7 +85,7 @@ WHEN sl.MonthNo=10 THEN 'Oct' WHEN sl.MonthNo=11 THEN 'Nov' ELSE 'Dec' END
 LEFT JOIN SalaryProcMaster AS spm ON spm.SystemID = spc.SlrProcMstSystemID 
 LEFT JOIN SalaryHead AS sh ON sh.SalaryHeadID = spc.SalaryHeadID
 LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
-WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND ISNULL(sl.IsDisbursed,0)=0  AND sh.SalaryHead='Net Pay'";
+WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND ISNULL(sl.IsDisbursed,0)=0 AND sl.DisbursementVoucherId IS NULL AND sh.SalaryHead='Net Pay'";
                 var FinalSettlementUndisbursedEarning = _sqlRepository.GetDataCollection(sqlundisbursed);
 
                 return Json(new { SeperationItem, FinalSettlementUndisbursedEarning }, JsonRequestBehavior.AllowGet);
@@ -348,7 +348,7 @@ WHEN sl.MonthNo=10 THEN 'Oct' WHEN sl.MonthNo=11 THEN 'Nov' ELSE 'Dec' END
 LEFT JOIN SalaryProcMaster AS spm ON spm.SystemID = spc.SlrProcMstSystemID 
 LEFT JOIN SalaryHead AS sh ON sh.SalaryHeadID = spc.SalaryHeadID
 LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
-WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND ISNULL(sl.IsDisbursed,0)=0  AND sh.SalaryHead='Net Pay'";
+WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND ISNULL(sl.IsDisbursed,0)=0 AND sl.DisbursementVoucherId IS NULL AND sh.SalaryHead='Net Pay'";
             var FinalSettlementUndisbursedEarning = _sqlRepository.GetDataCollection(sqlundisbursed);
 
             string sqlavdance = @"SELECT * FROM 
@@ -1931,7 +1931,7 @@ GROUP BY AD.EmployeeId) AS decimal(18,4))) AS varchar(100))
 LEFT JOIN SalaryProcMaster AS spm ON spm.SystemID = spc.SlrProcMstSystemID 
 LEFT JOIN SalaryHead AS sh ON sh.SalaryHeadID = spc.SalaryHeadID
 LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
-WHERE  spc.EmpInfoSystemID= '" + empId + @"' AND PayableVoucherId<>'' AND ISNULL(sl.IsDisbursed,0)=0  AND sh.SalaryHead='Net Pay'
+WHERE  spc.EmpInfoSystemID= '" + empId + @"' AND PayableVoucherId<>'' AND ISNULL(sl.IsDisbursed,0)=0 AND sl.DisbursementVoucherId IS NULL  AND sh.SalaryHead='Net Pay'
 			 ) AS varchar(100))
             WHEN OL.Formula='SeparationDate - ResignDate' THEN CAST(DATEDIFF(Day,(Select FORMAT(DOS,'dd-MMM-yyyy') from dbo.EmployeeInformation Where SystemId='" + empId + @"'),
 			 (Select FORMAT(R.ResignationDate,'dd-MMM-yyyy') from [TRN].[Resignation] R Where R.EmployeeId='" + empId + @"'
@@ -2025,7 +2025,7 @@ ORDER BY OL.Sequence";
                 DataSet dsProcSalaryData = null;
                 DataSet dsFNFEmpMaster = null;
                 string esql, elocksql = "";
-
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 clsFinalSettlement clsFS = new clsFinalSettlement();
                 MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -2093,13 +2093,34 @@ ORDER BY OL.Sequence";
                 esql = "select * from EmployeeFullAndFinalSettlementItem where EmpSystemId IN(" + empIds + ")";
                 con.OpenDataSetThroughAdapter(esql, out dsEmpMaster, false, "1");
 
-                elocksql = "Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND ISNULL(IsDisbursed,0)=0 ";
+                elocksql = @"Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND ISNULL(IsDisbursed,0)=0 AND DisbursementVoucherId IS NULL ";
                 con.OpenDataSetThroughAdapter(elocksql, out dsEmpSL, false, "1");
+
+
+                for (int i = 0; i < dsEmpSL.Tables[0].Rows.Count; i++)
+                {
+                    DataView empsldv = new DataView(dsEmpSL.Tables[0]);
+                    empsldv.RowFilter = "EmpSystemId='" + dsEmpSL.Tables[0].Rows[i]["EmpSystemId"] + "' AND Id='" + dsEmpSL.Tables[0].Rows[i]["Id"] + "'";
+
+                    if (empsldv.Count > 0)
+                    {
+                        DataRow drsl = empsldv[0].Row;
+
+                        drsl.BeginEdit();
+                        drsl["EmployeeFinalSettlementId"] = _Id;
+                        drsl["UpdatedBy"] = identity.Name;
+                        drsl["UpdatedDate"] = DateTime.Now.ToString();
+                        drsl["UpdatedFromIP"] = identity.IPAddress;
+                        drsl.EndEdit();
+
+                    }
+                }
+                
 
                 foreach (var item in datalist)
                 {
                     string empId = item["EmpSystemId"].ToString();
-                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                   
                     string sql = string.Empty;
                     DataTable dtValue = new DataTable();
                     dtValue.TableName = "TempTable";
@@ -2125,22 +2146,7 @@ ORDER BY OL.Sequence";
                     }
 
 
-                    DataView empsldv = new DataView(dsEmpSL.Tables[0]);
-                    empsldv.RowFilter = "EmpSystemId='" + item["EmpSystemId"] + "'";
-
-                    if (empsldv.Count > 0)
-                    {
-
-                        DataRow drsl = empsldv[0].Row;
-
-                        drsl.BeginEdit();
-                        drsl["EmployeeFinalSettlementId"] = _Id;
-                        drsl["UpdatedBy"] = identity.Name;
-                        drsl["UpdatedDate"] = DateTime.Now.ToString();
-                        drsl["UpdatedFromIP"] = identity.IPAddress;
-                        drsl.EndEdit();
-
-                    }
+                 
 
 
                     DataTable dtData = GetDataTable(empId);

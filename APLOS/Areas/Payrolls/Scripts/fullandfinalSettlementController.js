@@ -49,7 +49,7 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
 
     $scope.CustomPara = {
         SeparationTypeId: null,
-        EmpSystemId: null
+        EmpSysId: null
     };
     $scope.FinalSettlementEarningHeadList = [];
     $scope.FinalSettlementDeductionHeadList = [];
@@ -317,8 +317,10 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
         if ($scope.FinalSettlementModel.IsApproved == false) {
             for (var i = 0; i < $scope.SelectedEmployeeList.length; i++) {
                 if ($scope.SelectedEmployeeList[i].EmpSystemId == obj.data.EmpSystemId) {
-                    $scope.SelectedEmployeeList.splice(i, 1);
-                    break;
+                    if (baseService.isUndefinedOrNull(obj.data.Id)) {
+                        $scope.SelectedEmployeeList.splice(i, 1);
+                        break;
+                    }
                 }
             }
         }
@@ -388,15 +390,15 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
 
     // #endregion
 
-    $scope.EmpSystemId = null;
+    $scope.EmpSysId = null;
     $scope.FormulaList = [];
     $scope.FinalSettlementUndisbursedEarningList = [];
     $scope.GetEmployeeItems = function (obj) {
         $scope.FormulaList = [];
-        $scope.EmpSystemId = obj.data.EmpSystemId;
+        $scope.EmpSysId = obj.data.EmpSystemId;
         $http({
             method: 'GET',
-            url: 'Payrolls/FinalSettlement/GetEmployeeSeperationItemFormulaData?EmpSystemId=' + $scope.EmpSystemId
+            url: 'Payrolls/FinalSettlement/GetEmployeeSeperationItemFormulaData?EmpSystemId=' + $scope.EmpSysId
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
@@ -412,7 +414,7 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
 
         $http({
             method: 'GET',
-            url: 'Payrolls/FinalSettlement/GetEmployeeSeperationItemFormulaData?EmpSystemId=' + $scope.EmpSystemId
+            url: 'Payrolls/FinalSettlement/GetEmployeeSeperationItemFormulaData?EmpSystemId=' + $scope.EmpSysId
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
