@@ -12,6 +12,7 @@ using System.Threading;
 using System.Collections.Generic;
 using Library.Data.Sql;
 using Library.Security.Core;
+using Aplos.MaterialManagement.MaterialQuery;
 
 #endregion
 
@@ -31,6 +32,11 @@ namespace Aplos.Areas.Costings.Controllers
         #region -- Pages
        
         public ActionResult Aplos()
+        {
+            return View();
+        }
+
+        public ActionResult OLCSMMap()
         {
             return View();
         }
@@ -65,6 +71,16 @@ namespace Aplos.Areas.Costings.Controllers
 
             string sql = @"SELECT N.*,CC.UserName CostingComponent from [dbo].[OrderLineCostingItem] N
                             LEFT JOIN HKP.CostingComponent AS cc ON CC.Id=N.CostingComponentId ORDER BY N.Sequence";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetOLSMMapDataList(string OrderLineCostingItemId)
+        {
+
+            string sql = @"SELECT Flag=CAST(CASE WHEN A.Id IS NULL THEN 0 ELSE 1 END AS BIT) ,A.Id,SM.Id ServiceMasterId,SM.Sequence,SM.Code,SM.UserName,SM.StandardName FROM [HKP].[ServiceMaster] SM
+OUTER APPLY (Select * from dbo.OrderLineCostingItemServiceMasterMapping Where ServiceMasterId=SM.Id AND OrderLineCostingItemId='" + OrderLineCostingItemId + @"') A
+Where SM.Active=1 Order by SM.Sequence";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -285,10 +301,61 @@ namespace Aplos.Areas.Costings.Controllers
         }//End of function
 
 
+        [HttpPost, Authorize]
+        public JsonResult CreateOLSMMap(List<Dictionary<string, object>> data, string masterId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsChild, dsChildId;
+                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+                #region FUND 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.OrderLineCostingItemServiceMasterMapping where  OrderLineCostingItemId='" + masterId + "'", out dsChild, false, "1");
 
+                objCon.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[OrderLineCostingItemServiceMasterMapping] where OrderLineCostingItemId='" + masterId + "'", out dsChildId, false, "1");
+
+                var count = Convert.ToInt32(dsChildId.Tables[0].Rows[0]["countId"].ToString()); ;
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+
+                            count++;
+                            item["Id"] = materialCommonService.MakePK(masterId, count, 2);
+                            item["OrderLineCostingItemId"] = masterId;
+
+                            AddNewRow(dsChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsChild);
+                return Json(new { Error = false, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
         #endregion
 
-       
+
     }
 
     public class OrderLineCostingItem

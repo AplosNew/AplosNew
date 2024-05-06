@@ -83,10 +83,23 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
             });
         }
     };
+
+    function checkItemExist(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].POId === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     $scope.selectedProductionOrder = [];
     $scope.SetPrOData = function () {
         var gridObj = $("#GridPO").data("ejGrid");
-        $scope.selectedProductionOrder.push(gridObj.getSelectedRecords()[0]);
+        var data = gridObj.getSelectedRecords()[0];
+        if (checkItemExist($scope.selectedProductionOrder, data.POId) === false) {
+            $scope.selectedProductionOrder.push(data);
+        }
     }
 
     // #endregion
@@ -151,22 +164,21 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
     }
 
     $scope.EntityList = [];
-    $scope.GetEntity = function () {
+    $scope.getAllEntities = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'GetEntity',
-            dataType:'JSON'
-        })
-            .then(function successCallback(res) {
-                $scope.EntityList = res.data;
-                if (baseService.arrayLength(res.data) === 1) {
-                    $scope.ModelNew.EntityId = $scope.EntityList[0].Value;
-                    //default
-                    $scope.loadProcessList($scope.ModelNew.EntityId);
-                }
-            });
-    }
-    $scope.GetEntity();
+            url: "OrderManagements/productionOrderSchedulingParametersType1/GetEntity"
+        }).then(function successCallback(response) {
+            $scope.EntityList = response.data;
+            if (baseService.arrayLength(response.data) === 1) {
+                $scope.ModelNew.EntityId = $scope.EntityList[0].Value;
+                //default
+                $scope.loadProcessList($scope.ModelNew.EntityId);
+            }
+        });
+    };
+    $scope.getAllEntities();
+
 
     $scope.loadProcessList = function (entityid) {
         cboService.GetEntityProcessCbo(entityid, function (result) {
