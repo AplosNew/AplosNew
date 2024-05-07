@@ -1206,6 +1206,7 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
 								,B.Basic,B.BasicSalaryHeadID
                                 ,format(sum(apd.OverStay),'N2') OverStayMinute
                                 ,format((sum(apd.OverStay)/60),'N2') OverStayHour
+                                ,COUNT(apd.RowId)OTProcessDays
                                 from [dbo].[AttdnProcessData] apd 
                                 left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID 
                                 left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
@@ -1243,7 +1244,7 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
                                                                           FROM SalaryInfoDefine SID 
 								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                                                         WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
-                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 AND apd.GWPaymentAdviseId IS NULL and EI.EmployeeStatus='Active' and ISNULL(apd.AdditionalOT,0)>0
+                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus NOT  IN ('A') AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 AND apd.GWPaymentAdviseId IS NULL and EI.EmployeeStatus='Active' and ISNULL(apd.AdditionalOT,0)>0
                                 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id,Department.UserName,Section.UserName,SubSection.UserName
 								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,za.Id
                                 )T WHERE T.CheckBoxSelect=0 and T.CheckBoxSelectAD=0
@@ -1317,6 +1318,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 								,B.Basic,B.BasicSalaryHeadID
                                 ,format(sum(apd.OverStay),'N2') OverStayMinute
                                 ,format((sum(apd.OverStay)/60),'N2') OverStayHour
+                                ,COUNT(apd.RowId)OTProcessDays
                                 from [dbo].[AttdnProcessData] apd 
                                 left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID 
                                 left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
@@ -1353,7 +1355,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                                                                           FROM SalaryInfoDefine SID 
 								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                                                         WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
-                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 and EI.EmployeeStatus='Active' and ISNULL(apd.AdditionalOT,0)>0
+                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus NOT  IN ('A')  AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 and EI.EmployeeStatus='Active' and ISNULL(apd.AdditionalOT,0)>0
                                 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id,Department.UserName,Section.UserName,SubSection.UserName
 								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,za.Id
                                 )T WHERE T.CheckBoxSelectAD=0
