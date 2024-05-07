@@ -1199,7 +1199,7 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
 ,format(sum(ISNULL(apd.AdditionalOT,0)),'N2') Minute
                                 ,format((sum(ISNULL(apd.AdditionalOT,0))/60),'N2') Hour
                                 ,format(g.Gross,'N2') Gross
-                                ,0 Rate,0 Amount
+                                ,0.00 Rate,0.00 Amount
 								,apd.GWPaymentAdviseId 
 								,onw.FormulaDesID
                                 ,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
@@ -1207,6 +1207,7 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
                                 ,format(sum(apd.OverStay),'N2') OverStayMinute
                                 ,format((sum(apd.OverStay)/60),'N2') OverStayHour
                                 ,COUNT(apd.RowId)OTProcessDays
+                                ,EI.EmployeeStatus
                                 from [dbo].[AttdnProcessData] apd 
                                 left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID 
                                 left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
@@ -1244,9 +1245,9 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
                                                                           FROM SalaryInfoDefine SID 
 								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                                                         WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
-                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus NOT  IN ('A') AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 AND apd.GWPaymentAdviseId IS NULL and EI.EmployeeStatus='Active' and ISNULL(apd.AdditionalOT,0)>0
+                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus NOT  IN ('A') AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 AND apd.GWPaymentAdviseId IS NULL and ISNULL(apd.AdditionalOT,0)>0
                                 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id,Department.UserName,Section.UserName,SubSection.UserName
-								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,za.Id
+								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,za.Id,EI.EmployeeStatus
                                 )T WHERE T.CheckBoxSelect=0 and T.CheckBoxSelectAD=0
 								order by T.EmployeeCode ";
                     }
@@ -1311,7 +1312,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 ,format(sum(ISNULL(apd.AdditionalOT,0)),'N2') Minute
                                 ,format((sum(ISNULL(apd.AdditionalOT,0))/60),'N2') Hour
                                 ,format(g.Gross,'N2') Gross
-                                ,0 Rate,0 Amount
+                                ,0.00 Rate,0.00 Amount
 								,apd.GWPaymentAdviseId 
 								,onw.FormulaDesID
                                 ,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
@@ -1319,6 +1320,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                                 ,format(sum(apd.OverStay),'N2') OverStayMinute
                                 ,format((sum(apd.OverStay)/60),'N2') OverStayHour
                                 ,COUNT(apd.RowId)OTProcessDays
+                                ,EI.EmployeeStatus
                                 from [dbo].[AttdnProcessData] apd 
                                 left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID 
                                 left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
@@ -1355,9 +1357,9 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                                                                           FROM SalaryInfoDefine SID 
 								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                                                         WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
-                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus NOT  IN ('A')  AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 and EI.EmployeeStatus='Active' and ISNULL(apd.AdditionalOT,0)>0
+                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus NOT  IN ('A')  AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 and ISNULL(apd.AdditionalOT,0)>0
                                 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id,Department.UserName,Section.UserName,SubSection.UserName
-								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,za.Id
+								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,za.Id,EI.EmployeeStatus
                                 )T WHERE T.CheckBoxSelectAD=0
 								order by T.EmployeeCode ";
                     }
@@ -1383,12 +1385,12 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                 if (!string.IsNullOrEmpty(dtData.Rows[i]["FormulaDesID"].ToString()))
                 {
                     ReLoadFormulaWithValue(dtData.Rows[i]["FormulaDesID"].ToString(), ref dtValue, out string _formulaValue);
-                    sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("#,##0");
+                    sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("##,##0.00");
 
                     //DataRow dtValueRow = dtValue.NewRow();
 
                     dtValueRow["BasicSalaryHeadID"] = dtData.Rows[i]["BasicSalaryHeadID"].ToString().Trim();
-                    dtValueRow["Rate"] = sFormulaResult;
+                    dtValueRow["Rate"] = Convert.ToDecimal(sFormulaResult);
 
                     //dtValue.Rows.Add(dtValueRow);
 
@@ -1399,8 +1401,8 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                         DataRow drmo = dv[0].Row;
                         
                             drmo.BeginEdit();
-                            drmo["Rate"] = sFormulaResult;
-                            drmo["Amount"] = Convert.ToDecimal(sFormulaResult) * Convert.ToDecimal(dtData.Rows[i]["Hour"].ToString());
+                            drmo["Rate"] = Convert.ToDecimal(sFormulaResult);
+                            drmo["Amount"] = Convert.ToDecimal(Convert.ToDecimal(sFormulaResult) * Convert.ToDecimal(dtData.Rows[i]["Hour"].ToString())).ToString("##,##0.00");
                             drmo.EndEdit();
 
                     }
