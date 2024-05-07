@@ -1916,9 +1916,10 @@ WHERE E.EmployeeStatus='Active' AND A.ActionStatus='FullAndFinalApproveBy'";
 			 WHEN OL.UserName='ConfirmationDate' THEN FORMAT(E.DOC,'dd-MMM-yyyy')
 			 WHEN OL.UserName='ResignDate' THEN FORMAT(R.ResignationDate,'dd-MMM-yyyy')
 			 WHEN OL.UserName='SeparationDate' THEN FORMAT(E.DOS,'dd-MMM-yyyy')
-			 WHEN OL.UserName='EarnLeave' THEN CAST(LV.Balance AS varchar(100))
+			 WHEN OL.UserName='EarnLeave' THEN CAST(CEILING(LV.Balance) AS varchar(100))
 			 WHEN OL.SalaryHeadID<>'' THEN CAST(SID.DefineAmount AS varchar(100))
 			 WHEN OL.UserName='NoticePeriod' THEN CAST(LV.NoticePeriod AS varchar(100))
+
 WHEN OL.UserName='Advance' THEN CAST((
 			 cast((SELECT SUM(AD.Amount)-ISNULL((select SUM(Amount)WrittenOffAmount 
 from TRN.EmployeeSubsequentTransaction where SourceType='EmployeeAdvanceWriteOff' AND  EmployeeId=AD.EmployeeId AND ISNULL(JournalType,'')<>'Salary'),0) AS Balance
@@ -1926,7 +1927,8 @@ FROM TRN.EmployeeSubsequentTransaction AS AD
 WHERE    AD.EmployeeId<>'' AND ISNULL(AD.AdvanceId,'') <>'' 
 AND AD.SourceType in ('EmployeeAdvance', 'InterTransaction') AND AD.EmployeeId='" + empId + @"'
 GROUP BY AD.EmployeeId) AS decimal(18,4))) AS varchar(100))
-			 WHEN OL.UserName='UnPaidSalary' THEN CAST((
+			 
+WHEN OL.UserName='UnPaidSalary' THEN CAST((
 			 SELECT SUM(spc.DisbusmentAmount)DisbusmentAmount FROM SalaryProcChild AS spc
 LEFT JOIN SalaryProcMaster AS spm ON spm.SystemID = spc.SlrProcMstSystemID 
 LEFT JOIN SalaryHead AS sh ON sh.SalaryHeadID = spc.SalaryHeadID
@@ -1944,7 +1946,8 @@ AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND ISNULL(sl.IsBonusDi
 AND sl.BonusDisbursementVoucherId IS NULL 
 AND SPC.EmpInfoSystemID='" + empId + @"'
 			 ) AS varchar(100))
-            WHEN OL.Formula='SeparationDate - ResignDate' THEN CAST(DATEDIFF(Day,(Select FORMAT(DOS,'dd-MMM-yyyy') from dbo.EmployeeInformation Where SystemId='" + empId + @"'),
+           
+WHEN OL.Formula='SeparationDate - ResignDate' THEN CAST(DATEDIFF(Day,(Select FORMAT(DOS,'dd-MMM-yyyy') from dbo.EmployeeInformation Where SystemId='" + empId + @"'),
 			 (Select FORMAT(R.ResignationDate,'dd-MMM-yyyy') from [TRN].[Resignation] R Where R.EmployeeId='" + empId + @"'
 AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC))
 			 ) AS varchar(100))
