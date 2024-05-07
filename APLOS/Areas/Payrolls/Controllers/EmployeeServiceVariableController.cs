@@ -500,6 +500,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 								left join SCS.Currency cu on cu.Id = c.AmtDefinitionCurrency
                                 left join scs.UnitOfMeasurement uom on uom.Id =  est.UOMId
                                 left join [dbo].[EmployeeServicesRate] esr on esr.EmployeeServiceCategoryId = esd.EmployeeServiceCategoryId
+								AND esr.Id=(Select top(1) Id From [dbo].[EmployeeServicesRate] Where  EmployeeServiceCategoryId= esr.EmployeeServiceCategoryId AND EffectiveDate<='" + FromDate + @"' Order By EffectiveDate desc)
                                 where esd.Date between '" + FromDate + "' and '" + ToDate + "' " + svc + @"
 UNION
 select ei.EmployeeCode EmpId, ei.EmployeeName EmpName, e.UserName EmpEntity, d.UserName EmpDepertment, ld.UserName Designation,
@@ -525,7 +526,8 @@ select ei.EmployeeCode EmpId, ei.EmployeeName EmpName, e.UserName EmpEntity, d.U
                                 inner join SalaryRuleMaster sm on sm.CurrencyRuleSystemID = cm.SystemID
                                 left join SCS.Currency cu on cu.Id = c.AmtDefinitionCurrency
                                 left join scs.UnitOfMeasurement uom on uom.Id = est.UOMId
-                                left join[dbo].[EmployeeServicesRate] esr on esr.EmployeeServiceCategoryId = esd.EmployeeServiceCategoryId
+                                left join [dbo].[EmployeeServicesRate] esr on esr.EmployeeServiceCategoryId = esd.EmployeeServiceCategoryId
+								AND esr.Id=(Select top(1) Id From [dbo].[EmployeeServicesRate] Where  EmployeeServiceCategoryId= esr.EmployeeServiceCategoryId AND EffectiveDate<='" + FromDate + @"' Order By EffectiveDate desc)
                                 where esd.Date between '" + FromDate + "' and '" + ToDate + "' "+svc+ ")A Order BY A.EmpId,A.Date";
                 return _sqlRepository.GetDataTable(sql);
             }
