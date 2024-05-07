@@ -2193,19 +2193,21 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
-        public ActionResult GetGoodWorkPaymentAdviseDetailCheckedList(string paymentAdviseId)
+        public ActionResult GetGoodWorkPaymentAdviseDetailCheckedList(string paymentAdviseId, string paymentMode)
         {
-            string sql = @"select isSelected = Convert(bit, 'True'),CheckBoxSelect=Convert(bit, 'True'),gwpad.Id,gwpad.PaymentAdviseId,gwpad.EmpSystemId,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour,gwpad.Hour*60 Minute,gwpad.Rate,gwpad.Amount,gwpad.Remarks
-                            ,gwpad.IsCheck,isnull(gwpad.IsDisburse,0)IsDisburse
+            string sql = @" DECLARE @paymentMode nvarchar(50)='" + paymentMode + @"'
+select isSelected = Convert(bit, 'True'),CheckBoxSelect=Convert(bit, 'True'),gwpad.Id,gwpad.PaymentAdviseId,gwpad.EmpSystemId,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour,gwpad.Hour*60 Minute,gwpad.Rate,gwpad.Amount,gwpad.Remarks
+                            ,gwpad.IsCheck,isnull(gwpad.IsDisburse,0)IsDisburse,ISNULL(ei.PaymentMode,'') PaymentMode
                             from GoodWorkPaymentAdviseDetail gwpad
                             left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
 							left join GoodWorkPaymentAdvise gwpa on gwpa.Id=gwpad.PaymentAdviseId
-                            where gwpa.Id='" + paymentAdviseId + "' and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.DisbursementVoucherId IS NULL ";
+                            where gwpa.Id='" + paymentAdviseId + @"' and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.DisbursementVoucherId IS NULL 
+                            AND ISNULL(ei.PaymentMode,'')=CASE WHEN @paymentMode<>'' THEN @paymentMode ELSE ISNULL(ei.PaymentMode,'') END ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpPost]
-        public JsonResult GetGoodWorkPaymentAdviseDisbursementJVDataList(string disbursementAdviceId, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail)
+        public JsonResult GetGoodWorkPaymentAdviseDisbursementJVDataList(string disbursementAdviceId, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail , string paymentMode)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string goodWorkPaymentAdviseDetailIds = "";
@@ -2227,8 +2229,8 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 
 
             string sql = null;
-            sql = @"SELECT
-                X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAmount) CrAmount,SUM(X.Amount) Amount,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
+            sql = @"DECLARE @paymentMode nvarchar(50)='" + paymentMode + @"'
+SELECT X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAmount) CrAmount,SUM(X.Amount) Amount,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
                 FROM
                 (
                 SELECT  'GoodWorkPayment' AS OtherName, 'Dr' AS TrnType
@@ -2238,13 +2240,16 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                 ,GAD.GLGeneralInfoId  ,GAD.BudgetMasterId,GAD.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
                 , B.UserName BudgetName,A.UserName ActivityName 
 				FROM GoodWorkPaymentAdviseDetail gwpad
+                left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
 				LEFT JOIN GoodWorkPaymentAdvise gwpa on gwpa.Id=gwpad.PaymentAdviseId
 				LEFT JOIN HKP.GeneralAccountDeterminate GAD ON  GAD.Id='GoodWorkPayment'
 				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON GAD.GLGeneralInfoId=GL.Id
 				LEFT JOIN[MST].[BudgetMaster] AS BM ON GAD.BudgetMasterId= BM.Id
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON GAD.ActivityId= A.Id
-				WHERE gwpa.PaymentSource='GoodWork' and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.DisbursementVoucherId IS NULL AND gwpad.PaymentAdviseId='" + disbursementAdviceId + @"' AND gwpad.Id in (" + goodWorkPaymentAdviseDetailIds + @")
+				WHERE gwpa.PaymentSource='GoodWork' and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.DisbursementVoucherId IS NULL 
+                AND ISNULL(ei.PaymentMode,'')=CASE WHEN @paymentMode<>'' THEN @paymentMode ELSE ISNULL(ei.PaymentMode,'') END
+                AND gwpad.PaymentAdviseId='" + disbursementAdviceId + @"' AND gwpad.Id in (" + goodWorkPaymentAdviseDetailIds + @")
 
                 Union All
                 SELECT  'ExtraOTPayment' AS OtherName, 'Dr' AS TrnType
@@ -2254,13 +2259,16 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                 ,GAD.GLGeneralInfoId  ,GAD.BudgetMasterId,GAD.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
                 , B.UserName BudgetName,A.UserName ActivityName 
 				FROM GoodWorkPaymentAdviseDetail gwpad
+                left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
 				LEFT JOIN GoodWorkPaymentAdvise gwpa on gwpa.Id=gwpad.PaymentAdviseId
 				LEFT JOIN HKP.GeneralAccountDeterminate GAD ON  GAD.Id='ExtraOTPayment'
 				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON GAD.GLGeneralInfoId=GL.Id
 				LEFT JOIN[MST].[BudgetMaster] AS BM ON GAD.BudgetMasterId= BM.Id
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON GAD.ActivityId= A.Id
-				WHERE gwpa.PaymentSource='Attendance' and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.DisbursementVoucherId IS NULL AND gwpad.PaymentAdviseId='" + disbursementAdviceId + @"' AND gwpad.Id in (" + goodWorkPaymentAdviseDetailIds + @")
+				WHERE gwpa.PaymentSource='Attendance' and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.DisbursementVoucherId IS NULL 
+                AND ISNULL(ei.PaymentMode,'')=CASE WHEN @paymentMode<>'' THEN @paymentMode ELSE ISNULL(ei.PaymentMode,'') END
+                AND gwpad.PaymentAdviseId='" + disbursementAdviceId + @"' AND gwpad.Id in (" + goodWorkPaymentAdviseDetailIds + @")
                         
                 )X
                 GROUP BY

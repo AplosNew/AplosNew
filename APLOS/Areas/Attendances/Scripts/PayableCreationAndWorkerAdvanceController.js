@@ -1449,7 +1449,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         $http({
             method: "POST",
             url: "Attendances/GoodWork/GetGoodWorkPaymentAdviseDisbursementJVDataList",
-            data: { 'disbursementAdviceId': $scope.voucher.DisbursementAdviceId, 'goodWorkPaymentAdviseDetail': $scope.EmployeeListNew },
+            data: { 'disbursementAdviceId': $scope.voucher.DisbursementAdviceId, 'goodWorkPaymentAdviseDetail': $scope.EmployeeListNew, 'paymentMode': $scope.voucher.PaymentMode },
             dataType: 'JSON'
             , contentType: "application/json charset=utf-8"
         }).then(function successCallback(response) {
@@ -1463,7 +1463,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: $scope.path + "GetGoodWorkPaymentAdviseDetailCheckedList?paymentAdviseId=" + $scope.voucher.DisbursementAdviceId,
+            url: $scope.path + "GetGoodWorkPaymentAdviseDetailCheckedList?paymentAdviseId=" + $scope.voucher.DisbursementAdviceId + '&paymentMode=' + $scope.voucher.PaymentMode,
         }).then(function successCallback(response) {
             if (response.data.length > 0) {
 
@@ -1614,6 +1614,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             $scope.voucher.AccountTitle = null;
             $scope.voucher.BankName = null;
         }
+        $scope.GetemployeeDisbursement();
     }
     $scope.changeBank = function () {
         if ($scope.voucher.PaymentMode == 'Bank') {
