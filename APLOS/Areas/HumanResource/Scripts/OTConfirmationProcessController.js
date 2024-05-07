@@ -96,7 +96,7 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
     but.style.display = "none";
 
     function ProcessChk() {
-        if ($scope.Data.length <= 0) {
+        if ($scope.DataList.length <= 0) {
             but.style.display = "none";
         }
         else {
@@ -203,7 +203,7 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
     }
 
 
-    $scope.Data = [];
+    $scope.DataList = [];
 
     $scope.getData = function () {
 
@@ -235,8 +235,8 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
                 ShowResult(resp.data.Message, 'failure');
             }
             else {
-                $scope.Data = [];
-                $scope.Data = resp.data;
+                $scope.DataList = [];
+                $scope.DataList = resp.data;
                 ProcessChk();
             }
             
@@ -251,14 +251,14 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
         }
 
         var ProcArr = [];
-        for (var i = 0; i < $scope.Data.length; i++) {
+        for (var i = 0; i < $scope.DataList.length; i++) {
             ProcArr.push({
-                'EmpSystemID': $scope.Data[i].EmpSystemID, 'WorkDate': $scope.Data[i].WorkDate, 'PlanOT': $scope.Data[i].PlanOT, 'ProcessedOT': $scope.Data[i].ProcessedOT,
-                'DayLimit': $scope.Data[i].DayLimit, 'StandardOT': $scope.Data[i].StandardOT, 'AppliedOTLimit': $scope.Data[i].AppliedOTLimit,
-                'AllowedOTLimit': $scope.Data[i].AllowedOTLimit, 'AdditionalOT': $scope.Data[i].AdditionalOT, 'WeekLimit': $scope.Data[i].WeekLimit,
-                'TargetOT': $scope.Data[i].TargetOT, 'ApplicableWM': $scope.Data[i].ApplicableWM, 'IsOTComfirm': $scope.Data[i].IsOTComfirm, 'IsManualOutTime': $scope.Data[i].IsManualOutTime,
-                'MonthlyLimit': $scope.Data[i].MonthlyLimit, 'OutTime': $scope.Data[i].OutTime, 'PlantId': $scope.Data[i].PlantId, 'ProcessOutTime': $scope.Data[i].ProcessOutTime,
-                'RowId': $scope.Data[i].RowId
+                'EmpSystemID': $scope.DataList[i].EmpSystemID, 'WorkDate': $scope.DataList[i].WorkDate, 'PlanOT': $scope.DataList[i].PlanOT, 'ProcessedOT': $scope.DataList[i].ProcessedOT,
+                'DayLimit': $scope.DataList[i].DayLimit, 'StandardOT': $scope.DataList[i].StandardOT, 'AppliedOTLimit': $scope.DataList[i].AppliedOTLimit,
+                'AllowedOTLimit': $scope.DataList[i].AllowedOTLimit, 'AdditionalOT': $scope.DataList[i].AdditionalOT, 'WeekLimit': $scope.DataList[i].WeekLimit,
+                'TargetOT': $scope.DataList[i].TargetOT, 'ApplicableWM': $scope.DataList[i].ApplicableWM, 'IsOTComfirm': $scope.DataList[i].IsOTComfirm, 'IsManualOutTime': $scope.DataList[i].IsManualOutTime,
+                'MonthlyLimit': $scope.DataList[i].MonthlyLimit, 'OutTime': $scope.DataList[i].OutTime, 'PlantId': $scope.DataList[i].PlantId, 'ProcessOutTime': $scope.DataList[i].ProcessOutTime,
+                'RowId': $scope.DataList[i].RowId
             });
         }
 

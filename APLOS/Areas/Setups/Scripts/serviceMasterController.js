@@ -44,6 +44,7 @@ function ServiceMasterController(commonMessage, $window, $scope, $rootScope, bas
     $scope.serviceMaster = {
         Id: null
         , ServiceGroupId: null
+        , CompanyId: null
         , ServiceGroupName: null
         , HSNCodeId:null
         , Sequence: null
@@ -53,6 +54,10 @@ function ServiceMasterController(commonMessage, $window, $scope, $rootScope, bas
         , Description: null
         , Remarks: null
         , Active: true
+        , IsPO: true
+        , IsApproved: true
+        , DrControlId: null
+        , CrControlId: null
     };
     $scope.serviceMasterNew = Object.assign({}, $scope.serviceMaster);
 
@@ -61,7 +66,10 @@ function ServiceMasterController(commonMessage, $window, $scope, $rootScope, bas
         .then(function (response) {
             $scope.serviceGroupList = response.data;
         });
-
+    $scope.companyList = [];
+    cboService.getCboCompanyByCompanyGroup(null, function (result) {
+        $scope.companyList = result;
+    });
     $scope.hsnCodeList = [];
     cboService.getHNSCbo(function (response) {
         $scope.hsnCodeList = response;
@@ -179,4 +187,80 @@ function ServiceMasterController(commonMessage, $window, $scope, $rootScope, bas
         $scope.serviceMaster = {};
         $scope.serviceMasterNew = { Sequence: seq, Active: true };
     }
+
+
+    $scope.searchglByList = [
+        {
+            "name": "GL Code",
+            "value": "GLGeneralInfoCode"
+        },
+        {
+            "name": "GL Name",
+            "value": "GLGeneralInfoName"
+        },
+        {
+            "name": "Account Group",
+            "value": "AccountGroupName"
+        },
+        {
+            "name": "COA",
+            "value": "COA"
+        },
+        {
+            "name": "Budget",
+            "value": "BudgetName"
+        },
+        {
+            "name": "Activity",
+            "value": "ActivityName"
+        },
+        {
+            "name": "Ref No",
+            "value": "RefNo"
+        }
+    ];
+    $scope.glListParameters = {
+        limit: 10,
+        offset: 0,
+        order: "asc",
+        sort: "GLGeneralInfoCode",
+        searchBy: "ActivityName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+    $scope.cOAICodeList = [];
+    $scope.popUp = function (type) {
+        $scope.TrnType = type;
+        $scope.cOAICodeList = [];
+        baseService.setCurrentPage("cOAICodeList");
+        $scope.GetCOAICodeListData = function (pageno) {
+            baseService.paginationBase("Accounts/GLItem/GetGLControlList?companyId=" + $scope.serviceMasterNew.CompanyId, pageno, $scope.glListParameters)
+                .then(function (result) {
+                    $scope.cOAICodeList = result.Rows;
+                    $scope.glListParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, "failure", "GLPopUp");
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector("#GLPopUp")).modal("show");
+        $scope.GetCOAICodeListData();
+    };
+    $scope.setSelected = function (data,index) {
+        if ($scope.TrnType == 'Dr') {
+            $scope.serviceMasterNew.DrActivityName = data.ActivityName;
+            $scope.serviceMasterNew.DrControlId = data.BudgetMasterActivityId;
+        }
+        if ($scope.TrnType == 'Cr') {
+            $scope.serviceMasterNew.CrActivityName = data.ActivityName;
+            $scope.serviceMasterNew.CrControlId = data.BudgetMasterActivityId;
+        }
+        $scope.closeGLPopUp();
+        $scope.Type = null;
+    };
+    $scope.closeGLPopUp = function () {
+        angular.element(document.querySelector("#GLPopUp")).modal("hide");
+    };
 }

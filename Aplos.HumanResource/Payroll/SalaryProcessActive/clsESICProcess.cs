@@ -1056,8 +1056,11 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                 strSql += @" 
                             ORDER BY EmpInfoSystemID, HeadType DESC";
 
-                objCon = new ConnectionManager.DAL.ConManager("1"); 
-                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1"); 
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
+
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(strSql, out dsRef);
             }
             catch (Exception ex)
             {

@@ -1820,7 +1820,7 @@ UNION
 				var sql = @"Select * from (SELECT  'Material' AS OtherName,GL.AccountCode+' - '+ GL.UserName GLName,BU.UserName BudgetName,A.UserName ActivityName,0 DrAmount,IRD.ShortageValue CrAmount,IRD.ShortageValue Amount
                             ,IRD.PostDrGLGeneralInfoId GLGeneralInfoId,  IRD.PostDrBudgetMasterId BudgetMasterId, IRD.PostDrActivityId ActivityId,NULL TaxCategoryId,NULL TaxCodeId,'Cr' AType,'Cr' TrnType
                             FROM TRN.InventoryReceive IR 
-                            JOIN (SELECT InventoryReceiveId,PostDrGLGeneralInfoId,PostDrBudgetMasterId,PostDrActivityId,SUM(ISNULL(ShortageValue,0)) ShortageValue
+                            JOIN (SELECT InventoryReceiveId,PostDrGLGeneralInfoId,PostDrBudgetMasterId,PostDrActivityId,SUM(ROUND(ISNULL(ShortageValue,0),2)) ShortageValue
 									FROM TRN.InventoryReceiveDetail where ShortageQty>0 
 									group by InventoryReceiveId,PostDrGLGeneralInfoId,PostDrBudgetMasterId,PostDrActivityId) IRD ON IRD.InventoryreceiveId=IR.Id
                             LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=IRD.PostDrGLGeneralInfoId
@@ -1841,7 +1841,7 @@ UNION
 
 							UNION ALL
 							SELECT 'Tax' AS OtherName, GL.AccountCode+' - '+GL.UserName AS GLName, B.UserName AS BudgetName, A.UserName AS ActivityName
-						,  0 DrAmount , SUM((IRT.TaxAmount*ird.ShortageQty)/ird.TransactionQty) AS  CrAmount,SUM((IRT.TaxAmount*ird.ShortageQty)/ird.TransactionQty) Amount, VD.GLGeneralInfoId AS GLGeneralInfoId, VD.BudgetMasterId, VD.ActivityId
+						,  0 DrAmount , SUM(ROUND((IRT.TaxAmount*ird.ShortageQty)/ird.TransactionQty,2)) AS  CrAmount,SUM(ROUND((IRT.TaxAmount*ird.ShortageQty)/ird.TransactionQty,2)) Amount, VD.GLGeneralInfoId AS GLGeneralInfoId, VD.BudgetMasterId, VD.ActivityId
 						, IRT.TaxCategoryId,IT.TaxCodeId, 'Cr' AS AType, 'Cr' AS TrnType
                        
 					FROM [TRN].[InventoryReceiveDetail] AS IRD
