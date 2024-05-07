@@ -1199,13 +1199,15 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
 ,format(sum(ISNULL(apd.AdditionalOT,0)),'N2') Minute
                                 ,format((sum(ISNULL(apd.AdditionalOT,0))/60),'N2') Hour
                                 ,format(g.Gross,'N2') Gross
-                                ,0 Rate,0 Amount
+                                ,0.00 Rate,0.00 Amount
 								,apd.GWPaymentAdviseId 
 								,onw.FormulaDesID
                                 ,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
 								,B.Basic,B.BasicSalaryHeadID
                                 ,format(sum(apd.OverStay),'N2') OverStayMinute
                                 ,format((sum(apd.OverStay)/60),'N2') OverStayHour
+                                ,COUNT(apd.RowId)OTProcessDays
+                                ,EI.EmployeeStatus
                                 from [dbo].[AttdnProcessData] apd 
                                 left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID 
                                 left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
@@ -1243,9 +1245,9 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
                                                                           FROM SalaryInfoDefine SID 
 								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                                                         WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
-                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 AND apd.GWPaymentAdviseId IS NULL and EI.EmployeeStatus='Active' and ISNULL(apd.AdditionalOT,0)>0
+                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus NOT  IN ('A') AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 AND apd.GWPaymentAdviseId IS NULL and ISNULL(apd.AdditionalOT,0)>0
                                 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id,Department.UserName,Section.UserName,SubSection.UserName
-								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,za.Id
+								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,za.Id,EI.EmployeeStatus
                                 )T WHERE T.CheckBoxSelect=0 and T.CheckBoxSelectAD=0
 								order by T.EmployeeCode ";
                     }
@@ -1310,13 +1312,15 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 ,format(sum(ISNULL(apd.AdditionalOT,0)),'N2') Minute
                                 ,format((sum(ISNULL(apd.AdditionalOT,0))/60),'N2') Hour
                                 ,format(g.Gross,'N2') Gross
-                                ,0 Rate,0 Amount
+                                ,0.00 Rate,0.00 Amount
 								,apd.GWPaymentAdviseId 
 								,onw.FormulaDesID
                                 ,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
 								,B.Basic,B.BasicSalaryHeadID
                                 ,format(sum(apd.OverStay),'N2') OverStayMinute
                                 ,format((sum(apd.OverStay)/60),'N2') OverStayHour
+                                ,COUNT(apd.RowId)OTProcessDays
+                                ,EI.EmployeeStatus
                                 from [dbo].[AttdnProcessData] apd 
                                 left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID 
                                 left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
@@ -1353,9 +1357,9 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                                                                           FROM SalaryInfoDefine SID 
 								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                                                         WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
-                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 and EI.EmployeeStatus='Active' and ISNULL(apd.AdditionalOT,0)>0
+                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus NOT  IN ('A')  AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 and ISNULL(apd.AdditionalOT,0)>0
                                 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id,Department.UserName,Section.UserName,SubSection.UserName
-								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,za.Id
+								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,za.Id,EI.EmployeeStatus
                                 )T WHERE T.CheckBoxSelectAD=0
 								order by T.EmployeeCode ";
                     }
@@ -1381,12 +1385,12 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                 if (!string.IsNullOrEmpty(dtData.Rows[i]["FormulaDesID"].ToString()))
                 {
                     ReLoadFormulaWithValue(dtData.Rows[i]["FormulaDesID"].ToString(), ref dtValue, out string _formulaValue);
-                    sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("#,##0");
+                    sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("##,##0.00");
 
                     //DataRow dtValueRow = dtValue.NewRow();
 
                     dtValueRow["BasicSalaryHeadID"] = dtData.Rows[i]["BasicSalaryHeadID"].ToString().Trim();
-                    dtValueRow["Rate"] = sFormulaResult;
+                    dtValueRow["Rate"] = Convert.ToDecimal(sFormulaResult);
 
                     //dtValue.Rows.Add(dtValueRow);
 
@@ -1397,8 +1401,8 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                         DataRow drmo = dv[0].Row;
                         
                             drmo.BeginEdit();
-                            drmo["Rate"] = sFormulaResult;
-                            drmo["Amount"] = Convert.ToDecimal(sFormulaResult) * Convert.ToDecimal(dtData.Rows[i]["Hour"].ToString());
+                            drmo["Rate"] = Convert.ToDecimal(sFormulaResult);
+                            drmo["Amount"] = Convert.ToDecimal(Convert.ToDecimal(sFormulaResult) * Convert.ToDecimal(dtData.Rows[i]["Hour"].ToString())).ToString("##,##0.00");
                             drmo.EndEdit();
 
                     }
@@ -2189,19 +2193,21 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
-        public ActionResult GetGoodWorkPaymentAdviseDetailCheckedList(string paymentAdviseId)
+        public ActionResult GetGoodWorkPaymentAdviseDetailCheckedList(string paymentAdviseId, string paymentMode)
         {
-            string sql = @"select isSelected = Convert(bit, 'True'),CheckBoxSelect=Convert(bit, 'True'),gwpad.Id,gwpad.PaymentAdviseId,gwpad.EmpSystemId,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour,gwpad.Hour*60 Minute,gwpad.Rate,gwpad.Amount,gwpad.Remarks
-                            ,gwpad.IsCheck,isnull(gwpad.IsDisburse,0)IsDisburse
+            string sql = @" DECLARE @paymentMode nvarchar(50)='" + paymentMode + @"'
+select isSelected = Convert(bit, 'True'),CheckBoxSelect=Convert(bit, 'True'),gwpad.Id,gwpad.PaymentAdviseId,gwpad.EmpSystemId,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour,gwpad.Hour*60 Minute,gwpad.Rate,gwpad.Amount,gwpad.Remarks
+                            ,gwpad.IsCheck,isnull(gwpad.IsDisburse,0)IsDisburse,ISNULL(ei.PaymentMode,'') PaymentMode
                             from GoodWorkPaymentAdviseDetail gwpad
                             left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
 							left join GoodWorkPaymentAdvise gwpa on gwpa.Id=gwpad.PaymentAdviseId
-                            where gwpa.Id='" + paymentAdviseId + "' and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.DisbursementVoucherId IS NULL ";
+                            where gwpa.Id='" + paymentAdviseId + @"' and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.DisbursementVoucherId IS NULL 
+                            AND ISNULL(ei.PaymentMode,'')=CASE WHEN @paymentMode<>'' THEN @paymentMode ELSE ISNULL(ei.PaymentMode,'') END ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpPost]
-        public JsonResult GetGoodWorkPaymentAdviseDisbursementJVDataList(string disbursementAdviceId, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail)
+        public JsonResult GetGoodWorkPaymentAdviseDisbursementJVDataList(string disbursementAdviceId, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail , string paymentMode)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string goodWorkPaymentAdviseDetailIds = "";
@@ -2223,8 +2229,8 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 
 
             string sql = null;
-            sql = @"SELECT
-                X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAmount) CrAmount,SUM(X.Amount) Amount,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
+            sql = @"DECLARE @paymentMode nvarchar(50)='" + paymentMode + @"'
+SELECT X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAmount) CrAmount,SUM(X.Amount) Amount,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
                 FROM
                 (
                 SELECT  'GoodWorkPayment' AS OtherName, 'Dr' AS TrnType
@@ -2234,13 +2240,16 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                 ,GAD.GLGeneralInfoId  ,GAD.BudgetMasterId,GAD.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
                 , B.UserName BudgetName,A.UserName ActivityName 
 				FROM GoodWorkPaymentAdviseDetail gwpad
+                left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
 				LEFT JOIN GoodWorkPaymentAdvise gwpa on gwpa.Id=gwpad.PaymentAdviseId
 				LEFT JOIN HKP.GeneralAccountDeterminate GAD ON  GAD.Id='GoodWorkPayment'
 				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON GAD.GLGeneralInfoId=GL.Id
 				LEFT JOIN[MST].[BudgetMaster] AS BM ON GAD.BudgetMasterId= BM.Id
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON GAD.ActivityId= A.Id
-				WHERE gwpa.PaymentSource='GoodWork' and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.DisbursementVoucherId IS NULL AND gwpad.PaymentAdviseId='" + disbursementAdviceId + @"' AND gwpad.Id in (" + goodWorkPaymentAdviseDetailIds + @")
+				WHERE gwpa.PaymentSource='GoodWork' and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.DisbursementVoucherId IS NULL 
+                AND ISNULL(ei.PaymentMode,'')=CASE WHEN @paymentMode<>'' THEN @paymentMode ELSE ISNULL(ei.PaymentMode,'') END
+                AND gwpad.PaymentAdviseId='" + disbursementAdviceId + @"' AND gwpad.Id in (" + goodWorkPaymentAdviseDetailIds + @")
 
                 Union All
                 SELECT  'ExtraOTPayment' AS OtherName, 'Dr' AS TrnType
@@ -2250,13 +2259,16 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                 ,GAD.GLGeneralInfoId  ,GAD.BudgetMasterId,GAD.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
                 , B.UserName BudgetName,A.UserName ActivityName 
 				FROM GoodWorkPaymentAdviseDetail gwpad
+                left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
 				LEFT JOIN GoodWorkPaymentAdvise gwpa on gwpa.Id=gwpad.PaymentAdviseId
 				LEFT JOIN HKP.GeneralAccountDeterminate GAD ON  GAD.Id='ExtraOTPayment'
 				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON GAD.GLGeneralInfoId=GL.Id
 				LEFT JOIN[MST].[BudgetMaster] AS BM ON GAD.BudgetMasterId= BM.Id
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON GAD.ActivityId= A.Id
-				WHERE gwpa.PaymentSource='Attendance' and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.DisbursementVoucherId IS NULL AND gwpad.PaymentAdviseId='" + disbursementAdviceId + @"' AND gwpad.Id in (" + goodWorkPaymentAdviseDetailIds + @")
+				WHERE gwpa.PaymentSource='Attendance' and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.DisbursementVoucherId IS NULL 
+                AND ISNULL(ei.PaymentMode,'')=CASE WHEN @paymentMode<>'' THEN @paymentMode ELSE ISNULL(ei.PaymentMode,'') END
+                AND gwpad.PaymentAdviseId='" + disbursementAdviceId + @"' AND gwpad.Id in (" + goodWorkPaymentAdviseDetailIds + @")
                         
                 )X
                 GROUP BY
