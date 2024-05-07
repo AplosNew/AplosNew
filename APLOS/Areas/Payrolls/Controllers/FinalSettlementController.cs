@@ -1933,6 +1933,17 @@ LEFT JOIN SalaryHead AS sh ON sh.SalaryHeadID = spc.SalaryHeadID
 LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
 WHERE  spc.EmpInfoSystemID= '" + empId + @"' AND PayableVoucherId<>'' AND ISNULL(sl.IsDisbursed,0)=0 AND sl.DisbursementVoucherId IS NULL  AND sh.SalaryHead='Net Pay'
 			 ) AS varchar(100))
+
+			 WHEN OL.UserName='Bonus' THEN CAST((
+			 select sum(SPC.DisbusmentAmount)BonusAmount  from SalaryProcChild SPC
+left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
+JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID
+Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.YearNo AND sl.MonthNo=SPM.MonthNo
+Where HeadCategory IN('Monthly Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
+AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND ISNULL(sl.IsBonusDisbursed,0) = 0  
+AND sl.BonusDisbursementVoucherId IS NULL 
+AND SPC.EmpInfoSystemID='" + empId + @"'
+			 ) AS varchar(100))
             WHEN OL.Formula='SeparationDate - ResignDate' THEN CAST(DATEDIFF(Day,(Select FORMAT(DOS,'dd-MMM-yyyy') from dbo.EmployeeInformation Where SystemId='" + empId + @"'),
 			 (Select FORMAT(R.ResignationDate,'dd-MMM-yyyy') from [TRN].[Resignation] R Where R.EmployeeId='" + empId + @"'
 AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC))
