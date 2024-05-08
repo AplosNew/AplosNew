@@ -18509,6 +18509,7 @@ INNER JOIN
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string strSQL = "";
+            string _date = "01-"+month+"-"+year+"";
             if (format == "1")
             {
                 strSQL = @"SELECT DISTINCT E.SystemID EmpSystemId, isnull(E.VendorId,'') as Vendor ,F.UserName Plant
@@ -18557,6 +18558,7 @@ left join EmpServiceCategory c on c.id=d.EmployeeServiceCategoryId
 left join EmpServiceType t on t.id=c.EmpServiceTypeId
 left join SalaryHead h on h.SalaryHeadID=t.SalaryHeadId
 left join EmployeeServicesRate r on r.EmployeeServiceCategoryId=c.Id
+AND r.Id=(Select top(1) Id From [dbo].[EmployeeServicesRate] Where  EmployeeServiceCategoryId= r.EmployeeServiceCategoryId AND EffectiveDate<='"+_date+@"' Order By EffectiveDate desc)
 where d.chargeable=1 
 and d.EmployeeId in  (" + parameters["EmpSystemId"] + @")
 AND MONTH(d.Date)='" + month + @"' AND  Year(d.Date)='" + year + @"'

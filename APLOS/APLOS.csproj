@@ -3011,6 +3011,7 @@
     <Content Include="Areas\Securities\Scripts\employeeMobileAppsAuthorizationNewController.js" />
     <Content Include="Areas\Securities\Scripts\UserAccessAppRoleController.js" />
     <Content Include="Areas\Securities\Scripts\UserAppAuthenticationController.js" />
+    <Content Include="Areas\Setups\Scripts\ServiceControlController.js" />
     <Content Include="Areas\Setups\Scripts\RemarksControlController.js" />
     <Content Include="Areas\Setups\Scripts\defineEnumController.js" />
     <Content Include="Areas\Setups\Scripts\LabelListController.js" />
@@ -5140,6 +5141,7 @@
     <Content Include="Reports\HumanResource\Payrolls\PayrollsDataSet.xsc">
       <DependentUpon>PayrollsDataSet.xsd</DependentUpon>
     </Content>
+    <Content Include="Areas\Setups\Views\ServiceMaster\ServiceControl.cshtml" />
     <None Include="Reports\HumanResource\Payrolls\PayrollsDataSet.xsd">
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>PayrollsDataSet.Designer.cs</LastGenOutput>

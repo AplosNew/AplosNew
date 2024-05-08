@@ -197,6 +197,34 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
 
     };
 
+    $scope.message_dgconfirmation = null;
+    $scope.RemoveDG = function (obj) {
+        $scope.DG = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.DG.Id))
+            $scope.message_dgconfirmation = 'Are you sure want to delete permanently [ ' + $scope.DG.UserName + ' ]';
+        angular.element(document.querySelector('#confirmDGPopUp')).modal('show');
+    }
+
+    $scope.DeleteDG = function () {
+        $http({
+            method: 'POST',
+            url: 'Payrolls/EmployeeSeperationSetup/DeleteDesignationGroup?id=' + $scope.DG.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetSavedDesignationGroup();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
+
+
     $scope.DesignationGroupList = [];
     $scope.AddDesignationGroup = function () {
         $http({
@@ -205,6 +233,13 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.DesignationGroupList = response.data;
+            for (var i = 0; i < $scope.SelectedDesignationGroupList.length; i++) {
+                for (var j = 0; j < $scope.DesignationGroupList.length; j++) {
+                    if ($scope.DesignationGroupList[j].Id == $scope.SelectedDesignationGroupList[i].DesignationGroupId) {
+                        $scope.DesignationGroupList.splice(j, 1);
+                    }
+                }
+            }
             $scope.ShowResultCustom();
         })
     }

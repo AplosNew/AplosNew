@@ -81,6 +81,10 @@ function SetupConfig($routeProvider, $locationProvider) {
             templateUrl: 'Setups/servicemaster',
             controller: 'serviceMasterController'
         })
+        .when('/service-control', {
+            templateUrl: 'Setups/servicecontrol',
+            controller: 'serviceControlController'
+        })
         .when('/hsn-code', {
             templateUrl: 'Setups/hsncode',
             controller: 'hsnCodeController'

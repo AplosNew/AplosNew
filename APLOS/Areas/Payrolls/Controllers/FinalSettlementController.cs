@@ -10,9 +10,13 @@ using Library.Model.Employees;
 using Library.Model.Enums;
 using Library.Service.Employees;
 using Library.Service.Enums;
+using Library.Service.Helpers;
 using Library.Service.SalaryDisbursement;
 using Library.ViewModel.Vouchers;
 using OTSBD;
+using Syncfusion.ExcelToPdfConverter;
+using Syncfusion.Pdf;
+using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -45,18 +49,18 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             return View();
         }
-  
+
         public ActionResult FinalSettle()
         {
             return View();
         }
 
-        
+
         public ActionResult Approve()
         {
             return View();
         }
-       
+
         public ActionResult Payment()
         {
             return View();
@@ -2094,7 +2098,7 @@ ORDER BY OL.Sequence";
                         dvSPAprovedData.RowFilter = "IsLocked=" + true;
                         if (dvSPAprovedData.Count == 0)
                         {
-                            throw new Exception("Salary of [" + Convert.ToDateTime(item["DOS"]).ToString("MMMM") + "] is not Locked for "+ item["EmpSystemId"].ToString() + ".");
+                            throw new Exception("Salary of [" + Convert.ToDateTime(item["DOS"]).ToString("MMMM") + "] is not Locked for " + item["EmpSystemId"].ToString() + ".");
                         }
                     }
                     else
@@ -2129,12 +2133,12 @@ ORDER BY OL.Sequence";
 
                     }
                 }
-                
+
 
                 foreach (var item in datalist)
                 {
                     string empId = item["EmpSystemId"].ToString();
-                   
+
                     string sql = string.Empty;
                     DataTable dtValue = new DataTable();
                     dtValue.TableName = "TempTable";
@@ -2160,7 +2164,7 @@ ORDER BY OL.Sequence";
                     }
 
 
-                 
+
 
 
                     DataTable dtData = GetDataTable(empId);
@@ -2544,6 +2548,169 @@ ORDER BY OL.Sequence";
             return Json(new { Message = AplosMessage.Deleted });
         }
 
+
+        [HttpGet, Authorize]
+        public ActionResult GetEmpSepItemReportPdf(ReportFormat reportFormat, string empId)
+        {
+            try
+            {
+                string fileName = "";
+
+                IWorkbook workbook = GetEmpSepItemWorkbook("Item", empId);
+                var reportFileName = DateTime.Now.ToString("yyMMdd") + "EmpSepItemReport";
+                // return RenderReportAsPdf(workbook, reportFileName);
+                switch (reportFormat)
+                {
+                    case ReportFormat.Pdf:
+                        PdfDocument document = new PdfDocument();
+                        ExcelToPdfConverterSettings settings = new ExcelToPdfConverterSettings();
+                        settings.TemplateDocument = document;
+                        for (int i = 0; i < workbook.Worksheets.Count; i++)
+                        {
+                            ExcelToPdfConverter converter1 = new ExcelToPdfConverter(workbook.Worksheets[i]);
+                            document = converter1.Convert(settings);
+                        }
+                        document.Save(reportFileName + ".pdf", HttpContext.ApplicationInstance.Response, HttpReadType.Save);
+                        return null;
+
+                    case ReportFormat.PdfView:
+                        PdfDocument document1 = new PdfDocument();
+                        ExcelToPdfConverterSettings settings1 = new ExcelToPdfConverterSettings();
+                        settings1.TemplateDocument = document1;
+                        for (int i = 0; i < workbook.Worksheets.Count; i++)
+                        {
+                            ExcelToPdfConverter converter1 = new ExcelToPdfConverter(workbook.Worksheets[i]);
+                            document1 = converter1.Convert(settings1);
+                        }
+                        document1.Save(reportFileName + ".pdf", HttpContext.ApplicationInstance.Response, HttpReadType.Open);
+                        //return RenderReportAsPdf(document1, reportFileName);
+                        return RenderReportAsPdf(workbook, reportFileName);
+                    case ReportFormat.Excel:
+                        return RenderReportAsExcel(workbook, reportFileName);
+
+                    default:
+                        return RenderReportAsExcel(workbook, reportFileName);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public IWorkbook GetEmpSepItemWorkbook(string SheetName, string empId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Data";
+                sheet = workbook.Worksheets[0];
+                DataTable dtOrder = null;
+                string sql = @"SELECT EI.EmpSystemId,EM.EmployeeCode,EM.EmployeeName,FORMAT(EM.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EM.DOS,'dd-MMM-yyyy')DOS,EI.UserName ItemName,EI.Value,ESi.EntryState FROM dbo.EmployeeFullAndFinalSettlementItem  EI
+LEFT JOIN dbo.EmployeeSeperationItem ESI ON ESI.Id=EI.EmployeeSeperationItemId
+LEFT JOIN dbo.EmployeeInformation EM ON EM.SystemId=EI.EmpSystemId
+Where EI.EmpSystemId='" + empId + @"' AND ESI.IsReportItem=1
+Order By ESI.Sequence";
+                dtOrder = _sqlRepository.GetDataTable(sql);
+
+
+                if (dtOrder.Rows.Count == 0)
+                {
+                    throw new Exception("No Data Found.");
+                }
+                int ROW = 6; int COL = 1;
+                sheet.Range[ROW, COL].Text = "Employee Code :";
+                sheet.Range[ROW, COL + 1].Text = dtOrder.Rows[0]["EmployeeCode"].ToString();
+                ROW = 7; COL = 1;
+                sheet.Range[ROW, COL].Text = "Employee Name :";
+                sheet.Range[ROW, COL + 1].Text = dtOrder.Rows[0]["EmployeeName"].ToString();
+
+                ROW++;
+                #region ColumnsHeader
+
+                sheet[ROW, COL].Text = "Item Name"; sheet[ROW, COL].ColumnWidth = 15; int colSL = COL; COL++;
+                sheet[ROW, COL].Text = "Entry State"; sheet[ROW, COL].ColumnWidth = 16; int colDescription = COL; COL++;
+                sheet[ROW, COL].Text = "Value"; sheet[ROW, COL].ColumnWidth = 16; int colPackingType = COL;
+
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                #endregion columns
+
+                ROW++;
+                int startRow = ROW;
+
+                #region DataPlot
+                for (int i = 0; i < dtOrder.Rows.Count; i++)
+                {
+                    sheet[ROW, colSL].Text = dtOrder.Rows[i]["ItemName"].ToString();
+                    sheet[ROW, colDescription].Text = dtOrder.Rows[i]["EntryState"].ToString();
+                    sheet[ROW, colPackingType].Text = dtOrder.Rows[i]["Value"].ToString();
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+                }
+                #endregion
+                int edCRow = ROW;
+
+
+                #region ReportHeader
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.UsedRange.HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Employee Full & Final Seperation Items Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Portrait;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+                #endregion
+
+
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion
 
 
