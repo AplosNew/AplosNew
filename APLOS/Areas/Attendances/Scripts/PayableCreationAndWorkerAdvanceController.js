@@ -1918,6 +1918,63 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
 
     //Payments GoodWorkPaymentAdvise Payments Posting End
     $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.XlsGoodWorkEmployeeList = function () {
+        var dataList = [];
+        var newDataList = [];
+        var g = $("#GridGWChildEdit").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        var obj = {};
+
+        if (dataList.length == 0) {
+
+            dataList = $scope.PCEmployeeList;
+        }
+
+        for (let i = 0; i < dataList.length; i++) {
+            obj.EmployeeCode = dataList[i].EmployeeCode;
+            obj.EmployeeName = dataList[i].EmployeeName;
+            obj.Department = dataList[i].Department;
+            obj.Section = dataList[i].Section;
+            obj.SubSection = dataList[i].SubSection;
+            //obj.OTProcessDays = dataList[i].OTProcessDays;
+            obj.Minute = dataList[i].Minute;
+            obj.Hour = dataList[i].Hour;
+            obj.Rate = dataList[i].Rate;
+            obj.Amount = dataList[i].Amount;
+            obj.Remarks = dataList[i].Remarks;
+            
+            newDataList.push(obj);
+            obj = {};
+        }
+        $scope.fileName = 'GoodWorkEmployeeList';
+        $http({
+            method: "POST",
+            url: $scope.exportgriddataUrl,
+            data: {
+                'data': newDataList,
+                'reportFileName': $scope.fileName,
+
+            },
+
+            dataType: 'JSON',
+
+        })
+            .then(function successCallback(response) {
+
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
+    };
+
     $scope.XlsExtraOTEmployeeList = function () {
         var dataList = [];
         var newDataList = [];
@@ -1942,7 +1999,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             obj.Rate = dataList[i].Rate;
             obj.Amount = dataList[i].Amount;
             obj.Remarks = dataList[i].Remarks;
-            
+
             newDataList.push(obj);
             obj = {};
         }
@@ -2000,6 +2057,60 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             obj = {};
         }
         $scope.fileName = 'GoodWorkExtraOTEmployee';
+        $http({
+            method: "POST",
+            url: $scope.exportgriddataUrl,
+            data: {
+                'data': newDataList,
+                'reportFileName': $scope.fileName,
+
+            },
+
+            dataType: 'JSON',
+
+        })
+            .then(function successCallback(response) {
+
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
+    };
+
+    $scope.XlsGoodWorkExtraOTPaymentsList = function () {
+        var dataList = [];
+        var newDataList = [];
+        var g = $("#empInfoGrid").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        var obj = {};
+
+        if (dataList.length == 0) {
+
+            dataList = $scope.employeeDisbursementDataList;
+        }
+
+        for (let i = 0; i < dataList.length; i++) {
+            obj.EmployeeCode = dataList[i].EmployeeCode;
+            obj.EmployeeName = dataList[i].EmployeeName;
+            obj.Minute = dataList[i].Minute;
+            obj.Hour = dataList[i].Hour;
+            obj.Rate = dataList[i].Rate;
+            obj.Amount = dataList[i].Amount;
+            obj.Remarks = dataList[i].Remarks;
+            obj.PaymentMode = dataList[i].PaymentMode;
+
+            newDataList.push(obj);
+            obj = {};
+        }
+        $scope.fileName = 'GoodWorkExtraOTPaymentsList';
         $http({
             method: "POST",
             url: $scope.exportgriddataUrl,
