@@ -1447,7 +1447,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                                 ,format((sum(ISNULL(apd.AdditionalOT,0))/60),'N2') AdditionalOTHour
                                 ,format(sum(ISNULL(apd.PresentValue,0)),'N2') PresentDays
                                 ,format(g.Gross,'N2') Gross
-                                ,0 Rate,0 Amount,0 AdvanceAmount
+                                ,0.00 Rate,0.00 Amount,0.00 AdvanceAmount
 								,apd.GWPaymentAdviseId 
 								,onw.FormulaDesID
                                 ,EN.UserName Entity,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
@@ -1521,7 +1521,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                                 ,format((sum(ISNULL(apd.AdditionalOT,0))/60),'N2') AdditionalOTHour
                                 ,format(sum(ISNULL(apd.PresentValue,0)),'N2') PresentDays
                                 ,format(g.Gross,'N2') Gross
-                                0 Rate,0 Amount,isnull(za.AdvanceAmount,0) AdvanceAmount
+                                ,0.00 Rate,0.00 Amount,isnull(za.AdvanceAmount,0) AdvanceAmount
 								,apd.GWPaymentAdviseId 
 								,onw.FormulaDesID
                                 ,EN.UserName Entity,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
@@ -1593,10 +1593,10 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                 if (!string.IsNullOrEmpty(dtData.Rows[i]["FormulaDesID"].ToString()))
                 {
                     ReLoadFormulaWithValue(dtData.Rows[i]["FormulaDesID"].ToString(), ref dtValue, out string _formulaValue);
-                    sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("#,##0");
+                    sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("##,##0.00");
 
                     dtValueRow["BasicSalaryHeadID"] = dtData.Rows[i]["BasicSalaryHeadID"].ToString().Trim();
-                    dtValueRow["Rate"] = sFormulaResult;
+                    dtValueRow["Rate"] = Convert.ToDecimal(sFormulaResult);
 
                     DataView dv = new DataView(dtData);
                     dv.RowFilter = "EmpSystemId='" + dtData.Rows[i]["EmpSystemId"].ToString() + "'";
@@ -1630,7 +1630,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 
                         
                             drmo.BeginEdit();
-                            drmo["Rate"] = sFormulaResult;
+                            drmo["Rate"] = Convert.ToDecimal(sFormulaResult);
                             drmo["Amount"] = Math.Floor(((((payDays * 208 + standardOTHour + additionalOTHour) * rate) * percentage/100)/multiple)) * multiple - tobeApprovedAmount- approvedAmount- paidAmount;
                             if (saveUpdate == "Save")
                             {
@@ -2066,7 +2066,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                 }
                 else
                 {
-                    conUpdate.executeQuery("UPDATE [dbo].[AttdnProcessData] SET GWPaymentAdviseId='" + _MasterId + "'  where EmpSystemId in (" + detailIds + ") and WorkDate between '" + data["FromDate"] + @"' and '" + data["ToDate"] + @"' AND DayStatus IN('P','W','L') AND ISNULL(AdditionalOT,0)<>0 AND GWPaymentAdviseId IS NULL ");
+                    conUpdate.executeQuery("UPDATE [dbo].[AttdnProcessData] SET GWPaymentAdviseId='" + _MasterId + "'  where EmpSystemId in (" + detailIds + ") and WorkDate between '" + data["FromDate"] + @"' and '" + data["ToDate"] + @"' AND DayStatus NOT  IN ('A') AND ISNULL(AdditionalOT,0)<>0 AND GWPaymentAdviseId IS NULL ");
                 }
                 conUpdate.CommitTransaction();
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
@@ -2310,7 +2310,7 @@ SELECT X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAm
         public ActionResult GetEmployeeMultipleAdvanceDetailCheckedList(string paymentAdviseId)
         {
             string sql = @"select isSelected = Convert(bit, 'True'),CheckBoxSelect=Convert(bit, 'True'),gwpad.Id,gwpad.WorkerAdvanceId,gwpad.EmpSystemId,ei.EmployeeCode,ei.EmployeeName,gwpad.PayDays,gwpad.StandardOTHour,gwpad.AdditionalOTHour,gwpad.Rate,gwpad.Amount,gwpad.AdvanceAmount,gwpad.Remarks
-                            ,gwpad.IsCheck,isnull(gwpad.IsDisburse,0)IsDisburse,gwpa.YearNo,gwpa.MonthNo
+                            ,gwpad.IsCheck,isnull(gwpad.IsDisburse,0)IsDisburse,gwpa.YearNo,gwpa.MonthNo,ISNULL(EI.PaymentMode,'') PaymentMode
                             from WorkerAdvanceDetail gwpad
                             left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
 							left join WorkerAdvance gwpa on gwpa.Id=gwpad.WorkerAdvanceId

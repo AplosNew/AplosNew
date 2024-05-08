@@ -43,6 +43,7 @@
              e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
             <div e-columns>
+                <div e-column e-headertext="Actions" e-template="#ShowActionButtons" e-width="50"></div>
                 <div e-column e-field="EmpSystemId" e-headertext="EmpSystemId" e-width="50"></div>
                 <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="50"></div>
                 <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
@@ -50,11 +51,11 @@
                 <div e-column e-field="DOS" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="DOS" e-width="70"></div>
                 <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
                 <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
-                <div e-column e-headertext="Actions" e-template="#ShowActionButtons" e-width="30"></div>
             </div>
             <script type="text/template" id="ShowActionButtons">
                 <button style="color: #f3f3ec;background-color: #1c1f32;" ng-hide="data.Id==null" title="Items" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.GetEmployeeItems(this);" style="margin: -6px;"></i></button>
                 <button style="color: #f3f3ec;background-color: #1c1f32;" ng-disabled="data.Id!=null" title="Remove" class="btn"><i class="glyphicon glyphicon-remove" ng-click="$parent.RemoveEmployee(this);" style="margin: -6px;"></i></button>
+                <button style="color: #f3f3ec;background-color: #1c1f32;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintData(this);" style="margin: -6px;"></i></button>
             </script>
         </div>
         <div class="common-btn" ng-show="SelectedEmployeeList.length>0">
@@ -130,6 +131,7 @@
             <div class="modal-header">Seperation Items<button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body">
                 <div clas="row">
+
                     <div class="modal-body form-elements form-horizontal">
                         <div ng-form name="CostingSOform">
                             <div class="col-xs-12">
