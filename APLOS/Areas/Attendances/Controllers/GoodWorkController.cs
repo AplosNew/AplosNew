@@ -1146,7 +1146,7 @@ Order By GW.WorkDate";
                         sql = @"SELECT * FROM 
 (select CheckBoxSelect=cast(case when z.Id is null then 0 else 1 end as bit)
 ,z.Id,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,sum(gwd.Minute)*OLS.OTreductionFactor Minute,(sum(gwd.Minute)/60)*OLS.OTreductionFactor Hour
-                                    ,format(g.Gross,'N2') Gross,0 Rate,0 Amount
+                                    ,format(g.Gross,'N2') Gross,0.00 Rate,0.00 Amount
 									,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
                                      from [dbo].[GoodWork] gw
                                      left join  GoodWorkDetail GWD on GWD.GoodWorkId=gw.Id 
@@ -1259,7 +1259,7 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
                         sql = @"SELECT * FROM 
 (select CheckBoxSelect=cast(case when z.Id is null then 0 else 1 end as bit)
 ,z.Id,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,sum(gwd.Minute)*OLS.OTreductionFactor Minute,(sum(gwd.Minute)/60)*OLS.OTreductionFactor Hour
-                                    ,format(g.Gross,'N2') Gross,0 Rate,0 Amount
+                                    ,format(g.Gross,'N2') Gross,0.00 Rate,0.00 Amount
 									,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
                                      from [dbo].[GoodWork] gw
                                      left join  GoodWorkDetail GWD on GWD.GoodWorkId=gw.Id 
