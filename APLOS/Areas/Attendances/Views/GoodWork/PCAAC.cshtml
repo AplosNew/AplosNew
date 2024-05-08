@@ -85,6 +85,7 @@
 
                         <ul class="col-md-6 common-btn list-inline text-left">
                             <li><button ng-click="GetLoadEmployeeInformation('GoodWork');" class="btn"><i class="glyphicon glyphicon-arrow-down"></i> Go</button></li>
+                            <li><button ng-click="XlsGoodWorkEmployeeList();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
                         </ul>
 
                         <div class="clearfix"></div>
@@ -586,15 +587,15 @@
                                             <input type="checkbox" id="headchkDisbursement" />
                                         </script>
                                     </div>
-                                    @*<div class="col-sm-12" ng-show="empGrid">
-                                            <div class="col-sm-6">
-                                                <div class="common-btn">
-                                                    <ul style="display:flex; justify-content:space-between">
-                                                        <li> <button ng-click="XlsSalaryDisbursement();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
-                                                    </ul>
-                                                </div>
+                                    <div class="col-sm-12">
+                                        <div class="col-sm-6">
+                                            <div class="common-btn">
+                                                <ul style="display:flex; justify-content:space-between">
+                                                    <li> <button ng-click="XlsGoodWorkExtraOTPaymentsList();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
+                                                </ul>
                                             </div>
-                                        </div>*@
+                                        </div>
+                                    </div>
                                 </fieldset>
                             </div>
 
