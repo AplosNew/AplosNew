@@ -242,6 +242,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
             else {
                 ShowResult(response.data.Message, "success");
                 $scope.getData();
+                $scope.getpurchaseLCListData();
                 $scope.untageId = null;
                 $scope.VoucherId = null;
                 $scope.VoucherNo = null;

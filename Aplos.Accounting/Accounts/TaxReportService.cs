@@ -12653,7 +12653,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
         private DataTable GetTdsDedutionData(string companyGroupId, string companyId, string plantId, string plantName, string fromDate, string toDate, string taxyearId)
         {
             string strSql = "";
-            strSql = @"Select * from (
+            strSql = @"Select distinct * from (
                  SELECT SourceType= case when V.SourceType='VendorInvoice' then 'Inbound Invoice'
 						                when V.SourceType='VendorPayment' then 'Vendor Payment'
 						                when V.SourceType='CreditNoteSetOff' then 'Credit Note SetOff'
@@ -12680,7 +12680,8 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 					                when v.SourceType='VendorInvoice' then VD.DrAmount	
 					                when v.SourceType='CreditNoteSetOff' then VD.DrAmount	
 					                when v.SourceType='VendorPayment' then IWD.Amount	else 0 end
-                ,IT.Id,0 DrAmount ,CrAmount=case when ITD.AType='Cr' then IT.TaxAmount else 0 end
+                --,IT.Id
+                ,0 DrAmount ,CrAmount=case when ITD.AType='Cr' then IT.TaxAmount else 0 end
                 ,TC.Code TaxCode ,TC.Sequence TCSequence,TC.TaxCategoryType,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM,TAXC.UserName TaxCodeName
                 ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,IsNULL(IR.IsTaxApplicable,0) IsTaxApplicable,TAXC.[Type],ValueOfFixedNew = TAXC.UserName +' - '+ convert(varchar,TAXC.ValueOfFixed),TAXC.ValueOfFixed
                 ,IsNULL(HSNP.[Percentage],0) Percentage--,MM.HSNCodeId,MM.UserName Material
@@ -12733,7 +12734,8 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 				,V.VoucherNo,Format(V.PostingDate,'dd-MMM-yyyy') PostingDate,V.DocRefNo,format( V.DocDate, 'dd-MMM-yyyy')DocDate, P.UserName PartyName,P.TINNO GSTIN 
                 ,LineItemType='GL' ,Particular=TXC.UserName
 				  ,TaxableAmount=IWD.TaxableAmount ,InvoiceAmount=vd.DrAmount
-                ,IT.Id,0 DrAmount ,CrAmount=case when ITD.AType='Cr' then IT.TaxAmount else 0 end
+                --,IT.Id
+                ,0 DrAmount ,CrAmount=case when ITD.AType='Cr' then IT.TaxAmount else 0 end
                 ,TC.Code TaxCode ,TC.Sequence TCSequence,TC.TaxCategoryType,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM,TAXC.UserName TaxCodeName
                 ,0 IsExcludingTax,IsNULL(IR.IsTaxApplicable,0) IsTaxApplicable,TAXC.[Type],ValueOfFixedNew = TAXC.UserName +' - '+ convert(varchar,TAXC.ValueOfFixed),TAXC.ValueOfFixed
                 ,IsNULL(HSNP.[Percentage],0) Percentage  ,P.VATResistrationNo PanNo,TXC.UserName TDSPer,TXC.Code Section
@@ -12783,6 +12785,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 				                   else '' end
 				 ,Particular=case when v.SourceType='InventoryPayable' then TXC.UserName 
 								  WHEN v.SourceType='VendorInvoice' THEN A.UserName
+                                  WHEN v.SourceType='VendorPayment' THEN A.UserName
 				                  else '' end
 				  ,TaxableAmount=case when IWD.InventoryReceiveId<>'' then IRD.TotalMaterialTranAmount
 									when SAM.ServiceAcknowledgementMasterId<>'' then SAM.TotalMaterialTranAmount
@@ -12793,7 +12796,8 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 					                when v.SourceType='VendorInvoice' then VD.DrAmount	
 					                when v.SourceType='CreditNoteSetOff' then VD.DrAmount	
 					                when v.SourceType='VendorPayment' then IWD.Amount	else 0 end
-                ,IT.Id,0 DrAmount ,CrAmount=case when ITD.AType='Cr' then IT.TaxAmount else 0 end
+                --,IT.Id
+                ,0 DrAmount ,CrAmount=case when ITD.AType='Cr' then IT.TaxAmount else 0 end
                 ,TC.Code TaxCode ,TC.Sequence TCSequence,TC.TaxCategoryType,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM,TAXC.UserName TaxCodeName
                 ,0 IsExcludingTax,IsNULL(IR.IsTaxApplicable,0) IsTaxApplicable,TAXC.[Type],ValueOfFixedNew = TAXC.UserName +' - '+ convert(varchar,TAXC.ValueOfFixed),TAXC.ValueOfFixed
                 ,IsNULL(HSNP.[Percentage],0) Percentage
@@ -12828,11 +12832,10 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 						) IWD ON IWD.InvoiceId=IT.InvoiceId
 				LEFT JOIN (select InventoryReceiveId,sum(TotalMaterialTranAmount) TotalMaterialTranAmount from TRN.InventoryReceiveDetail group by InventoryReceiveId)IRD ON IWD.InventoryReceiveId=IRD.InventoryReceiveId
                 LEFT JOIN TRN.Invoice SIV ON SIV.VoucherId=V.Id
-				LEFT JOIN (select sad.ServiceAcknowledgementMasterId,IWD.InvoiceWriteOffId,sum(sad.Amount) TotalMaterialTranAmount from TRN.ServiceAcknowledgementDetail sad
-				join TRN.ServiceAcknowledgementMaster sam on sam.Id=sad.ServiceAcknowledgementMasterId
-				join trn.Invoice I on I.ServiceAcknowledgementMasterId =sam.Id
-				join trn.InvoiceWriteOffDetail IWD ON IWD.InvoiceId=I.Id
-				group by sad.ServiceAcknowledgementMasterId,IWD.InvoiceWriteOffId)SAM ON IT.InvoiceWriteOffId=SAM.InvoiceWriteOffId
+				LEFT JOIN (select sad.ServiceAcknowledgementMasterId,sum(sad.Amount) TotalMaterialTranAmount 
+						from  TRN.ServiceAcknowledgementMaster sam 
+				join TRN.ServiceAcknowledgementDetail sad ON sad.ServiceAcknowledgementMasterId=sam.Id
+				group by sad.ServiceAcknowledgementMasterId)SAM ON IT.ServiceAcknowledgementMasterId=SAM.ServiceAcknowledgementMasterId
                 WHERE TC.TaxCategoryType='TDS' AND ITD.AType='Cr' 
 				AND V.PostingDate between  '" + fromDate + "' AND '" + toDate + "' and V.PlantId = '" + plantId + @"' and V.IsPark=0
                 
