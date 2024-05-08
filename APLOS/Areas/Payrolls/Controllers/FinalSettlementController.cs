@@ -49,18 +49,18 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             return View();
         }
-  
+
         public ActionResult FinalSettle()
         {
             return View();
         }
 
-        
+
         public ActionResult Approve()
         {
             return View();
         }
-       
+
         public ActionResult Payment()
         {
             return View();
@@ -2098,7 +2098,7 @@ ORDER BY OL.Sequence";
                         dvSPAprovedData.RowFilter = "IsLocked=" + true;
                         if (dvSPAprovedData.Count == 0)
                         {
-                            throw new Exception("Salary of [" + Convert.ToDateTime(item["DOS"]).ToString("MMMM") + "] is not Locked for "+ item["EmpSystemId"].ToString() + ".");
+                            throw new Exception("Salary of [" + Convert.ToDateTime(item["DOS"]).ToString("MMMM") + "] is not Locked for " + item["EmpSystemId"].ToString() + ".");
                         }
                     }
                     else
@@ -2133,12 +2133,12 @@ ORDER BY OL.Sequence";
 
                     }
                 }
-                
+
 
                 foreach (var item in datalist)
                 {
                     string empId = item["EmpSystemId"].ToString();
-                   
+
                     string sql = string.Empty;
                     DataTable dtValue = new DataTable();
                     dtValue.TableName = "TempTable";
@@ -2164,7 +2164,7 @@ ORDER BY OL.Sequence";
                     }
 
 
-                 
+
 
 
                     DataTable dtData = GetDataTable(empId);
@@ -2550,14 +2550,14 @@ ORDER BY OL.Sequence";
 
 
         [HttpGet, Authorize]
-        public ActionResult GetMaterialIssueReportPdf(ReportFormat reportFormat, string masterId)
+        public ActionResult GetEmpSepItemReportPdf(ReportFormat reportFormat, string empId)
         {
             try
             {
                 string fileName = "";
 
-                IWorkbook workbook = GetMaterialIssueWorkbook("MaterialIssue", masterId);
-                var reportFileName = DateTime.Now.ToString("yyMMdd") + "MaterialIssueReport";
+                IWorkbook workbook = GetEmpSepItemWorkbook("Item", empId);
+                var reportFileName = DateTime.Now.ToString("yyMMdd") + "EmpSepItemReport";
                 // return RenderReportAsPdf(workbook, reportFileName);
                 switch (reportFormat)
                 {
@@ -2600,7 +2600,7 @@ ORDER BY OL.Sequence";
 
         }
 
-        public IWorkbook GetMaterialIssueWorkbook(string SheetName, string masterId)
+        public IWorkbook GetEmpSepItemWorkbook(string SheetName, string empId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ExcelEngine excelEngine = null;
@@ -2615,68 +2615,33 @@ ORDER BY OL.Sequence";
                 workbook = application.Workbooks.Create(1);
                 workbook.Worksheets[0].Name = "Data";
                 sheet = workbook.Worksheets[0];
-                DataTable dtOrder=null;
-               // GetMaterialIssueReportData(masterId, out dtOrder);
-                //
+                DataTable dtOrder = null;
+                string sql = @"SELECT EI.EmpSystemId,EM.EmployeeCode,EM.EmployeeName,FORMAT(EM.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EM.DOS,'dd-MMM-yyyy')DOS,EI.UserName ItemName,EI.Value,ESi.EntryState FROM dbo.EmployeeFullAndFinalSettlementItem  EI
+LEFT JOIN dbo.EmployeeSeperationItem ESI ON ESI.Id=EI.EmployeeSeperationItemId
+LEFT JOIN dbo.EmployeeInformation EM ON EM.SystemId=EI.EmpSystemId
+Where EI.EmpSystemId='" + empId + @"' AND ESI.IsReportItem=1
+Order By ESI.Sequence";
+                dtOrder = _sqlRepository.GetDataTable(sql);
+
+
                 if (dtOrder.Rows.Count == 0)
                 {
                     throw new Exception("No Data Found.");
                 }
                 int ROW = 6; int COL = 1;
-                sheet.Range[ROW, COL].Text = "SlipNo. :";
-                sheet.Range[ROW, COL + 1].Text = dtOrder.Rows[0]["IssueSlipId"].ToString();
-                sheet.Range[ROW, COL + 2].Text = "Date" + ": " + dtOrder.Rows[0]["AddedDate"].ToString();
-                sheet.Range[ROW, COL + 2].ColumnWidth = 14;
-                sheet.Range[ROW, COL + 3].Text = "Customer: " + dtOrder.Rows[0]["Customer"].ToString();
-                sheet.Range[ROW, COL + 3, ROW, COL + 5].Merge();
-
-                sheet.Range[ROW, COL + 6].Text = "P.Code." + ": " + dtOrder.Rows[0]["Code"].ToString();
-
-                sheet.Range[ROW, COL + 7].Text = "Checked Status" + ": " + dtOrder.Rows[0]["CheckedByStatus"].ToString();
-                sheet.Range[ROW, COL + 7, ROW, COL + 11].Merge();
-
-                //sheet.Range[ROW, 1, ROW + 1, 11].CellStyle.Font.Bold = true;
-                //sheet.Range[ROW, 1, ROW + 1, 11].BorderAround(ExcelLineStyle.Hair);
-                //sheet.Range[ROW, 1, ROW + 1, 11].BorderInside(ExcelLineStyle.Hair);
-
-
+                sheet.Range[ROW, COL].Text = "Employee Code :";
+                sheet.Range[ROW, COL + 1].Text = dtOrder.Rows[0]["EmployeeCode"].ToString();
                 ROW = 7; COL = 1;
-                sheet.Range[ROW, COL].Text = "PO No. :";
-                sheet.Range[ROW, COL + 1].Text = dtOrder.Rows[0]["POId"].ToString();
-                sheet.Range[ROW, COL + 2].Text = "Cost Center" + ": " + dtOrder.Rows[0]["CostCenter"].ToString();
-                sheet.Range[ROW, COL + 3].Text = "Order Qty" + ": " + dtOrder.Rows[0]["SOQty"].ToString() + " " + dtOrder.Rows[0]["UoM"].ToString();
-                sheet.Range[ROW, COL + 4].Text = "Plan %" + ": " + dtOrder.Rows[0]["PlanPercentage"].ToString() + "%";
-                sheet.Range[ROW, COL + 4, ROW, COL + 5].Merge();
-                sheet.Range[ROW, COL + 6].Text = "Shade" + ": " + dtOrder.Rows[0]["Shade"].ToString();
-                sheet.Range[ROW, COL + 6].ColumnWidth = 14;
-                sheet.Range[ROW, COL + 7].Text = "Approved Status: " + dtOrder.Rows[0]["AuthorizedByStatus"].ToString();
-                sheet.Range[ROW, COL + 7, ROW, COL + 11].Merge();
+                sheet.Range[ROW, COL].Text = "Employee Name :";
+                sheet.Range[ROW, COL + 1].Text = dtOrder.Rows[0]["EmployeeName"].ToString();
 
-                ROW = 8; COL = 1;
-                sheet.Range[ROW, COL].Text = "Article:";
-                sheet.Range[ROW, COL + 1].Text = dtOrder.Rows[0]["Article"].ToString();
-                sheet.Range[ROW, COL + 1, ROW, COL + 3].Merge();
-                sheet.Range[ROW, COL + 4, ROW, COL + 11].Merge();
-
-                
-
-                sheet.Range[9, 1, 9, COL + 11].Merge();
-                ROW = 9; COL = 1;
                 ROW++;
                 #region ColumnsHeader
 
-                sheet[ROW, COL].Text = "SL"; sheet[ROW, COL].ColumnWidth = 8; int colSL = COL; COL++;
-                sheet[ROW, COL].Text = "Description"; sheet[ROW, COL].ColumnWidth = 16; int colDescription = COL; COL++;
-                sheet[ROW, COL].Text = "Packing Type"; sheet[ROW, COL].ColumnWidth = 16; int colPackingType = COL; COL++;
-                sheet[ROW, COL].Text = "Master Order Item"; sheet[ROW, COL].ColumnWidth = 25; int colMOI = COL; COL++;
-                sheet[ROW, COL].Text = "Article"; sheet[ROW, COL].ColumnWidth = 30; int colArticle = COL; COL++;
-                sheet[ROW, COL].Text = "%Age"; sheet[ROW, COL].ColumnWidth = 14; int colAge = COL; COL++;
-                sheet[ROW, COL].Text = "Value Loss"; sheet[ROW, COL].ColumnWidth = 19; int colVL = COL; COL++;
-                sheet[ROW, COL].Text = "UOM"; sheet[ROW, COL].ColumnWidth = 8; int colUoM = COL; COL++;
-                sheet[ROW, COL].Text = "Total Qty"; sheet[ROW, COL].ColumnWidth = 8; int colTQ = COL; COL++;
-                sheet[ROW, COL].Text = "Plan Qty"; sheet[ROW, COL].ColumnWidth = 8; int colPQ = COL; COL++;
-                sheet[ROW, COL].Text = "Issued Qty"; sheet[ROW, COL].ColumnWidth = 8; int colIQ = COL; COL++;
-                sheet[ROW, COL].Text = "Balance Qty"; sheet[ROW, COL].ColumnWidth = 8; int colBQ = COL;
+                sheet[ROW, COL].Text = "Item Name"; sheet[ROW, COL].ColumnWidth = 15; int colSL = COL; COL++;
+                sheet[ROW, COL].Text = "Entry State"; sheet[ROW, COL].ColumnWidth = 16; int colDescription = COL; COL++;
+                sheet[ROW, COL].Text = "Value"; sheet[ROW, COL].ColumnWidth = 16; int colPackingType = COL;
+
 
                 int endCol = COL;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.White;
@@ -2694,31 +2659,9 @@ ORDER BY OL.Sequence";
                 #region DataPlot
                 for (int i = 0; i < dtOrder.Rows.Count; i++)
                 {
-                    sheet[ROW, colSL].Text = dtOrder.Rows[i]["SrNo"].ToString();
-                    sheet[ROW, colDescription].Text = dtOrder.Rows[i]["Remarks"].ToString();
-                    sheet[ROW, colPackingType].Text = dtOrder.Rows[i]["PackingType"].ToString();
-                    sheet[ROW, colMOI].Text = dtOrder.Rows[i]["MaterialMaster"].ToString();
-                    sheet[ROW, colArticle].Text = dtOrder.Rows[i]["QBOQArticle"].ToString();
-                    sheet[ROW, colArticle].RowHeight = 20;
-                    sheet[ROW, colAge].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["GrossConsumption"].ToString());
-                    sheet.Range[ROW, colAge].VerticalAlignment = ExcelVAlign.VAlignTop;
-                    sheet.Range[ROW, colAge].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    sheet[ROW, colVL].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ValueLoss"].ToString());
-                    sheet[ROW, colUoM].Text = dtOrder.Rows[i]["UOM"].ToString();
-                    sheet[ROW, colTQ].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["TotalConsumption"].ToString());
-                    sheet.Range[ROW, colTQ].VerticalAlignment = ExcelVAlign.VAlignTop;
-                    sheet.Range[ROW, colTQ].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    sheet[ROW, colPQ].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["IssueQty"].ToString());
-                    sheet.Range[ROW, colPQ].VerticalAlignment = ExcelVAlign.VAlignTop;
-                    sheet.Range[ROW, colPQ].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                    sheet[ROW, colIQ].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ActualIssue"].ToString());
-                    sheet.Range[ROW, colIQ].VerticalAlignment = ExcelVAlign.VAlignTop;
-                    sheet.Range[ROW, colIQ].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                    sheet[ROW, colBQ].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["Balance"].ToString());
-                    sheet.Range[ROW, colBQ].VerticalAlignment = ExcelVAlign.VAlignTop;
-                    sheet.Range[ROW, colBQ].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                    sheet[ROW, colSL].Text = dtOrder.Rows[i]["ItemName"].ToString();
+                    sheet[ROW, colDescription].Text = dtOrder.Rows[i]["EntryState"].ToString();
+                    sheet[ROW, colPackingType].Text = dtOrder.Rows[i]["Value"].ToString();
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -2727,7 +2670,7 @@ ORDER BY OL.Sequence";
                 }
                 #endregion
                 int edCRow = ROW;
-                
+
 
                 #region ReportHeader
                 sheet.UsedRange.WrapText = true;
