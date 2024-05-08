@@ -1799,12 +1799,12 @@ Where ISNULL(M.IsApproved,0)=1";
         [HttpGet, Authorize]
         public ActionResult GetEmployeeFNFMasterData(string masterId)
         {
-            string sql = @"select E.*,EI.EmployeeCode,EI.EmployeeName,FORMAT(EI.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EI.DOS,'dd-MMM-yyyy')DOS,LD.UserName LegalDesignation,D.UserName Department
+            string sql = @"select E.*,EI.EmployeeCode,EI.EmployeeName,FORMAT(EI.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EI.DOS,'dd-MMM-yyyy')DOS,LD.UserName LegalDesignation,D.UserName Department,ISNULL(EI.PaymentMode,'') PaymentMode
 from EmployeeFullAndFinalSettlement  E
 LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=E.EmpSystemId
 LEFT JOIN HKP.LegalDesignation LD ON LD.Id=EI.LegalDesignationId
 LEFT JOIN ORG.Department D ON D.Id=EI.DepartmentId
-where FinalSettlementId='" + masterId + "'";
+where E.VoucherId IS NULL AND FinalSettlementId='" + masterId + "'";
             var data = _sqlRepository.GetDataCollection(sql);
 
             return Json(data, JsonRequestBehavior.AllowGet);
