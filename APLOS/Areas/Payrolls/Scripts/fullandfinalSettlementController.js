@@ -367,6 +367,8 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
 
     $scope.UpdateItemData = function () {
         try {
+
+
             $http({
                 method: 'POST',
                 url: 'Payrolls/FinalSettlement/UpdateItemData',
@@ -451,8 +453,8 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
             $scope.fileName = "EmpSepItemReport.xls";
 
 
-            //$scope.ReportFormat = 'Excel';
-           $scope.ReportFormat = 'Pdf';
+            $scope.ReportFormat = 'Excel';
+          //$scope.ReportFormat = 'Pdf';
             var url = 'Payrolls/FinalSettlement/GetEmpSepItemReportPdf?reportFormat=' + $scope.ReportFormat + '&empId=' + data.data.EmpSystemId;
             $rootScope.report(url);
 

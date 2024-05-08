@@ -149,7 +149,8 @@
                                             <tr ng-repeat="x in FormulaList">
                                                 <td>{{x.UserName}}</td>
                                                 <td>{{x.EntryState}}</td>
-                                                <td><input class="form-control text-right" ng-disabled="x.EntryState=='Auto' || x.EntryState=='Calculate'" type="text" n-decimals="6" ng-model="x.Value" /></td>
+                                                @*<td><input class="form-control text-right" ng-disabled="x.FieldDisable==true" type="text" n-decimals="2" ng-model="x.Value" /></td>*@
+                                            <td><input class="form-control text-right" ng-disabled="{{(x.EntryState=='Auto' && x.UserName=='EarnLeave')?'false':x.EntryState=='Entry'?'false' :(x.EntryState=='Auto'||x.EntryState=='Calculate')?'true':'true'}}" type="text" n-decimals="6" ng-model="x.Value" /></td>
                                             </tr>
                                         </tbody>
                                     </table>
