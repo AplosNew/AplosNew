@@ -41,7 +41,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         #endregion Constructor
 
 
-  
+
         public ActionResult Aplos()
         {
             return View();
@@ -659,7 +659,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     else
                     {
                         _Id = data["Id"].ToString();
-                    
+
                         EditRow(dsMaster.Tables[0].Rows[0], data);
                     }
 
@@ -726,10 +726,19 @@ namespace Aplos.Areas.Payrolls.Controllers
         private double GetSeperationItemSequence(string masterId)
         {
             DataTable dt = _sqlRepository.GetDataTable("SELECT  ISNULL(Max(Sequence),0) AS Sequence FROM dbo.EmployeeSeperationItem Where EmployeeSeperationSetupId='" + masterId + "'");
+            double seq = 0;
             if (dt.Rows.Count > 0)
-                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
-
-            return 5;
+            {
+                if (clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) == 0)
+                {
+                    seq = 5;
+                }
+                else
+                {
+                    seq = clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+                }
+            }
+            return seq;
         }
 
         [HttpPost, Authorize]
