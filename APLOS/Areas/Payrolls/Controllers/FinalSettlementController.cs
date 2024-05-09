@@ -2467,23 +2467,23 @@ ORDER BY OL.Sequence";
 				FROM EmployeeFullAndFinalSettlement  E
 				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='NetPay'
 				LEFT JOIN [dbo].[EmployeeSeperationItem] ESI ON  ESI.Id=EI.EmployeeSeperationItemId
-				LEFT JOIN [dbo].[SalaryLock] sl ON  sl.EmployeeFinalSettlementId=E.FinalSettlementId
-				left join trn.VoucherDetail vd on vd.VoucherId=sl.PayableVoucherId and vd.TrnNature ='Net Pay' and vd.SalaryHeadId=ESI.SalaryHeadID and Vd.AccountsGroupId=sl.AccountsGroupId
+				LEFT JOIN ( SELECT vd.GLGeneralInfoId, vd.BudgetMasterId,vd.ActivityId,sl.EmployeeFinalSettlementId FROM [dbo].[SalaryLock] sl   
+				left join trn.VoucherDetail vd on vd.VoucherId=sl.PayableVoucherId and vd.TrnNature ='Net Pay' and Vd.AccountsGroupId=sl.AccountsGroupId WHERE sl.EmployeeFinalSettlementId IS NOT NULL GROUP BY vd.GLGeneralInfoId, vd.BudgetMasterId,vd.ActivityId,sl.EmployeeFinalSettlementId) AS vd ON vd.EmployeeFinalSettlementId=E.FinalSettlementId
 				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON vd.GLGeneralInfoId=GL.Id
 				LEFT JOIN[MST].[BudgetMaster] AS BM ON vd.BudgetMasterId= BM.Id
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON vd.ActivityId= A.Id
-				WHERE  E.VoucherId IS NULL AND sl.EmployeeFinalSettlementId='" + disbursementAdviceId + @"' AND E.Id in (" + goodWorkPaymentAdviseDetailIds + @")
+				WHERE  E.VoucherId IS NULL AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.Id in (" + goodWorkPaymentAdviseDetailIds + @")
 
                 Union All
-				SELECT  'LeaveEnchasment' AS OtherName, 'Dr' AS TrnType
+				SELECT  'LeaveEncashment' AS OtherName, 'Dr' AS TrnType
                 , CAST(EI.Value AS decimal(18,2)) DrAmount 
                 , 0 CrAmount 
                 , CAST(EI.Value AS decimal(18,2)) Amount
                 ,BM.GLGeneralInfoId ,BMA.BudgetMasterId,BMA.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
                 , B.UserName BudgetName,A.UserName ActivityName 
 				FROM EmployeeFullAndFinalSettlement  E
-				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='LeaveEnchasment'
+				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='LeaveEncashment'
 				LEFT JOIN [dbo].[EmployeeSeperationItem] ESI ON  ESI.Id=EI.EmployeeSeperationItemId
 				LEFT JOIN [MST].[BudgetMasterActivity] BMA ON  BMA.Id=ESI.DrBudgetMasterActivityId
 				LEFT JOIN[MST].[BudgetMaster] AS BM ON BMA.BudgetMasterId= BM.Id
