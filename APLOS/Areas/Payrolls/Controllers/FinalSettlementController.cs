@@ -2643,8 +2643,11 @@ Order By ESI.Sequence";
                 }
                 int ROW = 6; int COL = 1;
                 sheet.Range[ROW, COL].Text = "Employee Code :"+ dtOrder.Rows[0]["EmployeeCode"].ToString() + "";
+                sheet[ROW, COL].ColumnWidth = 30;
                 sheet.Range[ROW, 2].Text = "Employee Name :"+ dtOrder.Rows[0]["EmployeeName"].ToString() + "";
+                sheet[ROW, 2].ColumnWidth = 35;
                 sheet.Range[ROW, 3].Text = "Father Name :"+ dtOrder.Rows[0]["FatherName"].ToString() + "";
+                sheet[ROW, 3].ColumnWidth = 35;
                 ROW++; COL = 1;
                 sheet.Range[ROW, COL].Text = "Department :"+ dtOrder.Rows[0]["Department"].ToString() + "";
                 sheet.Range[ROW, 2].Text = "Section :"+ dtOrder.Rows[0]["Section"].ToString() + "";
@@ -2661,15 +2664,16 @@ Order By ESI.Sequence";
                 sheet.Range[ROW, COL].Text = "BankAccNo :" + dtOrder.Rows[0]["BankAccNo"].ToString() + "";
                 sheet.Range[ROW, 2].Text = "Bank :" + dtOrder.Rows[0]["Bank"].ToString() + "";
                 sheet.Range[ROW, 3].Text = "IFSC Code :" + dtOrder.Rows[0]["IFSCCode"].ToString() + "";
-
+                int HROW = ROW;
+                sheet.Range[6, 1, HROW, 3].BorderAround(ExcelLineStyle.Hair);
+                
 
                 ROW++;
                 ROW++;
                 #region ColumnsHeader
 
-                sheet[ROW, COL].Text = "Item Name"; sheet[ROW, COL].ColumnWidth = 30; int colSL = COL; COL++;
-                sheet[ROW, COL].Text = "Entry State"; sheet[ROW, COL].ColumnWidth = 35; int colDescription = COL; COL++;
-                sheet[ROW, COL].Text = "Value"; sheet[ROW, COL].ColumnWidth = 35; int colPackingType = COL;
+                sheet[ROW, COL].Text = "Item Name"; int colSL = COL; COL++;
+                sheet[ROW, COL].Text = "Value"; int colPackingType = COL;
 
 
                 int endCol = COL;
@@ -2689,7 +2693,6 @@ Order By ESI.Sequence";
                 for (int i = 0; i < dtOrder.Rows.Count; i++)
                 {
                     sheet[ROW, colSL].Text = dtOrder.Rows[i]["ItemName"].ToString();
-                    sheet[ROW, colDescription].Text = dtOrder.Rows[i]["EntryState"].ToString();
                     sheet[ROW, colPackingType].Text = dtOrder.Rows[i]["Value"].ToString();
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -2700,6 +2703,10 @@ Order By ESI.Sequence";
                 #endregion
                 int edCRow = ROW;
 
+                edCRow++;
+                edCRow++;
+                edCRow++;
+                edCRow++;
                 edCRow++;
                 edCRow++;
                 edCRow++;
@@ -2729,7 +2736,7 @@ Order By ESI.Sequence";
                 sheet["A" + startRow.ToString()].FreezePanes();
 
                 ReportUtility reportUtility = new ReportUtility();
-                reportUtility.NewCompanyHeader(ref sheet, endCol, "Employee Full & Final Report", identity.CompanyId);
+                reportUtility.CompanyHeader(ref sheet, 2, "Employee Full & Final Report", identity.CompanyId);
                 //reportUtility.PlantHeader(ref sheet, endCol, "Employee Full & Final Seperation Items Report", identity.PlantId);
                 //reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Employee Full & Final Seperation Items Report", identity.CompanyId, identity.CompanyName, "");
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
@@ -2742,15 +2749,6 @@ Order By ESI.Sequence";
 
                 sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
 
-
-                sheet.PageSetup.TopMargin = 0.2;
-                sheet.PageSetup.BottomMargin = 0.8;
-                sheet.PageSetup.LeftMargin = 0.2;
-                sheet.PageSetup.RightMargin = 0.2;
-                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
-                sheet.PageSetup.FitToPagesTall = 0;
-                sheet.PageSetup.FitToPagesWide = 1;
-                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
                 sheet.PageSetup.CenterHorizontally = true;
                 #endregion
 

@@ -1008,7 +1008,7 @@ namespace Library.Service.Helpers
             try
             {
                 var sql = @"SELECT COM.Id, COM.UserName, COM.LegalName, COM.WebDomain, AM.Address1, AM.Address2, CO.UserName AS Country, CT.UserName AS City, CM.Phone1 AS Phone, CM.Email1 AS Email
-                        , CM.Website AS Website, AR.UserName AS Area
+                        ,COM.Image CompanyImage, CM.Website AS Website, AR.UserName AS Area
                         , [Address]=CASE ISNULL(AM.Address1,'') WHEN '' THEN '' ELSE AM.Address1 +', ' END+
 			                        CASE ISNULL(AR.UserName,'') WHEN '' THEN '' ELSE AR.UserName +', ' END+
 			                        CASE ISNULL(CT.UserName,'') WHEN '' THEN '' ELSE ct.UserName END
@@ -1256,7 +1256,7 @@ namespace Library.Service.Helpers
                 {
                     strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), dt.Rows[0]["CompanyImage"].ToString());  // IDCardEng.xlsx
                     companyLogo = Image.FromFile(strPath);
-                    additionalColumn = 3;
+                    //additionalColumn = 3;
                     try
                     {
 
