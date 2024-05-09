@@ -189,7 +189,7 @@
                         </div>
                         <div class="common-btn" style="padding-right: 15px;">
                             <ul class="list-inline text-right">
-                                <li><button ng-click="UpdateItemData();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Save</button></li>
+                                <li><button ng-click="UpdateItemData();"ng-disabled="FinalSettlementModel.IsApproved==true" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Save</button></li>
                                 <li><button ng-click="CloseFormulaPopUp();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="11"></i> Close</button></li>
                             </ul>
                         </div>

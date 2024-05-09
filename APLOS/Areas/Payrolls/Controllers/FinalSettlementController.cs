@@ -1922,7 +1922,7 @@ WHERE E.EmployeeStatus='Active' AND A.ActionStatus='FullAndFinalApproveBy'";
 			 WHEN OL.UserName='ResignDate' THEN FORMAT(R.ResignationDate,'dd-MMM-yyyy')
 			 WHEN OL.UserName='SeparationDate' THEN FORMAT(E.DOS,'dd-MMM-yyyy')
 			 WHEN OL.UserName='EarnLeave' THEN CAST(CEILING(LV.Balance) AS varchar(100))
-			 WHEN OL.SalaryHeadID<>'' THEN CAST(SID.DefineAmount AS varchar(100))
+			 WHEN OL.SalaryHeadID<>'' THEN CAST(cast(SID.DefineAmount AS decimal(18,2)) AS varchar(100))
 			 WHEN OL.UserName='NoticePeriod' THEN CAST(LV.NoticePeriod AS varchar(100))
 
 WHEN OL.UserName='Advance' THEN CAST((
@@ -1938,7 +1938,7 @@ WHEN OL.UserName='UnPaidSalary' THEN CAST((
 LEFT JOIN SalaryProcMaster AS spm ON spm.SystemID = spc.SlrProcMstSystemID 
 LEFT JOIN SalaryHead AS sh ON sh.SalaryHeadID = spc.SalaryHeadID
 LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
-WHERE  spc.EmpInfoSystemID= '" + empId + @"' AND PayableVoucherId<>'' AND ISNULL(sl.IsDisbursed,0)=0 AND sl.DisbursementVoucherId IS NULL  AND sh.SalaryHead='Net Pay'
+WHERE  spc.EmpInfoSystemID= '" + empId + @"' AND PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL  AND sh.SalaryHead='Net Pay'
 			 ) AS varchar(100))
 
 			 WHEN OL.UserName='Bonus' THEN CAST((
@@ -1947,15 +1947,15 @@ left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
 JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID
 Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.YearNo AND sl.MonthNo=SPM.MonthNo
 Where HeadCategory IN('Monthly Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
-AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND ISNULL(sl.IsBonusDisbursed,0) = 0  
+AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND ISNULL(sl.IsBonusDisbursed,0) = 1  
 AND sl.BonusDisbursementVoucherId IS NULL 
 AND SPC.EmpInfoSystemID='" + empId + @"'
 			 ) AS varchar(100))
            
 WHEN OL.Formula='SeparationDate - ResignDate' THEN CAST(DATEDIFF(Day,
-			 (Select FORMAT(R.ResignationDate,'dd-MMM-yyyy') from [TRN].[Resignation] R Where R.EmployeeId='2323264'
+			 (Select FORMAT(R.ResignationDate,'dd-MMM-yyyy') from [TRN].[Resignation] R Where R.EmployeeId='" + empId + @"'
 AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC)),
-(Select FORMAT(DOS,'dd-MMM-yyyy') from dbo.EmployeeInformation Where SystemId='2323264')
+(Select FORMAT(DOS,'dd-MMM-yyyy') from dbo.EmployeeInformation Where SystemId='" + empId + @"')
 			 ) AS varchar(100))
 ElSE CAST(A.Value as varchar(100)) END,0)
 ,OL.EntryState
@@ -2618,11 +2618,13 @@ ORDER BY OL.Sequence";
                 workbook.Worksheets[0].Name = "Data";
                 sheet = workbook.Worksheets[0];
                 DataTable dtOrder = null;
-                string sql = @"SELECT EI.EmpSystemId,EM.EmployeeCode,EM.EmployeeName,FORMAT(EM.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EM.DOS,'dd-MMM-yyyy')DOS,FORMAT(R.ResignationDate,'dd-MMM-yyyy')ResignationDate,EI.UserName ItemName,EI.Value,ESI.EntryState 
-,EM.FatherName,DP.UserName Department,S.UserName Section,LD.UserName Designation,EI.AddedBy,AEM.EmployeeName ApproveBy
+                string sql = @"SELECT EI.EmpSystemId,EM.EmployeeCode,EM.EmployeeName,FORMAT(EM.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EM.DOS,'dd-MMM-yyyy')DOS,FORMAT(R.ResignationDate,'dd-MMM-yyyy')ResignationDate,ESI.SandardName ItemName,EI.Value,ESI.EntryState 
+,EM.FatherName,DP.UserName Department,S.UserName Section,LD.UserName Designation,EI.AddedBy,AEM.EmployeeName ApproveBy,EM.PaymentMode,ApproveStatus=CASE WHEN  M.IsApproved=1 THEN 'Approved' ELSE 'Pending' END, M.IsApproved,EB.BankAccNo,B.UserName Bank,EB.IFSCCode
 FROM dbo.EmployeeFullAndFinalSettlementItem  EI
 LEFT JOIN dbo.EmployeeSeperationItem ESI ON ESI.Id=EI.EmployeeSeperationItemId
 LEFT JOIN dbo.EmployeeInformation EM ON EM.SystemId=EI.EmpSystemId
+LEFT JOIN dbo.EmployeeBankInfo EB ON EB.EmpSystemID=EM.SystemId
+LEFT JOIN HKP.Bank B ON B.Id=EB.BankSystemID
 LEFT JOIN ORG.Department DP ON DP.Id=EM.DepartmentId
 LEFT JOIN ORG.Section S ON S.Id=EM.SectionId
 LEFT JOIN HKP.LegalDesignation LD ON LD.Id=EM.LegalDesignationId
@@ -2641,8 +2643,11 @@ Order By ESI.Sequence";
                 }
                 int ROW = 6; int COL = 1;
                 sheet.Range[ROW, COL].Text = "Employee Code :"+ dtOrder.Rows[0]["EmployeeCode"].ToString() + "";
+                sheet[ROW, COL].ColumnWidth = 30;
                 sheet.Range[ROW, 2].Text = "Employee Name :"+ dtOrder.Rows[0]["EmployeeName"].ToString() + "";
+                sheet[ROW, 2].ColumnWidth = 35;
                 sheet.Range[ROW, 3].Text = "Father Name :"+ dtOrder.Rows[0]["FatherName"].ToString() + "";
+                sheet[ROW, 3].ColumnWidth = 35;
                 ROW++; COL = 1;
                 sheet.Range[ROW, COL].Text = "Department :"+ dtOrder.Rows[0]["Department"].ToString() + "";
                 sheet.Range[ROW, 2].Text = "Section :"+ dtOrder.Rows[0]["Section"].ToString() + "";
@@ -2651,13 +2656,25 @@ Order By ESI.Sequence";
                 sheet.Range[ROW, COL].Text = "Joining Date :" + dtOrder.Rows[0]["DOJ"].ToString() + "";
                 sheet.Range[ROW, 2].Text = "Resign Date :"+ dtOrder.Rows[0]["ResignationDate"].ToString() + "";
                 sheet.Range[ROW, 3].Text = "Separation Date :"+ dtOrder.Rows[0]["DOS"].ToString() + "";
+                ROW++; COL = 1;
+                sheet.Range[ROW, COL].Text = "Payment Mode :" + dtOrder.Rows[0]["PaymentMode"].ToString() + "";
+                sheet.Range[ROW, 2].Text = "Approve Status :" + dtOrder.Rows[0]["ApproveStatus"].ToString() + "";
+                sheet.Range[ROW, 3].Text = "Approve By :" + dtOrder.Rows[0]["ApproveBy"].ToString() + "";
+                ROW++; COL = 1;
+                sheet.Range[ROW, COL].Text = "BankAccNo :" + dtOrder.Rows[0]["BankAccNo"].ToString() + "";
+                sheet.Range[ROW, 2].Text = "Bank :" + dtOrder.Rows[0]["Bank"].ToString() + "";
+                sheet.Range[ROW, 3].Text = "IFSC Code :" + dtOrder.Rows[0]["IFSCCode"].ToString() + "";
+                int HROW = ROW;
+                sheet.Range[6, 1, HROW, 3].BorderAround(ExcelLineStyle.Hair);
+                
 
+                ROW++;
                 ROW++;
                 #region ColumnsHeader
 
-                sheet[ROW, COL].Text = "Item Name"; sheet[ROW, COL].ColumnWidth = 30; int colSL = COL; COL++;
-                sheet[ROW, COL].Text = "Entry State"; sheet[ROW, COL].ColumnWidth = 35; int colDescription = COL; COL++;
-                sheet[ROW, COL].Text = "Value"; sheet[ROW, COL].ColumnWidth = 35; int colPackingType = COL;
+                sheet[ROW, COL].Text = "SNo"; int colSL = COL; COL++;
+                sheet[ROW, COL].Text = "Item Name"; int colIN = COL; COL++;
+                sheet[ROW, COL].Text = "Value"; int colPackingType = COL;
 
 
                 int endCol = COL;
@@ -2672,12 +2689,13 @@ Order By ESI.Sequence";
 
                 ROW++;
                 int startRow = ROW;
-
+                int cnt = 0;
                 #region DataPlot
                 for (int i = 0; i < dtOrder.Rows.Count; i++)
                 {
-                    sheet[ROW, colSL].Text = dtOrder.Rows[i]["ItemName"].ToString();
-                    sheet[ROW, colDescription].Text = dtOrder.Rows[i]["EntryState"].ToString();
+                    cnt++;
+                    sheet[ROW, colSL].Number = Library.Service.Extension.clsStaticInfo.dbl(cnt.ToString());
+                    sheet[ROW, colIN].Text = dtOrder.Rows[i]["ItemName"].ToString();
                     sheet[ROW, colPackingType].Text = dtOrder.Rows[i]["Value"].ToString();
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -2694,24 +2712,34 @@ Order By ESI.Sequence";
                 edCRow++;
                 edCRow++;
                 edCRow++;
+                edCRow++;
+                edCRow++;
+                edCRow++;
+                edCRow++;
 
                 sheet.Range[edCRow - 1, 1].Text = dtOrder.Rows[0]["AddedBy"].ToString();
                 sheet.Range[edCRow, 1].Text = "Created By";
-                sheet.Range[edCRow - 1, 2].Text = dtOrder.Rows[0]["ApproveBy"].ToString();
+                if (Convert.ToBoolean(dtOrder.Rows[0]["IsApproved"].ToString())==true)
+                {
+                    sheet.Range[edCRow - 1, 2].Text = dtOrder.Rows[0]["ApproveBy"].ToString(); 
+                }
+                else
+                {
+                    sheet.Range[edCRow - 1, 2].Text = "";
+                }
                 sheet.Range[edCRow, 2].Text = "Approved By";
                 sheet.Range[edCRow - 1, 3].Text = "";
                 sheet.Range[edCRow, 3].Text = "Authorized By";
 
                 #region ReportHeader
-                sheet.UsedRange.WrapText = false;
+                sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.UsedRange.HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                 sheet["A" + startRow.ToString()].FreezePanes();
 
                 ReportUtility reportUtility = new ReportUtility();
-                //reportUtility.PlantHeader(ref sheet, endCol, "Employee Full & Final Seperation Items Report", identity.PlantId);
-                reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Employee Full & Final Seperation Items Report", identity.CompanyId, identity.CompanyName, "");
+                reportUtility.CompanyHeader(ref sheet, 2, "Employee Full & Final Report", identity.CompanyId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -2722,15 +2750,6 @@ Order By ESI.Sequence";
 
                 sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
 
-
-                sheet.PageSetup.TopMargin = 0.2;
-                sheet.PageSetup.BottomMargin = 0.8;
-                sheet.PageSetup.LeftMargin = 0.2;
-                sheet.PageSetup.RightMargin = 0.2;
-                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
-                sheet.PageSetup.FitToPagesTall = 0;
-                sheet.PageSetup.FitToPagesWide = 1;
-                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
                 sheet.PageSetup.CenterHorizontally = true;
                 #endregion
 

@@ -1003,6 +1003,36 @@ namespace Library.Service.Helpers
             }
         }
 
+        public void NewCompanyHeader(ref IWorksheet sheet, int lastCol, string sheetHeader, string companyId)
+        {
+            try
+            {
+                var sql = @"SELECT COM.Id, COM.UserName, COM.LegalName, COM.WebDomain, AM.Address1, AM.Address2, CO.UserName AS Country, CT.UserName AS City, CM.Phone1 AS Phone, CM.Email1 AS Email
+                        ,COM.Image CompanyImage, CM.Website AS Website, AR.UserName AS Area
+                        , [Address]=CASE ISNULL(AM.Address1,'') WHEN '' THEN '' ELSE AM.Address1 +', ' END+
+			                        CASE ISNULL(AR.UserName,'') WHEN '' THEN '' ELSE AR.UserName +', ' END+
+			                        CASE ISNULL(CT.UserName,'') WHEN '' THEN '' ELSE ct.UserName END
+                        , Contact=CASE ISNULL(CM.Phone1,'') WHEN '' THEN '' ELSE CM.Phone1 +', ' END+
+		                        CASE ISNULL(CM.Email1,'') WHEN '' THEN '' ELSE CM.Email1 +', ' END+
+		                        CASE ISNULL(CM.Website ,'') WHEN '' THEN '' ELSE CM.Website  END
+                        FROM [ORG].[Company] AS COM
+                        LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=COM.AddressMasterId
+                        LEFT JOIN [MST].[ContactMaster] AS CM ON CM.Id=COM.ContactMasterId
+                        LEFT JOIN [SCS].[Country] AS CO ON CO.Id=AM.CountryId
+                        LEFT JOIN [SCS].[City] AS CT ON CT.Id=AM.CityId
+                        LEFT JOIN [SCS].[Area] AS AR ON AR.Id=AM.AreaId
+                        WHERE COM.Id='" + companyId + "'";
+                var company = _sqlRepository.GetDataTable(sql);
+                if (company.Rows.Count == 0)
+                    throw new CustomException("Company information not found!");
+                Header(sheet, lastCol, sheetHeader, company, true);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         public void CompanyPlantHeader(ref IWorksheet sheet, int lastCol, string sheetHeader, string companyId, string plantName, string date)
         {
             try
@@ -1226,7 +1256,7 @@ namespace Library.Service.Helpers
                 {
                     strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), dt.Rows[0]["CompanyImage"].ToString());  // IDCardEng.xlsx
                     companyLogo = Image.FromFile(strPath);
-                    additionalColumn = 3;
+                    //additionalColumn = 3;
                     try
                     {
 
