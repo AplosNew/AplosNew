@@ -2672,7 +2672,8 @@ Order By ESI.Sequence";
                 ROW++;
                 #region ColumnsHeader
 
-                sheet[ROW, COL].Text = "Item Name"; int colSL = COL; COL++;
+                sheet[ROW, COL].Text = "SNo"; int colSL = COL; COL++;
+                sheet[ROW, COL].Text = "Item Name"; int colIN = COL; COL++;
                 sheet[ROW, COL].Text = "Value"; int colPackingType = COL;
 
 
@@ -2688,11 +2689,13 @@ Order By ESI.Sequence";
 
                 ROW++;
                 int startRow = ROW;
-
+                int cnt = 0;
                 #region DataPlot
                 for (int i = 0; i < dtOrder.Rows.Count; i++)
                 {
-                    sheet[ROW, colSL].Text = dtOrder.Rows[i]["ItemName"].ToString();
+                    cnt++;
+                    sheet[ROW, colSL].Number = Library.Service.Extension.clsStaticInfo.dbl(cnt.ToString());
+                    sheet[ROW, colIN].Text = dtOrder.Rows[i]["ItemName"].ToString();
                     sheet[ROW, colPackingType].Text = dtOrder.Rows[i]["Value"].ToString();
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -2737,8 +2740,6 @@ Order By ESI.Sequence";
 
                 ReportUtility reportUtility = new ReportUtility();
                 reportUtility.CompanyHeader(ref sheet, 2, "Employee Full & Final Report", identity.CompanyId);
-                //reportUtility.PlantHeader(ref sheet, endCol, "Employee Full & Final Seperation Items Report", identity.PlantId);
-                //reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Employee Full & Final Seperation Items Report", identity.CompanyId, identity.CompanyName, "");
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
