@@ -572,6 +572,22 @@ function fullandfinalSettlementPaymentController(cboService, commonMessage, $sco
         }
     };
 
+
+    $scope.PrintData = function (data) {
+        try {
+            $scope.fileName = "EmpSepItemReport.xls";
+
+
+            //  $scope.ReportFormat = 'Excel';
+            $scope.ReportFormat = 'Pdf';
+            var url = 'Payrolls/FinalSettlement/GetEmpSepItemReportPdf?reportFormat=' + $scope.ReportFormat + '&empId=' + data.data.EmpSystemId;
+            $rootScope.report(url);
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
     $scope.Clear = function () {
         ClearFields();
         return true;

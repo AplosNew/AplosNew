@@ -35,7 +35,7 @@ function fullandfinalSettlementApproveController(commonMessage, $scope, $rootSco
     $scope.GetEmployeeFNFMasterData = function () {
         $scope.SelectedEmployeeList = [];
         try {
-            $http.get('Payrolls/FinalSettlement/GetEmployeeFNFMasterData?masterId=' + $scope.FinalSettlementModel.Id)
+            $http.get('Payrolls/FinalSettlement/GetEmployeeFNFDataByMaster?masterId=' + $scope.FinalSettlementModel.Id)
                 .then(function successCallback(response) {
                     if (response.data.Error === true) {
                         ShowResult(response.data.Message, 'failure');
@@ -121,6 +121,21 @@ function fullandfinalSettlementApproveController(commonMessage, $scope, $rootSco
             }
         });
     }
+
+    $scope.PrintData = function (data) {
+        try {
+            $scope.fileName = "EmpSepItemReport.xls";
+
+
+            //  $scope.ReportFormat = 'Excel';
+            $scope.ReportFormat = 'Pdf';
+            var url = 'Payrolls/FinalSettlement/GetEmpSepItemReportPdf?reportFormat=' + $scope.ReportFormat + '&empId=' + data.data.EmpSystemId;
+            $rootScope.report(url);
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
 
     $scope.GetSavedEmployeeItems = function () {
         $scope.FormulaList = [];

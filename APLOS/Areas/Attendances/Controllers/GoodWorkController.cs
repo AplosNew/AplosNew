@@ -1147,7 +1147,7 @@ Order By GW.WorkDate";
 (select CheckBoxSelect=cast(case when z.Id is null then 0 else 1 end as bit)
 ,z.Id,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,sum(gwd.Minute)*OLS.OTreductionFactor Minute,(sum(gwd.Minute)/60)*OLS.OTreductionFactor Hour
                                     ,format(g.Gross,'N2') Gross,0.00 Rate,0.00 Amount
-									,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
+									,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection,EI.EmployeeStatus
                                      from [dbo].[GoodWork] gw
                                      left join  GoodWorkDetail GWD on GWD.GoodWorkId=gw.Id 
                                      left join EmployeeInformation ei on ei.SystemId=GWD.EmpSystemId
@@ -1185,7 +1185,7 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
 
                                      where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and gwd.Minute<>0 and g.Gross<>0  and SIDM.IsApproved=1 AND gw.ApprovedStatus='Approved' AND GWD.GWPaymentAdviseId IS NULL
                                      group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross
-									 ,z.Id,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,OLS.OTreductionFactor,Department.UserName,Section.UserName,SubSection.UserName 
+									 ,z.Id,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,OLS.OTreductionFactor,Department.UserName,Section.UserName,SubSection.UserName ,EI.EmployeeStatus
                                     )T WHERE T.CheckBoxSelect=0
 								order by T.EmployeeCode ";
 
@@ -1260,7 +1260,7 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
 (select CheckBoxSelect=cast(case when z.Id is null then 0 else 1 end as bit)
 ,z.Id,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,sum(gwd.Minute)*OLS.OTreductionFactor Minute,(sum(gwd.Minute)/60)*OLS.OTreductionFactor Hour
                                     ,format(g.Gross,'N2') Gross,0.00 Rate,0.00 Amount
-									,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
+									,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection,EI.EmployeeStatus
                                      from [dbo].[GoodWork] gw
                                      left join  GoodWorkDetail GWD on GWD.GoodWorkId=gw.Id 
                                      left join EmployeeInformation ei on ei.SystemId=GWD.EmpSystemId
@@ -1298,7 +1298,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 
                                      where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and gwd.Minute<>0 and g.Gross<>0  and SIDM.IsApproved=1 AND gw.ApprovedStatus='Approved' 
                                      group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross
-									 ,z.Id,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,OLS.OTreductionFactor,Department.UserName,Section.UserName,SubSection.UserName 
+									 ,z.Id,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,OLS.OTreductionFactor,Department.UserName,Section.UserName,SubSection.UserName ,EI.EmployeeStatus
                                     )T --WHERE T.CheckBoxSelect=0
 								order by T.EmployeeCode ";
 

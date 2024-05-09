@@ -34,16 +34,17 @@
              e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
             <div e-columns>
+                <div e-column e-headertext="Actions" e-template="#ShowActionButtons" e-width="30"></div>
                 <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="50"></div>
                 <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
                 <div e-column e-field="DOJ" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="DOJ" e-width="70"></div>
                 <div e-column e-field="DOS" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="DOS" e-width="70"></div>
                 <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
                 <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
-                <div e-column e-headertext="Actions" e-template="#ShowActionButtons" e-width="30"></div>
             </div>
             <script type="text/template" id="ShowActionButtons">
                 <button style="color: #f3f3ec;background-color: #1c1f32;" ng-hide="data.Id==null" title="Items" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.GetEmployeeItems(this);" style="margin: -6px;"></i></button>
+                <button style="color: #f3f3ec;background-color: #1c1f32;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintData(this);" style="margin: -6px;"></i></button>
             </script>
         </div>
         <div class="common-btn" ng-show="SelectedEmployeeList.length>0">
@@ -101,7 +102,7 @@
                                         </thead>
                                         <tbody>
                                             <tr ng-repeat="x in FormulaList">
-                                                <td>{{x.UserName}}</td>
+                                                <td>{{x.SandardName}}</td>
                                                 <td>{{x.EntryState}}</td>
                                                 <td><input class="form-control text-right" ng-disabled="true" type="text" n-decimals="6" ng-model="x.Value" /></td>
                                             </tr>

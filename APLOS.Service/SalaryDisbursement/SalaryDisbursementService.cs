@@ -1264,7 +1264,7 @@ namespace Library.Service.SalaryDisbursement
                 {
                     var direct = new System.Text.StringBuilder();
                     var directsql = "";
-                    directsql = @"update [dbo].[SalaryLock] set FNFSettlementVoucherId='" + directVoucherId + @"' where EmployeeFinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId IN (" + goodWorkPaymentAdviseDetailIds + @") ";
+                    directsql = @"update [dbo].[SalaryLock] set IsDisbursed=1, IsBonusDisbursed=1, FNFSettlementVoucherId='" + directVoucherId + @"' ,DisbursementVoucherId='" + directVoucherId + @"' ,BonusDisbursementVoucherId='" + directVoucherId + @"' where EmployeeFinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId IN (" + goodWorkPaymentAdviseDetailIds + @") ";
                     direct.Append(directsql);
                     directsql = @"
                         UPDATE  [dbo].[EmployeeFullAndFinalSettlement] SET VoucherId='" + directVoucherId + @"' WHERE EmpSystemId IN (" + goodWorkPaymentAdviseDetailIds + @") ";
