@@ -729,7 +729,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             if (dt.Rows.Count > 0)
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
-            return 1;
+            return 5;
         }
 
         [HttpPost, Authorize]

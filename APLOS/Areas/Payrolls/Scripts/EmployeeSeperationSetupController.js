@@ -669,8 +669,8 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
                 };
             }
             else {
-                var newobj = { Id: null, EmployeeSeperationSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, SandardName: null, Active: 1, IsReportItem: 0, ViewItem: null, EntryState: null, FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null,IsDefault:true}
-
+                var newobj = { Id: null, EmployeeSeperationSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, SandardName: null, Active: 1, IsReportItem: 0, ViewItem: null, EntryState: null, FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, IsDefault: true }
+                $scope.ProcessParameterNewList = [];
                 for (var i = 1; i < 5; i++) {
                     var obj = angular.copy(newobj);
                     obj.Sequence = i;
@@ -805,67 +805,70 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
     };
 
     $scope.GetProcessPara = function (obj) {
-        $scope.ProductionAction = 'Update';
+        $scope.ModelProcessPara = { Id: null, EmployeeSeperationSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, SandardName: null, Active: true, IsDefault: false, IsReportItem: false, ViewItem: null, DefaultValue: null, EntryState: 'Auto', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
+        if (obj.data.IsDefault == false) {
+            $scope.ProductionAction = 'Update';
 
-        $scope.FormulaDetails = [];
-        $scope.ModelProcessPara.HeadIdFormula = null;
-        $scope.ModelProcessPara.Operator = null;
-        $scope.ModelProcessPara.Precedence = null;
-        $scope.ModelProcessPara.Value = null;
+            $scope.FormulaDetails = [];
+            $scope.ModelProcessPara.HeadIdFormula = null;
+            $scope.ModelProcessPara.Operator = null;
+            $scope.ModelProcessPara.Precedence = null;
+            $scope.ModelProcessPara.Value = null;
 
-        $scope.objectData = obj.data;
-        $scope.ModelProcessPara = Object.assign({}, $scope.objectData);
-        if ($scope.ModelProcessPara.EntryState == "Calculate") {
+            $scope.objectData = obj.data;
+            $scope.ModelProcessPara = Object.assign({}, $scope.objectData);
+            if ($scope.ModelProcessPara.EntryState == "Calculate") {
 
-            $http({
-                method: 'GET',
-                url: "Payrolls/EmployeeSeperationSetup/GetDetailList?ItemId=" + $scope.ModelProcessPara.Id
-            }).then(function successCallback(response) {
-                if (baseService.arrayLength(response.data) > 0) {
-                    $scope.FormulaDetails = response.data;
+                $http({
+                    method: 'GET',
+                    url: "Payrolls/EmployeeSeperationSetup/GetDetailList?ItemId=" + $scope.ModelProcessPara.Id
+                }).then(function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.FormulaDetails = response.data;
 
-                    $scope.ModelProcessPara.FormulaDes = '';
-                    $scope.ModelProcessPara.FormulaDesID = '';
+                        $scope.ModelProcessPara.FormulaDes = '';
+                        $scope.ModelProcessPara.FormulaDesID = '';
 
-                    for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+                        for (var i = 0; i < $scope.FormulaDetails.length; i++) {
 
-                        if (!baseService.isUndefinedOrNull($scope.ModelProcessPara.FormulaDes)) {
-                            $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+                            if (!baseService.isUndefinedOrNull($scope.ModelProcessPara.FormulaDes)) {
+                                $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
 
-                            $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].EmployeeSeperationItemHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].EmployeeSeperationItemHeadId);
-                        } else {
-                            $scope.ModelProcessPara.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
-                            $scope.ModelProcessPara.FormulaDesID = $scope.FormulaDetails[i].EmployeeSeperationItemHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].EmployeeSeperationItemHeadId;
+                                $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].EmployeeSeperationItemHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].EmployeeSeperationItemHeadId);
+                            } else {
+                                $scope.ModelProcessPara.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
+                                $scope.ModelProcessPara.FormulaDesID = $scope.FormulaDetails[i].EmployeeSeperationItemHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].EmployeeSeperationItemHeadId;
+                            }
                         }
+
+                        $scope.ModelProcessPara.FormulaDescription = $scope.ModelProcessPara.FormulaDes;
+                        $scope.ModelProcessPara.FormulaIDDescription = $scope.ModelProcessPara.FormulaDesID;
+
+                        $scope.ModelProcessPara.Formula = $scope.ModelProcessPara.FormulaDescription;
+                        $scope.ModelProcessPara.FormulaId = $scope.ModelProcessPara.FormulaIDDescription;
+
                     }
+                });
+            }
 
-                    $scope.ModelProcessPara.FormulaDescription = $scope.ModelProcessPara.FormulaDes;
-                    $scope.ModelProcessPara.FormulaIDDescription = $scope.ModelProcessPara.FormulaDesID;
 
-                    $scope.ModelProcessPara.Formula = $scope.ModelProcessPara.FormulaDescription;
-                    $scope.ModelProcessPara.FormulaId = $scope.ModelProcessPara.FormulaIDDescription;
+            var value = null;
 
-                }
-            });
+            $scope.GetOrderLineCostingItemCbo();
         }
-
-
-        var value = null;
-
-        $scope.GetOrderLineCostingItemCbo();
 
     };
 
     $scope.SalaryHeadList =
-    $scope.GetSalaryHeadCbo = function () {
-        $http({
-            method: 'Get',
-            url: "Payrolls/EmployeeSeperationSetup/GetCbo",
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.SalaryHeadList = response.data;
-        })
-    }
+        $scope.GetSalaryHeadCbo = function () {
+            $http({
+                method: 'Get',
+                url: "Payrolls/EmployeeSeperationSetup/GetCbo",
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.SalaryHeadList = response.data;
+            })
+        }
     $scope.GetSalaryHeadCbo();
 
     $scope.ControlCrListData = [];
