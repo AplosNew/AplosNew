@@ -18,7 +18,7 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
     $scope.MaterialImagePath = virtualPath.ProductsImage;
     $scope.sortSettings = { sortedColumns: [{ field: "ProductionStatus", direction: "descending" }, { field: "LSD", direction: "ascending" }] };
     $scope.path = 'OrderManagements/productionOrderSchedulingParametersType1/';
-    $scope.getListUrl = $scope.path + 'getlist';
+    $scope.getListUrl = $scope.path + 'GetListNew';
     $scope.saveUrl = $scope.path + 'create';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
@@ -88,7 +88,7 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
             $http({
                 method: 'POST',
                 data: {
-                    'baseprocessid': $scope.baseProcess.Id, 'entityid': $scope.EntityId, 'column': '', 'value': ''
+                    'baseprocessid': $scope.PlanningTypeProcessId, 'entityid': $scope.EntityId, 'column': '', 'value': ''
                 },
                 url: $scope.getListUrl
             }).then(function successCallback(response) {
