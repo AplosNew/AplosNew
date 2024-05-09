@@ -1800,7 +1800,19 @@ Where ISNULL(M.IsApproved,0)=1";
 
             return Json(data, JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public ActionResult GetEmployeeFNFDataByMaster(string masterId)
+        {
+            string sql = @"select E.*,EI.EmployeeCode,EI.EmployeeName,FORMAT(EI.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EI.DOS,'dd-MMM-yyyy')DOS,LD.UserName LegalDesignation,D.UserName Department
+from EmployeeFullAndFinalSettlement  E
+LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=E.EmpSystemId
+LEFT JOIN HKP.LegalDesignation LD ON LD.Id=EI.LegalDesignationId
+LEFT JOIN ORG.Department D ON D.Id=EI.DepartmentId
+where FinalSettlementId='" + masterId + "'";
+            var data = _sqlRepository.GetDataCollection(sql);
 
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
         [HttpGet, Authorize]
         public ActionResult GetEmployeeFNFMasterData(string masterId)
         {
@@ -1814,6 +1826,50 @@ where E.VoucherId IS NULL AND FinalSettlementId='" + masterId + "'";
 
             return Json(data, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        public ActionResult DeleteEmp(string empId)
+        {
+            DeleteEmployeeSepItemData(empId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+
+        public void DeleteEmployeeSepItemData(string empId)
+        {
+            string strSQL, strSQLItem;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "DELETE FROM [dbo].[EmployeeFullAndFinalSettlement] WHERE EmpSystemId = '" + empId + "'";
+                strSQLItem = "DELETE FROM [dbo].[EmployeeFullAndFinalSettlementItem] WHERE EmpSystemId = '" + empId + "'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(strSQLItem, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }//End of function
 
 
         [HttpGet, Authorize]

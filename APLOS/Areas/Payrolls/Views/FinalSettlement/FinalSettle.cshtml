@@ -39,10 +39,11 @@
     </div>
     <hr />
     <div clas="row">
-        <div id="GridSelectedEmp" ej-grid e-datasource="SelectedEmployeeList"
+        <div id="GridSelectedEmp" ej-grid e-datasource="SelectedEmployeeList" e-templaterefresh="refreshTemplateEmp"
              e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
             <div e-columns>
+                <div e-column e-headertext="" e-headertemplateid="#headerTemplateEmp" e-template="#checkboxTemplateEmp" e-textalign="center" e-width="30"></div>
                 <div e-column e-headertext="Actions" e-template="#ShowActionButtons" e-width="50"></div>
                 <div e-column e-field="EmpSystemId" e-headertext="EmpSystemId" e-width="50"></div>
                 <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="50"></div>
@@ -54,8 +55,14 @@
             </div>
             <script type="text/template" id="ShowActionButtons">
                 <button style="color: #f3f3ec;background-color: #1c1f32;" ng-hide="data.Id==null" title="Items" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.GetEmployeeItems(this);" style="margin: -6px;"></i></button>
-                <button style="color: #f3f3ec;background-color: #1c1f32;" ng-disabled="data.Id!=null" title="Remove" class="btn"><i class="glyphicon glyphicon-remove" ng-click="$parent.RemoveEmployee(this);" style="margin: -6px;"></i></button>
+                <button style="color: #f3f3ec;background-color: #1c1f32;" ng-disabled="FinalSettlementModel.IsApproved==true" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.RemoveEmployee(this);" style="margin: -6px;"></i></button>
                 <button style="color: #f3f3ec;background-color: #1c1f32;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintData(this);" style="margin: -6px;"></i></button>
+            </script>
+            <script type="text/template" id="checkboxTemplateEmp">
+                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.State" />
+            </script>
+            <script type="text/x-jsrender" id="headerTemplateEmp">
+                <input type="checkbox" id="headchkEmp" />
             </script>
         </div>
         <div class="common-btn" ng-show="SelectedEmployeeList.length>0">
@@ -84,7 +91,7 @@
     </div>
 </div>
 
-<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirmPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteEmp();"></confirm-archive-generic>
 
 <div class="modal fade site-modal in" id="dialogEmployeeInfo" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">

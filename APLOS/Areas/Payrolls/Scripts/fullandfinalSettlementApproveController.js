@@ -35,7 +35,7 @@ function fullandfinalSettlementApproveController(commonMessage, $scope, $rootSco
     $scope.GetEmployeeFNFMasterData = function () {
         $scope.SelectedEmployeeList = [];
         try {
-            $http.get('Payrolls/FinalSettlement/GetEmployeeFNFMasterData?masterId=' + $scope.FinalSettlementModel.Id)
+            $http.get('Payrolls/FinalSettlement/GetEmployeeFNFDataByMaster?masterId=' + $scope.FinalSettlementModel.Id)
                 .then(function successCallback(response) {
                     if (response.data.Error === true) {
                         ShowResult(response.data.Message, 'failure');
