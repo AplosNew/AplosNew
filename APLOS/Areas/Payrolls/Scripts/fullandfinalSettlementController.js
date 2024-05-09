@@ -453,7 +453,7 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
             $scope.fileName = "EmpSepItemReport.xls";
 
 
-           // $scope.ReportFormat = 'Excel';
+          //  $scope.ReportFormat = 'Excel';
           $scope.ReportFormat = 'Pdf';
             var url = 'Payrolls/FinalSettlement/GetEmpSepItemReportPdf?reportFormat=' + $scope.ReportFormat + '&empId=' + data.data.EmpSystemId;
             $rootScope.report(url);
