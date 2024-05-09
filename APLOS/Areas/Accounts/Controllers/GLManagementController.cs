@@ -1046,7 +1046,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 var tempPositionQuery = "";
                 if (tempPositionData.Count > 0)
                 {
-                    tempPositionQuery = @" AND EMP.PositionId IN (select PositionCodeId from  [HKP].[GLManagementBudgetCode] where GlManagementId='" + GlManagementId + "')";
+                    tempPositionQuery = @" AND EMP.PositionId IN (select PositionCodeId from  [HKP].[GLManagementPositionCode] where GlManagementId='" + GlManagementId + "')";
                 }
 
                 string manpowerbudgetsql = @"select BudgetCodeId from  [HKP].[GLManagementBudgetCode] where GlManagementId='" + GlManagementId + "'";
@@ -1054,7 +1054,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 var tempManpowerbudgetQuery = "";
                 if (tempManpowerbudgetData.Count > 0)
                 {
-                    tempManpowerbudgetQuery = @" AND EMP.BudgetCode IN (select BudgetCodeId from  [HKP].[GLManagementPositionCode] where GlManagementId='" + GlManagementId + "')";
+                    tempManpowerbudgetQuery = @" AND EMP.BudgetCode IN (select BudgetCodeId from  [HKP].[GLManagementBudgetCode] where GlManagementId='" + GlManagementId + "')";
                 }
 
                 var sql = @"SELECT CheckBoxSelect=cast(case when glme.Id is null then 0 else 1 end as bit),glme.Id,Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,ISNULL(DeM.UserName,'') Designation,
@@ -1700,13 +1700,13 @@ namespace Aplos.Areas.Accounts.Controllers
             try
             {
                 var sql = "";
-                sql = @"select distinct x.EmployeeName,x.*,GMDC.BudgetMasterActivityIdDr ControlDrId,B.UserName BudgetMasterActivityDr,GMDC.BudgetMasterActivityIdCr ControlCrId,BB.UserName BudgetMasterActivityCr
+                sql = @"select distinct x.EmployeeName,x.*,GMDC.BudgetMasterActivityIdDr ,B.UserName BudgetMasterActivityDr,GMDC.BudgetMasterActivityIdCr ,BB.UserName BudgetMasterActivityCr
 					,GMAB.ActionById,EIAB.EmployeeName ActionBy,GMAPB.ApproveById,EIAPB.EmployeeName ApproveBy,GMRP.ResponsiblePersonId,EIRP.EmployeeName ResponsiblePerson
-					,CheckBoxSelect=cast(case when glrp.Id is null then 0 else 1 end as bit),glrp.Id
+					,CheckBoxSelect=cast(case when glrp.Id is null then 0 else 1 end as bit),glrp.Process
 					
                     from(select DISTINCT GEC.EmployeeCategoryId,EC.UserName EmployeeCategorys
 					,GMD.DesignationId,DE.UserName Designation,GMDP.DepartmentId,DP.UserName Department,GMPC.PositionCodeId,PO.UserName Position
-					,GMBC.BudgetCodeId,GME.EmpSystemId EmpId,EI.EmployeeName,MB.Code BudgetCode,GLM.Id GLManagementId
+					,GMBC.BudgetCodeId,GME.EmpSystemId EmployeeId,EI.EmployeeName,MB.Code BudgetCode,GLM.Id GLManagementId
                     from HKP.GLManagement GLM 
                     LEFT JOIN HKP.GLManagementEmployeeCategory GEC ON GEC.GLManagementId=GLM.Id
                     LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=GEC.EmployeeCategoryId
@@ -1747,6 +1747,57 @@ namespace Aplos.Areas.Accounts.Controllers
             catch (Exception ex)
             {
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateGlAccessControl(List<Dictionary<string, object>> data, string GlManagementId)
+        {
+            try
+            {
+                DataSet dsPCode;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from [HKP].[GLAccessControl] where GlManagementId='" + GlManagementId + "'", out dsPCode, false, "1");
+                string Id = "";
+
+                #region data update
+                foreach (var item in data)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLAccessControl", out Id);
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                    DataView dv = new DataView(dsPCode.Tables[0]);
+                    dv.RowFilter = "GlManagementId='" + GlManagementId + "' AND Process='"+item["Process"].ToString() +"' AND EmployeeId='"+item["EmployeeId"].ToString()+ "' AND BudgetMasterActivityIdDr='" + item["BudgetMasterActivityIdDr"].ToString() + "' ";
+
+                    if (dv.Count == 0)
+                    {
+                        item["Id"] = Id;
+                        item["GlManagementId"] = GlManagementId;
+
+                        AddNewRow(dsPCode.Tables[0], item);
+                    }
+                    //else if (dv.Count > 0 && Convert.ToBoolean(item["CheckBoxSelect"].ToString()) == false)
+                    //{
+                    //    DataRow drmo = dv[0].Row;
+                    //    drmo.Delete();
+                    //}
+                    //else
+                    //{
+                    //    DataRow drmo = dv[0].Row;
+                    //    item["Id"] = dv[0].Row["Id"].ToString();
+                    //    EditRow(drmo, item);
+                    //}
+                }
+                #endregion data update 
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsPCode);
+                return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
             }
         }
     }

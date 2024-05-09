@@ -14,6 +14,7 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
     $scope.savePositionCodeUrl = $scope.path + 'CreateGlManagementPositionCode';
     $scope.saveBudgetCodeUrl = $scope.path + 'CreateGlManagementBudgetCode';
     $scope.saveProcessUrl = $scope.path + 'CreateGlManagementProcess';
+    $scope.saveGLAccessControlUrl = $scope.path + 'CreateGlAccessControl';
     $scope.saveEmpUrl = $scope.path + 'CreateGlManagementEmployee';
     $scope.saveDrCrUrl = $scope.path + 'CreateGlManagementControlDrCr';
     $scope.saveABUrl = $scope.path + 'CreateGlManagementActionBy';
@@ -1499,4 +1500,36 @@ function GLManagementController(cboService, commonMessage, $scope, $rootScope, b
         });
     }
 
+    $scope.SaveGLAccessControl = function () {
+        if (baseService.isUndefinedOrNull($scope.GlManagementId)) {
+            return ShowResult('Please select GL Management!', 'failure');
+        }
+        $scope.tempGLAccessControl = [];
+        $scope.tem = { Id: null, EmployeeId: null, Process: null, BudgetMasterActivityIdCr: null, BudgetMasterActivityIdDr: null, GLManagementId: null }
+        
+        for (var i = 0; i < $scope.GlManagementAccessControlData.length; i++) {
+            $scope.tem.EmployeeId = $scope.GlManagementAccessControlData[i].EmployeeId;
+            $scope.tem.Process = $scope.GlManagementAccessControlData[i].Process;
+            $scope.tem.BudgetMasterActivityIdDr = $scope.GlManagementAccessControlData[i].BudgetMasterActivityIdDr;
+            $scope.tem.BudgetMasterActivityIdCr = $scope.GlManagementAccessControlData[i].BudgetMasterActivityIdCr;
+            $scope.tempGLAccessControl.push($scope.tem);
+            $scope.tem = {};
+        }
+        $http({
+            method: 'POST',
+            url: $scope.saveGLAccessControlUrl,
+            data: { 'data': $scope.tempGLAccessControl, 'GlManagementId': $scope.GlManagementId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetGlManagementAccessControl();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
 }
