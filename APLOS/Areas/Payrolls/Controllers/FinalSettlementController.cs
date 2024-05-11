@@ -73,7 +73,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             try
             {
-                string sql = @"SELECT A.Id,A.EmpSystemId,OL.Id EmployeeSeperationItemId,OL.UserName,OL.Formula,OL.FormulaId,A.Value,OL.EntryState
+                string sql = @"SELECT A.Id,A.EmpSystemId,OL.Id EmployeeSeperationItemId,OL.SandardName,OL.UserName,OL.Formula,OL.FormulaId,A.Value,OL.EntryState
 ,FieldDisable=CAST(CASE WHEN OL.EntryState IN('Auto','Calculate') AND OL.UserName='EarnLeave' THEN 0 WHEN OL.EntryState IN('Auto','Calculate') THEN 1 ELSE 0 END AS BIT)
                             FROM EmployeeSeperationItem AS OL
                             OUTER APPLY (SELECT * FROM dbo.EmployeeFullAndFinalSettlementItem WHERE EmployeeSeperationItemId=OL.Id AND ISNULL(EmpSystemId,'" + EmpSystemId + @"')='" + EmpSystemId + @"') A
@@ -1800,7 +1800,19 @@ Where ISNULL(M.IsApproved,0)=1";
 
             return Json(data, JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public ActionResult GetEmployeeFNFDataByMaster(string masterId)
+        {
+            string sql = @"select E.*,EI.EmployeeCode,EI.EmployeeName,FORMAT(EI.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EI.DOS,'dd-MMM-yyyy')DOS,LD.UserName LegalDesignation,D.UserName Department
+from EmployeeFullAndFinalSettlement  E
+LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=E.EmpSystemId
+LEFT JOIN HKP.LegalDesignation LD ON LD.Id=EI.LegalDesignationId
+LEFT JOIN ORG.Department D ON D.Id=EI.DepartmentId
+where FinalSettlementId='" + masterId + "'";
+            var data = _sqlRepository.GetDataCollection(sql);
 
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
         [HttpGet, Authorize]
         public ActionResult GetEmployeeFNFMasterData(string masterId)
         {
@@ -1814,6 +1826,50 @@ where E.VoucherId IS NULL AND FinalSettlementId='" + masterId + "'";
 
             return Json(data, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        public ActionResult DeleteEmp(string empId)
+        {
+            DeleteEmployeeSepItemData(empId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+
+        public void DeleteEmployeeSepItemData(string empId)
+        {
+            string strSQL, strSQLItem;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "DELETE FROM [dbo].[EmployeeFullAndFinalSettlement] WHERE EmpSystemId = '" + empId + "'";
+                strSQLItem = "DELETE FROM [dbo].[EmployeeFullAndFinalSettlementItem] WHERE EmpSystemId = '" + empId + "'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(strSQLItem, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }//End of function
 
 
         [HttpGet, Authorize]
@@ -1938,7 +1994,7 @@ WHEN OL.UserName='UnPaidSalary' THEN CAST((
 LEFT JOIN SalaryProcMaster AS spm ON spm.SystemID = spc.SlrProcMstSystemID 
 LEFT JOIN SalaryHead AS sh ON sh.SalaryHeadID = spc.SalaryHeadID
 LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
-WHERE  spc.EmpInfoSystemID= '" + empId + @"' AND PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL  AND sh.SalaryHead='Net Pay'
+WHERE  spc.EmpInfoSystemID= '" + empId + @"' AND PayableVoucherId<>'' AND ISNULL(sl.IsDisbursed,0)=0 AND sl.DisbursementVoucherId IS NULL  AND sh.SalaryHead='Net Pay'
 			 ) AS varchar(100))
 
 			 WHEN OL.UserName='Bonus' THEN CAST((

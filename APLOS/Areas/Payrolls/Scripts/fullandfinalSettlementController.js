@@ -17,66 +17,6 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
 
-    $scope.salaryRuleGeneral = {
-        FormulaDescription: null,
-        FormulaIDDescription: null
-    };
-    //$scope.getData();
-    $scope.btnSave = false;
-    $scope.SeparationTypeList = [];
-    $scope.getSeparationType = function () {
-        try {
-            $http.get($scope.getSTListUrl)
-                .then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.Message, 'failure');
-                    }
-                    else {
-                        $scope.SeparationTypeList = response.data;
-                    }
-                },
-
-                    function errorCallBack(response) {
-                        ShowResult(response.Message, 'failure');
-                    });
-
-
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
-    $scope.getSeparationType();
-
-    $scope.CustomPara = {
-        SeparationTypeId: null,
-        EmpSysId: null
-    };
-    $scope.FinalSettlementEarningHeadList = [];
-    $scope.FinalSettlementDeductionHeadList = [];
-    $scope.SeparationTypeDetails = {};
-    $scope.SeparationTypeSelectedChange = function () {
-        try {
-            $http.get($scope.getSTSCUrl + '?SeparationTypeId=' + $scope.CustomPara.SeparationTypeId + '&EmpSystemId=' + $scope.EmployeeModel.SystemId)
-                .then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.Message, 'failure');
-                    }
-                    else {
-                        $scope.FinalSettlementModel = response.data[0];
-                        $scope.FinalSettlementDeductionHeadList = response.FinalSettlementDeduction[0];
-                        $scope.FinalSettlementEarningHeadList = response.FinalSettlementEarning[0];
-                    }
-                },
-
-                    function errorCallBack(response) {
-                        ShowResult(response.Message, 'failure');
-                    });
-
-
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
 
     $scope.FinalSettlementList = [];
     $scope.LoadAllFinalSettlementList = function () {
@@ -106,7 +46,7 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
     $scope.GetEmployeeFNFMasterData = function () {
         $scope.SelectedEmployeeList = [];
         try {
-            $http.get('Payrolls/FinalSettlement/GetEmployeeFNFMasterData?masterId=' + $scope.FinalSettlementModel.Id)
+            $http.get('Payrolls/FinalSettlement/GetEmployeeFNFDataByMaster?masterId=' + $scope.FinalSettlementModel.Id)
                 .then(function successCallback(response) {
                     if (response.data.Error === true) {
                         ShowResult(response.data.Message, 'failure');
@@ -148,80 +88,6 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
         });
     }
     $scope.GetApprovedByCboList();
-
-
-    $scope.Save = function () {
-        try {
-            if (baseService.isUndefinedOrNull($scope.FinalSettlementModel.FinalSettlementDate)) {
-                throw "Please Enter Final Settlement Date";
-            }
-
-            if (new Date($scope.FinalSettlementModel.FinalSettlementDate) > new Date()) {
-                throw "Please Enter valid Date";
-            }
-            $http({
-                method: 'POST',
-                url: $scope.saveUrl,
-                data: { 'FinalSettlementData': $scope.FinalSettlementModel, 'DeductionData': $scope.FinalSettlementDeductionHeadList, 'EarningData': $scope.FinalSettlementEarningHeadList, 'FinalSettlementRetainedHead': $scope.FinalSettlementRetainedHeadList },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error == true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.LoadAllFinalSettlementList();
-                    $scope.btnSave = false;
-
-                }
-            }, function errorCallback(response) {
-                ShowResult(response.status.Message, 'failure');
-            });
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-
-
-
-
-    };
-    $scope.EditFinalSettlement = function (obj) {
-        var gridObj = $("#GridFinalSettlementList").data("ejGrid");
-        var data = gridObj.getSelectedRecords()[0];
-        $scope.FinalSettlementNew = data;
-        $scope.getDataForEdit(data.Id);
-
-        $scope.Action = 'Update';
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
-        // $scope.getSalaryRuleESIC();
-    };
-    $scope.FinalSettlementNew = {};
-    $scope.getDataForEdit = function (Id) {
-        try {
-            $http.get($scope.getDataForEditUrl + '?Id=' + Id)
-                .then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.Message, 'failure');
-                    }
-                    else {
-                        $scope.FinalSettlementModel = response.data.FinalSettlement[0];
-                        $scope.EmployeeModel = response.data.EmployeeInfo[0];
-                        $scope.btnSave = true;
-
-                    }
-                },
-
-                    function errorCallBack(response) {
-                        ShowResult(response.Message, 'failure');
-                    });
-
-
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
 
     $scope.FinalSettlementRetainedHeadList = [];
     $scope.EmployeeInformationList = [];
@@ -300,21 +166,52 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
                         ob.LegalDesignation = $scope.EmployeeInformationList[i].LegalDesignation;
                         ob.Department = $scope.EmployeeInformationList[i].Department;
                         ob.EntityName = $scope.EmployeeInformationList[i].EntityName;
-
+                        ob.State = true;
                         $scope.SelectedEmployeeList.push(ob);
                         ob = {};
                     }
                 }
             }
-            //$scope.SaveFNF();
             angular.element(document.querySelector('#dialogEmployeeInfo')).modal('hide');
         } catch (e) {
             ShowResult(e, 'failure');
         }
     }
 
+
+    $scope.message_confirmation = null;
     $scope.RemoveEmployee = function (obj) {
         if ($scope.FinalSettlementModel.IsApproved == false) {
+            $scope.DG = obj.data;
+            $scope.EmpSysId = $scope.DG.EmpSystemId;
+            if (!baseService.isUndefinedOrNull($scope.DG.Id))
+                $scope.message_confirmation = 'Are you sure want to delete permanently [ ' + $scope.DG.EmployeeCode + ' ]';
+            angular.element(document.querySelector('#confirmPopUp')).modal('show');
+        }
+        else {
+            ShowResult("Final Settlement is Approved",'failure');
+        }
+    }
+
+    $scope.DeleteEmp = function () {
+        if (!baseService.isUndefinedOrNull($scope.DG.Id)) {
+            $http({
+                method: 'POST',
+                url: 'Payrolls/FinalSettlement/DeleteEmp?empId=' + $scope.DG.EmpSystemId
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetEmployeeFNFMasterData();
+                }
+            }, function () {
+                ShowResult(commonMessage.NetworkError, 'failure');
+            }).finally(function () {
+            });
+        }
+        else {
             for (var i = 0; i < $scope.SelectedEmployeeList.length; i++) {
                 if ($scope.SelectedEmployeeList[i].EmpSystemId == obj.data.EmpSystemId) {
                     if (baseService.isUndefinedOrNull(obj.data.Id)) {
@@ -324,8 +221,7 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
                 }
             }
         }
-
-    }
+    };
 
     function checkExists(list, id) {
         for (var i = 0; i < list.length; i++) {
@@ -336,16 +232,50 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
         return false;
     }
 
+    $scope.refreshTemplateEmp = function (args) {
+        $("#headchkEmp").ejCheckBox({ "change": headCheckChangeEmp });
+    };
+
+    function headCheckChangeEmp(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridSelectedEmp").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.SelectedEmployeeList.length; i++) {
+                $scope.SelectedEmployeeList[i].State = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].State = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridSelectedEmp").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+
+
     $scope.Process = function () {
         try {
-            if (baseService.arrayLength($scope.SelectedEmployeeList) < 0) {
+            $scope.SelectedEmpList = [];
+            for (var i = 0; i < $scope.SelectedEmployeeList.length; i++) {
+                if ($scope.SelectedEmployeeList[i].State == true) {
+                    $scope.SelectedEmpList.push($scope.SelectedEmployeeList[i]);
+                }
+            }
+
+            if (baseService.arrayLength($scope.SelectedEmpList) < 0) {
                 throw "Select Employee.";
             }
 
             $http({
                 method: 'POST',
                 url: 'Payrolls/FinalSettlement/Process',
-                data: { 'data': $scope.FinalSettlementModel, 'datalist': $scope.SelectedEmployeeList },
+                data: { 'data': $scope.FinalSettlementModel, 'datalist': $scope.SelectedEmpList },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -367,8 +297,6 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
 
     $scope.UpdateItemData = function () {
         try {
-
-
             $http({
                 method: 'POST',
                 url: 'Payrolls/FinalSettlement/UpdateItemData',
@@ -453,8 +381,8 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
             $scope.fileName = "EmpSepItemReport.xls";
 
 
-          //  $scope.ReportFormat = 'Excel';
-          $scope.ReportFormat = 'Pdf';
+            //  $scope.ReportFormat = 'Excel';
+            $scope.ReportFormat = 'Pdf';
             var url = 'Payrolls/FinalSettlement/GetEmpSepItemReportPdf?reportFormat=' + $scope.ReportFormat + '&empId=' + data.data.EmpSystemId;
             $rootScope.report(url);
 

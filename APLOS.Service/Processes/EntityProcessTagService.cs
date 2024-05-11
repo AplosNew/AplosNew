@@ -260,10 +260,10 @@ namespace Library.Service.Processes
                 string _sql = @"SELECT DISTINCT P.Id AS [Value], P.UserName AS [Text],
 --ISNULL(PS.ProductionBookingLevel,EP.ProductionBookingLevel)ProductionBookingLevel,
 EP.ProductionBookingLevel,
-EP.LotNumberMandatory,EP.LotNumberCapture,EP.IsSKU1,EP.IsSKU2,EP.IsSKU3,P.IsFirst,EP.IsParameterBased,EP.ToCloseAllowed 
+EP.LotNumberMandatory,EP.LotNumberCapture,EP.IsSKU1,EP.IsSKU2,EP.IsSKU3,P.IsFirst,EP.IsParameterBased,EP.ToCloseAllowed,ISNULL(PS.IsBaseProcess,0) IsBaseProcess 
 FROM HKP.EntityProcessTag AS EP
 JOIN HKP.Process AS P ON EP.ProcessId=P.Id 
-LEFT JOIN (Select S.ProductionBookingLevel,P.EntityId,S.ProcessId from TRN.ProductionOrderProcessSet S
+LEFT JOIN (Select S.ProductionBookingLevel,P.EntityId,S.ProcessId,IsBaseProcess from TRN.ProductionOrderProcessSet S
 LEFT JOIN TRN.ProductionOrder P ON P.Id=ProductionOrderId
 ) PS ON PS.ProcessId=EP.ProcessId AND PS.EntityId=EP.EntityId
 WHERE EP.EntityId='" + entityId + "' AND P.Active=1";
@@ -274,9 +274,9 @@ WHERE EP.EntityId='" + entityId + "' AND P.Active=1";
                 string _sql = @"SELECT distinct P.Id AS [Value], P.UserName AS [Text],
 --ISNULL(PS.ProductionBookingLevel,EPT.ProductionBookingLevel)ProductionBookingLevel,
 EPT.ProductionBookingLevel,EPT.LotNumberMandatory,EPT.LotNumberCapture
-,EPT.IsSKU1,EPT.IsSKU2,EPT.IsSKU3,P.IsFirst,EPT.IsParameterBased,EPT.ToCloseAllowed FROM HKP.EntityProcessTag EPT
+,EPT.IsSKU1,EPT.IsSKU2,EPT.IsSKU3,P.IsFirst,EPT.IsParameterBased,EPT.ToCloseAllowed,ISNULL(PS.IsBaseProcess,0) IsBaseProcess FROM HKP.EntityProcessTag EPT
 INNER JOIN HKP.Process AS P ON P.Id=EPT.ProcessId
-LEFT JOIN (Select S.ProductionBookingLevel,P.EntityId,S.ProcessId from TRN.ProductionOrderProcessSet S
+LEFT JOIN (Select S.ProductionBookingLevel,P.EntityId,S.ProcessId,IsBaseProcess from TRN.ProductionOrderProcessSet S
 LEFT JOIN TRN.ProductionOrder P ON P.Id=ProductionOrderId
 ) PS ON PS.ProcessId=EPT.ProcessId AND PS.EntityId=EPT.EntityId
 INNER JOIN [SEC].[UserProcess] UP ON UP.ProcessId=P.Id
