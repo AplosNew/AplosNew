@@ -3011,7 +3011,7 @@
     <Content Include="Areas\Securities\Scripts\employeeMobileAppsAuthorizationNewController.js" />
     <Content Include="Areas\Securities\Scripts\UserAccessAppRoleController.js" />
     <Content Include="Areas\Securities\Scripts\UserAppAuthenticationController.js" />
-    <Content Include="Areas\Setups\Scripts\ServiceControlController.js" />
+    <Content Include="Areas\Setups\Scripts\serviceControlController.js" />
     <Content Include="Areas\Setups\Scripts\RemarksControlController.js" />
     <Content Include="Areas\Setups\Scripts\defineEnumController.js" />
     <Content Include="Areas\Setups\Scripts\LabelListController.js" />

@@ -38,11 +38,7 @@ namespace Aplos.Areas.Setups.Controllers
             return View();
         }
 
-        public ActionResult ServiceControl()
-        {
-            return View();
-        }
-
+      
         #endregion Pages
 
         #region -- Operations
@@ -100,6 +96,12 @@ namespace Aplos.Areas.Setups.Controllers
         #endregion -- Operations
 
         #region Service Control
+
+        public ActionResult ServiceControl()
+        {
+            return View();
+        }
+
         [HttpPost, Authorize]
         public JsonResult CreateServiceControlHeader(Dictionary<string, object> data)
         {
@@ -107,7 +109,7 @@ namespace Aplos.Areas.Setups.Controllers
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from [HKP].[ServiceControl] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from [MST].[ServiceControl] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _detaliId = null;
                 string _Id = "";
@@ -226,10 +228,31 @@ namespace Aplos.Areas.Setups.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT * FROM [HKP].[ServiceControl]) AS TEMP WHERE " + strkey + " order by sequence";
+            string sql = @"select top 100 * from (SELECT * FROM [MST].[ServiceControl]) AS TEMP WHERE " + strkey + " order by sequence";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpPost]
+        public ActionResult GetServiceMasterList(string serviceControlId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                var sql = "";
+                sql = @"SELECT  CheckBoxSelect=cast(CASE WHEN SC.ServiceMasterId<>'' THEN 1  ELSE 0 END as bit),
+                                    SG.UserName AS ServiceGroup,SM.UserName ServiceMaster,SM.IsPO,SM.IsApproved,SC.BudgetLimit
+                                    FROM [HKP].[ServiceMaster] SM
+									 LEFT JOIN [HKP].[ServiceGroup] AS SG ON SG.Id=SM.ServiceGroupId
+									left join(select * from  [MST].[ServiceControlServiceMaster] where ServiceControlId='" + serviceControlId + @"') SC on SC.ServiceMasterId=SM.Id
+                                    where SM.CompanyId='"+identity.CompanyId+"'";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
         public JsonResult CreateServiceControlServiceMaster(List<Dictionary<string, object>> data, string serviceControl, string TabName)
         {
             try

@@ -12,13 +12,13 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Short Name" ng-model="ModelNew.ShortName" class="form-control" maxlength="15" required tabindex="3">
+                <input type="text" name="Short Name" ng-model="ModelNew.ShortName" class="form-control" maxlength="15" required tabindex="3" autocomplete="off">
             </div>
         </div>
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">User Defined Name<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
+                <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50" autocomplete="off">
             </div>
         </div>
         <div class="form-group">
@@ -32,13 +32,13 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Code<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required tabindex="2" maxlength="10">
+                <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required tabindex="2" maxlength="10" autocomplete="off">
             </div>
         </div>
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
+                <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50"  autocomplete="off">
             </div>
         </div>
         <div class="form-group">
@@ -74,7 +74,7 @@
     <div class="tab-design" id="tab_show">
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);GetControlDrData('ControlDr');" href="" aria-controls="general" role="tab" data-toggle="tab">ServiceMaster</a></li>
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);" href="" aria-controls="general" role="tab" data-toggle="tab">ServiceMaster</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);getActionByPopUpData();" href="" aria-controls="general" role="tab" data-toggle="tab">ActionBy</a></li>
                 <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);getApproveByPopUpData();" href="" aria-controls="general" role="tab" data-toggle="tab">Approved By</a></li>
                 <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);getApproveByPopUpData();" href="" aria-controls="general" role="tab" data-toggle="tab">Entity</a></li>
@@ -93,36 +93,31 @@
                         <div class="col-xs-12 col-sm-12 col-md-12">
                             <div class="modal-body">
                                 <div class="content-container-fluid" style="color:black;">
-                                    <div style="color:black;" id="GridCDr" ej-grid e-datasource="ControlDrListData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                    <div style="color:black;" id="Grid1" ej-grid e-datasource="ServiceMasterData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                                          e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateControlDr">
                                         <div e-columns>
                                             <div e-column e-headertext="" e-headertemplateid="#headerTemplateControlDr" e-template="#checkboxTemplateControlCr" e-textalign="center" e-width="30"></div>
-                                            <div e-column e-field="AccountGroupName" e-headertext="Account Group" e-width="80"></div>
-                                            <div e-column e-field="GLGeneralInfoName" e-headertext="GL General Info" e-width="80"></div>
-                                            <div e-column e-field="BudgetName" e-headertext="Budget" e-width="80"></div>
-                                            <div e-column e-field="ActivityName" e-headertext="Activity" e-width="80"></div>
-                                            <div e-column e-field="RefNo" e-headertext="RefNo" e-width="40"></div>
-                                            <div e-column e-headertext="Dr" e-headertemplateid="" e-template="#checkRowControlDr" e-textalign="center" e-width="30"></div>
-                                            <div e-column e-headertext="Cr" e-headertemplateid="" e-template="#checkRowControlCr" e-textalign="center" e-width="30"></div>
+                                            <div e-column e-field="ServiceGroup" e-headertext="ServiceGroup" e-width="80"></div>
+                                            <div e-column e-field="ServiceMaster" e-headertext="ServiceMaster" e-width="80"></div>
+                                            <div e-column e-headertext="IsPO" e-headertemplateid="" e-template="#checkRowIsPO" e-textalign="center" e-width="30"></div>
+                                            <div e-column e-headertext="IsApproved" e-headertemplateid="" e-template="#checkRowIsApproved" e-textalign="center" e-width="30"></div>
                                             <div e-column e-headertext="Remarks" e-headertemplateid="" e-template="#remarkTemplate" e-textalign="center" e-width="110"></div>
                                         </div>
                                     </div>
                                     <script type="text/x-jsrender" id="headerTemplateControlDr">
                                         <input type="checkbox" id="CDrheadchk" />
                                     </script>
-                                    <script type="text/template" id="checkboxTemplateControlCr">
-                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
-                                    </script>
+                                    
                                     <script type="text/template" id="remarkTemplate">
                                         <input type="text" name="Remarks" ng-model="data.Remarks" class="form-control" maxlength="100">
                                     </script>
 
-                                    <script type="text/template" id="checkRowControlDr">
-                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.ControlDr">
+                                    <script type="text/template" id="checkRowIsPO">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsPO">
                                     </script>
 
-                                    <script type="text/template" id="checkRowControlCr">
-                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.ControlCr">
+                                    <script type="text/template" id="checkRowIsApproved">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsApproved">
                                     </script>
                                 </div>
                             </div>
@@ -142,7 +137,7 @@
                         <div class="col-xs-12 col-sm-12 col-md-12">
                             <div class="modal-body">
                                 <div class="content-container-fluid" style="color:black;">
-                                    <div style="color:black;" id="GridAB" ej-grid e-datasource="ActionByListData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                    <div style="color:black;" id="Grid2" ej-grid e-datasource="ActionByListData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                                          e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateAB">
                                         <div e-columns>
                                             <div e-column e-headertext="" e-headertemplateid="#headerTemplateAB" e-template="#checkboxTemplateAB" e-textalign="center" e-width="30"></div>
@@ -183,7 +178,7 @@
                         <div class="col-xs-12 col-sm-12 col-md-12">
                             <div class="modal-body">
                                 <div class="content-container-fluid" style="color:black;">
-                                    <div style="color:black;" id="GridAPB" ej-grid e-datasource="ApproveByListData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                    <div style="color:black;" id="Grid3" ej-grid e-datasource="ApproveByListData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                                          e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateAPB">
                                         <div e-columns>
                                             <div e-column e-headertext="" e-headertemplateid="#headerTemplateAPB" e-template="#checkboxTemplateAPB" e-textalign="center" e-width="30"></div>
