@@ -53,6 +53,10 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             "value": "PaymentAdviseId"
         },
         {
+            "name": "Voucher Type",
+            "value": "VoucherTypeName"
+        },
+        {
             "name": "Payment Bank",
             "value": "PaymentBank"
         },
