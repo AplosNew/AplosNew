@@ -676,6 +676,7 @@
                                 <th>Doc Date</th>
                                 <th>Posting Date</th>
                                 <th>Payment Advise Id</th>
+                                <th>Voucher Type</th>
                                 <th>Payment Bank/Cash</th>
                                 <th>Amount</th>
                                 <th>Status</th>
@@ -689,6 +690,7 @@
                                 <td>{{x.DocDate | dateFiltering}}</td>
                                 <td>{{x.PostingDate | dateFiltering}}</td>
                                 <td>{{x.PaymentAdviseId}}</td>
+                                <td>{{x.VoucherTypeName}}</td>
                                 <td>{{x.PaymentBank}}</td>
                                 <td class="text-right">{{x.DrAmount | number:2}}</td>
                                 <td>{{x.IsPark?'Parked':'Posted'}}</td>
@@ -697,8 +699,8 @@
                                         @*<li><a ng-click="XlsSalaryDisbursementVoucherWiseReport(x.PayableVoucherId);" class="btn btn-action" title="Salary Disbursement Report"><i class="fa fa-file-excel-o"></i></a></li>*@
                                         <li ng-show="x.IsPark"><a ng-click="confirmPost(x.PayableVoucherId);" href="" class="btn btn-action tooltip-here">Post</a></li>
                                         <li ng-show="x.IsPark"><a ng-click="confirmDelete(x);" href="" class="btn btn-action tooltip-here">Delete</a></li>
-                                        <li><a class="btn btn-action" href="Accounts/SalaryDisbursement/GetSalaryDisbursementVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.PayableVoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
-                                        <li><a class="btn btn-action" href="Accounts/SalaryDisbursement/GetSalaryDisbursementVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.PayableVoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
+                                        <li><a class="btn btn-action" href="Accounts/SalaryDisbursement/GetGoodWorkExtraOTDisbursementVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.PayableVoucherId}}&voucherTypeName={{x.VoucherTypeName}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                                        <li><a class="btn btn-action" href="Accounts/SalaryDisbursement/GetGoodWorkExtraOTDisbursementVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.PayableVoucherId}}&voucherTypeName={{x.VoucherTypeName}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
                                     </ul>
                                 </td>
                             </tr>
