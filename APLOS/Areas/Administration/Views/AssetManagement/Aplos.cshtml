@@ -9,32 +9,27 @@
                     <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="ModelNew.Sequence" e-width="100" required />
                 </div>
             </div>
+
+
             <div class="form-group" show-errors>
-                <label class="col-sm-2 control-label">Short Name</label>
+                <label class="col-sm-2 control-label"> Category<sup>*</sup></label>
                 <div class="col-sm-6 show-message">
-                    <input type="text" name="Short Name" ng-model="ModelNew.ShortName" class="form-control" maxlength="15" required tabindex="3">
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-2 control-label">User Name<sup>*</sup></label>
-                <div class="col-sm-6 show-message">
-                    <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-2 control-label">Sub Category<sup>*</sup></label>
-                <div class="col-sm-6 show-message">
-                    <input type="text" name="Category" ng-model="ModelNew.SubCategory" class="form-control" required tabindex="4" maxlength="50">
+                    <input type="text" name="SubCategory" ng-model="ModelNew.Category" class="form-control" required tabindex="4" maxlength="50">
                 </div>
             </div>
 
             <div class="form-group" show-errors>
-                <label class="col-sm-2 control-label">Budget<sup>*</sup></label>
+                <label class="col-sm-2 control-label">Esstimated Value<sup>*</sup></label>
                 <div class="col-sm-6 show-message">
-                    <input type="number" name="Budget" ng-model="ModelNew.Budget" class="form-control" required tabindex="4" maxlength="50">
+                    <input type="text" name="Budget" ng-model="ModelNew.EsstimatedValue" class="form-control" required tabindex="4" maxlength="50">
                 </div>
             </div>
-
+            <div class="form-group" show-errors>
+                <label class="col-sm-2 control-label">Item<sup>*</sup></label>
+                <div class="col-sm-6 show-message">
+                    <input type="text" name="Category" ng-model="ModelNew.Item" class="form-control" required tabindex="4" maxlength="50">
+                </div>
+            </div>
             <div class="form-group">
                 <label class="col-sm-2 control-label">Remarks</label>
                 <div class="col-sm-6">
@@ -51,43 +46,56 @@
                 </div>
             </div>
             <div class="form-group" show-errors>
-                <label class="col-sm-2 control-label">Standard Name<sup>*</sup></label>
+                <label class="col-sm-2 control-label">Sub Category<sup>*</sup></label>
                 <div class="col-sm-6 show-message">
-                    <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
+                    <input type="text" name="Category" ng-model="ModelNew.SubCategory" class="form-control" required tabindex="4" maxlength="50">
                 </div>
             </div>
+
             <div class="form-group" show-errors>
-                <label class="col-sm-2 control-label"> Category<sup>*</sup></label>
-                <div class="col-sm-6 show-message">
-                    <input type="text" name="SubCategory" ng-model="ModelNew.Category" class="form-control" required tabindex="4" maxlength="50">
-                </div>
-            </div>
-
-
-            <div class="form-group">
                 <label class="col-sm-2 control-label">Type<sup>*</sup></label>
                 <div class="col-sm-6 show-message">
-                    <div class="select-style">
-                        <select class="form-control" ng-model="ModelNew.Type" required name="Type"
-                                tabindex="2">
+                    <input type="text" name="Category" ng-model="ModelNew.Type" class="form-control" required tabindex="4" maxlength="50">
+                </div>
+            </div>
 
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                            <option value="C">C</option>
-                            <option value="">--Select--</option>
+            @* <div class="form-group">
+            <label class="col-sm-2 control-label">Type<sup>*</sup></label>
+            <div class="col-sm-6 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="ModelNew.Type" required name="Type"
+                            tabindex="2">
+
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="">--Select--</option>
 
 
-                        </select>
+                    </select>
+                </div>
+            </div>
+        </div>*@
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-2 control-label">Criticlty level<sup>*</sup></label>
+                <div class="col-sm-6 show-message">
+                    <input type="text" name="Category" ng-model="ModelNew.Criticltylevel" class="form-control" required tabindex="4" maxlength="50">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Full&FinalApplicable</label>
+                <div class="col-sm-8">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="ModelNew.FullFinalApplicable" tabindex="8">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
                     </div>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="col-sm-2 control-label">Description</label>
-                <div class="col-sm-6">
-                    <textarea class="form-control" rows="3" ng-model="ModelNew.Description" maxlength="250" tabindex="6"></textarea>
-                </div>
-            </div>
             <div class="form-group">
                 <label class="col-sm-2 control-label">Active</label>
                 <div class="col-sm-8">
@@ -118,28 +126,18 @@
             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
             <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
             <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
-            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
-            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
-            <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
             <div e-column e-field="Category" e-headertext="Category" e-width="5"></div>
             <div e-column e-field="SubCategory" e-headertext="SubCategory" e-width="5"></div>
+            <div e-column e-field="Item" e-headertext="Item" e-width="5"></div>
             <div e-column e-field="Type" e-headertext="Type" e-width="5"></div>
-            <div e-column e-field="Budget" e-headertext="Budget" e-width="5"></div>
-
-
-
+            <div e-column e-field="EsstimatedValue" e-headertext="EsstimatedValue" e-width="5"></div>
+            <div e-column e-field="FullFinalApplicable" e-headertext="Full&FinalApplicable" e-width="2"></div>
             <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
         </div>
     </div>
 </div>
 
-<div class="common-btn">
-    <ul class="list-inline text-right">
 
-        <li> <button data-toggle="modal" ng-click="FurnitureReport();" class="btn" tabindex="10" style="margin-top:10px"><i class="glyphicon glyphicon-cloud-download"></i> Get Report</button></li>
-
-    </ul>
-</div>
 
 <confirm-modal></confirm-modal>
 
