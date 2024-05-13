@@ -870,6 +870,25 @@ namespace Aplos.Areas.Accounts.Controllers
                     return View();
             }
         }
+        [HttpGet, Authorize]
+        public ActionResult GetGoodWorkExtraOTDisbursementVoucherReport(ReportFormat reportFormat, string voucherId, string voucherTypeName)
+        {
+            AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = accountsSalaryPayableService.GetGoodWorkExtraOTDisbursementVoucherReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId, voucherTypeName);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
+        }
         #region Salary Disbusment ---------------------------------
 
         [HttpPost, Authorize]

@@ -1981,14 +1981,31 @@ WHERE E.EmployeeStatus='Active' AND A.ActionStatus='FullAndFinalApproveBy'";
 			 WHEN OL.SalaryHeadID<>'' THEN CAST(cast(SID.DefineAmount AS decimal(18,2)) AS varchar(100))
 			 WHEN OL.UserName='NoticePeriod' THEN CAST(LV.NoticePeriod AS varchar(100))
 
-WHEN OL.UserName='Advance' THEN CAST((
+WHEN OL.UserName='AdvanceSalary' THEN CAST((
 			 cast((SELECT SUM(AD.Amount)-ISNULL((select SUM(Amount)WrittenOffAmount 
 from TRN.EmployeeSubsequentTransaction where SourceType='EmployeeAdvanceWriteOff' AND  EmployeeId=AD.EmployeeId AND ISNULL(JournalType,'')<>'Salary'),0) AS Balance
 FROM TRN.EmployeeSubsequentTransaction AS AD
-WHERE    AD.EmployeeId<>'' AND ISNULL(AD.AdvanceId,'') <>'' 
+WHERE    AD.EmployeeId<>''  AND AD.JournalType='Salary' AND AD.IsPark=0
 AND AD.SourceType in ('EmployeeAdvance', 'InterTransaction') AND AD.EmployeeId='" + empId + @"'
 GROUP BY AD.EmployeeId) AS decimal(18,2))) AS varchar(100))
-			 
+			
+WHEN OL.UserName='AdvanceLoan' THEN CAST((
+			 cast((SELECT SUM(AD.Amount)-ISNULL(SUM(AWD.Amount),0) Balance
+FROM TRN.Advance AS AD
+LEFT JOIN TRN.AdvanceWriteOffDetail AWD ON AWD.AdvanceId=AD.Id
+WHERE    AD.EmployeeId<>'' AND AD.IsPark=0 AND AD.IsWrittenOff=0
+AND AD.SourceType in ('EmployeeAdvance') AND AD.EmployeeId='" + empId + @"' and AD.JournalType='General'
+GROUP BY AD.EmployeeId) AS decimal(18,2))) AS varchar(100))
+	
+WHEN OL.UserName='ExpensesPayable' THEN CAST((
+			 cast((SELECT SUM(AD.Amount)-isnull(SUM(epw.WrittenOffAmount),0) AS Balance
+FROM trn.EmployeePayable AS AD
+left join (select EmployeePayableId,Amount WrittenOffAmount from  trn.EmployeePayableWriteOffDetail) epw on epw.EmployeePayableId=ad.Id
+WHERE    AD.EmployeeId<>'' AND AD.IsPark=0 AND AD.IsWrittenOff=0
+AND AD.SourceType in ('EmployeePayable') AND AD.EmployeeId='" + empId + @"'
+GROUP BY AD.EmployeeId) AS decimal(18,2))) AS varchar(100))
+	
+
 WHEN OL.UserName='UnPaidSalary' THEN CAST((
 			 SELECT cast(SUM(spc.DisbusmentAmount)AS decimal(18,2))DisbusmentAmount FROM SalaryProcChild AS spc
 LEFT JOIN SalaryProcMaster AS spm ON spm.SystemID = spc.SlrProcMstSystemID 
