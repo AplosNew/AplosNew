@@ -671,36 +671,60 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
             else {
                 var newobj = { Id: null, EmployeeSeperationSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, SandardName: null, Active: 1, IsReportItem: 0, ViewItem: null, EntryState: null, FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, IsDefault: true }
                 $scope.ProcessParameterNewList = [];
-                for (var i = 1; i < 5; i++) {
+                for (var i = 1; i < 8; i++) {
                     var obj = angular.copy(newobj);
                     obj.Sequence = i;
                     if (i == 1) {
                         obj.EmployeeSeperationSetupId = $scope.masterId;
                         obj.UserName = 'JoiningDate';
-                        obj.SandardName = 'JoiningDate';
+                        obj.SandardName = 'Joining Date';
                         obj.EntryState = 'Auto';
                         obj.IsDefault = true;
                     }
                     if (i == 2) {
                         obj.EmployeeSeperationSetupId = $scope.masterId;
                         obj.UserName = 'ConfirmationDate';
-                        obj.SandardName = 'ConfirmationDate';
+                        obj.SandardName = 'Confirmation Date';
                         obj.EntryState = 'Auto';
                         obj.IsDefault = true;
                     }
                     if (i == 3) {
                         obj.EmployeeSeperationSetupId = $scope.masterId;
                         obj.UserName = 'ResignDate';
-                        obj.SandardName = 'ResignDate';
+                        obj.SandardName = 'Resign Date';
                         obj.EntryState = 'Auto';
                         obj.IsDefault = true;
                     }
                     if (i == 4) {
                         obj.EmployeeSeperationSetupId = $scope.masterId;
                         obj.UserName = 'SeparationDate';
-                        obj.SandardName = 'SeparationDate';
+                        obj.SandardName = 'Separation Date';
                         obj.EntryState = 'Auto';
                         obj.IsDefault = true;
+                    }
+                    if (i == 5) {
+                        obj.EmployeeSeperationSetupId = $scope.masterId;
+                        obj.UserName = 'AdvanceSalary';
+                        obj.SandardName = 'Advance Salary';
+                        obj.EntryState = 'Auto';
+                        obj.IsDefault = true;
+                        obj.IsReportItem = true;
+                    }
+                    if (i == 6) {
+                        obj.EmployeeSeperationSetupId = $scope.masterId;
+                        obj.UserName = 'AdvanceLoan';
+                        obj.SandardName = 'Advance Loan';
+                        obj.EntryState = 'Auto';
+                        obj.IsDefault = true;
+                        obj.IsReportItem = true;
+                    }
+                    if (i == 7) {
+                        obj.EmployeeSeperationSetupId = $scope.masterId;
+                        obj.UserName = 'ExpensesPayable';
+                        obj.SandardName = 'Expenses Payable';
+                        obj.EntryState = 'Auto';
+                        obj.IsDefault = true;
+                        obj.IsReportItem = true;
                     }
                     $scope.ProcessParameterNewList.push(obj);
                 }

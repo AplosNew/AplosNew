@@ -2315,6 +2315,7 @@ ORDER BY OL.Sequence";
 
                             drmo.BeginEdit();
 
+                            drmo["UserName"] = itm["UserName"];
                             drmo["Value"] = itm["Value"];
                             drmo["UpdatedBy"] = identity.Name;
                             drmo["UpdatedDate"] = DateTime.Now.ToString();
