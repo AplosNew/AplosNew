@@ -731,7 +731,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             {
                 if (clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) == 0)
                 {
-                    seq = 5;
+                    seq = 8;
                 }
                 else
                 {
