@@ -1275,7 +1275,7 @@ upanelApp.controller("productionOrderSchedulingParametersType1NewController", Pr
 upanelApp.controller("fullandfinalSettlementApproveController", fullandfinalSettlementApproveController);
 upanelApp.controller("fullandfinalSettlementPaymentController", fullandfinalSettlementPaymentController);
 upanelApp.controller("OrderLineCostingItemServiceMasterMappingController", OrderLineCostingItemServiceMasterMappingController);
-upanelApp.controller("ServiceControlController", ServiceControlController);
+upanelApp.controller("serviceControlController", serviceControlController);
 upanelApp.controller("AssetManagementController", AssetManagementController);
 
 

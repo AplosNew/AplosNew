@@ -1985,7 +1985,8 @@ WHEN OL.UserName='AdvanceSalary' THEN CAST((
 			 cast((SELECT SUM(AD.Amount)-ISNULL((select SUM(Amount)WrittenOffAmount 
 from TRN.EmployeeSubsequentTransaction where SourceType='EmployeeAdvanceWriteOff' AND  EmployeeId=AD.EmployeeId AND JournalType='Salary'),0) AS Balance
 FROM TRN.EmployeeSubsequentTransaction AS AD
-WHERE    AD.EmployeeId<>''  AND AD.JournalType='Salary' AND AD.IsPark=0
+LEFT JOIN TRN.Voucher V ON V.Id=AD.VoucherId
+WHERE    AD.EmployeeId<>''  AND AD.JournalType='Salary' AND V.IsPark=0
 AND AD.SourceType in ('EmployeeAdvance', 'InterTransaction') AND AD.EmployeeId='" + empId + @"'
 GROUP BY AD.EmployeeId) AS decimal(18,2))) AS varchar(100))
 			
