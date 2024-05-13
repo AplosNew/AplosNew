@@ -776,6 +776,20 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
 
         [HttpGet, Authorize]
+        public ActionResult GetPOWCCheck(string productionOrderId)
+        {
+            try
+            {
+                string sqlrwc = @"select * from TRN.RunningOrderWorkCenter Where ProductionOrderId='" + productionOrderId + @"'";
+                return Json(_sqlRepository.GetDataCollection(sqlrwc), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetItemsData(string entityid, string workCenterMasterId, string productionLevel, string processId, string ProductionOrderId)
         {
             return Json(_productionSummaryData.GetItemsData(entityid, workCenterMasterId, productionLevel, processId, ProductionOrderId), JsonRequestBehavior.AllowGet);
