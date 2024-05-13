@@ -8,6 +8,7 @@ function serviceControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.getListUrl = $scope.path + 'GetServiceControlList';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'CreateServiceControlHeader';
+    $scope.saveServiceMasterUrl = $scope.path + 'CreateServiceControlServiceMaster';
 
     $scope.Type = [];
     $scope.tab = 1;
@@ -198,4 +199,38 @@ function serviceControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.ApproveByListData = [];
         $scope.ResponsiblePersonListData = [];
     }
+
+   
+
+    $scope.SaveServiceMaster = function () {
+        if (baseService.isUndefinedOrNull($scope.ServiceControlId)) {
+            return ShowResult('Please select Service ControlId!', 'failure');
+        }
+        $scope.tempServiceMasterList = [];
+        for (var i = 0; i < $scope.ServiceMasterData.length; i++) {
+            if ($scope.ServiceMasterData[i].CheckBoxSelect == true) {
+                $scope.tempServiceMasterList.push($scope.ServiceMasterData[i]);
+            }
+            if ($scope.ServiceMasterData[i].CheckBoxSelect == false && $scope.ServiceMasterData[i].Id != null) {
+                $scope.tempServiceMasterList.push($scope.ServiceMasterData[i]);
+            }
+        }
+
+        $http({
+            method: 'POST',
+            url: $scope.saveServiceMasterUrl,
+            data: { 'data': $scope.tempServiceMasterList, 'serviceControlId': $scope.ServiceControlId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetServiceMasterData();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
 }

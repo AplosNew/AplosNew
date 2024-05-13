@@ -87,7 +87,7 @@
                     <div class="form-elements">
                         <div class="common-btn">
                             <ul class="list-inline text-right">
-                                <li> <button ng-click="OKControlDr('ControlDr');" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                <li> <button ng-click="SaveServiceMaster();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
                             </ul>
                         </div>
                         <div class="col-xs-12 col-sm-12 col-md-12">
@@ -107,12 +107,12 @@
                                     <script type="text/x-jsrender" id="headerTemplateServiceMaster">
                                         <input type="checkbox" id="serviceMasterheadchk" />
                                     </script>
-                                    @*<script type="text/template" id="checkboxTemplateServiceMaster">
+                                    <script type="text/template" id="checkboxTemplateServiceMaster">
                                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
-                                    </script>*@
-                                    <script type="text/template" id="headerTemplatePO">
-                                        <input type="checkbox" ej-checkbox class="rowCheckbox" id="serviceMasterheadchk"  />
                                     </script>
+                                    @*<script type="text/template" id="headerTemplatePO">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" id="serviceMasterheadchk"  />
+                                    </script>*@
                                     <script type="text/template" id="remarkTemplate">
                                         <input type="text" name="Remarks" ng-model="data.Remarks" class="form-control" maxlength="100">
                                     </script>

@@ -1993,7 +1993,7 @@ GROUP BY AD.EmployeeId) AS decimal(18,2))) AS varchar(100))
 WHEN OL.UserName='AdvanceLoan' THEN CAST((
 			 cast((SELECT SUM(AD.Amount)-ISNULL(SUM(AWD.Amount),0) Balance
 FROM TRN.Advance AS AD
-LEFT JOIN TRN.AdvanceWriteOffDetail AWD ON AWD.AdvanceId=AD.Id
+LEFT JOIN (select AdvanceId,Sum(Amount) Amount from TRN.AdvanceWriteOffDetail group by AdvanceId) AWD ON AWD.AdvanceId=AD.Id
 WHERE    AD.EmployeeId<>'' AND AD.IsPark=0 AND AD.IsWrittenOff=0
 AND AD.SourceType in ('EmployeeAdvance') AND AD.EmployeeId='" + empId + @"' and AD.JournalType='General'
 GROUP BY AD.EmployeeId) AS decimal(18,2))) AS varchar(100))

@@ -240,7 +240,7 @@ namespace Aplos.Areas.Setups.Controllers
             {
                 var sql = "";
                 sql = @"SELECT  CheckBoxSelect=cast(CASE WHEN SC.ServiceMasterId<>'' THEN 1  ELSE 0 END as bit),
-                                    SG.UserName AS ServiceGroup,SM.UserName ServiceMaster,SM.IsPO,SM.IsApproved,SC.BudgetLimit
+                                    SG.UserName AS ServiceGroup,SM.UserName ServiceMaster,SM.IsPO,SM.IsApproved,SC.BudgetLimit,SC.Id,SM.Id ServiceMasterId,SC.ServiceControlId
                                     FROM [HKP].[ServiceMaster] SM
 									 LEFT JOIN [HKP].[ServiceGroup] AS SG ON SG.Id=SM.ServiceGroupId
 									left join(select * from  [MST].[ServiceControlServiceMaster] where ServiceControlId='" + serviceControlId + @"') SC on SC.ServiceMasterId=SM.Id
@@ -253,7 +253,7 @@ namespace Aplos.Areas.Setups.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-        public JsonResult CreateServiceControlServiceMaster(List<Dictionary<string, object>> data, string serviceControl, string TabName)
+        public JsonResult CreateServiceControlServiceMaster(List<Dictionary<string, object>> data, string serviceControlId, string TabName)
         {
             try
             {
@@ -263,7 +263,7 @@ namespace Aplos.Areas.Setups.Controllers
                 string Id = "";
                 #region data update
 
-                con.OpenDataSetThroughAdapter("select * from [HKP].[ServiceControlServiceMaster] where ServiceControl='" + serviceControl + "'", out dsDr, false, "1");
+                con.OpenDataSetThroughAdapter("select * from [MST].[ServiceControlServiceMaster] where ServiceControlId='" + serviceControlId + "'", out dsDr, false, "1");
                 foreach (var item in data)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
@@ -276,7 +276,7 @@ namespace Aplos.Areas.Setups.Controllers
                     if (dv.Count == 0)
                     {
                         item["Id"] = Id;
-                        item["ServiceControl"] = serviceControl;
+                        item["ServiceControlId"] = serviceControlId;
 
                         AddNewRow(dsDr.Tables[0], item);
                     }
