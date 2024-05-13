@@ -760,7 +760,18 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
         [HttpGet, Authorize]
         public ActionResult GetPOQty(string productionOrderId, string processId)
         {
-            return Json(_productionSummaryData.GetPOQty(productionOrderId, processId), JsonRequestBehavior.AllowGet);
+
+            try
+            {
+                var POQtyData=_productionSummaryData.GetPOQty(productionOrderId, processId);
+                string sqlrwc = @"select * from TRN.RunningOrderWorkCenter Where ProductionOrderId='" + productionOrderId + @"'";
+                var rwc = _sqlRepository.GetDataCollection(sqlrwc);
+                return Json(new { POQtyData, rwc }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
 
