@@ -1093,7 +1093,7 @@ namespace Library.OrderManagement.Production
             {
                 wcpr = @"PS.UserName = 'Running'";
             }
-            string CmdText = @"SELECT distinct PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, PD.Product, PD.ProductCategory,PD.Buyer,PD.Customer 
+            string CmdText = @"SELECT distinct PO.Id POId,PS.UserName ProductionStatus,PO.IsWorkCenterValidateApplicable, PO.RequiredTimeUnit, PD.Product, PD.ProductCategory,PD.Buyer,PD.Customer 
                                    ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId,E.UserName Entity
 								  								   ,PlannedQty=CASE WHEN PQ.Qty=0 THEN PO.PlannedQty ELSE PO.PlannedQty END
                             --,((CASE WHEN PQ.Qty=0 THEN PO.PlannedQty ELSE PO.PlannedQty END)-ISNULL(CEILING(PRS.TotalProductionQty),0)) RemainingQty

@@ -561,17 +561,18 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                             $scope.NewObject.POFirstProcessProductionQty = $scope.TotalPOFirstProcessProdQty;
                             $scope.NewObject.POProcessSequence = $scope.TotalPOProcessSequence;
                         }
-                        if ($scope.IsBaseProcess == true) {
-                            if (baseService.arrayLength(response.data.rwc) > 0) {
-                                var getRow = $filter("filter")(response.data.rwc, { "WorkCenterMasterId": $scope.NewObject.WorkCenterMasterId });
-                                if (getRow.length === 0) {
-                                    throw "There is now running Work Center for this PO and Process.";
+                        if ($scope.NewObject.IsWorkCenterValidateApplicable == true) {
+                            if ($scope.IsBaseProcess == true) {
+                                if (baseService.arrayLength(response.data.rwc) > 0) {
+                                    var getRow = $filter("filter")(response.data.rwc, { "WorkCenterMasterId": $scope.NewObject.WorkCenterMasterId });
+                                    if (getRow.length === 0) {
+                                        throw "There is no running Work Center for this PO and Process.";
+                                    }
+                                }
+                                else {
+                                    throw "There is no running Work Center for this PO and Process.";
                                 }
                             }
-                            else {
-                                throw "There is now running Work Center for this PO and Process.";
-                            }
-
                         }
 
 
@@ -579,7 +580,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             }
             GetBookingLevelByPrOandProcess();
         } catch (ex) {
-            ShowResult(ex, 'Info');
+            ShowResult(ex, 'failure');
         }
     };
 
@@ -781,8 +782,11 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         });
     }
 
+
     function ValidationMaster() {
         try {
+
+            
 
             if ($scope.LotNumberCapture && $scope.LotNumberMandatory) {
                 CheckField("Lot Number", $scope.NewObject.LotNumber);
@@ -1529,7 +1533,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.SaveMaster = function () {
         try {
             $scope.getProdLevel();
-            ValidationMaster();
+            // ValidationMaster();
             if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
                 $scope.productionSummaryNew.MasterOrderItemId = null;
                 $scope.productionSummaryNew.ProductLibraryId = null;
@@ -1647,39 +1651,93 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 }
             }
 
+            if ($scope.productionSummaryNew.IsWorkCenterValidateApplicable == true) {
+                if ($scope.IsBaseProcess == true) {
+                    $http.get('Productions/Productionsummary/GetPOWCCheck?productionOrderId=' + $scope.productionSummaryNew.ProductionOrderId)
+                        .then(function (response) {
+                            if (baseService.arrayLength(response.data) > 0) {
+                                var getRow = $filter("filter")(response.data, { "WorkCenterMasterId": $scope.productionSummaryNew.WorkCenterMasterId });
+                                if (getRow.length === 0) {
+                                    ShowResult("There is no running Work Center for this PO and Process.", 'failure');
+                                } else {
+                                    $http({
+                                        method: 'POST',
+                                        url: $scope.saveUrl,
+                                        data: {
+                                            "ps": $scope.productionSummaryNew,
+                                            "psd": $scope.ProductionSummaryDetail,
+                                            "ProcessParaList": $scope.ProcessParaList,
+                                            "ProcessId": $scope.productionSummaryNew.ProcessId
+                                        },
+                                        dataType: 'JSON'
+                                    }).then(function successCallback(response) {
+                                        if (response.data.Error === true) {
+                                            ShowResult(response.data.Message, 'failure');
+                                        }
+                                        else {
 
-            $http({
-                method: 'POST',
-                url: $scope.saveUrl,
-                data: {
-                    "ps": $scope.productionSummaryNew,
-                    "psd": $scope.ProductionSummaryDetail,
-                    "ProcessParaList": $scope.ProcessParaList,
-                    "ProcessId": $scope.productionSummaryNew.ProcessId
-                },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
+                                            ShowResult(response.data.Message, 'success');
+                                            $scope.NewObject.Id = response.data.ProductionSummary.Id;
+                                            $scope.ValidateProdQty($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.ProductionOrderId);
+                                            for (var i = 0; i < $scope.wcList.length; i++) {
+                                                $scope.wcList[i].ClickRow = false;
+                                            }
+                                            var gridObj = $("#ProductionSummaryWC").data("ejGrid");
+                                            gridObj.refreshContent();
+                                            gridObj.refreshTemplate();
+                                            //$scope.loadWC();
+                                            $scope.Action = 'Save';
+                                        }
+                                        angular.element(document.querySelector('#ProcessParaPopup')).modal('hide');
+                                    }), function errorCallBack(response) {
+                                        ShowResult(response.data.Message, 'failure');
+                                    };
+                                }
+                            }
+                            else {
+                                ShowResult("There is no running Work Center for this PO and Process.", 'failure');
+                            }
+                        });
                 }
-                else {
-
-                    ShowResult(response.data.Message, 'success');
-                    $scope.NewObject.Id = response.data.ProductionSummary.Id;
-                    $scope.ValidateProdQty($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.ProductionOrderId);
-                    for (var i = 0; i < $scope.wcList.length; i++) {
-                        $scope.wcList[i].ClickRow = false;
+            }
+            else {
+                $http({
+                    method: 'POST',
+                    url: $scope.saveUrl,
+                    data: {
+                        "ps": $scope.productionSummaryNew,
+                        "psd": $scope.ProductionSummaryDetail,
+                        "ProcessParaList": $scope.ProcessParaList,
+                        "ProcessId": $scope.productionSummaryNew.ProcessId
+                    },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
                     }
-                    var gridObj = $("#ProductionSummaryWC").data("ejGrid");
-                    gridObj.refreshContent();
-                    gridObj.refreshTemplate();
-                    //$scope.loadWC();
-                    $scope.Action = 'Save';
-                }
-                angular.element(document.querySelector('#ProcessParaPopup')).modal('hide');
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            };
+                    else {
+
+                        ShowResult(response.data.Message, 'success');
+                        $scope.NewObject.Id = response.data.ProductionSummary.Id;
+                        $scope.ValidateProdQty($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.ProductionOrderId);
+                        for (var i = 0; i < $scope.wcList.length; i++) {
+                            $scope.wcList[i].ClickRow = false;
+                        }
+                        var gridObj = $("#ProductionSummaryWC").data("ejGrid");
+                        gridObj.refreshContent();
+                        gridObj.refreshTemplate();
+                        //$scope.loadWC();
+                        $scope.Action = 'Save';
+                    }
+                    angular.element(document.querySelector('#ProcessParaPopup')).modal('hide');
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                };
+            }
+
+
+
+          
         } catch (ex) {
             ShowResult(ex, 'failure');
         }
@@ -1935,7 +1993,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             if ($scope.productionSummaryNew.ProductionDate < $scope.YDate) {
                 throw "Update should be perform only for today's and yestarday's date.";
             }
-            ValidationMaster();
+            // ValidationMaster();
             if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
                 $scope.productionSummaryNew.MasterOrderItemId = null;
                 $scope.productionSummaryNew.ProductLibraryId = null;

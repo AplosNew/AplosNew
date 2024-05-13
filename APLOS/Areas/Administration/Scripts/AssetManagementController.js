@@ -37,17 +37,16 @@ function AssetManagementController(cboService, commonMessage, $scope, $rootScope
     $scope.ModelTemp = {
         Id: null,
         Sequence: 0,
-        StandardName: null,
-        UserName: null,
-        ShortName: null,
+        Item: null,
         Code: null,
         Active: true,
+        FullFinalApplicable: true,
         Remarks: null,
+        Criticltylevel: null,
         Category: null,
         SubCategory: null,
         Type: null,
-        Budget: null,
-        Description: null,
+        EsstimatedValue: null,
 
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
@@ -120,15 +119,16 @@ function AssetManagementController(cboService, commonMessage, $scope, $rootScope
         $scope.ModelNew = {
             Id: null,
             Sequence: 0,
-            StandardName: null,
-            UserName: null,
-            ShortName: null,
+            Item: null,
             Code: null,
             Active: true,
+            FullFinalApplicable: true,
             Remarks: null,
+            Criticltylevel: null,
             Category: null,
             SubCategory: null,
-            Description: null,
+            Type: null,
+            EsstimatedValue: null,
         };
 
     }

@@ -21,7 +21,7 @@ namespace Aplos.Areas.Administration.Controllers
 {
     public class AssetManagementController : BaseController
     {
-        FurnitureMasterService fm = new FurnitureMasterService();
+        AssetManagementService fm = new AssetManagementService();
 
         private readonly ISqlRepository _sqlRepository;
 
@@ -29,7 +29,7 @@ namespace Aplos.Areas.Administration.Controllers
         {
             _sqlRepository = R;
         }
-        string TableName = "HKP.FurnitureMaster";
+        string TableName = "[HKP].[Asset Management]";
         public ActionResult Aplos()
         {
             return View();

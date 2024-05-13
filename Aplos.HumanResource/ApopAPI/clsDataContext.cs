@@ -9716,7 +9716,7 @@ left join HKP.CompanyParty CP on CP.PartyId = Pt.Id and CP.PartyType = 'Customer
 left join HKP.PartyAccountGroup PAG on PAG.Id = CP.PartyAccountGroupId 
 left join EmployeeInformation EI on EI.SystemId = MO.ResponsiblePersonId
 left join PostSalesInvoice psi on psi.SalesId = ir.Id
-where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
+where isnull(Invoicestatus,'') <> 'Closed' and EI.SystemId is not null" + CusAll;
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
