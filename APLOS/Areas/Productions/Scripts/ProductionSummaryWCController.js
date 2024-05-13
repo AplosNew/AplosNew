@@ -348,7 +348,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.IsFirst = false;
     $scope.IsParameterBased = false;
     $scope.ToCloseAllowed = false;
-
+    $scope.IsBaseProcess = false;
     $scope.getProdLevel = function () {
         try {
             $scope.PQEnable = false;
@@ -384,6 +384,10 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $scope.IsParameterBased = $.grep($scope.processList, function (item) {
                 return item.Value === $scope.productionSummaryNew.ProcessId;
             })[0].IsParameterBased;
+
+            $scope.IsBaseProcess = $.grep($scope.processList, function (item) {
+                return item.Value === $scope.productionSummaryNew.ProcessId;
+            })[0].IsBaseProcess;
 
             $scope.ToCloseAllowed = $.grep($scope.processList, function (item) {
                 return item.Value === $scope.productionSummaryNew.ProcessId;
@@ -533,18 +537,18 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 }
                 $http.get('Productions/Productionsummary/GetPOQty?productionOrderId=' + $scope.NewObject.ProductionOrderId + '&processId=' + $scope.productionSummaryNew.ProcessId)
                     .then(function (response) {
-                        if (baseService.arrayLength(response.data) > 0) {
-                            $scope.TotalSalesOrderQty = parseFloat(response.data[0].PlannedQty).toFixed(0);
-                            $scope.RemainQty = parseFloat(response.data[0].RemainingQty).toFixed(0);
-                            $scope.TotalProductionBookingQty = parseFloat(response.data[0].TotalProductionQty).toFixed(0);
-                            $scope.TotalActualPlannedQty = parseFloat(response.data[0].TotalActualPlannedQty).toFixed(0);
-                            $scope.TotalProcessPlanPercentage = parseFloat(response.data[0].TotalProcessPlanPercentage).toFixed(0);
-                            $scope.TotalPOQty = parseFloat(response.data[0].POQty).toFixed(0);
-                            $scope.TotalProcessPlanQty = parseFloat(response.data[0].ProcessPlanQty).toFixed(0);
-                            $scope.TotalCurPOBalProd = parseFloat(response.data[0].CurPOBalProd).toFixed(0);
-                            $scope.TotalPOPreviousProdQty = parseFloat(response.data[0].POPreviousProdQty).toFixed(0);
-                            $scope.TotalPOFirstProcessProdQty = parseFloat(response.data[0].POFirstProcessProductionQty).toFixed(0);
-                            $scope.TotalPOProcessSequence = parseFloat(response.data[0].POProcessSequence).toFixed(0);
+                        if (baseService.arrayLength(response.data.POQtyData) > 0) {
+                            $scope.TotalSalesOrderQty = parseFloat(response.data.POQtyData[0].PlannedQty).toFixed(0);
+                            $scope.RemainQty = parseFloat(response.data.POQtyData[0].RemainingQty).toFixed(0);
+                            $scope.TotalProductionBookingQty = parseFloat(response.data.POQtyData[0].TotalProductionQty).toFixed(0);
+                            $scope.TotalActualPlannedQty = parseFloat(response.data.POQtyData[0].TotalActualPlannedQty).toFixed(0);
+                            $scope.TotalProcessPlanPercentage = parseFloat(response.data.POQtyData[0].TotalProcessPlanPercentage).toFixed(0);
+                            $scope.TotalPOQty = parseFloat(response.data.POQtyData[0].POQty).toFixed(0);
+                            $scope.TotalProcessPlanQty = parseFloat(response.data.POQtyData[0].ProcessPlanQty).toFixed(0);
+                            $scope.TotalCurPOBalProd = parseFloat(response.data.POQtyData[0].CurPOBalProd).toFixed(0);
+                            $scope.TotalPOPreviousProdQty = parseFloat(response.data.POQtyData[0].POPreviousProdQty).toFixed(0);
+                            $scope.TotalPOFirstProcessProdQty = parseFloat(response.data.POQtyData[0].POFirstProcessProductionQty).toFixed(0);
+                            $scope.TotalPOProcessSequence = parseFloat(response.data.POQtyData[0].POProcessSequence).toFixed(0);
                             $scope.NewObject.RemainingQty = $scope.RemainQty;
                             $scope.NewObject.OrderQty = $scope.TotalSalesOrderQty;
                             $scope.NewObject.BookedQty = $scope.TotalProductionBookingQty;
@@ -557,6 +561,20 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                             $scope.NewObject.POFirstProcessProductionQty = $scope.TotalPOFirstProcessProdQty;
                             $scope.NewObject.POProcessSequence = $scope.TotalPOProcessSequence;
                         }
+                        if ($scope.IsBaseProcess == true) {
+                            if (baseService.arrayLength(response.data.rwc) > 0) {
+                                var getRow = $filter("filter")(response.data.rwc, { "WorkCenterMasterId": $scope.NewObject.WorkCenterMasterId });
+                                if (getRow.length === 0) {
+                                    throw "There is now running Work Center for this PO and Process.";
+                                }
+                            }
+                            else {
+                                throw "There is now running Work Center for this PO and Process.";
+                            }
+
+                        }
+
+
                     });
             }
             GetBookingLevelByPrOandProcess();
@@ -765,7 +783,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     function ValidationMaster() {
         try {
-        
+
             if ($scope.LotNumberCapture && $scope.LotNumberMandatory) {
                 CheckField("Lot Number", $scope.NewObject.LotNumber);
             }

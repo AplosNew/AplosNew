@@ -393,6 +393,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>AccountsDataSet.xsd</DependentUpon>
     </Compile>
+    <Compile Include="Areas\Administration\Controllers\AssetManagementController.cs" />
     <Compile Include="Areas\Administration\Controllers\GeneralCheckedApprovedController.cs" />
     <Compile Include="Areas\Administration\Controllers\GeneralContractApprovedController.cs" />
     <Compile Include="Areas\Administration\Controllers\GeneralContractCheckedController.cs" />
@@ -1944,6 +1945,7 @@
     <Content Include="Areas\Accounts\Scripts\invoiceChargeWriteOffController.js" />
     <Content Include="Areas\Accounts\Scripts\fiscalYearCloseController.js" />
     <Content Include="Areas\Accounts\Scripts\BalanceSheetSchedulingReportController.js" />
+    <Content Include="Areas\Administration\Scripts\AssetManagementController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralContractApprovedController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralApprovedController.js" />
     <Content Include="Areas\Attendances\Scripts\GoodWorkCheckedController.js" />
@@ -4965,6 +4967,7 @@
     <Content Include="Areas\Payrolls\Views\FinalSettlement\Approve.cshtml" />
     <Content Include="Areas\Payrolls\Views\FinalSettlement\Payment.cshtml" />
     <Content Include="Areas\Costings\Views\OrderLineCostingItem\OLCSMMap.cshtml" />
+    <Content Include="Areas\Administration\Views\AssetManagement\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

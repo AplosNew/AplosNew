@@ -8944,7 +8944,7 @@ AND PSI.Id=(SELECT TOP 1 Id FROM dbo.PostSalesInvoice MR WHERE MR.SalesId=PSI.Sa
     ,INVPARTYPL.UserName InvoiceParty
     ,INVPARTYPL.UserName InvoiceParty2
     ,IR.InvoicingByAddress AS ConsigneeAddress
-    ,IR.DeliveryByAddress
+    ,case when IR.InvoicingPartyPlantId = IR.DeliveryPartyPlantId then IR.DeliveryByAddress else  CONCAT (DPARTYPL.UserName , ' ' , IR.DeliveryByAddress) end DeliveryByAddress
     ,DPARTYPL.UserName DeliveryParty
  
     ,PSI.PreCarriageBy

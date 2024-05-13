@@ -44,4 +44,9 @@ function AdministrationConfig($routeProvider, $locationProvider) {
             templateUrl: 'Administration/GeneralCheckedApproved/GeneralApproved',
             controller: 'GeneralApprovedController'
         })
+
+        .when('/asset-management', {
+            templateUrl: 'Administration/AssetManagement/Aplos',
+            controller: 'AssetManagementController'
+        })
 };
