@@ -244,7 +244,7 @@ namespace Aplos.Areas.Setups.Controllers
                                     FROM [HKP].[ServiceMaster] SM
 									 LEFT JOIN [HKP].[ServiceGroup] AS SG ON SG.Id=SM.ServiceGroupId
 									left join(select * from  [MST].[ServiceControlServiceMaster] where ServiceControlId='" + serviceControlId + @"') SC on SC.ServiceMasterId=SM.Id
-                                    where SM.CompanyId='"+identity.CompanyId+"'";
+                                    --where SM.CompanyId='"+identity.CompanyId+"'";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }

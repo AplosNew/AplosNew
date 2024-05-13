@@ -95,6 +95,29 @@ function serviceControlController(cboService, commonMessage, $scope, $rootScope,
         });
         $scope.ServiceControlId = id;
     }
+    $scope.refreshTemplateServiceMaster = function (args) {
+        $("#serviceMasterheadchk").ejCheckBox({ "change": CheckBoxSelectAllServiceMaster });
+    };
+    function CheckBoxSelectAllServiceMaster(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridService").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ServiceMasterData.length; i++) {
+                $scope.ServiceMasterData[i].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridService").data("ejGrid");
+        gridObj.refreshContent();
+    };
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
