@@ -786,7 +786,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     function ValidationMaster() {
         try {
 
-            
+
 
             if ($scope.LotNumberCapture && $scope.LotNumberMandatory) {
                 CheckField("Lot Number", $scope.NewObject.LotNumber);
@@ -1699,6 +1699,40 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                             }
                         });
                 }
+                else {
+                    $http({
+                        method: 'POST',
+                        url: $scope.saveUrl,
+                        data: {
+                            "ps": $scope.productionSummaryNew,
+                            "psd": $scope.ProductionSummaryDetail,
+                            "ProcessParaList": $scope.ProcessParaList,
+                            "ProcessId": $scope.productionSummaryNew.ProcessId
+                        },
+                        dataType: 'JSON'
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, 'failure');
+                        }
+                        else {
+
+                            ShowResult(response.data.Message, 'success');
+                            $scope.NewObject.Id = response.data.ProductionSummary.Id;
+                            $scope.ValidateProdQty($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.ProductionOrderId);
+                            for (var i = 0; i < $scope.wcList.length; i++) {
+                                $scope.wcList[i].ClickRow = false;
+                            }
+                            var gridObj = $("#ProductionSummaryWC").data("ejGrid");
+                            gridObj.refreshContent();
+                            gridObj.refreshTemplate();
+                            //$scope.loadWC();
+                            $scope.Action = 'Save';
+                        }
+                        angular.element(document.querySelector('#ProcessParaPopup')).modal('hide');
+                    }), function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    };
+                }
             }
             else {
                 $http({
@@ -1735,9 +1769,6 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 };
             }
 
-
-
-          
         } catch (ex) {
             ShowResult(ex, 'failure');
         }
