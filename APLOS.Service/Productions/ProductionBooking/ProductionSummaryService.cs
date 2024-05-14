@@ -571,7 +571,7 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
 
                             left join TRN.ProductionOrderDetail PD ON PD.SalesOrderId= SO.Id
 
-                            where SO.OrderStatusId<>'Cancelled' GROUP BY PD.ProductionOrderId
+                            where ISNULL(SO.OrderStatusId,'')<>'Cancelled' GROUP BY PD.ProductionOrderId
                             ) AS POQ ON POQ.ProductionOrderId = PO.Id
 
                          LEFT JOIN
