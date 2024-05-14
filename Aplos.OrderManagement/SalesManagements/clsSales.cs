@@ -2105,6 +2105,7 @@ Order by P.Sequence";
 										WHERE SM.SalesId=S.Id
 										FOR XML PATH('')
 										), 1, 1, '')
+									,PSI.DocDeliveryDate
 									FROM [TRN].[Sales] AS S
 									left join PostSalesInvoice PSI on PSI.SalesId = S.Id
                                     JOIN [HKP].[Party] AS P ON P.Id=S.PartyId

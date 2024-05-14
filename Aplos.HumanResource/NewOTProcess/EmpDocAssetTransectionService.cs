@@ -11,10 +11,10 @@ using System.Threading;
 using System.Threading.Tasks;
 namespace Library.HumanResource.NewOTProcess
 {
-   public class AssetManagementService
+   public class EmpDocAssetTransectionService
     {
         ISqlRepository _sqlRepository;
-        public AssetManagementService()
+        public EmpDocAssetTransectionService()
         {
             _sqlRepository = new SqlRepository();
         }
@@ -82,7 +82,7 @@ namespace Library.HumanResource.NewOTProcess
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] =   _Id;
+                    data["Id"] = "FM" + _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else

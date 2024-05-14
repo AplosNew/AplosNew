@@ -77,6 +77,13 @@ namespace Aplos.Areas.Administration.Controllers
 
             return 1;
         }
+        [HttpGet, Authorize]
+        public JsonResult GetCategory()
+        {
+
+            var sql = @"SELECT Id Value , Category Name FROM [HKP].[EmpDocAssetMaster] WHERE Active = 1 ";
+            return Json(_sqlRepository.GetCombo(sql, "Id", "UserName"), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpPost]
         public JsonResult Create(Dictionary<string, object> data)

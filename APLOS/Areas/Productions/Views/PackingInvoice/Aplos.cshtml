@@ -792,14 +792,9 @@
                                     <input type="text" name="ContractNo" disabled ng-model="salesVM.ContractNo" class="form-control" tabindex="5">
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label" tilte="EXP Form No">Export Ref No</label>
-                                <div class="col-sm-8">
-                                    <input type="text" ng-maxlength="25" name="Export Ref No" ng-model="ModelNew.ExportRefNo" class="form-control" tabindex="7">
-                                </div>
-                            </div>
+
                             <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Transporter/CHA/Forwarder<sup>*</sup></label>
+                                <label class="col-sm-4 control-label" style="font-size: 10pt;">Transporter/CHA/Forwarder<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
                                     <div class="input-group">
                                         <input type="text" name="Transporter/CHA/Forwarder" ng-model="ModelNew.TransporterCHAForwarder" class="form-control" readonly required>
@@ -810,7 +805,7 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label">Document Receive Date</label>
+                                <label class="col-sm-4 control-label" style="font-size: 10pt;">Document Receive Date</label>
                                 <div class="col-sm-8">
                                     <input type="text" name="Document Receive Date" ng-model="ModelNew.DocumentReceiveDate" datepicker class="form-control" tabindex="2">
                                 </div>
@@ -826,13 +821,19 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label" tilte="EXP Form No">AWB/B2B</label>
+                                <label class="col-sm-4 control-label">Bank Doc Ref</label>
                                 <div class="col-sm-8">
-                                    <input type="text" ng-maxlength="25" name="AWB/B2B" ng-model="ModelNew.AWBB2B" class="form-control" tabindex="7">
+                                    <input type="text" name="BankDocRef" ng-model="ModelNew.BankDocRef" class="form-control" tabindex="4">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label" tilte="Actual Payment Received">Actual Payment Received</label>
+                                <label class="col-sm-4 control-label">Doc Acceptance Date</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Doc Acceptance Date" ng-model="ModelNew.DocAcceptanceDate" datepicker class="form-control" tabindex="2">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" style="font-size: 10pt;" tilte="Actual Payment Received">Actual Payment Received</label>
                                 <div class="col-sm-8">
                                     <input type="text" ng-maxlength="25" n-decimal="2" name="Actual Payment Received" ng-model="ModelNew.ActualPaymentReceived" class="form-control" tabindex="7">
                                 </div>
@@ -870,6 +871,17 @@
                                 </div>
                             </div>
                             <div class="form-group">
+                                <label class="col-sm-4 control-label" style="font-size: 10pt;">Payment Receive Confirmation By</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <input type="text" name="Payment Receive Confirmation By" ng-model="ModelNew.PaymentReceiveConfirmationByName" class="form-control" readonly>
+                                        <span class="input-group-btn">
+                                            <button ng-click="showEmployeeListPopUp();" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label class="col-sm-4 control-label">Upload File</label>
                                 <div class="col-sm-4">
                                     <div id="UploadDefault" e-dialogtext-title="File" e-autoupload="true" e-begin="onBeginPBUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadPBUrl" e-multiplefilesselection=false e-success="getFileList" e-extensionsallow=".jpg,.bmp,.png,.jpeg,.xlsx,.xls,.pptx,.ppt,.docx,.doc" e-error="errorPBPicUpload"></div>
@@ -902,22 +914,31 @@
                                     <input type="text" ng-maxlength="25" name="Port Code" ng-model="ModelNew.PortCode" class="form-control" tabindex="7">
                                 </div>
                             </div>
+
                             <div class="form-group">
-                                <label class="col-sm-4 control-label">Document Submission Date</label>
+                                <label class="col-sm-4 control-label">Negotiation Type</label>
                                 <div class="col-sm-8">
-                                    <input type="text" name="Document Submission Date" ng-model="ModelNew.DocumentSubmissionDate" datepicker class="form-control" tabindex="2">
+                                    <div class="select-style">
+                                        <select name="Negotiation Type" id="NT" class="form-control" ng-model="ModelNew.NegotiationType" tabindex="3">
+                                            <option value="">--Select--</option>
+                                            <option value="Collection">Collection</option>
+                                            <option value="Discounting">Discounting</option>
+                                            <option value="Negotiation">Negotiation</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" tilte="EXP Form No">AWB/B2B</label>
+                                <div class="col-sm-8">
+                                    <input type="text" ng-maxlength="25" name="AWB/B2B" ng-model="ModelNew.AWBB2B" class="form-control" tabindex="7">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label">Bank Doc Ref</label>
+                                <label class="col-sm-4 control-label">Negotiating Date</label>
                                 <div class="col-sm-8">
-                                    <input type="text" name="BankDocRef" ng-model="ModelNew.BankDocRef" class="form-control" tabindex="4">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Doc Acceptance Date</label>
-                                <div class="col-sm-8">
-                                    <input type="text" name="Doc Acceptance Date" ng-model="ModelNew.DocAcceptanceDate" datepicker class="form-control" tabindex="2">
+                                    <input type="text" name="BankDocDate" ng-model="ModelNew.NegotiatingDate" datepicker class="form-control" tabindex="5">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -970,6 +991,13 @@
                                     <input type="text" name="ETA" ng-model="ModelNew.ETA" datepicker class="form-control" tabindex="18">
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" style="font-size: 10pt;" title="Payment Received Confirmation In Bank Date">Payment Received Confirmation In Bank Date</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Payment Received Confirmation In Bank Date" id="txtLockDate" class="form-control dtpicker" dtpicker autocomplete="off" ng-model="ModelNew.PaymentReceivedConfirmationInBankDate" placeholder="dd-MM-yyyy" />
+                                </div>
+                            </div>
+
                         </div>
                         <div class="col-xs-12 col-sm-4 col-md-4">
                             <div class="form-group">
@@ -1010,27 +1038,22 @@
                                     <input type="text" name="Shipment Date" ng-model="ModelNew.ShipmentDate" datepicker class="form-control" tabindex="5" required>
                                 </div>
                             </div>
+
                             <div class="form-group">
-                                <label class="col-sm-4 control-label">Negotiation Type</label>
+                                <label class="col-sm-4 control-label">Document Submission Date</label>
                                 <div class="col-sm-8">
-                                    <div class="select-style">
-                                        <select name="Negotiation Type" id="NT" class="form-control" ng-model="ModelNew.NegotiationType" tabindex="3">
-                                            <option value="">--Select--</option>
-                                            <option value="Collection">Collection</option>
-                                            <option value="Discounting">Discounting</option>
-                                            <option value="Negotiation">Negotiation</option>
-                                        </select>
-                                    </div>
+                                    <input type="text" name="Document Submission Date" ng-model="ModelNew.DocumentSubmissionDate" datepicker class="form-control" tabindex="2">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">DocDelivery Date</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="DocDelivery Date" ng-model="ModelNew.DocDeliveryDate" datepicker class="form-control" tabindex="9">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label">Negotiating Date</label>
-                                <div class="col-sm-8">
-                                    <input type="text" name="NegotiatingDate" ng-model="ModelNew.NegotiatingDate" datepicker class="form-control" tabindex="5">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Payment Received Date</label>
+                                <label class="col-sm-4 control-label" style="font-size: 10pt;">Payment Received Date</label>
                                 <div class="col-sm-8">
                                     <input type="text" name="Payment Received Date" ng-model="ModelNew.PaymentReceivedDate" datepicker class="form-control" tabindex="5">
                                 </div>
@@ -1047,12 +1070,7 @@
                                     <input type="text" name="Vendor" ng-model="ModelNew.ExFactoryDocRef" class="form-control" tabindex="5">
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">ExFactory Date<sup>*</sup></label>
-                                <div class="col-sm-8">
-                                    <input type="text" name="Invoice Date" ng-model="ModelNew.ExFactoryDate" datepicker class="form-control" tabindex="9">
-                                </div>
-                            </div>
+
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Dimension</label>
                                 <div class="col-sm-8">
@@ -1070,9 +1088,21 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label" title="Payment Due/Mature Date">Payment Due/Mature Date</label>
+                                <label class="col-sm-4 control-label" title="Payment Due/Mature Date" style="font-size:10pt">Payment Due/Mature Date</label>
                                 <div class="col-sm-8">
                                     <input type="text" name="PaymentDueMatureDate" ng-model="ModelNew.PaymentDueMatureDate" datepicker class="form-control" tabindex="9">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" tilte="PaymentAdviseNo">Payment Advise No</label>
+                                <div class="col-sm-8">
+                                    <input type="text" ng-maxlength="100" name="PaymentAdviseNo" ng-model="ModelNew.PaymentAdviseNo" class="form-control" tabindex="7">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" tilte="EXP Form No">Export Ref No</label>
+                                <div class="col-sm-8">
+                                    <input type="text" ng-maxlength="25" name="Export Ref No" ng-model="ModelNew.ExportRefNo" class="form-control" tabindex="7">
                                 </div>
                             </div>
                         </div>

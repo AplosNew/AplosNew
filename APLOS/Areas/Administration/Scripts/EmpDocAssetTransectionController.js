@@ -105,6 +105,19 @@ function EmpDocAssetTransectionController(commonMessage, $scope, $rootScope, bas
         serverPagination: true
     };
 
+    $scope.CategoryList = [];
+    $scope.GetCategoryByMaster = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path +  'GetCategory'
+        }).then(function successCallback(response) {
+            $scope.CategoryList = [];
+            if (baseService.arrayLength(response.data) > 0) {
+                $scope.CategoryList = response.data;
+            }
+        });
+    };
+
     $scope.employeeUrl = 'OrderManagements/masterorder/GetEmployeeListResponsible';
     $scope.showEmployeeListPopUp = function () {
         try {

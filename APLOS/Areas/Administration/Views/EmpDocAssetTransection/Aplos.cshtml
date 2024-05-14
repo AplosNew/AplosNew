@@ -16,70 +16,41 @@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="number" name="Sequence" ng-model="documentationNew.Sequence" class="form-control" required tabindex="1">
+                                <input type="number" name="Sequence" ng-model="ModelNew.Sequence" class="form-control" required tabindex="1">
                             </div>
                         </div>
                         <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Category<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="ShortName" ng-model="documentationNew.ShortName" class="form-control" maxlength="15" required tabindex="3">
+                                <div class="select-style">
+                                    <select name="Shipment Mode" class="form-control" ng-model="ModelNew.CategoryId" ng-options="item.Value as item.Text for item in CategoryList" tabindex="13" required>
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Esstimated Value<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="number" name="Budget" ng-model="ModelNew.EsstimatedValue" class="form-control" required tabindex="4" maxlength="50">
                             </div>
                         </div>
                         <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Item<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="UserName" ng-model="documentationNew.UserName" class="form-control" required tabindex="5" maxlength="50">
+                                <input type="text" name="Category" ng-model="ModelNew.Item" class="form-control" required tabindex="4" maxlength="50">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Given By<sup>*</sup></label>
                             <div class="col-sm-8">
                                 <div class="input-group">
-                                    <input type="text" name="Responsible Person" ng-model="documentationNew.ResponsiblePerson" class="form-control" readonly>
+                                    <input type="text" name="Responsible Person" ng-model="ModelNew.GivenById" class="form-control" readonly>
                                     <span class="input-group-btn">
                                         <button ng-click="showEmployeeListPopUp();" class="btn single-small-btn" tabindex="7"><i class="glyphicon glyphicon-search"></i></button>
                                     </span>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Purpose<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select name="Purpose" class="form-control" ng-model="documentationNew.Purpose" ng-options="item.Value as item.Text for item in PurposeList" required tabindex="9">
-                                        <option value="">--Select--</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xs-12 col-sm-6 col-md-6">
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" name="Code" ng-model="documentationNew.Code" class="form-control" required tabindex="2" maxlength="10">
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" name="StandardName" ng-model="documentationNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Category<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select name="Category" class="form-control" ng-model="documentationNew.Category" ng-options="item.Value as item.Text for item in CategoryList" required tabindex="6">
-                                        <option value="">--Select--</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Remarks</label>
-                            <div class="col-sm-8">
-                                <textarea class="form-control" rows="3" ng-model="documentationNew.Remarks" maxlength="250" tabindex="8"></textarea>
                             </div>
                         </div>
                         <div class="form-group">
@@ -93,6 +64,51 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required tabindex="2" maxlength="10">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Sub Category<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Category" ng-model="ModelNew.SubCategory" class="form-control" required tabindex="4" maxlength="50">
+                            </div>
+                        </div>
+
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Type<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Category" ng-model="ModelNew.Type" class="form-control" required tabindex="4" maxlength="50">
+                            </div>
+                        </div>
+
+                        @*<div class="form-group">
+            <label class="col-sm-4 control-label">Category<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select name="Category" class="form-control" ng-model="documentationNew.Category" ng-options="item.Value as item.Text for item in CategoryList" required tabindex="6">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>*@
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Criticlty level<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Category" ng-model="ModelNew.Criticltylevel" class="form-control" required tabindex="4" maxlength="50">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="8"></textarea>
+                            </div>
+                        </div>
+                        
                     </div>
                 </div>
                 <div class="common-btn">
