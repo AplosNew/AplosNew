@@ -81,6 +81,10 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             return View("~/Areas/SalesManagements/Views/AdditionalInfo.cshtml");
         }
+        public ActionResult InputCredit()
+        {
+            return View("~/Areas/SalesManagements/Views/InputCredit.cshtml");
+        }
         [HttpGet, Authorize]
         public ActionResult GetMaterialSalesList(GridParameter parameters)
         {
@@ -2321,6 +2325,8 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 throw ex;
             }
         }
+
+
 
     }
 

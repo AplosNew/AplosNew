@@ -237,6 +237,10 @@ namespace Library.Service.Enums
         [Description("Journal ApproveBy")]
         JournalApproveBy,
         [Description("Full And Final ApproveBy")]
-        FullAndFinalApproveBy
+        FullAndFinalApproveBy,
+        [Description("Input Credit CheckedBy")]
+        InputCreditCheckedBy,
+        [Description("Input Credit ApproveBy")]
+        InputCreditApproveBy,
     }
 }
