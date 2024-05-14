@@ -1,7 +1,7 @@
 ﻿'use strict';
 AssetManagementController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function AssetManagementController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Furniture Master';
+    $rootScope.title = 'Emp Doc & Asset Master';
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'Administration/AssetManagement/';

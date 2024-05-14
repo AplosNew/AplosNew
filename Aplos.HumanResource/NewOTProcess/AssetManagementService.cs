@@ -23,7 +23,7 @@ namespace Library.HumanResource.NewOTProcess
         {
             try
             {
-                var sql = "select * from [HKP].[Asset Management] where Id = '" + Id + "' ";
+                var sql = "select * from [HKP].[EmpDocAssetMaster] where Id = '" + Id + "' ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -36,7 +36,7 @@ namespace Library.HumanResource.NewOTProcess
         {
             try
             {
-                string TableName = "[HKP].[Asset Management]";
+                string TableName = "[HKP].[EmpDocAssetMaster]";
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
@@ -55,7 +55,7 @@ namespace Library.HumanResource.NewOTProcess
         {
             try
             {
-                string TableName = "[HKP].[Asset Management]";
+                string TableName = "[HKP].[EmpDocAssetMaster]";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
@@ -111,7 +111,7 @@ namespace Library.HumanResource.NewOTProcess
             try
             {
 
-                string TableName = "[HKP].[Asset Management]";
+                string TableName = "[HKP].[EmpDocAssetMaster]";
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
 
@@ -178,7 +178,7 @@ namespace Library.HumanResource.NewOTProcess
         }
         public double GetSequence()
         {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM [HKP].[Asset Management]");
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM [HKP].[EmpDocAssetMaster]");
             if (dt.Rows.Count > 0)
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
@@ -190,7 +190,7 @@ namespace Library.HumanResource.NewOTProcess
             try
             {
                 var str = @"select fm.Id, fm.Sequence, fm.Code, fm.ShortName, fm.StandardName, fm.UserName, fm.Type, fm.Budget, fm.Category, fm.SubCategory,fm.[Description],
-                            fm.Remarks, fm.AddedBy, fm.AddedDate from HKP.furnitureMaster fm";
+                            fm.Remarks, fm.AddedBy, fm.AddedDate from [HKP].[EmpDocAssetMaster] fm";
                 return _sqlRepository.GetDataTable(str);
             }
             catch (Exception ex)

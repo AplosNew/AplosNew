@@ -29,7 +29,7 @@ namespace Aplos.Areas.Administration.Controllers
         {
             _sqlRepository = R;
         }
-        string TableName = "[HKP].[Asset Management]";
+        string TableName = "[HKP].[EmpDocAssetMaster]";
         public ActionResult Aplos()
         {
             return View();
