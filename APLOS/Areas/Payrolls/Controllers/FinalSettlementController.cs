@@ -2277,7 +2277,13 @@ ORDER BY OL.Sequence";
                         {
                             ReLoadFormulaWithValue(dtData.Rows[i]["FormulaId"].ToString(), ref dtValue, out string _formulaValue);
                             sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("###0");
-
+                            if (dtData.Rows[i]["Formula"].ToString() == "NoticePeriod - ServedNoticePeriod")
+                            {
+                                if (Convert.ToInt32(sFormulaResult.ToString()) < 0)
+                                {
+                                    sFormulaResult = "0";
+                                }
+                            }
                             DataRow dtValueRow = dtValue.NewRow();
 
                             dtValueRow["EmployeeSeperationItemId"] = dtData.Rows[i]["EmployeeSeperationItemId"].ToString().Trim();
@@ -2810,7 +2816,7 @@ Order By ESI.Sequence";
 
                 edCRow++;
                 edCRow++;
-                
+
 
                 sheet.Range[edCRow, 2].Text = "FinalClearance – Cum – Acceptance Receipt";
                 sheet.Range[edCRow, 2].CellStyle.Font.Bold = true;
@@ -2819,17 +2825,17 @@ Order By ESI.Sequence";
                 edCRow++;
                 edCRow++;
                 string inWord = reportUtility.InWord(NetPayable, null);
-                 ROW = edCRow;  COL = 1;
+                ROW = edCRow; COL = 1;
                 sheet.Range[ROW, COL, ROW, COL + 2].Text = "I have received a sum of Rs. " + NetPayable + ", Rupees. " + inWord + " towards full and final settlement of all my dues from Cedaar Textile Pvt Ltd. and have no other";
                 sheet.Range[ROW, COL, ROW, COL + 2].Merge();
                 ROW++;
-                
+
                 sheet.Range[ROW, COL, ROW, COL + 2].Text = "claim, whatsoever, against the company.";
                 sheet.Range[ROW, COL, ROW, COL + 2].Merge();
                 ROW++;
                 ROW++;
                 ROW++;
-                
+
 
                 sheet.Range[ROW, 1].Text = "Date: _________________  ";
                 sheet.Range[ROW, 3].Text = "Signature of the Employee";
