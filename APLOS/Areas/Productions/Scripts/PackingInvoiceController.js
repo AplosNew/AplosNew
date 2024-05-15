@@ -133,6 +133,12 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         { Value: "Fixed", Text: "Fixed" }
     ];
 
+    $scope.IncotermsList = [
+        { Value: "CIF", Text: "CIF" },
+        { Value: "CFR", Text: "CFR" },
+        { Value: "CPT", Text: "CPT" }
+    ];
+
     $scope.paymentTermList = [];
     $scope.PackingList = [];
     $scope.GetPackingListPopUp = function () {
