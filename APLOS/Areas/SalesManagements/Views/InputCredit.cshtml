@@ -22,6 +22,17 @@
                 </div>
             </div>
             <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Month<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select id="MonthId" class="form-control" ng-model="ModelNew.MonthNo" name="MonthId" required tabindex="1" ng-disabled="true">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in monthList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <input type="text" name="FromDate" ng-model="ModelNew.FromDate" datepicker class="form-control datepicker" required placeholder="dd-Mmm-yyyy" tabindex="3">

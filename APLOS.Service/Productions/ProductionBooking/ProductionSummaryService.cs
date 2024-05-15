@@ -541,7 +541,7 @@ where MOI.Id = pw.MasterOrderItemId) as ProductCodeArticle,
 
                                                             INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId = sox.Id
 
-                                                            where podx.ProductionOrderId = isnull(pw.ProductionOrderId, (select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + "'  and EntityId = '" + entityId + "' and ProductionShiftId = '" + shiftId + @"' and WorkCenterMasterId = wc.Id order by AddedDate desc))   for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '') 
+                                                            where podx.ProductionOrderId = isnull(pw.ProductionOrderId, (select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + "'  and EntityId = '" + entityId + "' and ProductionShiftId = '" + shiftId + @"' and WorkCenterMasterId = wc.Id order by AddedDate desc))   for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),PPS.IsBaseProcess
                         FROM SCS.WorkCenterMaster wc
                         LEFT JOIN TRN.ProductionSummary pw ON pw.WorkCenterMasterId = wc.Id AND pw.ProcessId = '" + ProcessId + @"'
                         AND pw.EntityId = '" + entityId + "' AND PW.ProductionDate = '" + productionDate + "' AND PW.ProductionShiftId = '" + shiftId + @"'
