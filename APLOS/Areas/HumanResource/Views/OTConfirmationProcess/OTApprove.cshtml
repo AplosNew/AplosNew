@@ -18,6 +18,12 @@
 
         </div>
         <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="inputBtnSection common-btn">
+                <label class="fileUpload col-sm-4 ">
+                    <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                </label>
+                <input type="button" value="Import Data" class="btn btn-success" ng-click="ImportData()" />
+            </div>
             <div class="common-btn">
                 <ul class="list-inline text-right">
                     <li><button ng-click="DownloadOTData();" class="btn"><i class="glyphicon glyphicon-download" tabindex="9"></i> DownLoad</button></li>
@@ -25,31 +31,41 @@
                 </ul>
             </div>
             <div style="color:black;" id="GridEmployeeInfoList" ej-grid e-datasource="otApproveList"
-                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true"
+                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-templaterefresh="refreshTemplateemployee4"
                  e-allowsorting="true" e-allowselection="true" e-pagesettings-pagesize="25" e-filtersettings-filterType="excel" e-allowtouch="true">
                 <div e-columns>
-                    <div e-column e-field="Code" e-headertext="EmployeeCode" e-width="70"></div>
+                    <div e-column e-headertext="All" e-headertemplateid="#headerTemplate4" e-template="#checkboxTemplate4" e-textalign="center" e-width="30"></div>
+                    <div e-column e-field="EmployeeSystemId" e-headertext="EmployeeSystemId" e-width="70"></div>
+                    <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="70"></div>
                     <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
                     <div e-column e-field="BudgetCode" e-headertext="Budget Code" e-width="70"></div>
                     <div e-column e-field="DOJ" e-headertext="DOJ" e-width="70"></div>
                     <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="100"></div>
                     <div e-column e-field="Entity" e-headertext="Entity" e-width="80"></div>
                     <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
-                    <div e-column e-field="ShiftDefinationName" e-headertext="Shift" e-width="120"></div>
+                    <div e-column e-field="Shift" e-headertext="Shift" e-width="130"></div>
                     <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
-                    <div e-column e-field="EmployeeCategory" e-headertext="Emp Category" e-width="80"></div>
+                    <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-width="80"></div>
                     <div e-column e-field="EmployeeStatus" e-headertext="Employee Status" e-width="80"></div>
+                    <div e-column e-field="APDEmpWorkDate" e-headertext="Work Date" e-width="70"></div>
                     <div e-column e-field="OverStay" e-headertext="Over Stay" e-textalign="right" e-width="80"></div>
                     <div e-column e-field="CalculatedOT" e-headertext="Calculated OT" e-textalign="right" e-width="80"></div>
                     <div e-column e-headertext="OT Hour" e-template="#ProcessedOT" e-textalign="right" e-type="number" e-width="80"></div>
+                    <div e-column e-field="ShiftOT" e-headertext="ShiftOT" e-width="80"></div>
                     <div e-column e-field="DayStatus" e-headertext="Day Status" e-width="80"></div>
                     <div e-column e-field="InTime" e-headertext="InTime" e-width="80"></div>
                     <div e-column e-field="OutTime" e-headertext="OutTime" e-width="80"></div>
                     <div e-column e-field="OTTitle" e-headertext="Is OT EnTitle" e-width="80"></div>
                 </div>
             </div>
+            <script type="text/template" id="checkboxTemplate4">
+                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+            </script>
+            <script type="text/x-jsrender" id="headerTemplate4">
+                <input type="checkbox" id="headchk4" />
+            </script>
             <script type="text/template" id="ProcessedOT">
-                <input type="number" ng-model="data.OTHr" class="form-control" style="color:black; text-align:right" />
+                <input type="text" ng-model="data.OTHr" class="form-control" style="color:black; text-align:right" />
             </script>
             <div class="common-btn">
                 <ul class="list-inline text-right">

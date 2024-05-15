@@ -1278,6 +1278,7 @@ upanelApp.controller("OrderLineCostingItemServiceMasterMappingController", Order
 upanelApp.controller("serviceControlController", serviceControlController);
 upanelApp.controller("AssetManagementController", AssetManagementController);
 upanelApp.controller("EmpDocAssetTransectionController", EmpDocAssetTransectionController);
+upanelApp.controller("InputCreditController", InputCreditController);
 
 
 
