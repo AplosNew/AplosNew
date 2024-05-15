@@ -2433,6 +2433,24 @@ namespace Aplos.Areas.SalesManagements.Controllers
             return 1;
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetCheckByCbo()
+        {
+            var sql = @"select E.SystemId As Value,(E.EmployeeCode+'-'+ E.EmployeeName) Text from dbo.AuthorizationConfig  A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where E.EmployeeStatus='Active' AND A.ActionStatus='InputCreditCheckedBy'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetApprovedByCbo()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sql = @"select E.SystemId As Value,(E.EmployeeCode+'-'+ E.EmployeeName) Text from dbo.AuthorizationConfig  A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where E.EmployeeStatus='Active' AND A.ActionStatus='InputCreditApproveBy'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
         #endregion
 
     }
