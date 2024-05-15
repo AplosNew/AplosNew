@@ -170,7 +170,7 @@ function fullandfinalSettlementPaymentController(cboService, commonMessage, $sco
         $http({
             method: "POST",
             url: "Payrolls/FinalSettlement/GetFinalSettlementDisbursementJVDataList",
-            data: { 'disbursementAdviceId': $scope.voucher.DisbursementAdviceId, 'goodWorkPaymentAdviseDetail': $scope.EmployeeListNew },
+            data: { 'disbursementAdviceId': $scope.voucher.DisbursementAdviceId, 'voucherVM': $scope.voucher, 'goodWorkPaymentAdviseDetail': $scope.EmployeeListNew },
             dataType: 'JSON'
             , contentType: "application/json charset=utf-8"
         }).then(function successCallback(response) {
@@ -331,6 +331,7 @@ function fullandfinalSettlementPaymentController(cboService, commonMessage, $sco
                 $scope.voucher.ActivityId = cash.ActivityId;
                 $scope.voucher.ActivityName = cash.ActivityName;
                 $scope.checkCashAmount();
+                $scope.getSalaryLockPayableGL();
             }
         }
         $scope.hideCashPopUp();
@@ -352,6 +353,7 @@ function fullandfinalSettlementPaymentController(cboService, commonMessage, $sco
             $scope.voucher.ActivityId = bank.ActivityId;
             $scope.voucher.ActivityName = bank.ActivityName;
             $scope.checkBankAmount();
+            $scope.getSalaryLockPayableGL();
         }
         $scope.hideBankPopUp();
     };

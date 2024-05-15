@@ -263,7 +263,16 @@ namespace Aplos.Areas.Accounts.Controllers
                     rdBuilder.Append(voucherSql);
                     rdBuilder.Append(bankJournalSql);
                 }
-                if (sourceType == SourceType.SalaryPayable.ToString() || sourceType == SourceType.SalaryDisbursement.ToString() || sourceType == SourceType.BonusDisbursement.ToString() || sourceType == SourceType.PFESICDisbursement.ToString() || sourceType == SourceType.GoodWorkDisbursement.ToString() || sourceType == SourceType.FinalSettlementJournal.ToString())
+                if (sourceType == SourceType.FinalSettlementJournal.ToString())
+                {
+                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + @"'
+                                       UPDATE [TRN].EmployeePayableWriteOff SET RowState='Parked' WHERE VoucherId='" + voucherId + @"' 
+                                       UPDATE trn.AdvanceWriteoff SET IsPark=1 where VoucherId='" + voucherId + @"'
+                                       UPDATE trn.EmployeeSubsequentTransaction SET IsPark=1 where VoucherId='" + voucherId + @"' ";
+                    
+                    rdBuilder.Append(voucherSql);
+                }
+                if (sourceType == SourceType.SalaryPayable.ToString() || sourceType == SourceType.SalaryDisbursement.ToString() || sourceType == SourceType.BonusDisbursement.ToString() || sourceType == SourceType.PFESICDisbursement.ToString() || sourceType == SourceType.GoodWorkDisbursement.ToString())
                 {
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
