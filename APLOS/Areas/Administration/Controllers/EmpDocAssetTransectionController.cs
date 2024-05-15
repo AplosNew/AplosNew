@@ -81,8 +81,48 @@ namespace Aplos.Areas.Administration.Controllers
         public JsonResult GetCategory()
         {
 
-            var sql = @"SELECT Id Value , Category Name FROM [HKP].[EmpDocAssetMaster] WHERE Active = 1 ";
-            return Json(_sqlRepository.GetCombo(sql, "Id", "UserName"), JsonRequestBehavior.AllowGet);
+            var sql = @"SELECT Id Value , Category Text FROM [HKP].[EmpDocAssetMaster] WHERE Active = 1 ";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetSubCategory()
+        {
+
+            var sql = @"SELECT Id Value , SubCategory Text FROM [HKP].[EmpDocAssetMaster] WHERE Active = 1 ";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetItem()
+        {
+
+            var sql = @"SELECT Id Value , Item Text FROM [HKP].[EmpDocAssetMaster] WHERE Active = 1 ";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetType()
+        {
+
+            var sql = @"SELECT Id Value , Type Text FROM [HKP].[EmpDocAssetMaster] WHERE Active = 1 ";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetEsstimatedValue()
+        {
+
+            var sql = @"SELECT Id Value , EsstimatedValue Text FROM [HKP].[EmpDocAssetMaster] WHERE Active = 1 ";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetCriticltylevel()
+        {
+
+            var sql = @"SELECT Id Value , Criticltylevel Text FROM [HKP].[EmpDocAssetMaster] WHERE Active = 1 ";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]

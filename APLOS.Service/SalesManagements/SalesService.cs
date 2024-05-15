@@ -3110,6 +3110,8 @@ namespace Library.Service.SalesManagements
                     PaymentToReceiveBankId = voucherVM.PaymentToReceiveBankId,
                     AdditionalFrieght = voucherVM.AdditionalFrieght,
                     AdditionalFrieghtValue = voucherVM.AdditionalFrieghtValue,
+                    Incoterms = voucherVM.Incoterms,
+                    IncotermsValue = voucherVM.IncotermsValue,
                     SourceType = "Packing",
                     Id = "MS" + _pkGeneratorService.GetAutoNumber(nameof(Sales), PKGeneratorEnum.Yearly, null, DateTime.Now),
                 };
@@ -3484,6 +3486,8 @@ namespace Library.Service.SalesManagements
                     AdditionalFrieght = voucherVM.AdditionalFrieght,
                     AdditionalFrieghtValue = voucherVM.AdditionalFrieghtValue,
                     IsAdditionalInfoApplicable = voucherVM.IsAdditionalInfoApplicable,
+                    Incoterms = voucherVM.Incoterms,
+                    IncotermsValue = voucherVM.IncotermsValue,
                     AddedBy = voucherVM.AddedBy,
                     AddedDate = voucherVM.AddedDate,
                     AddedFromIP = voucherVM.AddedFromIP,

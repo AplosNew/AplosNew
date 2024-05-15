@@ -36,7 +36,9 @@ namespace Library.Model.SalesManagements
         public string InvoiceStatus { get; set; }
         public string PaymentToReceiveBankId { get; set; }
         public string AdditionalFrieght { get; set; }
+        public string Incoterms { get; set; }
         public decimal AdditionalFrieghtValue { get; set; }
+        public decimal IncotermsValue { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties

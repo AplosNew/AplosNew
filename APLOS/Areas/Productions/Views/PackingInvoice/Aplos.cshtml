@@ -199,6 +199,20 @@
                                 <input type="text" n-decimals="3" name="Value" ng-model="salesVM.AdditionalFrieghtValue" class="form-control" tabindex="7">
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" title="Incoterms">Incoterms</label>
+                            <div class="col-sm-4">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="salesVM.Incoterms" name="Incoterms" id="Incoterms"
+                                            ng-options="item.Value as item.Text for item in IncotermsList" tabindex="6">
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <input type="text" n-decimals="3" name="Value" ng-model="salesVM.IncotermsValue" class="form-control" tabindex="7">
+                            </div>
+                        </div>
                     </div>
                     <div class="col-xs-12">
                         <fieldset class="scheduler-border">

@@ -109,7 +109,7 @@ function EmpDocAssetTransectionController(commonMessage, $scope, $rootScope, bas
     $scope.GetCategoryByMaster = function () {
         $http({
             method: 'GET',
-            url: $scope.path +  'GetCategory'
+            url:  'Administration/EmpDocAssetTransection/GetCategory'
         }).then(function successCallback(response) {
             $scope.CategoryList = [];
             if (baseService.arrayLength(response.data) > 0) {
@@ -117,6 +117,79 @@ function EmpDocAssetTransectionController(commonMessage, $scope, $rootScope, bas
             }
         });
     };
+    $scope.GetCategoryByMaster();
+
+    $scope.SubCategoryList = [];
+    $scope.GetSubCategoryByMaster = function () {
+        $http({
+            method: 'GET',
+            url: 'Administration/EmpDocAssetTransection/GetSubCategory'
+        }).then(function successCallback(response) {
+            $scope.SubCategoryList = [];
+            if (baseService.arrayLength(response.data) > 0) {
+                $scope.SubCategoryList = response.data;
+            }
+        });
+    };
+    $scope.GetSubCategoryByMaster();
+
+    $scope.ItemList = [];
+    $scope.GetItemByMaster = function () {
+        $http({
+            method: 'GET',
+            url: 'Administration/EmpDocAssetTransection/GetItem'
+        }).then(function successCallback(response) {
+            $scope.ItemList = [];
+            if (baseService.arrayLength(response.data) > 0) {
+                $scope.ItemList = response.data;
+            }
+        });
+    };
+    $scope.GetItemByMaster();
+
+    $scope.TypeList = [];
+    $scope.GetTypeListByMaster = function () {
+        $http({
+            method: 'GET',
+            url: 'Administration/EmpDocAssetTransection/GetType'
+        }).then(function successCallback(response) {
+            $scope.TypeList = [];
+            if (baseService.arrayLength(response.data) > 0) {
+                $scope.TypeList = response.data;
+            }
+        });
+    };
+    $scope.GetTypeListByMaster();
+
+    $scope.EsstimatedValueList = [];
+    $scope.GetEsstimatedValueListByMaster = function () {
+        $http({
+            method: 'GET',
+            url: 'Administration/EmpDocAssetTransection/GetEsstimatedValue'
+        }).then(function successCallback(response) {
+            $scope.EsstimatedValueList = [];
+            if (baseService.arrayLength(response.data) > 0) {
+                $scope.EsstimatedValueList = response.data;
+            }
+        });
+    };
+    $scope.GetEsstimatedValueListByMaster();
+
+    $scope.CriticltylevelList = [];
+    $scope.GetCriticltylevelListByMaster = function () {
+        $http({
+            method: 'GET',
+            url: 'Administration/EmpDocAssetTransection/GetCriticltylevel'
+        }).then(function successCallback(response) {
+            $scope.CriticltylevelList = [];
+            if (baseService.arrayLength(response.data) > 0) {
+                $scope.CriticltylevelList = response.data;
+            }
+        });
+    };
+    $scope.GetCriticltylevelListByMaster();
+
+
 
     $scope.employeeUrl = 'OrderManagements/masterorder/GetEmployeeListResponsible';
     $scope.showEmployeeListPopUp = function () {
@@ -165,10 +238,10 @@ function EmpDocAssetTransectionController(commonMessage, $scope, $rootScope, bas
         { Value: "Expense", Text: "Job Expense" }
     ];
 
-    $scope.CategoryList = [
+    /*$scope.CategoryList = [
         { Value: "Local", Text: "Local" },
         { Value: "Overseas", Text: "Overseas" }
-    ];
+    ];*/
 
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
