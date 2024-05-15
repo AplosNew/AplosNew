@@ -247,6 +247,8 @@
     <Compile Include="NewAttendanceProcess\ScatteredWeekService.cs" />
     <Compile Include="NewAttendanceProcess\WeekOffUpdatesService.cs" />
     <Compile Include="NewAttendanceProcess\SandwichProcessService.cs" />
+    <Compile Include="NewOTProcess\EmpDocAssetTransectionService.cs" />
+    <Compile Include="NewOTProcess\AssetManagementService.cs" />
     <Compile Include="NewOTProcess\FurnitureMasterService.cs" />
     <Compile Include="NewOTProcess\HourlyOTReportService.cs" />
     <Compile Include="NewOTProcess\OTCompensatoryService.cs" />

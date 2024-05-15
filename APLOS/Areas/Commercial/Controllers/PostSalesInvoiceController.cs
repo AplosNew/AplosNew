@@ -102,8 +102,8 @@ namespace Aplos.Areas.Commercial.Controllers
 						  ,PT.UserName [Port]
 						  ,SP.UserName ShipMode
                             ,P.ExportRefNo,P.TransporterCHAForwarderId,FORMAT(P.DocumentReceiveDate,'dd-MMM-yyyy')DocumentReceiveDate,P.AWBB2B,P.ActualPaymentReceived,P.ShippingBillNo,P.PortCode,FORMAT(P.DocumentSubmissionDate,'dd-MMM-yyyy')DocumentSubmissionDate
-					      ,FORMAT(P.DocAcceptanceDate,'dd-MMM-yyyy')DocAcceptanceDate,P.FinalShipmentStatus,FORMAT(P.ShippingBillDate,'dd-MMM-yyyy')ShippingBillDate,FORMAT(P.ShipmentDate,'dd-MMM-yyyy')ShipmentDate,P.NegotiationType,FORMAT(P.PaymentReceivedDate,'dd-MMM-yyyy')PaymentReceivedDate,P.Remark,S.InvoiceStatus,P.TransporterCHAForwarderId,TF.UserName TransporterCHAForwarder,FORMAT(P.PaymentDueMatureDate,'dd-MMM-yyyy')PaymentDueMatureDate,P.RFIDSealNo,P.LineSealNo,P.PaymentAdviseNo,P.PaymentReceiveConfirmationBy,P.PaymentReceivedConfirmationInBankDate
-                          ,EI.EmployeeName PaymentReceiveConfirmationByName
+					      ,FORMAT(P.DocAcceptanceDate,'dd-MMM-yyyy')DocAcceptanceDate,P.FinalShipmentStatus,FORMAT(P.ShippingBillDate,'dd-MMM-yyyy')ShippingBillDate,FORMAT(P.ShipmentDate,'dd-MMM-yyyy')ShipmentDate,P.NegotiationType,FORMAT(P.PaymentReceivedDate,'dd-MMM-yyyy')PaymentReceivedDate,P.Remark,S.InvoiceStatus,P.TransporterCHAForwarderId,TF.UserName TransporterCHAForwarder,FORMAT(P.PaymentDueMatureDate,'dd-MMM-yyyy')PaymentDueMatureDate,P.RFIDSealNo,P.LineSealNo,P.PaymentAdviseNo,P.PaymentReceiveConfirmationBy,P.PaymentReceivedConfirmationInBankDate, FORMAT(P.DocDeliveryDate,'dd-MMM-yyyy')DocDeliveryDate
+                          ,EI.EmployeeName PaymentReceiveConfirmationByName 
                       FROM [dbo].[PostSalesInvoice] P
 					  LEFT JOIN TRN.Sales S ON S.Id=P.SalesId
 					  LEFT JOIN HKP.Party C ON C.Id=P.CNFAgentId
@@ -172,7 +172,7 @@ namespace Aplos.Areas.Commercial.Controllers
 						  ,PT.UserName [Port]
 						  ,SP.UserName ShipMode
                            ,P.ExportRefNo,P.TransporterCHAForwarderId,FORMAT(P.DocumentReceiveDate,'dd-MMM-yyyy')DocumentReceiveDate,P.AWBB2B,P.ActualPaymentReceived,P.ShippingBillNo,P.PortCode,FORMAT(P.DocumentSubmissionDate,'dd-MMM-yyyy')DocumentSubmissionDate
-					      ,FORMAT(P.DocAcceptanceDate,'dd-MMM-yyyy')DocAcceptanceDate,P.FinalShipmentStatus,FORMAT(P.ShippingBillDate,'dd-MMM-yyyy')ShippingBillDate,FORMAT(P.ShipmentDate,'dd-MMM-yyyy')ShipmentDate,P.NegotiationType,FORMAT(P.PaymentReceivedDate,'dd-MMM-yyyy')PaymentReceivedDate,P.Remark,S.InvoiceStatus,P.TransporterCHAForwarderId,TF.UserName TransporterCHAForwarder,P.FileName,FORMAT(P.PaymentDueMatureDate,'dd-MMM-yyyy')PaymentDueMatureDate,FORMAT(P.PaymentReceivedConfirmationInBankDate,'dd-MMM-yyyy')PaymentReceivedConfirmationInBankDate
+					      ,FORMAT(P.DocAcceptanceDate,'dd-MMM-yyyy')DocAcceptanceDate,P.FinalShipmentStatus,FORMAT(P.ShippingBillDate,'dd-MMM-yyyy')ShippingBillDate,FORMAT(P.ShipmentDate,'dd-MMM-yyyy')ShipmentDate,P.NegotiationType,FORMAT(P.PaymentReceivedDate,'dd-MMM-yyyy')PaymentReceivedDate,P.Remark,S.InvoiceStatus,P.TransporterCHAForwarderId,TF.UserName TransporterCHAForwarder,P.FileName,FORMAT(P.PaymentDueMatureDate,'dd-MMM-yyyy')PaymentDueMatureDate,FORMAT(P.PaymentReceivedConfirmationInBankDate,'dd-MMM-yyyy')PaymentReceivedConfirmationInBankDate , FORMAT(P.DocDeliveryDate,'dd-MMM-yyyy')DocDeliveryDate
                       FROM [dbo].[PostSalesInvoice] P
 					  LEFT JOIN TRN.Sales S ON S.Id=P.SalesId
 					  LEFT JOIN HKP.Party C ON C.Id=P.CNFAgentId
@@ -516,6 +516,15 @@ namespace Aplos.Areas.Commercial.Controllers
                         dr["PaymentReceivedConfirmationInBankDate"] = data.PaymentReceivedConfirmationInBankDate;
                     }
 
+                    if(String.IsNullOrEmpty(data.DocDeliveryDate.ToString()))
+                    {
+                        dr["DocDeliveryDate"] = DBNull.Value;
+                    }
+                    else
+                    {
+                        dr["DocDeliveryDate"] = data.DocDeliveryDate;
+                    }
+
                     dr["Remark"] = data.Remark;
 
                     dr["AddedBy"] = identity.Name;
@@ -709,6 +718,14 @@ namespace Aplos.Areas.Commercial.Controllers
                         dr["PaymentReceivedConfirmationInBankDate"] = data.PaymentReceivedConfirmationInBankDate;
                     }
 
+                    if (String.IsNullOrEmpty(data.DocDeliveryDate.ToString()))
+                    {
+                        dr["DocDeliveryDate"] = DBNull.Value;
+                    }
+                    else
+                    {
+                        dr["DocDeliveryDate"] = data.DocDeliveryDate;
+                    }
                     dr["Remark"] = data.Remark;
 
 
@@ -960,6 +977,7 @@ namespace Aplos.Areas.Commercial.Controllers
         public string FinalShipmentStatus { get; set; }
         public DateTime? ShippingBillDate { get; set; }
         public DateTime? ShipmentDate { get; set; }
+        public DateTime? DocDeliveryDate { get; set; }
         public string NegotiationType { get; set; }
         public DateTime? PaymentReceivedDate { get; set; }
         public string Remark { get; set; }

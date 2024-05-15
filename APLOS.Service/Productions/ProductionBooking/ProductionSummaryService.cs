@@ -466,7 +466,7 @@ namespace Library.Service.Productions
         }
         public IEnumerable<object> GetCboWC(string plantId, string ProcessId, string entityId, string productionDate, string shiftId, string ProductionInChargeId)
         {
-            var sql = @"SELECT distinct wc.Id as WorkCenterMasterId,wc.ProcessId,CAST (CASE WHEN pw.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,Cast(0 as bit) ClickRow,pw.PPQFlag,pw.Id,wc.UserName as WorkCenter,
+            var sql = @"SELECT distinct wc.Id as WorkCenterMasterId,wc.ProcessId,PO.IsWorkCenterValidateApplicable,CAST (CASE WHEN pw.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,Cast(0 as bit) ClickRow,pw.PPQFlag,pw.Id,wc.UserName as WorkCenter,
                         isnull(pw.ProductionOrderId,(select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + "' and EntityId='" + entityId + "' and ProductionShiftId='" + shiftId + "' and WorkCenterMasterId=wc.Id order by AddedDate desc)) as ProductionOrderId,PO.IsPreDefineLotApplicable,(Case when IsPreDefineLotApplicable=1 then isnull((select top 1 CEILING(ProcessPlanQty) from ProductionOrderLotControl where UserLotNo=pw.LotNumber),(select top 1 CEILING(ProcessPlanQty) from ProductionOrderLotControl where UserLotNo=(select top 1 LotNumber from TRN.ProductionSummary where ProcessId = '" + ProcessId + "' and EntityId='" + entityId + "' and ProductionShiftId='" + shiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc))) else 0 end) as LotProcessPlanQty,isnull(pw.LotNumber,(select top 1 LotNumber from TRN.ProductionSummary where ProcessId = '" + ProcessId + "' and EntityId='" + entityId + "' and ProductionShiftId='" + shiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc)) as LotNumber,M.EmployeeName as Mentor,
                         PI.EmployeeName as ProductionInCharge,PI.SystemId as ProductionInChargeId,
                         isnull(R.EmployeeName, (select EmployeeName from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.ProductionSummary where ProcessId = '" + ProcessId + "'  and EntityId = '" + entityId + "' and ProductionShiftId = '" + shiftId + @"' and WorkCenterMasterID = WC.Id order by AddedDate desc))) as ResponsiblePerson,
@@ -571,7 +571,7 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
 
                             left join TRN.ProductionOrderDetail PD ON PD.SalesOrderId= SO.Id
 
-                            where SO.OrderStatusId<>'Cancelled' GROUP BY PD.ProductionOrderId
+                            where ISNULL(SO.OrderStatusId,'')<>'Cancelled' GROUP BY PD.ProductionOrderId
                             ) AS POQ ON POQ.ProductionOrderId = PO.Id
 
                          LEFT JOIN

@@ -240,11 +240,11 @@ namespace Aplos.Areas.Setups.Controllers
             {
                 var sql = "";
                 sql = @"SELECT  CheckBoxSelect=cast(CASE WHEN SC.ServiceMasterId<>'' THEN 1  ELSE 0 END as bit),
-                                    SG.UserName AS ServiceGroup,SM.UserName ServiceMaster,SM.IsPO,SM.IsApproved,SC.BudgetLimit
+                                    SG.UserName AS ServiceGroup,SM.UserName ServiceMaster,SM.IsPO,SM.IsApproved,SC.BudgetLimit,SC.Id,SM.Id ServiceMasterId,SC.ServiceControlId
                                     FROM [HKP].[ServiceMaster] SM
 									 LEFT JOIN [HKP].[ServiceGroup] AS SG ON SG.Id=SM.ServiceGroupId
 									left join(select * from  [MST].[ServiceControlServiceMaster] where ServiceControlId='" + serviceControlId + @"') SC on SC.ServiceMasterId=SM.Id
-                                    where SM.CompanyId='"+identity.CompanyId+"'";
+                                    --where SM.CompanyId='"+identity.CompanyId+"'";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
@@ -253,7 +253,95 @@ namespace Aplos.Areas.Setups.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-        public JsonResult CreateServiceControlServiceMaster(List<Dictionary<string, object>> data, string serviceControl, string TabName)
+
+        [Authorize, HttpPost]
+        public ActionResult GetServiceActionByList(string serviceControlId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                var sql = @"SELECT CheckBoxSelect=cast(case when gla.Id is null then 0 else 1 end as bit),gla.Id,Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,DeM.UserName Designation,
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,SE.UserName Section,EMP.SectionId,SuS.UserName SubSection
+                                        ,PL.UserName Plant,LDEG.UserName LegalDesignation,isnull( L.UserName,'') Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
+                                        EMP.EmployeeCodeNumeric, EMP.FatherName,FORMAT( EMP.DOB,'dd-MMM-yyyy')DOB,DeM.UserName DesignationGroup,
+                                        EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric,EJ.JobLcSystemID,FORMAT(EJ.EffectiveDate,'dd-MMM-yyyy')EffectiveDate
+                                        ,C.UserName Company,AM.Address1,EMP.PresentAddress1,EMP.CellPhnNo,EC.UserName EmployeeCategory,LPM.PolicyName
+                                        FROM EmployeeInformation EMP
+                                        LEFT JOIN ORG.Company C ON C.Id=EMP.CompanyId
+                                        LEFT JOIN MST.AddressMaster AM ON AM.Id=C.AddressMasterId
+                                        LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                                        LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                        LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                                        left join ORG.Section SE on SE.Id=PR.SectionId
+										LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
+                                        LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                                        LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
+                                        LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId
+                                        LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
+                                        LEFT JOIN MST.DesignationMasterLegalDesignation DML ON DML.LegalDesignationId = EMP.LegalDesignationId
+										Left join  MST.DesignationMaster DeM on DeM.Id = DML.DesignationMasterId
+										left join HKP.Designation DeG on DeG.Id=DeM.DesignationId
+                                        left join [MST].[DesignationMaster] DM on DM.DesignationId=EMP.GivenDesignationId
+										left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.Id and DMC.PlantId=emp.PlantId                
+										left join [dbo].[LeavePolicyMaster] LPM on LPM.SystemID=DMC.LeavePolicyMasterId and LPM.PlantID=emp.PlantID
+                                        left join [HKP].[EmployeeCategory] EC on EC.Id=DM.EmployeeCategoryId
+                                        LEFT JOIN dbo.EmpDateWiseJobLocation EJ ON EJ.EmpsystemId=EMP.SystemId
+										 AND EJ.SystemId=(Select top(1) SystemId from dbo.EmpDateWiseJobLocation JB Where JB.EmpSystemID=EMP.SystemId Order by EffectiveDate desc)
+                                        LEFT JOIN(SELECT * FROM  [HKP].[ServiceControlActionBy] where ServiceControlId='" + serviceControlId + @"') gla on gla.ActionById=EMP.SystemId
+                                        WHERE emp.PlantID='" + identity.PlantId + @"'  and EMP.CompanyId='" + identity.CompanyId + @"' and EMP.EmployeeStatus='Active' ORDER BY EmployeeCodePreFix,EMP.EmployeeCodeNumeric";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult GetServiceApprovedByList(string serviceControlId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                var sql = @"SELECT CheckBoxSelect=cast(case when gla.Id is null then 0 else 1 end as bit),gla.Id,Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,DeM.UserName Designation,
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,SE.UserName Section,EMP.SectionId,SuS.UserName SubSection
+                                        ,PL.UserName Plant,LDEG.UserName LegalDesignation,isnull( L.UserName,'') Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
+                                        EMP.EmployeeCodeNumeric, EMP.FatherName,FORMAT( EMP.DOB,'dd-MMM-yyyy')DOB,DeM.UserName DesignationGroup,
+                                        EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric,EJ.JobLcSystemID,FORMAT(EJ.EffectiveDate,'dd-MMM-yyyy')EffectiveDate
+                                        ,C.UserName Company,AM.Address1,EMP.PresentAddress1,EMP.CellPhnNo,EC.UserName EmployeeCategory,LPM.PolicyName
+                                        FROM EmployeeInformation EMP
+                                        LEFT JOIN ORG.Company C ON C.Id=EMP.CompanyId
+                                        LEFT JOIN MST.AddressMaster AM ON AM.Id=C.AddressMasterId
+                                        LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                                        LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                        LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                                        left join ORG.Section SE on SE.Id=PR.SectionId
+										LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
+                                        LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                                        LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
+                                        LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId
+                                        LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
+                                        LEFT JOIN MST.DesignationMasterLegalDesignation DML ON DML.LegalDesignationId = EMP.LegalDesignationId
+										Left join  MST.DesignationMaster DeM on DeM.Id = DML.DesignationMasterId
+										left join HKP.Designation DeG on DeG.Id=DeM.DesignationId
+                                        left join [MST].[DesignationMaster] DM on DM.DesignationId=EMP.GivenDesignationId
+										left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.Id and DMC.PlantId=emp.PlantId                
+										left join [dbo].[LeavePolicyMaster] LPM on LPM.SystemID=DMC.LeavePolicyMasterId and LPM.PlantID=emp.PlantID
+                                        left join [HKP].[EmployeeCategory] EC on EC.Id=DM.EmployeeCategoryId
+                                        LEFT JOIN dbo.EmpDateWiseJobLocation EJ ON EJ.EmpsystemId=EMP.SystemId
+										 AND EJ.SystemId=(Select top(1) SystemId from dbo.EmpDateWiseJobLocation JB Where JB.EmpSystemID=EMP.SystemId Order by EffectiveDate desc)
+                                        LEFT JOIN(SELECT * FROM  [HKP].[ServiceControlApprovedBy] where ServiceControlId='" + serviceControlId + @"') gla on gla.ActionById=EMP.SystemId
+                                        WHERE emp.PlantID='" + identity.PlantId + @"'  and EMP.CompanyId='" + identity.CompanyId + @"' and EMP.EmployeeStatus='Active' ORDER BY EmployeeCodePreFix,EMP.EmployeeCodeNumeric";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        public JsonResult CreateServiceControlServiceMaster(List<Dictionary<string, object>> data, string serviceControlId, string TabName)
         {
             try
             {
@@ -263,7 +351,7 @@ namespace Aplos.Areas.Setups.Controllers
                 string Id = "";
                 #region data update
 
-                con.OpenDataSetThroughAdapter("select * from [HKP].[ServiceControlServiceMaster] where ServiceControl='" + serviceControl + "'", out dsDr, false, "1");
+                con.OpenDataSetThroughAdapter("select * from [MST].[ServiceControlServiceMaster] where ServiceControlId='" + serviceControlId + "'", out dsDr, false, "1");
                 foreach (var item in data)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
@@ -276,7 +364,7 @@ namespace Aplos.Areas.Setups.Controllers
                     if (dv.Count == 0)
                     {
                         item["Id"] = Id;
-                        item["ServiceControl"] = serviceControl;
+                        item["ServiceControlId"] = serviceControlId;
 
                         AddNewRow(dsDr.Tables[0], item);
                     }

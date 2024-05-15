@@ -3742,6 +3742,7 @@ namespace Library.Service.Advances
                             VoucherId = voucher.Id,
                             VoucherDetailId = voucherDetail.Id,
                             PaymentSource = voucherVM.PaymentSource,
+                            EmployeeSalaryAdvanceId= employeeSalaryAdvance.Id
                         };
                         AuditService.AddedLog(EmployeeSubsequentAdvance);
                         _employeeSubsequentTransactionRepository.Insert(EmployeeSubsequentAdvance);

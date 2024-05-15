@@ -62,6 +62,7 @@ namespace Library.Model.Employees
         public Voucher Voucher { get; set; }
         public string VoucherId { get; set; }
         public string EmployeeTransactionTypeId { get; set; }
+        public string EmployeeSalaryAdvanceId { get; set; }
 
        // public  EmployeeInformation Employee { get; set; }
         public string EmployeeId { get; set; }

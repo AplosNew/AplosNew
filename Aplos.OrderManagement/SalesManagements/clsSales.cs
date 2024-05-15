@@ -167,8 +167,8 @@ namespace Library.OrderManagement.Sales
 										else SO.Qty end, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))-ISNULL(case when SC.CharacteristicsValueId<>'' then SC.SalesQty
 										when FC.CharacteristicsValueId<>'' then FC.SalesQty end,SM.TransactionQty)
                 ,SM.TransactionQty TempSalesQty
-                ,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
-	           ,ServiceTax=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesTax] WHERE SalesId=SA.Id  AND SalesServiceId<>'')/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
+                  ,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/NULLIF((Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id),0))*SM.TransactionAmount
+	           ,ServiceTax=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesTax] WHERE SalesId=SA.Id  AND SalesServiceId<>'')/NULLIF((Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id),0))*SM.TransactionAmount
             FROM TRN.SalesMaterial AS SM 
             LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
             LEFT JOIN [TRN].[SalesOrder] AS SO ON SM.SalesOrderId=SO.Id
@@ -433,6 +433,24 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
 									, S.ToCurrencyRate AS CompanyCurrencyRate, S.Narration, S.PartyType, S.VoucherId, AMP.StateId AS PlantStateId,S.BLNumber,S.ItemDescription,S.ComercialInvoiceNo,S.EXPFromNo,S.EXPDate,S.BLDate
                                     , CASE  WHEN S.RowState='Parked' THEN 1 ELSE 0 END AS IsPark,S.AddedDate,s.AddedBy,S.AddedFromIP,FORMAT(S.UpdatedDate,'dd-MMM-yyyy') UpdatedDate,s.UpdatedBy,S.UpdatedFromIP,S.PaymentToReceiveBankId , NEGBNKMT.AccountTitle BankName
 									,IsMail=CAST((CASE WHEN FORMAT(S.AddedDate,'dd-MMM-yyyy') = FORMAT(GETDATE(),'dd-MMM-yyyy') THEN 0 ELSE 1 END) AS BIT) 
+									,MLCRef=Stuff((
+										SELECT distinct',' + LC.LCRef
+										FROM dbo.MasterLC LC 
+										LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+										LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+										LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+										WHERE SM.SalesId=S.Id
+										FOR XML PATH('')
+										), 1, 1, '')
+									,ContractNo=Stuff((
+											SELECT distinct',' + C.Id
+											FROM  dbo.[Contract] C 
+											LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+											LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+											WHERE SM.SalesId=S.Id
+											FOR XML PATH('')
+											), 1, 1, '')
+									,S.IsAdditionalInfoApplicable , S.AdditionalFrieght , S.AdditionalFrieghtValue , S.Incoterms , S.IncotermsValue
 									FROM [TRN].[Sales] AS S
                                     LEFT JOIN [ORG].[Company] AS CO ON CO.Id=S.CompanyId
                                     JOIN [HKP].[Party] AS P ON P.Id=S.PartyId
@@ -485,8 +503,8 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
 			, SO.SOType,SO.Rate
            ,SM.TransactionQty SalesQty
                 ,SM.TransactionQty 
-                ,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
-	           ,ServiceTax=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesTax] WHERE SalesId=SA.Id  AND SalesServiceId<>'')/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount,ISNULL(ART.HSNCodeId,MM.HSNCodeId)HSNCodeId,ISNULL(HA.Code,HM.Code)HSNCode
+                ,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/NULLIF((Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id),0))*SM.TransactionAmount
+	           ,ServiceTax=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesTax] WHERE SalesId=SA.Id  AND SalesServiceId<>'')/NULLIF((Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id),0))*SM.TransactionAmount,ISNULL(ART.HSNCodeId,MM.HSNCodeId)HSNCodeId,ISNULL(HA.Code,HM.Code)HSNCode
 			,A.PaymentTermId,A.Code PaymentTermCode,A.UserName PaymentTermName,A.BaseLineDate, A.NoOfDay,A.PaymentMode 
             FROM TRN.SalesMaterial AS SM 
             LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
@@ -2079,6 +2097,16 @@ Order by P.Sequence";
                     WHERE S.Id = SM.SalesId
                     FOR XML PATH('')
                     ), 1, 1, '')
+					,MLCRef=Stuff((
+										SELECT distinct',' + LC.LCRef
+										FROM dbo.MasterLC LC 
+										LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+										LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+										LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+										WHERE SM.SalesId=S.Id
+										FOR XML PATH('')
+										), 1, 1, '')
+									,PSI.DocDeliveryDate
 									FROM [TRN].[Sales] AS S
 									left join PostSalesInvoice PSI on PSI.SalesId = S.Id
                                     JOIN [HKP].[Party] AS P ON P.Id=S.PartyId

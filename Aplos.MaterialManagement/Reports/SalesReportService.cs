@@ -1857,11 +1857,13 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
                 var addInfo = makeaddInfo(salesId, document, dsaddInfo);   // {makeaddInfo}
                 var TermsAndCondition = makeTermsAndCondition(salesId, document, dsConditions);   // {conditions}
                 var totalQty = clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(POTransactionQty)", "CustomerNo='" + dsOrderMaster.Rows[0]["CustomerNo"].ToString() + "'"));
-                var FREIGHTVALUE = totalQty * clsStaticInfo.dbl(dsOrderMaster.Rows[0]["AdditionalFrieghtValue"].ToString());
-                var FCAVALUE = MaterialTotal - FREIGHTVALUE;
+                var FREIGHTVALUE = clsStaticInfo.dbl(dsOrderMaster.Rows[0]["AdditionalFrieghtValue"].ToString());
+                var INSURANCE = clsStaticInfo.dbl(dsOrderMaster.Rows[0]["IncotermsValue"].ToString());
+                var FCAVALUE = MaterialTotal - FREIGHTVALUE - INSURANCE;
                 document.Replace("{GrandTotal}", (MaterialTotal).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
                 document.Replace("{GrandTotals}", (MaterialTotal).ToString("#,##0.00"), true, true);
                 document.Replace("{FREIGHTVALUE}", (FREIGHTVALUE).ToString("#,##0.00"), true, true);
+                document.Replace("{INSURANCEVALUE}", (INSURANCE).ToString("#,##0.00"), true, true);
                 document.Replace("{FCAVALUE}", (FCAVALUE).ToString("#,##0.00"), true, true);
                 //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("F2"), true, true);
                 document.Replace("{TotalInWords}", ru.InWord((MaterialTotal), dsOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
@@ -4558,7 +4560,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
 ,PSI.PreCarriageDocRef LRCopy 
 ,FORMAT(PSI.PreCarriageDocDate,'dd-MMM-yyyy') LRDate
 
-,DelCN.UserName INVOICEDILEVERYPLANTCOUNTRY,IR.AdditionalFrieghtValue
+,DelCN.UserName INVOICEDILEVERYPLANTCOUNTRY,IR.AdditionalFrieghtValue ,IR.IncotermsValue
 ,DelCN.UserName INVOICEDILEVERYPLANTCOUNTRYNew
 ,DelCN.UserName INVOICEDILEVERYPLANTCOUNTRYBE
 
@@ -8944,7 +8946,7 @@ AND PSI.Id=(SELECT TOP 1 Id FROM dbo.PostSalesInvoice MR WHERE MR.SalesId=PSI.Sa
     ,INVPARTYPL.UserName InvoiceParty
     ,INVPARTYPL.UserName InvoiceParty2
     ,IR.InvoicingByAddress AS ConsigneeAddress
-    ,IR.DeliveryByAddress
+    ,case when IR.InvoicingPartyPlantId = IR.DeliveryPartyPlantId then IR.DeliveryByAddress else  CONCAT (DPARTYPL.UserName , ' ' , IR.DeliveryByAddress) end DeliveryByAddress
     ,DPARTYPL.UserName DeliveryParty
  
     ,PSI.PreCarriageBy

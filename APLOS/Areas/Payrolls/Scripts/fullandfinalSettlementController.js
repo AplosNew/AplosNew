@@ -268,7 +268,7 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
                 }
             }
 
-            if (baseService.arrayLength($scope.SelectedEmpList) < 0) {
+            if (baseService.arrayLength($scope.SelectedEmpList) == 0) {
                 throw "Select Employee.";
             }
 

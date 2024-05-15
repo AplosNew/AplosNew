@@ -1276,6 +1276,9 @@ upanelApp.controller("fullandfinalSettlementApproveController", fullandfinalSett
 upanelApp.controller("fullandfinalSettlementPaymentController", fullandfinalSettlementPaymentController);
 upanelApp.controller("OrderLineCostingItemServiceMasterMappingController", OrderLineCostingItemServiceMasterMappingController);
 upanelApp.controller("serviceControlController", serviceControlController);
+upanelApp.controller("AssetManagementController", AssetManagementController);
+upanelApp.controller("EmpDocAssetTransectionController", EmpDocAssetTransectionController);
+upanelApp.controller("InputCreditController", InputCreditController);
 
 
 

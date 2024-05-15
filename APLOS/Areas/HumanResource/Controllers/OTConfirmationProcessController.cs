@@ -12,6 +12,7 @@ using System.IO;
 using Library.HumanResource.NewAttendanceProcess;
 using Library.Security.Core;
 using Aplos.Properties;
+using Library.Data;
 
 namespace Aplos.Areas.HumanResource.Controllers
 {
@@ -485,7 +486,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 DataTable dt = new DataTable("DD");
                 foreach (string item in data[0].Keys)
                 {
-                    if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                    if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
                         continue;
 
                     dt.Columns.Add(item);
@@ -497,7 +498,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                     DataRow dr = dt.NewRow();
                     foreach (string item in data[i].Keys)
                     {
-                        if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
                             continue;
 
                         dr[item] = data[i][item];
@@ -539,17 +540,24 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                 #region columns
 
-                sheet[ROW, COL].Text = "Employee Code"; sheet[ROW, COL].ColumnWidth = 16; int ColEC = COL; COL++;
-                sheet[ROW, COL].Text = "Employee Name"; sheet[ROW, COL].ColumnWidth = 16; int ColEN = COL; COL++;
+                sheet[ROW, COL].Text = "EmployeeSystemId"; sheet[ROW, COL].ColumnWidth = 16; int ColEId = COL; COL++;
+                sheet[ROW, COL].Text = "EmployeeCode"; sheet[ROW, COL].ColumnWidth = 16; int ColEC = COL; COL++;
+                sheet[ROW, COL].Text = "EmployeeName"; sheet[ROW, COL].ColumnWidth = 16; int ColEN = COL; COL++;
+                sheet[ROW, COL].Text = "BudgetCode"; sheet[ROW, COL].ColumnWidth = 16; int ColBudgetCode = COL; COL++;
                 sheet[ROW, COL].Text = "DOJ"; sheet[ROW, COL].ColumnWidth = 16; int ColDOJ = COL; COL++;
-                sheet[ROW, COL].Text = "Legal Designation"; sheet[ROW, COL].ColumnWidth = 16; int ColDesg = COL; COL++;
+                sheet[ROW, COL].Text = "LegalDesignation"; sheet[ROW, COL].ColumnWidth = 16; int ColDesg = COL; COL++;
+                sheet[ROW, COL].Text = "Entity"; sheet[ROW, COL].ColumnWidth = 16; int ColEntity = COL; COL++;
+                sheet[ROW, COL].Text = "Section"; sheet[ROW, COL].ColumnWidth = 16; int ColSection = COL; COL++;
+                sheet[ROW, COL].Text = "Shift"; sheet[ROW, COL].ColumnWidth = 16; int ColShift = COL; COL++;
                 sheet[ROW, COL].Text = "Department"; sheet[ROW, COL].ColumnWidth = 16; int ColDep = COL; COL++;
-                sheet[ROW, COL].Text = "Emp Category"; sheet[ROW, COL].ColumnWidth = 16; int ColEcg = COL; COL++;
-                sheet[ROW, COL].Text = "Employee Status"; sheet[ROW, COL].ColumnWidth = 16; int ColEmpS = COL; COL++;
-                sheet[ROW, COL].Text = "Over Stay"; sheet[ROW, COL].ColumnWidth = 16; int ColOS = COL; COL++;
-                sheet[ROW, COL].Text = "Calculated OT"; sheet[ROW, COL].ColumnWidth = 16; int ColCOT = COL; COL++;
+                sheet[ROW, COL].Text = "EmployeeCategory"; sheet[ROW, COL].ColumnWidth = 16; int ColEcg = COL; COL++;
+                sheet[ROW, COL].Text = "EmployeeStatus"; sheet[ROW, COL].ColumnWidth = 16; int ColEmpS = COL; COL++;
+                sheet[ROW, COL].Text = "OverStay"; sheet[ROW, COL].ColumnWidth = 16; int ColOS = COL; COL++;
+                sheet[ROW, COL].Text = "APDEmpWorkDate"; sheet[ROW, COL].ColumnWidth = 16; int ColEmpWD = COL; COL++;
+                sheet[ROW, COL].Text = "CalculatedOT"; sheet[ROW, COL].ColumnWidth = 16; int ColCOT = COL; COL++;
                 sheet[ROW, COL].Text = "OTHr"; sheet[ROW, COL].ColumnWidth = 16; int ColOTHr = COL; COL++;
-                sheet[ROW, COL].Text = "Day Status"; sheet[ROW, COL].ColumnWidth = 16; int ColDayStatus = COL; COL++;
+                sheet[ROW, COL].Text = "ShiftOT"; sheet[ROW, COL].ColumnWidth = 16; int ColShiftOT = COL; COL++;
+                sheet[ROW, COL].Text = "DayStatus"; sheet[ROW, COL].ColumnWidth = 16; int ColDayStatus = COL; COL++;
                 sheet[ROW, COL].Text = "InTime"; sheet[ROW, COL].ColumnWidth = 16; int ColInTime = COL; COL++;
                 sheet[ROW, COL].Text = "OutTime"; sheet[ROW, COL].ColumnWidth = 16; int ColOutTime = COL; COL++;
                 sheet[ROW, COL].Text = "OTTitle"; sheet[ROW, COL].ColumnWidth = 16; int ColOTTitle = COL;
@@ -572,16 +580,23 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
-                    sheet[ROW, ColEC].Text = data.Rows[i]["Code"].ToString();
+                    sheet[ROW, ColEId].Text = data.Rows[i]["EmployeeSystemId"].ToString();
+                    sheet[ROW, ColEC].Text = data.Rows[i]["EmployeeCode"].ToString();
                     sheet[ROW, ColEN].Text = data.Rows[i]["EmployeeName"].ToString();
+                    sheet[ROW, ColBudgetCode].Text = data.Rows[i]["BudgetCode"].ToString();
                     sheet[ROW, ColDOJ].Text = data.Rows[i]["DOJ"].ToString();
                     sheet[ROW, ColDesg].Text = data.Rows[i]["LegalDesignation"].ToString();
+                    sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
+                    sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
+                    sheet[ROW, ColShift].Text = data.Rows[i]["Shift"].ToString();
                     sheet[ROW, ColDep].Text = data.Rows[i]["Department"].ToString();
                     sheet[ROW, ColEcg].Text = data.Rows[i]["EmployeeCategory"].ToString();
                     sheet[ROW, ColEmpS].Text = data.Rows[i]["EmployeeStatus"].ToString();
+                    sheet[ROW, ColEmpWD].Text = data.Rows[i]["APDEmpWorkDate"].ToString();
                     sheet[ROW, ColOS].Number = clsStaticInfo.dbl(data.Rows[i]["OverStay"].ToString());
                     sheet[ROW, ColCOT].Number = clsStaticInfo.dbl(data.Rows[i]["CalculatedOT"].ToString());
                     sheet[ROW, ColOTHr].Number = clsStaticInfo.dbl(data.Rows[i]["OTHr"].ToString());
+                    sheet[ROW, ColShiftOT].Text = data.Rows[i]["ShiftOT"].ToString();
                     sheet[ROW, ColDayStatus].Text = data.Rows[i]["DayStatus"].ToString();
                     sheet[ROW, ColInTime].Text = data.Rows[i]["InTime"].ToString();
                     sheet[ROW, ColOutTime].Text = data.Rows[i]["OutTime"].ToString();
@@ -642,9 +657,176 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public JsonResult ImportOTData()
+        {
+            string path;
+            
+            try
+            {
+                
+                var file = Request.Files["file"];
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                SaveFiles(out path);
+                var data = ReadBonusData(identity.PlantId, path);
+                JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        public List<OTTemplate> ReadBonusData(string plantid, string path)
+        {
+            List<OTTemplate> data = null;
+            //string path = "";
+            DataSet dsExcel = null;
+            try
+            {
+                data = new List<OTTemplate>();
+                ReadBonusFile(path, out dsExcel);
+                Validation(dsExcel, plantid);
+                data = dsExcel.Tables[0].ToList<OTTemplate>();
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void ReadBonusFile(string path, out DataSet dsExcel)
+        {
+            FileInfo docFile;
+            dsExcel = null;
+            try
+            {
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = excelEngine.Excel.Workbooks.Open(path);
+                DataTable dt = workbook.Worksheets[0].ExportDataTable(6, 1, 5000, 21, ExcelExportDataTableOptions.ColumnNames);
+                dt.DefaultView.RowFilter = "isnull(EmployeeCode,'')<>''";
+                dt = dt.DefaultView.ToTable();
 
+                dsExcel = new DataSet();
+                dsExcel.Tables.Add(dt);
+                docFile = new FileInfo(path);
+                if (docFile.Exists)
+                {
+                    docFile.Delete();
+                }
+            }
+            catch (Exception ex)
+            {
+                docFile = new FileInfo(path);
+                if (docFile.Exists)
+                {
+                    docFile.Delete();
+                }
+                throw (ex);
+            }
+        }
+        public void Validation(DataSet dsExcel, string plantid)
+        {
 
+            try
+            {
+
+                if (dsExcel.Tables[0].Rows.Count > 0)
+                {
+                    if (false)
+                    {
+                        for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
+                        {
+                            string strTempPDate = "";
+                            string strTempPTimee = "";
+                            string strTempPType = "";
+
+                            strTempPDate = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
+                            strTempPTimee = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
+                            strTempPType = dsExcel.Tables[0].Rows[i][3].ToString().Trim().ToUpper();
+
+                        }//for
+
+                    }
+
+                }
+                else
+                {
+                    throw new Exception("Please Select File");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public void SaveFiles(out string path)
+        {
+            path = "";
+            try
+            {
+                var file = Request.Files["file"];
+                if (file != null)
+                {
+                    var extension = Path.GetExtension(file.FileName);
+                    if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
+                    {
+                    }
+                    else
+                        throw new CustomException(Resources.ExcelUploadError);
+                }
+                if (file != null)
+                {
+                    path = Path.Combine(ResourcesPathReader.GetAttendanceRawData(), file.FileName);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                        file.SaveAs(path);
+                    }
+                    else
+                    {
+                        file.SaveAs(path);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion
+
+
+    }
+    public class OTTemplate
+    {
+        public string EmployeeSystemId { get; set; }
+        public string EmployeeCode { get; set; }
+        public string EmployeeName { get; set; }
+        public string BudgetCode { get; set; }
+        public string DOJ { get; set; }
+        public string LegalDesignation { get; set; }
+        public string Entity { get; set; }
+        public string Section { get; set; }
+        public string Shift { get; set; }
+        public string Department { get; set; }
+        public string EmployeeCategory { get; set; }
+        public string EmployeeStatus { get; set; }
+        public string OverStay { get; set; }
+        public string CalculatedOT { get; set; }
+        public string OTHr { get; set; }
+        public string ShiftOT { get; set; }
+        public string DayStatus { get; set; }
+        public string InTime { get; set; }
+        public string OutTime { get; set; }
+        public string OTTitle { get; set; }
+        public string APDEmpWorkDate { get; set; }
 
 
     }
