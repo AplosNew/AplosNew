@@ -233,4 +233,180 @@ function serviceControlController(cboService, commonMessage, $scope, $rootScope,
             ShowResult(response.data.Message, 'failure');
         }
     };
+
+
+    //#region Action By
+    $scope.ActionByListData = [];
+    $scope.getActionByPopUpData = function () {
+        $http({
+            method: 'POST',
+            url: 'Setups/ServiceMaster/GetServiceActionByList?serviceControlId=' + $scope.ServiceControlId
+        }).then(function successCallback(response) {
+            $scope.ActionByListData = response.data;
+        });
+    }
+
+    $scope.ActionByList = [];
+    $scope.OKActionBy = function () {
+        $scope.ActionByList = [];
+        try {
+            for (var i = 0; i < $scope.ActionByListData.length; i++) {
+                if ($scope.ActionByListData[i].CheckBoxSelect == true) {
+                    $scope.ActionByList.push($scope.ActionByListData[i]);
+                }
+                if ($scope.ActionByListData[i].CheckBoxSelect == false && $scope.ActionByListData[i].Id != null) {
+                    $scope.ActionByList.push($scope.ActionByListData[i]);
+                }
+            }
+
+            $scope.SaveABData();
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+
+    $scope.refreshTemplateAB = function (args) {
+        $("#ABheadchk").ejCheckBox({ "change": CheckBoxSelectAllAB });
+    };
+
+    function CheckBoxSelectAllAB(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+        var filtered = $("#GridAB").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ActionByListData.length; i++) {
+                $scope.ActionByListData[i].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridAB").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.SaveABData = function () {
+        if (baseService.isUndefinedOrNull($scope.GlManagementId)) {
+            return ShowResult('Please select GL Management!', 'failure');
+        }
+        for (var i = 0; i < $scope.ActionByList.length; i++) {
+            for (var j = 0; j < $scope.ActionByListData.length; j++) {
+                if ($scope.ActionByListData[j].SystemID == $scope.ActionByList[i].ActionById) {
+                    if ($scope.ActionByListData[j].CheckBoxSelect == false) {
+                        $scope.ActionByList[i].CheckBoxSelect = false;
+                    }
+                }
+            }
+        }
+        $http({
+            method: 'POST',
+            url: $scope.saveABUrl,
+            data: { 'data': $scope.ActionByList, 'GlManagementId': $scope.GlManagementId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getActionByPopUpData($scope.GlManagementId);
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+    //#endregion Action By
+
+
+    //#region Approve By
+    $scope.ApproveByListData = [];
+    $scope.getApproveByPopUpData = function () {
+        $http({
+            method: 'Post',
+            url: 'Setups/ServiceMaster/GetServiceApprovedByList?serviceControlId=' + $scope.ServiceControlId
+        }).then(function successCallback(response) {
+            $scope.ApproveByListData = response.data;
+        });
+    }
+
+    $scope.ApproveByList = [];
+    $scope.OKApproveBy = function () {
+        $scope.ApproveByList = [];
+        try {
+            for (var i = 0; i < $scope.ApproveByListData.length; i++) {
+                if ($scope.ApproveByListData[i].CheckBoxSelect == true) {
+                    $scope.ApproveByList.push($scope.ApproveByListData[i]);
+                }
+                if ($scope.ApproveByListData[i].CheckBoxSelect == false && $scope.ApproveByListData[i].Id != null) {
+                    $scope.ApproveByList.push($scope.ApproveByListData[i]);
+                }
+            }
+            $scope.SaveAPBData();
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.refreshTemplateAPB = function (args) {
+        $("#APBheadchk").ejCheckBox({ "change": CheckBoxSelectAllAPB });
+    };
+
+    function CheckBoxSelectAllAPB(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+        var filtered = $("#GridAPB").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ApproveByListData.length; i++) {
+                $scope.ApproveByListData[i].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridAPB").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.SaveAPBData = function () {
+        if (baseService.isUndefinedOrNull($scope.GlManagementId)) {
+            return ShowResult('Please select GL Management!', 'failure');
+        }
+        for (var i = 0; i < $scope.ApproveByList.length; i++) {
+            for (var j = 0; j < $scope.ApproveByListData.length; j++) {
+                if ($scope.ApproveByListData[j].SystemID == $scope.ApproveByList[i].ApproveById) {
+                    if ($scope.ApproveByListData[j].CheckBoxSelect == false) {
+                        $scope.ApproveByList[i].CheckBoxSelect = false;
+                    }
+                }
+            }
+        }
+        $http({
+            method: 'POST',
+            url: $scope.saveAPBUrl,
+            data: { 'data': $scope.ApproveByList, 'GlManagementId': $scope.GlManagementId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getApproveByPopUpData($scope.GlManagementId);
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+    //#endregion Approve By
 }
