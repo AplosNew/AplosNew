@@ -1613,7 +1613,7 @@ namespace Library.Service.SalaryDisbursement
                                         VoucherId = directVoucherId,
                                         VoucherDetailId = voucherDetailDr.Id,
                                         PaymentSource = voucherVM.PaymentSource,
-                                        //EmployeeSalaryAdvanceId = item["EmployeeSalaryAdvanceId"].ToString(),
+                                        EmployeeSalaryAdvanceId = item["EmployeeSalaryAdvanceId"].ToString(),
                                     };
                                     AuditService.AddedLog(EmployeeSubsequentAdvancedirect);
                                     _employeeSubsequentTransactionRepository.Insert(EmployeeSubsequentAdvancedirect);
