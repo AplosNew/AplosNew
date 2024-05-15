@@ -1,0 +1,530 @@
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Emp Doc & Asset Transaction</h3>
+<div class="form-elements form-horizontal">
+    <input type="hidden" ng-model="documentationNew.Id">
+    <div class="row" id="mainDiv">
+        <input type="hidden" ng-model="modelNew.Id">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="Service" role="tab" data-toggle="tab">Transection</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="AddInfo" role="tab" data-toggle="tab">Report</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div ng-form name="documentationNewForm">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="number" name="Sequence" ng-model="ModelNew.Sequence" class="form-control" required tabindex="1">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Category<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select name="Shipment Mode" class="form-control" ng-model="ModelNew.CategoryId" ng-options="item.Value as item.Text for item in CategoryList" tabindex="13" required>
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Esstimated Value<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="number" name="Budget" ng-model="ModelNew.EsstimatedValue" class="form-control" required tabindex="4" maxlength="50">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Item<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Category" ng-model="ModelNew.Item" class="form-control" required tabindex="4" maxlength="50">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Given By<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="Responsible Person" ng-model="ModelNew.GivenById" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="showEmployeeListPopUp();" class="btn single-small-btn" tabindex="7"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Active</label>
+                            <div class="col-sm-8">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="documentationNew.Active">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required tabindex="2" maxlength="10">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Sub Category<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Category" ng-model="ModelNew.SubCategory" class="form-control" required tabindex="4" maxlength="50">
+                            </div>
+                        </div>
+
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Type<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Category" ng-model="ModelNew.Type" class="form-control" required tabindex="4" maxlength="50">
+                            </div>
+                        </div>
+
+                        @*<div class="form-group">
+            <label class="col-sm-4 control-label">Category<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select name="Category" class="form-control" ng-model="documentationNew.Category" ng-options="item.Value as item.Text for item in CategoryList" required tabindex="6">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>*@
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Criticlty level<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Category" ng-model="ModelNew.Criticltylevel" class="form-control" required tabindex="4" maxlength="50">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="8"></textarea>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                        <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                        <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
+                </div>
+                <div class="row text-right aplos-grid-toggle">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchBy">
+                                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive aplos-grid-toggle">
+                    <div id="GridDS" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-headertext="Actions" e-template="#ShowActionButtons" e-width="2"></div>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
+                            <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+                            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
+                            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+                            <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                            <div e-column e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="5"></div>
+                            <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+                        </div>
+                        <script type="text/template" id="ShowActionButtons">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Documentation Master" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.ShowDocumentationMaster(this);" style="margin: -6px;"></i></button>
+                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Party" class="btn"><i class="glyphicon glyphicon-search" ng-click="$parent.showPartyPopUpNew(this);" style="margin: -6px;"></i></button>
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div ng-form name="documentationMasterNewForm">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="number" name="Sequence" ng-model="documentationMasterNew.Sequence" class="form-control" required tabindex="101">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="ShortName" ng-model="documentationMasterNew.ShortName" class="form-control" maxlength="15" required tabindex="103">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="UserName" ng-model="documentationMasterNew.UserName" class="form-control" required tabindex="5" maxlength="105">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Source<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Source" ng-model="documentationMasterNew.Source" class="form-control" required tabindex="5" maxlength="107">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="3" ng-model="documentationMasterNew.Remarks" maxlength="250" tabindex="109"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Code" ng-model="documentationMasterNew.Code" class="form-control" required tabindex="102" maxlength="10">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="StandardName" ng-model="documentationMasterNew.StandardName" class="form-control" required tabindex="104" maxlength="50">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Document Type<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                @*<div class="select-style">
+                                        <select name="Document Type" class="form-control" ng-model="documentationMasterNew.DocumentType" ng-options="item.Value as item.Text for item in documentTypeList" required tabindex="106">
+                                            <option value="">--Select--</option>
+                                        </select>
+                                    </div>*@
+                                <input type="text" name="DocumentType" ng-model="documentationMasterNew.DocumentType" class="form-control" required tabindex="106" maxlength="50">
+
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Document Format<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select name="Document Format" class="form-control" ng-model="documentationMasterNew.DocumentFormat" ng-options="item.Value as item.Text for item in DocumentFormatList" required tabindex="108">
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Active</label>
+                            <div class="col-sm-8">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="documentationMasterNew.Active">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveDM();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{DMAction}}</button></li>
+                        @*<li> <button ng-click="DeleteDM();" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+                        <li> <button ng-click="RemoveDM();" data-target="#confirmPopUp" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                        <li> <button ng-click="ClearDM();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
+                </div>
+                <div class="row text-right aplos-grid-toggle">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchBy">
+                                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getDMData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getDMData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive aplos-grid-toggle">
+                    <div id="GridDM" ej-grid e-datasource="DMModelList" e-recorddoubleclick="GetDM" e-load="loadGridEdit"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
+                            <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+                            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
+                            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+                            <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                            <div e-column e-field="Source" e-headertext="Source" e-width="5"></div>
+                            <div e-column e-field="DocumentType" e-headertext="Document Type" e-width="5"></div>
+                            <div e-column e-field="DocumentFormat" e-headertext="Document Format" e-width="5"></div>
+                            <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<confirm-modal></confirm-modal>
+<div class="modal fade site-modal in" id="employeePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="employeeParameters.searchBy">
+                                            <option ng-repeat="option in searchEmployeeByList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="employeeParameters.search" ng-enter="getEmployeeData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Employee Code</th>
+                                <th>First Name</th>
+                                <th>Middle Name</th>
+                                <th>Last Name</th>
+                                <th>Employee Name</th>
+                                <th>Date Of Birth</th>
+                                <th>Designation</th>
+                                <th>Entity</th>
+                                <th>Department</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in employeeList|itemsPerPage:employeeParameters.pageSize" total-items="employeeParameters.total_count"
+                                ng-click="selectEmployeePopUp($index, x.SystemId)" ng-class="{selected : x.SystemId == selectedEmployee}" ng-dblclick="closeEmployeePopUp();" pagination-id="metaData.name + 'employeeList'">
+                                <td>{{x.EmployeeCode}}</td>
+                                <td>{{x.FirstName}}</td>
+                                <td>{{x.MiddleName}}</td>
+                                <td>{{x.LastName}}</td>
+                                <td>{{x.EmployeeName}}</td>
+                                <td>{{x.DOB | dateFiltering}}</td>
+                                <td>{{x.Designation}}</td>
+                                <td>{{x.EntityName}}</td>
+                                <td>{{x.Department}}</td>
+                                <td>{{x.EmploymentType}}</td>
+                                <td>{{x.EmployeeStatus}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'employeeList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="getEmployeeData(newPageNumber)">
+                </dir-pagination-controls>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="SelectdDocumentationMasterPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Documentation Master</h4>
+            </div>
+            <div class="modal-body">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button style="margin-left: 5px;" ng-click="GetDocumentationMaster();" class="btn"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i> Add Documentation Master</button></li>
+                    </ul>
+                </div>
+
+                <div id="SelectedGridDocumentationMaster" ej-grid e-datasource="SelectedDocumentationMasterModelList"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                        <div e-column e-field="Sequence" e-headertext="Sequence" e-width="3"></div>
+                        <div e-column e-field="Code" e-headertext="Code" e-width="4"></div>
+                        <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
+                        <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+                        <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                        <div e-column e-field="Source" e-headertext="Source" e-width="5"></div>
+                        <div e-column e-field="DocumentType" e-headertext="Document Type" e-width="5"></div>
+                        <div e-column e-field="DocumentFormat" e-headertext="Document Format" e-width="5"></div>
+                        <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+                        <div e-column e-template="#OptionalOrMandatory" e-headertext="OptionalOrMandatory" e-width="5" style="height: 20px;"></div>
+                    </div>
+                    <script type="text/template" id="OptionalOrMandatory">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="data.OptionalOrMandatory" name="OptionalOrMandatory">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in $parent.OpManList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </script>
+                </div>
+
+
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveTaggedDocmuent();" class="btn">Save</button></li>
+                        <li> <button ng-click="CloseSelectedDMPopUp();" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="DocumentationMasterPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Documentation Master</h4>
+            </div>
+            <div class="modal-body">
+                <div id="GridDocumentationMaster" ej-grid e-datasource="DocumentationMasterModelList" e-templaterefresh="refreshTemplategrid"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="1"></div>
+                        <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                        <div e-column e-field="Sequence" e-headertext="Sequence" e-width="3"></div>
+                        <div e-column e-field="Code" e-headertext="Code" e-width="4"></div>
+                        <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
+                        <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+                        <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                        <div e-column e-field="Source" e-headertext="Source" e-width="5"></div>
+                        <div e-column e-field="DocumentType" e-headertext="Document Type" e-width="5"></div>
+                        <div e-column e-field="DocumentFormat" e-headertext="Document Format" e-width="5"></div>
+                        <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+                    </div>
+                </div>
+                <script type="text/template" id="checkboxTemplate">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                </script>
+                <script type="text/x-jsrender" id="headerTemplate">
+                    <input type="checkbox" id="headchk" />
+                </script>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="CloseDMPopUp();" class="btn">Apply</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="partyPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header"> {{partyType}} List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchByParty">
+                                            <option ng-repeat="option in searchByPartyList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchParty" ng-enter="showPartyPopUpNew()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="showPartyPopUpNew()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+                        <div style="color:black;" id="partyPopUpGrid" ej-grid e-datasource="partyList" e-templaterefresh="refreshTemplatePartygrid"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-headertext="" e-headertemplateid="#headerTemplateParty" e-template="#checkboxTemplateParty" e-textalign="center" e-width="20"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="50" e-filter="false"></div>
+                                <div e-column e-field="UserName" e-headertext="Party" e-width="130"></div>
+                                <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="130"></div>
+                                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                                <div e-column e-field="CountryName" e-headertext="Country" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="StateName" e-headertext="State" e-width="80" textAlign='Right'></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateParty">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckState" />
+                        </script>
+                        <script type="text/x-jsrender" id="headerTemplateParty">
+                            <input type="checkbox" id="headchkParty" />
+                        </script>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closeAndSave();" class="btn"> Apply</button></li>
+                </ul>
+                <i>**Showing top 100 {{partyType}} order by Code</i>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="confirmDetailPopUpBudget" title="Confirmation" message={{message_Detailconfirmation}} data-ng-click-right-button="DeleteDM();"></confirm-archive-generic>

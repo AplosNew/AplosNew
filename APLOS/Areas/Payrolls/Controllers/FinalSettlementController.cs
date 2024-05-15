@@ -2277,7 +2277,13 @@ ORDER BY OL.Sequence";
                         {
                             ReLoadFormulaWithValue(dtData.Rows[i]["FormulaId"].ToString(), ref dtValue, out string _formulaValue);
                             sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("###0");
-
+                            if (dtData.Rows[i]["Formula"].ToString() == "NoticePeriod - ServedNoticePeriod")
+                            {
+                                if (Convert.ToInt32(sFormulaResult.ToString()) < 0)
+                                {
+                                    sFormulaResult = "0";
+                                }
+                            }
                             DataRow dtValueRow = dtValue.NewRow();
 
                             dtValueRow["EmployeeSeperationItemId"] = dtData.Rows[i]["EmployeeSeperationItemId"].ToString().Trim();
@@ -2693,6 +2699,7 @@ ORDER BY OL.Sequence";
                 workbook.Worksheets[0].Name = "Data";
                 sheet = workbook.Worksheets[0];
                 DataTable dtOrder = null;
+
                 string sql = @"SELECT EI.EmpSystemId,EM.EmployeeCode,EM.EmployeeName,FORMAT(EM.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EM.DOS,'dd-MMM-yyyy')DOS,FORMAT(R.ResignationDate,'dd-MMM-yyyy')ResignationDate,ESI.SandardName ItemName,EI.Value,ESI.EntryState 
 ,EM.FatherName,DP.UserName Department,S.UserName Section,LD.UserName Designation,EI.AddedBy,AEM.EmployeeName ApproveBy,EM.PaymentMode,ApproveStatus=CASE WHEN  M.IsApproved=1 THEN 'Approved' ELSE 'Pending' END, M.IsApproved,EB.BankAccNo,B.UserName Bank,EB.IFSCCode
 FROM dbo.EmployeeFullAndFinalSettlementItem  EI
@@ -2716,21 +2723,23 @@ Order By ESI.Sequence";
                 {
                     throw new Exception("No Data Found.");
                 }
+                ReportUtility reportUtility = new ReportUtility();
+
                 int ROW = 6; int COL = 1;
-                sheet.Range[ROW, COL].Text = "Employee Code :"+ dtOrder.Rows[0]["EmployeeCode"].ToString() + "";
+                sheet.Range[ROW, COL].Text = "Employee Code :" + dtOrder.Rows[0]["EmployeeCode"].ToString() + "";
                 sheet[ROW, COL].ColumnWidth = 30;
-                sheet.Range[ROW, 2].Text = "Employee Name :"+ dtOrder.Rows[0]["EmployeeName"].ToString() + "";
+                sheet.Range[ROW, 2].Text = "Employee Name :" + dtOrder.Rows[0]["EmployeeName"].ToString() + "";
                 sheet[ROW, 2].ColumnWidth = 35;
-                sheet.Range[ROW, 3].Text = "Father Name :"+ dtOrder.Rows[0]["FatherName"].ToString() + "";
+                sheet.Range[ROW, 3].Text = "Father Name :" + dtOrder.Rows[0]["FatherName"].ToString() + "";
                 sheet[ROW, 3].ColumnWidth = 35;
                 ROW++; COL = 1;
-                sheet.Range[ROW, COL].Text = "Department :"+ dtOrder.Rows[0]["Department"].ToString() + "";
-                sheet.Range[ROW, 2].Text = "Section :"+ dtOrder.Rows[0]["Section"].ToString() + "";
-                sheet.Range[ROW, 3].Text = "Designation :"+ dtOrder.Rows[0]["Designation"].ToString() + "";
+                sheet.Range[ROW, COL].Text = "Department :" + dtOrder.Rows[0]["Department"].ToString() + "";
+                sheet.Range[ROW, 2].Text = "Section :" + dtOrder.Rows[0]["Section"].ToString() + "";
+                sheet.Range[ROW, 3].Text = "Designation :" + dtOrder.Rows[0]["Designation"].ToString() + "";
                 ROW++; COL = 1;
                 sheet.Range[ROW, COL].Text = "Joining Date :" + dtOrder.Rows[0]["DOJ"].ToString() + "";
-                sheet.Range[ROW, 2].Text = "Resign Date :"+ dtOrder.Rows[0]["ResignationDate"].ToString() + "";
-                sheet.Range[ROW, 3].Text = "Separation Date :"+ dtOrder.Rows[0]["DOS"].ToString() + "";
+                sheet.Range[ROW, 2].Text = "Resign Date :" + dtOrder.Rows[0]["ResignationDate"].ToString() + "";
+                sheet.Range[ROW, 3].Text = "Separation Date :" + dtOrder.Rows[0]["DOS"].ToString() + "";
                 ROW++; COL = 1;
                 sheet.Range[ROW, COL].Text = "Payment Mode :" + dtOrder.Rows[0]["PaymentMode"].ToString() + "";
                 sheet.Range[ROW, 2].Text = "Approve Status :" + dtOrder.Rows[0]["ApproveStatus"].ToString() + "";
@@ -2741,7 +2750,7 @@ Order By ESI.Sequence";
                 sheet.Range[ROW, 3].Text = "IFSC Code :" + dtOrder.Rows[0]["IFSCCode"].ToString() + "";
                 int HROW = ROW;
                 sheet.Range[6, 1, HROW, 3].BorderAround(ExcelLineStyle.Hair);
-                
+
 
                 ROW++;
                 ROW++;
@@ -2766,8 +2775,13 @@ Order By ESI.Sequence";
                 int startRow = ROW;
                 int cnt = 0;
                 #region DataPlot
+                double NetPayable = 0;
                 for (int i = 0; i < dtOrder.Rows.Count; i++)
                 {
+                    if (dtOrder.Rows[i]["ItemName"].ToString() == "Net Payable")
+                    {
+                        NetPayable = Convert.ToDouble(dtOrder.Rows[i]["Value"].ToString());
+                    }
                     cnt++;
                     sheet[ROW, colSL].Number = Library.Service.Extension.clsStaticInfo.dbl(cnt.ToString());
                     sheet[ROW, colIN].Text = dtOrder.Rows[i]["ItemName"].ToString();
@@ -2784,19 +2798,13 @@ Order By ESI.Sequence";
                 edCRow++;
                 edCRow++;
                 edCRow++;
-                edCRow++;
-                edCRow++;
-                edCRow++;
-                edCRow++;
-                edCRow++;
-                edCRow++;
-                edCRow++;
+
 
                 sheet.Range[edCRow - 1, 1].Text = dtOrder.Rows[0]["AddedBy"].ToString();
                 sheet.Range[edCRow, 1].Text = "Created By";
-                if (Convert.ToBoolean(dtOrder.Rows[0]["IsApproved"].ToString())==true)
+                if (Convert.ToBoolean(dtOrder.Rows[0]["IsApproved"].ToString()) == true)
                 {
-                    sheet.Range[edCRow - 1, 2].Text = dtOrder.Rows[0]["ApproveBy"].ToString(); 
+                    sheet.Range[edCRow - 1, 2].Text = dtOrder.Rows[0]["ApproveBy"].ToString();
                 }
                 else
                 {
@@ -2806,6 +2814,31 @@ Order By ESI.Sequence";
                 sheet.Range[edCRow - 1, 3].Text = "";
                 sheet.Range[edCRow, 3].Text = "Authorized By";
 
+                edCRow++;
+                edCRow++;
+
+
+                sheet.Range[edCRow, 2].Text = "FinalClearance – Cum – Acceptance Receipt";
+                sheet.Range[edCRow, 2].CellStyle.Font.Bold = true;
+                sheet.Range[edCRow, 2].CellStyle.Font.Size = 10f;
+                sheet.Range[edCRow, 2].CellStyle.Font.Underline = (ExcelUnderline)7;
+                edCRow++;
+                edCRow++;
+                string inWord = reportUtility.InWord(NetPayable, null);
+                ROW = edCRow; COL = 1;
+                sheet.Range[ROW, COL, ROW, COL + 2].Text = "I have received a sum of Rs. " + NetPayable + ", Rupees. " + inWord + " towards full and final settlement of all my dues from Cedaar Textile Pvt Ltd. and have no other";
+                sheet.Range[ROW, COL, ROW, COL + 2].Merge();
+                ROW++;
+
+                sheet.Range[ROW, COL, ROW, COL + 2].Text = "claim, whatsoever, against the company.";
+                sheet.Range[ROW, COL, ROW, COL + 2].Merge();
+                ROW++;
+                ROW++;
+                ROW++;
+
+
+                sheet.Range[ROW, 1].Text = "Date: _________________  ";
+                sheet.Range[ROW, 3].Text = "Signature of the Employee";
                 #region ReportHeader
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
@@ -2813,8 +2846,8 @@ Order By ESI.Sequence";
                 sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                 sheet["A" + startRow.ToString()].FreezePanes();
 
-                ReportUtility reportUtility = new ReportUtility();
-                reportUtility.CompanyHeader(ref sheet, 2, "Employee Full & Final Report", identity.CompanyId);
+
+                reportUtility.CompanyHeader(ref sheet, 3, "Employee Full & Final Report", identity.CompanyId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;

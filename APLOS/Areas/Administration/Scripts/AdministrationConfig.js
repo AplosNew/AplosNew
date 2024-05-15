@@ -49,4 +49,8 @@ function AdministrationConfig($routeProvider, $locationProvider) {
             templateUrl: 'Administration/AssetManagement/Aplos',
             controller: 'AssetManagementController'
         })
+        .when('/Emp-assettransaction', {
+            templateUrl: 'Administration/EmpDocAssetTransection/Aplos',
+            controller: 'EmpDocAssetTransectionController'
+        })
 };
