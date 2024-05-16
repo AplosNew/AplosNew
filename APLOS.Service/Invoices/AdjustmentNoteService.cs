@@ -1772,6 +1772,11 @@ namespace Library.Service.Invoices
                 
                 foreach (var item in voucherDetail)
                 {
+                  var invoiceDetailCharges = _invoiceDetailChargesRepository.Query(r=>r.VoucherDetailId==item.Id).Select().FirstOrDefault();
+                    if (invoiceDetailCharges!=null)
+                    {
+                        _invoiceDetailChargesRepository.Delete(invoiceDetailCharges.Id);
+                    }
                     _voucherDetailRepository.Delete(item.Id);
                 }
                 if (invoiceTax != null)

@@ -1093,7 +1093,8 @@ namespace Library.OrderManagement.Production
             {
                 wcpr = @"PS.UserName = 'Running'";
             }
-            string CmdText = @"SELECT distinct PO.Id POId,PS.UserName ProductionStatus,PO.IsWorkCenterValidateApplicable, PO.RequiredTimeUnit, PD.Product, PD.ProductCategory,PD.Buyer,PD.Customer 
+            string CmdText = @"SELECT distinct PO.Id POId,PS.UserName ProductionStatus,PO.IsWorkCenterValidateApplicable, PO.RequiredTimeUnit--, PD.Product, PD.ProductCategory
+,PD.Buyer,PD.Customer 
                                    ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId,E.UserName Entity
 								  								   ,PlannedQty=CASE WHEN PQ.Qty=0 THEN PO.PlannedQty ELSE PO.PlannedQty END
                             --,((CASE WHEN PQ.Qty=0 THEN PO.PlannedQty ELSE PO.PlannedQty END)-ISNULL(CEILING(PRS.TotalProductionQty),0)) RemainingQty
@@ -1117,15 +1118,37 @@ namespace Library.OrderManagement.Production
 						                                         --LEFT JOIN MST.MaterialMaster mm on mm.id=MOI.MaterialMasterId
 																 --LEFT JOIN MST.MaterialMasterArticle AS mma on mma.MaterialMasterId=MM.Id
                                                                  LEFT JOIN MST.MaterialMasterArticle AS mma on mma.Id=MOI.ArticleId
-                                                                 WHERE po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                                                                 WHERE po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+,Product=  REPLACE(REPLACE(
+										            STUFF((select distinct ','+PM.UserName from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    LEFT JOIN MST.MaterialMaster mm on mm.id=XMOI.MaterialMasterId
+								   LEFT JOIN TRN.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+								   LEFT JOIN [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+			                                                where po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										                            ,'&amp;','&'), 'amp;', '')	
+								 ,ProductCategory=  REPLACE(REPLACE(
+										            STUFF((select distinct ','+PC.UserName from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    LEFT JOIN MST.MaterialMaster mm on mm.id=XMOI.MaterialMasterId
+								   LEFT JOIN TRN.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+								   LEFT JOIN [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+								   LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
+			                                                where po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										                            ,'&amp;','&'), 'amp;', '')	,
                                    --PRS.LotNumber
                                    (Case when PO.IsPreDefineLotApplicable = 1 then PLC.UserLotNo else PRS.LotNumber end)  LotNumber,
                                    PO.IsPreDefineLotApplicable,(Case when PO.IsPreDefineLotApplicable = 1 then 'Yes' else 'No' end) LotPrefefined,
                                    isnull(CEILING(PLC.ProcessPlanQty),0) LotProcessPlanQty,PPS.IsProductionVerification ProductionVerification
                                    --,PRS.ResponsiblePerson
 								   FROM TRN.ProductionOrder PO 
-                                   LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '" + processId + @"'
-                                   LEFT JOIN ProductionOrderLotControl PLC ON PLC.ProductionOrderID = PO.Id AND PLC.ProcessId = '" + processId + @"'
+                                   LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '202036'
+                                   LEFT JOIN ProductionOrderLotControl PLC ON PLC.ProductionOrderID = PO.Id AND PLC.ProcessId = '202036'
 								   LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id=PO.ProductionStatusId
 								   LEFT JOIN ORG.Entity E ON E.Id=PO.EntityId
 								  LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID=PO.Id
@@ -1133,11 +1156,11 @@ namespace Library.OrderManagement.Production
 								  (    SELECT SUM(PS.Quantity) TotalProductionQty,PS.ProductionOrderId
                                       ,PS.LotNumber
                                        --,(select EmployeeName from EmployeeInformation where SystemId=PS.ResponsiblePersonId) as ResponsiblePerson
-                                       FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"' GROUP BY PS.ProductionOrderId,PS.LotNumber
+                                       FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '202036' GROUP BY PS.ProductionOrderId,PS.LotNumber
                                        --,PS.ResponsiblePersonId
                                   ) AS PRS ON PRS.ProductionOrderId = PO.Id
 								   LEFT JOIN 
-								   (select distinct POD.ProductionOrderId,PM.UserName AS Product,pc.UserName AS ProductCategory--,SO.Qty
+								   (select distinct POD.ProductionOrderId--,PM.UserName AS Product,pc.UserName AS ProductCategory--,SO.Qty
 								   
 								   ,Buyer=  REPLACE(REPLACE(
 										            STUFF((select distinct ','+XB.UserName from 
@@ -1197,17 +1220,13 @@ namespace Library.OrderManagement.Production
                             , Description=REPLACE(REPLACE(
 										 STUFF((select distinct ','+XSO.Description from 
                                                                  trn.SalesOrder XSO 
-                                                                 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-						                                        
+                                                                 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id						                                        
                                                                  WHERE pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 										,'&amp;','&'), 'amp;', '')	
 								   FROM TRN.SalesOrder SO
 							       LEFT JOIN  TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
 								   LEFT JOIN TRN.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
                                    LEFT JOIN MST.MaterialMaster mm on mm.id=MOI.MaterialMasterId
-								   LEFT JOIN TRN.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
-								   LEFT JOIN [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
-                                   LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
 								   ) PD ON PD.ProductionOrderId=PO.Id
 								    WHERE " + wcpr + " Order by PD.Description,PD.BuyerOrder";
 

@@ -740,13 +740,13 @@ namespace Library.HumanResource.NewOTProcess
             try
             {
                 var str = @"SELECT '' Id,0 CheckBoxSelect, EI.SystemId EmployeeSystemId
-                         ,EI.EmployeeCode Code
+                         ,EI.EmployeeCode
 						 ,FORMAT(apd.WorkDate,'dd-MMM-yyyy') as APDEmpWorkDate
                          ,EI.EmployeeName
                          , FORMAT(EI.DOJ,'dd-MMM-yyyy') DOJ
                          , DG.UserName LegalDesignation
                          ,E.UserName Entity,S.UserName Section, DP.UserName Department,PR.UserName PositionName
-						 ,SD.ShiftDefinationName,PMB.Code BudgetCode
+						 ,SD.ShiftDefinationName Shift,PMB.Code BudgetCode
                          ,EI.EmployeeStatus,APD.OverStay,APD.DayStatus
 						 ,CONVERT(varchar(15),CAST(APD.Intime AS TIME),100) InTime
 						 ,CONVERT(varchar(15),CAST(APD.OutTime AS TIME),100) OutTime
@@ -771,7 +771,7 @@ namespace Library.HumanResource.NewOTProcess
 				when APD.DayTypeOTApplicable='3' then (select distinct ot.AllotedOT 
 				from OTPerMinutePolicy ot
                 where ot.PlantId=APD.PlantID and ot.OverstayOrEarlyOut=APD.OverStay-APD.EarlyIn) 
-				end
+				end,cast(DATEDIFF(MINUTE, cast(SD.OutTime as time ), cast(APD.OutTime as time ))as float) ShiftOT
                          FROM dbo.Employeeinformation EI
                          LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id							 
                          LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
@@ -787,6 +787,7 @@ namespace Library.HumanResource.NewOTProcess
 						 LEFT JOIN dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate='" + workDate + @"'
                          LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=APD.ShiftSystemID
                          WHERE EI.PlantId='" + plantId+ @"' AND ISNULL(APD.OverStay,0)<>0 AND EI.ExcludeOT=0 AND EI.SystemId NOT IN (Select EmployeeId from dbo.ExceptionGoodWorkEmployee)
+                         AND EI.EmployeeStatus='Active' AND EI.EmployeeCurrentStatus IS NULL
 						 and APD.IsOTEntitled=1 and APD.DayTypeOTApplicable != 0 and APD.Duration>0";
                 return _sqlRepository.GetDataCollection(str);
 

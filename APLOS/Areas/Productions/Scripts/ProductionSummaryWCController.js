@@ -109,7 +109,6 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     }
     // Add Tiles
     $scope.AddTile = function (e) {
-        console.log(e);
         let ob = {};
         Object.assign(ob, e);
         ob.Flag = 0;
@@ -348,7 +347,6 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.IsFirst = false;
     $scope.IsParameterBased = false;
     $scope.ToCloseAllowed = false;
-    $scope.IsBaseProcess = false;
     $scope.getProdLevel = function () {
         try {
             $scope.PQEnable = false;
@@ -385,9 +383,6 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 return item.Value === $scope.productionSummaryNew.ProcessId;
             })[0].IsParameterBased;
 
-            $scope.IsBaseProcess = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.productionSummaryNew.ProcessId;
-            })[0].IsBaseProcess;
 
             $scope.ToCloseAllowed = $.grep($scope.processList, function (item) {
                 return item.Value === $scope.productionSummaryNew.ProcessId;
@@ -562,7 +557,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                             $scope.NewObject.POProcessSequence = $scope.TotalPOProcessSequence;
                         }
                         if ($scope.NewObject.IsWorkCenterValidateApplicable == true) {
-                            if ($scope.IsBaseProcess == true) {
+                            if ($scope.NewObject.IsBaseProcess == true) {
                                 if (baseService.arrayLength(response.data.rwc) > 0) {
                                     var getRow = $filter("filter")(response.data.rwc, { "WorkCenterMasterId": $scope.NewObject.WorkCenterMasterId });
                                     if (getRow.length === 0) {
@@ -987,6 +982,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         $scope.NewObject.IsPreDefineLotApplicable = $event.data.IsPreDefineLotApplicable;
         $scope.NewObject.LotProcessPlanQty = $event.data.LotProcessPlanQty;
         $scope.NewObject.ProductionVerification = $event.data.ProductionVerification;
+        $scope.NewObject.IsWorkCenterValidateApplicable = $event.data.IsWorkCenterValidateApplicable;
         $scope.GetTotalProductionBookingQty();
         var gridObj = $("#ProductionSummaryWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
@@ -1652,7 +1648,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             }
 
             if ($scope.productionSummaryNew.IsWorkCenterValidateApplicable == true) {
-                if ($scope.IsBaseProcess == true) {
+                if ($scope.productionSummaryNew.IsBaseProcess == true) {
                     $http.get('Productions/Productionsummary/GetPOWCCheck?productionOrderId=' + $scope.productionSummaryNew.ProductionOrderId)
                         .then(function (response) {
                             if (baseService.arrayLength(response.data) > 0) {

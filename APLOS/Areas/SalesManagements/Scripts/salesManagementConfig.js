@@ -62,5 +62,9 @@ function salesManagementConfig($routeProvider) {
             templateUrl: "SalesManagements/SalesChalan/DispatchConfirmation",
             controller: "SalesChanlanDispatchConfirmationController"
         })
+        .when("/input-credit", {
+            templateUrl: "SalesManagements/Sales/InputCredit",
+            controller: "InputCreditController"
+        })
         ;
 }

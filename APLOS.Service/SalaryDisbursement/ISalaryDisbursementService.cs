@@ -34,5 +34,6 @@ namespace Library.Service.SalaryDisbursement
         void DeleteFinalSettlementDisbursementVoucher(string plantId, string voucherId);
         void DeleteBonusDisbursementVoucher(string plantId, string voucherId);
         void PostSalarydisbursement(string voucherId);
+        void PostFinalSettlementdisbursement(string voucherId);
     }
 }

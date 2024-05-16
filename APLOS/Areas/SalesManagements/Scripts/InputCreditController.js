@@ -20,7 +20,7 @@ function InputCreditController(cboService, commonMessage, $scope, $rootScope, ba
             url: $scope.path + "getinputcreditlist",
             data: { column: $scope.searchBy, value: $scope.search },
             dataType: 'JSON'
-        }).then(function successCallback(response) {          
+        }).then(function successCallback(response) {
             $scope.ModelList = response.data;
             ClearFields(response.data.Sequence);
             $scope.GetSequence();
@@ -35,19 +35,95 @@ function InputCreditController(cboService, commonMessage, $scope, $rootScope, ba
         ShortName: null,
         StandardName: null,
         UserName: null,
+        UserRef: null,
+        MonthNo: null,
+        FromDate: null,
+        ToDate: null,
+        ResponsiblePersonId: null,
+        CheckById: null,
+        CheckByStatus: null,
+        ApproveById: null,
+        ApproveByStatus: null,
         Description: null,
         Remarks: null,
-        Active: true
+        Active: null,
+        AddedBy: null,
+        AddedDate: null,
+        AddedFromIP: null,
+        UpdatedBy: null,
+        UpdatedDate: null,
+        UpdatedFromIP: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {
-            $scope.ModelTemp.Sequence = data;
             $scope.ModelNew.Sequence = data;
         });
     };
     $scope.GetSequence();
+
+    $scope.checkedByList = [];
+    $scope.GetcheckByCboList = function () {
+        $http({
+            method: 'GET',
+            url: 'SalesManagements/Sales/GetCheckByCbo'
+        }).then(function successCallback(response) {
+            $scope.checkedByList = response.data;
+            if (baseService.arrayLength($scope.checkedByList) == 1) {
+                $scope.ModelNew.CheckById = $scope.checkedByList[0].Value;
+            }
+        });
+    }
+    $scope.GetcheckByCboList();
+
+    $scope.monthList = [
+        { Value: 1, Text: 'Jan' },
+        { Value: 2, Text: 'Feb' },
+        { Value: 3, Text: 'Mar' },
+        { Value: 4, Text: 'Apr' },
+        { Value: 5, Text: 'May' },
+        { Value: 6, Text: 'Jun' },
+        { Value: 7, Text: 'Jul' },
+        { Value: 8, Text: 'Aug' },
+        { Value: 9, Text: 'Sep' },
+        { Value: 10, Text: 'Oct' },
+        { Value: 11, Text: 'Nov' },
+        { Value: 12, Text: 'Dec' }
+    ];
+
+    $scope.popUpDataList = [];
+    $scope.showResponsiblePersonListPopUp = function () {
+        try {
+            $scope.Name = name;
+            $scope.popUpDataList = [];
+            $http({
+                method: 'GET',
+                url: 'employees/leaveApplication/getemployeelist'
+            }).then(function successCallback(response) {
+                $scope.popUpDataList = response.data;
+            });
+            angular.element(document.querySelector('#popUp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.SelectEmployee = function (arg) {
+        var data = arg.data;
+
+        $scope.ModelNew.ResponsiblePersonId = data.SystemID;
+        $scope.ModelNew.ResponsiblePerson = data.EmployeeName;
+
+        $scope.closePopUp();
+    }
+
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#popUp')).modal('hide');
+    }
+
+
+
 
     $scope.Get = function (args) {
 

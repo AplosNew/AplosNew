@@ -42,6 +42,32 @@ function otApproveController(commonMessage, $scope, $rootScope, baseService, $ro
         }
     };
 
+    $scope.refreshTemplateemployee4 = function (args) {
+        $("#headchk4").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+    };
+
+    function CheckBoxSelectAllEmolyeeWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridEmployeeInfoList").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.otApproveList.length; i++) {
+                $scope.otApproveList[i].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridEmployeeInfoList").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
     $scope.DownloadOTData = function () {
         try {
@@ -75,18 +101,70 @@ function otApproveController(commonMessage, $scope, $rootScope, baseService, $ro
         }
     }
 
+    $scope.picdata = null;
+    $scope.ShowSaveBtn = false;
+    $("#uploadImage").change(function () {
+        $scope.picdata = this.files[0];
+    });
 
+    $scope.ModelNew = { FileName: null };
+    $scope.ImportData = function () {
+        try {
+            $scope.otApproveList = [];
+            $scope.msg = "";
+
+            var picData = new FormData();
+            if (!baseService.isUndefinedOrNull($scope.picdata)) {
+                $scope.ModelNew.FileName = $scope.picdata.name;
+            } else {
+                throw "Please select File.";
+            }
+
+
+            $http({
+                method: 'POST',
+                url: 'HumanResource/OTConfirmationProcess/ImportOTData',
+                headers: { 'Content-Type': undefined },
+                transformRequest: function (data) {
+                    picData.append("modelNew", angular.toJson(data.modelNew));
+                    if (baseService.isUndefinedOrNull($scope.picdata) === false) {
+                        picData.append('file', data.file);
+                    }
+                    return picData;
+                },
+                data: { 'modelNew': $scope.ModelNew, 'file': $scope.picdata }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    $scope.otApproveList = response.data;
+                    for (var i = 0; i < $scope.otApproveList.length; i++) {
+                        $scope.otApproveList[i].CheckBoxSelect = true;
+                    }
+                   
+                }
+            }, function errorCallback(response) {
+
+            });
+            return true;
+
+
+        } catch (e) {
+
+            ShowResult(e, "failure");
+        }
+    };
 
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
 
             try {
-                if ($scope.otApproveList.length == 0) {
-                    throw 'Enter atleast one Employee OT';
-                }
+                
 
                 var dataList = [];
+                var tosavedataList = [];
                 var g = $("#GridEmployeeInfoList").data("ejGrid");
                 dataList = g.getFilteredRecords();
 
@@ -97,14 +175,19 @@ function otApproveController(commonMessage, $scope, $rootScope, baseService, $ro
 
                 for (var i = 0; i < dataList.length; i++) {
                     if (dataList[i].OTHr > dataList[i].CalculatedOT) {
-                        throw "Extra OT will not exceed OverStay for this Employee " + dataList[i].Code+".";
+                        throw "Extra OT will not exceed OverStay for this Employee " + dataList[i].EmployeeCode+".";
+                    }
+                    if (dataList[i].CheckBoxSelect == true) {
+                        tosavedataList.push(dataList[i]);
                     }
                 }
-
+                if (tosavedataList.length == 0) {
+                    throw 'Select Employee.';
+                }
 
                 $http({
                     method: 'POST',
-                    data: { data: $scope.OTManual, SaveMultipleEmpOTExcel: dataList },
+                    data: { data: $scope.OTManual, SaveMultipleEmpOTExcel: tosavedataList },
                     url: 'HumanResource/OTConfirmationProcess/SaveOTData'
 
                 }).then(function successCallback(response) {
