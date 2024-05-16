@@ -35,9 +35,24 @@ function InputCreditController(cboService, commonMessage, $scope, $rootScope, ba
         ShortName: null,
         StandardName: null,
         UserName: null,
+        UserRef: null,
+        MonthNo: null,
+        FromDate: null,
+        ToDate: null,
+        ResponsiblePersonId: null,
+        CheckById: null,
+        CheckByStatus: null,
+        ApproveById: null,
+        ApproveByStatus: null,
         Description: null,
         Remarks: null,
-        Active: true
+        Active: null,
+        AddedBy: null,
+        AddedDate: null,
+        AddedFromIP: null,
+        UpdatedBy: null,
+        UpdatedDate: null,
+        UpdatedFromIP: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -48,15 +63,15 @@ function InputCreditController(cboService, commonMessage, $scope, $rootScope, ba
     };
     $scope.GetSequence();
 
-    $scope.checkdByList = [];
+    $scope.checkedByList = [];
     $scope.GetcheckByCboList = function () {
         $http({
             method: 'GET',
-            url: 'Payrolls/FinalSettlement/GetApprovedByCbo'
+            url: 'SalesManagements/Sales/GetCheckByCbo'
         }).then(function successCallback(response) {
-            $scope.approvedByList = response.data;
-            if (baseService.arrayLength($scope.approvedByList) == 1) {
-                $scope.FinalSettlementModel.ApproveById = $scope.approvedByList[0].Value;
+            $scope.checkedByList = response.data;
+            if (baseService.arrayLength($scope.checkedByList) == 1) {
+                $scope.ModelNew.CheckById = $scope.checkedByList[0].Value;
             }
         });
     }

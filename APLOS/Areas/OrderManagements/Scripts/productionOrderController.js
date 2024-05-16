@@ -707,6 +707,9 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                     ShowResult(response.data.Message, 'failure');
                 };
             }
+            else {
+                $scope.btndisable = false;
+            }
         } catch (e) {
             $scope.btndisable = false;
             ShowResult(e, 'failure');

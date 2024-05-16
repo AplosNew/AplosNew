@@ -1792,10 +1792,13 @@ Where ISNULL(M.IsApproved,0)=0 AND M.ApproveById='" + identity.EmployeeId + "'";
         public ActionResult GetFNFApprovedMasterData()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT M.Id,M.FinalSettlementName,FORMAT(M.FinalSettlementDate,'dd-MMM-yyyy')FinalSettlementDate,M.ApproveById,E.EmployeeName ApproveBy,ApproveStatus= CASE WHEN M.IsApproved=1 THEN 'Yes' ELSE 'No' END,M.IsApproved
-FROM dbo.EmployeeFullAndFinalSettlementMaster M
-LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ApproveById
-Where ISNULL(M.IsApproved,0)=1";
+            string sql = @"SELECT * FROM 
+                            (SELECT M.Id,M.FinalSettlementName,FORMAT(M.FinalSettlementDate,'dd-MMM-yyyy')FinalSettlementDate,M.ApproveById,E.EmployeeName ApproveBy,ApproveStatus= CASE WHEN M.IsApproved=1 THEN 'Yes' ELSE 'No' END,M.IsApproved
+                            ,(SELECT COUNT(Id)CountEmployee FROM EmployeeFullAndFinalSettlement WHERE VoucherId IS NULL AND FinalSettlementId=M.Id)CountEmployee
+                            FROM dbo.EmployeeFullAndFinalSettlementMaster M
+                            LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ApproveById
+                            Where ISNULL(M.IsApproved,0)=1)T 
+                            WHERE T.CountEmployee>0 ";
             var data = _sqlRepository.GetDataCollection(sql);
 
             return Json(data, JsonRequestBehavior.AllowGet);
@@ -2515,7 +2518,7 @@ ORDER BY OL.Sequence";
         }
 
         [Authorize, HttpPost]
-        public JsonResult GetFinalSettlementDisbursementJVDataList(string disbursementAdviceId, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail)
+        public JsonResult GetFinalSettlementDisbursementJVDataList(string disbursementAdviceId, VoucherViewModel voucherVM, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string goodWorkPaymentAdviseDetailIds = "";
@@ -2537,7 +2540,7 @@ ORDER BY OL.Sequence";
 
 
             string sql = null;
-            sql = @"SELECT X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAmount) CrAmount,SUM(X.Amount) Amount,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
+            sql = @"SELECT x.OtherName,X.TrnType,X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAmount) CrAmount,SUM(X.Amount) Amount,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
                 FROM
                 ( SELECT  'NetPay' AS OtherName, 'Dr' AS TrnType
                 , CAST(EI.Value AS decimal(18,2)) DrAmount 
@@ -2572,12 +2575,86 @@ ORDER BY OL.Sequence";
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON BMA.ActivityId= A.Id
 				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND EI.FinalSettlementId='" + disbursementAdviceId + @"' AND E.Id in (" + goodWorkPaymentAdviseDetailIds + @")
-                        
+                
+                Union All
+				SELECT  'ExpensesPayable' AS OtherName, 'Dr' AS TrnType
+                , CAST(EI.Value AS decimal(18,2)) DrAmount 
+                , 0 CrAmount 
+                , CAST(EI.Value AS decimal(18,2)) Amount
+                ,BM.GLGeneralInfoId ,EP.BudgetMasterId,EP.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
+                , B.UserName BudgetName,A.UserName ActivityName 
+				FROM EmployeeFullAndFinalSettlement  E
+				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='ExpensesPayable'
+				LEFT JOIN (SELECT EP.EmployeeId,EPD.GLGeneralInfoId, EPD.BudgetMasterId,EPD.ActivityId FROM trn.EmployeePayable AS EP 
+									LEFT JOIN trn.EmployeePayableDetail AS EPD ON EPD.EmployeePayableId=EP.Id
+									WHERE EP.EmployeeId<>'' and EPD.IsWrittenOff=0 AND EP.SourceType in ('EmployeePayable')
+									GROUP BY EP.EmployeeId,EPD.GLGeneralInfoId, EPD.BudgetMasterId,EPD.ActivityId) AS EP ON EP.EmployeeId=E.EmpSystemId
+				LEFT JOIN[MST].[BudgetMaster] AS BM ON EP.BudgetMasterId= BM.Id
+				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
+				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+				LEFT JOIN [HKP].[Activity] AS A ON EP.ActivityId= A.Id
+				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND EI.FinalSettlementId='" + disbursementAdviceId + @"' AND E.Id in (" + goodWorkPaymentAdviseDetailIds + @")
+
+				Union All
+				SELECT  'AdvanceLoan' AS OtherName, 'Cr' AS TrnType
+                , 0 DrAmount 
+                , CAST(EP.Amount AS decimal(18,2)) CrAmount 
+                , CAST(EP.Amount AS decimal(18,2)) Amount
+                ,BM.GLGeneralInfoId ,EP.BudgetMasterId,EP.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
+                , B.UserName BudgetName,A.UserName ActivityName 
+				FROM EmployeeFullAndFinalSettlement  E
+				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='AdvanceLoan'
+				LEFT JOIN (SELECT EP.EmployeeId,EPD.GLGeneralInfoId, EPD.BudgetMasterId,EPD.ActivityId,(SUM(EP.Amount)-SUM(EP.WrittenOffAmount))Amount FROM trn.Advance AS EP 
+									LEFT JOIN trn.AdvanceDetail AS EPD ON EPD.AdvanceId=EP.Id
+									WHERE EP.EmployeeId<>'' and EPD.IsWrittenOff=0 AND EP.SourceType in ('EmployeeAdvance') and EP.JournalType='General'
+									GROUP BY EP.EmployeeId,EPD.GLGeneralInfoId, EPD.BudgetMasterId,EPD.ActivityId) AS EP ON EP.EmployeeId=E.EmpSystemId
+				LEFT JOIN[MST].[BudgetMaster] AS BM ON EP.BudgetMasterId= BM.Id
+				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
+				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+				LEFT JOIN [HKP].[Activity] AS A ON EP.ActivityId= A.Id
+				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND EI.FinalSettlementId='" + disbursementAdviceId + @"' AND E.Id in (" + goodWorkPaymentAdviseDetailIds + @")
+
+				Union All
+				SELECT  'AdvanceSalary' AS OtherName, 'Cr' AS TrnType
+                , 0 DrAmount 
+                , CAST(EI.Value AS decimal(18,2)) CrAmount 
+                , CAST(EI.Value AS decimal(18,2)) Amount
+                ,BM.GLGeneralInfoId ,EP.BudgetMasterId,EP.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
+                , B.UserName BudgetName,A.UserName ActivityName 
+				FROM EmployeeFullAndFinalSettlement  E
+				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='AdvanceSalary'
+				LEFT JOIN (SELECT EP.EmployeeId,EPD.GLGeneralInfoId, EPD.BudgetMasterId,EPD.ActivityId FROM trn.EmployeeSubsequentTransaction AS EP 
+									LEFT JOIN trn.VoucherDetail AS EPD ON EPD.Id=EP.VoucherDetailId
+									WHERE EP.EmployeeId<>''  AND EP.SourceType  in ('EmployeeAdvance', 'InterTransaction') and EP.JournalType='Salary'
+									GROUP BY EP.EmployeeId,EPD.GLGeneralInfoId, EPD.BudgetMasterId,EPD.ActivityId) AS EP ON EP.EmployeeId=E.EmpSystemId
+				LEFT JOIN[MST].[BudgetMaster] AS BM ON EP.BudgetMasterId= BM.Id
+				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
+				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+				LEFT JOIN [HKP].[Activity] AS A ON EP.ActivityId= A.Id
+				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND EI.FinalSettlementId='" + disbursementAdviceId + @"' AND E.Id in (" + goodWorkPaymentAdviseDetailIds + @")
+
+                Union All
+				SELECT  'Bank/Cash' AS OtherName, 'Cr' AS TrnType
+                , 0 DrAmount 
+                ,  ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='LeaveEncashment' AND FinalSettlementId='" + disbursementAdviceId + @"'),0)  
+				 + ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='ExpensesPayable' AND FinalSettlementId='" + disbursementAdviceId + @"'),0)
+				 + ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='NetPay' AND FinalSettlementId='" + disbursementAdviceId + @"'),0)
+				 - ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='AdvanceLoan' AND FinalSettlementId='" + disbursementAdviceId + @"'),0)
+				 - ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='AdvanceSalary' AND FinalSettlementId='" + disbursementAdviceId + @"'),0) CrAmount 
+                ,  ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='LeaveEncashment' AND FinalSettlementId='" + disbursementAdviceId + @"'),0)  
+				 + ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='ExpensesPayable' AND FinalSettlementId='" + disbursementAdviceId + @"'),0)
+				 + ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='NetPay' AND FinalSettlementId='" + disbursementAdviceId + @"'),0)
+				 - ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='AdvanceLoan' AND FinalSettlementId='" + disbursementAdviceId + @"'),0)
+				 - ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='AdvanceSalary' AND FinalSettlementId='" + disbursementAdviceId + @"'),0) Amount
+                ,'" + voucherVM.GLGeneralInfoId + @"' GLGeneralInfoId ,'" + voucherVM.BudgetMasterId + @"' BudgetMasterId,'" + voucherVM.ActivityId + @"' ActivityId
+                , '" + voucherVM.GLGeneralInfoName + @"' GLName , '" + voucherVM.BudgetName + @"' BudgetName,'" + voucherVM.ActivityName + @"' ActivityName 
+				FROM EmployeeFullAndFinalSettlementMaster  E
+				WHERE  E.Id='" + disbursementAdviceId + @"'
                 )X
                 GROUP BY
 
-                X.GLName,X.BudgetName,X.ActivityName,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
-                ORDER BY 5";
+                X.OtherName,X.TrnType,X.GLName,X.BudgetName,X.ActivityName,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
+                ORDER BY X.TrnType DESC";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -2619,7 +2696,7 @@ ORDER BY OL.Sequence";
         [HttpPost]
         public JsonResult PostFinalSettlementdisbursement(string voucherId)
         {
-            _salaryDisbursementService.PostSalarydisbursement(voucherId);
+            _salaryDisbursementService.PostFinalSettlementdisbursement(voucherId);
             return Json(new { Message = AplosMessage.Posted });
         }
         [HttpPost]
