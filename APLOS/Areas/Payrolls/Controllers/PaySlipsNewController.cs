@@ -81,8 +81,15 @@ namespace Aplos.Areas.Payrolls.Controllers
                 }
                 else
                 {
-                    workbook.SaveAs(fullPath);
-                    workbook.Close();
+                    if (identity.IsSysAdmin==true)
+                    {
+                        workbook.SaveAs(fullPath);
+                        workbook.Close();
+                    }
+                    else
+                    {
+                        throw new Exception("Contact to Admin.");
+                    }
                 }
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }

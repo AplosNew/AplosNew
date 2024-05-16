@@ -16,8 +16,6 @@ function InputCreditController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
-
-
     };
 
     $scope.isSet = function (tabNum) {
@@ -120,10 +118,8 @@ function InputCreditController(cboService, commonMessage, $scope, $rootScope, ba
 
     $scope.SelectEmployee = function (arg) {
         var data = arg.data;
-
         $scope.ModelNew.ResponsiblePersonId = data.SystemID;
         $scope.ModelNew.ResponsiblePerson = data.EmployeeName;
-
         $scope.closePopUp();
     }
 
@@ -142,7 +138,7 @@ function InputCreditController(cboService, commonMessage, $scope, $rootScope, ba
             }
             $http({
                 method: 'GET',
-                url: 'SalesManagements/Sales/GetSalesMaterialDataList?fromDate=' + $scope.ModelNew.FromDate + '&toDate=' + $scope.ModelNew.ToDate
+                url: 'SalesManagements/Sales/GetSalesMaterialDataList?fromDate=' + $scope.ModelNew.FromDate + '&toDate=' + $scope.ModelNew.ToDate + '&inputCreditId=' + $scope.ModelNew.Id
             }).then(function successCallback(response) {
                 $scope.materialList = response.data;
             });
@@ -177,10 +173,11 @@ function InputCreditController(cboService, commonMessage, $scope, $rootScope, ba
     };
 
     $scope.Get = function (args) {
-
         $scope.ModelNew = Object.assign({}, args.data);
-        $scope.ModelNew.FromDate = $filter('dateFiltering')(new Date($scope.ModelNew.FromDate ), 'dd-MM-yyyy');
-        $scope.ModelNew.ToDate = $filter('dateFiltering')(new Date($scope.ModelNew.ToDate ), 'dd-MM-yyyy');
+        $scope.ModelNew.FromDate = $filter('dateFiltering')(new Date($scope.ModelNew.FromDate), 'dd-MM-yyyy');
+        $scope.ModelNew.ToDate = $filter('dateFiltering')(new Date($scope.ModelNew.ToDate), 'dd-MM-yyyy');
+        $scope.ModelNew.MonthNo = $scope.ModelNew.MonthNo.toString();
+        $scope.GetMaterialList();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -213,6 +210,38 @@ function InputCreditController(cboService, commonMessage, $scope, $rootScope, ba
         }
     };
 
+    $scope.SaveTag = function () {
+        try {
+            $scope.materialSaveList = [];
+            for (var i = 0; i < $scope.materialList.length; i++) {
+                if ($scope.materialList[i].Flag==true) {
+                    $scope.materialSaveList.push($scope.materialList[i]);
+                }
+            }
+
+            $http({
+                method: 'POST',
+                data: {
+                    data: $scope.materialSaveList, inputCreditId:  $scope.ModelNew.Id },
+                url: 'SalesManagements/Sales/SaveTagWithInputCredit'
+
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    $scope.GetMaterialList();
+                }
+            });
+        }
+        catch (e) {
+            ShowResult(e, "failure");
+        }
+
+
+    }
+
     $scope.Delete = function () {
         if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
             $http({
@@ -244,5 +273,6 @@ function InputCreditController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
+        $scope.materialList = [];
     }
 }

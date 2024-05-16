@@ -127,6 +127,11 @@
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }" ng-form="tabForm1" id="empType">
                 <div class="row">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SaveTag();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                        </ul>
+                    </div>
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <div id="GridSM" ej-grid e-datasource="materialList" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-templaterefresh="refreshTemplateemployee4">
@@ -157,6 +162,11 @@
                         <script type="text/x-jsrender" id="headerTemplate4">
                             <input type="checkbox" id="headchk4" />
                         </script>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SaveTag();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                        </ul>
                     </div>
                 </div>
             </div>

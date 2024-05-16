@@ -2336,7 +2336,8 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT * FROM HKP.InputCredit) AS TEMP WHERE " + strkey + " order by sequence";
+            string sql = @"select top 100 * from (	SELECT IC.*,EI.EmployeeName ResponsiblePerson FROM HKP.InputCredit IC
+			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IC.ResponsiblePersonId) AS TEMP WHERE " + strkey + " order by sequence";
 
 
 
@@ -2453,10 +2454,67 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetSalesMaterialDataList(string fromDate,string toDate)
+        public ActionResult GetSalesMaterialDataList(string fromDate,string toDate, string inputCreditId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(clsSales.GetSalesMaterialDataList(identity.PlantId, fromDate,toDate), JsonRequestBehavior.AllowGet);
+            return Json(clsSales.GetSalesMaterialDataList(identity.PlantId, fromDate,toDate, inputCreditId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SaveTagWithInputCredit(List<Dictionary<string, object>> data,string inputCreditId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsChild;
+            string id = string.Empty;
+            try
+            {
+                #region Sales 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                foreach (var item in data)
+                {
+                    if (id == "")
+                        id = "'" + item["Id"] + "'";
+                    else
+                        id = id + ",'" + item["Id"] + "'";
+                }
+                string mosql = "SELECT * FROM TRN.SalesMaterial WHERE Id IN (" + id + ")";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(mosql, out dsChild, false, "1");
+                foreach (var item in data)
+                {
+                    DataView dv = new DataView(dsChild.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+                   
+                    if (dv.Count > 0)
+                    {
+                        DataRow drmo = dv[0].Row;
+
+                        drmo.BeginEdit();
+
+                        drmo["InputCreditId"] = inputCreditId;
+                        drmo["UpdatedBy"] = identity.Name;
+                        drmo["UpdatedDate"] = DateTime.Now.ToString();
+                        drmo["UpdatedFromIP"] = identity.IPAddress;
+
+                        drmo.EndEdit();
+
+                    }
+
+                }
+
+                #endregion
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsChild);
+
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+
         }
 
         #endregion

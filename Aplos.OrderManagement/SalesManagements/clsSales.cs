@@ -5162,13 +5162,13 @@ Order By A.sequence";
 			}
 		}
 
-		public List<Dictionary<string, object>> GetSalesMaterialDataList(string plantId, string fromDate, string toDate)
+		public List<Dictionary<string, object>> GetSalesMaterialDataList(string plantId, string fromDate, string toDate, string inputCreditId)
 		{
-			var cmdText = @"SELECT Flag=CAST(0 AS bit),SM.Id,MO.Id MasterOrderId,SO.Id SONo,po.PONumber, FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate,DT.UserName DestinationName,MM.UserName MaterialMasterName,ART.StandardName AS MaterialMasterArticleName
+			var cmdText = @"SELECT Flag=CAST(CASE WHEN SM.InputCreditId IS NULL THEN 0 ELSE 1 END AS bit),SM.Id,MO.Id MasterOrderId,SO.Id SONo,po.PONumber, FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate,DT.UserName DestinationName,MM.UserName MaterialMasterName,ART.StandardName AS MaterialMasterArticleName
 ,ISNULL(AHSN.Code,HSN.Code) HSNCode,FCV.UserName SKU1,SCV.UserName SKU2,SM.TransactionRate,SM.TransactionQty,SM.TransactionAmount,SM.TaxAmount
 ,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/NULLIF((Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id),0))*SM.TransactionAmount
 	           ,ServiceTax=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesTax] WHERE SalesId=SA.Id  AND SalesServiceId<>'')/NULLIF((Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id),0))*SM.TransactionAmount
-           ,SM.InputCreditId
+           ,SM.InputCreditId,'SalesMaterial' SourceType
 			FROM TRN.SalesMaterial AS SM 
             LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
             LEFT JOIN [TRN].[SalesOrder] AS SO ON SM.SalesOrderId=SO.Id
@@ -5187,7 +5187,7 @@ Order By A.sequence";
 
             LEFT JOIN TRN.SecondCharacteristics AS SC ON SC.Id=SM.SecondCharacteristicsId AND SM.SalesOrderId=SC.SalesOrderId
             LEFT JOIN HKP.CharacteristicsValue AS SCV ON SCV.Id=SM.SecondCharacteristicsValueId
-            WHERE SA.PlantId='"+ plantId + @"' AND SM.AddedDate between '"+ fromDate + @"' AND '"+toDate+@"'";
+            WHERE SA.PlantId='" + plantId + @"' AND SM.AddedDate between '"+ fromDate + @"' AND '"+toDate+ @"' AND ISNULL(SM.InputCreditId,'"+ inputCreditId + @"')='" + inputCreditId + @"'";
 
 			return _sqlRepository.GetDataCollection(cmdText);
 		}
