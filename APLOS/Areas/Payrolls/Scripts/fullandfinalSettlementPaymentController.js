@@ -1,12 +1,14 @@
 ﻿'use strict';
-fullandfinalSettlementPaymentController.$inject = ["cboService",'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function fullandfinalSettlementPaymentController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+fullandfinalSettlementPaymentController.$inject = ["cboService", 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller'];
+function fullandfinalSettlementPaymentController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
     $rootScope.title = 'Final Settlement Payments';
     $scope.path = 'Payrolls/FinalSettlement/';
     $scope.getListUrl = $scope.path + "GetFinalSettlementDisbursementVoucherList";
     $scope.saveUrl = $scope.path + "ParkFinalSettlementDisbursement";
     $scope.postUrl = $scope.path + "PostFinalSettlementdisbursement";
     $scope.deleteUrl = $scope.path + "DeleteFinalSettlementDisbursementVoucher";
+    $controller("currencyBaseController", { $scope: $scope, $http: $http });
+    $controller("cashBaseController", { $scope: $scope, $http: $http });
 
     baseService.init($scope.getListUrl, null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
 
@@ -325,7 +327,7 @@ function fullandfinalSettlementPaymentController(cboService, commonMessage, $sco
                 $scope.voucher.CashCurrencyId = cash.CurrencyId;
                 $scope.voucher.CashName = cash.CashName;
                 $scope.voucher.GLGeneralInfoId = cash.GLGeneralInfoId;
-                $scope.voucher.GLGeneralInfoName = cash.GLItem;
+                $scope.voucher.GLGeneralInfoName = cash.GLGeneralInfoName;
                 $scope.voucher.BudgetName = cash.BudgetName;
                 $scope.voucher.BudgetMasterId = cash.BudgetMasterId;
                 $scope.voucher.ActivityId = cash.ActivityId;
