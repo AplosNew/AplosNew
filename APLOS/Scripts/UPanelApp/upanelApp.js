@@ -1279,6 +1279,8 @@ upanelApp.controller("serviceControlController", serviceControlController);
 upanelApp.controller("AssetManagementController", AssetManagementController);
 upanelApp.controller("EmpDocAssetTransectionController", EmpDocAssetTransectionController);
 upanelApp.controller("InputCreditController", InputCreditController);
+upanelApp.controller("InputCreditApproveController", InputCreditApproveController);
+upanelApp.controller("InputCreditCheckController", InputCreditCheckController);
 
 
 

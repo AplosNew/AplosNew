@@ -85,6 +85,14 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             return View("~/Areas/SalesManagements/Views/InputCredit.cshtml");
         }
+        public ActionResult InputCreditCheck()
+        {
+            return View("~/Areas/SalesManagements/Views/InputCreditCheck.cshtml");
+        }
+        public ActionResult InputCreditApprove()
+        {
+            return View("~/Areas/SalesManagements/Views/InputCreditApprove.cshtml");
+        }
         [HttpGet, Authorize]
         public ActionResult GetMaterialSalesList(GridParameter parameters)
         {
@@ -2328,7 +2336,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
         #region InputCredit
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public ActionResult GetInputCreditList(string column, string value)
         {
             string strkey = "1=1";
@@ -2336,11 +2344,36 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (	SELECT IC.*,EI.EmployeeName ResponsiblePerson FROM HKP.InputCredit IC
-			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IC.ResponsiblePersonId) AS TEMP WHERE " + strkey + " order by sequence";
+            string sql = @"select top 100 * from (SELECT IC.*,EI.EmployeeName ResponsiblePerson FROM HKP.InputCredit IC
+			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IC.ResponsiblePersonId) AS TEMP WHERE " + strkey + " order by AddedDate DESC";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
 
+        [HttpPost, Authorize]
+        public ActionResult GetInputCreditCheckList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
 
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT TOP 100 * FROM (SELECT IC.*,EI.EmployeeName ResponsiblePerson FROM HKP.InputCredit IC
+			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IC.ResponsiblePersonId
+			Where CheckById='"+ identity.EmployeeId+ "' AND	IC.CheckByStatus='To Be Checked') AS TEMP WHERE " + strkey + " order by sequence";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
 
+        [HttpPost, Authorize]
+        public ActionResult GetInputCreditApproveList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT TOP 100 * FROM (SELECT IC.*,EI.EmployeeName ResponsiblePerson FROM HKP.InputCredit IC
+			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IC.ResponsiblePersonId
+			Where ApproveById='" + identity.EmployeeId + "' AND IC.CheckByStatus='Checked' AND IC.ApprovedStatus='To Be Approve') AS TEMP WHERE " + strkey + " order by sequence";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -2460,6 +2493,13 @@ namespace Aplos.Areas.SalesManagements.Controllers
             return Json(clsSales.GetSalesMaterialDataList(identity.PlantId, fromDate,toDate, inputCreditId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetTaggedSalesMaterialDataList(string inputCreditId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(clsSales.GetTaggedSalesMaterialDataList(inputCreditId), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost, Authorize]
         public JsonResult SaveTagWithInputCredit(List<Dictionary<string, object>> data,string inputCreditId)
         {
@@ -2515,6 +2555,67 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 return Json(new { Error = true, ex.Message });
             }
 
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateCheckBy(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from HKP.InputCredit where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    data["CheckByStatus"] = "Checked";
+                    data["ApprovedStatus"] = "To Be Approve";
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateApproveBy(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from HKP.InputCredit where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    data["ApprovedStatus"] = "Approved";
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
         }
 
         #endregion

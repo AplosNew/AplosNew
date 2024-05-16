@@ -50,7 +50,7 @@ function InputCreditController(cboService, commonMessage, $scope, $rootScope, ba
         CheckById: null,
         CheckByStatus: 'To Be Checked',
         ApproveById: null,
-        ApproveByStatus: null,
+        ApprovedStatus: null,
         Description: null,
         Remarks: null,
         Active: true,
