@@ -22,7 +22,7 @@ function paySlipsNewController(commonMessage, $scope, $rootScope, baseService, $
     $scope.isActive = true;
     $scope.isSeperated = false;
     $scope.isMaternity = false;
-
+    $scope.ReportFormat = 'Pdf';
     $scope.isManualFilter = false;
     $scope.monthList = [
         {
@@ -105,7 +105,7 @@ function paySlipsNewController(commonMessage, $scope, $rootScope, baseService, $
 
     $scope.getSalaryProcessIdList = function (args) {
         $scope.isCompletedMonth = 1;
-       
+
         var DropDownListMonth = $("#ddlMonthList").data("ejDropDownList");
         var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
 
@@ -115,14 +115,13 @@ function paySlipsNewController(commonMessage, $scope, $rootScope, baseService, $
         if (angular.isUndefinedOrNull($scope.year)) {
             ShowResult("Select Year", 'failure');
         }
-        else
-        {
+        else {
             cboService.getSalaryProcessIdCboByYearMonth($scope.month, $scope.year, $scope.isCompletedMonth, function (result) {
                 $scope.cboSalaryProcessIdList = result;
             });
         }
 
-       
+
     };
 
     $scope.selectedPaymentMode = $("#paymentMode option:selected").text();
@@ -135,7 +134,7 @@ function paySlipsNewController(commonMessage, $scope, $rootScope, baseService, $
     $scope.GetEmployeeInformation = function () {
         //var DropDownListObj = $("#ddlPayRollGroupList").data("ejDropDownList");
         //$scope.payGroupListSelected = DropDownListObj.getSelectedValue();
-       
+
         //if (angular.isUndefinedOrNull($scope.year) === false && angular.isUndefinedOrNull($scope.month) === false) {
         //    var DropDownListSalaryProcess = $("#ddlSalaryProcessId").data("ejDropDownList");
         //    $scope.salaryProcessId = DropDownListSalaryProcess.getSelectedValue();
@@ -155,7 +154,7 @@ function paySlipsNewController(commonMessage, $scope, $rootScope, baseService, $
         //    ShowResult("Select Payroll Group", 'failure');
         //}
         else {
-           
+
             var parameters = {
                 'effectiveDate': $scope.effectiveDate, 'payRollGroup': $scope.payGroupListSelected, 'isActive': $scope.isActive,
                 'isSeperated': $scope.isSeperated,
@@ -180,15 +179,15 @@ function paySlipsNewController(commonMessage, $scope, $rootScope, baseService, $
             });
         }
     };
-
+    $scope.downloadgriddataUrlPath = 'GridReports/Download';
     $scope.GetPaySlip = function () {
         try {
             var parameters = [];
             var gridObj = $("#empInfoGrid").ejGrid("instance");
             var filteredRecords = gridObj.getFilteredRecords();
-            
-                if (filteredRecords.length == 0) {
-                    filteredRecords = $scope.EmployeeListTemp;
+
+            if (filteredRecords.length == 0) {
+                filteredRecords = $scope.EmployeeListTemp;
             }
 
             if (angular.isUndefinedOrNull(filteredRecords) === false) {
@@ -215,14 +214,18 @@ function paySlipsNewController(commonMessage, $scope, $rootScope, baseService, $
                     'isMaternity': $scope.isMaternity,
                     'IsIncludingZeroHeads': $scope.IncludingZeroHeads,
                     'singleEmployee': $scope.singleEmployeePrint,
-                    
+                    'reportFormat': $scope.ReportFormat
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    $rootScope.report($scope.downloadgriddataPDFUrl + "?FileName=" + response.data.FileName);
+                    if ($scope.ReportFormat == 'Pdf') {
+                        $rootScope.report($scope.downloadgriddataPDFUrl + "?FileName=" + response.data.FileName);
+                    } else {
+                        $window.open($scope.downloadgriddataUrlPath + "?FileName=" + response.data.FileName);
+                    }
                 }
             });
         } catch (e) {

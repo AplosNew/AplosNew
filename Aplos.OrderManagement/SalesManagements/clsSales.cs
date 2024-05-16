@@ -5162,6 +5162,35 @@ Order By A.sequence";
 			}
 		}
 
+		public List<Dictionary<string, object>> GetSalesMaterialDataList(string plantId, string fromDate, string toDate)
+		{
+			var cmdText = @"SELECT Flag=CAST(0 AS bit),SM.Id,MO.Id MasterOrderId,SO.Id SONo,po.PONumber, FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate,DT.UserName DestinationName,MM.UserName MaterialMasterName,ART.StandardName AS MaterialMasterArticleName
+,ISNULL(AHSN.Code,HSN.Code) HSNCode,FCV.UserName SKU1,SCV.UserName SKU2,SM.TransactionRate,SM.TransactionQty,SM.TransactionAmount,SM.TaxAmount
+,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/NULLIF((Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id),0))*SM.TransactionAmount
+	           ,ServiceTax=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesTax] WHERE SalesId=SA.Id  AND SalesServiceId<>'')/NULLIF((Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id),0))*SM.TransactionAmount
+           ,SM.InputCreditId
+			FROM TRN.SalesMaterial AS SM 
+            LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
+            LEFT JOIN [TRN].[SalesOrder] AS SO ON SM.SalesOrderId=SO.Id
+            JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+			JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
+			LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+			LEFT JOIN [MST].[Destination] AS DT ON DT.Id=SO.DestinationId
+
+            LEFT JOIN MST.MaterialMaster AS MM ON MM.Id=SM.MaterialMasterId
+			left join HKP.HSNCode as HSN on HSN.Id = MM.HSNCodeId
+            LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
+            LEFT JOIN MST.MaterialMasterArticle AS ART ON SM.ArticleId=ART.Id
+			left join HKP.HSNCode as AHSN on AHSN.Id = ART.HSNCodeId
+            LEFT JOIN TRN.FirstCharacteristics AS FC ON FC.Id=SM.FirstCharacteristicsId AND SM.SalesOrderId=FC.SalesOrderId
+            LEFT JOIN HKP.CharacteristicsValue AS FCV ON FCV.Id=SM.FirstCharacteristicsValueId
+
+            LEFT JOIN TRN.SecondCharacteristics AS SC ON SC.Id=SM.SecondCharacteristicsId AND SM.SalesOrderId=SC.SalesOrderId
+            LEFT JOIN HKP.CharacteristicsValue AS SCV ON SCV.Id=SM.SecondCharacteristicsValueId
+            WHERE SA.PlantId='"+ plantId + @"' AND SM.AddedDate between '"+ fromDate + @"' AND '"+toDate+@"'";
+
+			return _sqlRepository.GetDataCollection(cmdText);
+		}
 
 	}
 

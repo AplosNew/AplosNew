@@ -2399,6 +2399,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             }
         }
 
+
         public ActionResult DeleteInputCredit(string id)
         {
            
@@ -2449,6 +2450,13 @@ namespace Aplos.Areas.SalesManagements.Controllers
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where E.EmployeeStatus='Active' AND A.ActionStatus='InputCreditApproveBy'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSalesMaterialDataList(string fromDate,string toDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(clsSales.GetSalesMaterialDataList(identity.PlantId, fromDate,toDate), JsonRequestBehavior.AllowGet);
         }
 
         #endregion

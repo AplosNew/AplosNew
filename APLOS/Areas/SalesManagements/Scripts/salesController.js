@@ -143,7 +143,11 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
         IsPark: 1,
         IsIncentiveApplicable: false,
         InvoiceStatus: 'Active',
-        PaymentToReceiveBankId: null
+        PaymentToReceiveBankId: null,
+        Incoterms: null,
+        IncotermsValue: 0,
+        AdditionalFrieghtValue: 0,
+        AdditionalFrieght: null
     };
     $scope.salesVM.TaxOptionAddiTax = 'Yes';
     $scope.materialMaster = {

@@ -7,12 +7,22 @@ function InputCreditController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.path = 'SalesManagements/Sales/';
     $scope.getListUrl = $scope.path + 'getinputcreditlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
-    $scope.saveUrl = $scope.path + 'createinputcredit';
+    $scope.saveUrl = $scope.path + 'CreateInputCredit';
     $scope.deleteUrl = $scope.path + 'deleteinputcredit/';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
 
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+
+
+    };
+
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
 
     $scope.getData = function () {
         $http({
@@ -22,7 +32,6 @@ function InputCreditController(cboService, commonMessage, $scope, $rootScope, ba
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
-            ClearFields(response.data.Sequence);
             $scope.GetSequence();
         });
     }
@@ -41,12 +50,12 @@ function InputCreditController(cboService, commonMessage, $scope, $rootScope, ba
         ToDate: null,
         ResponsiblePersonId: null,
         CheckById: null,
-        CheckByStatus: null,
+        CheckByStatus: 'To Be Checked',
         ApproveById: null,
         ApproveByStatus: null,
         Description: null,
         Remarks: null,
-        Active: null,
+        Active: true,
         AddedBy: null,
         AddedDate: null,
         AddedFromIP: null,
@@ -122,12 +131,56 @@ function InputCreditController(cboService, commonMessage, $scope, $rootScope, ba
         angular.element(document.querySelector('#popUp')).modal('hide');
     }
 
+    $scope.materialList = [];
+    $scope.GetMaterialList = function () {
+        try {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.FromDate)) {
+                throw "Select From Date";
+            }
+            if (baseService.isUndefinedOrNull($scope.ModelNew.ToDate)) {
+                throw "Select To Date";
+            }
+            $http({
+                method: 'GET',
+                url: 'SalesManagements/Sales/GetSalesMaterialDataList?fromDate=' + $scope.ModelNew.FromDate + '&toDate=' + $scope.ModelNew.ToDate
+            }).then(function successCallback(response) {
+                $scope.materialList = response.data;
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 
+    $scope.refreshTemplateemployee4 = function (args) {
+        $("#headchk4").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+    };
 
+    function CheckBoxSelectAllEmolyeeWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridSM").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.materialList.length; i++) {
+                $scope.materialList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridSM").data("ejGrid");
+        gridObj.refreshContent();
+    };
 
     $scope.Get = function (args) {
 
         $scope.ModelNew = Object.assign({}, args.data);
+        $scope.ModelNew.FromDate = $filter('dateFiltering')(new Date($scope.ModelNew.FromDate ), 'dd-MM-yyyy');
+        $scope.ModelNew.ToDate = $filter('dateFiltering')(new Date($scope.ModelNew.ToDate ), 'dd-MM-yyyy');
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -148,7 +201,8 @@ function InputCreditController(cboService, commonMessage, $scope, $rootScope, ba
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
+                    $scope.ModelNew.Id = response.data.Data.Id;
+                    //ClearFields(response.data.Sequence);
                     $scope.getData();
 
                 }
