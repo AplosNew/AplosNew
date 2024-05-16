@@ -3,6 +3,7 @@ using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.HumanResource.Payroll;
+using Library.Model.Enums;
 using Library.Model.HumanResources;
 using Library.Service.Employees;
 using Library.Service.Helpers;
@@ -53,7 +54,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         #region -- Operations
 
         [HttpPost, Authorize]
-        public ActionResult GetEmployeePaySlip(string month, string year, string salaryProcessId, Dictionary<string, string> parameters, string languageId, bool isActive, bool isSeperated, bool isMaternity, bool IsIncludingZeroHeads, bool singleEmployee)
+        public ActionResult GetEmployeePaySlip(string month, string year, string salaryProcessId, Dictionary<string, string> parameters, string languageId, bool isActive, bool isSeperated, bool isMaternity, bool IsIncludingZeroHeads, bool singleEmployee, string reportFormat)
         {
             try
             {
@@ -67,14 +68,29 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                 workbook.Version = ExcelVersion.Excel2016;
                 //workbook.SaveAs(fullPath);
-                var converter = new ExcelToPdfConverter(workbook);
-                ExcelToPdfConverterSettings _settings = new ExcelToPdfConverterSettings();
-                _settings.AutoDetectComplexScript = true;
-                var pdfDoc = converter.Convert(_settings);
+                if (reportFormat=="Pdf")
+                {
+                    var converter = new ExcelToPdfConverter(workbook);
+                    ExcelToPdfConverterSettings _settings = new ExcelToPdfConverterSettings();
+                    _settings.AutoDetectComplexScript = true;
+                    var pdfDoc = converter.Convert(_settings);
 
-                fileName = month + "-" + year + "PaySlip" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".pdf";
-                string fullPathPDF = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName);
-                pdfDoc.Save(fullPathPDF);
+                    fileName = month + "-" + year + "PaySlip" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".pdf";
+                    string fullPathPDF = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName);
+                    pdfDoc.Save(fullPathPDF);
+                }
+                else
+                {
+                    if (identity.IsSysAdmin==true)
+                    {
+                        workbook.SaveAs(fullPath);
+                        workbook.Close();
+                    }
+                    else
+                    {
+                        throw new Exception("Contact to Admin.");
+                    }
+                }
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)

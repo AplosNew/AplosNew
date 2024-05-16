@@ -1531,5 +1531,21 @@ namespace Aplos.Controllers.ApopAPIHR
          }*/
         #endregion Production Entry
 
+        #region Advance
+        public List<Default2> GetEmpAttdn(string EmpSysId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetEmpAttdn(out List<Default2> activelists, EmpSysId);
+            return activelists;
+        }
+
+        public List<AdavnceDetailGetSet> GetEmpAdvanceDetail(string EmpSysId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetEmpAdvanceDetail(out List<AdavnceDetailGetSet> activelists, EmpSysId);
+            return activelists;
+        }
+        #endregion Advance
+
     }
 }
