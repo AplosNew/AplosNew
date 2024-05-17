@@ -1262,6 +1262,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             }
             else if (i === index) {
                 $scope.prdProcessSetList[i].IsProductionVerification = true;
+              
             }
         }
     };

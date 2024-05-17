@@ -1147,8 +1147,8 @@ namespace Library.OrderManagement.Production
                                    isnull(CEILING(PLC.ProcessPlanQty),0) LotProcessPlanQty,PPS.IsProductionVerification ProductionVerification
                                    --,PRS.ResponsiblePerson
 								   FROM TRN.ProductionOrder PO 
-                                   LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '202036'
-                                   LEFT JOIN ProductionOrderLotControl PLC ON PLC.ProductionOrderID = PO.Id AND PLC.ProcessId = '202036'
+                                   LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '"+ processId + @"'
+                                   LEFT JOIN ProductionOrderLotControl PLC ON PLC.ProductionOrderID = PO.Id AND PLC.ProcessId = '"+ processId + @"'
 								   LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id=PO.ProductionStatusId
 								   LEFT JOIN ORG.Entity E ON E.Id=PO.EntityId
 								  LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID=PO.Id
@@ -1156,7 +1156,7 @@ namespace Library.OrderManagement.Production
 								  (    SELECT SUM(PS.Quantity) TotalProductionQty,PS.ProductionOrderId
                                       ,PS.LotNumber
                                        --,(select EmployeeName from EmployeeInformation where SystemId=PS.ResponsiblePersonId) as ResponsiblePerson
-                                       FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '202036' GROUP BY PS.ProductionOrderId,PS.LotNumber
+                                       FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '"+ processId + @"' GROUP BY PS.ProductionOrderId,PS.LotNumber
                                        --,PS.ResponsiblePersonId
                                   ) AS PRS ON PRS.ProductionOrderId = PO.Id
 								   LEFT JOIN 
