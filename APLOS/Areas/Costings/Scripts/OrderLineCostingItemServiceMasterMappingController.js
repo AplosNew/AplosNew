@@ -24,19 +24,26 @@ function OrderLineCostingItemServiceMasterMappingController(cboService, commonMe
 
     $scope.serviceMasterList = [];
     $scope.GetSMData = function (obj) {
-        $scope.serviceMasterList = [];
-        $scope.OrderLineCostingItemId = obj.data.Id;
-        $http({
-            method: 'GET',
-            url: 'Costings/OrderLineCostingItem/GetOLSMMapDataList?OrderLineCostingItemId=' + $scope.OrderLineCostingItemId
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            } else {
-                $scope.serviceMasterList = response.data;
-                angular.element(document.querySelector('#SMPopUp')).modal('show');
+        try {
+            if (obj.data.EntryState == 'Calculate') {
+                throw "Service Master can't add with Calculated Item.";
             }
-        });
+            $scope.serviceMasterList = [];
+            $scope.OrderLineCostingItemId = obj.data.Id;
+            $http({
+                method: 'GET',
+                url: 'Costings/OrderLineCostingItem/GetOLSMMapDataList?OrderLineCostingItemId=' + $scope.OrderLineCostingItemId
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                } else {
+                    $scope.serviceMasterList = response.data;
+                    angular.element(document.querySelector('#SMPopUp')).modal('show');
+                }
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
 
     $scope.GetSavedSMData = function () {
