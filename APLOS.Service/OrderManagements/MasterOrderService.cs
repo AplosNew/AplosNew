@@ -1928,7 +1928,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
                 if (userRemarksControl.RemarkControlId != null)
                 {
                     var data = _UserRemarksControlRepository.Find(userRemarksControl.MasterOrderId);
-                    if (data == null)
+                    if (data.Id == null)
                     {
                         userRemarksControl.Id = entity.Id;
                         userRemarksControl.MasterOrderId = entity.Id;
