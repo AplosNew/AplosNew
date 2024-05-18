@@ -156,6 +156,100 @@ function fullandfinalSettlementPaymentController(cboService, commonMessage, $sco
     $scope.closePopUp = function () {
         angular.element(document.querySelector('#DisbursementAdvicepopUp')).modal('hide');
     }
+
+    $scope.pushInTempListforProcess = function (event, data) {
+        try {
+            if (event.currentTarget.checked) {
+                if (checkExistTempListforConfirm($scope.EmployeeListNew, data.EmpSystemId) === false) {
+                    $scope.EmployeeListNew.push(data);
+                }
+                else {
+                    for (var i = 0; i < baseService.arrayLength($scope.EmployeeListNew); i++) {
+                        if ($scope.EmployeeListNew[i].EmpSystemId === data.EmpSystemId) {
+                            $scope.EmployeeListNew.splice(i, 1);
+                            break;
+                        }
+                    }
+
+                    $scope.EmployeeListNew.push(data);
+                }
+            }
+            else {
+                for (var t = 0; t < baseService.arrayLength($scope.EmployeeListNew); t++) {
+                    if ($scope.EmployeeListNew[t].EmpSystemId === data.EmpSystemId) {
+                        $scope.EmployeeListNew.splice(t, 1);
+                        break;
+                    }
+                }
+            }
+
+            $scope.getSalaryLockPayableGL();
+
+        } catch (e) {
+            event.currentTarget.checked = false;
+            ShowResult(e, "failure");
+        }
+
+    }
+
+    function checkExistTempListforConfirm(list, empSystemId) {
+        for (var i = 0; i < baseService.arrayLength(list); i++) {
+            if (list[i].EmpSystemId === empSystemId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.GetEmployeeDisbursementItem = function () {
+        $scope.EmployeeListNew = [];
+        try {
+            for (var i = 0; i < $scope.SelectedEmployeeList.length; i++) {
+                if ($scope.SelectedEmployeeList[i].isSelected) {
+                    $scope.EmployeeListNew.push($scope.SelectedEmployeeList[i]);
+                }
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+
+    $scope.refreshTemplateEmployeeDisbursement = function (args) {
+        $("#headchkDisbursement").ejCheckBox({ "change": CheckBoxSelectAllEmployeeDisbursement });
+    };
+
+    function CheckBoxSelectAllEmployeeDisbursement(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+
+        }
+
+        var filtered = $("#GridSelectedEmp").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.SelectedEmployeeList.length; i++) {
+                $scope.SelectedEmployeeList[i].isSelected = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+
+                filtered[j].isSelected = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridSelectedEmp").data("ejGrid");
+        gridObj.refreshContent();
+        $scope.EmployeeListNew = [];
+        for (var i = 0; i < $scope.SelectedEmployeeList.length; i++) {
+            if ($scope.SelectedEmployeeList[i].isSelected) {
+                $scope.EmployeeListNew.push($scope.SelectedEmployeeList[i]);
+            }
+        }
+        $scope.getSalaryLockPayableGL();
+    };
+
     $scope.masterId = null;
     $scope.SelectMaster = function (obj) {
         $scope.masterId = obj.data.Id;
