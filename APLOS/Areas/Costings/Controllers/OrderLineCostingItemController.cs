@@ -78,7 +78,10 @@ namespace Aplos.Areas.Costings.Controllers
         public ActionResult GetOLSMMapDataList(string OrderLineCostingItemId)
         {
 
-            string sql = @"SELECT Flag=CAST(CASE WHEN A.Id IS NULL THEN 0 ELSE 1 END AS BIT) ,A.Id,SM.Id ServiceMasterId,SM.Sequence,SM.Code,SM.UserName,SM.StandardName FROM [HKP].[ServiceMaster] SM
+            string sql = @"SELECT Flag=CAST(CASE WHEN A.Id IS NULL THEN 0 ELSE 1 END AS BIT) ,A.Id,SM.Id ServiceMasterId,SM.Sequence,SM.Code,SM.UserName,SM.StandardName,SG.UserName ServiceGroup,SM.ServiceCategory,SM.ServiceSubCategory,C.Code HSNCode
+FROM [HKP].[ServiceMaster] SM
+LEFT JOIN [HKP].[ServiceGroup] SG ON SG.Id=SM.ServiceGroupId
+LEFT JOIN [HKP].HSNCode C ON C.Id=SM.HSNCodeId
 OUTER APPLY (Select * from dbo.OrderLineCostingItemServiceMasterMapping Where ServiceMasterId=SM.Id AND OrderLineCostingItemId='" + OrderLineCostingItemId + @"') A
 Where SM.Active=1 Order by SM.Sequence";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);

@@ -122,10 +122,13 @@
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);GetMaterialList();" href="" aria-controls="Sales" role="tab" data-toggle="tab">Sales</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Purchase" role="tab" data-toggle="tab">Purchase</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="Service" role="tab" data-toggle="tab">Service</a></li>
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="Expense" role="tab" data-toggle="tab">Expense</a></li>
+                <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="VendorInvoice" role="tab" data-toggle="tab">Vendor Invoice</a></li>
             </ul>
         </div>
         <div class="tab-content">
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }" ng-form="tabForm1" id="empType">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }" ng-form="tabForm1" id="Sales">
                 <div class="row">
                     <div class="common-btn">
                         <ul class="list-inline text-right">
@@ -171,7 +174,16 @@
                     </div>
                 </div>
             </div>
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-form="tabForm2" id="Designation">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-form="tabForm2" id="Purchase">
+
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }" ng-form="tabForm3" id="Service">
+
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }" ng-form="tabForm4" id="Expense">
+
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }" ng-form="tabForm5" id="VendorInvoice">
 
             </div>
 
