@@ -266,7 +266,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
         [HttpPost]
-        public JsonResult CancelSalesMaterial(string Id,string remark)
+        public JsonResult CancelSalesMaterial(string Id, string remark)
         {
             if (remark == null)
                 throw new CustomException("Please Input Remark !");
@@ -462,11 +462,11 @@ namespace Aplos.Areas.SalesManagements.Controllers
             return View();
         }
         [Authorize, HttpGet]
-        public ActionResult BankLatter(string salesId , string BankName)
+        public ActionResult BankLatter(string salesId, string BankName)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            _salesReportService.BankLatter(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, identity.Name, salesId , BankName);
+            _salesReportService.BankLatter(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, identity.Name, salesId, BankName);
             return View();
         }
         [Authorize, HttpGet]
@@ -843,7 +843,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
-            return Json(accountsSalesService.GetSalesReturnPostedData(column, value,identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(accountsSalesService.GetSalesReturnPostedData(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost]
@@ -878,7 +878,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
         }
         [Authorize, HttpGet]
-        public JsonResult GetSalesReturnJournal(string salesReturnId, string customerId,string taxApplicable)
+        public JsonResult GetSalesReturnJournal(string salesReturnId, string customerId, string taxApplicable)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
@@ -894,7 +894,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
         [HttpPost]
-        public JsonResult InsertSalesReturnCreditNote(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, List<Dictionary<string, object>> salesReturnDetailList , IEnumerable<InvoiceTaxViewModel> tdsTaxList)
+        public JsonResult InsertSalesReturnCreditNote(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, List<Dictionary<string, object>> salesReturnDetailList, IEnumerable<InvoiceTaxViewModel> tdsTaxList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -995,7 +995,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                     InvoiceId = voucherVM.InvoiceId,
                     Archive = false,
                     SettlementType = voucherVM.SettlementType,
-                    SalesReturnId= voucherVM.SalesReturnId
+                    SalesReturnId = voucherVM.SalesReturnId
                 };
                 if (adjustmentNote.SourceType == SourceType.CreditNote.ToString())
                 {
@@ -1268,7 +1268,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                         TaxYearPeriodId = voucher.TaxYearPeriodId,
                         TaxAmount = additionalTaxList.Sum(r => r.TaxAmount),
                         TaxAutoAmount = additionalTaxList.Sum(r => r.TaxAutoAmount),
-                        AdjustmentNoteId= adjustmentNote.Id,
+                        AdjustmentNoteId = adjustmentNote.Id,
                         PartyId = voucherVM.PlantId,
                         PartyPlantId = voucherVM.PartyPlantId,
                         //InvoiceId = invoice.Id,
@@ -1315,7 +1315,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 if (totalAmountDr != totalAmountCr)
                     throw new CustomException("Dr and Cr amount is not equal.");
                 clsStaticInfo objApp = new clsStaticInfo();
-                objApp.SaveDataSets(_vdataset, _ANdataset, _ajNDetailData, _crvDetailData, _crvDetailCurrencyData, _iTaxDrdataset, _invTaxDetailData, _drvDetailData, _drvDetailCurrencyData, _iTaxCrdataset, _invTaxDetailCrData, _salesReturnData, dsitemscanChild,_aTaxCrdataset,_adTaxDetailCrData);
+                objApp.SaveDataSets(_vdataset, _ANdataset, _ajNDetailData, _crvDetailData, _crvDetailCurrencyData, _iTaxDrdataset, _invTaxDetailData, _drvDetailData, _drvDetailCurrencyData, _iTaxCrdataset, _invTaxDetailCrData, _salesReturnData, dsitemscanChild, _aTaxCrdataset, _adTaxDetailCrData);
                 return voucher.VoucherNo;
             }
             catch (CustomException)
@@ -2359,7 +2359,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT TOP 100 * FROM (SELECT IC.*,EI.EmployeeName ResponsiblePerson FROM HKP.InputCredit IC
 			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IC.ResponsiblePersonId
-			Where CheckById='"+ identity.EmployeeId+ "' AND	IC.CheckByStatus='To Be Checked') AS TEMP WHERE " + strkey + " order by sequence";
+			Where CheckById='" + identity.EmployeeId + "' AND	IC.CheckByStatus='To Be Checked') AS TEMP WHERE " + strkey + " order by sequence";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -2436,7 +2436,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
         public ActionResult DeleteInputCredit(string id)
         {
-           
+
             try
             {
 
@@ -2487,10 +2487,10 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetSalesMaterialDataList(string fromDate,string toDate, string inputCreditId)
+        public ActionResult GetSalesMaterialDataList(string fromDate, string toDate, string inputCreditId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(clsSales.GetSalesMaterialDataList(identity.PlantId, fromDate,toDate, inputCreditId), JsonRequestBehavior.AllowGet);
+            return Json(clsSales.GetSalesMaterialDataList(identity.PlantId, fromDate, toDate, inputCreditId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -2501,31 +2501,63 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult SaveTagWithInputCredit(List<Dictionary<string, object>> data,string inputCreditId)
+        public JsonResult SaveTagWithInputCredit(List<Dictionary<string, object>> data, string inputCreditId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
-            DataSet dsChild;
+            DataSet dsChild, dsInvMat;
             string id = string.Empty;
+            string inid = string.Empty;
             try
             {
                 #region Sales 
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                foreach (var item in data)
+                foreach (var item in data.Where(r => r["SourceType"].ToString() == "SalesMaterial"))
                 {
                     if (id == "")
                         id = "'" + item["Id"] + "'";
                     else
                         id = id + ",'" + item["Id"] + "'";
                 }
+                foreach (var item in data.Where(r => r["SourceType"].ToString() == "InventorySales"))
+                {
+                    if (inid == "")
+                        inid = "'" + item["Id"] + "'";
+                    else
+                        inid = inid + ",'" + item["Id"] + "'";
+                }
                 string mosql = "SELECT * FROM TRN.SalesMaterial WHERE Id IN (" + id + ")";
+                string invsql = "SELECT * FROM TRN.InventorySalesDetail WHERE Id IN (" + inid + ")";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(mosql, out dsChild, false, "1");
-                foreach (var item in data)
+                objCon.OpenDataSetThroughAdapter(invsql, out dsInvMat, false, "1");
+                foreach (var item in data.Where(r => r["SourceType"].ToString() == "SalesMaterial"))
                 {
                     DataView dv = new DataView(dsChild.Tables[0]);
                     dv.RowFilter = "Id='" + item["Id"] + "'";
-                   
+
+                    if (dv.Count > 0)
+                    {
+                        DataRow drmo = dv[0].Row;
+
+                        drmo.BeginEdit();
+
+                        drmo["InputCreditId"] = inputCreditId;
+                        drmo["UpdatedBy"] = identity.Name;
+                        drmo["UpdatedDate"] = DateTime.Now.ToString();
+                        drmo["UpdatedFromIP"] = identity.IPAddress;
+
+                        drmo.EndEdit();
+
+                    }
+
+                }
+
+                foreach (var item in data.Where(r => r["SourceType"].ToString() == "InventorySales"))
+                {
+                    DataView dv = new DataView(dsInvMat.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
                     if (dv.Count > 0)
                     {
                         DataRow drmo = dv[0].Row;
@@ -2546,7 +2578,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 #endregion
 
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsChild);
+                obj.SaveDataSets(dsChild, dsInvMat);
 
                 return Json(new { Message = AplosMessage.Insert });
             }
