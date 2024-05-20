@@ -138,9 +138,10 @@
                             </div>
                         </div>
 
-                            <ul class="col-md-6 common-btn list-inline text-left">
-                                <li><button ng-click="GetLoadEmployeeInformation();" class="btn"><i class="glyphicon glyphicon-arrow-down"></i> Go</button></li>
-                            </ul>
+                        <ul class="col-md-6 common-btn list-inline text-left">
+                            <li><button ng-click="GetLoadEmployeeInformation();" class="btn"><i class="glyphicon glyphicon-arrow-down"></i> Go</button></li>
+                            <li><button ng-click="XlsMultipleAdvanceEmployeeList();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
+                        </ul>
 
                             <div class="clearfix"></div>
                             <div class="table-responsive modal-table ">
@@ -158,6 +159,7 @@
                                         <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
                                         @*<div e-column e-field="GivenDesignation" e-headertext="Given Designation" e-width="80"></div>
                                           <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>*@
+                                        <div e-column e-field="Basic" e-headertext="Basic" e-width="60"></div>
                                         <div e-column e-field="PayDays" e-headertext="Pay Days" e-width="60"></div>
                                         <div e-column e-field="StandardOTHour" e-headertext="S.OTHour" e-width="60"></div>
                                         <div e-column e-field="AdditionalOTHour" e-headertext="Add.OTHour" e-width="60"></div>
@@ -241,6 +243,12 @@
                         <label class="col-sm-4 control-label">Percentage<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <input type="text" class="form-control" name="Percentage" ng-model="ModelPCNewPendingPayment.Percentage" e-width="100" readonly />
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Minimum PresentDay<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" class="form-control" name="MinimumPresentDay" ng-model="ModelPCNewPendingPayment.MinimumPresentDay" e-width="100" readonly />
                         </div>
                     </div>
                 </div>
@@ -438,7 +446,7 @@
                                              e-allowselection="true" e-filtersettings-filterType="excel" e-allowsorting="true" style="margin-left:1%">
 
                                             <div e-columns>
-                                                @*<div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkDisbursementProcess" e-textalign="center" e-width="30"></div>*@
+                                                <div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkDisbursementProcess" e-textalign="center" e-width="30"></div>
                                                 <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="80"></div>
                                                 <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="80"></div>
                                                 <div e-column e-field="PayDays" e-headertext="Pay Days" e-width="60"></div>
@@ -452,12 +460,12 @@
 
                                             </div>
                                         </div>
-                                        @*<script type="text/template" id="checkDisbursementProcess">
+                                        <script type="text/template" id="checkDisbursementProcess">
                                             <input type="checkbox" ng-model="data.isSelected" ng-checked="data.isSelected" ng-click="$parent.pushInTempListforProcess($event,data);">
                                         </script>
                                         <script type="text/x-jsrender" id="headerTemplate">
                                             <input type="checkbox" id="headchkDisbursement" />
-                                        </script>*@
+                                        </script>
                                     </div>
                                 </fieldset>
                             </div>
