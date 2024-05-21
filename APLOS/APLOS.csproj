@@ -1983,6 +1983,7 @@
     <Content Include="Areas\SalesManagements\Scripts\InputCreditCheckController.js" />
     <Content Include="Areas\SalesManagements\Scripts\InputCreditApproveController.js" />
     <Content Include="Areas\SalesManagements\Scripts\InputCreditController.js" />
+    <Content Include="Areas\SalesManagements\Scripts\SalesProcessController.js" />
     <Content Include="Areas\SalesManagements\Scripts\SalesChanlanDispatchConfirmationController.js" />
     <Content Include="Areas\SalesManagements\Scripts\SalesChanlanCheckedController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralContractCheckedController.js" />
@@ -5157,6 +5158,7 @@
     <Content Include="Areas\SalesManagements\Views\InputCreditCheck.cshtml" />
     <Content Include="Areas\SalesManagements\Views\InputCreditApprove.cshtml" />
     <Content Include="Areas\Products\Views\PurchaseOrder\_ServiceControlServiceMasterPopUp.cshtml" />
+    <Content Include="Areas\SalesManagements\Views\SalesProcess.cshtml" />
     <None Include="Reports\HumanResource\Payrolls\PayrollsDataSet.xsd">
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>PayrollsDataSet.Designer.cs</LastGenOutput>
