@@ -46,6 +46,16 @@
                 </div>
             </div>
         </div>
+        <div class="form-group" >
+            <label class="col-sm-4 control-label">UoM<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select name="Transaction UoM" class="form-control" ng-model="serviceMasterNew.TransactionUoMId" ng-options="item.Value as item.Text for item in uoMList" >
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
         <div class="form-group">
             <label class="col-sm-4 control-label">Dr Control<sup>*</sup></label>
             <div class="col-sm-8 show-message">

@@ -731,8 +731,7 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
         $scope.productNew.CheckedBy = x.data.CheckedBy;
         getPartyPlantList();
         $scope.productNew.TaxOptionAddiTax = 'Yes';
-        //getServiceChargeList(Id);
-        //getServiceChargeListForCharge(Id);
+      
         getACKTaxList(Id);
         $scope.ServiceAckId = Id;
         //$scope.GetSavedPOList1(Id);
@@ -764,34 +763,6 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
         if (!$rootScope.isCollapsed) $rootScope.toggle();
     }
 
-
-    function getServiceChargeList(inveReveiveId) {
-        $scope.masterId12 = inveReveiveId;
-        $http.get($scope.path + 'GetServiceLisrByAckid?Id=' + inveReveiveId)
-            .then(function (response) {
-                $scope.chargesListPO = response.data;
-                $scope.GetAdvanceTaxInfo($scope.productId);
-                $scope.TotalSumAfterTCS();
-            });
-    }
-
-    function getACKTaxList(Id) {
-
-        //debugger;
-        $http.get($scope.path + 'getServicePOAckTax?Id=' + Id)
-            .then(function (response) {
-                $scope.receiveTaxList1 = [];
-                $scope.ServicePOAndAckTax = [];
-                $scope.receiveTaxList1 = response.data;
-                // $scope.getServiceTaxList();
-                for (var i = 0; i < $scope.receiveTaxList1.length; i++) {
-                    $scope.ServicePOAndAckTax.push($scope.receiveTaxList1[i]);
-
-                }
-
-
-            });
-    }
 
     function getPartyPlantList() {
         //debugger;
@@ -1586,8 +1557,6 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
 
     // #region Service
     $scope.serviceChargePopUp = function () {
-        //if (baseService.arrayLength($scope.inventoryMaterialList) === 0)
-        //    return ShowResult('Without material charges not aplicable.');
         $scope.productNew.TaxOptionService = 'Yes';
         $scope.serviceModel = {
             Id: null

@@ -58,6 +58,7 @@ function ServiceMasterController(commonMessage, $window, $scope, $rootScope, bas
         , IsApproved: true
         , DrControlId: null
         , CrControlId: null
+        , TransactionUoMId:null
     };
     $scope.serviceMasterNew = Object.assign({}, $scope.serviceMaster);
 
@@ -98,7 +99,13 @@ function ServiceMasterController(commonMessage, $window, $scope, $rootScope, bas
             });
     };
     $scope.GetSequence();
+    $scope.uom = function () {
 
+        cboService.getUoMCbo(function (response) {
+            $scope.uoMList = response;
+        });
+    }
+    $scope.uom();
     $scope.Get = function (id, index) {
         $scope.index = index;
         $scope.serviceMaster = $scope.serviceMasters[$scope.index];

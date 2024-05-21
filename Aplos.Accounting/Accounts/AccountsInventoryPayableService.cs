@@ -3798,7 +3798,8 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 		{
 			try
 			{
-				var sql = @"SELECT   SG.UserName AS ServiceGroup,SM.UserName ServiceMaster,HSN.Code HSNCode,SM.HSNCodeId,SM.IsPO,SM.IsApproved,SC.BudgetLimit,SC.Id,SM.Id ServiceMasterId,SC.ServiceControlId
+				var sql = @"SELECT   SG.UserName AS ServiceGroup,SM.UserName ServiceMaster,SM.ServiceCategory,SM.ServiceSubCategory,HSN.Code HSNCode,SM.HSNCodeId,SM.IsPO,SM.IsApproved
+						  ,SC.BudgetLimit,SC.Id,SM.Id ServiceMasterId,SC.ServiceControlId
                                     FROM [HKP].[ServiceMaster] SM
 									 LEFT JOIN [HKP].[ServiceGroup] AS SG ON SG.Id=SM.ServiceGroupId
 									 left join [HKP].[HSNCode] HSN ON HSN.Id=SM.HSNCodeId

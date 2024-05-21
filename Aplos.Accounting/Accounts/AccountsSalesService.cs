@@ -2863,7 +2863,7 @@ namespace Library.Accounting.Accounts
 							,  MGGL.CreditNoteGLId  GLGeneralInfoId , GL.AccountCode  GLGeneralInfoCode  ,GL.UserName GLGeneralInfoName
 							,MGGL.CreditNoteBudgetMasterId BudgetMasterId  ,B.Code BudgetCode  ,B.UserName BudgetName  ,MGGL.CreditNoteActivityId ActivityId,A.Code ActivityCode 
 							,A.UserName ActivityName , NULL Dr , ROUND(SUM(SRD.TransactionAmount+ISNULL(SRD.TaxAmount,0)),4) AS Cr
-							, ROUND(SUM(SRD.TransactionAmount+ISNULL(SRD.TaxAmount,0),4)) AS Amount ,MM.IsAsset , NULL InventoryReceiveDetailId,SRD.SalesReturnId
+							, ROUND(SUM(SRD.TransactionAmount+ISNULL(SRD.TaxAmount,0)),4) AS Amount ,MM.IsAsset , NULL InventoryReceiveDetailId,SRD.SalesReturnId
 						FROM TRN.SalesReturnDetail SRD
 						LEFT JOIN [MST].[MaterialMaster] AS MM ON SRD.MaterialMasterId=MM.Id
 						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
