@@ -150,7 +150,11 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
         IsAdditionalInfoApplicable: true,
         IsIncentiveApplicable: false,
         InvoiceStatus: 'Active',
-        PaymentToReceiveBankId: null
+        PaymentToReceiveBankId: null,
+        Incoterms: null,
+        IncotermsValue: 0,
+        AdditionalFrieghtValue: 0,
+        AdditionalFrieght: null
     };
     $scope.salesVM.TaxOptionAddiTax = 'Yes';
 

@@ -1980,6 +1980,8 @@
     <Content Include="Areas\QMS\Scripts\LWQSummaryReportController.js" />
     <Content Include="Areas\QMS\Scripts\LotWiseQualityReportController.js" />
     <Content Include="Areas\QMS\Scripts\DefineSQCIssueController.js" />
+    <Content Include="Areas\SalesManagements\Scripts\InputCreditCheckController.js" />
+    <Content Include="Areas\SalesManagements\Scripts\InputCreditApproveController.js" />
     <Content Include="Areas\SalesManagements\Scripts\InputCreditController.js" />
     <Content Include="Areas\SalesManagements\Scripts\SalesChanlanDispatchConfirmationController.js" />
     <Content Include="Areas\SalesManagements\Scripts\SalesChanlanCheckedController.js" />
@@ -5152,6 +5154,8 @@
     </Content>
     <Content Include="Areas\Setups\Views\ServiceMaster\ServiceControl.cshtml" />
     <Content Include="Areas\SalesManagements\Views\InputCredit.cshtml" />
+    <Content Include="Areas\SalesManagements\Views\InputCreditCheck.cshtml" />
+    <Content Include="Areas\SalesManagements\Views\InputCreditApprove.cshtml" />
     <Content Include="Areas\Products\Views\PurchaseOrder\_ServiceControlServiceMasterPopUp.cshtml" />
     <None Include="Reports\HumanResource\Payrolls\PayrollsDataSet.xsd">
       <Generator>MSDataSetGenerator</Generator>

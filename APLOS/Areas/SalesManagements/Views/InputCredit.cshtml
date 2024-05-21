@@ -25,7 +25,7 @@
                 <label class="col-sm-4 control-label">Month<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select id="MonthId" class="form-control" ng-model="ModelNew.MonthNo" name="MonthId" required tabindex="1" ng-disabled="true">
+                        <select id="MonthId" class="form-control" ng-model="ModelNew.MonthNo" name="MonthId" required tabindex="1">
                             <option value="">--Select--</option>
                             <option ng-repeat="option in monthList" value="{{option.Value}}">{{option.Text}}</option>
                         </select>
@@ -35,7 +35,7 @@
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" name="FromDate" ng-model="ModelNew.FromDate" datepicker class="form-control datepicker" required placeholder="dd-Mmm-yyyy" tabindex="3">
+                    <input type="text" name="FromDate" ng-model="ModelNew.FromDate" datepicker class="form-control datepicker" required placeholder="dd-MM-yyyy" tabindex="3">
                 </div>
             </div>
             <div class="form-group" show-errors>
@@ -43,7 +43,7 @@
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
                         <select id="CheckById" class="form-control" name="Check By" ng-model="ModelNew.CheckById" tabindex="8" required>
-                            <option ng-repeat="option in checkdByList" value="{{option.Value}}">{{option.Text}}</option>
+                            <option ng-repeat="option in checkedByList" value="{{option.Value}}">{{option.Text}}</option>
                         </select>
                     </div>
                 </div>
@@ -88,7 +88,7 @@
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" name="ToDate" ng-model="ModelNew.ToDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" required tabindex="3">
+                    <input type="text" name="ToDate" ng-model="ModelNew.ToDate" datepicker class="form-control datepicker" placeholder="dd-MM-yyyy" required tabindex="3">
                 </div>
             </div>
             <div class="form-group">
@@ -120,71 +120,65 @@
     <div class="tab-design">
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="Sales" role="tab" data-toggle="tab">Sales</a></li>
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);GetMaterialList();" href="" aria-controls="Sales" role="tab" data-toggle="tab">Sales</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Purchase" role="tab" data-toggle="tab">Purchase</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="Service" role="tab" data-toggle="tab">Service</a></li>
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="Expense" role="tab" data-toggle="tab">Expense</a></li>
+                <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="VendorInvoice" role="tab" data-toggle="tab">Vendor Invoice</a></li>
             </ul>
         </div>
         <div class="tab-content">
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }" ng-form="tabForm1" id="empType">
-                <div class="col-xs-12 col-sm-6 col-md-6">
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Employee Category<sup>*</sup></label>
-                        <div class="col-sm-6 show-message">
-                            <div class="select-style">
-                                <select class="form-control" id="EmployeeTypeId" ng-model="EmpCatNew.EmployeeTypeId" ng-options="item.Value as item.Text for item in employeeTypeList"
-                                        name="Employee Type" tabindex="4" required>
-                                    <option value="">--Select--</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-sm-2">
-                            <div class="common-btn">
-                                <ul class="list-inline text-left">
-                                    <li> <button ng-click="SaveEmployeeType();" ng-disabled="ModelNew.Id==null" class="btn" tabindex="9"><i class="fa fa-plus" style="font-size:18px"></i></button></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }" ng-form="tabForm1" id="Sales">
                 <div class="row">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SaveTag();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                        </ul>
+                    </div>
                     <div class="col-xs-12 col-sm-12 col-md-12">
-                        <div class="table-responsive modal-table" ng-show="EmployeeCategoryList.length>0">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Sequence</th>
-                                        <th>Code</th>
-                                        <th>ShortName</th>
-                                        <th>Standard Name</th>
-                                        <th>Employee Type</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat="x in EmployeeCategoryList">
-                                        <td>{{x.Sequence}}</td>
-                                        <td>{{x.Code}}</td>
-                                        <td>{{x.ShortName}}</td>
-                                        <td>{{x.StandardName}}</td>
-                                        <td>{{x.EmployeeCategory}}</td>
-                                        <td class="text-right table-td">
-                                            <ul class="list-inline action-list">
-                                                <li>
-                                                    <button ng-click="removeEmployeeCategory(x)" class="btn-action tooltip-here" data-placement="top" title="Remove" tabindex="1011">
-                                                        <i class="glyphicon glyphicon-trash"></i>
-                                                    </button>
-                                                </li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div id="GridSM" ej-grid e-datasource="materialList" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-templaterefresh="refreshTemplateemployee4">
+                            <div e-columns>
+                                <div e-column e-headertext="All" e-headertemplateid="#headerTemplate4" e-template="#checkboxTemplate4" e-textalign="center" e-width="2"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="4" e-isprimarykey="true"></div>
+                                <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="10"></div>
+                                <div e-column e-field="MaterialMasterArticleName" e-headertext="Article" e-width="10"></div>
+                                <div e-column e-field="HSNCode" e-headertext="HSNCode" e-width="3"></div>
+                                <div e-column e-field="SKU1" e-headertext="SKU1" e-width="2"></div>
+                                <div e-column e-field="SKU2" e-headertext="SKU2" e-width="2"></div>
+                                <div e-column e-field="TransactionRate" e-headertext="Rate" e-width="2"></div>
+                                <div e-column e-field="TransactionQty" e-headertext="Qty" e-width="2"></div>
+                                <div e-column e-field="TransactionAmount" e-headertext="Amount" e-width="2"></div>
+                                <div e-column e-field="TaxAmount" e-headertext="TaxAmount" e-width="2"></div>
+                                <div e-column e-field="ServiceCharge" e-headertext="Service Charge" e-width="2"></div>
+                                <div e-column e-field="ServiceTax" e-headertext="Service Tax" e-width="2"></div>
+                                <div e-column e-field="SourceType" e-headertext="Source Type" e-width="4"></div>
+                            </div>
                         </div>
+                        <script type="text/template" id="checkboxTemplate4">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                        </script>
+                        <script type="text/x-jsrender" id="headerTemplate4">
+                            <input type="checkbox" id="headchk4" />
+                        </script>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SaveTag();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                        </ul>
                     </div>
                 </div>
             </div>
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-form="tabForm2" id="Designation">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-form="tabForm2" id="Purchase">
+
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }" ng-form="tabForm3" id="Service">
+
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }" ng-form="tabForm4" id="Expense">
+
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }" ng-form="tabForm5" id="VendorInvoice">
 
             </div>
 
@@ -223,6 +217,7 @@
             <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
             <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
             <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+            <div e-column e-field="UserRef" e-headertext="UserRef" e-width="5"></div>
             <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
         </div>
     </div>

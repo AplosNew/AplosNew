@@ -11713,6 +11713,113 @@ where QAT.ParameterId='" + ParameterId + "'";
             }
         }
         #endregion Production Entry
+
+        #region Attdance
+        public void GetEmpAttdn(out List<Default2> DataList, string EmpSysId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select DayStatus Value , FORMAT(WorkDate,'yyyy-MM-dd')  Name  from AttdnProcessData where WorkDate between dateadd(month,datediff(month,0,getdate()),0)
+and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetEmpAdvanceDetail(out List<AdavnceDetailGetSet> DataList, string EmpSysId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<AdavnceDetailGetSet>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select SUM(isnull(PayDayValue,0)) Paydays 
+,(select Top 1 convert(numeric(10,2),SIDS.DefineAmount) Gross from SalaryInfoDefine SIDS
+left join SalaryInfoDefineMaster SIDM on SIDM.SystemID = SIDs.SalaryID
+left join SalaryHead SH on SH.SalaryHeadID = SIDS.SalaryHeadID
+where SIDS.SalaryHeadID = 'SHD202065'  and SIDM.EmpInfoSystemID = APD.EmpSystemID order by SIDS.DateAdded desc)  Gross
+
+,Convert(numeric(10,2),(SUM(isnull(PayDayValue,0)) * (select Top 1 convert(numeric(10,2),SIDS.DefineAmount) Gross from SalaryInfoDefine SIDS
+left join SalaryInfoDefineMaster SIDM on SIDM.SystemID = SIDs.SalaryID
+left join SalaryHead SH on SH.SalaryHeadID = SIDS.SalaryHeadID
+where SIDS.SalaryHeadID = 'SHD202065'  and SIDM.EmpInfoSystemID = APD.EmpSystemID order by SIDS.DateAdded desc) / 26)) TotalAdvance
+
+,Case when  (Convert(numeric(10,2),(select sum(isnull((Case when CONVERT(numeric(10,2),ESD.Amount)  > 0 then CONVERT(numeric(10,2),ESD.Amount) else CONVERT(numeric(10,2),ESR.Rate) end),0) )
+from EmpServiceData ESD 
+left join [dbo].[EmployeeServicesRate] ESR on ESR.EmployeeServiceCategoryId = ESD.EmployeeServiceCategoryId
+where ESD.Date >= dateadd(month,datediff(month,0,getdate()),0) and ESD.EmployeeId = APD.EmpSystemID group by ESD.EmployeeId))) is null then 0 else 
+(Convert(numeric(10,2),(select sum(isnull((Case when CONVERT(numeric(10,2),ESD.Amount)  > 0 then CONVERT(numeric(10,2),ESD.Amount) else CONVERT(numeric(10,2),ESR.Rate) end),0) )
+from EmpServiceData ESD 
+left join [dbo].[EmployeeServicesRate] ESR on ESR.EmployeeServiceCategoryId = ESD.EmployeeServiceCategoryId
+where ESD.Date >= dateadd(month,datediff(month,0,getdate()),0) and ESD.EmployeeId = APD.EmpSystemID group by ESD.EmployeeId))) end MonthDeduction
+
+,Convert(numeric(10,2),(Convert(numeric(10,2),(Convert(numeric(10,2),(SUM(isnull(PayDayValue,0)) * (select Top 1 convert(numeric(10,2),SIDS.DefineAmount) Gross from SalaryInfoDefine SIDS
+left join SalaryInfoDefineMaster SIDM on SIDM.SystemID = SIDs.SalaryID
+left join SalaryHead SH on SH.SalaryHeadID = SIDS.SalaryHeadID
+where SIDS.SalaryHeadID = 'SHD202065'  and SIDM.EmpInfoSystemID = APD.EmpSystemID order by SIDS.DateAdded desc) / 26))) - (Case when  (Convert(numeric(10,2),(select sum(isnull((Case when CONVERT(numeric(10,2),ESD.Amount)  > 0 then CONVERT(numeric(10,2),ESD.Amount) else CONVERT(numeric(10,2),ESR.Rate) end),0) )
+from EmpServiceData ESD 
+left join [dbo].[EmployeeServicesRate] ESR on ESR.EmployeeServiceCategoryId = ESD.EmployeeServiceCategoryId
+where ESD.Date >= dateadd(month,datediff(month,0,getdate()),0) and ESD.EmployeeId = APD.EmpSystemID group by ESD.EmployeeId))) is null then 0 else 
+(Convert(numeric(10,2),(select sum(isnull((Case when CONVERT(numeric(10,2),ESD.Amount)  > 0 then CONVERT(numeric(10,2),ESD.Amount) else CONVERT(numeric(10,2),ESR.Rate) end),0) )
+from EmpServiceData ESD 
+left join [dbo].[EmployeeServicesRate] ESR on ESR.EmployeeServiceCategoryId = ESD.EmployeeServiceCategoryId
+where ESD.Date >= dateadd(month,datediff(month,0,getdate()),0) and ESD.EmployeeId = APD.EmpSystemID group by ESD.EmployeeId))) end ))) * 0.5) AllowedAdvance
+
+from AttdnProcessData APD where WorkDate between dateadd(month,datediff(month,0,getdate()),0)
+and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by EmpSystemID";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new AdavnceDetailGetSet
+                    {
+                        Paydays = dsRef.Tables[0].Rows[i]["Paydays"].ToString(),
+                        Gross = dsRef.Tables[0].Rows[i]["Gross"].ToString(),
+                        TotalAdvance = dsRef.Tables[0].Rows[i]["TotalAdvance"].ToString(),
+                        MonthDeduction = dsRef.Tables[0].Rows[i]["MonthDeduction"].ToString(),
+                        AllowedAdvance = dsRef.Tables[0].Rows[i]["AllowedAdvance"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        #endregion Attdance
     }
 
 
@@ -13220,6 +13327,14 @@ where QAT.ParameterId='" + ParameterId + "'";
        
 
     }
-
+    
+    public class AdavnceDetailGetSet
+    {
+        public string Paydays { get; set; }
+        public string Gross { get; set; }
+        public string TotalAdvance { get; set; }
+        public string MonthDeduction { get; set; }
+        public string AllowedAdvance { get; set; }
+    }
 
 }

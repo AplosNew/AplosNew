@@ -1,4 +1,4 @@
-﻿<togglable name="Purchase LC With PO"></togglable>
+﻿<togglable name="Multiple PO LC"></togglable>
 <div class="form-elements form-horizontal" ng-form name="PurchaseLCForm">
     <input type="hidden" ng-model="purchaseLCNew.Id">
     <div class="col-xs-12">
@@ -21,6 +21,7 @@
                             <div e-column e-field="StandardName" e-headertext="Vendor" e-width="100"></div>
                             <div e-column e-field="TransactionAmount" e-headertext="Amount" e-width="90" e-textalign="right"></div>
                             <div e-column e-field="Currency" e-headertext="Currency" e-width="30"></div>
+                            <div e-column e-field="PaymentTerm" e-headertext="Payment Term" e-width="70"></div>
                             <div e-column e-field="OrderSpecifi" e-headertext="Order Specific" e-width="70"></div>
                             <div e-column e-field="ContractNo" e-headertext="ContractNo" e-width="80"></div>
                             <div e-column e-field="Flag" e-headertext="State" e-width="60"></div>
@@ -50,6 +51,7 @@
                             <div e-column e-field="StandardName" e-headertext="Vendor" e-width="100"></div>
                             <div e-column e-field="TransactionAmount" e-headertext="Amount" e-width="80" e-textalign="right"></div>
                             <div e-column e-field="Currency" e-headertext="Currency" e-width="30"></div>
+                            <div e-column e-field="PaymentTerm" e-headertext="Payment Term" e-width="70"></div>
                             <div e-column e-field="OrderSpecifi" e-headertext="Order Specific" e-width="70"></div>
                             <div e-column e-field="ContractNo" e-headertext="ContractNo" e-width="80"></div>
                             <div e-column e-field="Flag" e-headertext="State" e-width="60"></div>
@@ -90,8 +92,8 @@
             <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
                 <input type="text" ng-model="purchaseLCNew.PartyName" class="form-control" readonly>
                 <span class="input-group-btn">
-                    <button ng-click="showPartyPopUpNew()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                    <button ng-click="clearVendor()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    @*<button ng-click="showPartyPopUpNew()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                    <button ng-click="clearVendor()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>*@
                 </span>
             </div>
         </div>

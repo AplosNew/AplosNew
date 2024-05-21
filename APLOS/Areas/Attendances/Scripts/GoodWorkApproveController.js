@@ -101,9 +101,6 @@ function GoodWorkApproveController(cboService, commonMessage, $scope, $rootScope
         angular.element(document.querySelector('#ShiftPop')).modal('hide');
     }
 
-
-   
-
     $scope.removeRow = function (data) {
         $scope.empSystemId = data.SystemId;
         $scope.Id = data.Id;
@@ -198,10 +195,9 @@ function GoodWorkApproveController(cboService, commonMessage, $scope, $rootScope
 
     $scope.GetDblClick = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
+        $scope.ModelNew.WorkDate = $filter('dateFiltering')(new Date($scope.ModelNew.WorkDate), 'dd-MM-yyyy');
+
         $scope.GetGoodWorkDetailCenter();
-        //if (baseService.arrayLength($scope.checkedByList) == 1) {
-        //    $scope.ModelNew.CheckedBy = $scope.checkedByList[0].Value;
-        //}
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -228,7 +224,6 @@ function GoodWorkApproveController(cboService, commonMessage, $scope, $rootScope
             $scope.ModelNew.UserGroup = $scope.GoodWorkList[0].UserGroup;
             $scope.ModelNew.Purpose = $scope.GoodWorkList[0].Purpose;
             $scope.ModelNew.PurposeCategory = $scope.GoodWorkList[0].PurposeCategory;
-            $scope.getFiltersData();
         });
     }
 
@@ -263,8 +258,6 @@ function GoodWorkApproveController(cboService, commonMessage, $scope, $rootScope
 
     // UserGroup
 
-
-
     $scope.approvedByList = [];
     $scope.GetSupervisorCboList = function () {
         $http({
@@ -286,5 +279,102 @@ function GoodWorkApproveController(cboService, commonMessage, $scope, $rootScope
         });
     }
     $scope.GetUserGroupList();
+
+
+    $scope.detailTemp = "#tabGridContents";
+    $scope.detailgrid = function detailGridData(e) {
+
+        var filteredData = e.data["Id"];
+
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetGoodWorkDetailCenter?goodWorkId=' + filteredData
+        }).then(function successCallback(response) {
+            $scope.GoodWorkList = response.data;
+
+            var data = ej.DataManager($scope.GoodWorkList).executeLocal(ej.Query().where("GoodWorkId", "equal", parseInt(filteredData), true).take(100));
+
+            e.detailsElement.find("#detailGrid").ejGrid({
+
+                dataSource: data,
+                columns: [
+                    { field: "Id", headerText: "Id", width: 50 },
+                    { field: "EmployeeCode", headerText: "EmployeeCode", width: 50 },
+                    { field: "EmployeeName", headerText: "EmployeeName", width: 100 },
+                    { field: "FromTime", headerText: "FromTime", width: 50 },
+                    { field: "ToTime", headerText: "ToTime", width: 50 },
+                    { field: "Minute", headerText: "Minute", width: 50 },
+                    { field: "Purpose", headerText: "Purpose", width: 150 },
+                    { field: "PurposeCategory", headerText: "PurposeCategory", width: 100 },
+                    { field: "OverStay", headerText: "OverStay", width: 50 },
+                    { field: "DayStatus", headerText: "DayStatus", width: 40 },
+                    { field: "Department", headerText: "Department", width: 150 },
+                    { field: "Section", headerText: "Section", width: 100 },
+                    { field: "SubSection", headerText: "SubSection", width: 100 },
+                    { field: "Remark", headerText: "Remark", width: 150 }
+
+                ]
+            });
+            e.detailsElement.find(".tabcontrol").ejTab();
+        });
+
+
+    }
+
+    $scope.refreshTemplate = function (args) {
+        $("#headschk").ejCheckBox({ "change": CheckBoxSelectAllItemWise });
+    };
+    function CheckBoxSelectAllItemWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridEdit").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ModelList.length; i++) {
+                $scope.ModelList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridEdit").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.UpdateAll = function () {
+        try {
+            $scope.ToSaveList = [];
+            for (var i = 0; i < $scope.ModelList.length; i++) {
+                if ($scope.ModelList[i].Flag==true) {
+                    $scope.ToSaveList.push($scope.ModelList[i]);
+                }
+            }
+
+            $http({
+                method: 'POST',
+                url: 'Attendances/GoodWork/UpdateAll',
+                data: { 'data': $scope.ToSaveList},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+
 
 }

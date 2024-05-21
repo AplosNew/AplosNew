@@ -1,0 +1,47 @@
+﻿<fieldset class="scheduler-border">
+    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+
+    <div class="content-container-fluid" style="color:black;">
+        <div style="color:black;" id="Gridchecked" ej-grid e-datasource="ModelList"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+             e-filtersettings-filterType="excel" e-enabletouch="true"
+             e-detailstemplate="detailTemp"
+             e-detailsdatabound="detailgrid">
+
+            <div e-columns>
+                <div e-column e-headertext="Actions" e-width="30">
+                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Approved" ng-click="$parent.SaveApproveData(this);" style="margin: -6px;"></i></button>
+                    @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintData(this);" style="margin: -6px;"></i></button>*@
+                </div>
+                <div e-column e-template="#ApprovedStatus" e-headertext="Approved Status" e-width="50"></div>
+                <div e-column e-field="Id" e-headertext="Id" e-width="20" e-isprimarykey="true"></div>
+                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="20"></div>
+                <div e-column e-field="Code" e-headertext="Code" e-width="30"></div>
+                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="50"></div>
+                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="60"></div>
+                <div e-column e-field="UserName" e-headertext="User Name" e-width="60"></div>
+                <div e-column e-field="UserRef" e-headertext="UserRef" e-width="60"></div>
+                <div e-column e-field="Active" e-headertext="Active" e-width="20"></div>
+            </div>
+
+        </div>
+        <script id="tabGridContents" type="text/x-jsrender">
+            <div class="tabcontrol" id="Test">
+                <ul>
+                    <li><a href="#gridTab{{:Id}}">Item</a></li>
+                </ul>
+                <div id="gridTab{{:Id}}">
+                    <div id="detailGrid"></div>
+                </div>
+            </div>
+        </script>
+        <script type="text/template" id="ApprovedStatus">
+            <div class="">
+                <div id="control1">
+                    <input id="combo-default12" type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.approvalStatusList" e-value="data.ApprovedStatus" e-width="100%" />
+                </div>
+            </div>
+        </script>
+      
+    </div>
+</fieldset>

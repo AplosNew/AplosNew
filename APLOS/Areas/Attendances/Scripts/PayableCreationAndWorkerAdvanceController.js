@@ -1862,14 +1862,14 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
 
     }
 
-    //function checkExistTempListforConfirm(list, empSystemId) {
-    //    for (var i = 0; i < baseService.arrayLength(list); i++) {
-    //        if (list[i].EmpSystemId === empSystemId) {
-    //            return true;
-    //        }
-    //    }
-    //    return false;
-    //}
+    function checkExistTempListforConfirm(list, empSystemId) {
+        for (var i = 0; i < baseService.arrayLength(list); i++) {
+            if (list[i].EmpSystemId === empSystemId) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     $scope.GetEmployeeDisbursementItem = function () {
         $scope.EmployeeListNew = [];

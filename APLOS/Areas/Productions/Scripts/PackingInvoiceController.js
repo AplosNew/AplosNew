@@ -124,7 +124,11 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         IsAdditionalInfoApplicable: true,
         IsIncentiveApplicable: false,
         InvoiceStatus: 'Active',
-        PaymentToReceiveBankId: null
+        PaymentToReceiveBankId: null,
+        Incoterms:null,
+        IncotermsValue: 0,
+        AdditionalFrieghtValue: 0,
+        AdditionalFrieght:null
     };
 
     $scope.AdditionalFreightList = [

@@ -66,5 +66,13 @@ function salesManagementConfig($routeProvider) {
             templateUrl: "SalesManagements/Sales/InputCredit",
             controller: "InputCreditController"
         })
+        .when("/input-credit-check", {
+            templateUrl: "SalesManagements/Sales/InputCreditCheck",
+            controller: "InputCreditCheckController"
+        })
+        .when("/input-credit-approve", {
+            templateUrl: "SalesManagements/Sales/InputCreditApprove",
+            controller: "InputCreditApproveController"
+        })
         ;
 }

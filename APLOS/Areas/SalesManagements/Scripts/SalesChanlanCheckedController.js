@@ -153,7 +153,7 @@ function SalesChanlanCheckedController(cboService, commonMessage, $scope, $rootS
     $scope.detailTemp = "#tabGridContents";
 
     $scope.InvoiceNoList = [];
-   
+    $scope.detailTemp = "#tabGridContents";
     $scope.detailgrid = function detailGridData(e) {
         
         var filteredData = e.data["Id"];

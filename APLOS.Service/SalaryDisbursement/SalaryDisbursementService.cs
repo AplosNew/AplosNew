@@ -2997,10 +2997,59 @@ namespace Library.Service.SalaryDisbursement
                 var direct = new System.Text.StringBuilder();
                 var directsql = "";
 
-                directsql = @"UPDATE [dbo].[EmployeeFullAndFinalSettlement] SET VoucherId=NULL where VoucherId='" + voucherId + @"' ";
-                direct.Append(directsql);
-                directsql = @"
-                              update [dbo].[SalaryLock] set FNFSettlementVoucherId=NULL,DisbursementVoucherId=NULL,BonusDisbursementVoucherId=NULL,IsDisbursed=0,IsBonusDisbursed=0  where FNFSettlementVoucherId='" + voucherId + @"' ";
+                var employeePayableWriteOff = _employeePayableWriteOffRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var advanceWriteOff = _advanceWriteOffRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var employeeSubsequentTransaction = _employeeSubsequentTransactionRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+
+                if (employeePayableWriteOff != null)
+                {
+                    foreach (var epwriteOff in employeePayableWriteOff)
+                    {
+                        var employeePayableWriteOffDetail = _employeePayableWriteOffDetailRepository.Query(r => r.EmployeePayableWriteOffId == epwriteOff.Id).Select().ToList();
+                        foreach (var epwriteOffDetail in employeePayableWriteOffDetail)
+                        {
+                            directsql = @"UPDATE TRN.EmployeePayable SET WrittenOffAmount=(WrittenOffAmount - " + epwriteOffDetail.Amount + @"),IsWrittenOff=0 where Id='" + epwriteOffDetail.EmployeePayableId + @"'
+                                          UPDATE TRN.EmployeePayableDetail SET WrittenOffAmount=(WrittenOffAmount - " + epwriteOffDetail.Amount + @"),IsWrittenOff=0 where Id='" + epwriteOffDetail.EmployeePayableDetailId + @"' ";
+                            direct.Append(directsql);
+                        }
+                    }
+                }
+                if (advanceWriteOff != null)
+                {
+                    foreach (var adwriteOff in advanceWriteOff)
+                    {
+                        var advanceWriteOffDetail = _advanceWriteOffDetailRepository.Query(r => r.AdvanceWriteOffId == adwriteOff.Id).Select().ToList();
+                        foreach (var adwriteOffDetail in advanceWriteOffDetail)
+                        {
+                            if(adwriteOffDetail.AdvanceId != null)
+                            {
+                                directsql = @"UPDATE TRN.Advance SET WrittenOffAmount=(WrittenOffAmount - " + adwriteOffDetail.Amount + @"),IsWrittenOff=0 where Id='" + adwriteOffDetail.AdvanceId + @"'
+                                              UPDATE TRN.AdvanceDetail SET WrittenOffAmount=(WrittenOffAmount - " + adwriteOffDetail.Amount + @"),IsWrittenOff=0 where Id='" + adwriteOffDetail.AdvanceDetailId + @"' ";
+                                direct.Append(directsql);
+                            }  
+                        }
+                    }
+                }
+                if (employeeSubsequentTransaction.Count > 0)
+                {
+                    directsql = @"DELETE FROM TRN.EmployeeSubsequentTransaction where VoucherId='" + voucherId + @"' ";
+                    direct.Append(directsql);
+                }
+                if (employeePayableWriteOff.Count > 0)
+                {
+                    directsql = @"DELETE FROM TRN.EmployeePayableWriteoffDetail WHERE EmployeePayableWriteOffId IN (SELECT Id FROM TRN.EmployeePayableWriteoff  where VoucherId='" + voucherId + @"' ) 
+                                  DELETE FROM TRN.EmployeePayableWriteoff  where VoucherId='" + voucherId + @"' ";
+                    direct.Append(directsql);
+                }
+                if (advanceWriteOff.Count > 0)
+                {
+                    directsql = @"DELETE FROM TRN.AdvanceWriteoffDetail WHERE AdvanceWriteOffId IN (SELECT Id FROM TRN.AdvanceWriteoff  where VoucherId='" + voucherId + @"' ) 
+                                  DELETE FROM TRN.AdvanceWriteoff  where VoucherId='" + voucherId + @"' ";
+                    direct.Append(directsql);
+                }
+
+                directsql = @"UPDATE [dbo].[EmployeeFullAndFinalSettlement] SET VoucherId=NULL where VoucherId='" + voucherId + @"' 
+                              UPDATE [dbo].[SalaryLock] set FNFSettlementVoucherId=NULL,DisbursementVoucherId=NULL,BonusDisbursementVoucherId=NULL,IsDisbursed=0,IsBonusDisbursed=0  where FNFSettlementVoucherId='" + voucherId + @"' ";
                 direct.Append(directsql);
                 _sqlRepository.ExecuteSqlCommand(direct.ToString());
                 _unitOfWork.SaveChanges();

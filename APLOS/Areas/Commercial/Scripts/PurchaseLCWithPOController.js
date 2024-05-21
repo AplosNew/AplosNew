@@ -354,10 +354,11 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
                     ob.ContractId = $scope.GriddataPOWithOutLC[i].ContractId;
                     ob.VendorId = $scope.GriddataPOWithOutLC[i].PartyId;
                     ob.CurrencyId = $scope.GriddataPOWithOutLC[i].CurrencyId;
+                    ob.PaymentTermId = $scope.GriddataPOWithOutLC[i].PaymentTermId;
                     ob.Id = $scope.GriddataPOWithOutLC[i].Id;
 
                     //if (checkSameVendor($scope.selectedPOList, ob.VendorId, ob.CurrencyId, ob.ContractId)) {
-                    if (checkSame($scope.selectedPOList, ob.VendorId, ob.CurrencyId)) {
+                    if (checkSame($scope.selectedPOList, ob.VendorId, ob.CurrencyId, ob.PaymentTermId)) {
                         if (checkExistList($scope.selectedPOList, ob.Id) === false) {
 
                             $scope.purchaseLCNew.VendorId = $scope.GriddataPOWithOutLC[i].PartyId;
@@ -470,9 +471,9 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
         }
         return true;
     }
-    function checkSame(list, vendorId, currencyId) {
+    function checkSame(list, vendorId, currencyId, PaymentTermId) {
         for (var i = 0; i < list.length; i++) {
-            if (list[i].PartyId !== vendorId || list[i].CurrencyId !== currencyId) {
+            if (list[i].PartyId !== vendorId || list[i].CurrencyId !== currencyId || list[i].PaymentTermId !== PaymentTermId) {
                 return false;
             }
         }
