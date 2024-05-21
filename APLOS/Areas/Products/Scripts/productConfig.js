@@ -214,6 +214,10 @@ function ProductConfig($routeProvider, $locationProvider) {
             templateUrl: 'Products/PurchaseOrder/ServicePOIndependent',
             controller: 'ServicePOIndividualController'
         })
+        .when('/Service-GRN', {
+            templateUrl: 'Products/GoodsReceiveNote/IndependentServiceGRN',
+            controller: 'IndependentServiceGRNController'
+        })
         .when('/purchase-order-group', {
             templateUrl: 'Products/PurchaseOrderGroup',
             controller: 'purchaseOrderGroupController'

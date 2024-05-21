@@ -73,7 +73,7 @@ namespace Library.MaterialManagement.Inventory
 		IEnumerable<object> getserviceTaxByTaxCategoryList(string companyGroupId, string receiveId, string plantId, string hsnCodeId, string PODate);
 		IEnumerable<object> GetTaxCategoryListForSalesService(string companyGroupId, string receiveId, string plantId, string hsnCodeId, string InventorySalesDate);
 		IEnumerable<PurchaseOrderTax> GetTaxCategoryList1(string companyGroupId, string receiveId, string plantId, string hsnCodeId);
-
+		IEnumerable<object> GetTaxCategoryListServiceAcknowledgement(string companyGroupId, string serviceId, string plantId, string hsnCodeId);
 		IEnumerable<object> GetReceiveTaxList(string receiveDetailId);
 
 		IEnumerable<object> GetTotalReceiveTaxList(string receiveId);
@@ -189,6 +189,7 @@ namespace Library.MaterialManagement.Inventory
 		#region servive ack
 
 		void InsertServiceAck(ServiceAcknowledgementMaster entity, IEnumerable<ServiceAcknowledgementViewModel> DetailList,IEnumerable<ServicePOAckTax> ServicePOAndAckTax);
+		void InsertIndependentServiceAck(string ServiceAckId, ServiceAcknowledgementViewModel ackDetailModel, IEnumerable<ServicePOAckTax> servicePOAckTax);
 		void InsertIndependentServiceAck(ServiceAcknowledgementMaster entity);
 		void ServiceAcknowledgementReport(string CompanyGroupId, string plantId, string SurviceAckId);
 

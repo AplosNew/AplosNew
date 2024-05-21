@@ -3,6 +3,7 @@ ServiceAcknowledgementController.$inject = ['accountService', 'addressService', 
 function ServiceAcknowledgementController(accountService, addressService, $window, factoryService, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller) {
     $rootScope.title = "Service Acknowledgement";
     $scope.Action = 'Save';
+    $scope.DetailAction = 'Save';
     $scope.ActionService = 'Save';
     $scope.index = -1;
     $scope.products = [];
@@ -12,6 +13,7 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
     $scope.getListUrl2 = $scope.path + 'GetListForGrnByPoReq';
 
     $scope.saveUrl = $scope.path + 'CreateIndependentServiceAcknowledge';
+    $scope.detailSaveUrlIndependent = $scope.path + 'CreateIndependentServiceAcknowledgeDetail';
     $scope.updateUrl1 = $scope.path + 'UpdareGRN';
 
     //$scope.saveUrl = $scope.path + 'InsertGRN';
@@ -82,7 +84,6 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
         else {
 
         }
-
     }
 
     //#endregion
@@ -107,6 +108,50 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
         angular.element(document.querySelector('#POPopUp')).modal('show');
 
     };
+
+
+    $scope.ServiceMasterList = [];
+    $scope.getServiceMasterPopUpData = function () {
+        $http({
+            method: 'GET',
+            url: 'Products/PurchaseOrder/GetServiceMasterServiceControlData',
+        }).then(function successCallback(response) {
+            $scope.ServiceMasterList = response.data;
+        });
+        angular.element(document.querySelector('#ServiceMasterpopUp')).modal('show');
+
+    };
+    $scope.closeServicePopUP = function () {
+        angular.element(document.querySelector('#ServiceMasterpopUp')).modal('hide');
+
+    }
+    $scope.selectServiceMaster = function () {
+        var gridObj = $("#ServiceMasterGrid").data("ejGrid");
+        var $event = gridObj.getSelectedRecords()[0];
+        var x = $event;
+        $scope.serviceModel.ServiceName = x.ServiceMaster;
+        $scope.serviceModel.ServiceMasterId = x.ServiceMasterId;
+        getTaxCategoryList(x.HSNCodeId,x.HSNCode)
+    }
+
+    $scope.taxCategoryList = [];
+    function getTaxCategoryList(hsnCodeId, HSNCode) {
+        $scope.taxCategoryList = [];
+        $http({
+            method: 'GET'
+            , url: 'Products/PurchaseOrder/GetTaxCategoryListServiceAcknowledgement?serviceId=' + $scope.ServiceAckId + '&hsnCodeId=' + hsnCodeId
+        }).then(function (response) {
+            $scope.taxCategoryList = response.data;
+            for (var i = 0; i < $scope.taxCategoryList.length; i++) {
+                if (baseService.isUndefinedOrNull($scope.taxCategoryList[i].hsnCodeId)) {
+                    $scope.taxCategoryList[i].HSNCode = HSNCode;
+                    $scope.taxCategoryList[i].HSNCodeId = hsnCodeId;
+                }
+            }
+        });
+    }
+
+
     $scope.closePartyPopUp = function (x) {
         var party = x.data;
         $scope.productNew.PartyCode = party.Code;
@@ -689,7 +734,7 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
         //getServiceChargeList(Id);
         //getServiceChargeListForCharge(Id);
         getACKTaxList(Id);
-        $scope.productId = Id;
+        $scope.ServiceAckId = Id;
         //$scope.GetSavedPOList1(Id);
         //$scope.ImagedataLoad(Id);
         //$scope.TotalSumAfterTCS();
@@ -1477,7 +1522,15 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
             }
         }
     }
-   
+
+
+    $scope.POPopUpGateEntry = function () {
+        $scope.getalldataGateEntry();
+        angular.element(document.querySelector('#POPopUpGateEntry')).modal('show');
+    };
+    $scope.POPopUpCloseGateEntry = function () {
+        angular.element(document.querySelector('#POPopUpGateEntry')).modal('hide');
+    };
     $scope.GriddataGateEntry = [];
     $scope.getalldataGateEntry = function () {
         //debugger;
@@ -1503,6 +1556,8 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
 
         $scope.POPopUpCloseGateEntry();
     }
+
+
 
     $scope.delModal = function (id) {
         //debugger;
@@ -1560,22 +1615,17 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
         };
         angular.element(document.querySelector('#serviceChargePopUp')).modal('show');
     };
-    $http.get('Setups/CompanyServiceMaster/GetCboList')
 
-        .then(function (response) {
-            $scope.serviceList = response.data;
-        });
     $scope.closeServiceChargePopUp = function () {
         $scope.serviceModel = {};
         $scope.receiveTaxList = [];
         angular.element(document.querySelector('#serviceChargePopUp')).modal('hide');
     };
+
     $scope.changeService = function () {
         $scope.serviceModel.TransactionAmount = 0;
         $scope.serviceModel.Rate = 0;
         $scope.serviceModel.Qty = 0;
-
-
         if (baseService.isUndefinedOrNull($scope.serviceModel.ServiceMasterId))
             return $scope.taxCategoryList = [];
         var hsnCodeId = $.grep($scope.serviceList, function (item) { return item.Value === $scope.serviceModel.ServiceMasterId; })[0].HSNCodeId;
@@ -1784,7 +1834,7 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
         }
         $scope.chargesList.push($scope.serviceModel);
     }
-    $scope.detailSaveIndividualService = function () {
+    $scope.DetailSaveIndividualService = function () {
         //debugger;  
         try {
            
@@ -1804,17 +1854,17 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
                 ShowResult('Enter the Qty and Rate');
                 return false;
             }
-            $scope.materialValidation();
+            //$scope.materialValidation();
             $scope.serviceModel.Amount = $scope.serviceModel.TransactionAmount;
-            //$scope.invalid = true;
-            if ($scope.invalid) {
+            $scope.Isvalid = true;
+            if ($scope.Isvalid) {
                 if ($scope.Action1 === 'Save') {
                     $http({
                         method: 'POST',
                         url: $scope.detailSaveUrlIndependent,
                         data: {
+                            'ServiceAckId': $scope.productNew.Id,
                             'entity': $scope.serviceModel,
-                            'ServicePoMasterId': $scope.productNew.Id,
                             'taxCategoryList': $scope.taxCategoryList
                         },
                         dataType: 'JSON'
@@ -1834,29 +1884,7 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
                     };
 
                 }
-                else if ($scope.Action1 === "Update") {
-                    $http({
-                        method: 'POST',
-                        url: $scope.detailUpdateUrl,
-                        data: {
-                            entity: $scope.GetListForMasterOrdernew
-                            , taxCategoryList: $scope.taxCategoryList
-                            , PoId: $scope.productNew.Id
-                            , groupList: $scope.groupList
-                        },
-                        dataType: 'JSON'
-                    }).then(function successCallback(response) {
-                        if (response.data.Error === true)
-                            ShowResult(response.data.Message, 'failure', 'ListOfRequisition');
-                        else {
-                            ShowResult(response.data.Message, 'success', 'ListOfRequisition');
-                            getInventoryMaterialList($scope.productNew.Id);
-                        }
-                    }), function errorCallBack(response) {
-                        ShowResult(response.data.Message, 'failure', 'ListOfRequisition');
-                    };
-
-                }
+               
             }
         } catch (e) {
             ShowResult(e, 'failure', 'ListOfRequisition');

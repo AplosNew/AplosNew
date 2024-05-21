@@ -92,6 +92,7 @@
     <Compile Include="Enums\CostingSOEnum.cs" />
     <Compile Include="Enums\CommercialEnum.cs" />
     <Compile Include="Enums\FixedAssetDisposeStatusEnum.cs" />
+    <Compile Include="Enums\GRNTypeEnum.cs" />
     <Compile Include="Enums\NewBeneficiaryType.cs" />
     <Compile Include="Enums\ActivityOrderTypeEnum.cs" />
     <Compile Include="Enums\TaxCategoryLevelEnum.cs" />

@@ -1975,6 +1975,7 @@
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
     <Content Include="Areas\Productions\Scripts\MasterPlanDetailsController.js" />
     <Content Include="Areas\Productions\Scripts\MasterPlanSetUpController.js" />
+    <Content Include="Areas\Products\Scripts\IndependentServiceGRNController.js" />
     <Content Include="Areas\QMS\Scripts\LWQRUpdateController.js" />
     <Content Include="Areas\QMS\Scripts\LWQSummaryReportController.js" />
     <Content Include="Areas\QMS\Scripts\LotWiseQualityReportController.js" />
@@ -4972,6 +4973,7 @@
     <Content Include="Areas\Costings\Views\OrderLineCostingItem\OLCSMMap.cshtml" />
     <Content Include="Areas\Administration\Views\AssetManagement\Aplos.cshtml" />
     <Content Include="Areas\Administration\Views\EmpDocAssetTransection\Aplos.cshtml" />
+    <Content Include="Areas\Products\Views\GoodsReceiveNote\IndependentServiceGRN.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -5150,6 +5152,7 @@
     </Content>
     <Content Include="Areas\Setups\Views\ServiceMaster\ServiceControl.cshtml" />
     <Content Include="Areas\SalesManagements\Views\InputCredit.cshtml" />
+    <Content Include="Areas\Products\Views\PurchaseOrder\_ServiceControlServiceMasterPopUp.cshtml" />
     <None Include="Reports\HumanResource\Payrolls\PayrollsDataSet.xsd">
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>PayrollsDataSet.Designer.cs</LastGenOutput>

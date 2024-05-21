@@ -1,0 +1,33 @@
+﻿<style>
+    .modellgModify1 {
+        width: 1100px;
+    }
+</style>
+
+<div class="modal fade site-modal in" id="ServiceMasterpopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify1">
+        <div class="modal-content">
+            <div class="modal-header"> Service Master <button type="button" class="close" ng-click="closeServicePopUP();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+
+                        @*style="color:black;overflow:scroll"*@
+                        <div style="color:black;overflow:scroll" id="ServiceMasterGrid" ej-grid e-datasource="ServiceMasterList" e-recorddoubleclick="selectServiceMaster"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true"  e-allowselection="true" e-allowscrolling="true">
+                            <div e-columns>
+                                <div e-column e-field="ServiceGroup" e-headertext="ServiceGroup" e-width="70" e-filter="false"></div>
+                                <div e-column e-field="ServiceMaster" e-headertext="ServiceMaster" e-width="180"></div>
+                                <div e-column e-field="HSNCode" e-headertext="HSNCode" e-width="180"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closeServicePopUP();" class="btn"> Close</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
