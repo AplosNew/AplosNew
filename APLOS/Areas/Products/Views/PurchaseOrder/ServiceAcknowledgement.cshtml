@@ -366,7 +366,6 @@
                         <thead>
                             <tr>
                                 <th>Service Name</th>
-                                <th>Description</th>
                                 <th>Qty</th>
                                 <th>UoM</th>
                                 <th>Rate</th>
@@ -377,26 +376,22 @@
                         </thead>
                         <tbody>
                             <tr ng-repeat="x in chargesList">
-                                <td>{{x.ServiceName}}</td>
-                                <td>{{x.Description}}</td>
-                                <td ng-hide="true">{{x.Id}}</td>
-                                <td>{{x.Qty}}</td>
+                                <td>{{x.ServiceMasterName}}</td>
+                                <td>{{x.CurrentQty}}</td>
                                 <td>{{x.UoM}}</td>
                                 <td>{{x.Rate}}</td>
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.Amount" ng-keyup="calculateAmountForServiceCharge(x);" ng-disabled="true"></td>
-                                @*{{x.Amount|number}}</td>*@
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TotalTaxAmount" ng-disabled="true"></td>  @*{{x.TotalTaxAmount|number}}*@
                                 <td class="text-right">
                                     <ul class="list-inline action-list">
-                                        @*<li><button ng-click="serviceChargePopUpEdit(x.Id, x.Amount, x.TotalTaxAmount)" class="btn btn-action tooltip-here" data-placement="top" title="Edit"><i class="glyphicon glyphicon-edit"></i>&nbsp;{{MSAction}}</button></li>*@
                                         <li><button ng-click="getServiceTaxFGList(x, false,x.Id,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
                                         <li><button ng-click="servicePOdetailDeletePopup(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
                                     </ul>
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2" class="text-right"><strong>Total : </strong></td>
-                                <td class="text-left"><strong>{{chargesList | sumByKey : 'Qty'| setDecimal:currencyPrecision| number }}</strong></td>
+                                <td  class="text-right"><strong>Total : </strong></td>
+                                <td class="text-left"><strong>{{chargesList | sumByKey : 'CurrentQty'| setDecimal:currencyPrecision| number }}</strong></td>
                                 <td class="text-right"></td>
                                 <td class="text-right"></td>
                                 <td class="text-right"><strong>{{chargesList | sumByKey : 'Amount'| setDecimal:currencyPrecision| number }}</strong></td>
@@ -1565,31 +1560,32 @@
                         <div class="col-sm-8 show-message">
 
                             <input type="text" name="Qty" n-decimals="{{currencyPrecision}}" ng-model="serviceModel.Qty" class="form-control text-right" placeholder=""
-                                   ng-keyup="calculateQty();" />
+                                   ng-keyup="calculateRate();" />
 
 
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="div_Amount">
+                        <label class="col-sm-4 control-label" data-placement="top" title="Cost and Manufacture">Amount<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
+                                <input type="text" name="Amount" n-decimals="{{2}}" ng-model="serviceModel.TransactionAmount" class="form-control text-right" placeholder=""
+                                       ng-keyup="calculateRate();"  />
+                            </div>
+                            <div class="col-sm-4" style="padding-left:0px;padding-right:0px;">
+                                <input type="text" ng-model="serviceModel.CurrencyName" class="form-control" disabled />
+                            </div>
                         </div>
                     </div>
                     <div class="form-group" id="div_Rate">
                         <label class="col-sm-4 control-label" data-placement="top" title="Cost and Manufacture">Rate<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <input type="text" name="Rate" n-decimals="{{4}}" ng-model="serviceModel.Rate" class="form-control text-right" placeholder=""
-                                   ng-keyup="calculateTrnRate();" />
+                                  ng-disabled="true"  />
                         </div>
 
 
-                    </div>
-                    <div class="form-group" id="div_Amount">
-                        <label class="col-sm-4 control-label" data-placement="top" title="Cost and Manufacture">Amount<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
-                                <input type="text" name="Amount" n-decimals="{{2}}" ng-model="serviceModel.TransactionAmount" class="form-control text-right" placeholder=""
-                                       ng-keyup="calculateSvcTaxCategory();manualValidationAddRemove('div_svcRate', 'serviceModel', 'TransactionAmount', 'Amount');" ng-disabled="true" />
-                            </div>
-                            <div class="col-sm-4" style="padding-left:0px;padding-right:0px;">
-                                <input type="text" ng-model="serviceModel.CurrencyName" class="form-control" disabled />
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <div class="clearfix"></div>
