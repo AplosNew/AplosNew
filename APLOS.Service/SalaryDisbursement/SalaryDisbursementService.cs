@@ -2106,6 +2106,7 @@ namespace Library.Service.SalaryDisbursement
                 _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
                 _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
                 var directVoucherId = "";
+                var directVoucherDetailDrId = "";
                 voucherVM.DocDate = voucherVM.PostingDate;
                 voucherVM.CurrencyId = companyCurrencyId;
                 voucherVM.CompanyCurrencyRate = 1;
@@ -2146,6 +2147,7 @@ namespace Library.Service.SalaryDisbursement
                             ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
                             DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailDr.DrAmount,
                         });
+                        directVoucherDetailDrId = voucherDetailDr.Id;
                     }
 
                     if (voucherVM.PaymentSource == PaymentSource.Bank.ToString() || voucherVM.PaymentSource == PaymentSource.Cash.ToString())
@@ -2229,15 +2231,19 @@ namespace Library.Service.SalaryDisbursement
                 int count = 0;
                 DataSet dsChild;
                 DataSet dsAdvanceReqSchedule;
+                DataSet dsEmployeeSubsequentTransaction;
                 string BPId = string.Empty;
                 DataRow drAdvanceReqSchedule = null;
                 DataRow drBp = null;
+                DataRow drEmployeeSubsequentTransaction = null;
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 string sqlAdvanceReqSchedule = "SELECT * FROM [dbo].[AdvanceReqSchedule] where 1=2 ";
                 con.OpenDataSetThroughAdapter(sqlAdvanceReqSchedule, out dsAdvanceReqSchedule, false, "1");
                 string sql = "SELECT * FROM [TRN].[EmployeeAdvanceDeduction] where 1=2 ";
                 con.OpenDataSetThroughAdapter(sql, out dsChild, false, "1");
+                string sqlEmployeeSubsequentTransaction = "SELECT * FROM [TRN].[EmployeeSubsequentTransaction] where 1=2 ";
+                con.OpenDataSetThroughAdapter(sqlEmployeeSubsequentTransaction, out dsEmployeeSubsequentTransaction, false, "1");
                 bplib.clsGenID objGenID = null;
                 objGenID = new bplib.clsGenID();
                 objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "EmployeeAdvanceDeduction", out BPId);
@@ -2286,10 +2292,44 @@ namespace Library.Service.SalaryDisbursement
                         drBp["AddedDate"] = System.DateTime.Now.ToString();
                         drBp["AddedFromIP"] = identity.IPAddress;
                         dsChild.Tables[0].Rows.Add(drBp);
+
+                        drEmployeeSubsequentTransaction = dsEmployeeSubsequentTransaction.Tables[0].NewRow();
+                        drEmployeeSubsequentTransaction["CompanyGroupId"] = voucherVM.CompanyGroupId;
+                        drEmployeeSubsequentTransaction["CompanyId"] = voucherVM.CompanyId;
+                        drEmployeeSubsequentTransaction["PlantId"] = voucherVM.PlantId;
+                        drEmployeeSubsequentTransaction["EntityId"] = voucherVM.EntityId;
+                        drEmployeeSubsequentTransaction["VoucherTypeId"] = voucherVM.VoucherTypeId;
+                        drEmployeeSubsequentTransaction["AdvanceId"] = null;
+                        drEmployeeSubsequentTransaction["EmployeeId"] = item["EmpSystemId"];
+                        drEmployeeSubsequentTransaction["EmployeeTransactionTypeId"] = null;
+                        drEmployeeSubsequentTransaction["AdvanceWriteOffId"] = null;
+                        drEmployeeSubsequentTransaction["EmployeePayableWriteOffId"] = null;
+                        drEmployeeSubsequentTransaction["EmployeePayableId"] = null;
+                        drEmployeeSubsequentTransaction["PartyType"] = "Employee";
+                        drEmployeeSubsequentTransaction["CurrencyId"] = companyCurrencyId;
+                        drEmployeeSubsequentTransaction["Amount"] = item["AdvanceAmount"];
+                        drEmployeeSubsequentTransaction["VoucherDate"] = voucherVM.VoucherDate;
+                        drEmployeeSubsequentTransaction["PostingDate"] = voucherVM.PostingDate;
+                        drEmployeeSubsequentTransaction["DocDate"] = voucherVM.DocDate;
+                        drEmployeeSubsequentTransaction["DocRefNo"] = voucherVM.DocRefNo;
+                        drEmployeeSubsequentTransaction["JournalType"] = AdvanceType.Salary.ToString();
+                        drEmployeeSubsequentTransaction["TransactionType"] = EmployeeSubsequentTranEnum.Advance.ToString();
+                        drEmployeeSubsequentTransaction["Narration"] = voucherVM.Narration;
+                        drEmployeeSubsequentTransaction["SourceType"] = SourceType.EmployeeAdvance.ToString();
+                        drEmployeeSubsequentTransaction["IsPark"] = voucherVM.IsPark;
+                        drEmployeeSubsequentTransaction["Id"] = "ES" + GetEmployeeSubsequentTransactionPK();
+                        drEmployeeSubsequentTransaction["VoucherId"] = directVoucherId;
+                        drEmployeeSubsequentTransaction["VoucherDetailId"] = directVoucherDetailDrId;
+                        drEmployeeSubsequentTransaction["PaymentSource"] = voucherVM.PaymentSource;
+                        drEmployeeSubsequentTransaction["WorkerAdvanceDetailId"] = item["Id"];
+                        drEmployeeSubsequentTransaction["AddedBy"] = identity.Name;
+                        drEmployeeSubsequentTransaction["AddedDate"] = System.DateTime.Now.ToString();
+                        drEmployeeSubsequentTransaction["AddedFromIP"] = identity.IPAddress;
+                        dsEmployeeSubsequentTransaction.Tables[0].Rows.Add(drEmployeeSubsequentTransaction);
                     }
                 }
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsAdvanceReqSchedule,dsChild);
+                _info.SaveDataSets(dsAdvanceReqSchedule,dsChild, dsEmployeeSubsequentTransaction);
 
                 flag = true;
                 if (directVoucherId != null)
@@ -2874,7 +2914,39 @@ namespace Library.Service.SalaryDisbursement
                     _unitOfWork.Rollback();
             }
         }
-
+        public void PostEmployeeMultipleAdvanceDisbursement(string voucherId)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var direct = new System.Text.StringBuilder();
+                var directsql = "";
+                directsql = @" UPDATE trn.EmployeeSubsequentTransaction SET IsPark=0 where VoucherId='" + voucherId + @"' ";
+                direct.Append(directsql);
+                _sqlRepository.ExecuteSqlCommand(direct.ToString());
+                _voucherService.PostVoucher(voucherId);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
         public void DeleteEmployeeMultipleAdvanceDisbursement(string plantId, string voucherId)
         {
             var flag = false;
@@ -2894,7 +2966,8 @@ namespace Library.Service.SalaryDisbursement
                               DELETE from [TRN].[EmployeeAdvanceDeduction] where WorkerAdvanceDetailId in (SELECT Id FROM [dbo].[WorkerAdvanceDetail]  where DisbursementVoucherId='" + voucherId + @"' ) ";
                 direct.Append(directsql);
                 directsql = @"
-                              DELETE from dbo.AdvanceReqSchedule where WorkerAdvanceDetailId in (SELECT Id FROM [dbo].[WorkerAdvanceDetail]  where DisbursementVoucherId='" + voucherId + @"' ) ";
+                              DELETE from dbo.AdvanceReqSchedule where WorkerAdvanceDetailId in (SELECT Id FROM [dbo].[WorkerAdvanceDetail]  where DisbursementVoucherId='" + voucherId + @"' ) 
+                              DELETE from trn.EmployeeSubsequentTransaction where VoucherId='" + voucherId + @"' ";
                 direct.Append(directsql);
                 directsql = @"
                               UPDATE [dbo].[WorkerAdvanceDetail] SET IsDisburse=NULL,PaymentsDate=NULL, DisbursementVoucherId=NULL, PaymentsById=NULL  where DisbursementVoucherId='" + voucherId + @"' ";
