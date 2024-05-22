@@ -309,33 +309,6 @@
                         <td>Tax</td>
                         <td>Total</td>
                     </tr>
-                    @*<tr ng-show="inventoryMaterialListPO.length">
-                            <td>Materials</td>
-                            <td>{{inventoryMaterialListPO | sumByKey : 'TrnAmount'| setDecimal:currencyPrecision| number }}</td>
-                            <td>{{inventoryMaterialListPO | sumByKey : 'BaseTaxAmount'| setDecimal:currencyPrecision | number}}</td>
-                            <td>{{(inventoryMaterialListPO | sumByKey : 'TrnAmount'| setDecimal:currencyPrecision)+(inventoryMaterialListPO | sumByKey : 'BaseTaxAmount' | setDecimal:currencyPrecision)|number}}</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid;" ng-show="inventoryMaterialListPO.length">
-                            <td>Service</td>
-                            <td>{{chargesListPO | sumByKey : 'Amount'| setDecimal:currencyPrecision | number}}</td>
-                            <td>{{chargesListPO | sumByKey : 'TotalTaxAmount'| setDecimal:currencyPrecision | number}}</td>
-                            <td>{{(chargesListPO | sumByKey : 'Amount'| setDecimal:currencyPrecision)+(chargesListPO | sumByKey : 'TotalTaxAmount' | setDecimal:currencyPrecision)| number}}</td>
-                        </tr>
-                        <tr ng-show="inventoryMaterialListPO.length">
-                            <td></td>
-                            <td></td>
-                            <td>Gross Amount</td>
-                            <td>{{(inventoryMaterialListPO | sumByKey : 'TrnAmount'| setDecimal:currencyPrecision)+(inventoryMaterialListPO | sumByKey : 'BaseTaxAmount'| setDecimal:currencyPrecision )+(chargesListPO | sumByKey : 'TotalTaxAmount'| setDecimal:currencyPrecision)+(chargesListPO | sumByKey : 'Amount'| setDecimal:currencyPrecision)| number}}</td>
-                        </tr>*@
-
-
-
-                    @*<tr ng-show="inventoryMaterialList.length">
-                            <td>Materials</td>
-                            <td>{{inventoryMaterialList | sumByKey : 'TrnAmount'| setDecimal:currencyPrecision| number }}</td>
-                            <td>{{inventoryMaterialList | sumByKey : 'BaseTaxAmount'| setDecimal:currencyPrecision | number}}</td>
-                            <td>{{(inventoryMaterialList | sumByKey : 'TrnAmount'| setDecimal:currencyPrecision)+(inventoryMaterialList | sumByKey : 'BaseTaxAmount' | setDecimal:currencyPrecision)|number}}</td>
-                        </tr>*@
                     <tr style="border-bottom: 1px solid;" ng-show="chargesListPO.length">
                         <td>Service</td>
                         <td>{{chargesListPO | sumByKey : 'Amount'| setDecimal:2 | number}}</td>
@@ -393,7 +366,6 @@
                         <thead>
                             <tr>
                                 <th>Service Name</th>
-                                <th>Description</th>
                                 <th>Qty</th>
                                 <th>UoM</th>
                                 <th>Rate</th>
@@ -404,26 +376,22 @@
                         </thead>
                         <tbody>
                             <tr ng-repeat="x in chargesList">
-                                <td>{{x.ServiceName}}</td>
-                                <td>{{x.Description}}</td>
-                                <td ng-hide="true">{{x.Id}}</td>
-                                <td>{{x.Qty}}</td>
+                                <td>{{x.ServiceMasterName}}</td>
+                                <td>{{x.CurrentQty}}</td>
                                 <td>{{x.UoM}}</td>
                                 <td>{{x.Rate}}</td>
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.Amount" ng-keyup="calculateAmountForServiceCharge(x);" ng-disabled="true"></td>
-                                @*{{x.Amount|number}}</td>*@
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TotalTaxAmount" ng-disabled="true"></td>  @*{{x.TotalTaxAmount|number}}*@
                                 <td class="text-right">
                                     <ul class="list-inline action-list">
-                                        @*<li><button ng-click="serviceChargePopUpEdit(x.Id, x.Amount, x.TotalTaxAmount)" class="btn btn-action tooltip-here" data-placement="top" title="Edit"><i class="glyphicon glyphicon-edit"></i>&nbsp;{{MSAction}}</button></li>*@
                                         <li><button ng-click="getServiceTaxFGList(x, false,x.Id,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
                                         <li><button ng-click="servicePOdetailDeletePopup(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
                                     </ul>
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2" class="text-right"><strong>Total : </strong></td>
-                                <td class="text-left"><strong>{{chargesList | sumByKey : 'Qty'| setDecimal:currencyPrecision| number }}</strong></td>
+                                <td  class="text-right"><strong>Total : </strong></td>
+                                <td class="text-left"><strong>{{chargesList | sumByKey : 'CurrentQty'| setDecimal:currencyPrecision| number }}</strong></td>
                                 <td class="text-right"></td>
                                 <td class="text-right"></td>
                                 <td class="text-right"><strong>{{chargesList | sumByKey : 'Amount'| setDecimal:currencyPrecision| number }}</strong></td>
@@ -1542,6 +1510,8 @@
     </div>
 </div>
 
+
+
 <div class="modal fade site-modal in" id="serviceChargePopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -1551,11 +1521,11 @@
                     <div class="form-group" id="div_svc">
                         <label class="col-sm-4 col-md-4 control-label">Service<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <div class="select-style">
-                                <select name="Service" ng-model="serviceModel.ServiceMasterId" class="col-sm-3 form-control"
-                                        ng-options="item.Value as item.Text for item in serviceList" ng-change="changeService();">
-                                    <option value=""></option>
-                                </select>
+                            <div class="input-group">
+                                <input type="text" ng-model="serviceModel.ServiceName" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button tabindex="1" ng-click="getServiceMasterPopUpData();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -1590,31 +1560,32 @@
                         <div class="col-sm-8 show-message">
 
                             <input type="text" name="Qty" n-decimals="{{currencyPrecision}}" ng-model="serviceModel.Qty" class="form-control text-right" placeholder=""
-                                   ng-keyup="calculateQty();" />
+                                   ng-keyup="calculateRate();" />
 
 
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="div_Amount">
+                        <label class="col-sm-4 control-label" data-placement="top" title="Cost and Manufacture">Amount<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
+                                <input type="text" name="Amount" n-decimals="{{2}}" ng-model="serviceModel.TransactionAmount" class="form-control text-right" placeholder=""
+                                       ng-keyup="calculateRate();"  />
+                            </div>
+                            <div class="col-sm-4" style="padding-left:0px;padding-right:0px;">
+                                <input type="text" ng-model="serviceModel.CurrencyName" class="form-control" disabled />
+                            </div>
                         </div>
                     </div>
                     <div class="form-group" id="div_Rate">
                         <label class="col-sm-4 control-label" data-placement="top" title="Cost and Manufacture">Rate<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <input type="text" name="Rate" n-decimals="{{4}}" ng-model="serviceModel.Rate" class="form-control text-right" placeholder=""
-                                   ng-keyup="calculateTrnRate();" />
+                                  ng-disabled="true"  />
                         </div>
 
 
-                    </div>
-                    <div class="form-group" id="div_Amount">
-                        <label class="col-sm-4 control-label" data-placement="top" title="Cost and Manufacture">Amount<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
-                                <input type="text" name="Amount" n-decimals="{{2}}" ng-model="serviceModel.TransactionAmount" class="form-control text-right" placeholder=""
-                                       ng-keyup="calculateSvcTaxCategory();manualValidationAddRemove('div_svcRate', 'serviceModel', 'TransactionAmount', 'Amount');" ng-disabled="true" />
-                            </div>
-                            <div class="col-sm-4" style="padding-left:0px;padding-right:0px;">
-                                <input type="text" ng-model="serviceModel.CurrencyName" class="form-control" disabled />
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <div class="clearfix"></div>
@@ -1666,8 +1637,8 @@
                 <div class="clearfix"></div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li><button ng-click="Addclick();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Add</button></li>
-                        <li><button ng-click="closeServiceChargePopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Add</button></li>
+                        <li><button ng-click="DetailSaveIndividualService();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> {{DetailAction}}</button></li>
+                        <li><button ng-click="closeServiceChargePopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
                     </ul>
                 </div>
             </div>
@@ -1675,6 +1646,7 @@
     </div>
 </div>
 
+@Html.Partial("~/Areas/Products/Views/PurchaseOrder/_ServiceControlServiceMasterPopUp.cshtml")
 
 <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="detailDelete();"></confirm-archive-generic>
 <confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="serviceDelete();"></confirm-archive-generic>

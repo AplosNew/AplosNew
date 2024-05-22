@@ -29,6 +29,7 @@ using Library.OrderManagement.TermsAndConditions;
 using Library.MaterialManagement.InventoryManagements;
 using Aplos.MaterialManagement.MaterialQuery;
 using System.Linq;
+using Library.Accounting.Accounts;
 
 namespace Aplos.Areas.Products.Controllers
 {
@@ -602,10 +603,16 @@ namespace Aplos.Areas.Products.Controllers
             return Json(_purchaseOrderService.GetTaxCategoryList(identity.CompanyGroupId, receiveId, identity.PlantId, hsnCodeId, PODate), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
-        public JsonResult getserviceTaxByTaxCategoryList(string receiveId, string hsnCodeId, string PODate)
+        public JsonResult GetserviceTaxByTaxCategoryList(string receiveId, string hsnCodeId, string PODate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_purchaseOrderService.getserviceTaxByTaxCategoryList(identity.CompanyGroupId, receiveId, identity.PlantId, hsnCodeId, PODate), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetTaxCategoryListServiceAcknowledgement(string serviceId, string hsnCodeId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_purchaseOrderService.GetTaxCategoryListServiceAcknowledgement(identity.CompanyGroupId, serviceId, identity.PlantId, hsnCodeId), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
         public JsonResult GetTaxCategoryListForSalesService(string receiveId, string hsnCodeId, string InventorySalesDate)
@@ -2202,6 +2209,15 @@ SELECT ROW_NUMBER()  OVER(ORDER BY  SPOM.Id) AS SiNo, SPOM.Id
 
         #region Service Acknowledgement Coding Start Here
 
+        [Authorize, HttpGet]
+        public JsonResult GetServiceMasterServiceControlData()
+        {
+            AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsInventoryPayableService.GetServiceMasterServiceControlData(identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost]
         public JsonResult CreateServiceAcknowledge(ServiceAcknowledgementMaster entity, IEnumerable<ServiceAcknowledgementViewModel> DetailList, string Status, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, IEnumerable<ServicePOAckTax> ServicePOAndAckTax)
         {
@@ -2221,6 +2237,7 @@ SELECT ROW_NUMBER()  OVER(ORDER BY  SPOM.Id) AS SiNo, SPOM.Id
                 entity.CompanyId = identity.CompanyId;
                 entity.PlantId = identity.PlantId;
                 entity.IsApproved = false;
+                entity.ServiceType = GRNType.ServicePOAKC.ToString();
                 if (identity.EmployeeId == entity.CheckedBy)
                 {
                     throw new CustomException("Please select another employee for Check by.");
@@ -2259,7 +2276,23 @@ SELECT ROW_NUMBER()  OVER(ORDER BY  SPOM.Id) AS SiNo, SPOM.Id
             }
         }
 
-       
+        [HttpPost]
+        public JsonResult CreateIndependentServiceAcknowledgeDetail(string ServiceAckId, ServiceAcknowledgementViewModel ackDetailModel, IEnumerable<ServicePOAckTax> servicePOAckTax)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                _purchaseOrderService.InsertIndependentServiceAck(ServiceAckId, ackDetailModel, servicePOAckTax);
+                return Json(new { ServiceAckId, Message = AplosMessage.Success + " PO no <b>" + ServiceAckId + "</b>" });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
         [HttpPost]
         public ActionResult DeleteServiceAck(string id)
         {
@@ -3121,6 +3154,7 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
                 entity.CompanyId = identity.CompanyId;
                 entity.PlantId = identity.PlantId;
                 entity.IsApproved = false;
+                entity.ServiceType = GRNType.ServiceACK.ToString();
                 if (identity.EmployeeId == entity.CheckedBy)
                 {
                     throw new CustomException("Please select another employee for Check by.");

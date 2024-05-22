@@ -1281,6 +1281,8 @@ upanelApp.controller("EmpDocAssetTransectionController", EmpDocAssetTransectionC
 upanelApp.controller("InputCreditController", InputCreditController);
 upanelApp.controller("InputCreditApproveController", InputCreditApproveController);
 upanelApp.controller("InputCreditCheckController", InputCreditCheckController);
+upanelApp.controller("IndependentServiceGRNController", IndependentServiceGRNController);
+upanelApp.controller("SalesProcessController", SalesProcessController);
 
 
 
