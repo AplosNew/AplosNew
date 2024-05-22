@@ -2440,7 +2440,7 @@ SELECT X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAm
         [HttpPost]
         public JsonResult PostEmployeeMultipleAdvanceDisbursement(string voucherId)
         {
-            _salaryDisbursementService.PostSalarydisbursement(voucherId);
+            _salaryDisbursementService.PostEmployeeMultipleAdvanceDisbursement(voucherId);
             return Json(new { Message = AplosMessage.Posted });
         }
         [HttpPost]

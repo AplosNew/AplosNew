@@ -63,8 +63,9 @@ namespace Library.Model.Employees
         public string VoucherId { get; set; }
         public string EmployeeTransactionTypeId { get; set; }
         public string EmployeeSalaryAdvanceId { get; set; }
+        public string WorkerAdvanceDetailId { get; set; }
 
-       // public  EmployeeInformation Employee { get; set; }
+        // public  EmployeeInformation Employee { get; set; }
         public string EmployeeId { get; set; }
         public Advance Advance { get; set; }
         public string AdvanceId { get; set; }
