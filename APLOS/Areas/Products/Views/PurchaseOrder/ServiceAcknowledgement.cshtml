@@ -384,8 +384,8 @@
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TotalTaxAmount" ng-disabled="true"></td>  @*{{x.TotalTaxAmount|number}}*@
                                 <td class="text-right">
                                     <ul class="list-inline action-list">
-                                        <li><button ng-click="getServiceTaxFGList(x, false,x.Id,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-                                        <li><button ng-click="servicePOdetailDeletePopup(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                        <li><button ng-click="getServiceTaxPopUp(x,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
+                                        <li><button ng-click="removeDetailRow(x.ServicePODetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
                                     </ul>
                                 </td>
                             </tr>
@@ -1458,7 +1458,7 @@
 <div class="modal fade site-modal in" id="ServiceTaxPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
-            <div class="modal-header">Service Tax Information<button type="button" class="close" ng-click="closeReceiveTaxPopUp1();">&times;</button></div>
+            <div class="modal-header">Service Tax Information<button type="button" class="close" ng-click="CloseServiceTaxPopUp();">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-md-12">
                     <p>Taxable amount : <b>{{taxAbleAmnt | number| setDecimal:currencyPrecision}}</b></p>
@@ -1469,29 +1469,20 @@
                                 <tr>
                                     <th ng-hide="true">id</th>
                                     <th>Tax Category</th>
-                                    @*<th ng-hide="percentageColumn">HSN Code</th>*@
                                     <th ng-hide="percentageColumn">Percentage</th>
                                     <th>Tax Amount (BC)</th>
                                     <th></th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr ng-repeat="x in ServiceTaxList" ng-show="ServiceTaxList.length">
-                                    <td ng-hide="true">
-                                        <div class="show-message">
-                                            <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.InventoryServiceId" readonly>
-                                        </div>
-                                    </td>
+                                <tr ng-repeat="x in ServiceTaxPopUpList" ng-show="ServiceTaxPopUpList.length">
                                     <td>{{x.TaxCategory}}</td>
                                     <td ng-hide="percentageColumn">{{x.Percentage}}</td>
-                                    @*<td ng-hide="percentageColumn">{{x.HSNCode}}</td>*@
-                                    @*<td>{{x.TaxAmount}}</td>*@
-                                    <td><input type="text" n-decimals="2" class="form-control text-right" ng-model="x.TaxAmount" ng-keyup="calculateSerciceTax(x, $index)"></td>
+                                    <td><input type="text" n-decimals="2" class="form-control text-right" ng-model="x.TaxAmount"></td>
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    @*<td colspan="3" class="text-right"><label class="control-label"><b>Total : {{total}}</b>&nbsp;{{Currency}}</label></td>*@
-                                    <td colspan="3" class="text-right"><strong>{{ServiceTaxList | sumByKey : 'TaxAmount'| setDecimal:2| number:2 }}</strong></td>
+                                    <td colspan="3" class="text-right"><strong>{{ServiceTaxPopUpList | sumByKey : 'TaxAmount'| setDecimal:2| number:2 }}</strong></td>
                                     <td></td>
                                 </tr>
 
@@ -1502,7 +1493,7 @@
                 <div class="clearfix"></div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li><button ng-click="closeReceiveTaxPopUp1();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                        <li><button ng-click="CloseServiceTaxPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
                     </ul>
                 </div>
             </div>
@@ -1648,7 +1639,7 @@
 
 @Html.Partial("~/Areas/Products/Views/PurchaseOrder/_ServiceControlServiceMasterPopUp.cshtml")
 
-<confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="detailDelete();"></confirm-archive-generic>
+<confirm-archive-generic modalid="serviceDetailDeletePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="DeleteServiceAckRow(tempServiceDetailId);"></confirm-archive-generic>
 <confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="serviceDelete();"></confirm-archive-generic>
 <confirm-archive-generic modalid="removePopUpForDoc" title="Confirmation" message={{message}} data-ng-click-right-button="DeletePOIgame();"></confirm-archive-generic>
 

@@ -64,7 +64,7 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
             else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true) {
                 $scope.productNew.labelCheckAndApproved = 'To be checked by';
             }
-            
+
         });
     }
     $scope.NotificationSettingStatus();
@@ -200,67 +200,7 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
         angular.element(document.querySelector('#POPopUp')).modal('hide');
     };
     $scope.GriddataSelected = [];
-    $scope.recorddoubleclick = function ($event) {
-        $scope.Griddatatemp = [];
-        $scope.Griddatatemp1 = [];
-        var partyId = null;
-        $scope.tempList = [];
-        for (var j = 0; j < $scope.getListPOByReqG.length; j++) {
-            if ($scope.getListPOByReqG[j].Active === true) {
-                $scope.tempList.push($scope.getListPOByReqG[j]);
-            }
-        }
-        var flagTemp = false;
-        if ($scope.tempList.length > 0) {
-            for (var k = 0; k < $scope.tempList.length; k++) {
-                if ($scope.tempList[k].PartyId != $scope.tempList[0].PartyId) {// && $scope.tempList[k].CurrencyId != $scope.tempList[0].CurrencyId
-                    flagTemp = true;
-                    // angular.element(document.querySelector('#POPopUp')).modal('hide');
-                    ShowResult('Please select Same vendor', 'POPopUp');
-                    return;
 
-                }
-
-            }
-        }
-        if (flagTemp == false) {
-
-            var gridObj = $("#Grid").data("ejGrid");
-            var $event = gridObj.getSelectedRecords()[0];
-            var x = $event;
-            var Id = x.Id;
-            $scope.productNew = x;
-            $scope.productId = "";
-            $scope.POId = x.Id;
-            $scope.productNew.AcknowledgementDate = $filter("dateFiltering")(Date.now());
-            //$scope.product.POId = $scope.POId;
-            var id1 = "''";
-            for (var i = 0; i < $scope.getListPOByReqG.length; i++) {
-                if ($scope.getListPOByReqG[i].Active === true) {
-                    id1 += ",'" + $scope.getListPOByReqG[i].id + "'";
-                }
-            }
-
-            getPartyPlantList();
-            getServiceChargeListPO(id1);
-            GetServicePOAndAckTax(id1);//x.id
-            //getPartyPlantEditList();
-            // GetInventoryMaterialListByPO(id1);
-
-            $scope.GriddataSelected = [];
-            for (var x = 0; x < $scope.getListPOByReqG.length; x++) {
-
-                if ($scope.getListPOByReqG[x].Active === true) {
-                    $scope.GriddataSelected.push($scope.getListPOByReqG[x]);
-                }
-            }
-            $scope.NotificationSettingStatus();
-            $scope.POPopUpClose();
-            if (!$rootScope.isCollapsed) $rootScope.toggle();
-        }
-
-
-    }
     $scope.ServicePOAndAckTax = [];
     function GetServicePOAndAckTax(inveReveiveId) {
         $scope.masterId1 = inveReveiveId;
@@ -539,7 +479,7 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
                 $scope.product.POId = $scope.POId;
                 // $scope.product.Id = null;
                 if ($scope.Action === "Save") {
-                 
+
                     $scope.chargesListPOnew = [];
                     for (var i = 0; i < $scope.chargesListPO.length; i++) {
                         if (isNaN($scope.chargesListPO[i].CurrentQty) || baseService.isUndefinedOrNull($scope.chargesListPO[i].CurrentQty))
@@ -612,37 +552,33 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
                         ShowResult(response.data.Message, 'failure');
                     };
                 }
-                
+
             }
         } catch (e) {
             throw e;
         }
     };
-    $scope.DeleteServiceAckRow = function (x) {
-        //debugger;
-        if (baseService.arrayLength($scope.chargesListPO) > 0) {
-            if (!baseService.isUndefinedOrNull($scope.productId)) {
-                $http({
-                    method: 'POST',
-                    url: 'Products/PurchaseOrder/DeleteServiceAckRow?Id=' + x.ServicePODetailId,
-                    dataType: 'JSON'
-                }).then(function (response) {
-                    if (response.data.Error === true)
-                        ShowResult('Delete Error', 'failure');
-                    else {
-                        ShowResult('Deleted Service line Successfully', 'success');
-                        getServiceChargeList($scope.productId);
-                        //ClearFields();
-                    }
-                    function errorCallBack(response) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                });
+
+    $scope.DeleteServiceAckRow = function (id) {
+        $http({
+            method: 'POST',
+            url: 'Products/PurchaseOrder/DeleteServiceAckRow?Id=' + id,
+            dataType: 'JSON'
+        }).then(function (response) {
+            if (response.data.Error === true)
+                ShowResult('Delete Error', 'failure');
+            else {
+                ShowResult('Deleted Service line Successfully', 'success');
+                getServiceDetailList($scope.ServiceAckId);
             }
-        }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
         //else
         //    ShowResult('First delete all line item.', 'failure');
     };
+
     $scope.Delete = function () {
         //debugger;
         if (baseService.arrayLength($scope.chargesListPO) === 0) {
@@ -657,6 +593,7 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
                     else {
                         ShowResult('Delete Successfully', 'success');
                         $scope.getalldataMaster();
+                        $scope.tempServiceDetailId = null;
                         $scope.Clear();
                     }
                     function errorCallBack(response) {
@@ -667,6 +604,12 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
         }
         else
             ShowResult('First delete all line item.', 'failure');
+    };
+
+    $scope.removeDetailRow = function (id) {
+        $scope.tempServiceDetailId = id;
+        $scope.message = 'Are you sure want to permanently delete this?';
+        angular.element(document.querySelector('#serviceDetailDeletePopUp')).modal('show');
     };
 
     $scope.Clear = function () {
@@ -769,11 +712,12 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
             });
     }
 
-    $scope.receiveTaxList1 = [];
+    $scope.ServiceTaxList = [];
     function getACKTaxList(Id) {
+        $scope.ServiceTaxList = [];
         $http.get($scope.path + 'getServicePOAckTax?Id=' + Id)
             .then(function (response) {
-                $scope.receiveTaxList1 = response.data;
+                $scope.ServiceTaxList = response.data;
             });
     }
 
@@ -796,6 +740,23 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
             });
         });
     }
+
+    $scope.ServiceTaxPopUpList = [];
+    $scope.getServiceTaxPopUp = function (data, index) {
+        $scope.taxAbleAmnt = data.Amount;
+        $scope.HSNCode = data.HSNCode;
+        $scope.ServiceTaxPopUpList = [];
+        for (var i = 0; i < $scope.ServiceTaxList.length; i++) {
+            if ($scope.ServiceTaxList[i].ServiceAcknowledgementDetailId == data.ServicePODetailId) {
+                $scope.ServiceTaxPopUpList.push($scope.ServiceTaxList[i]);
+            }
+        }
+        angular.element(document.querySelector('#ServiceTaxPopUp')).modal('show');
+    }
+    $scope.CloseServiceTaxPopUp = function () {
+        angular.element(document.querySelector('#ServiceTaxPopUp')).modal('hide');
+    }
+
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -883,7 +844,6 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
         //debugger;
         $http({
             method: 'GET',
-            //url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData
             url: 'Products/PurchaseOrder/LoadAllAckServicesData'
         }).then(function successCallback(response) {
             $scope.lst = response.data;
@@ -1097,7 +1057,7 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
     };
 
     //#endregion 
-  
+
 
 
     $scope.POPopUpGateEntry = function () {
@@ -1192,7 +1152,7 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
         angular.element(document.querySelector('#serviceChargePopUp')).modal('hide');
     };
 
-    
+
     $scope.calculateRate = function () {
         $scope.serviceModel.TotalTaxAmount = 0;
         if (baseService.isUndefinedOrNull($scope.serviceModel.Qty)) {
@@ -1234,7 +1194,7 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
     //    }
     //};
 
-   
+
     $scope.delModal = function (id) {
         $scope.id = id;
         $scope.message = 'Are you sure want to permanently delete this?';
@@ -1365,7 +1325,7 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
         //}
 
     };
-	// #endregion Service
+    // #endregion Service
     $scope.uom = function () {
 
         cboService.getUoMCbo(function (response) {
@@ -1398,7 +1358,7 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
     $scope.DetailSaveIndividualService = function () {
         //debugger;  
         try {
-           
+
             if (baseService.isUndefinedOrNull($scope.serviceModel.Qty) || $scope.serviceModel.Qty === 0) {
                 ShowResult('Enter the Qty');
                 return false;
@@ -1447,7 +1407,7 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
                     };
 
                 }
-               
+
             }
         } catch (e) {
             ShowResult(e, 'failure', 'ListOfRequisition');

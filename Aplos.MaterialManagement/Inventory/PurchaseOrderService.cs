@@ -13476,7 +13476,7 @@ ORDER BY IR.ID DESC";
                     ServicePODetailId = ackDetailModel.ServicePODetailId,
                     Amount = Math.Round(ackDetailModel.Amount, 2),
                     TotalTaxAmount = Math.Round(ackDetailModel.TotalTaxAmount, 2),
-                    TotalAmount = Math.Round(ackDetailModel.TotalAmount, 2),
+                    TotalAmount = Math.Round(ackDetailModel.Amount, 2),
                     Qty = ackDetailModel.Qty,
                     Rate = Math.Round(ackDetailModel.Rate, 4),
                     TransactionUoMId = ackDetailModel.TransactionUoMId

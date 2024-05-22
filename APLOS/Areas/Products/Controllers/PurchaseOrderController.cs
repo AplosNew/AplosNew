@@ -3353,7 +3353,7 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
                 , a.Amount 
                 ,Tax.TaxAmount TotalTaxAmount
                 ,0 [check]
-                ,d.IsNonCreditable
+                ,d.IsNonCreditable,HSN.Code HSNCode
                 ,a.TotalAmount,a.Qty CurrentQty,a.Rate,a.TransactionUoMId,UOM.UserName UoM
 				,SPO.Qty,mapData.Qty OtherReceived,mapData1.MapId MapId,SPO.Id ServicePoDelId,Balance=(Isnull(SPO.Qty,0)-(isnull(mapData.Qty,0)+isnull(a.Qty,0)))
                 FROM trn. ServiceAcknowledgementDetail a
@@ -3362,6 +3362,7 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
                 LEFT JOIN (select ServiceAcknowledgementDetailId, sum(TaxAmount) TaxAmount from trn.ServicePOAckTax Group By ServiceAcknowledgementDetailId
                 
 				) Tax ON Tax.ServiceAcknowledgementDetailId=a.Id
+                LEFT JOIN [HKP].HSNCode HSN ON HSN.Id=b.HSNCodeId
 				left JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.TransactionUoMId
 				left JOIN trn.ServicePODetail SPO ON SPO.Id=a.ServicePODetailId
 				left JOIN (Select ServicePoDetailId,sum(Qty) Qty from trn.ServivePOAcknowledgementMap where ServiceAckId<>'" + Id + @"' Group by ServicePoDetailId) mapData on mapData.ServicePoDetailId=SPO.Id
@@ -3383,7 +3384,17 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
         {
             try
             {
+
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var sql = @"SELECT TOP(1) SAM.*,V.VoucherNo FROM [TRN].[ServiceAcknowledgementMaster] SAM 
+                        JOIN  TRN.ServiceAcknowledgementDetail SAD ON SAM.Id=SAD.ServiceAcknowledgementMasterId
+                        LEFT JOIN TRN.Voucher V ON V.Id=SAM.VoucherId
+                         WHERE SAD.Id='"+Id+"' AND SAM.VoucherId<>''";
+                var TempPostedService = _sqlRepository.GetData(sql);
+                if (TempPostedService.Count > 0)
+                    throw new CustomException("Please delete voucher No " + TempPostedService["VoucherNo"] + " First!");
+
                 var rdBuilder = new System.Text.StringBuilder();
                 var voucherSql = @"delete from trn.ServicePOAckTax where ServiceAcknowledgementDetailId='" + Id + "'";
                 var bankJournalSql = @"delete from trn.ServiceAcknowledgementDetail where id='" + Id + "'";
