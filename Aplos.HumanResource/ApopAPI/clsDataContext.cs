@@ -11922,7 +11922,7 @@ and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by Em
 
             if (Date != "" || Date != null || Date != "null")
             {
-                stradd = " and Mo.OrderStatusId = '" + Status + "' ";
+                
             }
 
             System.Data.DataSet dsRef;
