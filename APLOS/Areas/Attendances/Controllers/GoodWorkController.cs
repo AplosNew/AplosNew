@@ -2839,7 +2839,7 @@ SELECT X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAm
                 if (dsMaster.Tables[0].DefaultView.Count > 0)
                 {
                     data["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-                    data["ApprovedStatus"] = "Approved";
+                    //data["ApprovedStatus"] = "Approved";
                     EditRow(dsMaster.Tables[0].DefaultView[0].Row, data);
                 }
 
@@ -2890,7 +2890,7 @@ SELECT X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAm
 
                 #endregion Good Work Detail
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsDetail);
+                _info.SaveDataSets(dsDetail);
 
                 return Json(new { Error = false, Message = AplosMessage.Insert });
             }

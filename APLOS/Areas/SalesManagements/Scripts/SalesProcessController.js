@@ -34,6 +34,17 @@ function SalesProcessController(cboService, commonMessage, $scope, $rootScope, b
         });
     }
     $scope.getData();
+    $scope.SPList = [];
+    $scope.getSPData = function () {
+        $http({
+            method: 'Get',
+            url: $scope.path + "GetSalesProcessTransactionList",
+            data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.SPList = response.data;
+        });
+    }
 
     $scope.ModelTemp = {
         Id: null,
