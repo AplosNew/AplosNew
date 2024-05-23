@@ -11900,27 +11900,27 @@ and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by Em
             DataList = new List<OederControllGetSet>();
 
             string stradd = "";
-            if(ResPer != "" || ResPer != null || ResPer != "null")
+            if(ResPer != null)
             {
-                stradd = " and Mo.ResponsiblePersonId = '" + ResPer + "' "; 
+                stradd = stradd + " and Mo.ResponsiblePersonId = '" + ResPer + "' "; 
             }
             if (Type != "Both")
             {
                 if(Type == "Export")
                 {
-                    stradd = " and PAG.StandardName = 'Customer Export' ";
+                    stradd = stradd + " and PAG.StandardName = 'Customer Export' ";
                 }
                 if (Type == "Local")
                 {
                     stradd = " and PAG.StandardName = 'Customer Local' ";
                 }
             }
-            if(Status != "" || Status != null || Status != "null")
+            if(Status != null)
             {
-                stradd = " and Mo.OrderStatusId = '" + Status + "' ";
+                stradd = stradd + " and Mo.OrderStatusId = '" + Status + "' ";
             }
 
-            if (Date != "" || Date != null || Date != "null")
+            if (Date != null)
             {
                 
             }
@@ -12238,7 +12238,68 @@ left join OrderControl OCT on OCT.SalesOrderId = SO.Id
             }
         }
 
+        public string PostQualityControlRemarks(IEnumerable<OrderControlRemarksGet> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "OrderControlRemarks";
+                string Id = "''";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<OrderControlRemarksGet> items = DataToSave.ToList();
 
+                foreach (OrderControlRemarksGet item in DataToSave)
+                {
+                    Id += ",'" + item.Id + "'";
+                }
+
+                con.OpenDataSetThroughAdapter("select * from OrderControlRemarks where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+
+                foreach (OrderControlRemarksGet item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+                        dr["Id"] = "ORM" + _Id;
+                        dr["OrderControlId"] = item.OrderControlId;
+                        dr["Remarks"] = item.Remarks;
+                        dr["ActionToBeTakenId"] = item.ActionToBeTakenId;
+                        
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = "163.47.212.50";
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+                }
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+        }
         #endregion OrderControlReport
     }
 
@@ -13863,5 +13924,18 @@ left join OrderControl OCT on OCT.SalesOrderId = SO.Id
         public string OCRemarks { get; set; }
 
     }
+    public class OrderControlRemarksGet
+    {
+        public string Id { get; set; }
+        public string OrderControlId { get; set; }
+        public string Remarks { get; set; }
+        public string ActionToBeTakenId { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
 
+    }
 }

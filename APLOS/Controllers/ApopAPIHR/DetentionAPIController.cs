@@ -1567,6 +1567,18 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetOrderControlReportDetail(out List<OederControllGetSet> activelists, ResPer, Type, Status, Date);
             return activelists;
         }
+        public string PostQualityControlRemarks([FromBody] IEnumerable<OrderControlRemarksGet> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostQualityControlRemarks(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
         #endregion OrderControlReport
     }
 }
