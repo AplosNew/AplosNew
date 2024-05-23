@@ -4515,7 +4515,7 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
             try
             {
                 #region SQl
-                if(BookingLevel == "MasterOrderItem")
+                if (BookingLevel == "MasterOrderItem")
                 {
                     strSQL = @"SELECT DISTINCT mo.MasterOrderNo,so.MasterOrderItemId MOIId
 	                                ,ISNULL(so.Id, '') SOId
@@ -11267,7 +11267,7 @@ where QAT.ParameterId='" + ParameterId + "'";
 
 
                 }
-                
+
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
                 string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
@@ -11321,7 +11321,7 @@ where QAT.ParameterId='" + ParameterId + "'";
 
 
                 }
-                
+
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
                 string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
@@ -11438,9 +11438,9 @@ where QAT.ParameterId='" + ParameterId + "'";
                         dsMaster.Tables[0].Rows.Add(dr);
 
                     }
-                    
+
                 }
-                
+
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
@@ -11492,7 +11492,7 @@ where QAT.ParameterId='" + ParameterId + "'";
         #endregion UtilityMaster
 
         #region Production Entry
-        public void GetDateFilter(out List<Default2> DataList , string Time)
+        public void GetDateFilter(out List<Default2> DataList, string Time)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -11820,6 +11820,426 @@ and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by Em
             }
         }
         #endregion Attdance
+
+        #region OrderControlReport
+        public void GetMoResPer(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Distinct Ei.SystemId Value , CONCAT(Ei.EmployeeCode , '   ' , Ei.EmployeeName) Name from trn.MasterOrder Mo 
+                            left join EmployeeInformation Ei on Ei.SystemId = Mo.ResponsiblePersonId
+                            where MO.OrderStatusId = 'Active'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetOrderStatus(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Distinct OrderStatusId Value , OrderStatusId Name from trn.MasterOrder Mo ";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
+        public void GetOrderControlReportDetail(out List<OederControllGetSet> DataList, string ResPer, string Type, string Status, string Date)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<OederControllGetSet>();
+
+            string stradd = "";
+            if(ResPer != "" || ResPer != null || ResPer != "null")
+            {
+                stradd = " and Mo.ResponsiblePersonId = '" + ResPer + "' "; 
+            }
+            if (Type != "Both")
+            {
+                if(Type == "Export")
+                {
+                    stradd = " and PAG.StandardName = 'Customer Export' ";
+                }
+                if (Type == "Local")
+                {
+                    stradd = " and PAG.StandardName = 'Customer Local' ";
+                }
+            }
+            if(Status != "" || Status != null || Status != "null")
+            {
+                stradd = " and Mo.OrderStatusId = '" + Status + "' ";
+            }
+
+            if (Date != "" || Date != null || Date != "null")
+            {
+                
+            }
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"SELECT p2.Id PlantId,p2.UserName AS Plant,
+e.Id AS MasterOrderEntityId,e.UserName AS MasterOrderEntity,
+e2.Id AS ProductionOrderEntityId,e2.UserName AS ProductionOrderEntity,
+p.UserName AS Customer,MO.Remarks,
+b.UserName AS Buyer,ss.UserName AS Season,
+ISNULL(CASE WHEN ISNULL(T.Qty,0)>0 THEN T.Qty ELSE PO.PlannedQty END,0) AS TotalPlanQty,
+ISNULL(PRODPR.ProductionQtyAtPR,0) AS ProducedQty,
+ISNULL(CASE WHEN ISNULL(T.Qty,0)>0 THEN T.Qty ELSE PO.PlannedQty END,0)-(ISNULL(PRODPR.ProductionQtyAtPR,0)-ISNULL(PRDQ.ProductionBookedQty,0)) AS RemainingPlanQuantity,
+
+
+BDEP.UserName AS BuyerDepartment,bd.UserName AS BuyerDivision, ei.EmployeeName AS ResponsiblePerson,mo.MasterOrderNo,MO.TotalQty MasterOrderQty,
+FORMAT(MO.AddedDate,'dd-MMM-yyyy') MasterOrderCreationDate,OC.UserName AS OrderCategory,os.UserName AS OrderStatus, mo.BuyerReferenceNo AS BuyerOrderNo
+,MO.OwnReferenceNo AS OwnOrderNo,
+MOI.Id AS LineItemId,MOI.BuyerReferenceNo,moi.ProductionGrouping,FORMAT(MOI.AddedDate,'dd-MMM-yyyy') MasterOrderItemCreationDate,
+mm.UserName AS Material,mma.StandardName AS Article, pc.UserName AS ProductCategory, pm.UserName AS Product,MOI.TotalQty AS ItemQty,uom.UserName AS UOM,
+PL.Id ProductLibrayId,PL.Code ProductCode,OrderRemarks=(FORMAT(SC.AddedDate,'dd-MMM-yyyy')+'-'+SC.Remarks),SC.[Status] OrderControlStatus,SC.CriticalityLevel
+,MainRMInhouseRemarks=(FORMAT(M.AddedDate,'dd-MMM-yyyy')+'-'+M.Remarks),M.[Status] MainRMInhouseStatus
+,OtherRMInhouseRemarks=(FORMAT(O.AddedDate,'dd-MMM-yyyy')+'-'+O.Remarks),O.[Status] OtherRMInhouseStatus
+,InputRemarks=(FORMAT(I.AddedDate,'dd-MMM-yyyy')+'-'+I.Remarks),I.[Status] InputStatus
+,so.Id AS SalesOrderId, so.DestinationId,dest.UserName AS Destination,
+so.ShipmentModeId,smo.UserName AS ShipMode, OCS.Id SalesOrderCategoryId,OCS.UserName AS SalesOrderCategory,
+OSS.Id SalseOrderStatusId,osS.UserName AS SalseOrderStatus, ISNULL(so.Qty,0) SOQty,SO.CM,SO.Rate,
+FORMAT(so.DeliveryDate,'dd-MMM-yyyy') DeliveryDate, FORMAT(so.CommitmentDate,'dd-MMM-yyyy') CommitmentDate, FORMAT(so.PlanExFactoryDate,'dd-MMM-yyyy') PlanExFactoryDate
+, FORMAT(so.MainRawMaterialInhouseDate,'dd-MMM-yyyy') SOMainRawMaterialInhouseDate,
+FORMAT(so.OtherRawMaterialInhouseDate,'dd-MMM-yyyy') SOOtherRawMaterialInhouseDate,FORMAT(so.LSD,'dd-MMM-yyyy') SOLSD
+,CP.PONumber,SO.Description,FORMAT(so.AddedDate,'dd-MMM-yyyy') SalesOrderCreationDate,
+t.ProductionOrderID,ps.UserName AS ProductionStatus, t.NoOfWorkStation, t.Efficiency,
+t.SPT, t.PlanWorkingHoursPerDay, t.FirstDayOutPut,
+t.PlanTargetPerHour, t.IncrementValue, t.IncrementType,
+t.DayToReachTheTarget,
+--t.CommitmentDate ,
+t.ProductionPriority, t.TargetPerHour, t.TargetPerDay,
+t.MinimumLineDays, t.RequiredLineDays,
+t.RequiredNoOfLines, t.AllocatedLines, t.Qty AS ExplicitProductionQty,
+t.LSD AS PRLSD, t.MainRawMaterialInhouseDate AS PRMainRawMaterialInhouseDate, t.OtherRawMaterialInhouseDate AS PROtherRawMaterialInhouseDate,
+t.RunningOrderBlockSize,l.LastProcessDate AS SewingCompletionDate,
+ActiveOrderLinePreference=STUFF((select distinct ','+xw.UserName from
+trn.ProductionOrderWorkCenter AS xp
+INNER JOIN scs.WorkCenterMaster AS xw ON xp.WorkCenterMasterId=xw.Id
+where PO.Id=xp.ProductionOrderId for xml path('') ), 1, 1, ''),
+RunningOrderLinePreference=STUFF((select distinct ','+xw.UserName from
+trn.RunningOrderWorkCenter AS xp
+INNER JOIN scs.WorkCenterMaster AS xw ON xp.WorkCenterMasterId=xw.Id
+where PO.Id=xp.ProductionOrderId for xml path('') ), 1, 1, ''),
+
+PlannedLinePreference=STUFF((select distinct ','+xw.UserName from
+ProductionPlanningType1 AS xp
+INNER JOIN scs.WorkCenterMaster AS xw ON xp.WorkCenterMasterId=xw.Id
+where PO.Id=xp.ProductionOrderId for xml path('') ), 1, 1, ''),
+
+Format( case when  isnull(PRDD.ProductionDate,'')='' and  isnull(PLND.ProductionDate,'')='' THEN null
+else case when 
+isnull(PRDD.ProductionDate,PLND.ProductionDate) <= isnull(PLND.ProductionDate,PRDD.ProductionDate) THEN PRDD.ProductionDate
+else PLND.ProductionDate END END,'dd-MMM-yyyy') AS ProductionStartDate,
+
+case when isnull(PRDD.ProductionDate,'')='' then 'ToStart' else 'Started' END AS ProductionOrderCategory
+,isnull(SM.TransactionQty,0) ShippedQty,isnull(SO.Qty,0)-ISNUll(SM.TransactionQty,0) BalShipment,
+Isnull(so.CM,0)*isnull(so.Rate,0) CMValue
+, Isnull(so.Qty,0)*isnull(so.Rate,0) OrderValue
+,PAG.StandardName CustomerType , OCT.Id OCId 
+,(select Top 1 Remarks from OrderControlRemarks where OrderControlId = OCT.Id order by AddedDate desc) OCRemarks
+
+FROM trn.MasterOrder MO
+LEFT JOIN org.Plant AS p2 ON p2.id=mo.PlantId
+LEFT JOIN org.Entity AS e ON e.Id=mo.EntityId
+left outer join trn.MasterOrderItem MOI on moi.MasterOrderId=mo.Id
+LEFT join trn.SalesOrder SO on so.MasterOrderItemId=moi.Id
+LEFT OUTER JOIN trn.CustomerPO AS cp ON cp.Id=so.CustomerPOId
+LEFT OUTER JOIN hkp.Season SS ON ss.Id=mo.SeasonId
+
+LEFT OUTER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
+LEFT OUTER JOIN trn.ProductionOrder AS po ON po.Id=pod.ProductionOrderId
+
+LEFT JOIN org.Entity AS e2 ON e2.Id=po.EntityId
+LEFT OUTER JOIN hkp.ProductionStatus AS ps ON ps.Id=po.ProductionStatusId
+LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS T ON t.ProductionOrderID=po.Id
+LEFT OUTER JOIN (
+SELECT K.ProductionOrderID,max(K.LastProcessDate) AS LastProcessDate FROM (
+SELECT ppt.ProductionOrderID,ppt.ProductionDate AS LastProcessDate
+FROM ProductionPlanningType1 AS ppt
+UNION ALL
+SELECT ppt.ProductionOrderID,ppt.ProductionDate AS LastProcessDate
+FROM trn.ProductionSummary AS ppt
+) AS K GROUP BY K.ProductionOrderID
+) AS L ON l.ProductionOrderID=po.Id
+--production at PR Level
+LEFT OUTER JOIN (
+SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR,MIN(s.ProductionDate) AS ProductionStartDateAtPR
+FROM trn.ProductionSummary S
+WHERE CONVERT(DATETIME, format(s.ProductionDate,'dd-MMM-yyyy'))<=CONVERT(DATETIME, format(getdate(),'dd-MMM-yyyy'))
+GROUP BY s.ProductionOrderId,s.ProcessId
+) AS PRODPR ON PRODPR.ProductionOrderId=po.id AND PRODPR.ProcessId=(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID=po.Id)
+left outer join (SELECT pod.ProductionOrderId,
+sum(isnull(so.ProductionBookedQty,0)) ProductionBookedQty
+FROM trn.SalesOrder AS so
+INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
+
+
+
+GROUP BY pod.ProductionOrderId
+) AS PRDQ ON PRDQ.ProductionOrderId=po.Id
+left outer join mst.MaterialMaster mm on mm.id=moi.MaterialMasterId
+left outer join mst.MaterialMasterArticle AS mma on mma.id=moi.ArticleId
+left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
+
+
+
+left outer join [HKP].[Party] p on P.Id=MO.PartyId
+left outer join [HKP].[PartyPlant] PPI on ppi.id=mo.InvoicingPartyPlantId
+left outer join [HKP].[PartyPlant] PPD on ppd.id=mo.DeliveryPartyPlantId
+left outer join [HKP].[Buyer] B on b.id=mo.BuyerId
+left outer join [HKP].[BuyerBrand] BB on bb.id=mo.BuyerBrandId
+left outer join [HKP].[BuyerDivision] BD on bd.id=mo.BuyerDivisionId
+left outer join [HKP].[BuyerDEPARTMENT] BDEP on BDEP.id=mo.BuyerDepartmentId
+left outer join [HKP].[OrderCategory] OC on oc.id=mo.OrderCategoryId
+left outer join [HKP].[OrderStatus] OS on OS.id=mo.OrderStatusId
+left outer join mst.Destination DEST on dest.Id=so.DestinationId
+left outer join [TRN].[CustomerPO] CPO ON CPO.Id=so.CustomerPOId
+left outer join [MST].[ShipMode] SMO on SMO.Id=so.ShipmentModeId
+
+
+
+left outer join [HKP].[OrderCategory] OCS on ocS.id=So.OrderCategoryId
+left outer join [HKP].[OrderStatus] OSS on OSS.id=So.OrderStatusId
+
+
+
+left outer join hkp.Season S on s.id=mo.SeasonId
+left outer join EmployeeInformation EI on ei.SystemId= MO.ResponsiblePersonId
+LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=MO.TotalQtyUOMId
+LEFT JOIN dbo.ProductLibrary PL ON PL.Id=MOI.ProductLibraryId
+
+
+
+LEFT JOIN(
+SELECT AMTR.Remarks,B.ProductionOrderId,AMTR.AddedDate,B.[Status]
+FROM OrderControlTypes A
+JOIN dbo.OrderControl B ON B.ControlTypeId=A.Id
+LEFT JOIN dbo.OrderControlRemarks AMTR ON AMTR.OrderControlId=B.Id
+AND AMTR.Id=(Select top(1) Id from dbo.OrderControlRemarks Where OrderControlId=B.Id Order by AddedDate desc)
+Where A.ControlType= 'MainRMInhouse'
+) M ON M.ProductionOrderId=PO.Id
+
+
+
+LEFT JOIN(
+SELECT AMTR.Remarks,B.ProductionOrderId,AMTR.AddedDate ,B.[Status]
+FROM OrderControlTypes A
+JOIN dbo.OrderControl B ON B.ControlTypeId=A.Id
+LEFT JOIN dbo.OrderControlRemarks AMTR ON AMTR.OrderControlId=B.Id
+AND AMTR.Id=(Select top(1) Id from dbo.OrderControlRemarks Where OrderControlId=B.Id Order by AddedDate desc)
+Where A.ControlType= 'OtherRMInhouse'
+) O ON O.ProductionOrderId=PO.Id
+
+
+
+LEFT JOIN(
+SELECT AMTR.Remarks,B.ProductionOrderId,AMTR.AddedDate ,B.[Status]
+FROM OrderControlTypes A
+JOIN dbo.OrderControl B ON B.ControlTypeId=A.Id
+LEFT JOIN dbo.OrderControlRemarks AMTR ON AMTR.OrderControlId=B.Id
+AND AMTR.Id=(Select top(1) Id from dbo.OrderControlRemarks Where OrderControlId=B.Id Order by AddedDate desc)
+Where A.ControlType= 'BaseProcessInput'
+) I ON I.ProductionOrderId=PO.Id
+
+
+
+LEFT JOIN(
+SELECT AMTR.Remarks,B.SalesOrderId,AMTR.AddedDate ,B.[Status],B.CriticalityLevel
+FROM OrderControlTypes A
+JOIN dbo.OrderControl B ON B.ControlTypeId=A.Id
+LEFT JOIN dbo.OrderControlRemarks AMTR ON AMTR.OrderControlId=B.Id
+AND AMTR.Id=(Select top(1) Id from dbo.OrderControlRemarks Where OrderControlId=B.Id Order by AddedDate desc)
+Where A.ControlType= 'ShipmentControl'
+) SC ON SC.SalesOrderId=SO.Id
+
+LEFT OUTER JOIN (select PS.ProductionOrderId,min( PS.ProductionDate) ProductionDate from TRN.ProductionSummary PS group by PS.ProductionOrderId) PRDD on PRDD.ProductionOrderId=po.Id 
+LEFT OUTER JOIN (select PPT.ProductionOrderID,min(PPT.ProductionDate) ProductionDate from dbo.ProductionPlanningType1 PPT  group by PPT.ProductionOrderID) PLND on PLND.ProductionOrderID=po.Id
+LEFT OUTER JOIN TRN.SalesMaterial SM on SM.SalesOrderId=SO.Id
+left join hkp.Party Pt on Pt.Id = MO.PartyId
+left join HKP.CompanyParty CPS on CPS.PartyId = Pt.Id and CPS.PartyType = 'Customer'
+left join HKP.PartyAccountGroup PAG on PAG.Id = CPS.PartyAccountGroupId 
+left join OrderControl OCT on OCT.SalesOrderId = SO.Id 
+   WHERE os.UserName='Active' " +
+   stradd + " ORDER BY p2.UserName,e.UserName, mo.MasterOrderNo";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new OederControllGetSet
+                    {
+                        PlantId = dsRef.Tables[0].Rows[i]["PlantId"].ToString(),
+                        Plant = dsRef.Tables[0].Rows[i]["Plant"].ToString(),
+                        MasterOrderEntityId = dsRef.Tables[0].Rows[i]["MasterOrderEntityId"].ToString(),
+                        MasterOrderEntity = dsRef.Tables[0].Rows[i]["MasterOrderEntity"].ToString(),
+                        ProductionOrderEntityId = dsRef.Tables[0].Rows[i]["ProductionOrderEntityId"].ToString(),
+                        ProductionOrderEntity = dsRef.Tables[0].Rows[i]["ProductionOrderEntity"].ToString(),
+                        Customer = dsRef.Tables[0].Rows[i]["Customer"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+                        Buyer = dsRef.Tables[0].Rows[i]["Buyer"].ToString(),
+                        Season = dsRef.Tables[0].Rows[i]["Season"].ToString(),
+                        TotalPlanQty = dsRef.Tables[0].Rows[i]["TotalPlanQty"].ToString(),
+                        ProducedQty = dsRef.Tables[0].Rows[i]["ProducedQty"].ToString(),
+                        RemainingPlanQuantity = dsRef.Tables[0].Rows[i]["RemainingPlanQuantity"].ToString(),
+                        BuyerDepartment = dsRef.Tables[0].Rows[i]["BuyerDepartment"].ToString(),
+                        BuyerDivision = dsRef.Tables[0].Rows[i]["BuyerDivision"].ToString(),
+                        ResponsiblePerson = dsRef.Tables[0].Rows[i]["ResponsiblePerson"].ToString(),
+                        MasterOrderNo = dsRef.Tables[0].Rows[i]["MasterOrderNo"].ToString(),
+                        MasterOrderQty = dsRef.Tables[0].Rows[i]["MasterOrderQty"].ToString(),
+                        MasterOrderCreationDate = dsRef.Tables[0].Rows[i]["MasterOrderCreationDate"].ToString(),
+                        OrderCategory = dsRef.Tables[0].Rows[i]["OrderCategory"].ToString(),
+                        OrderStatus = dsRef.Tables[0].Rows[i]["OrderStatus"].ToString(),
+                        BuyerOrderNo = dsRef.Tables[0].Rows[i]["BuyerOrderNo"].ToString(),
+                        OwnOrderNo = dsRef.Tables[0].Rows[i]["OwnOrderNo"].ToString(),
+                        LineItemId = dsRef.Tables[0].Rows[i]["LineItemId"].ToString(),
+                        BuyerReferenceNo = dsRef.Tables[0].Rows[i]["BuyerReferenceNo"].ToString(),
+                        ProductionGrouping = dsRef.Tables[0].Rows[i]["ProductionGrouping"].ToString(),
+                        MasterOrderItemCreationDate = dsRef.Tables[0].Rows[i]["MasterOrderItemCreationDate"].ToString(),
+                        Material = dsRef.Tables[0].Rows[i]["Material"].ToString(),
+                        Article = dsRef.Tables[0].Rows[i]["Article"].ToString(),
+                        ProductCategory = dsRef.Tables[0].Rows[i]["ProductCategory"].ToString(),
+                        Product = dsRef.Tables[0].Rows[i]["Product"].ToString(),
+                        ItemQty = dsRef.Tables[0].Rows[i]["ItemQty"].ToString(),
+                        UOM = dsRef.Tables[0].Rows[i]["UOM"].ToString(),
+                        ProductLibrayId = dsRef.Tables[0].Rows[i]["ProductLibrayId"].ToString(),
+                        ProductCode = dsRef.Tables[0].Rows[i]["ProductCode"].ToString(),
+                        OrderRemarks = dsRef.Tables[0].Rows[i]["OrderRemarks"].ToString(),
+                        OrderControlStatus = dsRef.Tables[0].Rows[i]["OrderControlStatus"].ToString(),
+                        CriticalityLevel = dsRef.Tables[0].Rows[i]["CriticalityLevel"].ToString(),
+                        MainRMInhouseRemarks = dsRef.Tables[0].Rows[i]["MainRMInhouseRemarks"].ToString(),
+                        MainRMInhouseStatus = dsRef.Tables[0].Rows[i]["MainRMInhouseStatus"].ToString(),
+                        OtherRMInhouseRemarks = dsRef.Tables[0].Rows[i]["OtherRMInhouseRemarks"].ToString(),
+                        OtherRMInhouseStatus = dsRef.Tables[0].Rows[i]["OtherRMInhouseStatus"].ToString(),
+                        InputRemarks = dsRef.Tables[0].Rows[i]["InputRemarks"].ToString(),
+                        InputStatus = dsRef.Tables[0].Rows[i]["InputStatus"].ToString(),
+                        SalesOrderId = dsRef.Tables[0].Rows[i]["SalesOrderId"].ToString(),
+                        DestinationId = dsRef.Tables[0].Rows[i]["DestinationId"].ToString(),
+                        Destination = dsRef.Tables[0].Rows[i]["Destination"].ToString(),
+                        ShipmentModeId = dsRef.Tables[0].Rows[i]["ShipmentModeId"].ToString(),
+                        ShipMode = dsRef.Tables[0].Rows[i]["ShipMode"].ToString(),
+                        SalesOrderCategoryId = dsRef.Tables[0].Rows[i]["SalesOrderCategoryId"].ToString(),
+                        SalesOrderCategory = dsRef.Tables[0].Rows[i]["SalesOrderCategory"].ToString(),
+                        SalseOrderStatusId = dsRef.Tables[0].Rows[i]["SalseOrderStatusId"].ToString(),
+                        SalseOrderStatus = dsRef.Tables[0].Rows[i]["SalseOrderStatus"].ToString(),
+                        SOQty = dsRef.Tables[0].Rows[i]["SOQty"].ToString(),
+                        CM = dsRef.Tables[0].Rows[i]["CM"].ToString(),
+                        Rate = dsRef.Tables[0].Rows[i]["Rate"].ToString(),
+                        DeliveryDate = dsRef.Tables[0].Rows[i]["DeliveryDate"].ToString(),
+                        CommitmentDate = dsRef.Tables[0].Rows[i]["CommitmentDate"].ToString(),
+                        PlanExFactoryDate = dsRef.Tables[0].Rows[i]["PlanExFactoryDate"].ToString(),
+                        SOMainRawMaterialInhouseDate = dsRef.Tables[0].Rows[i]["SOMainRawMaterialInhouseDate"].ToString(),
+                        SOOtherRawMaterialInhouseDate = dsRef.Tables[0].Rows[i]["SOOtherRawMaterialInhouseDate"].ToString(),
+                        SOLSD = dsRef.Tables[0].Rows[i]["SOLSD"].ToString(),
+                        PONumber = dsRef.Tables[0].Rows[i]["PONumber"].ToString(),
+                        Description = dsRef.Tables[0].Rows[i]["Description"].ToString(),
+                        SalesOrderCreationDate = dsRef.Tables[0].Rows[i]["SalesOrderCreationDate"].ToString(),
+                        ProductionOrderID = dsRef.Tables[0].Rows[i]["ProductionOrderID"].ToString(),
+                        ProductionStatus = dsRef.Tables[0].Rows[i]["ProductionStatus"].ToString(),
+                        NoOfWorkStation = dsRef.Tables[0].Rows[i]["NoOfWorkStation"].ToString(),
+                        Efficiency = dsRef.Tables[0].Rows[i]["Efficiency"].ToString(),
+                        SPT = dsRef.Tables[0].Rows[i]["SPT"].ToString(),
+                        PlanWorkingHoursPerDay = dsRef.Tables[0].Rows[i]["PlanWorkingHoursPerDay"].ToString(),
+                        FirstDayOutPut = dsRef.Tables[0].Rows[i]["FirstDayOutPut"].ToString(),
+                        PlanTargetPerHour = dsRef.Tables[0].Rows[i]["PlanTargetPerHour"].ToString(),
+                        IncrementValue = dsRef.Tables[0].Rows[i]["IncrementValue"].ToString(),
+                        IncrementType = dsRef.Tables[0].Rows[i]["IncrementType"].ToString(),
+                        DayToReachTheTarget = dsRef.Tables[0].Rows[i]["DayToReachTheTarget"].ToString(),
+                        ProductionPriority = dsRef.Tables[0].Rows[i]["ProductionPriority"].ToString(),
+                        TargetPerHour = dsRef.Tables[0].Rows[i]["TargetPerHour"].ToString(),
+                        TargetPerDay = dsRef.Tables[0].Rows[i]["TargetPerDay"].ToString(),
+                        MinimumLineDays = dsRef.Tables[0].Rows[i]["MinimumLineDays"].ToString(),
+                        RequiredLineDays = dsRef.Tables[0].Rows[i]["RequiredLineDays"].ToString(),
+                        RequiredNoOfLines = dsRef.Tables[0].Rows[i]["RequiredNoOfLines"].ToString(),
+                        AllocatedLines = dsRef.Tables[0].Rows[i]["AllocatedLines"].ToString(),
+                        ExplicitProductionQty = dsRef.Tables[0].Rows[i]["ExplicitProductionQty"].ToString(),
+                        PRLSD = dsRef.Tables[0].Rows[i]["PRLSD"].ToString(),
+                        PRMainRawMaterialInhouseDate = dsRef.Tables[0].Rows[i]["PRMainRawMaterialInhouseDate"].ToString(),
+                        PROtherRawMaterialInhouseDate = dsRef.Tables[0].Rows[i]["PROtherRawMaterialInhouseDate"].ToString(),
+                        RunningOrderBlockSize = dsRef.Tables[0].Rows[i]["RunningOrderBlockSize"].ToString(),
+                        SewingCompletionDate = dsRef.Tables[0].Rows[i]["SewingCompletionDate"].ToString(),
+                        ActiveOrderLinePreference = dsRef.Tables[0].Rows[i]["ActiveOrderLinePreference"].ToString(),
+                        RunningOrderLinePreference = dsRef.Tables[0].Rows[i]["RunningOrderLinePreference"].ToString(),
+                        PlannedLinePreference = dsRef.Tables[0].Rows[i]["PlannedLinePreference"].ToString(),
+                        ProductionStartDate = dsRef.Tables[0].Rows[i]["ProductionStartDate"].ToString(),
+                        ProductionOrderCategory = dsRef.Tables[0].Rows[i]["ProductionOrderCategory"].ToString(),
+                        ShippedQty = dsRef.Tables[0].Rows[i]["ShippedQty"].ToString(),
+                        BalShipment = dsRef.Tables[0].Rows[i]["BalShipment"].ToString(),
+                        CMValue = dsRef.Tables[0].Rows[i]["CMValue"].ToString(),
+                        OrderValue = dsRef.Tables[0].Rows[i]["OrderValue"].ToString(),
+                        CustomerType = dsRef.Tables[0].Rows[i]["CustomerType"].ToString(),
+                        OCId = dsRef.Tables[0].Rows[i]["OCId"].ToString(),
+                        OCRemarks = dsRef.Tables[0].Rows[i]["OCRemarks"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
+        #endregion OrderControlReport
     }
 
 
@@ -13183,7 +13603,7 @@ and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by Em
         public string Status { get; set; }
         public string ConfirmBy { get; set; }
         public string ConfirmationRemarks { get; set; }
-       
+
     }
 
     public class UtilityMasterGet
@@ -13324,10 +13744,10 @@ and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by Em
         public string UpdatedBy { get; set; }
         public string UpdatedDate { get; set; }
         public string UpdatedFromIP { get; set; }
-       
+
 
     }
-    
+
     public class AdavnceDetailGetSet
     {
         public string Paydays { get; set; }
@@ -13335,6 +13755,113 @@ and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by Em
         public string TotalAdvance { get; set; }
         public string MonthDeduction { get; set; }
         public string AllowedAdvance { get; set; }
+    }
+
+
+    public class OederControllGetSet
+    {
+        public string PlantId { get; set; }
+        public string Plant { get; set; }
+        public string MasterOrderEntityId { get; set; }
+        public string MasterOrderEntity { get; set; }
+        public string ProductionOrderEntityId { get; set; }
+        public string ProductionOrderEntity { get; set; }
+        public string Customer { get; set; }
+        public string Remarks { get; set; }
+        public string Buyer { get; set; }
+        public string Season { get; set; }
+        public string TotalPlanQty { get; set; }
+        public string ProducedQty { get; set; }
+        public string RemainingPlanQuantity { get; set; }
+        public string BuyerDepartment { get; set; }
+        public string BuyerDivision { get; set; }
+        public string ResponsiblePerson { get; set; }
+        public string MasterOrderNo { get; set; }
+        public string MasterOrderQty { get; set; }
+        public string MasterOrderCreationDate { get; set; }
+        public string OrderCategory { get; set; }
+        public string OrderStatus { get; set; }
+        public string BuyerOrderNo { get; set; }
+        public string OwnOrderNo { get; set; }
+        public string LineItemId { get; set; }
+        public string BuyerReferenceNo { get; set; }
+        public string ProductionGrouping { get; set; }
+        public string MasterOrderItemCreationDate { get; set; }
+        public string Material { get; set; }
+        public string Article { get; set; }
+        public string ProductCategory { get; set; }
+        public string Product { get; set; }
+        public string ItemQty { get; set; }
+        public string UOM { get; set; }
+        public string ProductLibrayId { get; set; }
+        public string ProductCode { get; set; }
+        public string OrderRemarks { get; set; }
+        public string OrderControlStatus { get; set; }
+        public string CriticalityLevel { get; set; }
+        public string MainRMInhouseRemarks { get; set; }
+        public string MainRMInhouseStatus { get; set; }
+        public string OtherRMInhouseRemarks { get; set; }
+        public string OtherRMInhouseStatus { get; set; }
+        public string InputRemarks { get; set; }
+        public string InputStatus { get; set; }
+        public string SalesOrderId { get; set; }
+        public string DestinationId { get; set; }
+        public string Destination { get; set; }
+        public string ShipmentModeId { get; set; }
+        public string ShipMode { get; set; }
+        public string SalesOrderCategoryId { get; set; }
+        public string SalesOrderCategory { get; set; }
+        public string SalseOrderStatusId { get; set; }
+        public string SalseOrderStatus { get; set; }
+        public string SOQty { get; set; }
+        public string CM { get; set; }
+        public string Rate { get; set; }
+        public string DeliveryDate { get; set; }
+        public string CommitmentDate { get; set; }
+        public string PlanExFactoryDate { get; set; }
+        public string SOMainRawMaterialInhouseDate { get; set; }
+        public string SOOtherRawMaterialInhouseDate { get; set; }
+        public string SOLSD { get; set; }
+        public string PONumber { get; set; }
+        public string Description { get; set; }
+        public string SalesOrderCreationDate { get; set; }
+        public string ProductionOrderID { get; set; }
+        public string ProductionStatus { get; set; }
+        public string NoOfWorkStation { get; set; }
+        public string Efficiency { get; set; }
+        public string SPT { get; set; }
+        public string PlanWorkingHoursPerDay { get; set; }
+        public string FirstDayOutPut { get; set; }
+        public string PlanTargetPerHour { get; set; }
+        public string IncrementValue { get; set; }
+        public string IncrementType { get; set; }
+        public string DayToReachTheTarget { get; set; }
+        public string ProductionPriority { get; set; }
+        public string TargetPerHour { get; set; }
+        public string TargetPerDay { get; set; }
+        public string MinimumLineDays { get; set; }
+        public string RequiredLineDays { get; set; }
+        public string RequiredNoOfLines { get; set; }
+        public string AllocatedLines { get; set; }
+        public string ExplicitProductionQty { get; set; }
+        public string PRLSD { get; set; }
+        public string PRMainRawMaterialInhouseDate { get; set; }
+        public string PROtherRawMaterialInhouseDate { get; set; }
+        public string RunningOrderBlockSize { get; set; }
+        public string SewingCompletionDate { get; set; }
+        public string ActiveOrderLinePreference { get; set; }
+        public string RunningOrderLinePreference { get; set; }
+        public string PlannedLinePreference { get; set; }
+        public string ProductionStartDate { get; set; }
+        public string ProductionOrderCategory { get; set; }
+        public string ShippedQty { get; set; }
+        public string BalShipment { get; set; }
+        public string CMValue { get; set; }
+        public string OrderValue { get; set; }
+        public string CustomerType { get; set; }
+        public string OCId { get; set; }
+        public string OCRemarks { get; set; }
+
     }
 
 }

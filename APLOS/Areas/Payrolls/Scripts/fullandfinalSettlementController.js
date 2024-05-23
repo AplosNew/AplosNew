@@ -101,6 +101,9 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
 
     $scope.SelectEmpDetail = function (args) {
         $scope.FinalSettlementModel = Object.assign({}, args.data);
+        if ($scope.FinalSettlementModel.IsApproved == true) {
+            $scope.setTab(1);
+        }
         $scope.FinalSettlementModel.FinalSettlementDate = $filter('dateFiltering')($scope.FinalSettlementModel.FinalSettlementDate, 'dd-M-yyyy');
         $scope.GetEmployeeFNFMasterData();
         if (!$rootScope.isCollapsed) {
@@ -318,6 +321,7 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
                     ShowResult(response.data.Message, 'success');
                     $scope.FinalSettlementModel.Id = response.data.Data.Id;
                     $scope.GetEmployeeFNFMasterData();
+                    $scope.LoadAllFinalSettlementList();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
