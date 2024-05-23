@@ -1765,16 +1765,27 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
         [HttpGet, Authorize]
         public ActionResult GetFNFMasterData()
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT M.Id,M.FinalSettlementName,FORMAT(M.FinalSettlementDate,'dd-MMM-yyyy')FinalSettlementDate,M.ApproveById,E.EmployeeName ApproveBy,ApproveStatus= CASE WHEN M.IsApproved=1 THEN 'Yes' ELSE 'No' END,M.IsApproved
 FROM dbo.EmployeeFullAndFinalSettlementMaster M
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ApproveById
+Where M.IsApproved=0
 Order By M.AddedDate DESC";
             var data = _sqlRepository.GetDataCollection(sql);
 
             return Json(data, JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public ActionResult GetApprovedData()
+        {
+            string sql = @"SELECT M.Id,M.FinalSettlementName,FORMAT(M.FinalSettlementDate,'dd-MMM-yyyy')FinalSettlementDate,M.ApproveById,E.EmployeeName ApproveBy,ApproveStatus= CASE WHEN M.IsApproved=1 THEN 'Yes' ELSE 'No' END,M.IsApproved
+FROM dbo.EmployeeFullAndFinalSettlementMaster M
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ApproveById
+Where M.IsApproved=1
+Order By M.AddedDate DESC";
+            var data = _sqlRepository.GetDataCollection(sql);
 
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
         [HttpGet, Authorize]
         public ActionResult GetFNFMasterDataForApprove()
         {
@@ -2190,7 +2201,7 @@ ORDER BY OL.Sequence";
                 esql = "select * from EmployeeFullAndFinalSettlementItem where EmpSystemId IN(" + empIds + ")";
                 con.OpenDataSetThroughAdapter(esql, out dsEmpMaster, false, "1");
 
-                elocksql = @"Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND ISNULL(IsDisbursed,0)=0 AND DisbursementVoucherId IS NULL ";
+                elocksql = @"Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND PastDisbursed  IS NULL AND DisbursementVoucherId IS NULL ";
                 con.OpenDataSetThroughAdapter(elocksql, out dsEmpSL, false, "1");
 
 

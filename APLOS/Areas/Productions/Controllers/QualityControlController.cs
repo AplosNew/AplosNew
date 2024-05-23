@@ -1119,9 +1119,14 @@ where PO.ID= '" + POId + "'";
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetQBookingLevel(string ProcessId, string EntityId, string POId)
+        public ActionResult GetQBookingLevel(string ProcessId, string EntityId, string POId)
         {
-            return Json(_productionSummaryData.GetQBookingLevel(ProcessId, EntityId, POId), JsonRequestBehavior.AllowGet);
+            string sql = @"SELECT UserLotNo AS Text, UserLotNo As Value FROM [dbo].[ProductionOrderLotControl]  PPS
+where PPS.ProductionOrderID = '" + POId + "' AND PPS.ProcessId = '" + ProcessId + @"'";
+            var lot= _sqlRepository.GetDataCollection(sql);
+            var pbl = _productionSummaryData.GetQBookingLevel(ProcessId, EntityId, POId);
+            //return Json(pbl, lot,JsonRequestBehavior.AllowGet);
+            return Json(new { pbl, lot }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
