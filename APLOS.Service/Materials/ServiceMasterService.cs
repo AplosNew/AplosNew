@@ -112,7 +112,7 @@ namespace Library.Service.Materials
         {
             try
             {
-                parameters.CmdText = @"SELECT A.Id, A.ServiceGroupId, B.UserName AS ServiceGroupName, A.[Sequence], A.Code, A.UserName, A.StandardName, A.[Description], A.Remarks, A.Active,A.HSNCodeId
+                parameters.CmdText = @"SELECT A.Id, A.ServiceGroupId, B.UserName AS ServiceGroupName,A.TransactionUoMId, A.[Sequence], A.Code, A.UserName, A.StandardName, A.[Description], A.Remarks, A.Active,A.HSNCodeId
                             FROM [HKP].[ServiceMaster] AS A JOIN [HKP].[ServiceGroup] AS B ON A.ServiceGroupId=B.Id WHERE A.Id NOT IN (" + ReturnStringArray(ids) + ")";
                 return _sqlRepository.GetGridData(parameters);
             }

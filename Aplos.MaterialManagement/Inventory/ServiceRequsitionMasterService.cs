@@ -4591,7 +4591,7 @@ WHERE IM.MaterialReqqusitionMasterId=inventoryReceiveId ";
 		                            WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId  HAVING COUNT(A.ServiceAcknowledgementMasterId)> 
 									COUNT(A.ServiceMasterId)) 
 									AS TU ON TU.ServiceAcknowledgementMasterId=IR.Id
-                        WHERE IR.CheckedByStatus='For Checking' AND IR.ApprovedByStatus IS NULL AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.ServiceType='IndependentService'
+                        WHERE IR.CheckedByStatus='For Checking' AND IR.ApprovedByStatus IS NULL AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.ServiceType='ServiceACK'
                    UNION ALL
 
                    SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
@@ -4629,7 +4629,7 @@ WHERE IM.MaterialReqqusitionMasterId=inventoryReceiveId ";
 		                            WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId  HAVING COUNT(A.ServiceAcknowledgementMasterId)> 
 									COUNT(A.ServiceMasterId)) 
 									AS TU ON TU.ServiceAcknowledgementMasterId=IR.Id
-                        WHERE IR.CheckedByStatus IS NULL AND IR.ApprovedByStatus ='For Approval'  AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.ServiceType='IndependentService'
+                        WHERE IR.CheckedByStatus IS NULL AND IR.ApprovedByStatus ='For Approval'  AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.ServiceType='ServiceACK'
 
 
                 UNION ALL
@@ -4671,7 +4671,7 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 		                            WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId  HAVING COUNT(A.ServiceAcknowledgementMasterId)> 
 									COUNT(A.ServiceMasterId)) 
 									AS TU ON TU.ServiceAcknowledgementMasterId=IR.Id
-                        WHERE IR.CheckedByStatus IS NULL AND IR.ApprovedByStatus IS NULL AND IR.ServiceType='IndependentService' AND IR.Id not in( Select ServicePOMasterId from trn.ServicePODetail where ServicePOMasterId IS NOT NULL) AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting') X";
+                        WHERE IR.CheckedByStatus IS NULL AND IR.ApprovedByStatus IS NULL AND IR.ServiceType='ServiceACK' AND IR.Id not in( Select ServicePOMasterId from trn.ServicePODetail where ServicePOMasterId IS NOT NULL) AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting') X";
                 }
                 else if (tabType == "CheckedHoldReject")
                 {
@@ -4715,7 +4715,7 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 		                            WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId  HAVING COUNT(A.ServiceAcknowledgementMasterId)> 
 									COUNT(A.ServiceMasterId)) 
 									AS TU ON TU.ServiceAcknowledgementMasterId=IR.Id
-                      WHERE IR.CheckedByStatus='Hold' OR IR.CheckedByStatus='Reject' AND IR.ServiceType='IndependentService' AND IR.ApprovedByStatus Is Null AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' ";
+                      WHERE IR.CheckedByStatus='Hold' OR IR.CheckedByStatus='Reject' AND IR.ServiceType='ServiceACK' AND IR.ApprovedByStatus Is Null AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' ";
 
 
                 }
@@ -4761,7 +4761,7 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 		                            WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId  HAVING COUNT(A.ServiceAcknowledgementMasterId)> 
 									COUNT(A.ServiceMasterId)) 
 									AS TU ON TU.ServiceAcknowledgementMasterId=IR.Id
-                       WHERE  IR.CheckedByStatus='Checked' AND IR.ApprovedByStatus= 'For Approval' AND IR.ServiceType='IndependentService' AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' ";
+                       WHERE  IR.CheckedByStatus='Checked' AND IR.ApprovedByStatus= 'For Approval' AND IR.ServiceType='ServiceACK' AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' ";
                 }
                 else if (tabType == "ApprovedHoldReject")
                 {
@@ -4805,7 +4805,7 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 		                            WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId  HAVING COUNT(A.ServiceAcknowledgementMasterId)> 
 									COUNT(A.ServiceMasterId)) 
 									AS TU ON TU.ServiceAcknowledgementMasterId=IR.Id
-                      WHERE IR.ApprovedByStatus='Hold' OR IR.ApprovedByStatus='Reject' AND IR.CheckedByStatus='Checked'  AND IR.ServiceType='IndependentService' AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' ";
+                      WHERE IR.ApprovedByStatus='Hold' OR IR.ApprovedByStatus='Reject' AND IR.CheckedByStatus='Checked'  AND IR.ServiceType='ServiceACK' AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' ";
 
                 }
                 else if (tabType == "Approved")
@@ -4850,7 +4850,7 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 		                            WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId  HAVING COUNT(A.ServiceAcknowledgementMasterId)> 
 									COUNT(A.ServiceMasterId)) 
 									AS TU ON TU.ServiceAcknowledgementMasterId=IR.Id
-                      WHERE IR.ApprovedByStatus='Approved'  AND IR.CheckedByStatus ='Checked' AND IR.ServiceType='IndependentService' AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' 
+                      WHERE IR.ApprovedByStatus='Approved'  AND IR.CheckedByStatus ='Checked' AND IR.ServiceType='ServiceACK' AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' 
                       UNION ALL
 
     SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
@@ -4932,7 +4932,7 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 		                            WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId  HAVING COUNT(A.ServiceAcknowledgementMasterId)> 
 									COUNT(A.ServiceMasterId)) 
 									AS TU ON TU.ServiceAcknowledgementMasterId=IR.Id
-                      WHERE IR.ApprovedByStatus IS NULL  AND IR.CheckedByStatus IS NULL    AND IR.ServiceType='IndependentService' AND IR.Id  in( Select ServicePOMasterId from trn.ServicePODetail where ServicePOMasterId IS NOT NULL) AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' 
+                      WHERE IR.ApprovedByStatus IS NULL  AND IR.CheckedByStatus IS NULL    AND IR.ServiceType='ServiceACK' AND IR.Id  in( Select ServicePOMasterId from trn.ServicePODetail where ServicePOMasterId IS NOT NULL) AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' 
                   )X ";
                 }
                 else if (tabType == "Posted")
@@ -4976,7 +4976,7 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 		                            WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId  HAVING COUNT(A.ServiceAcknowledgementMasterId)> 
 									COUNT(A.ServiceMasterId)) 
 									AS TU ON TU.ServiceAcknowledgementMasterId=IR.Id
-                      WHERE IR.ApprovedByStatus='Approved' AND IR.PlantId='" + identity.PlantId + @"' AND IR.ServiceType='IndependentService' AND ISNULL(IR.[Status],'')='Posting'";
+                      WHERE IR.ApprovedByStatus='Approved' AND IR.PlantId='" + identity.PlantId + @"' AND IR.ServiceType='ServiceACK' AND ISNULL(IR.[Status],'')='Posting'";
                 }
 
                 return  _sqlRepository.GetDataCollection(sql);

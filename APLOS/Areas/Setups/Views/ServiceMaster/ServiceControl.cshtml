@@ -77,7 +77,7 @@
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);" href="" aria-controls="general" role="tab" data-toggle="tab">ServiceMaster</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);getActionByPopUpData();" href="" aria-controls="general" role="tab" data-toggle="tab">ActionBy</a></li>
                 <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);getApproveByPopUpData();" href="" aria-controls="general" role="tab" data-toggle="tab">Approved By</a></li>
-                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);" href="" aria-controls="general" role="tab" data-toggle="tab">Entity</a></li>
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);getEntityByPopUpData()" href="" aria-controls="general" role="tab" data-toggle="tab">Entity</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -98,6 +98,8 @@
                                         <div e-columns>
                                             <div e-column e-headertext="" e-headertemplateid="#headerTemplateServiceMaster" e-template="#checkboxTemplateServiceMaster" e-textalign="center" e-width="30"></div>
                                             <div e-column e-field="ServiceGroup" e-headertext="ServiceGroup" e-width="80"></div>
+                                            <div e-column e-field="ServiceCategory" e-headertext="ServiceCategory" e-width="80"></div>
+                                            <div e-column e-field="ServiceSubCategory" e-headertext="ServiceSubCategory" e-width="80"></div>
                                             <div e-column e-field="ServiceMaster" e-headertext="ServiceMaster" e-width="80"></div>
                                             <div e-column e-headertext="IsPO" @*e-headertemplateid="#headerTemplatePO"*@ e-template="#checkRowIsPO" e-textalign="center" e-width="30"></div>
                                             <div e-column e-headertext="IsApproved" e-headertemplateid="" e-template="#checkRowIsApproved" e-textalign="center" e-width="30"></div>
@@ -111,8 +113,8 @@
                                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
                                     </script>
                                     @*<script type="text/template" id="headerTemplatePO">
-                                        <input type="checkbox" ej-checkbox class="rowCheckbox" id="serviceMasterheadchk"  />
-                                    </script>*@
+                                    <input type="checkbox" ej-checkbox class="rowCheckbox" id="serviceMasterheadchk"  />
+                                </script>*@
                                     <script type="text/template" id="remarkTemplate">
                                         <input type="text" name="Remarks" ng-model="data.Remarks" class="form-control" maxlength="100">
                                     </script>
@@ -201,6 +203,44 @@
                                         <input type="checkbox" id="APBheadchk" />
                                     </script>
                                     <script type="text/template" id="checkboxTemplateAPB">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+                                    </script>
+                                </div>
+                            </div>
+
+                        </div>
+                        <script type="text/template" id="ShowActionButtonBC">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeEmployee(this);" style="margin: -6px;"></i></button>
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                <div class="row">
+                    <div class="form-elements">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="OKEntityBy();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                            </ul>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="modal-body">
+                                <div class="content-container-fluid" style="color:black;">
+                                    <div style="color:black;" id="GridEntity" ej-grid e-datasource="EntityByListData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                         e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateEntity">
+                                        <div e-columns>
+                                            <div e-column e-headertext="" e-headertemplateid="#headerTemplateEntity" e-template="#checkboxTemplateEntity" e-textalign="center" e-width="30"></div>
+                                            <div e-column e-field="Company" e-headertext="Company" e-width="80"></div>
+                                            <div e-column e-field="Plant" e-headertext="Plant" e-width="80"></div>
+                                            <div e-column e-field="Division" e-headertext="Division" e-width="80"></div>
+                                            <div e-column e-field="SubDivision" e-headertext="Sub Division" e-width="80"></div>
+                                            <div e-column e-field="EntityName" e-headertext="Entity" e-width="80"></div>
+                                        </div>
+                                    </div>
+                                    <script type="text/x-jsrender" id="headerTemplateEntity">
+                                        <input type="checkbox" id="Entityheadchk" />
+                                    </script>
+                                    <script type="text/template" id="checkboxTemplateEntity">
                                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
                                     </script>
                                 </div>

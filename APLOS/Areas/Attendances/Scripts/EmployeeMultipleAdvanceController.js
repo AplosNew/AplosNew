@@ -158,6 +158,10 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
     $scope.Save = function () {
         try {
             $scope.GetEmployeeListItem();
+            if ($scope.EmployeeEOTList.length === 0) {
+                ShowResult("Please select Employee!", "failure");
+                return true;
+            }
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
@@ -436,7 +440,7 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
         $http({
             method: 'POST',
             url: $scope.path + "GetEmployeeMultipleAdvanceEmployeelist",
-            data: { 'fromDate': $scope.ModelOTNew.FromDate, 'toDate': $scope.ModelOTNew.ToDate, 'saveUpdate': $scope.PCOTAction, 'percentage': $scope.ModelOTNew.Percentage, 'multiple': $scope.ModelOTNew.Multiple, 'minimumPresentDay': $scope.ModelOTNew.MinimumPresentDay, 'isPayDay': $scope.ModelOTNew.IsPayDay, 'isStandardOT': $scope.ModelOTNew.IsStandardOT, 'isAdditionalOT': $scope.ModelOTNew.IsAdditionalOT},
+            data: { 'fromDate': $scope.ModelOTNew.FromDate, 'toDate': $scope.ModelOTNew.ToDate, 'saveUpdate': $scope.PCOTAction, 'percentage': $scope.ModelOTNew.Percentage, 'multiple': $scope.ModelOTNew.Multiple, 'minimumPresentDay': $scope.ModelOTNew.MinimumPresentDay, 'isPayDay': $scope.ModelOTNew.IsPayDay, 'isStandardOT': $scope.ModelOTNew.IsStandardOT, 'isAdditionalOT': $scope.ModelOTNew.IsAdditionalOT, 'workerAdvanceId': $scope.ModelOTNew.Id},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.PCOTEmployeeList = response.data;
@@ -589,7 +593,7 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
         $scope.ModelOTNew.YearNo = $scope.ModelOTNew.YearNo.toString();
         $scope.ModelOTNew.MonthNo = $scope.ModelOTNew.MonthNo.toString();
         $scope.PCOTAction = 'Update';
-        $scope.GetLoadEmployeeInformation($scope.TabsName);
+        $scope.GetLoadEmployeeInformation();
         
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -1393,14 +1397,14 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
         }
     }
 
-    //function checkExistTempListforConfirm(list, empSystemId) {
-    //    for (var i = 0; i < baseService.arrayLength(list); i++) {
-    //        if (list[i].EmpSystemId === empSystemId) {
-    //            return true;
-    //        }
-    //    }
-    //    return false;
-    //}
+    function checkExistTempListforConfirm(list, empSystemId) {
+        for (var i = 0; i < baseService.arrayLength(list); i++) {
+            if (list[i].EmpSystemId === empSystemId) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     $scope.GetEmployeeDisbursementItem = function () {
         $scope.EmployeeListNew = [];
@@ -1449,6 +1453,71 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
             }
         }
         $scope.getSalaryLockPayableGL();
+    };
+
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.XlsMultipleAdvanceEmployeeList = function () {
+        var dataList = [];
+        var newDataList = [];
+        var g = $("#GridChildEdit").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        var obj = {};
+
+        if (dataList.length == 0) {
+
+            dataList = $scope.PCOTEmployeeList;
+        }
+
+        for (let i = 0; i < dataList.length; i++) {
+            obj.EmployeeCode = dataList[i].EmployeeCode;
+            obj.EmployeeName = dataList[i].EmployeeName;
+            obj.Entity = dataList[i].Entity;
+            obj.Department = dataList[i].Department;
+            obj.Section = dataList[i].Section;
+            obj.SubSection = dataList[i].SubSection;
+            obj.Basic = dataList[i].Basic;
+            obj.PayDays = dataList[i].PayDays;
+            obj.StandardOTHour = dataList[i].StandardOTHour;
+            obj.AdditionalOTHour = dataList[i].AdditionalOTHour;
+            obj.Rate = dataList[i].Rate;
+            obj.PresentDays = dataList[i].PresentDays;
+            obj.TobeApprovedAmount = dataList[i].TobeApprovedAmount;
+            obj.ApprovedAmount = dataList[i].ApprovedAmount;
+            obj.PaidAmount = dataList[i].PaidAmount;
+            obj.Amount = dataList[i].Amount;
+            obj.AdvanceAmount = dataList[i].AdvanceAmount;
+            obj.Remarks = dataList[i].Remarks;
+
+            newDataList.push(obj);
+            obj = {};
+        }
+        $scope.fileName = 'MultipleAdvanceEmployeeList';
+        $http({
+            method: "POST",
+            url: $scope.exportgriddataUrl,
+            data: {
+                'data': newDataList,
+                'reportFileName': $scope.fileName,
+
+            },
+
+            dataType: 'JSON',
+
+        })
+            .then(function successCallback(response) {
+
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
     };
 
     //Payments GoodWorkPaymentAdvise Payments Posting End

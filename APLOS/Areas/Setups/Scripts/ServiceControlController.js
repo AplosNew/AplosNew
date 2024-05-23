@@ -8,6 +8,9 @@ function serviceControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.getListUrl = $scope.path + 'GetServiceControlList';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'CreateServiceControlHeader';
+    $scope.saveAPBUrl = $scope.path + 'CreateServiceControlApprovedBy';
+    $scope.saveABUrl = $scope.path + 'CreateServiceControlActionBy';
+    $scope.saveEntityUrl = $scope.path + 'CreateServiceControlEntity';
     $scope.saveServiceMasterUrl = $scope.path + 'CreateServiceControlServiceMaster';
 
     $scope.Type = [];
@@ -291,8 +294,8 @@ function serviceControlController(cboService, commonMessage, $scope, $rootScope,
     };
 
     $scope.SaveABData = function () {
-        if (baseService.isUndefinedOrNull($scope.GlManagementId)) {
-            return ShowResult('Please select GL Management!', 'failure');
+        if (baseService.isUndefinedOrNull($scope.ServiceControlId)) {
+            return ShowResult('Please select Service Control!', 'failure');
         }
         for (var i = 0; i < $scope.ActionByList.length; i++) {
             for (var j = 0; j < $scope.ActionByListData.length; j++) {
@@ -306,7 +309,7 @@ function serviceControlController(cboService, commonMessage, $scope, $rootScope,
         $http({
             method: 'POST',
             url: $scope.saveABUrl,
-            data: { 'data': $scope.ActionByList, 'GlManagementId': $scope.GlManagementId },
+            data: { 'data': $scope.ActionByList, 'ServiceControlId': $scope.ServiceControlId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -378,8 +381,8 @@ function serviceControlController(cboService, commonMessage, $scope, $rootScope,
     };
 
     $scope.SaveAPBData = function () {
-        if (baseService.isUndefinedOrNull($scope.GlManagementId)) {
-            return ShowResult('Please select GL Management!', 'failure');
+        if (baseService.isUndefinedOrNull($scope.ServiceControlId)) {
+            return ShowResult('Please select Service Control!', 'failure');
         }
         for (var i = 0; i < $scope.ApproveByList.length; i++) {
             for (var j = 0; j < $scope.ApproveByListData.length; j++) {
@@ -393,7 +396,7 @@ function serviceControlController(cboService, commonMessage, $scope, $rootScope,
         $http({
             method: 'POST',
             url: $scope.saveAPBUrl,
-            data: { 'data': $scope.ApproveByList, 'GlManagementId': $scope.GlManagementId },
+            data: { 'data': $scope.ApproveByList, 'ServiceControlId': $scope.ServiceControlId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -409,4 +412,89 @@ function serviceControlController(cboService, commonMessage, $scope, $rootScope,
     };
 
     //#endregion Approve By
+
+
+    //#region Approve By
+    $scope.EntityByListData = [];
+    $scope.getEntityByPopUpData = function () {
+        $http({
+            method: 'Post',
+            url: 'Setups/ServiceMaster/GetServiceControlEntityList?serviceControlId=' + $scope.ServiceControlId
+        }).then(function successCallback(response) {
+            $scope.EntityByListData = response.data;
+        });
+    }
+
+    $scope.EntityByList = [];
+    $scope.OKEntityBy = function () {
+        $scope.ApproveByList = [];
+        try {
+            for (var i = 0; i < $scope.EntityByListData.length; i++) {
+                if ($scope.EntityByListData[i].CheckBoxSelect == true) {
+                    $scope.EntityByList.push($scope.EntityByListData[i]);
+                }
+                if ($scope.EntityByListData[i].CheckBoxSelect == false && $scope.EntityByListData[i].Id != null) {
+                    $scope.EntityByList.push($scope.EntityByListData[i]);
+                }
+            }
+            $scope.SaveEntityData();
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.refreshTemplateEntity = function (args) {
+        $("#Entityheadchk").ejCheckBox({ "change": CheckBoxSelectAllEntity });
+    };
+
+    function CheckBoxSelectAllEntity(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+        var filtered = $("#GridEntity").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.EntityByListData.length; i++) {
+                $scope.EntityByListData[i].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridEntity").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.SaveEntityData = function () {
+        if (baseService.isUndefinedOrNull($scope.ServiceControlId)) {
+            return ShowResult('Please select Service Control!', 'failure');
+        }
+        for (var i = 0; i < $scope.EntityByList.length; i++) {
+            for (var j = 0; j < $scope.EntityByListData.length; j++) {
+                if ($scope.EntityByListData[j].SystemID == $scope.EntityByList[i].EntityId) {
+                    if ($scope.EntityByListData[j].CheckBoxSelect == false) {
+                        $scope.EntityByList[i].CheckBoxSelect = false;
+                    }
+                }
+            }
+        }
+        $http({
+            method: 'POST',
+            url: $scope.saveEntityUrl,
+            data: { 'data': $scope.EntityByList, 'ServiceControlId': $scope.ServiceControlId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getEntityByPopUpData($scope.ServiceControlId);
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
 }

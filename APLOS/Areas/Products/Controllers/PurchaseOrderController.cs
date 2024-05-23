@@ -29,6 +29,7 @@ using Library.OrderManagement.TermsAndConditions;
 using Library.MaterialManagement.InventoryManagements;
 using Aplos.MaterialManagement.MaterialQuery;
 using System.Linq;
+using Library.Accounting.Accounts;
 
 namespace Aplos.Areas.Products.Controllers
 {
@@ -602,10 +603,16 @@ namespace Aplos.Areas.Products.Controllers
             return Json(_purchaseOrderService.GetTaxCategoryList(identity.CompanyGroupId, receiveId, identity.PlantId, hsnCodeId, PODate), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
-        public JsonResult getserviceTaxByTaxCategoryList(string receiveId, string hsnCodeId, string PODate)
+        public JsonResult GetserviceTaxByTaxCategoryList(string receiveId, string hsnCodeId, string PODate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_purchaseOrderService.getserviceTaxByTaxCategoryList(identity.CompanyGroupId, receiveId, identity.PlantId, hsnCodeId, PODate), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetTaxCategoryListServiceAcknowledgement(string serviceId, string hsnCodeId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_purchaseOrderService.GetTaxCategoryListServiceAcknowledgement(identity.CompanyGroupId, serviceId, identity.PlantId, hsnCodeId), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
         public JsonResult GetTaxCategoryListForSalesService(string receiveId, string hsnCodeId, string InventorySalesDate)
@@ -2202,6 +2209,15 @@ SELECT ROW_NUMBER()  OVER(ORDER BY  SPOM.Id) AS SiNo, SPOM.Id
 
         #region Service Acknowledgement Coding Start Here
 
+        [Authorize, HttpGet]
+        public JsonResult GetServiceMasterServiceControlData()
+        {
+            AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsInventoryPayableService.GetServiceMasterServiceControlData(identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost]
         public JsonResult CreateServiceAcknowledge(ServiceAcknowledgementMaster entity, IEnumerable<ServiceAcknowledgementViewModel> DetailList, string Status, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, IEnumerable<ServicePOAckTax> ServicePOAndAckTax)
         {
@@ -2221,6 +2237,7 @@ SELECT ROW_NUMBER()  OVER(ORDER BY  SPOM.Id) AS SiNo, SPOM.Id
                 entity.CompanyId = identity.CompanyId;
                 entity.PlantId = identity.PlantId;
                 entity.IsApproved = false;
+                entity.ServiceType = GRNType.ServicePOAKC.ToString();
                 if (identity.EmployeeId == entity.CheckedBy)
                 {
                     throw new CustomException("Please select another employee for Check by.");
@@ -2259,7 +2276,23 @@ SELECT ROW_NUMBER()  OVER(ORDER BY  SPOM.Id) AS SiNo, SPOM.Id
             }
         }
 
-       
+        [HttpPost]
+        public JsonResult CreateIndependentServiceAcknowledgeDetail(string ServiceAckId, ServiceAcknowledgementViewModel ackDetailModel, IEnumerable<ServicePOAckTax> servicePOAckTax)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                _purchaseOrderService.InsertIndependentServiceAck(ServiceAckId, ackDetailModel, servicePOAckTax);
+                return Json(new { ServiceAckId, Message = AplosMessage.Success + " PO no <b>" + ServiceAckId + "</b>" });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
         [HttpPost]
         public ActionResult DeleteServiceAck(string id)
         {
@@ -3121,6 +3154,7 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
                 entity.CompanyId = identity.CompanyId;
                 entity.PlantId = identity.PlantId;
                 entity.IsApproved = false;
+                entity.ServiceType = GRNType.ServiceACK.ToString();
                 if (identity.EmployeeId == entity.CheckedBy)
                 {
                     throw new CustomException("Please select another employee for Check by.");
@@ -3319,7 +3353,7 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
                 , a.Amount 
                 ,Tax.TaxAmount TotalTaxAmount
                 ,0 [check]
-                ,d.IsNonCreditable
+                ,d.IsNonCreditable,HSN.Code HSNCode
                 ,a.TotalAmount,a.Qty CurrentQty,a.Rate,a.TransactionUoMId,UOM.UserName UoM
 				,SPO.Qty,mapData.Qty OtherReceived,mapData1.MapId MapId,SPO.Id ServicePoDelId,Balance=(Isnull(SPO.Qty,0)-(isnull(mapData.Qty,0)+isnull(a.Qty,0)))
                 FROM trn. ServiceAcknowledgementDetail a
@@ -3328,6 +3362,7 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
                 LEFT JOIN (select ServiceAcknowledgementDetailId, sum(TaxAmount) TaxAmount from trn.ServicePOAckTax Group By ServiceAcknowledgementDetailId
                 
 				) Tax ON Tax.ServiceAcknowledgementDetailId=a.Id
+                LEFT JOIN [HKP].HSNCode HSN ON HSN.Id=b.HSNCodeId
 				left JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.TransactionUoMId
 				left JOIN trn.ServicePODetail SPO ON SPO.Id=a.ServicePODetailId
 				left JOIN (Select ServicePoDetailId,sum(Qty) Qty from trn.ServivePOAcknowledgementMap where ServiceAckId<>'" + Id + @"' Group by ServicePoDetailId) mapData on mapData.ServicePoDetailId=SPO.Id
@@ -3349,7 +3384,17 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
         {
             try
             {
+
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var sql = @"SELECT TOP(1) SAM.*,V.VoucherNo FROM [TRN].[ServiceAcknowledgementMaster] SAM 
+                        JOIN  TRN.ServiceAcknowledgementDetail SAD ON SAM.Id=SAD.ServiceAcknowledgementMasterId
+                        LEFT JOIN TRN.Voucher V ON V.Id=SAM.VoucherId
+                         WHERE SAD.Id='"+Id+"' AND SAM.VoucherId<>''";
+                var TempPostedService = _sqlRepository.GetData(sql);
+                if (TempPostedService.Count > 0)
+                    throw new CustomException("Please delete voucher No " + TempPostedService["VoucherNo"] + " First!");
+
                 var rdBuilder = new System.Text.StringBuilder();
                 var voucherSql = @"delete from trn.ServicePOAckTax where ServiceAcknowledgementDetailId='" + Id + "'";
                 var bankJournalSql = @"delete from trn.ServiceAcknowledgementDetail where id='" + Id + "'";

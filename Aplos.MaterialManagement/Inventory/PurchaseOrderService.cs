@@ -1297,7 +1297,7 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
-        public IEnumerable<object> GetListForHold11BOQ(string plantId, string ApproveRejectHold,string poType)
+        public IEnumerable<object> GetListForHold11BOQ(string plantId, string ApproveRejectHold, string poType)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
@@ -1361,7 +1361,7 @@ namespace Library.MaterialManagement.Inventory
 													WHERE B.PlantId='" + plantId + @"'  GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
 											LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 											LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
-											WHERE  IR.POType='"+poType+@"' AND IR.PlantId='" + plantId + @"' 
+											WHERE  IR.POType='" + poType + @"' AND IR.PlantId='" + plantId + @"' 
 											AND IR.Id in(Select distinct POId from trn.InventoryReceive where POId is not null)--and RequisitionId='110232'
 											AND IR.CheckedByStatus IS NULL
 											AND IR.AuthorizedByStatus IS NULL
@@ -1420,7 +1420,7 @@ namespace Library.MaterialManagement.Inventory
 													WHERE B.PlantId='" + plantId + @"'  GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
 											LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 											LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
-											WHERE  IR.POType='"+poType+@"' AND IR.PlantId='" + plantId + @"' 
+											WHERE  IR.POType='" + poType + @"' AND IR.PlantId='" + plantId + @"' 
 											AND IR.CheckedByStatus  Is null
 											AND IR.AuthorizedByStatus='Approved'
 											AND isnull(IR.IsClosed,0)=0 
@@ -1478,7 +1478,7 @@ namespace Library.MaterialManagement.Inventory
 													WHERE B.PlantId='" + plantId + @"'  GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
 											LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 											LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
-											WHERE  IR.POType='"+poType+@"' AND IR.PlantId='" + plantId + @"' 
+											WHERE  IR.POType='" + poType + @"' AND IR.PlantId='" + plantId + @"' 
 											AND IR.CheckedByStatus  Is null
 											AND IR.AuthorizedByStatus Is null
 											AND isnull(IR.IsClosed,0)=0 
@@ -1536,7 +1536,7 @@ namespace Library.MaterialManagement.Inventory
 													WHERE B.PlantId='" + plantId + @"'  GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
 											LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 											LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
-											WHERE  IR.POType='"+poType+@"' AND IR.PlantId='" + plantId + @"' 
+											WHERE  IR.POType='" + poType + @"' AND IR.PlantId='" + plantId + @"' 
 											AND IR.CheckedByStatus='Checked'
 											AND IR.AuthorizedByStatus='Approved'
 											AND isnull(IR.IsClosed,0)=0 
@@ -1597,7 +1597,7 @@ namespace Library.MaterialManagement.Inventory
 		                            WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                         LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
-                        WHERE  IR.POType='"+poType+@"' AND IR.PlantId='" + plantId + "'  AND IR.CheckedBy IS NOT NULL " +
+                        WHERE  IR.POType='" + poType + @"' AND IR.PlantId='" + plantId + "'  AND IR.CheckedBy IS NOT NULL " +
                         "AND IR.CheckedByStatus='Checked' " +
                         "AND IR.AuthorizedBy IS NOT NULL " +
                          " AND IR.AuthorizedByStatus<>'Approved' " +
@@ -3376,7 +3376,7 @@ namespace Library.MaterialManagement.Inventory
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
-     
+
         public decimal GetToCurrencyRate(string currencyId, string baseCurrencyId, DateTime docDate, string companyId)
         {
             try
@@ -3654,6 +3654,49 @@ namespace Library.MaterialManagement.Inventory
 	                    OR TV.Different IS NULL)
                     ORDER BY TC.[Sequence]";
                 return _sqlRepository.GetModelCollection<PurchaseOrderTax>(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+        public IEnumerable<object> GetTaxCategoryListServiceAcknowledgement(string companyGroupId, string serviceId, string plantId, string hsnCodeId)
+        {
+            try
+            {
+                var sql = @"DECLARE @receiveId varchar(10)='" + serviceId + @"'
+                                  , @partyState varchar(30)
+                                  , @partyCountry varchar(10)
+                                  , @plantState varchar(30)
+                                  , @plantCountry varchar(10)
+                                  , @plantId varchar(30)='" + plantId + @"'
+                                  , @hsnCodeId varchar(30)='" + hsnCodeId + @"'
+                    SET @partyCountry =(SELECT AM.CountryId FROM HKP.PartyPlant AS PP LEFT JOIN MST.AddressMaster AS AM ON PP.AddressMasterId=AM.Id
+                                                    JOIN [TRN].[ServiceAcknowledgementMaster] AS IR ON IR.InvoicingPartyPlantId=PP.Id WHERE IR.Id=@receiveId)-- AND AD.Active=1 AND AD.Archive=0)
+                    SET @partyState =(SELECT AM.StateId FROM HKP.PartyPlant AS PP LEFT JOIN MST.AddressMaster AS AM ON PP.AddressMasterId=AM.Id
+                                    JOIN [TRN].[ServiceAcknowledgementMaster] AS IR ON IR.InvoicingPartyPlantId=PP.Id WHERE IR.Id=@receiveId)-- AND AD.Active=1 AND AD.Archive=0)
+
+                    SET @plantState =(SELECT AD.StateId FROM MST.AddressMaster AS AD JOIN ORG.Plant AS PLNT ON AD.Id=PLNT.AddressMasterId WHERE PLNT.Id=@plantId)-- AND AD.Active=1 AND AD.Archive=0)
+                    SET @plantCountry =(SELECT AD.CountryId FROM MST.AddressMaster AS AD JOIN ORG.Plant AS PLNT ON AD.Id=PLNT.AddressMasterId WHERE PLNT.Id=@plantId)-- AND AD.Active=1 AND AD.Archive=0)
+                    SELECT TVD.Id, TVD.TaxCategoryId, HP.HSNCodeId, HN.Code AS HSNCode, TC.UserName, ISNULL(HP.[Percentage], 0) AS [Percentage], NULL TotalAmount
+                    FROM [MST].[TaxVariantDetail] AS TVD
+                    JOIN [MST].[TaxVariant] AS TV ON TVD.TaxVariantId=TV.Id
+                    JOIN [MST].[TaxCategory] AS TC ON TVD.TaxCategoryId=TC.Id
+                    --LEFT JOIN (SELECT * FROM [MST].[HSNTaxPercentage] WHERE HSNCodeId=@hsnCodeId) AS HP ON HP.TaxCategoryId=TC.Id
+					LEFT JOIN (SELECT * FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY TaxCategoryId, HSNCodeId ORDER BY EffectiveDate DESC) AS RN
+								FROM [MST].[HSNTaxPercentage] WHERE CountryId=@plantCountry AND HSNCodeId=@hsnCodeId) AS TBL WHERE RN=1) AS HP ON HP.TaxCategoryId=TC.Id
+
+                    LEFT JOIN [HKP].[HSNCode] AS HN ON HP.HSNCodeId=HN.Id
+                    WHERE TV.CompanyGroupId='" + companyGroupId + @"' AND TV.CountryId=@plantCountry --AND HP.HSNCodeId=@hsnCodeId
+                    AND TV.TaxFor=CASE WHEN @partyCountry=@plantCountry THEN '" + TaxFor.DomesticPurchase + @"'
+				                        WHEN @partyCountry<>@plantCountry THEN '" + TaxFor.OverseasPurchase + @"' END
+                    AND (TV.Different=CASE WHEN @partyCountry=@plantCountry AND @partyState=@plantState AND TV.DifferentIn='State' THEN 'Same'
+					                       WHEN @partyCountry=@plantCountry AND @partyState<>@plantState AND TV.DifferentIn='State' THEN 'Different' END
+	                    OR TV.Different IS NULL)
+                    ORDER BY TC.[Sequence]";
+                return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
             {
@@ -7177,7 +7220,7 @@ ORDER BY IR.ID DESC";
             }
         }
 
-      
+
 
         public IEnumerable<object> GetSupervisorCboApproved1()
         {
@@ -7955,7 +7998,7 @@ ORDER BY IR.ID DESC";
         {
             try
             {
-                
+
                 var sql = @"select    * from  (SELECT  IR.Id As RequisitionId 
 								, IM.Id  AS RequisitionDetailId  
 								, ISNULL(MGM.UserName,'') AS MaterialGroupMasterName
@@ -13412,6 +13455,68 @@ ORDER BY IR.ID DESC";
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
+        public void InsertIndependentServiceAck(string ServiceAckId, ServiceAcknowledgementViewModel ackDetailModel, IEnumerable<ServicePOAckTax> ServicePOAndAckTax)
+        {
+            var flag = false;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var currentId = _ServiceAcknowledgementDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(substring(id, CHARINDEX('-',id)+1,len(id)) AS INT)), 0) Id FROM [TRN].[ServiceAcknowledgementDetail] WHERE ServiceAcknowledgementMasterId='{ServiceAckId}'").First();
+
+                var NewId = ServiceAckId + "-";
+                currentId++;
+                var receiveDetail = new ServiceAcknowledgementDetail
+                {
+                    Id = NewId + currentId,
+                    ServiceAcknowledgementMasterId = ServiceAckId,
+                    ServiceMasterId = ackDetailModel.ServiceMasterId,
+                    ServicePOMasterId = ackDetailModel.ServicePOMasterId,
+                    ServicePODetailId = ackDetailModel.ServicePODetailId,
+                    Amount = Math.Round(ackDetailModel.Amount, 2),
+                    TotalTaxAmount = Math.Round(ackDetailModel.TotalTaxAmount, 2),
+                    TotalAmount = Math.Round(ackDetailModel.Amount, 2),
+                    Qty = ackDetailModel.Qty,
+                    Rate = Math.Round(ackDetailModel.Rate, 4),
+                    TransactionUoMId = ackDetailModel.TransactionUoMId
+                };
+                AuditService.AddedLog(receiveDetail);
+                _ServiceAcknowledgementDetail.Insert(receiveDetail);
+
+                if (ServicePOAndAckTax.IsNotNull())
+                {
+                    var currentIdTax = _servicePOAckTaxRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[ServicePOAckTax] WHERE ServiceAcknowledgementDetailId='{receiveDetail.Id}'").First();
+                    foreach (var item in ServicePOAndAckTax)
+                    {
+                        var potax = new ServicePOAckTax();
+                        currentIdTax++;
+                        potax.Id = MakePK(receiveDetail.Id, currentIdTax, 2);
+                        //potax.Id = GetPK3();
+                        potax.ServiceAcknowledgementMasterId = ServiceAckId;
+                        potax.ServiceAcknowledgementDetailId = receiveDetail.Id;
+                        potax.TaxCategoryId = item.TaxCategoryId;
+                        potax.HSNCodeId = item.HSNCodeId;
+                        potax.Percentage = item.Percentage;
+                        potax.TaxAmount = Math.Round(item.TaxAmount, 2);
+                        potax.ModelState = ModelState.Added;
+                        AuditService.AddedLog(potax);
+                        _servicePOAckTaxRepository.Insert(potax);
+                    }
+                }
+                receiveDetail.TotalTaxAmount = ServicePOAndAckTax.Where(r => r.ServicePoDetailId == receiveDetail.ServicePODetailId).Sum(r => r.TaxAmount);
+
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
         public void InsertIndependentServiceAck(ServiceAcknowledgementMaster entity)
         {
             var flag = false;
@@ -13426,17 +13531,17 @@ ORDER BY IR.ID DESC";
                     throw new CustomException("No Prefix Available for this Plant");
                 }
 
-               
+
                 if (string.IsNullOrEmpty(entity.Id))
                 {
                     var year1 = DateTime.Now.Year.ToString();
                     var id = GetPKServiveAck();
                     entity.Id = plantId + id;
-                    entity.ServiceType = "IndependentService";
+                    entity.ServiceType = GRNType.ServiceACK.ToString();
                     AuditService.AddedLog(entity);
                     entity.ModelState = ModelState.Added;
                     _ServiceAcknowledgementMaster.Insert(entity);
-                    
+
                 }
                 else//Update
                 {
@@ -13760,41 +13865,7 @@ ORDER BY IR.ID DESC";
             }
         }
 
-        //     public void InsertPODocMap(PODocumentMap entity,string POId) 
-        //     {
-        //         var flag = false;
-        //         try
-        //         {				
-        //	var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //	_unitOfWork.BeginTransaction();
-        //	flag = true;
-        //             entity.Id = entity.POId+"-"+PODocumentMap();
-        //             entity.POId = entity.POId;
-        //             entity.UserFilename =entity.UserFilename;
-        //             entity.SystemFileName = entity.POId + entity.UserFilename;
-        //             AuditService.AddedLog(entity);
-        //             _PODocumentMapRepository.Insert(entity);				
-        //	_unitOfWork.SaveChanges();
-        //	flag = false;
-        //	_unitOfWork.Commit();
-        //}
-        //         catch (CustomException)
-        //         {
-        //             throw;
-        //         }
-        //         catch (Exception ex)
-        //         {
-        //             throw new CustomException(ex.Message, ex,
-        //                Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, entity.AddedBy,
-        //                ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
-        //         }
-        //         finally
-        //         {
-        //             if (flag)
-        //                 _unitOfWork.Rollback();
-        //         }
-        //     }
-
+       
 
         public void InsertPODocMap(PODocumentMap entity, string POId, out string Id)
         {
@@ -13827,23 +13898,7 @@ ORDER BY IR.ID DESC";
 
                     dsMaster.Tables[0].Rows.Add(dr);
                 }
-                //else
-                //{
-                //    //edit
-                //    DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-
-                //    dr.BeginEdit();
-
-                //    dr["FileName"] = data.FileName;
-                //    dr["Description"] = data.Description;
-                //    dr["IssueTransactionId"] = data.IssueTransactionId;
-
-                //    dr["UpdatedBy"] = identity.EmployeeId;
-                //    dr["UpdatedFromIP"] = identity.IPAddress;
-                //    dr["UpdatedDate"] = System.DateTime.Now.ToString();
-
-                //    dr.EndEdit();
-                //}
+               
 
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dsMaster);
@@ -13886,23 +13941,7 @@ ORDER BY IR.ID DESC";
 
                     dsMaster.Tables[0].Rows.Add(dr);
                 }
-                //else
-                //{
-                //    //edit
-                //    DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-
-                //    dr.BeginEdit();
-
-                //    dr["FileName"] = data.FileName;
-                //    dr["Description"] = data.Description;
-                //    dr["IssueTransactionId"] = data.IssueTransactionId;
-
-                //    dr["UpdatedBy"] = identity.EmployeeId;
-                //    dr["UpdatedFromIP"] = identity.IPAddress;
-                //    dr["UpdatedDate"] = System.DateTime.Now.ToString();
-
-                //    dr.EndEdit();
-                //}
+              
 
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dsMaster);
@@ -13946,23 +13985,7 @@ ORDER BY IR.ID DESC";
 
                     dsMaster.Tables[0].Rows.Add(dr);
                 }
-                //else
-                //{
-                //    //edit
-                //    DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-
-                //    dr.BeginEdit();
-
-                //    dr["FileName"] = data.FileName;
-                //    dr["Description"] = data.Description;
-                //    dr["IssueTransactionId"] = data.IssueTransactionId;
-
-                //    dr["UpdatedBy"] = identity.EmployeeId;
-                //    dr["UpdatedFromIP"] = identity.IPAddress;
-                //    dr["UpdatedDate"] = System.DateTime.Now.ToString();
-
-                //    dr.EndEdit();
-                //}
+              
 
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dsMaster);

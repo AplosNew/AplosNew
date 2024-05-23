@@ -90,7 +90,7 @@ WHEN sl.MonthNo=10 THEN 'Oct' WHEN sl.MonthNo=11 THEN 'Nov' ELSE 'Dec' END
 LEFT JOIN SalaryProcMaster AS spm ON spm.SystemID = spc.SlrProcMstSystemID 
 LEFT JOIN SalaryHead AS sh ON sh.SalaryHeadID = spc.SalaryHeadID
 LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
-WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL AND sh.SalaryHead='Net Pay'";
+WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL AND sh.SalaryHead='Net Pay' AND PastDisbursed IS NULL";
                 var FinalSettlementUndisbursedEarning = _sqlRepository.GetDataCollection(sqlundisbursed);
 
                 return Json(new { SeperationItem, FinalSettlementUndisbursedEarning }, JsonRequestBehavior.AllowGet);
@@ -1765,16 +1765,27 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
         [HttpGet, Authorize]
         public ActionResult GetFNFMasterData()
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT M.Id,M.FinalSettlementName,FORMAT(M.FinalSettlementDate,'dd-MMM-yyyy')FinalSettlementDate,M.ApproveById,E.EmployeeName ApproveBy,ApproveStatus= CASE WHEN M.IsApproved=1 THEN 'Yes' ELSE 'No' END,M.IsApproved
 FROM dbo.EmployeeFullAndFinalSettlementMaster M
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ApproveById
+Where M.IsApproved=0
 Order By M.AddedDate DESC";
             var data = _sqlRepository.GetDataCollection(sql);
 
             return Json(data, JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public ActionResult GetApprovedData()
+        {
+            string sql = @"SELECT M.Id,M.FinalSettlementName,FORMAT(M.FinalSettlementDate,'dd-MMM-yyyy')FinalSettlementDate,M.ApproveById,E.EmployeeName ApproveBy,ApproveStatus= CASE WHEN M.IsApproved=1 THEN 'Yes' ELSE 'No' END,M.IsApproved
+FROM dbo.EmployeeFullAndFinalSettlementMaster M
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ApproveById
+Where M.IsApproved=1
+Order By M.AddedDate DESC";
+            var data = _sqlRepository.GetDataCollection(sql);
 
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
         [HttpGet, Authorize]
         public ActionResult GetFNFMasterDataForApprove()
         {
@@ -2015,7 +2026,7 @@ WHEN OL.UserName='UnPaidSalary' THEN CAST((
 LEFT JOIN SalaryProcMaster AS spm ON spm.SystemID = spc.SlrProcMstSystemID 
 LEFT JOIN SalaryHead AS sh ON sh.SalaryHeadID = spc.SalaryHeadID
 LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
-WHERE  spc.EmpInfoSystemID= '" + empId + @"' AND PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL  AND sh.SalaryHead='Net Pay'
+WHERE  spc.EmpInfoSystemID= '" + empId + @"' AND PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL  AND sh.SalaryHead='Net Pay' AND PastDisbursed IS NULL
 			 ) AS varchar(100))
 
 			 WHEN OL.UserName='Bonus' THEN CAST((
@@ -2190,7 +2201,7 @@ ORDER BY OL.Sequence";
                 esql = "select * from EmployeeFullAndFinalSettlementItem where EmpSystemId IN(" + empIds + ")";
                 con.OpenDataSetThroughAdapter(esql, out dsEmpMaster, false, "1");
 
-                elocksql = @"Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND ISNULL(IsDisbursed,0)=0 AND DisbursementVoucherId IS NULL ";
+                elocksql = @"Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND PastDisbursed  IS NULL AND DisbursementVoucherId IS NULL ";
                 con.OpenDataSetThroughAdapter(elocksql, out dsEmpSL, false, "1");
 
 
@@ -2557,7 +2568,25 @@ ORDER BY OL.Sequence";
 				LEFT JOIN[MST].[BudgetMaster] AS BM ON vd.BudgetMasterId= BM.Id
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON vd.ActivityId= A.Id
-				WHERE  E.VoucherId IS NULL AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
+				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
+
+                Union All
+				SELECT  'Bonus' AS OtherName, 'Dr' AS TrnType
+                , CAST(EI.Value AS decimal(18,2)) DrAmount 
+                , 0 CrAmount 
+                , CAST(EI.Value AS decimal(18,2)) Amount
+                ,vd.GLGeneralInfoId  ,vd.BudgetMasterId,vd.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
+                , B.UserName BudgetName,A.UserName ActivityName 
+				FROM EmployeeFullAndFinalSettlement  E
+				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='Bonus'
+				LEFT JOIN [dbo].[EmployeeSeperationItem] ESI ON  ESI.Id=EI.EmployeeSeperationItemId
+				LEFT JOIN ( SELECT vd.GLGeneralInfoId, vd.BudgetMasterId,vd.ActivityId,sl.EmployeeFinalSettlementId FROM [dbo].[SalaryLock] sl   
+				left join trn.VoucherDetail vd on vd.VoucherId=sl.PayableVoucherId and vd.TrnNature ='Annual Bonus' and Vd.AccountsGroupId=sl.AccountsGroupId WHERE sl.EmployeeFinalSettlementId IS NOT NULL AND vd.ActivityId IS NOT NULL AND VD.CrAmount>0 GROUP BY vd.GLGeneralInfoId, vd.BudgetMasterId,vd.ActivityId,sl.EmployeeFinalSettlementId) AS vd ON vd.EmployeeFinalSettlementId=E.FinalSettlementId
+				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON vd.GLGeneralInfoId=GL.Id
+				LEFT JOIN[MST].[BudgetMaster] AS BM ON vd.BudgetMasterId= BM.Id
+				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+				LEFT JOIN [HKP].[Activity] AS A ON vd.ActivityId= A.Id
+				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
 
                 Union All
 				SELECT  'LeaveEncashment' AS OtherName, 'Dr' AS TrnType
@@ -2639,11 +2668,13 @@ ORDER BY OL.Sequence";
                 ,  ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='LeaveEncashment' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0)  
 				 + ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='ExpensesPayable' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0)
 				 + ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='NetPay' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0)
+                 + ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='Bonus' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0)
 				 - ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='AdvanceLoan' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0)
 				 - ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='AdvanceSalary' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0) CrAmount 
                 ,  ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='LeaveEncashment' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0)  
 				 + ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='ExpensesPayable' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0)
 				 + ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='NetPay' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0)
+                 + ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='Bonus' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0)
 				 - ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='AdvanceLoan' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0)
 				 - ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='AdvanceSalary' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0) Amount
                 ,'" + voucherVM.GLGeneralInfoId + @"' GLGeneralInfoId ,'" + voucherVM.BudgetMasterId + @"' BudgetMasterId,'" + voucherVM.ActivityId + @"' ActivityId

@@ -362,6 +362,7 @@ Where C.EmpInfoSystemID IN (" + EmpIdLoop + @") AND PO.DirectManpowerCost=0 AND 
                     dr["BudgetId"] = sps.BudgetId;
                     dr["SalaryRuleMasterId"] = sps.SalaryRuleMasterId;
                     dr["SalaryStructureId"] = sps.SalaryStructureId;
+                    dr["PastDisbursed"] = sps.PastDisbursed;
 
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
@@ -504,6 +505,7 @@ Where C.EmpInfoSystemID IN (" + EmpIdLoop + @") AND PO.DirectManpowerCost=0 AND 
             public string GivenDesignationId { get; set; }
             public string AccountsGroupId { get; set; }
             public string BudgetId { get; set; }
+            public string PastDisbursed { get; set; }
             public string SalaryRuleMasterId { get; set; }
             public bool CheckBoxSelect { get; set; }
             #endregion Scalar Properties

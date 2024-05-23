@@ -201,16 +201,16 @@ namespace Aplos.Areas.Setups.Controllers
         }
         public ActionResult DeleteServiceControl(string id)
         {
-            string sqlChild = @"SELECT * FROM [HKP].[ServiceControlServiceMaster] WHERE ServiceControlId = '" + id + "'";
-            string sql = @"SELECT * FROM [HKP].[ServiceControl] WHERE Id = '" + id + "'";
+            string sqlChild = @"SELECT * FROM [MST].[ServiceControlServiceMaster] WHERE ServiceControlId = '" + id + "'";
+            string sql = @"SELECT * FROM [MST].[ServiceControl] WHERE Id = '" + id + "'";
             try
             {
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
-                con.executeQuery("DELETE FROM [HKP].[ServiceControlServiceMaster] WHERE ServiceControlId='" + id + "'");
-                con.executeQuery("DELETE FROM [HKP].[ServiceControl] WHERE Id='" + id + "'");
+                con.executeQuery("DELETE FROM [MST].[ServiceControlServiceMaster] WHERE ServiceControlId='" + id + "'");
+                con.executeQuery("DELETE FROM [MST].[ServiceControl] WHERE Id='" + id + "'");
                 con.CommitTransaction();
 
                 return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
@@ -240,7 +240,7 @@ namespace Aplos.Areas.Setups.Controllers
             {
                 var sql = "";
                 sql = @"SELECT  CheckBoxSelect=cast(CASE WHEN SC.ServiceMasterId<>'' THEN 1  ELSE 0 END as bit),
-                                    SG.UserName AS ServiceGroup,SM.UserName ServiceMaster,SM.IsPO,SM.IsApproved,SC.BudgetLimit,SC.Id,SM.Id ServiceMasterId,SC.ServiceControlId
+                                    SG.UserName AS ServiceGroup,ISNULL(SM.ServiceCategory,'') ServiceCategory,ISNULL(SM.ServiceSubCategory,'') ServiceSubCategory,SM.UserName ServiceMaster,SM.IsPO,SM.IsApproved,SC.BudgetLimit,SC.Id,SM.Id ServiceMasterId,SC.ServiceControlId
                                     FROM [HKP].[ServiceMaster] SM
 									 LEFT JOIN [HKP].[ServiceGroup] AS SG ON SG.Id=SM.ServiceGroupId
 									left join(select * from  [MST].[ServiceControlServiceMaster] where ServiceControlId='" + serviceControlId + @"') SC on SC.ServiceMasterId=SM.Id
@@ -287,7 +287,7 @@ namespace Aplos.Areas.Setups.Controllers
                                         left join [HKP].[EmployeeCategory] EC on EC.Id=DM.EmployeeCategoryId
                                         LEFT JOIN dbo.EmpDateWiseJobLocation EJ ON EJ.EmpsystemId=EMP.SystemId
 										 AND EJ.SystemId=(Select top(1) SystemId from dbo.EmpDateWiseJobLocation JB Where JB.EmpSystemID=EMP.SystemId Order by EffectiveDate desc)
-                                        LEFT JOIN(SELECT * FROM  [HKP].[ServiceControlActionBy] where ServiceControlId='" + serviceControlId + @"') gla on gla.ActionById=EMP.SystemId
+                                        LEFT JOIN(SELECT * FROM  [MST].[ServiceControlActionBy] where ServiceControlId='" + serviceControlId + @"') gla on gla.ActionById=EMP.SystemId
                                         WHERE emp.PlantID='" + identity.PlantId + @"'  and EMP.CompanyId='" + identity.CompanyId + @"' and EMP.EmployeeStatus='Active' ORDER BY EmployeeCodePreFix,EMP.EmployeeCodeNumeric";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -331,7 +331,7 @@ namespace Aplos.Areas.Setups.Controllers
                                         left join [HKP].[EmployeeCategory] EC on EC.Id=DM.EmployeeCategoryId
                                         LEFT JOIN dbo.EmpDateWiseJobLocation EJ ON EJ.EmpsystemId=EMP.SystemId
 										 AND EJ.SystemId=(Select top(1) SystemId from dbo.EmpDateWiseJobLocation JB Where JB.EmpSystemID=EMP.SystemId Order by EffectiveDate desc)
-                                        LEFT JOIN(SELECT * FROM  [HKP].[ServiceControlApprovedBy] where ServiceControlId='" + serviceControlId + @"') gla on gla.ActionById=EMP.SystemId
+                                        LEFT JOIN(SELECT * FROM  [MST].[ServiceControlApprovedBy] where ServiceControlId='" + serviceControlId + @"') gla on gla.ActionById=EMP.SystemId
                                         WHERE emp.PlantID='" + identity.PlantId + @"'  and EMP.CompanyId='" + identity.CompanyId + @"' and EMP.EmployeeStatus='Active' ORDER BY EmployeeCodePreFix,EMP.EmployeeCodeNumeric";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -341,6 +341,33 @@ namespace Aplos.Areas.Setups.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+
+        [Authorize, HttpPost]
+        public ActionResult GetServiceControlEntityList(string serviceControlId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                var sql = "";
+                sql = @"SELECT  CheckBoxSelect=cast(CASE WHEN SC.EntityId<>'' THEN 1  ELSE 0 END as bit),SC.Id,SM.Id EntityId,CO.UserName Company,P.UserName Plant,D.UserName Division,SD.UserName SubDivision
+                                    ,SM.UserName EntityName
+                                    FROM [ORG].[Entity] SM
+									left join [ORG].[Company] CO ON CO.Id=SM.CompanyId
+									left join [ORG].[Plant] P ON P.Id=SM.PlantId
+									left join [ORG].[Division] D ON D.Id=SM.DivisionId
+									left join [ORG].[SubDivision] SD ON SD.Id=SM.SubDivisionId
+									LEFT JOIN(SELECT * FROM  [MST].[ServiceControlEntity] WHERE ServiceControlId='" + serviceControlId + @"') SC on SC.EntityId=SM.Id
+                                    --where SM.CompanyId='" + identity.CompanyId + "'";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [Authorize, HttpPost]
         public JsonResult CreateServiceControlServiceMaster(List<Dictionary<string, object>> data, string serviceControlId, string TabName)
         {
             try
@@ -393,21 +420,21 @@ namespace Aplos.Areas.Setups.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-
-        public JsonResult CreateServiceControlActionBy(List<Dictionary<string, object>> data, string GlManagementId)
+        [Authorize, HttpPost]
+        public JsonResult CreateServiceControlActionBy(List<Dictionary<string, object>> data, string ServiceControlId)
         {
             try
             {
                 DataSet dsAB;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from [HKP].[ServiceControlActionBy] where ServiceControlId='" + GlManagementId + "'", out dsAB, false, "1");
+                con.OpenDataSetThroughAdapter("select * from [MST].[ServiceControlActionBy] where ServiceControlId='" + ServiceControlId + "'", out dsAB, false, "1");
 
                 string Id = "";
                 #region data update
                 foreach (var item in data)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementActionBy", out Id);
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ServiceControlActionBy", out Id);
                     var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                     DataView dv = new DataView(dsAB.Tables[0]);
@@ -417,7 +444,7 @@ namespace Aplos.Areas.Setups.Controllers
                     {
                         item["Id"] = Id;
                         item["ActionById"] = item["SystemID"];
-                        item["GlManagementId"] = GlManagementId;
+                        item["ServiceControlId"] = ServiceControlId;
 
                         AddNewRow(dsAB.Tables[0], item);
                     }
@@ -444,20 +471,21 @@ namespace Aplos.Areas.Setups.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-        public JsonResult CreateGlManagementApproveBy(List<Dictionary<string, object>> data, string GlManagementId)
+        [Authorize, HttpPost]
+        public JsonResult CreateServiceControlApprovedBy(List<Dictionary<string, object>> data, string ServiceControlId)
         {
             try
             {
                 DataSet dsAPB;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from [HKP].[GLManagementApproveBy] where GlManagementId='" + GlManagementId + "'", out dsAPB, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM [MST].[ServiceControlApprovedBy] where ServiceControlId='" + ServiceControlId + "'", out dsAPB, false, "1");
 
                 string Id = "";
                 #region data update
                 foreach (var item in data)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "GLManagementApproveBy", out Id);
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ServiceControlApprovedBy", out Id);
                     var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                     DataView dv = new DataView(dsAPB.Tables[0]);
@@ -467,7 +495,57 @@ namespace Aplos.Areas.Setups.Controllers
                     {
                         item["Id"] = Id;
                         item["ApproveById"] = item["SystemID"];
-                        item["GlManagementId"] = GlManagementId;
+                        item["ServiceControlId"] = ServiceControlId;
+
+                        AddNewRow(dsAPB.Tables[0], item);
+                    }
+                    else if (dv.Count > 0 && Convert.ToBoolean(item["CheckBoxSelect"].ToString()) == false)
+                    {
+                        DataRow drmo = dv[0].Row;
+                        drmo.Delete();
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        item["Id"] = dv[0].Row["Id"].ToString();
+                        EditRow(drmo, item);
+                    }
+                }
+                #endregion data update 
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsAPB);
+                return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        [Authorize, HttpPost]
+        public JsonResult CreateServiceControlEntity(List<Dictionary<string, object>> data, string ServiceControlId)
+        {
+            try
+            {
+                DataSet dsAPB;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM [MST].[ServiceControlEntity] where ServiceControlId='" + ServiceControlId + "'", out dsAPB, false, "1");
+
+                string Id = "";
+                #region data update
+                foreach (var item in data)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ServiceControlEntity", out Id);
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                    DataView dv = new DataView(dsAPB.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        item["Id"] = Id;
+                        item["ServiceControlId"] = ServiceControlId;
 
                         AddNewRow(dsAPB.Tables[0], item);
                     }

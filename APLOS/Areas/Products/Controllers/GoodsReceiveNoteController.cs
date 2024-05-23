@@ -215,6 +215,11 @@ namespace Aplos.Areas.Products.Controllers
             return View();
         }
 
+        public ActionResult IndependentServiceGRN()
+        {
+            return View();
+        }
+
         #endregion Aplos
 
         #region GRN-By-PO
@@ -4787,7 +4792,7 @@ UNION ALL
         }
 
         [HttpPost]
-        public JsonResult CreatePOGRNBOQ(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti,string BOQAllocation)
+        public JsonResult CreatePOGRNBOQ(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string gRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti,string BOQAllocation)
         {
             if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
             {
@@ -4798,6 +4803,7 @@ UNION ALL
             entity.CompanyGroupId = identity.CompanyGroupId;
             entity.CompanyId = identity.CompanyId;
             entity.PlantId = identity.PlantId;
+            gRNType = GRNType.GRNBYBOQ.ToString();
             var settings = new JsonSerializerSettings
             {
                 NullValueHandling = NullValueHandling.Ignore,
@@ -4885,15 +4891,16 @@ UNION ALL
             }
 
 
-            DetailCreateGRNBOQ(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType, BOQAllocationSave);
+            DetailCreateGRNBOQ(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, gRNType, BOQAllocationSave);
             ServiceChargesCreateNewSaad(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
             //_gRNPORequisitionAllocationService.InsertOrUpdateGraphNewGRNAllocationBOQ(BOQAllocationSave);
             return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
         }
-        public JsonResult DetailCreateGRNBOQ(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<InventoryMaterialViewModel> BOQAllocationSave)
+        public JsonResult DetailCreateGRNBOQ(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string gRNType, IEnumerable<InventoryMaterialViewModel> BOQAllocationSave)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            _inventoryDetailService.InsertOrUpdateGraphNewGRNBOQ(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType, BOQAllocationSave);
+           
+            _inventoryDetailService.InsertOrUpdateGraphNewGRNBOQ(entity, entityMat, taxCategoryList, id, MaterialStorageId, gRNType, BOQAllocationSave);
             return Json(new { Message = AplosMessage.Success });
         }
         public JsonResult ServiceChargesCreateNewSaad(IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string Id, string AcceptanceId)

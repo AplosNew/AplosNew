@@ -3679,7 +3679,7 @@ namespace Library.MaterialManagement.InventoryManagements
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                var _sql = @"select SAT.Id, SAT.ServiceAcknowledgementMasterId, SAT.ServiceAcknowledgementDetailId, SAT.TaxCategoryId, SAT.HSNCodeId, SAT.Percentage, SAT.TaxAmount from trn.ServicePOAckTax SAT
+                var _sql = @"select SAT.Id, SAT.ServiceAcknowledgementMasterId, SAT.ServiceAcknowledgementDetailId,TC.UserName TaxCategory, SAT.TaxCategoryId, SAT.HSNCodeId, SAT.Percentage, SAT.TaxAmount from trn.ServicePOAckTax SAT
 							 Left JOIN MST.TaxCategory TC ON TC.Id= SAT.TaxCategoryId
 			   where SAT.ServiceAcknowledgementMasterId='" + Id + "'";
 
