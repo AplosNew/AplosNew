@@ -1,17 +1,19 @@
-﻿<togglable name="{{title}}"></togglable>
-<div class="form-elements form-horizontal">
-    
-    <div class="tab-design">
-        <div class="site-tab">
-            <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);GetMaterialList();" href="" aria-controls="Sales" role="tab" data-toggle="tab">Sales Process</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Purchase" role="tab" data-toggle="tab">Transaction</a></li>
-            </ul>
-        </div>
-        <div class="tab-content">
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }" ng-form="tabForm1" id="Sales">
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>Sales Process</h3>
+
+<div class="tab-design">
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);GetMaterialList();" href="" aria-controls="Sales" role="tab" data-toggle="tab">Sales Process</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);getSPData();" href="" aria-controls="Purchase" role="tab" data-toggle="tab">Transaction</a></li>
+        </ul>
+    </div>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }" ng-form="tabForm1" id="Sales">
+            <togglable name="{{title}}"></togglable>
+            <div class="form-elements form-horizontal">
+
                 <div class="row">
-                    
+
                     <div ng-form name="ModelNewForm" id="maindiv">
                         <input type="hidden" ng-model="ModelNew.Id">
                         <div class="col-xs-12 col-sm-6 col-md-6">
@@ -37,7 +39,7 @@
                                 </div>
                             </div>
 
-                           
+
 
                         </div>
                         <div class="common-btn">
@@ -50,44 +52,106 @@
                     </div>
                 </div>
             </div>
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-form="tabForm2" id="Purchase">
-
-            </div>
-
-        </div>
-    </div>
-</div>
-<div class="row text-right aplos-grid-toggle">
-    <div class="col-xs-12 col-sm-12 col-sm-12">
-        <div class="search-form">
-            <div class="row">
-                <div class="col-xs-12 col-sm-3 col-md-3">
-                    <div class="select-style">
-                        <select ng-model="searchBy">
-                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-                        </select>
+                <div class="row text-right aplos-grid-toggle">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchBy">
+                                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                <div class="table-responsive aplos-grid-toggle">
+                    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+                            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
+                            <div e-column e-field="SalesProcess" e-headertext="SalesProcess" e-width="5"></div>
+                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="5"></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-xs-12 col-sm-2 col-md-2">
-                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-form="tabForm2" id="Purchase">
+            <div id="GridSP" ej-grid e-datasource="SPList"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                <div e-columns>
+                    <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                    <div e-column e-field="SalesType" e-headertext="Sales Type" e-width="2"></div>
+                    <div e-column e-template="#PaymentMode" e-field="PaymentMode" e-headertext="Payment Mode" e-width="2"></div>
+                    <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
+                    <div e-column e-field="SalesProcess" e-headertext="SalesProcess" e-width="5"></div>
+                    @*<div e-column e-field="DependandPorcess" e-headertext="DependandPorcess" e-width="5"></div>*@
+                    <div e-column e-template="#StandardDaysfromInvoice" e-field="StandardDaysfromInvoice" e-headertext="StandardDaysfromInvoice" e-width="5"></div>
+                    <div e-column e-template="#StandardDaysFromPreviousProcess" e-field="StandardDaysFromPreviousProcess" e-headertext="StandardDaysFromPreviousProcess" e-width="5"></div>
+                    <div e-column e-template="#BankApplicable" e-field="BankApplicable" e-headertext="BankApplicable" e-width="5"></div>
+                    <div e-column e-template="#BankName" e-field="BankName" e-headertext="BankName" e-width="5"></div>
+                    <div e-column e-field="BankAccountNo" e-headertext="Bank AccountNo" e-width="5"></div>
+                    <div e-column e-template="#Department" e-field="Department" e-headertext="Department" e-width="5"></div>
+                    <div e-column e-template="#ResponsiblePrerson" e-field="ResponsiblePrerson" e-headertext="ResponsiblePrerson" e-width="5"></div>
+                    <div e-column e-template="#Remark" e-headertext="Remark" e-width="5" style="height: 20px;"></div>
                 </div>
             </div>
+            <script type="text/template" id="PaymentMode">
+                <div class="select-style">
+                    <select class="form-control" ng-model="data.PaymentMode" name="PaymentMode">
+                        <option value="">--Select--</option>
+                        <option value="Bank">Bank</option>
+                        <option value="Cheque">Cheque</option>
+                        <option value="Cash">Cash</option>
+                        <option value="Transfer">Transfer</option>
+                    </select>
+                </div>
+            </script>
+            <script type="text/template" id="StandardDaysfromInvoice">
+                <div class="col-sm-10" style="padding:0px; width:70px;">
+                    <input type="text" name="StandardDaysfromInvoice" ng-model="data.StandardDaysfromInvoice" datepicker class="form-control datepicker" placeholder="dd-MM-yyyy" tabindex="3">
+                </div>
+            </script>
+            <script type="text/template" id="StandardDaysFromPreviousProcess">
+                <div class="col-sm-10" style="padding:0px; width:70px;">
+                    <input type="text" name="StandardDaysFromPreviousProcess" ng-model="data.StandardDaysFromPreviousProcess" datepicker class="form-control datepicker" placeholder="dd-MM-yyyy" tabindex="3">
+                </div>
+            </script>
+            <script type="text/template" id="BankApplicable">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="data.IsBankApplicable" tabindex="8">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </script>
+            <script type="text/template" id="Remark">
+                <div class="input-group">
+                    <input tabindex="1" type="text" name="Responsible Person" ng-model="data.ResponsiblePerson" class="form-control" readonly required>
+                    <span class="input-group-btn">
+                        <button ng-click="showResponsiblePersonListPopUp();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </script>
+            <script type="text/template" id="Remark">
+                <div class="col-sm-10" style="padding:0px; width:70px;">
+                    <input type="text" ng-model="data.Remark" ng-maxlength="250" style="color:black;" class="form-control" />
+                </div>
+            </script>
         </div>
+
     </div>
 </div>
-<div class="table-responsive aplos-grid-toggle">
-    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
-         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-        <div e-columns>
-            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
-            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
-            <div e-column e-field="SalesProcess" e-headertext="SalesProcess" e-width="5"></div>
-            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="5"></div>
-        </div>
-    </div>
-</div>
+
 <confirm-modal></confirm-modal>
