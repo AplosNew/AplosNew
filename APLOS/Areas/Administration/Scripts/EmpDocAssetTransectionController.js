@@ -82,12 +82,12 @@ function EmpDocAssetTransectionController(commonMessage, $scope, $rootScope, bas
     $scope.GetSequence = function () {
         $http.get($scope.getSeqUrl)
             .then(function (response) {
-                $scope.documentationNew.Sequence = response.data;
+                $scope.ModelNew.Sequence = response.data;
             });
     };
     $scope.GetSequence();
     $scope.Get = function (obj) {
-        $scope.documentationNew = Object.assign({}, obj.data);
+        $scope.ModelNew = Object.assign({}, obj.data);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -221,8 +221,8 @@ function EmpDocAssetTransectionController(commonMessage, $scope, $rootScope, bas
     };
     $scope.closeEmployeePopUp = function () {
         var employee = $scope.employeeList[$scope.employeeIndex];
-        $scope.documentationNew.ResponsiblePersonId = employee.SystemId;
-        $scope.documentationNew.ResponsiblePerson = employee.EmployeeName;
+        $scope.ModelNew.GivenById = employee.SystemId;
+        $scope.ModelNew.GivenBy = employee.EmployeeName;
         $scope.hideEmployeePopUp();
     };
 

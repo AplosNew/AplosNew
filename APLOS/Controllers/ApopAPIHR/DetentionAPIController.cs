@@ -1547,5 +1547,26 @@ namespace Aplos.Controllers.ApopAPIHR
         }
         #endregion Advance
 
+        #region OrderControlReport
+        public List<Default2> GetMoResPer()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetMoResPer(out List<Default2> activelists);
+            return activelists;
+        }
+        public List<Default2> GetOrderStatus()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetOrderStatus(out List<Default2> activelists);
+            return activelists;
+        }
+
+        public List<OederControllGetSet> GetOrderControlReportDetail(string ResPer, string Type, string Status, string Date)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetOrderControlReportDetail(out List<OederControllGetSet> activelists, ResPer, Type, Status, Date);
+            return activelists;
+        }
+        #endregion OrderControlReport
     }
 }
