@@ -11900,27 +11900,27 @@ and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by Em
             DataList = new List<OederControllGetSet>();
 
             string stradd = "";
-            if(ResPer != "" || ResPer != null || ResPer != "null")
+            if(ResPer != null)
             {
-                stradd = " and Mo.ResponsiblePersonId = '" + ResPer + "' "; 
+                stradd = stradd + " and Mo.ResponsiblePersonId = '" + ResPer + "' "; 
             }
             if (Type != "Both")
             {
                 if(Type == "Export")
                 {
-                    stradd = " and PAG.StandardName = 'Customer Export' ";
+                    stradd = stradd + " and PAG.StandardName = 'Customer Export' ";
                 }
                 if (Type == "Local")
                 {
                     stradd = " and PAG.StandardName = 'Customer Local' ";
                 }
             }
-            if(Status != "" || Status != null || Status != "null")
+            if(Status != null)
             {
-                stradd = " and Mo.OrderStatusId = '" + Status + "' ";
+                stradd = stradd + " and Mo.OrderStatusId = '" + Status + "' ";
             }
 
-            if (Date != "" || Date != null || Date != "null")
+            if (Date != null)
             {
                 
             }
