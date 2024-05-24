@@ -2665,19 +2665,18 @@ ORDER BY OL.Sequence";
                 Union All
 				SELECT  'NetPay' AS OtherName, 'Cr' AS TrnType
                 , 0 DrAmount 
-                , ABS(CAST(EI.Value AS decimal(18,2))) CrAmount 
+                , ABS(CAST(EI.Value AS decimal(18,2)))  CrAmount 
                 , ABS(CAST(EI.Value AS decimal(18,2))) Amount
-                ,vd.GLGeneralInfoId  ,vd.BudgetMasterId,vd.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
+                ,BM.GLGeneralInfoId  ,BMA.BudgetMasterId,BMA.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
                 , B.UserName BudgetName,A.UserName ActivityName 
 				FROM EmployeeFullAndFinalSettlement  E
 				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='NetPay'
 				LEFT JOIN [dbo].[EmployeeSeperationItem] ESI ON  ESI.Id=EI.EmployeeSeperationItemId
-				LEFT JOIN ( SELECT vd.GLGeneralInfoId, vd.BudgetMasterId,vd.ActivityId,sl.EmployeeFinalSettlementId FROM [dbo].[SalaryLock] sl   
-				left join trn.VoucherDetail vd on vd.VoucherId=sl.PayableVoucherId and vd.TrnNature ='Net Pay' and Vd.AccountsGroupId=sl.AccountsGroupId WHERE sl.EmployeeFinalSettlementId IS NOT NULL AND vd.ActivityId IS NOT NULL GROUP BY vd.GLGeneralInfoId, vd.BudgetMasterId,vd.ActivityId,sl.EmployeeFinalSettlementId) AS vd ON vd.EmployeeFinalSettlementId=E.FinalSettlementId
-				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON vd.GLGeneralInfoId=GL.Id
-				LEFT JOIN[MST].[BudgetMaster] AS BM ON vd.BudgetMasterId= BM.Id
+				LEFT JOIN [MST].[BudgetMasterActivity] BMA ON  BMA.Id=ESI.CrBudgetMasterActivityId
+				LEFT JOIN[MST].[BudgetMaster] AS BM ON BMA.BudgetMasterId= BM.Id
+				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
-				LEFT JOIN [HKP].[Activity] AS A ON vd.ActivityId= A.Id
+				LEFT JOIN [HKP].[Activity] AS A ON BMA.ActivityId= A.Id
 				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))<0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
 
                 Union All
