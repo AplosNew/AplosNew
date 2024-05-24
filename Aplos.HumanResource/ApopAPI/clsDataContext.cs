@@ -12293,7 +12293,7 @@ left join OrderControl OCT on OCT.SalesOrderId = SO.Id
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID(TableName, out string _Id);
 
-                        dr["Id"] = "ORM" + _Id;
+                        dr["Id"] = "M24" + _Id;
                         dr["OrderControlId"] = item.OrderControlId;
                         dr["Remarks"] = item.Remarks;
                         dr["ActionToBeTakenId"] = item.ActionToBeTakenId;
