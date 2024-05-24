@@ -11893,14 +11893,14 @@ and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by Em
         }
 
 
-        public void GetOrderControlReportDetail(out List<OederControllGetSet> DataList, string ResPer, string Type, string Status, string Date)
+        public void GetOrderControlReportDetail(out List<OederControllGetSet> DataList, string ResPer, string Type, string Status, string Date, string Days, string ToSP)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
             DataList = new List<OederControllGetSet>();
 
             string stradd = "";
-            if(ResPer != null)
+            if(ResPer != "null")
             {
                 stradd = stradd + " and Mo.ResponsiblePersonId = '" + ResPer + "' "; 
             }
@@ -11915,14 +11915,38 @@ and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by Em
                     stradd = " and PAG.StandardName = 'Customer Local' ";
                 }
             }
-            if(Status != null)
+            if(Status != "null")
             {
                 stradd = stradd + " and Mo.OrderStatusId = '" + Status + "' ";
             }
 
-            if (Date != null)
+            if (Date != "null")
             {
+                if(Days != "null")
+                {
+                    if(Days == "CommitmentDate")
+                    {
+                        stradd = stradd + " and So.CommitmentDate between DATEADD(day, -" + Date + ", CAST(GETDATE() AS date)) and GETDATE() ";
+                    }
+                    if(Days == "ExFactoryDate")
+                    {
+                        stradd = stradd + " and So.PlanExFactoryDate between DATEADD(day, -" + Date + ", CAST(GETDATE() AS date)) and GETDATE() ";
+                    }
+                }
+                else
+                {
+                    stradd = stradd + " and So.DeliveryDate between DATEADD(day, -" + Date + ", CAST(GETDATE() AS date)) and GETDATE() ";
+                }
                 
+            }
+
+            
+            if(ToSP != "null")
+            {
+                if(ToSP == "ToShip")
+                {
+                    stradd = stradd + " and mo.OrderStatusId = 'ToShip'";
+                }
             }
 
             System.Data.DataSet dsRef;
