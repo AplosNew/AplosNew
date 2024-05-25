@@ -2134,6 +2134,10 @@ ORDER BY OL.Sequence";
                 DataSet dsFNFEmpMaster = null;
                 string esql, elocksql = "";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                if (identity.EmployeeId==data["ApproveById"].ToString())
+                {
+                    throw new Exception("Creation and Approving person can't be same.");
+                }
                 clsFinalSettlement clsFS = new clsFinalSettlement();
                 MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -2360,7 +2364,7 @@ ORDER BY OL.Sequence";
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster, dsEmpMaster, dsFNFEmpMaster, dsEmpSL);
 
-                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)

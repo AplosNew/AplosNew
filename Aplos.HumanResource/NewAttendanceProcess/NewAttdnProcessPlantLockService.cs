@@ -610,6 +610,12 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 #region Current Month Finding
 
+                DataTable dtFNF = GetFNFEmployee(SystemId);
+                if (dtFNF.Rows.Count>0)
+                {
+                    throw new Exception("Full and Final Settlement Employee can't be reactive.");
+                }
+
                 DataTable dt = GetEffectiveDateForAttdn(SystemId);
                 DateTime FromDate = Convert.ToDateTime(dt.Rows[0]["ApprovedEffectiveDate"].ToString());
               
@@ -1093,6 +1099,21 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw;
             }
         }
+
+        public DataTable GetFNFEmployee(string EmpSystemId)
+        {
+            try
+            {
+
+                string sql = @"select * from EmployeeFullAndFinalSettlement Where EmpSystemId='"+ EmpSystemId + "'";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
 
         public void PlantLockCheck(string FDate, string TDate, out DataSet ds, string Plant)
         {

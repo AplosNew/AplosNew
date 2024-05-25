@@ -5267,6 +5267,11 @@ namespace Library.Service.Employees
                 var EmployeeId = SystemId;
                 var Reason = reason;
 
+                DataTable dtFNF = GetFNFEmployee(SystemId);
+                if (dtFNF.Rows.Count > 0)
+                {
+                    throw new Exception("Full and Final Settlement Employee can't be reactive.");
+                }
                 //Lock
                 DataTable dt = GetEffectiveDateForAttdn(SystemId);
                 DateTime FromDate = Convert.ToDateTime(dt.Rows[0]["ApprovedEffectiveDate"].ToString());
@@ -5334,7 +5339,19 @@ namespace Library.Service.Employees
                 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
+        public DataTable GetFNFEmployee(string EmpSystemId)
+        {
+            try
+            {
 
+                string sql = @"select * from EmployeeFullAndFinalSettlement Where EmpSystemId='" + EmpSystemId + "'";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
         public DataTable GetEffectiveDateForAttdn(string EmpSystemId)
         {
             try

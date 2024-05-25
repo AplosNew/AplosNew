@@ -87,29 +87,28 @@
                 </div>
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-form="tabForm2" id="Purchase">
-            <div id="GridSP" ej-grid e-datasource="SPList"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+            <div id="GridSalPT" ej-grid e-datasource="SPList" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                  e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                 <div e-columns>
-                    <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                    @*<div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>*@
                     <div e-column e-field="SalesType" e-headertext="Sales Type" e-width="2"></div>
-                    <div e-column e-template="#PaymentMode" e-field="PaymentMode" e-headertext="Payment Mode" e-width="2"></div>
                     <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
-                    <div e-column e-field="SalesProcess" e-headertext="SalesProcess" e-width="5"></div>
+                    <div e-column e-field="SalesProcess" e-headertext="SalesProcess" e-width="4"></div>
+                    <div e-column e-template="#PaymentMode" e-field="PaymentMode" e-headertext="Payment Mode" e-width="2"></div>
                     @*<div e-column e-field="DependandPorcess" e-headertext="DependandPorcess" e-width="5"></div>*@
                     <div e-column e-template="#StandardDaysfromInvoice" e-field="StandardDaysfromInvoice" e-headertext="StandardDaysfromInvoice" e-width="5"></div>
                     <div e-column e-template="#StandardDaysFromPreviousProcess" e-field="StandardDaysFromPreviousProcess" e-headertext="StandardDaysFromPreviousProcess" e-width="5"></div>
-                    <div e-column e-template="#BankApplicable" e-field="BankApplicable" e-headertext="BankApplicable" e-width="5"></div>
-                    <div e-column e-template="#BankName" e-field="BankName" e-headertext="BankName" e-width="5"></div>
-                    <div e-column e-field="BankAccountNo" e-headertext="Bank AccountNo" e-width="5"></div>
-                    <div e-column e-template="#Department" e-field="Department" e-headertext="Department" e-width="5"></div>
-                    <div e-column e-template="#ResponsiblePrerson" e-field="ResponsiblePrerson" e-headertext="ResponsiblePrerson" e-width="5"></div>
-                    <div e-column e-template="#Remark" e-headertext="Remark" e-width="5" style="height: 20px;"></div>
+                    <div e-column e-template="#BankApplicable" e-field="BankApplicable" e-headertext="BankApplicable" e-width="2"></div>
+                    <div e-column e-template="#BankName" e-field="BankName" e-headertext="BankName" e-width="4"></div>
+                    @*<div e-column e-field="BankAccountNo" e-headertext="Bank AccountNo" e-width="5"></div>
+        <div e-column e-template="#Department" e-field="Department" e-headertext="Department" e-width="5"></div>
+        <div e-column e-template="#ResponsiblePrerson" e-field="ResponsiblePrerson" e-headertext="ResponsiblePrerson" e-width="5"></div>
+        <div e-column e-template="#Remark" e-headertext="Remark" e-width="5" style="height: 20px;"></div>*@
                 </div>
             </div>
             <script type="text/template" id="PaymentMode">
                 <div class="select-style">
-                    <select class="form-control" ng-model="data.PaymentMode" name="PaymentMode">
+                    <select class="form-control" ng-model="data.PaymentModeId" name="PaymentMode">
                         <option value="">--Select--</option>
                         <option value="Bank">Bank</option>
                         <option value="Cheque">Cheque</option>
@@ -119,12 +118,12 @@
                 </div>
             </script>
             <script type="text/template" id="StandardDaysfromInvoice">
-                <div class="col-sm-10" style="padding:0px; width:70px;">
+                <div class="col-sm-12">
                     <input type="text" name="StandardDaysfromInvoice" ng-model="data.StandardDaysfromInvoice" datepicker class="form-control datepicker" placeholder="dd-MM-yyyy" tabindex="3">
                 </div>
             </script>
             <script type="text/template" id="StandardDaysFromPreviousProcess">
-                <div class="col-sm-10" style="padding:0px; width:70px;">
+                <div class="col-sm-12">
                     <input type="text" name="StandardDaysFromPreviousProcess" ng-model="data.StandardDaysFromPreviousProcess" datepicker class="form-control datepicker" placeholder="dd-MM-yyyy" tabindex="3">
                 </div>
             </script>
@@ -136,11 +135,27 @@
                     </label>
                 </div>
             </script>
-            <script type="text/template" id="Remark">
+            <script type="text/template" id="ResponsiblePerson">
                 <div class="input-group">
-                    <input tabindex="1" type="text" name="Responsible Person" ng-model="data.ResponsiblePerson" class="form-control" readonly required>
+                    <input tabindex="1" type="text" name="Responsible Person" ng-model="data.ResponsiblePerson" class="form-control" readonly>
                     <span class="input-group-btn">
                         <button ng-click="showResponsiblePersonListPopUp();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </script>
+            <script type="text/template" id="BankName">
+                <div class="input-group">
+                    <input tabindex="1" type="text" name="BankName" ng-model="data.BankName" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="showBankPopUp();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </script>
+            <script type="text/template" id="Department">
+                <div class="input-group">
+                    <input tabindex="1" type="text" name="Department" ng-model="data.Department" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="showDepartmentPopUp();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
                 </div>
             </script>
