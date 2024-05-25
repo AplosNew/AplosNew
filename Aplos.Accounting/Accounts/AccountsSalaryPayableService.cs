@@ -677,8 +677,14 @@ namespace Library.Accounting.Accounts
             SELECT x.* FROM (
                         SELECT sh.SalaryHead,sh.HeadCategory SalaryHeadCategory,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType,sl.EmpSystemId EmployeeId,ei.EmployeeName
                         ,sl.PayableVoucherId VoucherId
-                        , 0 CrAmount,ESA.PrincipalAmount Amount,ESA.ProfitAmount,ESA.InstallmentAmount
-                        ,spc.DisbusmentAmount*-1 DisbusmentAmount,HeadHeadFilter='NetPay',ESA.AdvanceId,ESA.AdvanceDetailId,ESA.EmployeeSalaryAdvanceId,shgl.CrDirectActivityId ActivityId,0 IsOrderSpecific
+                        , 0 CrAmount
+						,CASE WHEN ISNULL(ESA.PrincipalAmount,0)>0 THEN ISNULL(ESA.PrincipalAmount,0) 
+						WHEN ISNULL(EA.PrincipalAmount,0)>0 THEN ISNULL(EA.PrincipalAmount,0) ELSE  ISNULL(WA.PrincipalAmount,0) END Amount
+						,CASE WHEN ISNULL(ESA.ProfitAmount,0)>0 THEN ISNULL(ESA.ProfitAmount,0) 
+						WHEN ISNULL(EA.ProfitAmount,0)>0 THEN ISNULL(EA.ProfitAmount,0) ELSE  ISNULL(WA.ProfitAmount,0) END ProfitAmount
+						,CASE WHEN ISNULL(ESA.InstallmentAmount,0)>0 THEN ISNULL(ESA.InstallmentAmount,0) 
+						WHEN ISNULL(EA.InstallmentAmount,0)>0 THEN ISNULL(EA.InstallmentAmount,0) ELSE  ISNULL(WA.InstallmentAmount,0) END InstallmentAmount
+                        ,spc.DisbusmentAmount*-1 DisbusmentAmount,HeadHeadFilter='NetPay',EA.AdvanceId,EA.AdvanceDetailId,ESA.EmployeeSalaryAdvanceId,WA.WorkerAdvanceDetailId,shgl.CrDirectActivityId ActivityId,0 IsOrderSpecific
                         from  dbo.SalaryProcMaster spm 
 						left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID 
 						LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
@@ -690,12 +696,21 @@ namespace Library.Accounting.Accounts
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         left join mst.SalaryHeadGL shgl on shgl.SalaryHeadId=sh.SalaryHeadID and ISNULL(DMC.AccountsGroupId,'')=ISNULL(shgl.AccountsGroupId,'')
-						LEFT JOIN (SELECT EA.EmployeeId,ARS.MonthNo,ARS.YearNo,ARS.InstallmentAmount,ARS.PrincipalAmount,ARS.ProfitAmount,A.Id AdvanceId,AD.Id AdvanceDetailId,ARS.EmployeeSalaryAdvanceId
-						FROM TRN.EmployeeSalaryAdvance EA JOIN DBO.AdvanceReqSchedule ARS ON ARS.EmployeeSalaryAdvanceId=EA.Id 
-						JOIN TRN.Advance A ON A.VoucherId=EA.VoucherId
-						JOIN TRN.AdvanceDetail AD ON AD.AdvanceId=A.Id
-                        JOIN TRN.EmployeeAdvanceDeduction EAD ON EAD.AdvanceReqScheduleId=ARS.Id
-						WHERE ARS.MonthNo='" + monthNo + "' AND ARS.YearNo='" + yearNo + @"'  ) ESA ON ESA.EmployeeId=SL.EmpSystemId
+						LEFT JOIN (SELECT EA.EmployeeId,ARS.MonthNo,ARS.YearNo,ARS.InstallmentAmount,ARS.PrincipalAmount,ARS.ProfitAmount,ARS.EmployeeSalaryAdvanceId
+											FROM TRN.EmployeeSalaryAdvance EA JOIN DBO.AdvanceReqSchedule ARS ON ARS.EmployeeSalaryAdvanceId=EA.Id 
+											JOIN TRN.EmployeeAdvanceDeduction EAD ON EAD.AdvanceReqScheduleId=ARS.Id
+											WHERE ARS.MonthNo='" + monthNo + "' AND ARS.YearNo='" + yearNo + @"'  AND ARS.EmployeeSalaryAdvanceId IS NOT NULL) ESA ON ESA.EmployeeId=SL.EmpSystemId
+						LEFT JOIN (SELECT AD.EmployeeId,ARS.MonthNo,ARS.YearNo,ARS.InstallmentAmount,ARS.PrincipalAmount,ARS.ProfitAmount,A.Id AdvanceId,AD.Id AdvanceDetailId
+											FROM TRN.Advance A 
+											JOIN TRN.AdvanceDetail AD ON AD.AdvanceId=A.Id
+											JOIN TRN.EmployeeAdvanceDeduction EAD ON EAD.AdvanceId=A.Id
+											JOIN DBO.AdvanceReqSchedule ARS ON ARS.Id=EAD.AdvanceReqScheduleId  
+											WHERE ARS.MonthNo='" + monthNo + "' AND ARS.YearNo='" + yearNo + @"' AND ARS.EmployeeSalaryAdvanceId IS NULL) EA ON EA.EmployeeId=SL.EmpSystemId
+						LEFT JOIN (SELECT EAD.EmployeeId,ARS.MonthNo,ARS.YearNo,ARS.InstallmentAmount,ARS.PrincipalAmount,ARS.ProfitAmount,ARS.WorkerAdvanceDetailId
+											FROM  DBO.AdvanceReqSchedule ARS
+											JOIN TRN.EmployeeAdvanceDeduction EAD ON EAD.AdvanceReqScheduleId=ARS.Id
+											JOIN [dbo].[WorkerAdvanceDetail] WAD ON WAD.Id=ARS.WorkerAdvanceDetailId
+											WHERE ARS.MonthNo='" + monthNo + "' AND ARS.YearNo='" + yearNo + @"' ) WA ON WA.EmployeeId=SL.EmpSystemId
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL 
                         AND ISNULL(sh.HeadCategory,'')  in ('Advance') and spc.DisbusmentAmount!=0 " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'
                         AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where month(effectivedate)<=sl.MonthNo and year(effectivedate)=sl.YearNo)
@@ -746,8 +761,14 @@ namespace Library.Accounting.Accounts
             SELECT x.* FROM (
                         SELECT sh.SalaryHead,sh.HeadCategory SalaryHeadCategory,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType,sl.EmpSystemId EmployeeId,ei.EmployeeName
                         ,sl.PayableVoucherId VoucherId
-                        , 0 CrAmount,ESA.PrincipalAmount Amount,ESA.ProfitAmount,ESA.InstallmentAmount
-                        ,spc.DisbusmentAmount*-1 DisbusmentAmount,HeadHeadFilter='NetPay',ESA.AdvanceId,ESA.AdvanceDetailId,ESA.EmployeeSalaryAdvanceId,shgl.CrInDirectActivityId ActivityId,0 IsOrderSpecific
+                        , 0 CrAmount
+						,CASE WHEN ISNULL(ESA.PrincipalAmount,0)>0 THEN ISNULL(ESA.PrincipalAmount,0) 
+						WHEN ISNULL(EA.PrincipalAmount,0)>0 THEN ISNULL(EA.PrincipalAmount,0) ELSE  ISNULL(WA.PrincipalAmount,0) END Amount
+						,CASE WHEN ISNULL(ESA.ProfitAmount,0)>0 THEN ISNULL(ESA.ProfitAmount,0) 
+						WHEN ISNULL(EA.ProfitAmount,0)>0 THEN ISNULL(EA.ProfitAmount,0) ELSE  ISNULL(WA.ProfitAmount,0) END ProfitAmount
+						,CASE WHEN ISNULL(ESA.InstallmentAmount,0)>0 THEN ISNULL(ESA.InstallmentAmount,0) 
+						WHEN ISNULL(EA.InstallmentAmount,0)>0 THEN ISNULL(EA.InstallmentAmount,0) ELSE  ISNULL(WA.InstallmentAmount,0) END InstallmentAmount
+                        ,spc.DisbusmentAmount*-1 DisbusmentAmount,HeadHeadFilter='NetPay',EA.AdvanceId,EA.AdvanceDetailId,ESA.EmployeeSalaryAdvanceId,WA.WorkerAdvanceDetailId,shgl.CrInDirectActivityId ActivityId,0 IsOrderSpecific
                         from  dbo.SalaryProcMaster spm 
 						left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID 
 						LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
@@ -759,12 +780,22 @@ namespace Library.Accounting.Accounts
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         left join mst.SalaryHeadGL shgl on shgl.SalaryHeadId=sh.SalaryHeadID and ISNULL(DMC.AccountsGroupId,'')=ISNULL(shgl.AccountsGroupId,'')
-						LEFT JOIN (SELECT EA.EmployeeId,ARS.MonthNo,ARS.YearNo,ARS.InstallmentAmount,ARS.PrincipalAmount,ARS.ProfitAmount,A.Id AdvanceId,AD.Id AdvanceDetailId,ARS.EmployeeSalaryAdvanceId
-						FROM TRN.EmployeeSalaryAdvance EA JOIN DBO.AdvanceReqSchedule ARS ON ARS.EmployeeSalaryAdvanceId=EA.Id 
-						JOIN TRN.Advance A ON A.VoucherId=EA.VoucherId
-						JOIN TRN.AdvanceDetail AD ON AD.AdvanceId=A.Id
-                        JOIN TRN.EmployeeAdvanceDeduction EAD ON EAD.AdvanceReqScheduleId=ARS.Id
-						WHERE ARS.MonthNo='" + monthNo + "' AND ARS.YearNo='" + yearNo + @"'  ) ESA ON ESA.EmployeeId=SL.EmpSystemId
+                        LEFT JOIN (SELECT EA.EmployeeId,ARS.MonthNo,ARS.YearNo,ARS.InstallmentAmount,ARS.PrincipalAmount,ARS.ProfitAmount,ARS.EmployeeSalaryAdvanceId
+											FROM TRN.EmployeeSalaryAdvance EA JOIN DBO.AdvanceReqSchedule ARS ON ARS.EmployeeSalaryAdvanceId=EA.Id 
+											JOIN TRN.EmployeeAdvanceDeduction EAD ON EAD.AdvanceReqScheduleId=ARS.Id
+											WHERE ARS.MonthNo='" + monthNo + "' AND ARS.YearNo='" + yearNo + @"'  AND ARS.EmployeeSalaryAdvanceId IS NOT NULL) ESA ON ESA.EmployeeId=SL.EmpSystemId
+						LEFT JOIN (SELECT AD.EmployeeId,ARS.MonthNo,ARS.YearNo,ARS.InstallmentAmount,ARS.PrincipalAmount,ARS.ProfitAmount,A.Id AdvanceId,AD.Id AdvanceDetailId
+											FROM TRN.Advance A 
+											JOIN TRN.AdvanceDetail AD ON AD.AdvanceId=A.Id
+											JOIN TRN.EmployeeAdvanceDeduction EAD ON EAD.AdvanceId=A.Id
+											JOIN DBO.AdvanceReqSchedule ARS ON ARS.Id=EAD.AdvanceReqScheduleId  
+											WHERE ARS.MonthNo='" + monthNo + "' AND ARS.YearNo='" + yearNo + @"' AND ARS.EmployeeSalaryAdvanceId IS NULL) EA ON EA.EmployeeId=SL.EmpSystemId
+						LEFT JOIN (SELECT EAD.EmployeeId,ARS.MonthNo,ARS.YearNo,ARS.InstallmentAmount,ARS.PrincipalAmount,ARS.ProfitAmount,ARS.WorkerAdvanceDetailId
+											FROM  DBO.AdvanceReqSchedule ARS
+											JOIN TRN.EmployeeAdvanceDeduction EAD ON EAD.AdvanceReqScheduleId=ARS.Id
+											JOIN [dbo].[WorkerAdvanceDetail] WAD ON WAD.Id=ARS.WorkerAdvanceDetailId
+											WHERE ARS.MonthNo='" + monthNo + "' AND ARS.YearNo='" + yearNo + @"' ) WA ON WA.EmployeeId=SL.EmpSystemId
+
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL 
                         AND ISNULL(sh.HeadCategory,'')  in ('Advance') and spc.DisbusmentAmount!=0 " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=0 AND sh.HeadType='D' 
