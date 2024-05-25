@@ -2680,6 +2680,23 @@ ORDER BY OL.Sequence";
 				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))<0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
 
                 Union All
+				SELECT  'ShortNoticePeriodDeduction' AS OtherName, 'Cr' AS TrnType
+                , 0 DrAmount 
+                , ABS(CAST(EI.Value AS decimal(18,2)))  CrAmount 
+                , ABS(CAST(EI.Value AS decimal(18,2))) Amount
+                ,BM.GLGeneralInfoId  ,BMA.BudgetMasterId,BMA.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
+                , B.UserName BudgetName,A.UserName ActivityName 
+				FROM EmployeeFullAndFinalSettlement  E
+				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='ShortNoticePeriodDeduction'
+				LEFT JOIN [dbo].[EmployeeSeperationItem] ESI ON  ESI.Id=EI.EmployeeSeperationItemId
+				LEFT JOIN [MST].[BudgetMasterActivity] BMA ON  BMA.Id=ESI.CrBudgetMasterActivityId
+				LEFT JOIN[MST].[BudgetMaster] AS BM ON BMA.BudgetMasterId= BM.Id
+				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
+				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+				LEFT JOIN [HKP].[Activity] AS A ON BMA.ActivityId= A.Id
+				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
+
+                Union All
 				SELECT  'Bank/Cash' AS OtherName, 'Cr' AS TrnType
                 , 0 DrAmount 
                 ,  ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='LeaveEncashment' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0)  
