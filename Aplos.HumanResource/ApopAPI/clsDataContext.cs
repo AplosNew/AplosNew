@@ -11831,9 +11831,9 @@ and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by Em
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select Distinct Ei.SystemId Value , CONCAT(Ei.EmployeeCode , '   ' , Ei.EmployeeName) Name from trn.MasterOrder Mo 
+                strSQL = @"select Distinct Ei.SystemId Value , CONCAT(Ei.EmployeeCode , '   ' , Ei.EmployeeName) Name from trn.SalesOrder Mo 
                             left join EmployeeInformation Ei on Ei.SystemId = Mo.ResponsiblePersonId
-                            where MO.OrderStatusId = 'Active'";
+                            where MO.OrderStatusId not in ('Closed' , 'Cancelled')";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -11867,7 +11867,7 @@ and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by Em
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select Distinct OrderStatusId Value , OrderStatusId Name from trn.MasterOrder Mo ";
+                strSQL = @"select Distinct OrderStatusId Value , OrderStatusId Name from trn.MasterOrder Mo where MO.OrderStatusId not in ('Closed' , 'Cancelled') ";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -11893,36 +11893,73 @@ and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by Em
         }
 
 
-        public void GetOrderControlReportDetail(out List<OederControllGetSet> DataList, string ResPer, string Type, string Status, string Date)
+        public void GetOrderControlReportDetail(out List<OederControllGetSet> DataList, string ResPer, string Type, string Status, string Date, string Days, string ToSP)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
             DataList = new List<OederControllGetSet>();
 
             string stradd = "";
-            if(ResPer != null)
+            string Daysadd = "";
+            if(ResPer != "null")
             {
-                stradd = stradd + " and Mo.ResponsiblePersonId = '" + ResPer + "' "; 
+                stradd += " and SO.ResponsiblePersonId = '" + ResPer + "' "; 
             }
             if (Type != "Both")
             {
                 if(Type == "Export")
                 {
-                    stradd = stradd + " and PAG.StandardName = 'Customer Export' ";
+                    stradd += " and PAG.StandardName = 'Customer Export' ";
                 }
-                if (Type == "Local")
+                if (Type == "Domestic")
                 {
-                    stradd = " and PAG.StandardName = 'Customer Local' ";
+                    stradd += " and PAG.StandardName = 'Customer Local' ";
                 }
             }
-            if(Status != null)
+            if(Status != "null")
             {
-                stradd = stradd + " and Mo.OrderStatusId = '" + Status + "' ";
+                stradd += " and SO.OrderStatusId = '" + Status + "' ";
             }
 
-            if (Date != null)
+            if (Date != "null")
             {
+                if(Days != "null")
+                {
+                    if(Days == "CommitmentDate")
+                    {
+                        stradd += " and So.CommitmentDate between DATEADD(day, -" + Date + ", CAST(GETDATE() AS date)) and GETDATE() ";
+                    }
+                    if(Days == "ExFactoryDate")
+                    {
+                        stradd += " and So.PlanExFactoryDate between DATEADD(day, -" + Date + ", CAST(GETDATE() AS date)) and GETDATE() ";
+                    }
+                }
                 
+            }
+
+            
+            if(ToSP != "null")
+            {
+                if(ToSP == "ToShip")
+                {
+                    Daysadd = " ,[Days] = case when so.CommitmentDate is not null then  DATEDIFF(DAY,  GETDATE() , so.CommitmentDate  ) when  so.CommitmentDate is null and so.PlanExFactoryDate is not null then  DATEDIFF(DAY,  GETDATE() , so.PlanExFactoryDate  )  else DATEDIFF(DAY, GETDATE(), so.DeliveryDate) end ";
+                    stradd += " and SO.OrderStatusId = 'ToShip' ORDER BY  case when so.CommitmentDate is not null then  DATEDIFF(DAY,  GETDATE() , so.CommitmentDate  ) when  so.CommitmentDate is null and so.PlanExFactoryDate is not null then  DATEDIFF(DAY,  GETDATE() , so.PlanExFactoryDate  ) else DATEDIFF(DAY, GETDATE(), so.DeliveryDate) end Asc ";
+                }
+                if (ToSP == "Pending")
+                {
+                    Daysadd = " ,[Days] = case when so.CommitmentDate is not null then  DATEDIFF(DAY,  GETDATE() , so.CommitmentDate  ) when  so.CommitmentDate is null and so.PlanExFactoryDate is not null then  DATEDIFF(DAY,  GETDATE() , so.PlanExFactoryDate  )  else DATEDIFF(DAY, GETDATE(), so.DeliveryDate) end ";
+                    stradd += " and SO.OrderStatusId <> 'ToShip' ORDER BY  case when so.CommitmentDate is not null then  DATEDIFF(DAY,  GETDATE() , so.CommitmentDate  ) when  so.CommitmentDate is null and so.PlanExFactoryDate is not null then  DATEDIFF(DAY,  GETDATE() , so.PlanExFactoryDate  ) else DATEDIFF(DAY, GETDATE(), so.DeliveryDate) end Asc ";
+                }
+                if(ToSP == "ToPlane")
+                {
+                    Daysadd = " ,[Days] = DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
+                    stradd += "  and pod.ProductionOrderId is null  ORDER BY  DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
+                }
+                if (ToSP == "ToSchedul")
+                {
+                    Daysadd = " ,[Days] = DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
+                    stradd += "  and pod.ProductionOrderId is null  ORDER BY  DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
+                }
             }
 
             System.Data.DataSet dsRef;
@@ -11953,7 +11990,7 @@ OSS.Id SalseOrderStatusId,osS.UserName AS SalseOrderStatus, ISNULL(so.Qty,0) SOQ
 FORMAT(so.DeliveryDate,'dd-MMM-yyyy') DeliveryDate, FORMAT(so.CommitmentDate,'dd-MMM-yyyy') CommitmentDate, FORMAT(so.PlanExFactoryDate,'dd-MMM-yyyy') PlanExFactoryDate
 , FORMAT(so.MainRawMaterialInhouseDate,'dd-MMM-yyyy') SOMainRawMaterialInhouseDate,
 FORMAT(so.OtherRawMaterialInhouseDate,'dd-MMM-yyyy') SOOtherRawMaterialInhouseDate,FORMAT(so.LSD,'dd-MMM-yyyy') SOLSD
-,CP.PONumber,SO.Description,FORMAT(so.AddedDate,'dd-MMM-yyyy') SalesOrderCreationDate,
+,pod.ProductionOrderId PONumber,SO.Description,FORMAT(so.AddedDate,'dd-MMM-yyyy') SalesOrderCreationDate,
 t.ProductionOrderID,ps.UserName AS ProductionStatus, t.NoOfWorkStation, t.Efficiency,
 t.SPT, t.PlanWorkingHoursPerDay, t.FirstDayOutPut,
 t.PlanTargetPerHour, t.IncrementValue, t.IncrementType,
@@ -11989,8 +12026,12 @@ Isnull(so.CM,0)*isnull(so.Rate,0) CMValue
 , Isnull(so.Qty,0)*isnull(so.Rate,0) OrderValue
 ,PAG.StandardName CustomerType , OCT.Id OCId 
 ,(select Top 1 Remarks from OrderControlRemarks where OrderControlId = OCT.Id order by AddedDate desc) OCRemarks
+,POSL.ID SchedulId
+,case when PS.UserName = 'Closed' then format(PO.UpdatedDate,'dd-MM-yyyy') else null end POCompleteDate
 
-FROM trn.MasterOrder MO
+" + Daysadd + @"
+
+ FROM trn.MasterOrder MO
 LEFT JOIN org.Plant AS p2 ON p2.id=mo.PlantId
 LEFT JOIN org.Entity AS e ON e.Id=mo.EntityId
 left outer join trn.MasterOrderItem MOI on moi.MasterOrderId=mo.Id
@@ -12000,7 +12041,7 @@ LEFT OUTER JOIN hkp.Season SS ON ss.Id=mo.SeasonId
 
 LEFT OUTER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
 LEFT OUTER JOIN trn.ProductionOrder AS po ON po.Id=pod.ProductionOrderId
-
+left join [dbo].[ProductionOrderSchedulingParametersType1] POSL on  POSL.ProductionOrderID = PO.Id
 LEFT JOIN org.Entity AS e2 ON e2.Id=po.EntityId
 LEFT OUTER JOIN hkp.ProductionStatus AS ps ON ps.Id=po.ProductionStatusId
 LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS T ON t.ProductionOrderID=po.Id
@@ -12113,8 +12154,8 @@ left join hkp.Party Pt on Pt.Id = MO.PartyId
 left join HKP.CompanyParty CPS on CPS.PartyId = Pt.Id and CPS.PartyType = 'Customer'
 left join HKP.PartyAccountGroup PAG on PAG.Id = CPS.PartyAccountGroupId 
 left join OrderControl OCT on OCT.SalesOrderId = SO.Id 
-   WHERE os.UserName='Active' " +
-   stradd + " ORDER BY p2.UserName,e.UserName, mo.MasterOrderNo";
+   WHERE  SO.OrderStatusId not in ('Closed' , 'Cancelled')" +
+   stradd ;
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -12224,6 +12265,9 @@ left join OrderControl OCT on OCT.SalesOrderId = SO.Id
                         CustomerType = dsRef.Tables[0].Rows[i]["CustomerType"].ToString(),
                         OCId = dsRef.Tables[0].Rows[i]["OCId"].ToString(),
                         OCRemarks = dsRef.Tables[0].Rows[i]["OCRemarks"].ToString(),
+                        SchedulId = dsRef.Tables[0].Rows[i]["SchedulId"].ToString(),
+                        Days = dsRef.Tables[0].Rows[i]["Days"].ToString(),
+                        POCompleteDate = dsRef.Tables[0].Rows[i]["POCompleteDate"].ToString(),
 
                     });
                 }
@@ -12269,10 +12313,11 @@ left join OrderControl OCT on OCT.SalesOrderId = SO.Id
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID(TableName, out string _Id);
 
-                        dr["Id"] = "ORM" + _Id;
+                        dr["Id"] = "M24" + _Id;
                         dr["OrderControlId"] = item.OrderControlId;
                         dr["Remarks"] = item.Remarks;
                         dr["ActionToBeTakenId"] = item.ActionToBeTakenId;
+                        dr["ActionToBeTaken"] = item.ActionToBeTaken;
                         
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedFromIP"] = "163.47.212.50";
@@ -13922,6 +13967,9 @@ left join OrderControl OCT on OCT.SalesOrderId = SO.Id
         public string CustomerType { get; set; }
         public string OCId { get; set; }
         public string OCRemarks { get; set; }
+        public string SchedulId { get; set; }
+        public string Days { get; set; }
+        public string POCompleteDate { get; set; }
 
     }
     public class OrderControlRemarksGet
@@ -13930,6 +13978,7 @@ left join OrderControl OCT on OCT.SalesOrderId = SO.Id
         public string OrderControlId { get; set; }
         public string Remarks { get; set; }
         public string ActionToBeTakenId { get; set; }
+        public string ActionToBeTaken { get; set; }
         public string AddedBy { get; set; }
         public string AddedDate { get; set; }
         public string AddedFromIP { get; set; }

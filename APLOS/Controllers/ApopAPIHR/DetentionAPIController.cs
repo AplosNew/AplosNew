@@ -1561,10 +1561,10 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
-        public List<OederControllGetSet> GetOrderControlReportDetail(string ResPer, string Type, string Status, string Date)
+        public List<OederControllGetSet> GetOrderControlReportDetail(string ResPer, string Type, string Status, string Date, string Days, string ToSP)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetOrderControlReportDetail(out List<OederControllGetSet> activelists, ResPer, Type, Status, Date);
+            clsData.GetOrderControlReportDetail(out List<OederControllGetSet> activelists, ResPer, Type, Status, Date, Days, ToSP);
             return activelists;
         }
         public string PostQualityControlRemarks([FromBody] IEnumerable<OrderControlRemarksGet> DataToSave)
