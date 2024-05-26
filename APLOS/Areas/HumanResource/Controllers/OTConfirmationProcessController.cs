@@ -300,6 +300,16 @@ namespace Aplos.Areas.HumanResource.Controllers
             return json;
         }
 
+
+        [HttpGet, Authorize]
+        public ActionResult GetWorkOverStayApprovedData(string workDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var json = Json(ot.GetWorkOverStayApprovedData(workDate, identity.PlantId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
         private string GetOTPK()
         {
             string sID = string.Empty;

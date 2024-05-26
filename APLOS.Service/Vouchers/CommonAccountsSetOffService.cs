@@ -464,6 +464,148 @@ namespace Library.Service.Vouchers
                         if (null == advanceDetail)
                             throw new CustomException("Invoice not found!");
 
+                        advanceDetail.AdditionalAmount += voucherDetailVM.Amount;
+                        if (advanceDetail.NetAmount < advanceDetail.WrittenOffAmount)
+                            throw new CustomException("Received amount can not cross balance amount.");
+
+                        //advanceDetail.IsWrittenOff = advanceDetail.NetAmount == advanceDetail.WrittenOffAmount;
+                        advanceDetail.UpdatedBy = invoiceWriteOff.AddedBy;
+                        advanceDetail.UpdatedDate = invoiceWriteOff.AddedDate;
+                        advanceDetail.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
+                        _advanceService.UpdateAdvanceDetail(advanceDetail);
+
+                        var invoice = advancesDbList.First(r => r.Id == advanceDetail.AdvanceId);
+                        invoice.AdditionalAmount = voucherDetailVM.Amount;
+                        //invoice.IsWrittenOff = invoice.Amount == invoice.WrittenOffAmount;
+                        invoice.UpdatedBy = invoiceWriteOff.AddedBy;
+                        invoice.UpdatedDate = invoiceWriteOff.AddedDate;
+                        invoice.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
+                        _advanceService.Update(invoice);
+
+                        // INSERT INTO InvoiceWriteOffDetail
+                        currentInvoiceWriteOffDetailId++;
+                        var advanceWriteOffDetail = new AdvanceWriteOffDetail
+                        {
+                            GLGeneralInfoId = advanceDetail.GLGeneralInfoId,
+                            BudgetMasterId = advanceDetail.BudgetMasterId,
+                            ActivityId = advanceDetail.ActivityId,
+                            CurrencyId = invoice.CurrencyId,
+                            AdvanceWriteOffId = advanceWriteOff.Id,
+                            AdvanceId = voucherDetailVM.AdvanceId,
+                            AdvanceDetailId = voucherDetailVM.AdvanceDetailId,
+                            CompanyId = voucherDetailVM.CompanyId,
+                            PlantId = voucherDetailVM.PlantId,
+                            PartyId = voucherDetailVM.PartyId,
+                            PartyPlantId = voucherDetailVM.PartyPlantId,
+                            PartyType = voucherDetailVM.PartyType,
+                            Amount = voucherDetailVM.Amount,
+                            AddedBy = invoiceWriteOff.AddedBy,
+                            AddedDate = invoiceWriteOff.AddedDate,
+                            AddedFromIP = invoiceWriteOff.AddedFromIP,
+                            Archive = invoiceWriteOff.Archive
+                            
+                        };
+                        InsertAdvanceWriteOffDetail(advanceWriteOff, advanceWriteOffDetail, currentInvoiceWriteOffDetailId);
+                        invoiceWriteOff.Amount = advanceWriteOffDetail.Amount;
+
+                        // INSERT INTO VoucherDetail
+                        var voucherDetailCr = new VoucherDetail
+                        {
+                            VoucherId = voucher.Id,
+                            AdvanceWriteOffDetailId = advanceWriteOffDetail.Id,
+                            GLGeneralInfoId = advanceDetail.GLGeneralInfoId,
+                            BudgetMasterId = advanceDetail.BudgetMasterId,
+                            ActivityId = advanceDetail.ActivityId,
+                            CurrencyId = voucher.CurrencyId,
+                            DrAmount = voucherDetailVM.Amount,
+                            DocDate = voucherDetailVM.DocDate,
+                            DocRefNo = voucherDetailVM.DocRefNo,
+                            Narration = voucherDetailVM.Narration,
+                            PartyType = invoiceWriteOff.PartyType,
+                            PartyId = voucherDetailVM.PartyId,
+                            PartyPlantId = voucherDetailVM.PartyPlantId
+                        };
+                        currentVoucherDetailId++;
+                        _voucherService.InsertVoucherDetail(voucher, voucherDetailCr, currentVoucherDetailId);
+
+                        totalAmountDr += voucherDetailCr.DrAmount;
+                        totalAmountCr += voucherDetailCr.CrAmount;
+
+                        // INSERT INTO VoucherDetailCurrency
+                        _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailCr, new VoucherDetailCurrency
+                        {
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = voucherDetailCr.CurrencyId,
+                            ToCurrencyId = companyCurrencyId,
+                            ToCurrencyRate = voucherDetailVM.CompanyCurrencyRate,
+                            ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailCr.CurrencyId, companyCurrencyId, voucherDetailVM.CompanyCurrencyRate),
+                            DrAmount = voucherDetailCr.DrAmount * voucherDetailVM.CompanyCurrencyRate,
+                        });
+
+                        if (voucherDetailVM.ExchangeType == "ExchangeGain")
+                        {
+                            var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
+                            var voucherDetailGain = new VoucherDetail
+                            {
+                                GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                                BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
+                                CurrencyId = voucher.CurrencyId,
+                                PartyType = voucherDetailVM.ExchangeType
+                            };
+                            currentVoucherDetailId++;
+                            _voucherService.InsertVoucherDetail(voucher, voucherDetailGain, currentVoucherDetailId);
+
+                            _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailGain, new VoucherDetailCurrency
+                            {
+                                ParallelCurrencyId = companyCurrencyId,
+                                FromCurrencyId = voucherDetailGain.CurrencyId,
+                                ToCurrencyId = companyCurrencyId,
+                                ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                                ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailGain.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                                CrAmount = voucherDetailVM.ExchangeAmount
+                            });
+                        }
+                        else if (voucherDetailVM.ExchangeType == "ExchangeLoss")
+                        {
+                            var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
+                            var voucherDetailLoss = new VoucherDetail
+                            {
+                                GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                                BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
+                                CurrencyId = voucher.CurrencyId,
+                                PartyType = voucherDetailVM.ExchangeType
+                            };
+                            currentVoucherDetailId++;
+                            _voucherService.InsertVoucherDetail(voucher, voucherDetailLoss, currentVoucherDetailId);
+
+                            _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailLoss, new VoucherDetailCurrency
+                            {
+                                ParallelCurrencyId = companyCurrencyId,
+                                FromCurrencyId = voucherDetailLoss.CurrencyId,
+                                ToCurrencyId = companyCurrencyId,
+                                ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                                ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailLoss.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                                DrAmount = voucherDetailVM.ExchangeAmount
+                            });
+                        }
+                    }
+                }
+                if (voucherVM.PaymentSource == SettlementType.AdvanceToCustomer.ToString())
+                {
+                    // Advance
+                    var advances = voucherDetailInvoiceList.Select(r => r.AdvanceId);
+                    var advancesDbList = _advanceService.Query(r => advances.Contains(r.Id)).Select().ToList();
+                    var advancesDetailIds = voucherDetailInvoiceList.Select(r => r.AdvanceDetailId);
+                    var advancesDetailDbList = _advanceService.GetAdvanceDetailList(r => advancesDetailIds.Contains(r.Id)).Select().ToList();
+
+                    foreach (var voucherDetailVM in voucherDetailInvoiceList)
+                    {
+                        var advanceDetail = advancesDetailDbList.FirstOrDefault(r => r.Id == voucherDetailVM.AdvanceDetailId);
+                        if (null == advanceDetail)
+                            throw new CustomException("Invoice not found!");
+
                         advanceDetail.WrittenOffAmount += voucherDetailVM.Amount;
                         if (advanceDetail.NetAmount < advanceDetail.WrittenOffAmount)
                             throw new CustomException("Received amount can not cross balance amount.");
@@ -503,7 +645,7 @@ namespace Library.Service.Vouchers
                             AddedDate = invoiceWriteOff.AddedDate,
                             AddedFromIP = invoiceWriteOff.AddedFromIP,
                             Archive = invoiceWriteOff.Archive
-                            
+
                         };
                         InsertAdvanceWriteOffDetail(advanceWriteOff, advanceWriteOffDetail, currentInvoiceWriteOffDetailId);
                         invoiceWriteOff.Amount = advanceWriteOffDetail.Amount;

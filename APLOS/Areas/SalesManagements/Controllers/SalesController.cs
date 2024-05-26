@@ -2674,7 +2674,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         public ActionResult GetSalesProcessTransactionList()
         {
             string sql = @"SELECT SPM.Id SalesProcessId,SPM.SalesProcess,SPM.Sequence,T.Id,T.SalesTypeId,T.PaymentModeId,T.StandardDaysFromInvoice,T.StandardDaysFromPreviousProcess,T.IsBankApplicable
-,T.BankId,T.DepartmentId,T.ResponsiblePersonId,T.PaymentProcess,T.Remark,EI.EmployeeName ResponsiblePerson,DP.UserName Department,BN.UserName Bank FROM HKP.SalesProcessMaster SPM
+,T.BankId,T.DepartmentId,T.ResponsiblePersonId,T.PaymentProcess,T.Remark,EI.EmployeeName ResponsiblePerson,DP.UserName Department,BN.UserName Bank,BN. FROM HKP.SalesProcessMaster SPM
 OUTER APPLY (Select T.Id,T.SalesTypeId,T.PaymentModeId,T.StandardDaysFromInvoice,T.StandardDaysFromPreviousProcess,T.IsBankApplicable
 ,T.BankId,T.DepartmentId,T.ResponsiblePersonId,T.PaymentProcess,T.Remark
 from TRN.SalesProcessTransaction T Where SalesProcessId=SPM.Id

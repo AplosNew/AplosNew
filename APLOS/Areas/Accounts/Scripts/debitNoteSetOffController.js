@@ -135,6 +135,14 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
         {
             "Text": "Status",
             "Value": "Status"
+        },
+        {
+            "Text": "Party Type",
+            "Value": "PartyType"
+        },
+        {
+            "Text": "Payment Source",
+            "Value": "PaymentSource"
         }
     ];
 
@@ -869,8 +877,10 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
         $scope.passBankCashAmount();
             $scope.entityValidation();
         if ($scope.form1.$valid && !$scope.validation() && !$scope.invalidDocDate && !$scope.invalidPostingDate) {
-            if ($scope.voucher.PaymentSource =="AdvanceToVendor")
+            if ($scope.voucher.PaymentSource == "AdvanceToVendor" || $scope.voucher.PaymentSource == "AdvanceToCustomer") {
                 $scope.saveUrl = "accounts/CommonAccounts/InsertDebitNoteAdvanceSetOff";
+                $scope.voucher.SettlementType = $scope.voucher.PaymentSource;
+            }
             else
                 $scope.saveUrl = "accounts/AdjustmentNote/InsertDebitNoteSetOff";
 
@@ -1159,8 +1169,8 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
     };
 
     $scope.advancList = [];
-    $scope.showAdvancePopUpNew = function () {
-        $scope.advanceUrl = 'Accounts/Advance/GetAvailableAdvanceByVendor?vendorId=' + $scope.voucher.PartyId;
+    $scope.showAdvancePopUpNew = function (partyId, partyType) {
+        $scope.advanceUrl = 'Accounts/Advance/GetAvailableAdvanceByVendor?vendorId=' + $scope.voucher.PartyId + '&partyType=' + $scope.voucher.NoteType;
         $http({
             method: 'POST',
             url: $scope.advanceUrl,
