@@ -336,6 +336,7 @@ namespace Library.Service.SalaryDisbursement
 
                                         var advance = _advanceService.Find(item.AdvanceId);
                                         var advancesalaryAdvance = accountCommonExtensionService.GetEmployeeSalaryAdvane(item.EmployeeSalaryAdvanceId);
+                                        //var advancesalaryyMultipleAdvance = accountCommonExtensionService.GetEmployeeSalaryMultipleAdvane(item.WorkerAdvanceDetailId);
 
                                         if (advancesalaryAdvance == null && advance!=null && advance.EmployeeId==item.EmployeeId && item.IsOrderSpecific == false)
                                         {

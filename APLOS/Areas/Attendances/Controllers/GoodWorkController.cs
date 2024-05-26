@@ -1149,7 +1149,7 @@ Order By GW.WorkDate";
 (select CheckBoxSelect=cast(case when z.Id is null then 0 else 1 end as bit)
 ,z.Id,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,sum(gwd.Minute)*OLS.OTreductionFactor Minute,(sum(gwd.Minute)/60)*OLS.OTreductionFactor Hour
                                     ,format(g.Gross,'N2') Gross,0.00 Rate,0.00 Amount
-									,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection,EI.EmployeeStatus
+									,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection,EI.EmployeeStatus,EI.PaymentMode
                                      from [dbo].[GoodWork] gw
                                      left join  GoodWorkDetail GWD on GWD.GoodWorkId=gw.Id 
                                      left join EmployeeInformation ei on ei.SystemId=GWD.EmpSystemId
@@ -1187,7 +1187,7 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
 
                                      where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and gwd.Minute<>0 and g.Gross<>0  and SIDM.IsApproved=1 AND gw.ApprovedStatus='Approved' AND GWD.GWPaymentAdviseId IS NULL
                                      group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross
-									 ,z.Id,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,OLS.OTreductionFactor,Department.UserName,Section.UserName,SubSection.UserName ,EI.EmployeeStatus
+									 ,z.Id,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,OLS.OTreductionFactor,Department.UserName,Section.UserName,SubSection.UserName ,EI.EmployeeStatus,EI.PaymentMode
                                     )T WHERE T.CheckBoxSelect=0
 								order by T.EmployeeCode ";
 
@@ -1209,7 +1209,7 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
                                 ,format(sum(apd.OverStay),'N2') OverStayMinute
                                 ,format((sum(apd.OverStay)/60),'N2') OverStayHour
                                 ,COUNT(apd.RowId)OTProcessDays
-                                ,EI.EmployeeStatus
+                                ,EI.EmployeeStatus,EI.PaymentMode
                                 from [dbo].[AttdnProcessData] apd 
                                 left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID 
                                 left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
@@ -1249,7 +1249,7 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
                                                                         WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
                                 where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus NOT  IN ('A') AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 AND apd.GWPaymentAdviseId IS NULL and ISNULL(apd.AdditionalOT,0)>0
                                 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id,Department.UserName,Section.UserName,SubSection.UserName
-								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,za.Id,EI.EmployeeStatus
+								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,za.Id,EI.EmployeeStatus,EI.PaymentMode
                                 )T WHERE T.CheckBoxSelect=0 and T.CheckBoxSelectAD=0
 								order by T.EmployeeCode ";
                     }
@@ -1262,7 +1262,7 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
 (select CheckBoxSelect=cast(case when z.Id is null then 0 else 1 end as bit)
 ,z.Id,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,sum(gwd.Minute)*OLS.OTreductionFactor Minute,(sum(gwd.Minute)/60)*OLS.OTreductionFactor Hour
                                     ,format(g.Gross,'N2') Gross,0.00 Rate,0.00 Amount
-									,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection,EI.EmployeeStatus
+									,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection,EI.EmployeeStatus,EI.PaymentMode
                                      from [dbo].[GoodWork] gw
                                      left join  GoodWorkDetail GWD on GWD.GoodWorkId=gw.Id 
                                      left join EmployeeInformation ei on ei.SystemId=GWD.EmpSystemId
@@ -1300,7 +1300,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 
                                      where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and gwd.Minute<>0 and g.Gross<>0  and SIDM.IsApproved=1 AND gw.ApprovedStatus='Approved' 
                                      group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross
-									 ,z.Id,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,OLS.OTreductionFactor,Department.UserName,Section.UserName,SubSection.UserName ,EI.EmployeeStatus
+									 ,z.Id,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,OLS.OTreductionFactor,Department.UserName,Section.UserName,SubSection.UserName ,EI.EmployeeStatus,EI.PaymentMode
                                     )T --WHERE T.CheckBoxSelect=0
 								order by T.EmployeeCode ";
 
@@ -1322,7 +1322,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                                 ,format(sum(apd.OverStay),'N2') OverStayMinute
                                 ,format((sum(apd.OverStay)/60),'N2') OverStayHour
                                 ,COUNT(apd.RowId)OTProcessDays
-                                ,EI.EmployeeStatus
+                                ,EI.EmployeeStatus,EI.PaymentMode
                                 from [dbo].[AttdnProcessData] apd 
                                 left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID 
                                 left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
@@ -1361,7 +1361,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                                                                         WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
                                 where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus NOT  IN ('A')  AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 and ISNULL(apd.AdditionalOT,0)>0
                                 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id,Department.UserName,Section.UserName,SubSection.UserName
-								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,za.Id,EI.EmployeeStatus
+								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,za.Id,EI.EmployeeStatus,EI.PaymentMode
                                 )T WHERE T.CheckBoxSelectAD=0
 								order by T.EmployeeCode ";
                     }
@@ -2227,12 +2227,12 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
         {
             string sql = @" DECLARE @paymentMode nvarchar(50)='" + paymentMode + @"'
 select isSelected = Convert(bit, 'True'),CheckBoxSelect=Convert(bit, 'True'),gwpad.Id,gwpad.PaymentAdviseId,gwpad.EmpSystemId,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour,gwpad.Hour*60 Minute,gwpad.Rate,gwpad.Amount,gwpad.Remarks
-                            ,gwpad.IsCheck,isnull(gwpad.IsDisburse,0)IsDisburse,ISNULL(ei.PaymentMode,'') PaymentMode
+                            ,gwpad.IsCheck,isnull(gwpad.IsDisburse,0)IsDisburse,ISNULL(gwpad.PaymentMode,'') PaymentMode
                             from GoodWorkPaymentAdviseDetail gwpad
                             left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
 							left join GoodWorkPaymentAdvise gwpa on gwpa.Id=gwpad.PaymentAdviseId
                             where gwpa.Id='" + paymentAdviseId + @"' and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.DisbursementVoucherId IS NULL 
-                            AND ISNULL(ei.PaymentMode,'')=CASE WHEN @paymentMode<>'' THEN @paymentMode ELSE ISNULL(ei.PaymentMode,'') END ";
+                            AND ISNULL(gwpad.PaymentMode,'')=CASE WHEN @paymentMode<>'' THEN @paymentMode ELSE ISNULL(gwpad.PaymentMode,'') END ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -2278,7 +2278,7 @@ SELECT X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAm
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON GAD.ActivityId= A.Id
 				WHERE gwpa.PaymentSource='GoodWork' and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.DisbursementVoucherId IS NULL 
-                AND ISNULL(ei.PaymentMode,'')=CASE WHEN @paymentMode<>'' THEN @paymentMode ELSE ISNULL(ei.PaymentMode,'') END
+                AND ISNULL(gwpad.PaymentMode,'')=CASE WHEN @paymentMode<>'' THEN @paymentMode ELSE ISNULL(gwpad.PaymentMode,'') END
                 AND gwpad.PaymentAdviseId='" + disbursementAdviceId + @"' AND gwpad.Id in (" + goodWorkPaymentAdviseDetailIds + @")
 
                 Union All
@@ -2297,7 +2297,7 @@ SELECT X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAm
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON GAD.ActivityId= A.Id
 				WHERE gwpa.PaymentSource='Attendance' and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.DisbursementVoucherId IS NULL 
-                AND ISNULL(ei.PaymentMode,'')=CASE WHEN @paymentMode<>'' THEN @paymentMode ELSE ISNULL(ei.PaymentMode,'') END
+                AND ISNULL(gwpad.PaymentMode,'')=CASE WHEN @paymentMode<>'' THEN @paymentMode ELSE ISNULL(gwpad.PaymentMode,'') END
                 AND gwpad.PaymentAdviseId='" + disbursementAdviceId + @"' AND gwpad.Id in (" + goodWorkPaymentAdviseDetailIds + @")
                         
                 )X
