@@ -93,8 +93,12 @@
                     <input ng-click="clearInvoicePopUp()" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.SettlementType.SetOff.ToString()">
                     <span class="cr" tabindex="18"><i class="cr-icon"></i></span>Invoice
                 </label>
-                <label>
+                <label ng-show="voucher.NoteType=='@Library.Model.Invoices.NoteType.VendorDebitNote.ToString()'">
                     <input ng-click="clearInvoicePopUp()" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.SettlementType.AdvanceToVendor.ToString()">
+                    <span class="cr" tabindex="18"><i class="cr-icon"></i></span>Advance
+                </label>
+                <label ng-show="voucher.NoteType=='@Library.Model.Invoices.NoteType.CustomerDebitNote.ToString()'">
+                    <input ng-click="clearInvoicePopUp()" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.SettlementType.AdvanceToCustomer.ToString()">
                     <span class="cr" tabindex="18"><i class="cr-icon"></i></span>Advance
                 </label>
             </disv>
@@ -168,14 +172,14 @@
                 </div>
             </div>
         </div>
-        <div class="form-group" ng-show="voucher.PaymentSource=='@Library.Model.Payments.SettlementType.AdvanceToVendor.ToString()'">
+        <div class="form-group" >
             <label class="col-sm-4 control-label">Advance<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="input-group">
                     <input type="text" name="CashName" ng-model="voucher.InvoiceVoucherNo" class="form-control" readonly>
                     <span class="input-group-btn">
-                        <button ng-show="voucher.NoteType=='@Library.Model.Invoices.NoteType.VendorDebitNote.ToString()'" ng-click="showAdvancePopUpNew(voucher.PartyId);" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
-
+                        <button  ng-click="showAdvancePopUpNew(voucher.PartyId,'Vendor');" ng-show="voucher.PaymentSource=='@Library.Model.Payments.SettlementType.AdvanceToVendor.ToString()'" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                        <button  ng-click="showAdvancePopUpNew(voucher.PartyId,'Customer');" ng-show="voucher.PaymentSource=='@Library.Model.Payments.SettlementType.AdvanceToCustomer.ToString()'" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
                 </div>
             </div>
@@ -389,11 +393,13 @@
         <thead>
             <tr>
                 <th>VoucherNo</th>
-                <th>Vendor</th>
+                <th>Particular</th>
+                <th>PartyType</th>
                 <th>Posting Date</th>
                 <th>Doc Ref No</th>
                 <th>Currency</th>
                 <th>Amount</th>
+                <th>Payment Source</th>
                 <th>Status</th>
                 <th>Action</th>
             </tr>
@@ -402,10 +408,12 @@
             <tr dir-paginate="x in paymentList |itemsPerPage:$root.pageSize" total-items="$root.total_count" @*ng-dblclick="getById(x.Id);"*@>
                 <td>{{x.VoucherNo}}</td>
                 <td>{{x.PartyCode}} - {{x.PartyName}}</td>
+                <td>{{x.PartyType}}</td>
                 <td>{{x.PostingDate | dateFiltering}}</td>
                 <td>{{x.DocRefNo}}</td>
                 <td>{{x.CurrencyCode}}</td>
                 <td class="text-right">{{x.Amount | number:2}}</td>
+                <td>{{x.PaymentSource}}</td>
                 <td>{{x.IsPark?'Parked':'Posted'}}</td>
                 <td align="right">
                     <ul class="list-inline action-list">

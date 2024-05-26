@@ -30,6 +30,7 @@ namespace Aplos.Areas.Accounts.Controllers
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
             voucherVM.SourceType = SourceType.DebitNoteSetOff.ToString();
+            voucherVM.PaymentSource = voucherVM.SettlementType;
             voucherVM.IsPark = true;
             if (voucherVM.CompanyCurrencyRate <= 0)
                 throw new CustomException("Please Input Rate.");
