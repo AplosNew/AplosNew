@@ -1765,16 +1765,27 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
         [HttpGet, Authorize]
         public ActionResult GetFNFMasterData()
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT M.Id,M.FinalSettlementName,FORMAT(M.FinalSettlementDate,'dd-MMM-yyyy')FinalSettlementDate,M.ApproveById,E.EmployeeName ApproveBy,ApproveStatus= CASE WHEN M.IsApproved=1 THEN 'Yes' ELSE 'No' END,M.IsApproved
 FROM dbo.EmployeeFullAndFinalSettlementMaster M
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ApproveById
+Where M.IsApproved=0
 Order By M.AddedDate DESC";
             var data = _sqlRepository.GetDataCollection(sql);
 
             return Json(data, JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public ActionResult GetApprovedData()
+        {
+            string sql = @"SELECT M.Id,M.FinalSettlementName,FORMAT(M.FinalSettlementDate,'dd-MMM-yyyy')FinalSettlementDate,M.ApproveById,E.EmployeeName ApproveBy,ApproveStatus= CASE WHEN M.IsApproved=1 THEN 'Yes' ELSE 'No' END,M.IsApproved
+FROM dbo.EmployeeFullAndFinalSettlementMaster M
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ApproveById
+Where M.IsApproved=1
+Order By M.AddedDate DESC";
+            var data = _sqlRepository.GetDataCollection(sql);
 
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
         [HttpGet, Authorize]
         public ActionResult GetFNFMasterDataForApprove()
         {
@@ -2123,6 +2134,10 @@ ORDER BY OL.Sequence";
                 DataSet dsFNFEmpMaster = null;
                 string esql, elocksql = "";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                if (identity.EmployeeId==data["ApproveById"].ToString())
+                {
+                    throw new Exception("Creation and Approving person can't be same.");
+                }
                 clsFinalSettlement clsFS = new clsFinalSettlement();
                 MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -2190,7 +2205,7 @@ ORDER BY OL.Sequence";
                 esql = "select * from EmployeeFullAndFinalSettlementItem where EmpSystemId IN(" + empIds + ")";
                 con.OpenDataSetThroughAdapter(esql, out dsEmpMaster, false, "1");
 
-                elocksql = @"Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND ISNULL(IsDisbursed,0)=0 AND DisbursementVoucherId IS NULL ";
+                elocksql = @"Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND PastDisbursed  IS NULL AND DisbursementVoucherId IS NULL ";
                 con.OpenDataSetThroughAdapter(elocksql, out dsEmpSL, false, "1");
 
 
@@ -2349,7 +2364,7 @@ ORDER BY OL.Sequence";
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster, dsEmpMaster, dsFNFEmpMaster, dsEmpSL);
 
-                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
@@ -2650,6 +2665,40 @@ ORDER BY OL.Sequence";
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON EP.ActivityId= A.Id
 				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND EI.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
+
+                Union All
+				SELECT  'NetPay' AS OtherName, 'Cr' AS TrnType
+                , 0 DrAmount 
+                , ABS(CAST(EI.Value AS decimal(18,2)))  CrAmount 
+                , ABS(CAST(EI.Value AS decimal(18,2))) Amount
+                ,BM.GLGeneralInfoId  ,BMA.BudgetMasterId,BMA.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
+                , B.UserName BudgetName,A.UserName ActivityName 
+				FROM EmployeeFullAndFinalSettlement  E
+				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='NetPay'
+				LEFT JOIN [dbo].[EmployeeSeperationItem] ESI ON  ESI.Id=EI.EmployeeSeperationItemId
+				LEFT JOIN [MST].[BudgetMasterActivity] BMA ON  BMA.Id=ESI.CrBudgetMasterActivityId
+				LEFT JOIN[MST].[BudgetMaster] AS BM ON BMA.BudgetMasterId= BM.Id
+				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
+				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+				LEFT JOIN [HKP].[Activity] AS A ON BMA.ActivityId= A.Id
+				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))<0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
+
+                Union All
+				SELECT  'ShortNoticePeriodDeduction' AS OtherName, 'Cr' AS TrnType
+                , 0 DrAmount 
+                , ABS(CAST(EI.Value AS decimal(18,2)))  CrAmount 
+                , ABS(CAST(EI.Value AS decimal(18,2))) Amount
+                ,BM.GLGeneralInfoId  ,BMA.BudgetMasterId,BMA.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
+                , B.UserName BudgetName,A.UserName ActivityName 
+				FROM EmployeeFullAndFinalSettlement  E
+				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='ShortNoticePeriodDeduction'
+				LEFT JOIN [dbo].[EmployeeSeperationItem] ESI ON  ESI.Id=EI.EmployeeSeperationItemId
+				LEFT JOIN [MST].[BudgetMasterActivity] BMA ON  BMA.Id=ESI.CrBudgetMasterActivityId
+				LEFT JOIN[MST].[BudgetMaster] AS BM ON BMA.BudgetMasterId= BM.Id
+				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
+				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+				LEFT JOIN [HKP].[Activity] AS A ON BMA.ActivityId= A.Id
+				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
 
                 Union All
 				SELECT  'Bank/Cash' AS OtherName, 'Cr' AS TrnType

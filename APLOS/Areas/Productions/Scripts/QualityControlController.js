@@ -447,13 +447,18 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
             $scope.POIssueType = response.data[0].POIssueType;
         });
     }
-
+    $scope.lotList = [];
     $scope.GetQBookingLevel = function () {
         $http({
             method: 'GET',
             url: 'Productions/QualityControl/GetQBookingLevel?ProcessId=' + $scope.productionSummaryNew.ProcessId + '&EntityId=' + $scope.productionSummaryNew.EntityId + '&POId=' + $scope.productionSummaryNew.ProductionOrderId
         }).then(function successCallback(response) {
-            $scope.productionSummaryNew.BookingLevel = response.data[0].BookingLevel;
+            $scope.productionSummaryNew.BookingLevel = response.data.pbl[0].BookingLevel;
+            $scope.lotList = response.data.lot;
+            if ($scope.lotList.length==1) {
+                $scope.productionSummaryNew.LotNumber = $scope.lotList[0].Value;
+            }
+
         });
     }
     $scope.GetQBookingLevel();

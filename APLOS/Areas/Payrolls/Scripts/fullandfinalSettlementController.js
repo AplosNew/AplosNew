@@ -18,6 +18,17 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
     $scope.deleteUrl = $scope.path + 'delete/';
 
 
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
+
     $scope.FinalSettlementList = [];
     $scope.LoadAllFinalSettlementList = function () {
         try {
@@ -41,6 +52,28 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
         }
     };
     $scope.LoadAllFinalSettlementList();
+    $scope.ApprovedFinalSettlementList = [];
+    $scope.getApprovedData = function () {
+        try {
+            $http.get('Payrolls/FinalSettlement/getApprovedData')
+                .then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        $scope.ApprovedFinalSettlementList = response.data;
+                    }
+                },
+
+                    function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    });
+
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
 
     $scope.SelectedEmployeeList = [];
     $scope.GetEmployeeFNFMasterData = function () {
@@ -68,6 +101,9 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
 
     $scope.SelectEmpDetail = function (args) {
         $scope.FinalSettlementModel = Object.assign({}, args.data);
+        if ($scope.FinalSettlementModel.IsApproved == true) {
+            $scope.setTab(1);
+        }
         $scope.FinalSettlementModel.FinalSettlementDate = $filter('dateFiltering')($scope.FinalSettlementModel.FinalSettlementDate, 'dd-M-yyyy');
         $scope.GetEmployeeFNFMasterData();
         if (!$rootScope.isCollapsed) {
@@ -285,6 +321,7 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
                     ShowResult(response.data.Message, 'success');
                     $scope.FinalSettlementModel.Id = response.data.Data.Id;
                     $scope.GetEmployeeFNFMasterData();
+                    $scope.LoadAllFinalSettlementList();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

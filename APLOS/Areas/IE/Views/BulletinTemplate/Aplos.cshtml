@@ -248,26 +248,6 @@
                         </ul>
                     </div>
 
-                    @*<div class="col-xs-8">
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label" style="padding-left: 190px;">Code</label>
-                                <div class="col-sm-4">
-                                    <input type="text" name="OperationVaiationCode" ng-model="bulletinTemplateDetailNew.OperationCode" ng-enter="Go()" ng-disabled="bulletinTemplateNew.Id===null" class="form-control" required tabindex="1">
-                                </div>
-                                <div class="col-xs-4">
-                                    <div class="common-btn">
-                                        <ul class="list-inline text-left">
-                                            <li><button style="margin-left: 5px;" ng-click="Go();" ng-disabled="bulletinTemplateNew.Id===null" class="btn"><i class="glyphicon glyphicon-ok-circle" style="top: 1px;"></i> GO</button></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>*@
-                    @*<div class="common-btn">
-                            <ul class="list-inline text-left">
-                                <li><button style="margin-left: 5px;" ng-click="ShowCodePOpUp();" ng-disabled="bulletinTemplateNew.Id===null" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
-                            </ul>
-                        </div>*@
                     <label style="color: blue;font-size: 12px">OperationTarget/Hr: (60 / OperationSPT)</label> || <label style="color: blue;font-size: 12px">Required ManPower: (Planned Target/Hr / OperationTarget/Hr)</label>
                 </div>
                 <div class="clearfix"></div>
@@ -327,7 +307,7 @@
                     <script type="text/template" id="checkboxDelTemplate">
                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.DelFlag" />
                     </script>
-                   
+
                     <script type="text/template" id="Sequence">
                         <div class="col-sm-10" style="padding:0px; width:70px;">
                             <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.Sequence" e-width="80" />
@@ -1799,7 +1779,7 @@
             <div class="modal-header">Production Order<button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body text-center">
                 <div style="color:black;" id="POItemGrid" ej-grid e-datasource="SOItemList" e-allowscrolling="true" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                    e-allowResizing="true" e-allowselection="true" e-filtersettings-filterType="excel">
+                     e-allowResizing="true" e-allowselection="true" e-filtersettings-filterType="excel">
                     <div e-columns>
                         <div e-column e-type="string" e-field="POId" e-headertext="Production OrderNo" e-width="80"></div>
                         <div e-column e-type="string" e-field="BuyerOrder" e-headertext="Buyer Ord#" e-width="80"></div>
@@ -1821,7 +1801,7 @@
 
                     </div>
                 </div>
-                
+
             </div>
         </div>
     </div>

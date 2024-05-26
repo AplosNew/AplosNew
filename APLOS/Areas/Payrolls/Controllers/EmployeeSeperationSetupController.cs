@@ -463,7 +463,18 @@ namespace Aplos.Areas.Payrolls.Controllers
         public ActionResult GetProcessParameterList(string masterId)
         {
 
-            string sql = @"SELECT N.* FROM [dbo].[EmployeeSeperationItem] N Where EmployeeSeperationSetupId='" + masterId + "' Order By N.Sequence";
+            string sql = @"SELECT N.*,AG.UserName AS DrAccountGroupName,CAG.UserName AS CrAccountGroupName FROM [dbo].[EmployeeSeperationItem] N
+LEFT JOIN [MST].[BudgetMasterActivity] Dr ON Dr.Id=N.DrBudgetMasterActivityId
+LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=Dr.BudgetMasterId
+									LEFT JOIN  [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=BM.GLGeneralInfoId
+                                    LEFT JOIN [HKP].[GLCompanyInfo] AS GLCI ON GLCI.GLGeneralInfoId=GLGI.Id
+                                    LEFT JOIN [HKP].[AccountGroup] AS AG ON AG.Id=GLGI.AccountGroupId
+                                    LEFT JOIN [MST].[BudgetMasterActivity] Cr ON Cr.Id=N.CrBudgetMasterActivityId
+                                    LEFT JOIN [MST].[BudgetMaster] AS CBM ON CBM.Id=Cr.BudgetMasterId
+									LEFT JOIN  [HKP].[GLGeneralInfo] AS CGLGI ON CGLGI.Id=CBM.GLGeneralInfoId
+                                    LEFT JOIN [HKP].[GLCompanyInfo] AS CGLCI ON CGLCI.GLGeneralInfoId=CGLGI.Id
+                                    LEFT JOIN [HKP].[AccountGroup] AS CAG ON CAG.Id=CGLGI.AccountGroupId
+Where N.EmployeeSeperationSetupId='" + masterId + "' Order By N.Sequence";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
