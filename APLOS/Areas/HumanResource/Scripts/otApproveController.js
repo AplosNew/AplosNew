@@ -4,6 +4,16 @@ function otApproveController(commonMessage, $scope, $rootScope, baseService, $ro
     $scope.title = "OT Approve";
 
 
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
+
     $scope.ModelTemp = {
         Id: null,
         EmpSystemId: null,
@@ -35,6 +45,25 @@ function otApproveController(commonMessage, $scope, $rootScope, baseService, $ro
                 url: 'HumanResource/OTConfirmationProcess/GetWorkOverStayData?workDate=' + $scope.OTManual.WorkDate
             }).then(function successCallback(response) {
                 $scope.otApproveList = response.data;
+                $scope.GetWorkOverStayApprovedData();
+            });
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.otApprovedList = [];
+    $scope.GetWorkOverStayApprovedData = function () {
+        try {
+            if (baseService.isUndefinedOrNull($scope.OTManual.WorkDate)) {
+                throw "Select Work Date.";
+            }
+            $http({
+                method: "GET",
+                dataType: 'JSON',
+                url: 'HumanResource/OTConfirmationProcess/GetWorkOverStayApprovedData?workDate=' + $scope.OTManual.WorkDate
+            }).then(function successCallback(response) {
+                $scope.otApprovedList = response.data;
 
             });
         } catch (e) {
@@ -69,22 +98,31 @@ function otApproveController(commonMessage, $scope, $rootScope, baseService, $ro
 
 
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
-    $scope.DownloadOTData = function () {
+    $scope.DownloadOTData = function (name) {
         try {
             var dataList = [];
-            var g = $("#GridEmployeeInfoList").data("ejGrid");
-            dataList = g.getFilteredRecords();
+            if (name == 'pending') {
+                var g = $("#GridEmployeeInfoList").data("ejGrid");
+                dataList = g.getFilteredRecords();
 
-            if (dataList.length == 0) {
-                dataList = $scope.otApproveList;
+                if (dataList.length == 0) {
+                    dataList = $scope.otApproveList;
+                }
             }
-           
+            else {
+                var g = $("#GridOA").data("ejGrid");
+                dataList = g.getFilteredRecords();
+
+                if (dataList.length == 0) {
+                    dataList = $scope.otApprovedList;
+                }
+            }
             $scope.fileName = "OTDataReport.xlsx";
 
             $http({
                 method: 'POST',
                 url: "HumanResource/OTConfirmationProcess/GetOTDataXls",
-                data: {'data': dataList, 'reportFileName': $scope.fileName },
+                data: { 'data': dataList, 'reportFileName': $scope.fileName },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
@@ -142,7 +180,7 @@ function otApproveController(commonMessage, $scope, $rootScope, baseService, $ro
                     for (var i = 0; i < $scope.otApproveList.length; i++) {
                         $scope.otApproveList[i].CheckBoxSelect = true;
                     }
-                   
+
                 }
             }, function errorCallback(response) {
 
@@ -161,7 +199,7 @@ function otApproveController(commonMessage, $scope, $rootScope, baseService, $ro
         if ($scope.ModelNewForm.$valid) {
 
             try {
-                
+
 
                 var dataList = [];
                 var tosavedataList = [];
@@ -177,7 +215,7 @@ function otApproveController(commonMessage, $scope, $rootScope, baseService, $ro
                     dataList[i].OTHr = +dataList[i].OTHr;
                     dataList[i].CalculatedOT = +dataList[i].CalculatedOT;
                     if (dataList[i].OTHr > dataList[i].CalculatedOT) {
-                        throw "Extra OT will not exceed OverStay for this Employee " + dataList[i].EmployeeCode+".";
+                        throw "Extra OT will not exceed OverStay for this Employee " + dataList[i].EmployeeCode + ".";
                     }
                     if (dataList[i].CheckBoxSelect == true) {
                         tosavedataList.push(dataList[i]);
@@ -198,7 +236,7 @@ function otApproveController(commonMessage, $scope, $rootScope, baseService, $ro
                     }
                     else {
                         ShowResult(response.data.Message, "success");
-                        
+
                         ClearFields();
                     }
                 });
