@@ -1404,7 +1404,8 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                         
                             drmo.BeginEdit();
                             drmo["Rate"] = Convert.ToDecimal(sFormulaResult);
-                            drmo["Amount"] = Convert.ToDecimal(Convert.ToDecimal(sFormulaResult) * Convert.ToDecimal(dtData.Rows[i]["Hour"].ToString())).ToString("##,##0.00");
+                            //drmo["Amount"] = Convert.ToDecimal(Convert.ToDecimal(sFormulaResult) * Convert.ToDecimal(dtData.Rows[i]["Hour"].ToString())).ToString("##,##0.00");
+                            drmo["Amount"] = Math.Round(Convert.ToDecimal(sFormulaResult) * Convert.ToDecimal(dtData.Rows[i]["Hour"].ToString()),0);
                             drmo.EndEdit();
 
                     }
