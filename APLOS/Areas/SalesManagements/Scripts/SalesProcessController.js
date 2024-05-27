@@ -45,6 +45,34 @@ function SalesProcessController(cboService, commonMessage, $scope, $rootScope, b
             $scope.SPList = response.data;
         });
     }
+    $scope.rowdata = {};
+    $scope.BankInfolist = [];
+    $scope.GetBankInfo = function (obj) {
+        $scope.rowdata = obj.data;
+        $http.get('SalesManagements/Sales/GetBankMaster')
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.BankInfolist = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+        angular.element(document.querySelector('#BankInFoPopUp')).modal('show');
+
+    };
+
+    $scope.SetBankData = function (obj) {
+        $scope.rowdata.BankMasterId = obj.data.Id;
+        $scope.rowdata.BankName = obj.data.BankName;
+        $scope.rowdata.AccountNumber = obj.data.AccountNumber;
+        var gridObj = $("#GridSalPT").data("ejGrid");
+        gridObj.refreshContent();
+        gridObj.refreshTemplate();
+        angular.element(document.querySelector('#BankInFoPopUp')).modal('hide');
+    };
+
 
     $scope.ModelTemp = {
         Id: null,
@@ -139,4 +167,26 @@ function SalesProcessController(cboService, commonMessage, $scope, $rootScope, b
         $scope.ModelNew.Sequence = seq;
         $scope.materialList = [];
     }
+
+    $scope.SetBankData = function (obj) {
+        var Bankinfo = obj.data;
+        $scope.BankInfo.UserName = Bankinfo.UserName;
+        $scope.BankInfo.BankBranch = Bankinfo.BankBranch;
+
+        $scope.EmpBankInfoModel.UserName = Bankinfo.UserName;
+        $scope.EmpBankInfoModel.BankBranch = Bankinfo.BankBranch;
+        $scope.EmpBankInfoModel.BankSystemID = Bankinfo.BankSystemID;
+        $scope.EmpBankInfoModel.BankBranchId = Bankinfo.BankBranchId;
+
+        angular.element(document.querySelector('#BankInFoPopUp')).modal('hide');
+    };
+
+
+
+
+
+
+
+
+
 }

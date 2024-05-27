@@ -147,7 +147,7 @@
                 <div class="input-group">
                     <input tabindex="1" type="text" name="BankName" ng-model="data.BankName" class="form-control" readonly>
                     <span class="input-group-btn">
-                        <button ng-click="showBankPopUp();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="$parent.GetBankInfo();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
                 </div>
             </script>
@@ -170,3 +170,30 @@
 </div>
 
 <confirm-modal></confirm-modal>
+<div class="modal fade site-modal in" id="BankInFoPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Bank Info
+                <button type="button" class="close" ng-click="closeBankInfoPopUp();">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridEmp" ej-grid e-datasource="BankInfolist" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="SetBankData" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="UserName" e-headertext="Bank Name" e-width="80"></div>
+                            <div e-column e-field="BankBranchName" e-headertext="Bank Branch" e-width="80"></div>
+                            <div e-column e-field="AccountTitle" e-headertext="Account Title" e-width="80"></div>
+                            <div e-column e-field="AccountNumber" e-headertext="Account Number" e-width="80"></div>
+                            <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="30"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeBankInfoPopUp();" class="btn"><i class=""></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>
