@@ -3196,7 +3196,7 @@ namespace Library.Service.Invoices
             }
 
             parameters.CmdText = @"SELECT AW.InvoiceWriteOffNo, vd.VoucherId, V.VoucherNo, AW.Id, P.Code AS PartyCode, P.UserName AS PartyName, AW.PostingDate, AW.DocDate, AW.DocRefNo, C.Code AS CurrencyCode, SUM(iwd.Amount) Amount
-                                    , AW.PartyPlantId, PP.UserName AS PartyPlantName, AW.IsPark, AW.BankJournalId
+                                    , AW.PartyPlantId, PP.UserName AS PartyPlantName, AW.IsPark, AW.BankJournalId,AW.PartyType,AW.PaymentSource
                                     , Status = case when AW.IsPark = 1 then 'Parked' else 'Posted' end
                                     FROM [TRN].[InvoiceWriteOff] AS AW
 									LEFT JOIN (SELECT Id,InvoiceWriteOffId,SUM(Amount) Amount,AdjustmentNoteDetailId 
@@ -3208,7 +3208,7 @@ namespace Library.Service.Invoices
                                     LEFT JOIN [SCS].[Currency] AS C ON C.Id=AW.CurrencyId
                                     WHERE AW.Archive=0 AND V.Archive=0 AND AW.CompanyGroupId='" + companyGroupId + "' AND AW.CompanyId='" + companyId + "' AND AW.PlantId='" + plantId + "' AND AW.[SourceType]='" + sourceType + @"'
                                     Group BY AW.InvoiceWriteOffNo, VD.VoucherId, V.VoucherNo, AW.Id, P.Code , P.UserName, AW.PostingDate
-									, AW.DocDate, AW.DocRefNo, C.Code, AW.PartyPlantId, PP.UserName, AW.IsPark, AW.BankJournalId";
+									, AW.DocDate, AW.DocRefNo, C.Code, AW.PartyPlantId, PP.UserName, AW.IsPark, AW.BankJournalId,AW.PartyType,AW.PaymentSource";
             return _sqlRepository.GetGridData(parameters);
         }
 

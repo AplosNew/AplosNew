@@ -102,7 +102,7 @@ namespace Aplos.Areas.Setups.Controllers
             return View();
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public JsonResult CreateServiceControlHeader(Dictionary<string, object> data)
         {
             try

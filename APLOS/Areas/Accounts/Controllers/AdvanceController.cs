@@ -658,11 +658,15 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [Authorize, HttpPost]
-        public JsonResult GetAvailableAdvanceByVendor(string vendorId)
+        public JsonResult GetAvailableAdvanceByVendor(string vendorId, string partyType)
         {
             AccountsAdvanceService _accountsAdvanceService = new AccountsAdvanceService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if(partyType== "VendorDebitNote")
             return Json(_accountsAdvanceService.GetAvailableAdvanceByVendor(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.VendorAdvance, vendorId), JsonRequestBehavior.AllowGet);
+            else
+                return Json(_accountsAdvanceService.GetAvailableAdvanceByVendor(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.CustomerAdvance, vendorId), JsonRequestBehavior.AllowGet);
+
         }
 
         [Authorize, HttpGet]

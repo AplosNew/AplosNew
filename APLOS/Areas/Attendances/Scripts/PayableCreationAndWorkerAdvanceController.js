@@ -1941,6 +1941,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             obj.Section = dataList[i].Section;
             obj.SubSection = dataList[i].SubSection;
             obj.EmployeeStatus = dataList[i].EmployeeStatus;
+            obj.PaymentMode = dataList[i].PaymentMode;
             obj.Minute = dataList[i].Minute;
             obj.Hour = dataList[i].Hour;
             obj.Rate = dataList[i].Rate;
@@ -1998,6 +1999,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             obj.Section = dataList[i].Section;
             obj.SubSection = dataList[i].SubSection;
             obj.EmployeeStatus = dataList[i].EmployeeStatus;
+            obj.PaymentMode = dataList[i].PaymentMode;
             obj.OTProcessDays = dataList[i].OTProcessDays;
             obj.Minute = dataList[i].Minute;
             obj.Hour = dataList[i].Hour;

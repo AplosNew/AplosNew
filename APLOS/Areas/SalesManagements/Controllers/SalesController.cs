@@ -2673,18 +2673,19 @@ namespace Aplos.Areas.SalesManagements.Controllers
         [HttpGet, Authorize]
         public ActionResult GetSalesProcessTransactionList()
         {
-            string sql = @"SELECT SPM.Id SalesProcessId,SPM.SalesProcess,T.Id,T.SalesTypeId,T.PaymentModeId,T.StandardDaysFromInvoice,T.StandardDaysFromPreviousProcess,T.IsBankApplicable
-,T.BankId,T.DepartmentId,T.ResponsiblePersonId,T.PaymentProcess,T.Remark,EI.EmployeeName ResponsiblePerson,DP.UserName Department FROM HKP.SalesProcessMaster SPM
-OUTER APPLY (Select T.Id,T.SalesTypeId,T.PaymentModeId,T.StandardDaysFromInvoice,T.StandardDaysFromPreviousProcess,T.IsBankApplicable
-,T.BankId,T.DepartmentId,T.ResponsiblePersonId,T.PaymentProcess,T.Remark
-from TRN.SalesProcessTransaction T Where SalesProcessId=SPM.Id
-) T
-LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=T.ResponsiblePersonId
-LEFT JOIN ORG.Department DP ON DP.Id= T.DepartmentId";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            return Json(clsSales.GetSalesProcessTransactionList(), JsonRequestBehavior.AllowGet);
         }
 
-
+        [HttpGet, Authorize]
+        public ActionResult GetBankMaster()
+        {
+            return Json(clsSales.GetBankMaster(), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetDepartment()
+        {
+            return Json(clsSales.GetDepartment(), JsonRequestBehavior.AllowGet);
+        }
         [HttpGet, Authorize]
         public JsonResult GetSalesProcessAutoSequence()
         {
