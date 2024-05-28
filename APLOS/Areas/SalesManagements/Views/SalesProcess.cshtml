@@ -100,10 +100,10 @@
                     <div e-column e-template="#StandardDaysFromPreviousProcess" e-field="StandardDaysFromPreviousProcess" e-headertext="StandardDaysFromPreviousProcess" e-width="5"></div>
                     <div e-column e-template="#BankApplicable" e-field="BankApplicable" e-headertext="BankApplicable" e-width="2"></div>
                     <div e-column e-template="#BankName" e-field="BankName" e-headertext="BankName" e-width="4"></div>
-                    @*<div e-column e-field="BankAccountNo" e-headertext="Bank AccountNo" e-width="5"></div>
-        <div e-column e-template="#Department" e-field="Department" e-headertext="Department" e-width="5"></div>
-        <div e-column e-template="#ResponsiblePrerson" e-field="ResponsiblePrerson" e-headertext="ResponsiblePrerson" e-width="5"></div>
-        <div e-column e-template="#Remark" e-headertext="Remark" e-width="5" style="height: 20px;"></div>*@
+                    <div e-column e-field="AccountNumber" e-headertext="Bank AccountNo" e-width="5"></div>
+                    <div e-column e-template="#Department" e-field="Department" e-headertext="Department" e-width="5"></div>
+                    <div e-column e-template="#ResponsiblePerson" e-field="ResponsiblePerson" e-headertext="ResponsiblePerson" e-width="5"></div>
+        <div e-column e-template="#Remark" e-headertext="Remark" e-width="5" style="height: 20px;"></div>
                 </div>
             </div>
             <script type="text/template" id="PaymentMode">
@@ -130,16 +130,16 @@
             <script type="text/template" id="BankApplicable">
                 <div class="checkbox-site">
                     <label>
-                        <input type="checkbox" ng-model="data.IsBankApplicable" tabindex="8">
+                        <input type="checkbox" ng-model="data.IsBankApplicable" ng-change="$parent.CheckBankApplicable(this)" tabindex="8">
                         <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                     </label>
                 </div>
             </script>
             <script type="text/template" id="ResponsiblePerson">
                 <div class="input-group">
-                    <input tabindex="1" type="text" name="Responsible Person" ng-model="data.ResponsiblePerson" class="form-control" readonly>
+                    <input tabindex="1" type="text" name="Responsible Prerson" ng-model="data.ResponsiblePerson" class="form-control" readonly>
                     <span class="input-group-btn">
-                        <button ng-click="showResponsiblePersonListPopUp();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="$parent.showResponsiblePersonListPopUp(this);" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
                 </div>
             </script>
@@ -147,7 +147,7 @@
                 <div class="input-group">
                     <input tabindex="1" type="text" name="BankName" ng-model="data.BankName" class="form-control" readonly>
                     <span class="input-group-btn">
-                        <button ng-click="$parent.GetBankInfo();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="$parent.GetBankInfo(this);" ng-disabled="data.IsBankApplicable==false" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
                 </div>
             </script>
@@ -155,7 +155,7 @@
                 <div class="input-group">
                     <input tabindex="1" type="text" name="Department" ng-model="data.Department" class="form-control" readonly>
                     <span class="input-group-btn">
-                        <button ng-click="showDepartmentPopUp();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="$parent.showDepartmentPopUp(this);" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
                 </div>
             </script>
@@ -174,15 +174,14 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                Bank Info
-                <button type="button" class="close" ng-click="closeBankInfoPopUp();">&times;</button>
+                Bank Info<button type="button" class="close" ng-click="closeBankInfoPopUp();">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="content-container-fluid" style="color:black;">
                     <div style="color:black;" id="GridEmp" ej-grid e-datasource="BankInfolist" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                          e-recorddoubleclick="SetBankData" e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
-                            <div e-column e-field="UserName" e-headertext="Bank Name" e-width="80"></div>
+                            <div e-column e-field="BankName" e-headertext="Bank Name" e-width="80"></div>
                             <div e-column e-field="BankBranchName" e-headertext="Bank Branch" e-width="80"></div>
                             <div e-column e-field="AccountTitle" e-headertext="Account Title" e-width="80"></div>
                             <div e-column e-field="AccountNumber" e-headertext="Account Number" e-width="80"></div>
@@ -196,4 +195,79 @@
             </div>
         </div>
     </div>
+</div>
+<div class="modal fade site-modal in" id="DPTPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Department List
+                <button type="button" class="close" ng-click="closePopup('DepartmentPopUp');">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div style="color:black;" id="GridDepartment" ej-grid e-datasource="DepartmentList"e-recorddoubleclick="SetDPTData" 
+                             e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-allowselection="false" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="80"></div>
+                                <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
+                                <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="140"></div>
+                            </div>
+                        </div>
+                       
+                        <div class="row text-right">
+                            <div class="common-btn">
+                                <ul class="list-inline ">
+                                    <li>
+                                        <button ng-click="closeDPTPopup();" class="btn"><i class=""></i> Close</button>
+                                    </li>
+                                </ul>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="popUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee Information<button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <disv class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridPopUp" ej-grid e-datasource="popUpDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="SelectEmployee" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="SystemId" e-headertext="SystemId" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="Company" e-headertext="Company" e-width="80"></div>
+                            <div e-column e-field="Plant" e-headertext="Plant" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                        </div>
+                    </div>
+                </disv>
+            </div>
+            <div class="modal-footer">
+                <ul class="common-btn list-inline text-right" style="padding: 20px;">
+                    <li><button ng-click="closePopUp();" class="btn" tabindex="10"><i class="glyphicon glyphicon-info-sign right"></i> Close</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script type="text/x-jsrender" id="empimage">
+        <img src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:48px;width:48px;" />
+    </script>
 </div>

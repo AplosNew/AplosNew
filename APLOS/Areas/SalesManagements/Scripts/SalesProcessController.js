@@ -45,22 +45,43 @@ function SalesProcessController(cboService, commonMessage, $scope, $rootScope, b
             $scope.SPList = response.data;
         });
     }
+
+    $scope.CheckBankApplicable = function (obj) {
+        if (obj.data.IsBankApplicable == false) {
+            $scope.rowdata.BankMasterId = null;
+            $scope.rowdata.BankName = null;
+            $scope.rowdata.AccountNumber = null;
+            var gridObj = $("#GridSalPT").data("ejGrid");
+            gridObj.refreshContent();
+            gridObj.refreshTemplate();
+        }
+    }
+
     $scope.rowdata = {};
     $scope.BankInfolist = [];
     $scope.GetBankInfo = function (obj) {
-        $scope.rowdata = obj.data;
-        $http.get('SalesManagements/Sales/GetBankMaster')
-            .then(
-                function successCallback(response) {
-                    if (baseService.arrayLength(response.data) > 0) {
-                        $scope.BankInfolist = response.data;
-                    }
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
-        angular.element(document.querySelector('#BankInFoPopUp')).modal('show');
+        try {
+            $scope.rowdata = obj.data;
+            if ($scope.rowdata.IsBankApplicable == true) {
+                $http.get('SalesManagements/Sales/GetBankMaster')
+                    .then(
+                        function successCallback(response) {
+                            if (baseService.arrayLength(response.data) > 0) {
+                                $scope.BankInfolist = response.data;
+                            }
+                        },
+                        function errorCallback(response) {
+                            ShowResult(response, 'failure');
+                        });
+                angular.element(document.querySelector('#BankInFoPopUp')).modal('show');
+            }
+            else {
+                throw "Select Bank Applicable.";
+            }
 
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     };
 
     $scope.SetBankData = function (obj) {
@@ -72,6 +93,73 @@ function SalesProcessController(cboService, commonMessage, $scope, $rootScope, b
         gridObj.refreshTemplate();
         angular.element(document.querySelector('#BankInFoPopUp')).modal('hide');
     };
+    $scope.closeBankInfoPopUp = function (obj) {
+        angular.element(document.querySelector('#BankInFoPopUp')).modal('hide');
+    };
+
+
+
+
+    $scope.showDepartmentPopUp = function (obj) {
+        try {
+            $scope.rowdata = obj.data;
+
+            $http({
+                method: 'GET',
+                url: 'SalesManagements/Sales/GetDepartment'
+            }).then(function successCallback(response) {
+                $scope.DepartmentList = response.data;
+            });
+            angular.element(document.querySelector('#DPTPopUp')).modal('show');
+
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.SetDPTData = function (obj) {
+        $scope.rowdata.DepartmentId = obj.data.Id;
+        $scope.rowdata.Department = obj.data.UserName;
+        var gridObj = $("#GridSalPT").data("ejGrid");
+        gridObj.refreshContent();
+        gridObj.refreshTemplate();
+        angular.element(document.querySelector('#DPTPopUp')).modal('hide');
+    };
+    $scope.closeDPTPopup = function (obj) {
+        angular.element(document.querySelector('#DPTPopUp')).modal('hide');
+    };
+
+    $scope.popUpDataList = [];
+    $scope.showResponsiblePersonListPopUp = function (obj) {
+        try {
+            $scope.rowdata = obj.data;
+            $scope.popUpDataList = [];
+            $http({
+                method: 'GET',
+                url: 'employees/leaveApplication/getemployeelist'
+            }).then(function successCallback(response) {
+                $scope.popUpDataList = response.data;
+            });
+            angular.element(document.querySelector('#popUp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.SelectEmployee = function (arg) {
+        var data = arg.data;
+        $scope.rowdata.ResponsiblePersonId = data.SystemID;
+        $scope.rowdata.ResponsiblePerson = data.EmployeeName;
+        var gridObj = $("#GridSalPT").data("ejGrid");
+        gridObj.refreshContent();
+        gridObj.refreshTemplate();
+        $scope.closePopUp();
+    }
+
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#popUp')).modal('hide');
+    }
 
 
     $scope.ModelTemp = {
@@ -95,11 +183,11 @@ function SalesProcessController(cboService, commonMessage, $scope, $rootScope, b
     };
     $scope.GetSequence();
 
-   
+
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
-      
+
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -132,7 +220,7 @@ function SalesProcessController(cboService, commonMessage, $scope, $rootScope, b
         }
     };
 
-  
+
 
     $scope.Delete = function () {
         if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
@@ -168,18 +256,6 @@ function SalesProcessController(cboService, commonMessage, $scope, $rootScope, b
         $scope.materialList = [];
     }
 
-    $scope.SetBankData = function (obj) {
-        var Bankinfo = obj.data;
-        $scope.BankInfo.UserName = Bankinfo.UserName;
-        $scope.BankInfo.BankBranch = Bankinfo.BankBranch;
-
-        $scope.EmpBankInfoModel.UserName = Bankinfo.UserName;
-        $scope.EmpBankInfoModel.BankBranch = Bankinfo.BankBranch;
-        $scope.EmpBankInfoModel.BankSystemID = Bankinfo.BankSystemID;
-        $scope.EmpBankInfoModel.BankBranchId = Bankinfo.BankBranchId;
-
-        angular.element(document.querySelector('#BankInFoPopUp')).modal('hide');
-    };
 
 
 

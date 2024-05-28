@@ -2681,7 +2681,11 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             return Json(clsSales.GetBankMaster(), JsonRequestBehavior.AllowGet);
         }
-
+        [HttpGet, Authorize]
+        public ActionResult GetDepartment()
+        {
+            return Json(clsSales.GetDepartment(), JsonRequestBehavior.AllowGet);
+        }
         [HttpGet, Authorize]
         public JsonResult GetSalesProcessAutoSequence()
         {
