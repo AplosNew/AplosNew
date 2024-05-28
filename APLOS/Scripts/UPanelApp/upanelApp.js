@@ -1283,6 +1283,7 @@ upanelApp.controller("InputCreditApproveController", InputCreditApproveControlle
 upanelApp.controller("InputCreditCheckController", InputCreditCheckController);
 upanelApp.controller("IndependentServiceGRNController", IndependentServiceGRNController);
 upanelApp.controller("SalesProcessController", SalesProcessController);
+upanelApp.controller("FNFReportController", FNFReportController);
 
 
 

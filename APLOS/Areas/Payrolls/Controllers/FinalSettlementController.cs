@@ -20,6 +20,7 @@ using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Web.Mvc;
@@ -62,6 +63,10 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
 
         public ActionResult Payment()
+        {
+            return View();
+        }
+        public ActionResult Report()
         {
             return View();
         }
@@ -3011,6 +3016,176 @@ Order By ESI.Sequence";
 
 
                 return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+       
+        [HttpPost, Authorize]
+        public ActionResult GetFNFReport(string reportFileName, string fromDate, string toDate)
+        {
+            try
+            {
+                string fileName = "";
+                fileName = GetFNFWorkbook("", reportFileName, fromDate, toDate);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        public string GetFNFWorkbook(string ReportHeader, string reportFileName, string fromDate, string toDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Data";
+                sheet = workbook.Worksheets[0];
+                DataTable dtOrder = null;
+               
+                string sql = @"Select M.Id DocRefNo,EI.EmployeeCode,EI.EmployeeName,DP.UserName Department,S.UserName Section,SS.UserName SubSection,LD.UserName LegalDesignation,FORMAT(M.AddedDate,'dd-MMM-yyyy') EntryDate,M.AddedBy EntryBy,FORMAT(M.ApproveDateTime,'dd-MMM-yyyy') ApprovalDate
+,AE.EmployeeName ApprovalBy,E.VoucherId,V.VoucherNo,FORMAT(V.PostedDate,'dd-MMM-yyyy')PostedDate,V.PostedBy,V.Narration,IT.Value NetPayable,ISNULL(BM.AccountTitle,CM.UserName) PaymentBank,BM.AccountNumber,SPD.IFSCCode
+from dbo.EmployeeFullAndFinalSettlementMaster M
+LEFT JOIN dbo.EmployeeFullAndFinalSettlement E ON E.FinalSettlementId=M.Id
+LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=E.EmpSystemId
+LEFT JOIN ORG.Department DP ON DP.Id=EI.DepartmentId
+LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
+LEFT JOIN ORG.SubSection SS ON S.Id=EI.SubSectionId
+LEFT JOIN HKP.LegalDesignation LD ON LD.ID=EI.LegalDesignationId
+LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=M.ApproveById
+LEFT JOIN trn.Voucher V ON V.Id=E.VoucherId
+LEFT JOIN dbo.EmployeeFullAndFinalSettlementItem IT ON IT.FinalSettlementId=M.Id AND IT.EmpSystemId=E.EmpSystemId AND IT.UserName='NetPayable'
+LEFT JOIN TRN.VoucherDetail XVD ON XVD.VoucherId=V.Id AND XVD.BankMasterId<>''
+LEFT JOIN TRN.VoucherDetail XVDC ON XVDC.VoucherId=V.Id AND  XVDC.CashMasterId<>''
+LEFT JOIN MST.BankMaster BM ON BM.Id=XVD.BankMasterId
+LEFT JOIN MST.CashMaster CM ON CM.Id=XVDC.CashMasterId
+LEFT JOIN dbo.SalaryProcessLogDetail SPD ON SPD.EmpSystemId=E.EmpSystemId
+AND SPD.Id=(Select top(1)Id from dbo.SalaryProcessLogDetail where EmpSystemId=SPD.EmpSystemId Order  By AddedDate DeSC)
+where M.AddedDate between '"+fromDate+@"' AND '"+toDate+"'";
+                dtOrder = _sqlRepository.GetDataTable(sql);
+
+
+                if (dtOrder.Rows.Count == 0)
+                {
+                    throw new Exception("No Data Found.");
+                }
+                ReportUtility reportUtility = new ReportUtility();
+
+                int ROW = 6; int COL = 1;
+                
+                #region ColumnsHeader
+
+                sheet[ROW, COL].Text = "Sr. No."; int colSL = COL; COL++;
+                sheet[ROW, COL].Text = "Doc Ref No."; int colD = COL; COL++;
+                sheet[ROW, COL].Text = "Emp Code"; int colEC = COL; COL++;
+                sheet[ROW, COL].Text = "Emp Name"; int colEN = COL; COL++;
+                sheet[ROW, COL].Text = "Department"; int colDP = COL; COL++;
+                sheet[ROW, COL].Text = "Section"; int colSection = COL; COL++;
+                sheet[ROW, COL].Text = "SubSection"; int colSS = COL; COL++;
+                sheet[ROW, COL].Text = "Legal Designation"; int colLD = COL; COL++;
+                sheet[ROW, COL].Text = "Entry Date"; int colED = COL; COL++;
+                sheet[ROW, COL].Text = "Entry By"; int colEB = COL; COL++;
+                sheet[ROW, COL].Text = "Approval Date"; int colAD = COL; COL++;
+                sheet[ROW, COL].Text = "Approval By"; int colAB = COL; COL++;
+                sheet[ROW, COL].Text = "VoucherNo"; int colVN = COL; COL++;
+                sheet[ROW, COL].Text = "Posted Date"; int colPD = COL; COL++;
+                sheet[ROW, COL].Text = "PostedBy"; int colPB = COL; COL++;
+                sheet[ROW, COL].Text = "Narration"; int colN = COL; COL++;
+                sheet[ROW, COL].Text = "Net Payable"; int colNP = COL; COL++;
+                sheet[ROW, COL].Text = "Bank"; int colBN = COL; COL++;
+                sheet[ROW, COL].Text = "A/C No."; int colAC = COL; COL++;
+                sheet[ROW, COL].Text = "IFSC"; int colIFSC = COL;
+
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                #endregion columns
+
+                ROW++;
+                int startRow = ROW;
+                int cnt = 0;
+                #region DataPlot
+                for (int i = 0; i < dtOrder.Rows.Count; i++)
+                {
+                                        cnt++;
+                    sheet[ROW, colSL].Number = Library.Service.Extension.clsStaticInfo.dbl(cnt.ToString());
+                    sheet[ROW, colD].Text = dtOrder.Rows[i]["DocRefNo"].ToString();
+                    sheet[ROW, colEC].Text = dtOrder.Rows[i]["EmployeeCode"].ToString();
+                    sheet[ROW, colEN].Text = dtOrder.Rows[i]["EmployeeName"].ToString();
+                    sheet[ROW, colDP].Text = dtOrder.Rows[i]["Department"].ToString();
+                    sheet[ROW, colSection].Text = dtOrder.Rows[i]["Section"].ToString();
+                    sheet[ROW, colSS].Text = dtOrder.Rows[i]["SubSection"].ToString();
+                    sheet[ROW, colLD].Text = dtOrder.Rows[i]["LegalDesignation"].ToString();
+                    sheet[ROW, colED].Text = dtOrder.Rows[i]["EntryDate"].ToString();
+                    sheet[ROW, colEB].Text = dtOrder.Rows[i]["EntryBy"].ToString();
+                    sheet[ROW, colAD].Text = dtOrder.Rows[i]["ApprovalDate"].ToString();
+                    sheet[ROW, colAB].Text = dtOrder.Rows[i]["ApprovalBy"].ToString();
+                    sheet[ROW, colVN].Text = dtOrder.Rows[i]["VoucherNo"].ToString();
+                    sheet[ROW, colPD].Text = dtOrder.Rows[i]["PostedDate"].ToString();
+                    sheet[ROW, colPB].Text = dtOrder.Rows[i]["PostedBy"].ToString();
+                    sheet[ROW, colN].Text = dtOrder.Rows[i]["Narration"].ToString();
+                    sheet[ROW, colNP].Text = dtOrder.Rows[i]["NetPayable"].ToString();
+                    sheet[ROW, colBN].Text = dtOrder.Rows[i]["PaymentBank"].ToString();
+                    sheet[ROW, colAC].Text = dtOrder.Rows[i]["AccountNumber"].ToString();
+                    sheet[ROW, colIFSC].Text = dtOrder.Rows[i]["IFSCCode"].ToString();
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+                }
+                #endregion
+                int edCRow = ROW;
+
+              
+                #region ReportHeader
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.UsedRange.HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+
+                reportUtility.CompanyHeader(ref sheet, 3, "Employee Full & Final Report", identity.CompanyId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+                sheet.PageSetup.CenterHorizontally = true;
+                #endregion
+
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
             }
             catch (Exception ex)
             {

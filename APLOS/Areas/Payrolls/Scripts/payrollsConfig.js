@@ -399,6 +399,10 @@
             templateUrl: 'payrolls/FinalSettlement/Payment',
             controller: 'fullandfinalSettlementPaymentController'
         })
+        .when('/fnfreport', {
+            templateUrl: 'payrolls/FinalSettlement/Report',
+            controller: 'FNFReportController'
+        })
         ;
 
 

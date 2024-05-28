@@ -3276,7 +3276,7 @@ namespace Library.Service.SalaryDisbursement
 
                                     WHERE SlrProcMstSystemID IN(" + salaryProcessId + @") 
                                     ) SPM ON spm.EmpInfoSystemID=e.SystemId
-									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '202022' 
+									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '"+ plantId + @"' 
                          
 									 			LEFT JOIN ORG.Plant F ON SPLD.PlantID = F.Id
 												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
@@ -4816,7 +4816,7 @@ namespace Library.Service.SalaryDisbursement
 
                                     WHERE SlrProcMstSystemID IN(" + salaryProcessId + @") 
                                     ) SPM ON spm.EmpInfoSystemID=e.SystemId
-									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '202022' 
+									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '"+ plantId + @"' 
                          
 									 			LEFT JOIN ORG.Plant F ON SPLD.PlantID = F.Id
 												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
