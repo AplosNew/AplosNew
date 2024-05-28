@@ -9,7 +9,7 @@ function FNFReportController(cboService, commonMessage, $scope, $rootScope, base
 
     $scope.GetReport = function () {
         try {
-            $scope.fileName = "Full&FinalReport.xlsx";
+            $scope.fileName = "FullAndFinalReport.xlsx";
             if (baseService.isUndefinedOrNull($scope.FromDate)) {
                 throw "Select From Date";
             }

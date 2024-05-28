@@ -3092,22 +3092,32 @@ where M.AddedDate between '"+fromDate+@"' AND '"+toDate+"'";
                 sheet[ROW, COL].Text = "Sr. No."; int colSL = COL; COL++;
                 sheet[ROW, COL].Text = "Doc Ref No."; int colD = COL; COL++;
                 sheet[ROW, COL].Text = "Emp Code"; int colEC = COL; COL++;
+                sheet[ROW, colEC].ColumnWidth = 10;
                 sheet[ROW, COL].Text = "Emp Name"; int colEN = COL; COL++;
+                sheet[ROW, colEN].ColumnWidth = 20;
                 sheet[ROW, COL].Text = "Department"; int colDP = COL; COL++;
+                sheet[ROW, colDP].ColumnWidth = 20;
                 sheet[ROW, COL].Text = "Section"; int colSection = COL; COL++;
                 sheet[ROW, COL].Text = "SubSection"; int colSS = COL; COL++;
                 sheet[ROW, COL].Text = "Legal Designation"; int colLD = COL; COL++;
+                sheet[ROW, colLD].ColumnWidth = 20;
                 sheet[ROW, COL].Text = "Entry Date"; int colED = COL; COL++;
                 sheet[ROW, COL].Text = "Entry By"; int colEB = COL; COL++;
                 sheet[ROW, COL].Text = "Approval Date"; int colAD = COL; COL++;
+                sheet[ROW, colAD].ColumnWidth = 10;
                 sheet[ROW, COL].Text = "Approval By"; int colAB = COL; COL++;
+                sheet[ROW, colAB].ColumnWidth = 20;
                 sheet[ROW, COL].Text = "VoucherNo"; int colVN = COL; COL++;
+                sheet[ROW, colVN].ColumnWidth = 15;
                 sheet[ROW, COL].Text = "Posted Date"; int colPD = COL; COL++;
                 sheet[ROW, COL].Text = "PostedBy"; int colPB = COL; COL++;
+                sheet[ROW, colPB].ColumnWidth = 10;
                 sheet[ROW, COL].Text = "Narration"; int colN = COL; COL++;
                 sheet[ROW, COL].Text = "Net Payable"; int colNP = COL; COL++;
                 sheet[ROW, COL].Text = "Bank"; int colBN = COL; COL++;
+                sheet[ROW, colBN].ColumnWidth = 20;
                 sheet[ROW, COL].Text = "A/C No."; int colAC = COL; COL++;
+                sheet[ROW, colAC].ColumnWidth = 20;
                 sheet[ROW, COL].Text = "IFSC"; int colIFSC = COL;
 
 
@@ -3159,14 +3169,14 @@ where M.AddedDate between '"+fromDate+@"' AND '"+toDate+"'";
 
               
                 #region ReportHeader
-                sheet.UsedRange.WrapText = true;
+                //sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.UsedRange.HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                 sheet["A" + startRow.ToString()].FreezePanes();
 
 
-                reportUtility.CompanyHeader(ref sheet, 3, "Employee Full & Final Report", identity.CompanyId);
+                reportUtility.CompanyHeader(ref sheet, endCol, "Employee Full & Final Report", identity.CompanyId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
