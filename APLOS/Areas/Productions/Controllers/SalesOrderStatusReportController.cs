@@ -487,7 +487,7 @@ namespace Aplos.Areas.Productions.Controllers
 							left join HKP.ProductionStatus PST on PST.Id=POR.ProductionStatusId
 
                             where SO.Id in(" + parameters["SOId"] + @")
-                            AND OS.UserName in(" + parameters["OrderStatus"] + @")
+                            AND ISNULL(OS.UserName,'') in(" + parameters["OrderStatus"] + @")
                             AND SO.OrderCategoryId in(" + parameters["OrderCategoryId"] + @")
                             AND SO.ResponsiblePersonId in(" + parameters["ResponsiblePersonId"] + @")
                             AND p.Id in(" + parameters["CustomerId"] + @")";

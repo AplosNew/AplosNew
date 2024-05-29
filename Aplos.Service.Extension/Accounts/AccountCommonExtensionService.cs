@@ -915,5 +915,13 @@ namespace Library.Service.Extension.Accounts
 
             return customerAdvanceTemp;
         }
+        public Dictionary<string, object> GetEmployeeSalaryMultipleAdvane(string workerAdvanceDetailId)
+        {
+            var sql = @"select top(1) est.*,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId from TRN.EmployeeSubsequentTransaction est 
+                left join trn.voucherdetail vd on vd.id=est.VoucherDetailId where est.WorkerAdvanceDetailId='" + workerAdvanceDetailId + @"' ";
+            var customerAdvanceTemp = _sqlRepository.GetData(sql);
+
+            return customerAdvanceTemp;
+        }
     }
 }

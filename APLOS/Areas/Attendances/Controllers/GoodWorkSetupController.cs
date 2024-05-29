@@ -592,8 +592,8 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
                 #region Entity 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ExceptionGoodWorkEmployee where  GoodWorkSetupId='" + goodWorkSetupId + "'", out dsBC, false, "1");
-                objCon.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[ExceptionGoodWorkEmployee] where GoodWorkSetupId='" + goodWorkSetupId + "'", out dsDD, false, "1");
-                int ccount = Convert.ToInt32(dsDD.Tables[0].Rows[0]["countId"].ToString());
+                //objCon.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[ExceptionGoodWorkEmployee] where GoodWorkSetupId='" + goodWorkSetupId + "'", out dsDD, false, "1");
+                //int ccount = Convert.ToInt32(dsDD.Tables[0].Rows[0]["countId"].ToString());
                 if (data != null)
                 {
                    
@@ -604,9 +604,9 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
                         dv.RowFilter = "Id='" + item["Id"] + "'";
                         if (dv.Count == 0 && Convert.ToBoolean(item["BEFlag"])==false)
                         {
-                            ccount++;
+                            //ccount++;
                            
-                            item["Id"] = materialCommonService.MakePK(goodWorkSetupId, ccount, 2);
+                            item["Id"] = item["EmployeeId"].ToString();
                             item["GoodWorkSetupId"] = goodWorkSetupId;
 
                             AddNewRow(dsBC.Tables[0], item);

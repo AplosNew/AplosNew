@@ -2673,19 +2673,19 @@ namespace Aplos.Areas.SalesManagements.Controllers
         [HttpGet, Authorize]
         public ActionResult GetSalesProcessTransactionList()
         {
-            string sql = @"SELECT SPM.Id SalesProcessId,SPM.SalesProcess,SPM.Sequence,T.Id,T.SalesTypeId,T.PaymentModeId,T.StandardDaysFromInvoice,T.StandardDaysFromPreviousProcess,T.IsBankApplicable
-,T.BankId,T.DepartmentId,T.ResponsiblePersonId,T.PaymentProcess,T.Remark,EI.EmployeeName ResponsiblePerson,DP.UserName Department,BN.UserName Bank,BN. FROM HKP.SalesProcessMaster SPM
-OUTER APPLY (Select T.Id,T.SalesTypeId,T.PaymentModeId,T.StandardDaysFromInvoice,T.StandardDaysFromPreviousProcess,T.IsBankApplicable
-,T.BankId,T.DepartmentId,T.ResponsiblePersonId,T.PaymentProcess,T.Remark
-from TRN.SalesProcessTransaction T Where SalesProcessId=SPM.Id
-) T
-LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=T.ResponsiblePersonId
-LEFT JOIN ORG.Department DP ON DP.Id= T.DepartmentId
-LEFT JOIN HKP.Bank BN ON BN.Id= T.BankId";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            return Json(clsSales.GetSalesProcessTransactionList(), JsonRequestBehavior.AllowGet);
         }
 
-
+        [HttpGet, Authorize]
+        public ActionResult GetBankMaster()
+        {
+            return Json(clsSales.GetBankMaster(), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetDepartment()
+        {
+            return Json(clsSales.GetDepartment(), JsonRequestBehavior.AllowGet);
+        }
         [HttpGet, Authorize]
         public JsonResult GetSalesProcessAutoSequence()
         {
@@ -2699,7 +2699,7 @@ LEFT JOIN HKP.Bank BN ON BN.Id= T.BankId";
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-              
+
 
                 con.OpenDataSetThroughAdapter("select * from HKP.SalesProcessMaster where SalesProcess='" + data["SalesProcess"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
@@ -2740,6 +2740,53 @@ LEFT JOIN HKP.Bank BN ON BN.Id= T.BankId";
             }
         }
 
+        [HttpPost]
+        public JsonResult CreateSalesProcessTran(List<Dictionary<string, object>> data)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            bplib.clsGenID genid = new bplib.clsGenID();
+            DataSet dsBC;
+            string _Id = string.Empty;
+            try
+            {
+                #region Entity 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM TRN.SalesProcessTransaction", out dsBC, false, "1");
+
+                if (data != null)
+                {
+
+
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsBC.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        if (dv.Count == 0)
+                        {
+                            genid.GenID("SalesProcessTransaction", out _Id);
+
+                            item["Id"] = _Id;
+
+                            AddNewRow(dsBC.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+                #endregion
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsBC);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
 
         public ActionResult DeleteSalesProcess(string id)
         {
@@ -2775,7 +2822,7 @@ LEFT JOIN HKP.Bank BN ON BN.Id= T.BankId";
             return 1;
         }
 
-      
+
 
         #endregion
     }
