@@ -99,7 +99,7 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
 
     $scope.ModelWADTemp = {
         Id: null,
-        WorkerAdvanceId: null,
+        EmployeeAdvanceId: null,
         EmpSystemId: null,
         EmployeeCode: null,
         EmployeeName: null,
@@ -440,7 +440,7 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
         $http({
             method: 'POST',
             url: $scope.path + "GetEmployeeMultipleAdvanceEmployeelist",
-            data: { 'fromDate': $scope.ModelOTNew.FromDate, 'toDate': $scope.ModelOTNew.ToDate, 'saveUpdate': $scope.PCOTAction, 'percentage': $scope.ModelOTNew.Percentage, 'multiple': $scope.ModelOTNew.Multiple, 'minimumPresentDay': $scope.ModelOTNew.MinimumPresentDay, 'isPayDay': $scope.ModelOTNew.IsPayDay, 'isStandardOT': $scope.ModelOTNew.IsStandardOT, 'isAdditionalOT': $scope.ModelOTNew.IsAdditionalOT, 'workerAdvanceId': $scope.ModelOTNew.Id},
+            data: { 'fromDate': $scope.ModelOTNew.FromDate, 'toDate': $scope.ModelOTNew.ToDate, 'saveUpdate': $scope.PCOTAction, 'percentage': $scope.ModelOTNew.Percentage, 'multiple': $scope.ModelOTNew.Multiple, 'minimumPresentDay': $scope.ModelOTNew.MinimumPresentDay, 'isPayDay': $scope.ModelOTNew.IsPayDay, 'isStandardOT': $scope.ModelOTNew.IsStandardOT, 'isAdditionalOT': $scope.ModelOTNew.IsAdditionalOT, 'employeeAdvanceId': $scope.ModelOTNew.Id},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.PCOTEmployeeList = response.data;
