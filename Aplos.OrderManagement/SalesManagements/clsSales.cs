@@ -5164,7 +5164,7 @@ Order By A.sequence";
 
         public List<Dictionary<string, object>> GetSalesMaterialDataList(string plantId, string fromDate, string toDate, string inputCreditId)
         {
-            var cmdText = @"SELECT Flag=CAST(CASE WHEN SM.InputCreditId IS NULL THEN 0 ELSE 1 END AS bit),SM.Id,MO.Id MasterOrderId,SO.Id SONo,po.PONumber, FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate,DT.UserName DestinationName,MM.UserName MaterialMasterName,ART.StandardName AS MaterialMasterArticleName
+            var cmdText = @"SELECT * FROM(SELECT Flag=CAST(CASE WHEN SM.InputCreditId IS NULL THEN 0 ELSE 1 END AS bit),SM.Id,MO.Id MasterOrderId,SO.Id SONo,po.PONumber, FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate,DT.UserName DestinationName,MM.UserName MaterialMasterName,ART.StandardName AS MaterialMasterArticleName
 ,ISNULL(AHSN.Code,HSN.Code) HSNCode,FCV.UserName SKU1,SCV.UserName SKU2,SM.TransactionRate,SM.TransactionQty,SM.TransactionAmount,SM.TaxAmount
 ,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/NULLIF((Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id),0))*SM.TransactionAmount
 	           ,ServiceTax=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesTax] WHERE SalesId=SA.Id  AND SalesServiceId<>'')/NULLIF((Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id),0))*SM.TransactionAmount
@@ -5204,7 +5204,7 @@ SELECT Flag=CAST(CASE WHEN SM.InputCreditId IS NULL THEN 0 ELSE 1 END AS bit),SM
 
             LEFT JOIN TRN.SecondCharacteristics AS SC ON SC.Id=IM.SecondCharacteristicsId 
             LEFT JOIN HKP.CharacteristicsValue AS SCV ON SCV.Id=IM.SecondCharacteristicsValueId
-            WHERE IM.PlantId='" + plantId + @"' AND SM.AddedDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SM.InputCreditId,'" + inputCreditId + @"')='" + inputCreditId + @"'";
+            WHERE IM.PlantId='" + plantId + @"' AND SM.AddedDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SM.InputCreditId,'" + inputCreditId + @"')='" + inputCreditId + @"')A Order By A.Id";
 
             return _sqlRepository.GetDataCollection(cmdText);
         }
@@ -5234,7 +5234,23 @@ SELECT Flag=CAST(CASE WHEN SM.InputCreditId IS NULL THEN 0 ELSE 1 END AS bit),SM
 
             LEFT JOIN TRN.SecondCharacteristics AS SC ON SC.Id=SM.SecondCharacteristicsId AND SM.SalesOrderId=SC.SalesOrderId
             LEFT JOIN HKP.CharacteristicsValue AS SCV ON SCV.Id=SM.SecondCharacteristicsValueId
-            WHERE SM.InputCreditId='" + inputCreditId + @"'";
+            WHERE SM.InputCreditId='" + inputCreditId + @"'
+UNION
+			SELECT Flag = CAST(CASE WHEN SM.InputCreditId IS NULL THEN 0 ELSE 1 END AS bit),SM.Id,'' MasterOrderId,'' SONo,''PONumber, '' DeliveryDate,'' DestinationName,MM.UserName MaterialMasterName, ART.StandardName AS MaterialMasterArticleName
+,ISNULL(AHSN.Code, HSN.Code) HSNCode,FCV.UserName SKU1, SCV.UserName SKU2, SM.SalesRate TransactionRate, SM.TransactionQty,SM.TotalSalesAmount TransactionAmount,0 TaxAmount
+,ServiceCharge = 0,ServiceTax = 0,SM.InputCreditId,'InventorySales' SourceType
+				FROM TRN.InventorySalesDetail AS SM
+				LEFT JOIN TRN.InventoryMaterial IM ON IM.Id = SM.InventoryMaterialId
+			LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IM.MaterialMasterId
+			left join HKP.HSNCode as HSN on HSN.Id = MM.HSNCodeId
+			LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+			LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+			left join HKP.HSNCode as AHSN on AHSN.Id = ART.HSNCodeId
+			LEFT JOIN TRN.FirstCharacteristics AS FC ON FC.Id = IM.FirstCharacteristicsId
+			LEFT JOIN HKP.CharacteristicsValue AS FCV ON FCV.Id = IM.FirstCharacteristicsValueId
+			LEFT JOIN TRN.SecondCharacteristics AS SC ON SC.Id = IM.SecondCharacteristicsId
+			LEFT JOIN HKP.CharacteristicsValue AS SCV ON SCV.Id = IM.SecondCharacteristicsValueId
+			WHERE SM.InputCreditId = '" + inputCreditId + @"'";
 
             return _sqlRepository.GetDataCollection(cmdText);
         }
