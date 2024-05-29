@@ -37,6 +37,7 @@ namespace Library.Model.SalesManagements
         public bool IsCanceled { get; set; }
         public string Remark { get; set; }
         public string CanceledBy { get; set; }
+        public string CancelStatus { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties
@@ -53,7 +54,9 @@ namespace Library.Model.SalesManagements
         public string UpdatedBy { get; set; }
         public DateTime? UpdatedDate { get; set; }
         public string UpdatedFromIP { get; set; }
+        public string CancelBy { get; set; }
 
+        public DateTime? CancelDate { get; set; }
         #endregion Audit Properties
 
         #region Navigation Properties

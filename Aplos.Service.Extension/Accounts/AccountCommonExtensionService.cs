@@ -204,7 +204,7 @@ namespace Library.Service.Extension.Accounts
             return gRNAcceptanceMap;
         }
 
-        private void AddNewRow<T>(DataTable dt, T Data)
+        public void AddNewRow<T>(DataTable dt, T Data)
         {
             Dictionary<string, object> sourceData = Data.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).ToDictionary(prop => prop.Name, prop => prop.GetValue(Data, null));
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -223,7 +223,7 @@ namespace Library.Service.Extension.Accounts
 
             dt.Rows.Add(dr);
         }
-        private void EditRow<T>(DataRow dr, T Data)
+        public void EditRow<T>(DataRow dr, T Data)
         {
             Dictionary<string, object> sourceData = Data.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).ToDictionary(prop => prop.Name, prop => prop.GetValue(Data, null));
 
@@ -247,6 +247,45 @@ namespace Library.Service.Extension.Accounts
             dr.EndEdit();
         }
 
+        public void AddNewRowD(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow(); foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress; dt.Rows.Add(dr);
+        }
+
+        public void EditRowD(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit(); foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
         public Dictionary<string, object> GetInvestmentGL(string companyId, string financingTypeId)
         {
            

@@ -38,6 +38,8 @@ function employeeTransactionTypeController(cboService, commonMessage, $scope, $r
 
     $scope.employeeTransactionTypeNew = Object.assign({}, $scope.employeeTransactionType);
 
+ 
+
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {
             $scope.employeeTransactionTypeNew.Sequence = data;

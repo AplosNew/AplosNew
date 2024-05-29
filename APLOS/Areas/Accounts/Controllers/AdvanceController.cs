@@ -2328,6 +2328,7 @@ namespace Aplos.Areas.Accounts.Controllers
             voucherVM.IsPosted = false;
             voucherVM.SourceType = SourceType.EmployeeAdvance.ToString();
             voucherVM.PartyType = PartyType.Employee.ToString();
+            AccountsCommonService materialCommonService = new AccountsCommonService(_sqlRepository);
             if ((voucherVM.Amount == 0) || (voucherVM.Amount <= 0))
                 throw new CustomException(" Amount should more than 0");
             if ((voucherVM.PaymentSource == "Bank") && (voucherVM.BankMasterId == null))
@@ -2345,6 +2346,9 @@ namespace Aplos.Areas.Accounts.Controllers
             }
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceService.InsertEmployeeAdvanceRequisition(voucherVM, voucherDetailVMList, advanceSalarySchedulelist, bankChargeDetailVMList)) });
         }
+
+     
+       
 
         [HttpPost]
         public JsonResult UpdateEmployeeAdvanceRequisitionPost(VoucherViewModel advanceVM, IEnumerable<VoucherDetailViewModel> advanceDetailVMList, IEnumerable<BankChargeViewModel> bankChargeDetailVMList)

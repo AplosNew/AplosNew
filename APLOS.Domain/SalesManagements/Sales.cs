@@ -39,6 +39,8 @@ namespace Library.Model.SalesManagements
         public string Incoterms { get; set; }
         public decimal AdditionalFrieghtValue { get; set; }
         public decimal IncotermsValue { get; set; }
+       
+        public string CancelStatus { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties
@@ -55,6 +57,9 @@ namespace Library.Model.SalesManagements
         public string UpdatedBy { get; set; }
         public DateTime? UpdatedDate { get; set; }
         public string UpdatedFromIP { get; set; }
+        public string CancelBy { get; set; }
+
+        public DateTime? CancelDate { get; set; }
 
         #endregion Audit Properties
 

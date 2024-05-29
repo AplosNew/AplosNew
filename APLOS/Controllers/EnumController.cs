@@ -779,5 +779,6 @@ namespace Aplos.Controllers
             return Json(new SelectList(items: EnumService.GetEnumCbo<EmployeeSeprationSetupEnum>(), "Value", "Text"), JsonRequestBehavior.AllowGet);
         }
 
+      
     }
 }

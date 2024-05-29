@@ -54,7 +54,7 @@ namespace Library.Model.Inventory
 
         public decimal? AdditionalChargesAmount { get; set; }
         public decimal? AdditionalChargesTax { get; set; }
-
+        public string CancelStatus { get; set; }
 
         #endregion Scalar Properties
 
@@ -93,6 +93,9 @@ namespace Library.Model.Inventory
         /// </summary>
         public string UpdatedFromIP { get; set; }
 
+        public string CancelBy { get; set; }
+
+        public DateTime? CancelDate { get; set; }
         #endregion Audit Properties
 
         #region Navigation Properties

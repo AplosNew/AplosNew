@@ -38,5 +38,7 @@ namespace Library.Model.Employees
         public EmployeeSalaryAdvance EmployeeSalaryAdvance { get; set; }
 
         public string EmployeeSalaryAdvanceId { get; set; }
+        public string EmployeeAdvanceDetailId { get; set; }
+
     }
 }

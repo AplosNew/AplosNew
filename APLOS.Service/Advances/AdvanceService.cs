@@ -20,6 +20,7 @@ using Library.Service.Core;
 using Library.Service.Currencies;
 using Library.Service.Employees;
 using Library.Service.Enums;
+using Library.Service.Extension;
 using Library.Service.Extension.Accounts;
 using Library.Service.Finances;
 using Library.Service.Invoices;
@@ -30,6 +31,7 @@ using Library.Service.Vouchers;
 using Library.ViewModel.Banks;
 using Library.ViewModel.Invoices;
 using Library.ViewModel.Vouchers;
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -252,7 +254,8 @@ namespace Library.Service.Advances
                 POId = voucherVM.POId,
                 ContractId = voucherVM.ContractId,
                 MasterOrderId = voucherVM.MasterOrderId,
-                AdvanceGroupNo = voucherVM.AdvanceGroupNo
+                AdvanceGroupNo = voucherVM.AdvanceGroupNo,
+                AdditionalAmount = 0
             });
         }
 
@@ -386,6 +389,7 @@ namespace Library.Service.Advances
                 Narration = advanceDetailVM.Narration,
                 Amount = advanceDetailVM.Amount,
                 NetAmount = advanceDetailVM.Amount,
+                AdditionalAmount = 0,
                 BooksAmount = Math.Round((advanceDetailVM.Amount * advance.CompanyCurrencyRate), 2, MidpointRounding.AwayFromZero)
             };
             if (advanceDetail.PartyType != PartyType.Company.ToString())
@@ -3864,6 +3868,253 @@ namespace Library.Service.Advances
                     _unitOfWork.Rollback();
             }
         }
+
+
+
+        public string CreateEmployeeAdvancePark(VoucherViewModel voucherVM, Dictionary<string, object> data, List<Dictionary<string, object>> advanceDetail)
+        {
+            try
+            {
+                AccountCommonExtensionService _accountCommonService = new AccountCommonExtensionService();
+                _accountCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountCommonService.CheckingTaxYearPeriod(voucherVM);
+                DataSet dsMaster;
+                DataSet dsDetail;
+                DataSet dsDrvoucherDetail=null;
+                DataSet dsCrvoucherDetail=null;
+                DataSet dsDrvoucherDetailCurrency=null;
+                DataSet dsCrvoucherDetailCurrency=null;
+                DataSet dsGLTransactionDetail = null;
+                DataSet dsEmployeeSubsequentTransaction=null;
+                var currentVoucherDetailId = 0;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from [TRN].[EmployeeAdvance] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("Select * from TRN.GLTransactionDetail where 1=2", out dsEmployeeSubsequentTransaction, false, "1");
+
+
+                string _Id = "";
+
+                #region data update Worker Advance
+                if (dsMaster.Tables[0].DefaultView.Count == 0)
+                {
+                    if (_Id == "")
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("EmployeeAdvance", out _Id);
+                    }
+                    data["Id"] = _Id;
+                    data["FiscalYearId"] = voucherVM.FiscalYearId;
+                    data["FiscalYearPeriodId"] = voucherVM.FiscalYearPeriodId;
+                    data["TaxYearId"] = voucherVM.TaxYearId;
+                    data["TaxYearPeriodId"] = voucherVM.TaxYearPeriodId;
+                    data["CompanyGroupId"] = voucherVM.CompanyGroupId;
+                    data["CompanyId"] = voucherVM.CompanyId;
+                    data["PlantId"] = voucherVM.PlantId;
+                    data["EntityId"] = voucherVM.EntityId;
+                    data["SourceType"] = voucherVM.SourceType;
+                    _accountCommonService.AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    data["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                    _accountCommonService.EditRow(dsMaster.Tables[0].DefaultView[0].Row, data);
+                }
+
+                #endregion data update  Worker Advance
+
+                #region  Worker Advance Detail
+
+                string _MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                con.OpenDataSetThroughAdapter("select * from [dbo].[EmployeeAdvanceDetail] where  EmployeeAdvanceId='" + _MasterId + "'", out dsDetail, false, "1");
+                int ccount = 0;
+                if (advanceDetail != null)
+                {
+                    foreach (var item in advanceDetail)
+                    {
+                        DataView dv = new DataView(dsDetail.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        if (dv.Count == 0)
+                        {
+                            ccount++;
+                            string detailId = _accountCommonService.MakePK(_MasterId, ccount, 2);
+
+                            item["Id"] = detailId;
+                            item["EmployeeAdvanceId"] = _MasterId;
+                            item["EmpSystemId"] = item["EmpSystemId"];
+
+                            _accountCommonService.AddNewRowD(dsDetail.Tables[0], item);
+                        }
+                        if (dv.Count > 0)
+                        {
+                            ccount++;
+                            string detailid = _accountCommonService.MakePK(_MasterId, ccount, 2);
+                            DataRow drmo = dv[0].Row;
+                            drmo.BeginEdit();
+
+                            drmo["EmployeeAdvanceId"] = _MasterId;
+                            drmo["EmpSystemId"] = item["EmpSystemId"];
+                            drmo["PayDays"] = item["PayDays"];
+                            drmo["AdvanceAmount"] = item["AdvanceAmount"];
+                            drmo["Remarks"] = item["Remarks"];
+
+                            drmo.EndEdit();
+                        }
+                    }
+                }
+
+                var advancevoucher = new Voucher
+                {
+                    CompanyGroupId = voucherVM.CompanyGroupId,
+                    CompanyId = voucherVM.CompanyId,
+                    PlantId = voucherVM.PlantId,
+                    EntityId = voucherVM.EntityId,
+                    CurrencyId = companyCurrencyId,//voucherVM.CurrencyId,
+                    FiscalYearId = voucherVM.FiscalYearId,
+                    FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
+                    TaxYearId = voucherVM.TaxYearId,
+                    TaxYearPeriodId = voucherVM.TaxYearPeriodId,
+                    VoucherDate = voucherVM.VoucherDate,
+                    DocDate = voucherVM.DocDate,
+                    DocRefNo = voucherVM.DocRefNo,
+                    IsPark = voucherVM.IsPark,
+                    Narration = voucherVM.Narration,
+                    PostingDate = voucherVM.PostingDate,
+                    SourceType = SourceType.EmployeeAdvance.ToString(),
+                    VoucherTypeId = voucherVM.VoucherTypeId,
+                };
+                advancevoucher.TransactionRefNo = DateTime.Now.Year.ToString().Substring(2) + advancevoucher.Id;
+                //_voucherService.InsertVoucher(packingvoucher, voucherVM.FiscalYearPrefix);
+                _accountCommonService.InsertVoucher(advancevoucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);
+
+              
+
+
+                var voucherDetailDr = new VoucherDetail
+                {
+                    GLGeneralInfoId = voucherVM.GLGeneralInfoId,
+                    BudgetMasterId = voucherVM.BudgetMasterId,
+                    ActivityId = voucherVM.ActivityId,
+                    DrAmount = voucherVM.Amount,
+                    CurrencyId = companyCurrencyId,// voucherVM.CurrencyId,
+                    DocDate = voucherVM.DocDate,
+                    DocRefNo = voucherVM.DocRefNo,
+                    Narration = voucherVM.Narration,
+
+                    AddedBy = advancevoucher.AddedBy,
+                    AddedDate = advancevoucher.AddedDate,
+                    AddedFromIP = advancevoucher.AddedFromIP
+                };
+                currentVoucherDetailId++;
+                _accountCommonService.InsertVoucherDetail(advancevoucher, voucherDetailDr, currentVoucherDetailId, ref dsDrvoucherDetail);
+                _accountCommonService.InsertVoucherDetailCompanyCurrency(voucherDetailDr, new VoucherDetailCurrency
+                {
+                    ParallelCurrencyId = companyCurrencyId,
+                    FromCurrencyId = voucherDetailDr.CurrencyId,
+                    ToCurrencyId = companyCurrencyId,
+                    ToCurrencyRate = 1,// sales.ToCurrencyRate,
+                    ToCurrencyConversion = 1, /// sales.ToCurrencyRate,
+                    DrAmount = voucherDetailDr.DrAmount// * sales.ToCurrencyRate
+                }, ref dsDrvoucherDetailCurrency);
+
+                if (dsEmployeeSubsequentTransaction.Tables[0].DefaultView.Count == 0)
+                {
+                    var EmployeeSubsequentAdvance = new EmployeeSubsequentTransaction
+                    {
+                        CompanyGroupId = voucherVM.CompanyGroupId,
+                        CompanyId = voucherVM.CompanyId,
+                        PlantId = voucherVM.PlantId,
+                        EntityId = voucherVM.EntityId,
+                        VoucherTypeId = voucherVM.VoucherTypeId,
+                        AdvanceId = voucherVM.Id,
+                        EmployeeId = voucherVM.EmployeeId,
+                        EmployeeTransactionTypeId = voucherVM.EmployeeTransactionTypeId,
+                        AdvanceWriteOffId = null,
+                        EmployeePayableId = null,
+                        PartyType = voucherVM.PartyType,
+                        CurrencyId = voucherVM.CurrencyId,
+                        Amount = voucherVM.Amount,
+                        VoucherDate = voucherVM.VoucherDate,
+                        PostingDate = voucherVM.PostingDate,
+                        DocDate = voucherVM.DocDate,
+                        DocRefNo = voucherVM.DocRefNo,
+                        JournalType = AdvanceType.Salary.ToString(),
+                        TransactionType = EmployeeSubsequentTranEnum.Advance.ToString(),
+                        Narration = voucherVM.Narration,
+                        SourceType = voucherVM.SourceType.ToString(),
+                        IsPark = voucherVM.IsPark,
+                        Id = "ES" + GetEmployeeSubsequentTransactionPK(),
+                        VoucherId = advancevoucher.Id,
+                        VoucherDetailId = voucherDetailDr.Id,
+                        PaymentSource = voucherVM.PaymentSource,
+                    };
+                    _accountCommonService.AddNewRow(dsEmployeeSubsequentTransaction.Tables[0], EmployeeSubsequentAdvance);
+                }
+
+                var bankVoucherDetail = new VoucherDetail
+                {
+                    Narration = voucherVM.Narration,
+                    CrAmount = voucherVM.Amount,
+                    PaymentSource = voucherVM.PaymentSource
+                };
+                if (!string.IsNullOrEmpty(voucherVM.BankMasterId))
+                {
+                    var bankMaster = _bankMasterRepository.Find(voucherVM.BankMasterId);
+                    bankVoucherDetail.GLGeneralInfoId = bankMaster.GLGeneralInfoId;
+                    bankVoucherDetail.BudgetMasterId = bankMaster.BudgetMasterId;
+                    bankVoucherDetail.ActivityId = bankMaster.ActivityId;
+                    bankVoucherDetail.BankMasterId = bankMaster.Id;
+                    bankVoucherDetail.PartyType = PartyType.Bank.ToString();
+                }
+                else if (!string.IsNullOrEmpty(voucherVM.CashMasterId))
+                {
+                    var cashMaster = _cashMasterRepository.Find(voucherVM.CashMasterId);
+                    bankVoucherDetail.GLGeneralInfoId = cashMaster.GLGeneralInfoId;
+                    bankVoucherDetail.BudgetMasterId = cashMaster.BudgetMasterId;
+                    bankVoucherDetail.ActivityId = cashMaster.ActivityId;
+                    bankVoucherDetail.CashMasterId = cashMaster.Id;
+                    bankVoucherDetail.PartyType = PartyType.Cash.ToString();
+                }
+                else
+                    throw new CustomException("Bank or Cash Id not found!");
+
+                          
+                currentVoucherDetailId++;
+                _accountCommonService.InsertVoucherDetail(advancevoucher, bankVoucherDetail, currentVoucherDetailId, ref dsCrvoucherDetail);
+                _accountCommonService.InsertVoucherDetailCompanyCurrency(bankVoucherDetail, new VoucherDetailCurrency
+                {
+                    ParallelCurrencyId = companyCurrencyId,
+                    FromCurrencyId = bankVoucherDetail.CurrencyId,
+                    ToCurrencyId = companyCurrencyId,
+                    ToCurrencyRate = 1,// sales.ToCurrencyRate,
+                    ToCurrencyConversion = 1, /// sales.ToCurrencyRate,
+                    CrAmount = bankVoucherDetail.CrAmount// * sales.ToCurrencyRate
+                }, ref dsCrvoucherDetailCurrency);
+
+                _accountCommonService.InsertGLTransactionDetail(bankVoucherDetail, new GLTransactionDetail
+                {
+                    SourceType = voucherVM.PaymentSource,
+                    BankMasterId = bankVoucherDetail.BankMasterId,
+                    CashMasterId = bankVoucherDetail.CashMasterId,
+                    //CrAmount = totalCurrencyAmountDr
+                }, out dsGLTransactionDetail);
+
+
+                #endregion  Worker Advance Detail
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, dsDetail, dsDrvoucherDetail, dsDrvoucherDetailCurrency, dsEmployeeSubsequentTransaction, dsCrvoucherDetail, dsCrvoucherDetailCurrency, dsGLTransactionDetail);
+
+                return "";
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                   Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                   ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+
         public void InsertAdvanceReqSchedule(EmployeeSalaryAdvance employeeSalaryAdvance, AdvanceReqSchedule financingSchedule, string requisitionId)
         {
             financingSchedule.Id = MakePK(employeeSalaryAdvance.Id, financingSchedule.InstallmentNo, 3);

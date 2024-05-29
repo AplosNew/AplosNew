@@ -63,7 +63,7 @@ namespace Library.Model.Employees
         public string VoucherId { get; set; }
         public string EmployeeTransactionTypeId { get; set; }
         public string EmployeeSalaryAdvanceId { get; set; }
-        public string WorkerAdvanceDetailId { get; set; }
+       
 
         // public  EmployeeInformation Employee { get; set; }
         public string EmployeeId { get; set; }
@@ -78,6 +78,8 @@ namespace Library.Model.Employees
         public string EmployeePayableId { get; set; }
         public EmployeePayableWriteOff EmployeePayableWriteOff { get; set; }
         public string EmployeePayableWriteOffId { get; set; }
+        public string EmployeeAdvanceDetailId { get; set; }
+
         #endregion Navigation Properties
     }
 }

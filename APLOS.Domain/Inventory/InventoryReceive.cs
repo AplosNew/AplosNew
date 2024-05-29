@@ -61,6 +61,7 @@ namespace Library.Model.Inventory
 
         public string JobWorkContractId { get; set; }
         public string ByWhomEmployeeId { get; set; } 
+        public string CancelStatus { get; set; } 
 
         #endregion Scalar Properties
 
@@ -98,6 +99,10 @@ namespace Library.Model.Inventory
         /// Record updated by user IP address.
         /// </summary>
         public string UpdatedFromIP { get; set; }
+
+        public string CancelBy { get; set; }
+
+        public DateTime? CancelDate { get; set; }
 
         #endregion Audit Properties
 
