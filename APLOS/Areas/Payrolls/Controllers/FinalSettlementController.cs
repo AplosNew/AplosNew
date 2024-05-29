@@ -3058,7 +3058,7 @@ Order By ESI.Sequence";
                 DataTable dtOrder = null;
                
                 string sql = @"Select M.Id DocRefNo,EI.EmployeeCode,EI.EmployeeName,DP.UserName Department,S.UserName Section,SS.UserName SubSection,LD.UserName LegalDesignation,FORMAT(M.AddedDate,'dd-MMM-yyyy') EntryDate,M.AddedBy EntryBy,FORMAT(M.ApproveDateTime,'dd-MMM-yyyy') ApprovalDate
-,AE.EmployeeName ApprovalBy,E.VoucherId,V.VoucherNo,FORMAT(V.PostedDate,'dd-MMM-yyyy')PostedDate,V.PostedBy,V.Narration,IT.Value NetPayable,ISNULL(BM.AccountTitle,CM.UserName) PaymentBank,BM.AccountNumber,SPD.IFSCCode
+,AE.EmployeeName ApprovalBy,E.VoucherId,V.VoucherNo,FORMAT(V.PostedDate,'dd-MMM-yyyy')PostedDate,V.PostedBy,V.Narration,IT.Value NetPayable,EI.PaymentMode,BN.UserName PaymentBank,EB.BankAccNo AccountNumber,SPD.IFSCCode
 from dbo.EmployeeFullAndFinalSettlementMaster M
 LEFT JOIN dbo.EmployeeFullAndFinalSettlement E ON E.FinalSettlementId=M.Id
 LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=E.EmpSystemId
@@ -3069,13 +3069,12 @@ LEFT JOIN HKP.LegalDesignation LD ON LD.ID=EI.LegalDesignationId
 LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=M.ApproveById
 LEFT JOIN trn.Voucher V ON V.Id=E.VoucherId
 LEFT JOIN dbo.EmployeeFullAndFinalSettlementItem IT ON IT.FinalSettlementId=M.Id AND IT.EmpSystemId=E.EmpSystemId AND IT.UserName='NetPayable'
-LEFT JOIN TRN.VoucherDetail XVD ON XVD.VoucherId=V.Id AND XVD.BankMasterId<>''
-LEFT JOIN TRN.VoucherDetail XVDC ON XVDC.VoucherId=V.Id AND  XVDC.CashMasterId<>''
-LEFT JOIN MST.BankMaster BM ON BM.Id=XVD.BankMasterId
-LEFT JOIN MST.CashMaster CM ON CM.Id=XVDC.CashMasterId
+LEFT JOIN [dbo].[EmployeeBankInfo] EB ON EB.EmpSystemID=E.EmpSystemId
+LEFT JOIN HKP.Bank BN ON BN.Id=EB.BankSystemID
 LEFT JOIN dbo.SalaryProcessLogDetail SPD ON SPD.EmpSystemId=E.EmpSystemId
 AND SPD.Id=(Select top(1)Id from dbo.SalaryProcessLogDetail where EmpSystemId=SPD.EmpSystemId Order  By AddedDate DeSC)
-where M.AddedDate between '"+fromDate+@"' AND '"+toDate+"'";
+
+where M.AddedDate between '" + fromDate+@"' AND '"+toDate+"'";
                 dtOrder = _sqlRepository.GetDataTable(sql);
 
 
@@ -3114,6 +3113,8 @@ where M.AddedDate between '"+fromDate+@"' AND '"+toDate+"'";
                 sheet[ROW, colPB].ColumnWidth = 10;
                 sheet[ROW, COL].Text = "Narration"; int colN = COL; COL++;
                 sheet[ROW, COL].Text = "Net Payable"; int colNP = COL; COL++;
+                sheet[ROW, COL].Text = "Payment Mode"; int colPM = COL; COL++;
+                sheet[ROW, colPM].ColumnWidth = 12;
                 sheet[ROW, COL].Text = "Bank"; int colBN = COL; COL++;
                 sheet[ROW, colBN].ColumnWidth = 20;
                 sheet[ROW, COL].Text = "A/C No."; int colAC = COL; COL++;
@@ -3154,7 +3155,8 @@ where M.AddedDate between '"+fromDate+@"' AND '"+toDate+"'";
                     sheet[ROW, colPD].Text = dtOrder.Rows[i]["PostedDate"].ToString();
                     sheet[ROW, colPB].Text = dtOrder.Rows[i]["PostedBy"].ToString();
                     sheet[ROW, colN].Text = dtOrder.Rows[i]["Narration"].ToString();
-                    sheet[ROW, colNP].Text = dtOrder.Rows[i]["NetPayable"].ToString();
+                    sheet[ROW, colNP].Number =clsStaticInfo.dbl(dtOrder.Rows[i]["NetPayable"].ToString());
+                    sheet[ROW, colPM].Text = dtOrder.Rows[i]["PaymentMode"].ToString();
                     sheet[ROW, colBN].Text = dtOrder.Rows[i]["PaymentBank"].ToString();
                     sheet[ROW, colAC].Text = dtOrder.Rows[i]["AccountNumber"].ToString();
                     sheet[ROW, colIFSC].Text = dtOrder.Rows[i]["IFSCCode"].ToString();
@@ -3164,6 +3166,9 @@ where M.AddedDate between '"+fromDate+@"' AND '"+toDate+"'";
                     sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                     ROW++;
                 }
+
+                sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, ROW, endCol];
+                ROW++;
                 #endregion
                 int edCRow = ROW;
 

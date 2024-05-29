@@ -2699,7 +2699,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-              
+
 
                 con.OpenDataSetThroughAdapter("select * from HKP.SalesProcessMaster where SalesProcess='" + data["SalesProcess"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
@@ -2740,6 +2740,53 @@ namespace Aplos.Areas.SalesManagements.Controllers
             }
         }
 
+        [HttpPost]
+        public JsonResult CreateSalesProcessTran(List<Dictionary<string, object>> data)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            bplib.clsGenID genid = new bplib.clsGenID();
+            DataSet dsBC;
+            string _Id = string.Empty;
+            try
+            {
+                #region Entity 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM TRN.SalesProcessTransaction", out dsBC, false, "1");
+
+                if (data != null)
+                {
+
+
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsBC.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        if (dv.Count == 0)
+                        {
+                            genid.GenID("SalesProcessTransaction", out _Id);
+
+                            item["Id"] = _Id;
+
+                            AddNewRow(dsBC.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+                #endregion
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsBC);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
 
         public ActionResult DeleteSalesProcess(string id)
         {
@@ -2775,7 +2822,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             return 1;
         }
 
-      
+
 
         #endregion
     }

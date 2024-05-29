@@ -11,7 +11,7 @@ function SalesProcessController(cboService, commonMessage, $scope, $rootScope, b
     $scope.deleteUrl = $scope.path + 'deleteSalesProcess/';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
-    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'SalesProcess', name: "Sales Process" }, { value: 'ProcessSequence', name: "Process Sequence" }, { value: 'Remarks', name: "Remarks" }];
+    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'SalesProcess', name: "Sales Process" }, { value: 'Sequence', name: "Sequence" }, { value: 'Remarks', name: "Remarks" }];
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -97,9 +97,7 @@ function SalesProcessController(cboService, commonMessage, $scope, $rootScope, b
         angular.element(document.querySelector('#BankInFoPopUp')).modal('hide');
     };
 
-
-
-
+    $scope.DepartmentList = [];
     $scope.showDepartmentPopUp = function (obj) {
         try {
             $scope.rowdata = obj.data;
@@ -187,7 +185,6 @@ function SalesProcessController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
-
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -219,8 +216,6 @@ function SalesProcessController(cboService, commonMessage, $scope, $rootScope, b
 
         }
     };
-
-
 
     $scope.Delete = function () {
         if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
@@ -257,7 +252,26 @@ function SalesProcessController(cboService, commonMessage, $scope, $rootScope, b
     }
 
 
+    $scope.SaveSPT = function () {
+      
+            $http({
+                method: 'POST',
+                url: 'SalesManagements/Sales/CreateSalesProcessTran',
+                data: { 'data': $scope.SPList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getSPData();
 
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+    };
 
 
 
