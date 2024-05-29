@@ -51,12 +51,41 @@
     <div class="row">
 
         <div class="col-xs-12 col-sm-12 col-md-12">
+            @*<div class="table-responsive modal-table">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Leave Name</th>
+                        <th>Brought Forward</th>
+                        <th>Current Year Allocation</th>
+                        <th>Leave Days Allowed</th>
+                        <th>Applied</th>
+                        <th>Availed</th>
+                        <th>Encashed</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in LeaveBalanceList">
+                        <td>{{x.LeaveName}}</td>
+                        <td>{{x.BroughtForward}}</td>
+                        <td>{{x.CurrentAllocation}}</td>
+                        <td>{{x.LeaveDays}}</td>
+                        <td>{{x.Applied}}</td>
+                        <td>{{x.Availed}}</td>
+                        <td>{{x.EncashedInbetween}}</td>
+                        <td>{{x.Balance}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>*@
             <div class="table-responsive modal-table">
                 <table class="table table-striped">
                     <thead>
                         <tr>
                             <th>Leave Name</th>
                             <th>Brought Forward</th>
+                            <th>Earned</th>
                             <th>Current Year Allocation</th>
                             <th>Leave Days Allowed</th>
                             <th>Applied</th>
@@ -69,6 +98,7 @@
                         <tr ng-repeat="x in LeaveBalanceList">
                             <td>{{x.LeaveName}}</td>
                             <td>{{x.BroughtForward}}</td>
+                            <td>{{x.Earned}}</td>
                             <td>{{x.CurrentAllocation}}</td>
                             <td>{{x.LeaveDays}}</td>
                             <td>{{x.Applied}}</td>
