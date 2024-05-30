@@ -133,6 +133,7 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
             $scope.employeeTransactionTypeList = result;
             if ($scope.employeeTransactionTypeList.length === 1) {
                 $scope.advance.EmployeeTransactionTypeId = $scope.employeeTransactionTypeList[0].Value;
+                $scope.getTransactionTypeGL($scope.advance.EmployeeTransactionTypeId)
             }
         });
     }
@@ -738,94 +739,94 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
             $scope.getAdvanceReqScheduleList = response.data;
         });
     };
-    $scope.searchglemployeeReconGLByList = [
-        {
-            "name": "Account Group",
-            "value": "AccountGroupName"
-        },
-        {
-            "name": "GL Code",
-            "value": "GLGeneralInfoCode"
-        },
-        {
-            "name": "GL Name",
-            "value": "GLGeneralInfoName"
-        },
-        {
-            "name": "Budget",
-            "value": "BudgetName"
-        },
-        {
-            "name": "Activity",
-            "value": "ActivityName"
-        },
-        {
-            "name": "Ref No",
-            "value": "RefNo"
-        }
-    ];
+    //$scope.searchglemployeeReconGLByList = [
+    //    {
+    //        "name": "Account Group",
+    //        "value": "AccountGroupName"
+    //    },
+    //    {
+    //        "name": "GL Code",
+    //        "value": "GLGeneralInfoCode"
+    //    },
+    //    {
+    //        "name": "GL Name",
+    //        "value": "GLGeneralInfoName"
+    //    },
+    //    {
+    //        "name": "Budget",
+    //        "value": "BudgetName"
+    //    },
+    //    {
+    //        "name": "Activity",
+    //        "value": "ActivityName"
+    //    },
+    //    {
+    //        "name": "Ref No",
+    //        "value": "RefNo"
+    //    }
+    //];
 
-    $scope.employeeReconglListParameters = {
-        limit: 10,
-        offset: 0,
-        order: "asc",
-        sort: "GLGeneralInfoCode",
-        searchBy: "ActivityName",
-        pageSize: 10,
-        total_count: 0,
-        search: null,
-        serverPagination: true
-    };
+    //$scope.employeeReconglListParameters = {
+    //    limit: 10,
+    //    offset: 0,
+    //    order: "asc",
+    //    sort: "GLGeneralInfoCode",
+    //    searchBy: "ActivityName",
+    //    pageSize: 10,
+    //    total_count: 0,
+    //    search: null,
+    //    serverPagination: true
+    //};
 
-    $scope.GetemployeeReconGLList = function () {
-        $scope.GLUrl2 = "Accounts/glitem/GetEmployeeReconAssetGLBudgetActivity";
-        $scope.GetemployeeReconGLListData = function (pageno) {
-            baseService.paginationBase($scope.GLUrl2, pageno, $scope.employeeReconglListParameters)
-                .then(function (result) {
-                    $scope.employeeReconGLList = result.Rows;
-                    $scope.employeeReconglListParameters.total_count = result.Total;
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, "failure");
-                }).finally(function () {
-                });
-        };
-        angular.element(document.querySelector("#employeeReconGLPopUp")).modal("show");
-        $scope.modalShow = true;
-        $scope.GetemployeeReconGLListData();
-    };
+    //$scope.GetemployeeReconGLList = function () {
+    //    $scope.GLUrl2 = "Accounts/glitem/GetEmployeeReconAssetGLBudgetActivity";
+    //    $scope.GetemployeeReconGLListData = function (pageno) {
+    //        baseService.paginationBase($scope.GLUrl2, pageno, $scope.employeeReconglListParameters)
+    //            .then(function (result) {
+    //                $scope.employeeReconGLList = result.Rows;
+    //                $scope.employeeReconglListParameters.total_count = result.Total;
+    //            }, function () {
+    //                ShowResult(commonMessage.NetworkError, "failure");
+    //            }).finally(function () {
+    //            });
+    //    };
+    //    angular.element(document.querySelector("#employeeReconGLPopUp")).modal("show");
+    //    $scope.modalShow = true;
+    //    $scope.GetemployeeReconGLListData();
+    //};
 
-    $scope.closeEmployeeReconGLListPopUp = function () {
-        angular.element(document.querySelector("#employeeReconGLPopUp")).modal("hide");
-    };
+    //$scope.closeEmployeeReconGLListPopUp = function () {
+    //    angular.element(document.querySelector("#employeeReconGLPopUp")).modal("hide");
+    //};
 
-    $scope.closeEmployeeReconGLListPopUpSelected = function () {
-        if ($scope.rowSelected !== null) {
-            angular.element(document.querySelector("#employeeReconGLPopUp")).modal("hide");
-        } else {
-            angular.element(document.querySelector("#cancelPopUp")).modal("show");
-        }
-    };
+    //$scope.closeEmployeeReconGLListPopUpSelected = function () {
+    //    if ($scope.rowSelected !== null) {
+    //        angular.element(document.querySelector("#employeeReconGLPopUp")).modal("hide");
+    //    } else {
+    //        angular.element(document.querySelector("#cancelPopUp")).modal("show");
+    //    }
+    //};
 
-    $scope.setemployeeReconGSelected = function (data) {
-        $scope.advanceDetailList = [];
-        $scope.advanceDetail.GLGeneralInfoId = data.GLGeneralInfoId;
-        $scope.advanceDetail.GLGeneralInfoCode = data.GLGeneralInfoCode;
-        $scope.advanceDetail.GLGeneralInfoName = data.GLGeneralInfoName;
-        $scope.advanceDetail.BudgetMasterId = data.BudgetMasterId;
-        $scope.advanceDetail.BudgetCode = data.BudgetCode;
-        $scope.advanceDetail.BudgetName = data.BudgetName;
-        $scope.advanceDetail.ActivityId = data.ActivityId;
-        $scope.advanceDetail.ActivityCode = data.ActivityCode;
-        $scope.advanceDetail.ActivityName = data.ActivityName;
-        $scope.advance.ActivityName = data.ActivityName;
+    //$scope.setemployeeReconGSelected = function (data) {
+    //    $scope.advanceDetailList = [];
+    //    $scope.advanceDetail.GLGeneralInfoId = data.GLGeneralInfoId;
+    //    $scope.advanceDetail.GLGeneralInfoCode = data.GLGeneralInfoCode;
+    //    $scope.advanceDetail.GLGeneralInfoName = data.GLGeneralInfoName;
+    //    $scope.advanceDetail.BudgetMasterId = data.BudgetMasterId;
+    //    $scope.advanceDetail.BudgetCode = data.BudgetCode;
+    //    $scope.advanceDetail.BudgetName = data.BudgetName;
+    //    $scope.advanceDetail.ActivityId = data.ActivityId;
+    //    $scope.advanceDetail.ActivityCode = data.ActivityCode;
+    //    $scope.advanceDetail.ActivityName = data.ActivityName;
+    //    $scope.advance.ActivityName = data.ActivityName;
 
-        $scope.advanceDetail.Narration = $scope.advance.Narration;
-        $scope.advanceDetail.EmployeeId = $scope.advance.EmployeeId;
-        $scope.advanceDetail.Amount = $scope.advance.Amount;
-        $scope.advanceDetailList.push($scope.advanceDetail);
-        $scope.advanceDetail = {};
-        $scope.closeEmployeeReconGLListPopUp();
-    };
+    //    $scope.advanceDetail.Narration = $scope.advance.Narration;
+    //    $scope.advanceDetail.EmployeeId = $scope.advance.EmployeeId;
+    //    $scope.advanceDetail.Amount = $scope.advance.Amount;
+    //    $scope.advanceDetailList.push($scope.advanceDetail);
+    //    $scope.advanceDetail = {};
+    //    $scope.closeEmployeeReconGLListPopUp();
+    //};
 
 
     $scope.delete = function (advanceId, voucherId) {

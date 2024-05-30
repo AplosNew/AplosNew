@@ -107,7 +107,7 @@
                 <input tabindex="7" type="text" name="Entry Date" ng-model="advance.VoucherDate" datepicker class="form-control" disabled required>
             </div>
         </div>
-        <div id="div_TransactionType" class="form-group" ng-hide="advance.AdvanceType=='Salary'">
+        <div id="div_TransactionType" class="form-group" >
             <label class="col-sm-3 control-label">Transaction Type<sup>*</sup></label>
             <div class="col-sm-9 show-message">
                 <div class="select-style">
@@ -118,7 +118,7 @@
                 </div>
             </div>
         </div>
-        <div class="form-group" ng-show="advance.AdvanceType=='Salary'">
+        @*<div class="form-group" ng-show="advance.AdvanceType=='Salary'">
             <label class="col-sm-3 control-label">Select GL<sup>*</sup></label>
             <div class="col-sm-7 show-message">
                 <input type="text" ng-maxlength="50" name="ActivityName" ng-disabled="true" ng-model="advance.ActivityName" class="form-control">
@@ -128,7 +128,7 @@
                     <button ng-click="GetemployeeReconGLList();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
                 </span>
             </div>
-        </div>
+        </div>*@
 
 
         <div class="form-group">
