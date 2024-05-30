@@ -85,12 +85,7 @@ function InputCreditApproveController(cboService, commonMessage, $scope, $rootSc
 
                 dataSource: data,
                 columns: [
-                    { field: "Id", headerText: "Id", width: 50 },
-                    { field: "MasterOrderId", headerText: "MasterOrderId", width: 100 },
-                    { field: "SONo", headerText: "SONo", width: 50 },
-                    { field: "PONumber", headerText: "PONumber", width: 50 },
-                    { field: "DeliveryDate", headerText: "Delivery Date", width: 100 },
-                    { field: "DestinationName", headerText: "Destination Name", width: 100 },
+                    { field: "Id", headerText: "Id", width: 50 },                  
                     { field: "MaterialMasterName", headerText: "Material", width: 100 },
                     { field: "MaterialMasterArticleName", headerText: "Article", width: 100 },
                     { field: "HSNCode", headerText: "HSNCode", width: 50 },

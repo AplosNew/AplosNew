@@ -148,8 +148,9 @@ namespace Aplos.Areas.Leave.Controllers
             objLvTrsEmpWise = new clsLeaveApproval(_sqlRepository);
             List<Dictionary<string, object>> data = (List<Dictionary<string, object>>)objLvTrsEmpWise.GetYearlyCalendarInfoCmb(identity.CompanyGroupId, identity.PlantId);
             string calanderYearId = data[0]["Id"].ToString();
-            return Json(_leaveTransactionService.LoadGrdAllocatedLvDetails(identity.CompanyGroupId, identity.PlantId, EmpsystemId, calanderYearId), JsonRequestBehavior.AllowGet);
-            //return Json(_leaveTransactionNewService.LoadGrdAllocatedLvDetailsNew(identity.CompanyGroupId, identity.PlantId, EmpsystemId, calanderYearId), JsonRequestBehavior.AllowGet);
+            //return Json(_leaveTransactionService.LoadGrdAllocatedLvDetails(identity.CompanyGroupId, identity.PlantId, EmpsystemId, calanderYearId), JsonRequestBehavior.AllowGet);
+            return Json(_leaveTransactionNewService.LoadGrdAllocatedLvDetailsNew(identity.CompanyGroupId, identity.PlantId, EmpsystemId, calanderYearId), JsonRequestBehavior.AllowGet);
+
         }
 
 
