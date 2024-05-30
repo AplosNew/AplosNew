@@ -165,11 +165,9 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
                 $scope.advanceDetail.ActivityCode = $scope.transactionTypeGL.AdvanceActivityCode;
                 $scope.advanceDetail.ActivityName = $scope.transactionTypeGL.AdvanceActivityName;
                 $scope.advanceDetail.EmployeeTransactionTypeId = $scope.transactionTypeGL.EmployeeTransactionTypeId;
-
                 $scope.advanceDetail.Narration = $scope.advance.Narration;
                 $scope.advanceDetail.EmployeeId = $scope.advance.EmployeeId;
                 $scope.advanceDetail.Amount = $scope.advance.Amount;
-
                 $scope.advanceDetailList.push($scope.advanceDetail);
                 $scope.advanceDetail = {};
             }
