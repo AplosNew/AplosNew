@@ -885,7 +885,7 @@ Order By GW.WorkDate";
                                 ,ei.SystemId PreparedById,ei.EmployeeName ByWhom
                                   from [TRN].[EmployeeAdvance] wa
                                   LEFT JOIN dbo.EmployeeInformation AS ei ON ei.SystemId=wa.PreparedById
-                                  WHERE wa.ApprovedStatus='TobeApproved' ";
+                                  WHERE wa.ApprovedStatus='TobeApproved' AND wa.SourceType='MultipleEmployeeAdvance' ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -899,7 +899,7 @@ Order By GW.WorkDate";
                                 ,ei.SystemId PreparedById,ei.EmployeeName ByWhom
                                 from [TRN].[EmployeeAdvance] wa
                                 LEFT JOIN dbo.EmployeeInformation AS ei ON ei.SystemId=wa.PreparedById
-                                WHERE wa.ApprovedStatus='TobeApproved' AND wa.ApprovedById='" + identity.EmployeeId + "' ";
+                                WHERE wa.ApprovedStatus='TobeApproved' AND wa.SourceType='MultipleEmployeeAdvance' AND wa.ApprovedById='" + identity.EmployeeId + "' ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -914,7 +914,7 @@ Order By GW.WorkDate";
                             left join org.Section AS s ON s.Id=ei.SectionId
                             left join org.SubSection AS ss ON ss.Id=ei.SubSectionId
                             left join org.Department d on d.Id=ei.DepartmentId
-                            where wad.EmployeeAdvanceId in ('" + workAdvanceId + "') AND wad.IsApprove IS NULL";
+                            where wad.EmployeeAdvanceId in ('" + workAdvanceId + "') AND wa.SourceType='MultipleEmployeeAdvance' AND wad.IsApprove IS NULL";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
@@ -1491,7 +1491,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                                                                           FROM SalaryInfoDefine SID 
 								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                                                         WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
-                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 and EI.EmployeeStatus='Active' and (ISNULL(apd.StandardOT,0)>0 or ISNULL(apd.AdditionalOT,0)>0)
+                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND apd.GWPaymentAdviseId is null AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 and EI.EmployeeStatus='Active' and (ISNULL(apd.StandardOT,0)>0 or ISNULL(apd.AdditionalOT,0)>0)
                                 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,Department.UserName,Section.UserName,SubSection.UserName
 								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,EN.UserName,DesM.UserName,DG.UserName,EI.PaymentMode
                                 )T 
@@ -1499,19 +1499,19 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 									                                from [TRN].[EmployeeAdvance] wa
 									                                left join [TRN].[EmployeeAdvanceDetail] wad on wad.EmployeeAdvanceId=wa.Id
 									                                where convert( DateTime, wa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, wa.ToDate) between '" + fromDate + @"' and '" + toDate + @"'
-																	AND wa.ApprovedStatus='TobeApproved' GROUP BY wad.EmpSystemId
+																	AND wa.ApprovedStatus='TobeApproved' AND wa.SourceType='MultipleEmployeeAdvance' GROUP BY wad.EmpSystemId
 									                                )WRTobeApproved on WRTobeApproved.EmpSystemId=T.EmpSystemID
 								left join (select wad.EmpSystemId,SUM(wad.AdvanceAmount)ApprovedAmount
 									                                from [TRN].[EmployeeAdvance] wa
 									                                left join [TRN].[EmployeeAdvanceDetail] wad on wad.EmployeeAdvanceId=wa.Id
 									                                where convert( DateTime, wa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, wa.ToDate) between '" + fromDate + @"' and '" + toDate + @"'
-																	AND wa.ApprovedStatus IN ('Approved','Paid') AND wad.VoucherId IS NULL GROUP BY wad.EmpSystemId
+																	AND wa.ApprovedStatus IN ('Approved','Paid') AND wa.SourceType='MultipleEmployeeAdvance' AND wad.VoucherId IS NULL GROUP BY wad.EmpSystemId
 									                                )WRApproved on WRApproved.EmpSystemId=T.EmpSystemID
 								left join (select wad.EmpSystemId,SUM(wad.AdvanceAmount)PaidAmount
 									                                from [TRN].[EmployeeAdvance] wa
 									                                left join [TRN].[EmployeeAdvanceDetail] wad on wad.EmployeeAdvanceId=wa.Id
 									                                where convert( DateTime, wa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, wa.ToDate) between '" + fromDate + @"' and '" + toDate + @"'
-																	AND wa.ApprovedStatus='Paid' AND wad.VoucherId IS NOT NULL GROUP BY wad.EmpSystemId
+																	AND wa.ApprovedStatus='Paid' AND wa.SourceType='MultipleEmployeeAdvance' AND wad.VoucherId IS NOT NULL GROUP BY wad.EmpSystemId
 									                                )WRPaid on WRPaid.EmpSystemId=T.EmpSystemID
                                 WHERE T.PresentDays >= '" + minimumPresentDay + @"' 
 								order by T.EmployeeCode ";
@@ -1567,7 +1567,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                                                                           FROM SalaryInfoDefine SID 
 								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                                                         WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
-                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 and EI.EmployeeStatus='Active' and (ISNULL(apd.StandardOT,0)>0 or ISNULL(apd.AdditionalOT,0)>0)
+                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND apd.GWPaymentAdviseId is null AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 and EI.EmployeeStatus='Active' and (ISNULL(apd.StandardOT,0)>0 or ISNULL(apd.AdditionalOT,0)>0)
                                 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,Department.UserName,Section.UserName,SubSection.UserName
 								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,EN.UserName,DesM.UserName,DG.UserName,EI.PaymentMode
                                 )T 
@@ -1575,25 +1575,25 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 									                                from [TRN].[EmployeeAdvance] wa
 									                                left join [TRN].[EmployeeAdvanceDetail] wad on wad.EmployeeAdvanceId=wa.Id
 									                                where convert( DateTime, wa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, wa.ToDate) between '" + fromDate + @"' and '" + toDate + @"'
-																	AND wa.ApprovedStatus='TobeApproved' AND wad.EmployeeAdvanceId<>'" + employeeAdvanceId + @"' GROUP BY wad.EmpSystemId
+																	AND wa.ApprovedStatus='TobeApproved' AND wa.SourceType='MultipleEmployeeAdvance' AND wad.EmployeeAdvanceId<>'" + employeeAdvanceId + @"' GROUP BY wad.EmpSystemId
 									                                )WRTobeApproved on WRTobeApproved.EmpSystemId=T.EmpSystemID
 								left join (select wad.EmpSystemId,SUM(wad.AdvanceAmount)ApprovedAmount
 									                                from [TRN].[EmployeeAdvance] wa
 									                                left join [TRN].[EmployeeAdvanceDetail] wad on wad.EmployeeAdvanceId=wa.Id
 									                                where convert( DateTime, wa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, wa.ToDate) between '" + fromDate + @"' and '" + toDate + @"'
-																	AND wa.ApprovedStatus IN ('Approved','Paid') AND wad.VoucherId IS NULL GROUP BY wad.EmpSystemId
+																	AND wa.ApprovedStatus IN ('Approved','Paid') AND wa.SourceType='MultipleEmployeeAdvance' AND wad.VoucherId IS NULL GROUP BY wad.EmpSystemId
 									                                )WRApproved on WRApproved.EmpSystemId=T.EmpSystemID
 								left join (select wad.EmpSystemId,SUM(wad.AdvanceAmount)PaidAmount
 									                                from [TRN].[EmployeeAdvance] wa
 									                                left join [TRN].[EmployeeAdvanceDetail] wad on wad.EmployeeAdvanceId=wa.Id
 									                                where convert( DateTime, wa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, wa.ToDate) between '" + fromDate + @"' and '" + toDate + @"'
-																	AND wa.ApprovedStatus='Paid' AND wad.VoucherId IS NOT NULL GROUP BY wad.EmpSystemId
+																	AND wa.ApprovedStatus='Paid' AND wa.SourceType='MultipleEmployeeAdvance' AND wad.VoucherId IS NOT NULL GROUP BY wad.EmpSystemId
 									                                )WRPaid on WRPaid.EmpSystemId=T.EmpSystemID
                                 left join (select wad.Id,wad.EmpSystemId,wad.AdvanceAmount
 									                                from [TRN].[EmployeeAdvance] wa
 									                                left join [TRN].[EmployeeAdvanceDetail] wad on wad.EmployeeAdvanceId=wa.Id
 									                                where wad.EmployeeAdvanceId='" + employeeAdvanceId + @"'
-																	AND wa.ApprovedStatus='TobeApproved' 
+																	AND wa.ApprovedStatus='TobeApproved' AND wa.SourceType='MultipleEmployeeAdvance'
 									                                )WRUpdate on WRUpdate.EmpSystemId=T.EmpSystemID
                                 WHERE T.PresentDays >= '" + minimumPresentDay + @"' 
 								order by T.EmployeeCode ";
@@ -2334,7 +2334,7 @@ SELECT X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAm
 						,(SELECT COUNT(Id)CountEmployee FROM [TRN].[EmployeeAdvanceDetail] WHERE VoucherId IS NULL AND EmployeeAdvanceId=gwp.Id and IsApprove=1 AND ISNULL(IsDisburse,0)=0)CountEmployee
                         from [TRN].[EmployeeAdvance] gwp 
                         left join EmployeeInformation ei on ei.SystemId=gwp.PreparedById
-                        where gwp.ApprovedStatus  IN ('Approved','Paid' ))T 
+                        where gwp.ApprovedStatus  IN ('Approved','Paid' ) AND gwp.SourceType='MultipleEmployeeAdvance' )T 
                         WHERE T.CountEmployee>0 ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -2347,7 +2347,7 @@ SELECT X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAm
                             from [TRN].[EmployeeAdvanceDetail] gwpad
                             left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
 							left join [TRN].[EmployeeAdvance] gwpa on gwpa.Id=gwpad.EmployeeAdvanceId
-                            where gwpa.Id='" + paymentAdviseId + "' and gwpad.IsApprove=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.VoucherId IS NULL ";
+                            where gwpa.Id='" + paymentAdviseId + "' AND gwpa.SourceType='MultipleEmployeeAdvance' and gwpad.IsApprove=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.VoucherId IS NULL ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -2390,7 +2390,7 @@ SELECT X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAm
 				LEFT JOIN[MST].[BudgetMaster] AS BM ON GAD.BudgetMasterId= BM.Id
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON GAD.ActivityId= A.Id
-				WHERE gwpad.IsApprove=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.VoucherId IS NULL AND gwpad.EmployeeAdvanceId='" + disbursementAdviceId + @"' AND gwpad.Id in (" + goodWorkPaymentAdviseDetailIds + @")
+				WHERE gwpa.SourceType='MultipleEmployeeAdvance' AND gwpad.IsApprove=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.VoucherId IS NULL AND gwpad.EmployeeAdvanceId='" + disbursementAdviceId + @"' AND gwpad.Id in (" + goodWorkPaymentAdviseDetailIds + @")
                         
                 )X
                 GROUP BY
