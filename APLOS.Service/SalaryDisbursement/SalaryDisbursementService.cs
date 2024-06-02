@@ -2133,6 +2133,7 @@ namespace Library.Service.SalaryDisbursement
                             GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                             BudgetMasterId = voucherDetailVM.BudgetMasterId,
                             ActivityId = voucherDetailVM.ActivityId,
+                            BudgetMasterActivityId = voucherDetailVM.BudgetMasterActivityId,
                             DrAmount = voucherDetailVM.DrAmount,
                         }, currentVoucherDetailId);
 
@@ -2272,7 +2273,7 @@ namespace Library.Service.SalaryDisbursement
                         drAdvanceReqSchedule["DeferredAdjustmentNumber"] = 0;
                         drAdvanceReqSchedule["YearNo"] = item["YearNo"];
                         drAdvanceReqSchedule["MonthNo"] = item["MonthNo"];
-                        drAdvanceReqSchedule["WorkerAdvanceDetailId"] = item["Id"];
+                        drAdvanceReqSchedule["EmployeeAdvanceDetailId"] = item["Id"];
 
                         drAdvanceReqSchedule["AddedBy"] = identity.Name;
                         drAdvanceReqSchedule["AddedDate"] = System.DateTime.Now.ToString();
@@ -2286,7 +2287,7 @@ namespace Library.Service.SalaryDisbursement
                         drBp["EmployeeId"] = item["EmpSystemId"];
                         drBp["YearNo"] = item["YearNo"];
                         drBp["MonthNo"] = item["MonthNo"];
-                        drBp["WorkerAdvanceDetailId"] = item["Id"];
+                        drBp["EmployeeAdvanceDetailId"] = item["Id"];
                         drBp["AdvanceReqScheduleId"] = pkAdvanceReqSchedule;
 
                         drBp["AddedBy"] = identity.Name;
@@ -2302,7 +2303,7 @@ namespace Library.Service.SalaryDisbursement
                         drEmployeeSubsequentTransaction["VoucherTypeId"] = voucherVM.VoucherTypeId;
                         drEmployeeSubsequentTransaction["AdvanceId"] = null;
                         drEmployeeSubsequentTransaction["EmployeeId"] = item["EmpSystemId"];
-                        drEmployeeSubsequentTransaction["EmployeeTransactionTypeId"] = null;
+                        drEmployeeSubsequentTransaction["EmployeeTransactionTypeId"] = voucherVM.EmployeeTransactionTypeId;
                         drEmployeeSubsequentTransaction["AdvanceWriteOffId"] = null;
                         drEmployeeSubsequentTransaction["EmployeePayableWriteOffId"] = null;
                         drEmployeeSubsequentTransaction["EmployeePayableId"] = null;
@@ -2322,7 +2323,7 @@ namespace Library.Service.SalaryDisbursement
                         drEmployeeSubsequentTransaction["VoucherId"] = directVoucherId;
                         drEmployeeSubsequentTransaction["VoucherDetailId"] = directVoucherDetailDrId;
                         drEmployeeSubsequentTransaction["PaymentSource"] = voucherVM.PaymentSource;
-                        drEmployeeSubsequentTransaction["WorkerAdvanceDetailId"] = item["Id"];
+                        drEmployeeSubsequentTransaction["EmployeeAdvanceDetailId"] = item["Id"];
                         drEmployeeSubsequentTransaction["AddedBy"] = identity.Name;
                         drEmployeeSubsequentTransaction["AddedDate"] = System.DateTime.Now.ToString();
                         drEmployeeSubsequentTransaction["AddedFromIP"] = identity.IPAddress;
@@ -2337,10 +2338,10 @@ namespace Library.Service.SalaryDisbursement
                 {
                     var direct = new System.Text.StringBuilder();
                     var directsql = "";
-                    directsql = @"UPDATE [dbo].[WorkerAdvanceDetail] SET IsDisburse=1,PaymentsDate=GETDATE(), DisbursementVoucherId='" + directVoucherId + @"', PaymentsById='" + identity.EmployeeId + "'  where Id in (" + goodWorkPaymentAdviseDetailIds + @") ";
+                    directsql = @"UPDATE [TRN].[EmployeeAdvanceDetail] SET IsDisburse=1,PaymentsDate=GETDATE(), VoucherId='" + directVoucherId + @"', VoucherDetailId='" + directVoucherDetailDrId + @"', GLGeneralInfoId='" + voucherVM.GLGeneralInfoId + @"', BudgetMasterId='" + voucherVM.BudgetMasterId + @"', ActivityId='" + voucherVM.ActivityId + @"', BudgetMasterActivityId='" + voucherVM.DrBudgetMasterId + @"', PaymentsById='" + identity.EmployeeId + "'  where Id in (" + goodWorkPaymentAdviseDetailIds + @") ";
                     direct.Append(directsql);
                     directsql = @"
-                        UPDATE [dbo].[WorkerAdvance] SET ApprovedStatus= 'Paid',PaymentsStatus= 'Paid' where Id='" + disbursementAdviceId + @"' ";
+                        UPDATE [TRN].[EmployeeAdvance] SET ApprovedStatus= 'Paid',PaymentsStatus= 'Paid' , EntityId='" + voucherVM.EntityId + @"', CurrencyId='" + voucherVM.CurrencyId + @"', ToCurrencyRate='" + voucherVM.CompanyCurrencyRate + @"', EmployeeTransactionTypeId='" + voucherVM.EmployeeTransactionTypeId + @"', FiscalYearId='" + voucherVM.FiscalYearId + @"', FiscalYearPeriodId='" + voucherVM.FiscalYearPeriodId + @"', TaxYearId='" + voucherVM.TaxYearId + @"', TaxYearPeriodId='" + voucherVM.TaxYearPeriodId + @"' where Id='" + disbursementAdviceId + @"' ";
                     direct.Append(directsql);
                     _sqlRepository.ExecuteSqlCommand(direct.ToString());
 

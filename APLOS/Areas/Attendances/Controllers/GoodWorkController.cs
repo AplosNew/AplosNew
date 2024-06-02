@@ -2340,19 +2340,21 @@ SELECT X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAm
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
-        public ActionResult GetEmployeeMultipleAdvanceDetailCheckedList(string paymentAdviseId)
+        public ActionResult GetEmployeeMultipleAdvanceDetailCheckedList(string paymentAdviseId, string paymentMode)
         {
-            string sql = @"select isSelected = Convert(bit, 'True'),CheckBoxSelect=Convert(bit, 'True'),gwpad.Id,gwpad.EmployeeAdvanceId,gwpad.EmpSystemId,ei.EmployeeCode,ei.EmployeeName,gwpad.PayDays,gwpad.StandardOTHour,gwpad.AdditionalOTHour,gwpad.Rate,gwpad.Amount,gwpad.AdvanceAmount,gwpad.Remarks
-                            ,gwpad.IsApprove,isnull(gwpad.IsDisburse,0)IsDisburse,gwpa.YearNo,gwpa.MonthNo,ISNULL(EI.PaymentMode,'') PaymentMode
+            string sql = @" DECLARE @paymentMode nvarchar(50)='" + paymentMode + @"'
+                            select isSelected = Convert(bit, 'True'),CheckBoxSelect=Convert(bit, 'True'),gwpad.Id,gwpad.EmployeeAdvanceId,gwpad.EmpSystemId,ei.EmployeeCode,ei.EmployeeName,gwpad.PayDays,gwpad.StandardOTHour,gwpad.AdditionalOTHour,gwpad.Rate,gwpad.Amount,gwpad.AdvanceAmount,gwpad.Remarks
+                            ,gwpad.IsApprove,isnull(gwpad.IsDisburse,0)IsDisburse,gwpa.YearNo,gwpa.MonthNo,ISNULL(gwpad.PaymentSource,'') PaymentMode
                             from [TRN].[EmployeeAdvanceDetail] gwpad
                             left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
 							left join [TRN].[EmployeeAdvance] gwpa on gwpa.Id=gwpad.EmployeeAdvanceId
-                            where gwpa.Id='" + paymentAdviseId + "' AND gwpa.SourceType='MultipleEmployeeAdvance' and gwpad.IsApprove=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.VoucherId IS NULL ";
+                            where gwpa.Id='" + paymentAdviseId + @"' AND gwpa.SourceType='MultipleEmployeeAdvance' and gwpad.IsApprove=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.VoucherId IS NULL 
+                            AND ISNULL(gwpad.PaymentSource,'')=CASE WHEN @paymentMode<>'' THEN @paymentMode ELSE ISNULL(gwpad.PaymentSource,'') END ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpPost]
-        public JsonResult GetEmployeeMultipleAdvanceDisbursementJVDataList(string disbursementAdviceId, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail)
+        public JsonResult GetEmployeeMultipleAdvanceDisbursementJVDataList(string disbursementAdviceId, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail, string paymentMode, VoucherViewModel voucherVM)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string goodWorkPaymentAdviseDetailIds = "";
@@ -2374,28 +2376,24 @@ SELECT X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAm
 
 
             string sql = null;
-            sql = @"SELECT
-                X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAmount) CrAmount,SUM(X.Amount) Amount,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
+            sql = @" DECLARE @paymentMode nvarchar(50)='" + paymentMode + @"'
+                SELECT X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAmount) CrAmount,SUM(X.Amount) Amount,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId,x.BudgetMasterActivityId
                 FROM
                 ( SELECT  'ExtraOTPayment' AS OtherName, 'Dr' AS TrnType
                 , gwpad.AdvanceAmount DrAmount 
                 , 0 CrAmount 
                 , gwpad.AdvanceAmount Amount
-                ,GAD.GLGeneralInfoId  ,GAD.BudgetMasterId,GAD.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
-                , B.UserName BudgetName,A.UserName ActivityName 
+                ,'" + voucherVM.GLGeneralInfoId + @"' GLGeneralInfoId ,'" + voucherVM.BudgetMasterId + @"' BudgetMasterId,'" + voucherVM.ActivityId + @"' ActivityId
+                , '" + voucherVM.GLGeneralInfoName + @"' GLName , '" + voucherVM.BudgetName + @"' BudgetName,'" + voucherVM.ActivityName + @"' ActivityName,'" + voucherVM.DrBudgetMasterId + @"' BudgetMasterActivityId 
 				FROM [TRN].[EmployeeAdvanceDetail] gwpad
 				LEFT JOIN [TRN].[EmployeeAdvance] gwpa on gwpa.Id=gwpad.EmployeeAdvanceId
-				LEFT JOIN HKP.GeneralAccountDeterminate GAD ON  GAD.Id='ExtraOTPayment'
-				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON GAD.GLGeneralInfoId=GL.Id
-				LEFT JOIN[MST].[BudgetMaster] AS BM ON GAD.BudgetMasterId= BM.Id
-				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
-				LEFT JOIN [HKP].[Activity] AS A ON GAD.ActivityId= A.Id
 				WHERE gwpa.SourceType='MultipleEmployeeAdvance' AND gwpad.IsApprove=1 AND ISNULL(gwpad.IsDisburse,0)=0 AND gwpad.VoucherId IS NULL AND gwpad.EmployeeAdvanceId='" + disbursementAdviceId + @"' AND gwpad.Id in (" + goodWorkPaymentAdviseDetailIds + @")
+                AND ISNULL(gwpad.PaymentSource,'')=CASE WHEN @paymentMode<>'' THEN @paymentMode ELSE ISNULL(gwpad.PaymentSource,'') END 
                         
                 )X
                 GROUP BY
 
-                X.GLName,X.BudgetName,X.ActivityName,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
+                X.GLName,X.BudgetName,X.ActivityName,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId,x.BudgetMasterActivityId
                 ORDER BY 5";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -2415,7 +2413,7 @@ SELECT X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAm
             voucherVM.PlantId = identity.PlantId;
             voucherVM.IsPark = true;
             voucherVM.Amount = directJVList.Sum(r => r.CrAmount);
-            voucherVM.SourceType = SourceType.GoodWorkDisbursement.ToString();
+            voucherVM.SourceType = SourceType.EmployeeAdvance.ToString();
 
 
             string goodWorkPaymentAdviseDetailIds = "";

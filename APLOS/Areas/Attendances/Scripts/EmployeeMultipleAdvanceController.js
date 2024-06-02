@@ -903,6 +903,14 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
         IsSeperated: false,
         IsMaternity: false
     };
+    cboService.getCboEntityByPlant(null, null, '', function (result) {
+        $scope.entityList = result;
+    });
+    cboService.getCboTransactionCurrencyByCompany('', function (result) {
+        $scope.tranCurrencyList = result;
+        $scope.voucher.CurrencyId = $scope.selectBaseCurrency();
+        $scope.companyCurrencyId = $scope.selectBaseCurrency();
+    });
     $scope.GetCurrencyExchangeRateList = function () {
         if (!baseService.isUndefinedOrNull($scope.voucher.PostingDate) && !baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
             $http({
@@ -911,7 +919,6 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
             }).then(function successCallback(response) {
                 $scope.currencyExchangeRate = response.data;
                 $scope.voucher.CompanyCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
-                $scope.voucherBonus.CompanyCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
             });
         }
         else {
@@ -919,8 +926,8 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
         }
     };
 
-    $scope.getCboVoucherTypeGoodWorkDisbursementList = function () {
-        cboService.getCboVoucherTypeGoodWorkDisbursementList(function (result) {
+    $scope.getCboVoucherTypeEmployeeAdvanceList = function () {
+        cboService.getCboVoucherTypeEmployeeAdvanceList(function (result) {
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
@@ -928,10 +935,55 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
             }
         });
     }
-    $scope.getCboVoucherTypeGoodWorkDisbursementList();
+    $scope.getCboVoucherTypeEmployeeAdvanceList();
+
+    cboService.getCboEmployeeAdvanceSalaryTransactionType(function (result) {
+        $scope.employeeTransactionTypeList = result;
+        if ($scope.employeeTransactionTypeList.length === 1) {
+            $scope.voucher.EmployeeTransactionTypeId = $scope.employeeTransactionTypeList[0].Value;
+            $scope.voucher.AdvanceType = $scope.employeeTransactionTypeList[0].AdvanceType;
+        }
+    });
     baseService.getCompanyConfiguration(function (result) {
         $scope.companyConfig = result;
     });
+
+    $scope.transactionTypeGL = null;
+    $scope.getTransactionTypeGL = function (id) {
+        if ($scope.voucher.CurrencyId === null) {
+            ShowResult('Please Select Currency!', 'failure');
+            return;
+        }
+        if (!baseService.isUndefinedOrNull(id)) {
+            $scope.transactionTypeGL = $.grep($scope.employeeTransactionTypeList, function (item) {
+                return item.EmployeeTransactionTypeId === id;
+            })[0];
+            if (manualValidation('div_TransactionType', baseService.isUndefinedOrNull($scope.transactionTypeGL.AdvanceGLId), 'Transaction Type GL not found!')) {
+                $scope.transactionTypeGL = null;
+            }
+            else {
+                $scope.voucher.GLGeneralInfoId = $scope.transactionTypeGL.AdvanceGLId;
+                $scope.voucher.GLGeneralInfoCode = $scope.transactionTypeGL.AdvanceGLCode;
+                $scope.voucher.GLGeneralInfoName = $scope.transactionTypeGL.AdvanceGLCode+"-"+$scope.transactionTypeGL.AdvanceGLName;
+                $scope.voucher.BudgetMasterId = $scope.transactionTypeGL.AdvanceBudgetMasterId;
+                $scope.voucher.BudgetCode = $scope.transactionTypeGL.AdvanceBudgetCode;
+                $scope.voucher.BudgetName = $scope.transactionTypeGL.AdvanceBudgetName;
+                $scope.voucher.ActivityId = $scope.transactionTypeGL.AdvanceActivityId;
+                $scope.voucher.ActivityCode = $scope.transactionTypeGL.AdvanceActivityCode;
+                $scope.voucher.ActivityName = $scope.transactionTypeGL.AdvanceActivityName;
+                $scope.voucher.EmployeeTransactionTypeId = $scope.transactionTypeGL.EmployeeTransactionTypeId;
+                $scope.voucher.JournalType = $scope.transactionTypeGL.AdvanceType;
+                $scope.voucher.DrBudgetMasterId = $scope.transactionTypeGL.AdvanceBudgetMasterActivityId;
+
+                $scope.getSalaryLockPayableGL();
+                
+            }
+        }
+        else {
+            manualValidation('div_TransactionType', false, '');
+            $scope.transactionTypeGL = null;
+        }
+    };
 
     $scope.getFiscalYearPeriod = function (date) {
         if (!baseService.isUndefinedOrNull(date)) {
@@ -984,7 +1036,7 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
         $http({
             method: "POST",
             url: "Attendances/GoodWork/GetEmployeeMultipleAdvanceDisbursementJVDataList",
-            data: { 'disbursementAdviceId': $scope.voucher.DisbursementAdviceId, 'goodWorkPaymentAdviseDetail': $scope.EmployeeListNew },
+            data: { 'disbursementAdviceId': $scope.voucher.DisbursementAdviceId, 'goodWorkPaymentAdviseDetail': $scope.EmployeeListNew, 'paymentMode': $scope.voucher.PaymentMode, 'voucherVM': $scope.voucher},
             dataType: 'JSON'
             , contentType: "application/json charset=utf-8"
         }).then(function successCallback(response) {
@@ -998,7 +1050,7 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: $scope.path + "GetEmployeeMultipleAdvanceDetailCheckedList?paymentAdviseId=" + $scope.voucher.DisbursementAdviceId,
+            url: $scope.path + "GetEmployeeMultipleAdvanceDetailCheckedList?paymentAdviseId=" + $scope.voucher.DisbursementAdviceId + '&paymentMode=' + $scope.voucher.PaymentMode,
         }).then(function successCallback(response) {
             if (response.data.length > 0) {
 
@@ -1007,6 +1059,7 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
                 $scope.getSalaryLockPayableGL();
             }
             else {
+                $scope.salaryLockPayableGLData = [];
                 ShowResult("No Data Found", 'failure');
 
             }
@@ -1039,9 +1092,9 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
         }
 
         $scope.$broadcast("show-errors-check-validity");
-        $scope.saveBtnDisable = true;
         try {
             if ($scope.form0.$valid) {
+                $scope.saveBtnDisable = true;
                 $http({
                     method: "POST",
                     url: $scope.saveGoodWorkPaymentAdviseDisbursementUrl,
@@ -1112,7 +1165,7 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
         $scope.voucher = {};
         $scope.voucher.PaymentMode = '';
         $scope.voucher.EmployeeId = null;
-        $scope.getCboVoucherTypeGoodWorkDisbursementList();
+        $scope.getCboVoucherTypeEmployeeAdvanceList();
         $scope.voucher.Active = true;
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.voucher.DocRefNo = null;
@@ -1148,6 +1201,7 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
             $scope.voucher.AccountTitle = null;
             $scope.voucher.BankName = null;
         }
+        $scope.GetemployeeDisbursement();
     }
     $scope.changeBank = function () {
         if ($scope.voucher.PaymentMode == 'Bank') {
@@ -1225,12 +1279,6 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
                 $scope.voucher.CashMasterId = cash.Id;
                 $scope.voucher.CashCurrencyId = cash.CurrencyId;
                 $scope.voucher.CashName = cash.CashName;
-                $scope.voucher.GLGeneralInfoId = cash.GLGeneralInfoId;
-                $scope.voucher.GLGeneralInfoName = cash.GLItem;
-                $scope.voucher.BudgetName = cash.BudgetName;
-                $scope.voucher.BudgetMasterId = cash.BudgetMasterId;
-                $scope.voucher.ActivityId = cash.ActivityId;
-                $scope.voucher.ActivityName = cash.ActivityName;
                 $scope.checkCashAmount();
             }
         }
@@ -1245,13 +1293,6 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
             $scope.voucher.BankName = bank.BankCode + " - " + bank.BankName + " - " + bank.AccountTitle + " - " + bank.AccountNumber;
             $scope.voucher.BankMasterId = bank.BankMasterId;
             $scope.voucher.BankCurrencyId = bank.CurrencyId;
-
-            $scope.voucher.GLGeneralInfoId = bank.GLGeneralInfoId;
-            $scope.voucher.GLGeneralInfoName = bank.GLGeneralInfoName;
-            $scope.voucher.BudgetMasterId = bank.BudgetMasterId;
-            $scope.voucher.BudgetName = bank.BudgetName;
-            $scope.voucher.ActivityId = bank.ActivityId;
-            $scope.voucher.ActivityName = bank.ActivityName;
             $scope.checkBankAmount();
         }
         $scope.hideBankPopUp();
@@ -1487,6 +1528,7 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
             obj.Amount = dataList[i].Amount;
             obj.AdvanceAmount = dataList[i].AdvanceAmount;
             obj.Remarks = dataList[i].Remarks;
+            obj.PaymentMode = dataList[i].PaymentSource;
 
             newDataList.push(obj);
             obj = {};

@@ -181,6 +181,7 @@ function cboService($http, $window, $rootScope, baseService) {
         , getInterCompanyAssetLiabilityType: getInterCompanyAssetLiabilityType
         , getCboInterPlantFinancingType: getCboInterPlantFinancingType
         , getCboEmployeeTransactionType: getCboEmployeeTransactionType
+        , getCboEmployeeAdvanceSalaryTransactionType: getCboEmployeeAdvanceSalaryTransactionType
         , getEmpTrnTypeByAdvanceType: getEmpTrnTypeByAdvanceType
         , getCboAdvPayTranType: getCboAdvPayTranType
         , GetCboAssetLiabilityTranType: GetCboAssetLiabilityTranType
@@ -1149,6 +1150,9 @@ function cboService($http, $window, $rootScope, baseService) {
 
     function getCboEmployeeTransactionType(callback) {
         base('accounts/EmployeeTransaction/GetCboEmployeeTransactionType', callback);
+    }
+    function getCboEmployeeAdvanceSalaryTransactionType(callback) {
+        base('accounts/EmployeeTransaction/GetCboEmployeeAdvanceSalaryTransactionType', callback);
     }
 
     function getEmpTrnTypeByAdvanceType(advanceType, callback) {

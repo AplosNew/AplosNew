@@ -51,6 +51,15 @@ namespace Aplos.Areas.Accounts.Controllers
             // This cbo will return with both payable and advance gl list;
             return Json(accountsEmployeePayableService.GetCbo(identity.CompanyGroupId, identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
+        [Authorize]
+        public JsonResult GetCboEmployeeAdvanceSalaryTransactionType()
+        {
+            AccountsEmployeePayableService accountsEmployeePayableService = new AccountsEmployeePayableService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            // This cbo will return with both payable and advance gl list;
+            return Json(accountsEmployeePayableService.GetCboAdvanceSalary(identity.CompanyGroupId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
 
         [Authorize]
         public JsonResult GetEmpTrnTypeByAdvanceType(string advanceType)

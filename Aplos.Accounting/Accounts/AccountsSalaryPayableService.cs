@@ -2432,15 +2432,16 @@ namespace Library.Accounting.Accounts
                                     LEFT JOIN (SELECT SUM(VD.DrAmount) AS DrAmount, VD.VoucherId,VD.BankMasterId FROM [TRN].[VoucherDetail] AS VD WHERE VD.DrAmount <> 0 
 									GROUP BY VD.VoucherId,VD.BankMasterId
                                     ) AS VD ON VD.VoucherId=V.Id
-									INNER JOIN (select distinct GWPD.VoucherId,GWPD.EmployeeAdvanceId PaymentAdviseId
-									from [TRN].[EmployeeAdvanceDetail] GWPD
-									where GWPD.VoucherId<>'' and GWPD.IsDisburse=1 
+									INNER JOIN (select distinct EAD.VoucherId,EAD.EmployeeAdvanceId PaymentAdviseId
+									from [TRN].[EmployeeAdvanceDetail] EAD
+                                    INNER JOIN [TRN].[EmployeeAdvance] EA ON  EA.Id=EAD.EmployeeAdvanceId
+									where EAD.VoucherId<>'' and EAD.IsDisburse=1 AND EA.SourceType='MultipleEmployeeAdvance' 
 									) GWPA on GWPA.VoucherId=v.Id
 									LEFT JOIN TRN.VoucherDetail XVD ON XVD.VoucherId=V.Id AND XVD.BankMasterId<>''
 									LEFT JOIN TRN.VoucherDetail XVDC ON XVDC.VoucherId=V.Id AND  XVDC.CashMasterId<>''
 									left join MST.BankMaster BM ON BM.Id=XVD.BankMasterId
 									left join MST.CashMaster CM ON CM.Id=XVDC.CashMasterId
-                                    WHERE  V.Archive=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + "'AND V.CompanyId='" + identity.CompanyId + "' AND V.PlantId='" + identity.PlantId + "' AND V.SourceType='" + SourceType.GoodWorkDisbursement + "'";
+                                    WHERE  V.Archive=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + "'AND V.CompanyId='" + identity.CompanyId + "' AND V.PlantId='" + identity.PlantId + "' AND V.SourceType='" + SourceType.EmployeeAdvance + "'";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
