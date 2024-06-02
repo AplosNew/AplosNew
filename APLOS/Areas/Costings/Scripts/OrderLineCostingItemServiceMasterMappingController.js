@@ -100,6 +100,7 @@ function OrderLineCostingItemServiceMasterMappingController(cboService, commonMe
 
     $scope.saveUrl = 'Costings/OrderLineCostingItem/CreateOLSMMap';
     $scope.SaveData = function () {
+        $scope.SavedserviceMasterList = [];
         for (var i = 0; i < $scope.serviceMasterList.length; i++) {
             if ($scope.serviceMasterList[i].Flag == true) {
                 if (checkItemExist($scope.SavedserviceMasterList, $scope.serviceMasterList[i].ServiceMasterId) === false) {
@@ -107,7 +108,7 @@ function OrderLineCostingItemServiceMasterMappingController(cboService, commonMe
                     obj.Id = $scope.serviceMasterList[i].Id == null ? null : $scope.serviceMasterList[i].Id;
                     obj.OrderLineCostingItemId = $scope.OrderLineCostingItemId;
                     obj.ServiceMasterId = $scope.serviceMasterList[i].ServiceMasterId;
-
+                    obj.Flag = $scope.serviceMasterList[i].Flag;
                     $scope.SavedserviceMasterList.push(obj);
                     obj = {};
                 }

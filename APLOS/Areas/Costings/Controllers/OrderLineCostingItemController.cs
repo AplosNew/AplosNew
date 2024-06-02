@@ -336,6 +336,11 @@ Where SM.Active=1 Order by SM.Sequence";
 
                             AddNewRow(dsChild.Tables[0], item);
                         }
+                        else if (dv.Count > 0 && Convert.ToBoolean(item["Flag"]) == false)
+                        {
+                            DataRow drmo = dv[0].Row;
+                            drmo.Delete();
+                        }
                         else
                         {
                             DataRow drmo = dv[0].Row;

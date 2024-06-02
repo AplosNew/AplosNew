@@ -331,6 +331,11 @@ namespace Library.Planning.OrderManagement
                     drSalesOrder["Id"] = MasterId + Convert.ToInt32(NewId) + SCount;
                     NewSoId = drSalesOrder["Id"].ToString();
                     drSalesOrder["MasterOrderItemId"] = MasterId;
+                    drSalesOrder["OrderStatusId"] = DBNull.Value;
+                    drSalesOrder["CheckByStatus"] = "To Be Check";
+                    drSalesOrder["ApprovedStatus"] = DBNull.Value;
+                    drSalesOrder["CheckByDate"] = DBNull.Value;
+                    drSalesOrder["ApproveByDate"] = DBNull.Value;
                     dsToSalesOrder.Tables[0].Rows.Add(drSalesOrder);
 
                     dtFromFirstCharacteristics.DefaultView.RowFilter = "SalesOrderId='" + dtFromMaster.Rows[m]["Id"].ToString() + "'";
@@ -454,6 +459,11 @@ namespace Library.Planning.OrderManagement
                 CopyRow(dtFromMaster.Rows[0], ref drSalesOrder);
                 drSalesOrder["Id"] = NewId;
                 drSalesOrder["ParentId"] = MasterId;
+                drSalesOrder["OrderStatusId"] = DBNull.Value;
+                drSalesOrder["CheckByStatus"] = "To Be Check";
+                drSalesOrder["CheckByDate"] = DBNull.Value;
+                drSalesOrder["ApproveByDate"] = DBNull.Value;
+                drSalesOrder["ApprovedStatus"] = DBNull.Value;
                 dsToSalesOrder.Tables[0].Rows.Add(drSalesOrder);
 
                 for (int i = 0; i < dtFromFirstCharacteristics.Rows.Count; i++)
@@ -559,6 +569,11 @@ namespace Library.Planning.OrderManagement
                     drmo.BeginEdit();
 
                     drmo["Qty"] = Convert.ToDecimal(drmo["Qty"].ToString()) - salesOrderMaster.Qty;
+                    drmo["OrderStatusId"] = DBNull.Value;
+                    drmo["CheckByStatus"] = "To Be Check";
+                    drmo["ApprovedStatus"] = DBNull.Value;
+                    drmo["CheckByDate"] = DBNull.Value;
+                    drmo["ApproveByDate"] = DBNull.Value;
                     drmo["UpdatedBy"] = para.UpdatedBy;
                     drmo["UpdatedDate"] = para.UpdatedDate;
                     drmo["UpdatedFromIP"] = para.UpdatedFromIP;

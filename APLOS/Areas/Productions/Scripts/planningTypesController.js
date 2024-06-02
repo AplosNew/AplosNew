@@ -223,4 +223,119 @@ function planningTypesController(cboService, commonMessage, $scope, $rootScope, 
         $scope.planningTypes = {};
         $scope.planningTypesNew = {};
     };
+
+    $scope.GetSavedPMData = function () {
+        $scope.productMasterList = [];
+        $http({
+            method: 'GET',
+            url: 'Productions/PlanningTypes/GetPlanningTypeProductMasterDataList?PlanningTypeId=' + $scope.PlanningTypeId
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            } else {
+                $scope.productMasterList = response.data;
+            }
+        });
+    }
+    $scope.PlanningTypeId = null;
+    $scope.productMasterList = [];
+    $scope.GetPMData = function (obj) {
+        try {
+            $scope.PlanningTypeId = null;
+            $scope.productMasterList = [];
+            $scope.PlanningTypeId = obj.Id;
+            $http({
+                method: 'GET',
+                url: 'Productions/PlanningTypes/GetPlanningTypeProductMasterDataList?PlanningTypeId=' + $scope.PlanningTypeId
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                } else {
+                    $scope.productMasterList = response.data;
+                    angular.element(document.querySelector('#PMPopUp')).modal('show');
+                }
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.refreshTemplate = function (args) {
+        $("#headschk").ejCheckBox({ "change": CheckBoxSelectAllItemWise });
+    };
+    function CheckBoxSelectAllItemWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridSM").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.productMasterList.length; i++) {
+                $scope.productMasterList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridSM").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.SavedproductMasterList = [];
+    $scope.ClosePopUp = function () {
+        angular.element(document.querySelector('#PMPopUp')).modal('hide');
+    }
+
+    function checkItemExist(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].ProductMasterId === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.PMsaveUrl = 'Productions/PlanningTypes/CreatePTPMMap';
+    $scope.SaveData = function () {
+        $scope.SavedproductMasterList = [];
+        for (var i = 0; i < $scope.productMasterList.length; i++) {
+            if ($scope.productMasterList[i].Flag == true || !baseService.isUndefinedOrNull($scope.productMasterList[i].Id)) {
+                if (checkItemExist($scope.SavedproductMasterList, $scope.productMasterList[i].ProductMasterId) === false) {
+                    var obj = {};
+                    obj.Id = $scope.productMasterList[i].Id == null ? null : $scope.productMasterList[i].Id;
+                    obj.PlanningTypeId = $scope.PlanningTypeId;
+                    obj.ProductMasterId = $scope.productMasterList[i].ProductMasterId;
+                    obj.Flag = $scope.productMasterList[i].Flag;
+
+                    $scope.SavedproductMasterList.push(obj);
+                    obj = {};
+                }
+            }
+        }
+
+
+        $http({
+            method: 'POST',
+            url: $scope.PMsaveUrl,
+            data: { 'data': $scope.SavedproductMasterList, 'masterId': $scope.PlanningTypeId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetSavedPMData();
+                angular.element(document.querySelector('#EntityPopup')).modal('hide');
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+
+
 }

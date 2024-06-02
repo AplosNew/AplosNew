@@ -116,7 +116,7 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
     $scope.targetperhourtooltip = "Workstations x 60 / SPT"
     $scope.targetperdaytooltip = "Target Per Hour x Plan Working Hours"
     $scope.targetPerDayOnEficiency = "Target Per day x Efficiency%"
-    baseService.init($scope.getListUrl, null, null, null, 'EntityName', 'EntityName');
+   // baseService.init($scope.getListUrl, null, null, null, 'EntityName', 'EntityName');
     $scope.closePopup = function (popupName) {
         angular.element(document.querySelector("#" + popupName + "")).modal("hide");
         try {
@@ -333,7 +333,7 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
         });
 
     };
-    $scope.getProcessData();
+   // $scope.getProcessData();
 
     $scope.PRSearchColumn = 'Id';
     $scope.PRSearchValue = null;
@@ -342,7 +342,7 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
         $http({
             method: 'POST',
             data: {
-                'baseprocessid': $scope.baseProcess.Id, 'entityid': $scope.EntityId, 'column': $scope.PRSearchColumn, 'value': $scope.PRSearchValue
+                'baseprocessid': $scope.PlanningTypeProcessId, 'entityid': $scope.EntityId, 'column': $scope.PRSearchColumn, 'value': $scope.PRSearchValue
             },
             url: $scope.getListUrl
         }).then(function successCallback(response) {
@@ -401,8 +401,8 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
 
         $http({
             method: 'POST',
-            data: { 'column': $scope.NewSearchParameters.searchBy, 'value': $scope.NewSearchParameters.search, 'baseprocessid': $scope.baseProcess.Id, 'entityid': $scope.EntityId },
-            url: $scope.path + "GetNewList"
+            data: { 'column': $scope.NewSearchParameters.searchBy, 'value': $scope.NewSearchParameters.search, 'baseprocessid': $scope.PlanningTypeProcessId, 'entityid': $scope.EntityId },
+            url: $scope.path + "GetPONewList"
         }).then(function successCallback(response) {
             $scope.modelListNew = response.data;
         });
@@ -489,7 +489,7 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
 
         $http({
             method: 'GET',
-            url: $scope.path + "getProductMasterParameters?productionOrderID=" + $scope.productionOrderModel.Id + "&entityid=" + $scope.productionOrderModel.EntityId + "&baseprocessid=" + $scope.baseProcess.Id
+            url: $scope.path + "getProductMasterParametersNew?productionOrderID=" + $scope.productionOrderModel.Id + "&entityid=" + $scope.productionOrderModel.EntityId + "&baseprocessid=" + $scope.PlanningTypeProcessId
         }).then(function successCallback(response) {
             $scope.displayModel = response.data.MainData[0];
             if (!$scope.model.ID) {
@@ -532,7 +532,7 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
     function getProductWorkCenterList() {
         $http({
             method: 'GET',
-            url: $scope.path + 'GetProductWorkCenterList?processid=' + $scope.baseProcess.Id + '&productId=' + $scope.displayModel.Id + "&entityId=" + $scope.productionOrderModel.EntityId
+            url: $scope.path + 'GetProductWorkCenterNewList?processid=' + $scope.PlanningTypeProcessId + '&productId=' + $scope.displayModel.Id + "&entityId=" + $scope.productionOrderModel.EntityId
         }).then(function successCallback(response) {
             $scope.productWorkCenterList = response.data;
         });
@@ -1392,7 +1392,7 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
 
         $http({
             method: 'GET',
-            url: $scope.path + 'GetWorkCenterList?entityIds=' + $scope.productionOrderModel.EntityId + "&processid=" + $scope.baseProcess.Id
+            url: $scope.path + 'GetWorkCenterNewList?entityIds=' + $scope.productionOrderModel.EntityId + "&processid=" + $scope.PlanningTypeProcessId
         }).then(function successCallback(res) {
             $scope.workCenterList = res.data;
 
@@ -1653,7 +1653,7 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
         try {
             $http({
                 method: 'GET',
-                url: $scope.path + "ProductionPlanSimulation?entityid=" + $scope.EntityId + "&processid=" + $scope.baseProcess.Id
+                url: $scope.path + "ProductionPlanSimulationNew?entityid=" + $scope.EntityId + "&processid=" + $scope.PlanningTypeProcessId
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
                     ShowResult(response.data.Message, 'failure');
@@ -1706,10 +1706,10 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
 
     $scope.SimulateVisual = function (ExtraParams) {
         var _data = {};
-        var _path = $scope.path + "GetScheduleData?entityid=" + $scope.EntityId + "&processid=" + $scope.baseProcess.Id + "&year=" + $scope.currentDate.year + "&month=" + $scope.currentDate.month + "&day=" + $scope.currentDate.day;
+        var _path = $scope.path + "GetNewScheduleData?entityid=" + $scope.EntityId + "&processid=" + $scope.PlanningTypeProcessId + "&year=" + $scope.currentDate.year + "&month=" + $scope.currentDate.month + "&day=" + $scope.currentDate.day;
 
         if (angular.isUndefinedOrNull(ExtraParams) == false) {
-            _path = $scope.path + "GetScheduleDataFiltered?entityid=" + $scope.EntityId + "&processid=" + $scope.baseProcess.Id + "&year=" + $scope.currentDate.year + "&month=" + $scope.currentDate.month + "&day=" + $scope.currentDate.day;
+            _path = $scope.path + "GetNewScheduleDataFiltered?entityid=" + $scope.EntityId + "&processid=" + $scope.PlanningTypeProcessId + "&year=" + $scope.currentDate.year + "&month=" + $scope.currentDate.month + "&day=" + $scope.currentDate.day;
 
             var _data = {
                 "parameters": ExtraParams
@@ -1782,7 +1782,7 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
         try {
             $http({
                 method: 'POST',
-                url: $scope.path + "GetProductionPlanningData?planrowid=" + id + "&ProductionOrderId=" + PRID + "&processid=" + $scope.baseProcess.Id
+                url: $scope.path + "GetNewProductionPlanningData?planrowid=" + id + "&ProductionOrderId=" + PRID + "&processid=" + $scope.PlanningTypeProcessId
             }).then(function successCallback(res) {
 
                 $scope.VWCDATA = res.data.WCDATA;
@@ -2137,7 +2137,7 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
         try {
 
             $scope.snapshotmasterNew.EntityID = $scope.EntityId;
-            $scope.snapshotmasterNew.ProcessID = $scope.baseProcess.Id;
+            $scope.snapshotmasterNew.ProcessID = $scope.PlanningTypeProcessId;
 
 
 
@@ -2179,7 +2179,7 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
     $scope.getSnapshotList = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "LoadSnapshotList?entityid=" + $scope.EntityId + "&processid=" + $scope.baseProcess.Id
+            url: $scope.path + "LoadNewSnapshotList?entityid=" + $scope.EntityId + "&processid=" + $scope.PlanningTypeProcessId
 
         }).then(function successCallback(response) {
             $scope.snapshotList = response.data.DATA;
@@ -2220,7 +2220,7 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
         try {
             $http({
                 method: 'POST',
-                url: $scope.path + "LoadSnapshot?id=" + args.data.ID + "&entityid=" + $scope.EntityId + "&processid=" + $scope.baseProcess.Id
+                url: $scope.path + "LoadSnapshot?id=" + args.data.ID + "&entityid=" + $scope.EntityId + "&processid=" + $scope.PlanningTypeProcessId
             }).then(function successCallback(res) {
 
                 if (res.data.DATA.length > 0) {
@@ -2315,7 +2315,7 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
         try {
 
             $scope.snapshotmasterNew2.EntityID = $scope.EntityId;
-            $scope.snapshotmasterNew2.ProcessID = $scope.baseProcess.Id;
+            $scope.snapshotmasterNew2.ProcessID = $scope.PlanningTypeProcessId;
 
 
             if (angular.isUndefinedOrNull($scope.snapshotmasterNew2.SnapshotName) == true)

@@ -100,6 +100,7 @@
                             <td class="text-right table-td">
                                 <ul class="list-inline action-list">
                                     <li><button ng-click="Get(x.Id, $index);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Edit"><i class="glyphicon glyphicon-pencil"></i></button></li>
+                                    <li><button ng-click="GetPMData(x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Product Master"><i class="glyphicon glyphicon-list"></i></button></li>
                                 </ul>
                             </td>
                             <td>{{x.Plant}}</td>
@@ -121,3 +122,41 @@
     </div>
 </div>
 <confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="Delete();"></confirm-archive-generic>
+<div class="modal fade site-modal in" id="PMPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Product Master Info<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div clas="row">
+                    <div id="GridSM" ej-grid e-datasource="productMasterList" e-templaterefresh="refreshTemplate"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-headertext="ALL" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="2"></div>
+                            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="3"></div>
+                            <div e-column e-field="Code" e-headertext="Code" e-width="4"></div>
+                            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="10"></div>
+                            <div e-column e-field="UserName" e-headertext="User Name" e-width="10"></div>
+                            <div e-column e-field="ProductCategory" e-headertext="Product Category" e-width="12"></div>
+                            <div e-column e-field="ProductSubCategory" e-headertext="Product SubCategory" e-width="5"></div>
+                            <div e-column e-field="Product" e-headertext="Product" e-width="5"></div>
+                        </div>
+                    </div>
+
+                    <script type="text/template" id="checkboxTemplate">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                    </script>
+                    <script type="text/x-jsrender" id="headerTemplate">
+                        <input type="checkbox" id="headschk" />
+                    </script>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="SaveData();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Save</button></li>
+                        <li><button ng-click="ClosePopUp();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="11"></i> Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

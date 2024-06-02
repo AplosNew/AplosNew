@@ -56,28 +56,19 @@
 <togglable name="Production Order"></togglable>
 <div class="form-horizontal form-elements" ng-form="modelNewForm" id="mainPOContainer">
     <div class="col-xs-6 col-sm-6 col-md-6" id="ProductionEntity">
-        @*<div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select name="Plant" ng-model="SelectedPlantId" class="col-sm-3 form-control" ng-change="loadPlanSpecificEntity(SelectedPlantId);"
-                                ng-options="item.PlantId as item.PlantName for item in PlantList" tabindex="1" required>
-                            <option value=""></option>
-                        </select>
-                    </div>
-                </div>
-            </div>*@
+       
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
+            <label class="col-sm-4 control-label">Planning Type Process<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select name="Entity" ng-model="model.EntityId" class="col-sm-3 form-control"
-                            ng-options="item.Id as item.UserName for item in entityList" tabindex="1" ng-change="GetPlanningTypeProcess();" required>
+                    <select name="Planning Type Process" ng-model="model.PlanningTypeProcessId" class="col-sm-3 form-control"
+                            ng-options="item.Id as item.UserName for item in planningTypeProcessList" ng-change="GetPlanningTypeEntiy();" tabindex="2" required>
                         <option value=""></option>
                     </select>
                 </div>
             </div>
         </div>
+        
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Required Time Unit<sup>*</sup></label>
             <div class="col-sm-8 show-message">
@@ -110,11 +101,11 @@
     </div>
     <div class="col-xs-6 col-sm-6 col-md-6">
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Planning Type Process<sup>*</sup></label>
+            <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select name="Planning Type Process" ng-model="model.PlanningTypeProcessId" class="col-sm-3 form-control"
-                            ng-options="item.Value as item.Text for item in planningTypeProcessList" tabindex="2" required>
+                    <select name="Entity" ng-model="model.EntityId" class="col-sm-3 form-control"
+                            ng-options="item.Id as item.UserName for item in entityList" tabindex="1" required>
                         <option value=""></option>
                     </select>
                 </div>
@@ -194,6 +185,9 @@
                  e-allowselection="true" e-filtersettings-filterType="excel">
                 <div e-columns>
 
+                    <div e-column e-field="ProductionOrderId" e-headertext="PO No" e-width="80"></div>
+                    <div e-column e-field="ProductName" e-headertext="Product" e-width="180" e></div>
+                    <div e-column e-field="SalesOrderId" e-headertext="SO. ID" e-width="120"></div>
                     <div e-column e-field="DestinationName" e-headertext="Dest." e-width="80"></div>
                     <div e-column e-field="DestinationDescription" e-headertext="Dest. Description" e-width="80"></div>
                     <div e-column e-field="BuyerOrderNo" e-headertext="Customer Order#" e-width="100"></div>
@@ -204,18 +198,15 @@
                     <div e-column e-field="CommitmentDate" e-headertext="Commi.Date" e-width="80"></div>
                     <div e-column e-field="Description" e-headertext="Description" e-width="80" e-textalign="right"></div>
                     <div e-column e-field="MasterOrderNo" e-headertext="M. Order No" e-width="120"></div>
-                    <div e-column e-field="SalesOrderId" e-headertext="SO. ID" e-width="120"></div>
                     <div e-column e-field="Qty" e-headertext="Qty" e-width="80" e-textalign="right"></div>
                     <div e-column e-field="Customer" e-headertext="Customer" e-width="180"></div>
                     <div e-column e-field="Buyer" e-headertext="Buyer" e-width="180"></div>
                     <div e-column e-field="OwnOrderNo" e-headertext="Own Order#" e-width="100"></div>
 
                     <div e-column e-field="OwnReferenceNo" e-headertext="Own Item#" e-width="100"></div>
-                    <div e-column e-field="ProductName" e-headertext="Product" e-width="180" e></div>
                     <div e-column e-field="ProductionGrouping" e-headertext="Product Grouping" e-width="120" e></div>
                     <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="180" e></div>
                     <div e-column e-field="ShipmentModeName" e-headertext="Ship.Mode" e-width="80"></div>
-                    <div e-column e-field="ProductionOrderId" e-headertext="PO No" e-width="80"></div>
                     <div e-column e-field="OrderStatusName" e-headertext="Ord. Status" e-width="80"></div>
                     <div e-column e-field="OrderCategoryName" e-headertext="Ord. Cat." e-width="80"></div>
                     <div e-column e-field="LSD" e-headertext="LSD" e-width="80"></div>
@@ -1100,6 +1091,9 @@
 
                             <div e-column e-headertext="" e-template="#checkboxTemplateSOSearch" e-textalign="center" e-width="30"></div>
 
+                            <div e-column e-field="ProductionOrderId" e-headertext="PO No" e-width="80"></div>
+                            <div e-column e-field="POEntity" e-headertext="POEntity" e-width="70"></div>
+                            <div e-column e-field="ProductName" e-headertext="Product" e-width="180" e></div>
                             <div e-column e-field="SalesOrderId" e-headertext="SO. ID" e-width="70"></div>
                             <div e-column e-field="ArticleName" e-headertext="Article" e-width="120"></div>
                             <div e-column e-field="OwnReferenceNo" e-headertext="Production Own #" e-width="100"></div>
@@ -1119,18 +1113,15 @@
 
                             <div e-column e-field="Customer" e-headertext="Customer" e-width="180"></div>
                             <div e-column e-field="Buyer" e-headertext="Buyer" e-width="180"></div>
-                            <div e-column e-field="ProductName" e-headertext="Product" e-width="180" e></div>
                             <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="180" e></div>
                             <div e-column e-field="ShipmentModeName" e-headertext="Ship.Mode" e-width="80"></div>
                             <div e-column e-field="ProductionType" e-headertext="ProductionType" e-width="50"></div>
                             <div e-column e-field="ShipmentFromStock" e-headertext="ShipmentFromStock" e-width="50"></div>
                             <div e-column e-field="PONumber" e-headertext="Customer PO No" e-width="80"></div>
                             <div e-column e-field="MasterOrderEntity" e-headertext="M. Order Entity" e-width="70"></div>
-                            <div e-column e-field="ProductionOrderId" e-headertext="PO No" e-width="80"></div>
                             <div e-column e-field="POStatus" e-headertext="POStatus" e-width="70"></div>
                             <div e-column e-field="OrderStatusName" e-headertext="SO Status" e-width="80"></div>
                             <div e-column e-field="MasterOrderType" e-headertext="M. Order Type" e-width="70"></div>
-                            <div e-column e-field="POEntity" e-headertext="POEntity" e-width="70"></div>
                             <div e-column e-field="OrderType" e-headertext="Order Type" e-width="70"></div>
                             <div e-column e-field="ProcessEntity" e-headertext="Process Entity" e-width="70"></div>
                             <div e-column e-field="OrderCategoryName" e-headertext="Ord. Cat." e-width="80"></div>

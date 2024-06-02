@@ -140,25 +140,26 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     //    $scope.entityList = result;
     //});
 
-    $scope.getAllEntities = function () {
+    $scope.GetPlanningTypeEntiy = function () {
         $http({
-            method: 'POST',
-            url: 'OrderManagements/productionOrderSchedulingParametersType1/GetAllEntity'
+            method: 'GET',
+            url: 'OrderManagements/ProductionOrder/GetPlanningTypeEntityCbo?processId=' + $scope.model.PlanningTypeProcessId
         }).then(function successCallback(response) {
             $scope.entityList = response.data;
         });
     }
-    $scope.getAllEntities();
+   
 
     $scope.planningTypeProcessList = [];
     $scope.GetPlanningTypeProcess = function () {
         $http({
             method: 'GET',
-            url: 'OrderManagements/ProductionOrder/GetPlanningTypeProcessCbo?entityId=' + $scope.model.EntityId
+            url: 'OrderManagements/ProductionOrder/GetPlanningTypeProcessCbo'
         }).then(function successCallback(response) {
             $scope.planningTypeProcessList = response.data;
         });
     }
+    $scope.GetPlanningTypeProcess();
 
     cboService.getProductionStatusCboByGroup(function (result) {
         $scope.productionStatusList = result;

@@ -9,6 +9,10 @@ using Library.Data.Sql;
 using Library.Crosscutting.Security;
 using System.Threading;
 using System;
+using System.Collections.Generic;
+using Aplos.MaterialManagement.MaterialQuery;
+using System.Data;
+using Library.Security.Core;
 
 #endregion
 
@@ -108,6 +112,128 @@ namespace Aplos.Areas.Productions.Controllers
         {
             _planningTypesService.Delete(id);
             return Json(new { Message = AplosMessage.Deleted });
+        }
+
+
+
+        [HttpGet, Authorize]
+        public ActionResult GetPlanningTypeProductMasterDataList(string PlanningTypeId)
+        {
+
+            string sql = @"SELECT Flag=CAST(CASE WHEN A.Id IS NULL THEN 0 ELSE 1 END AS BIT) ,A.Id,PM.Id ProductMasterId,PM.Sequence,PM.Code,PM.UserName,PM.StandardName,PC.UserName ProductCategory,PSC.UserName ProductSubCategory,P.UserName Product
+FROM [MST].ProductMaster PM
+LEFT JOIN [HKP].ProductCategory PC ON PC.Id=PM.ProductCategoryId
+LEFT JOIN [HKP].ProductSubCategory PSC ON PSC.Id=PM.ProductSubCategoryId
+LEFT JOIN [HKP].Product P ON P.Id=PM.ProductId
+OUTER APPLY (Select * from dbo.PlanningTypeProductMaster Where ProductMasterId=PM.Id AND PlanningTypeId='" + PlanningTypeId + @"') A
+Where PM.Active=1 Order by PM.Sequence";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreatePTPMMap(List<Dictionary<string, object>> data, string masterId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsChild, dsChildId;
+                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+                #region FUND 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.PlanningTypeProductMaster where  PlanningTypeId='" + masterId + "'", out dsChild, false, "1");
+
+                objCon.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[PlanningTypeProductMaster] where PlanningTypeId='" + masterId + "'", out dsChildId, false, "1");
+
+                var count = Convert.ToInt32(dsChildId.Tables[0].Rows[0]["countId"].ToString()); ;
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+
+                            count++;
+                            item["Id"] = materialCommonService.MakePK(masterId, count, 2);
+                            item["PlanningTypeId"] = masterId;
+
+                            AddNewRow(dsChild.Tables[0], item);
+                        }
+                        else if (dv.Count > 0 && Convert.ToBoolean(item["Flag"]) == false)
+                        {
+                            DataRow drmo = dv[0].Row;
+                            drmo.Delete();
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsChild);
+                return Json(new { Error = false, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
         }
         #endregion
     }

@@ -103,13 +103,27 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
 
         [Authorize, HttpGet]
-        public JsonResult GetPlanningTypeProcessCbo(string entityId)
+        public JsonResult GetPlanningTypeProcessCbo()
         {
-            return Json(_sqlRepository.GetDataCollection(@"Select distinct P.Id [Value], P.UserName AS [Text]
-from dbo.PlanningTypes PT
-LEFT JOIN HKP.Process P ON P.Id = PT.BaseProcessId
-Where PT.EntityId = '" + entityId + "'"), JsonRequestBehavior.AllowGet);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT distinct P.Id,P.UserName FROM PlanningTypes AS pt 
+INNER JOIN hkp.Process AS p ON p.Id=pt.BaseProcessId
+WHERE PT.PlanningType='PlanningType1' AND pt.CompanyGroupId='" + identity.CompanyGroupId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
+
+        [Authorize, HttpGet]
+        public JsonResult GetPlanningTypeEntityCbo(string processId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT DISTINCT E.Id,E.UserName FROM PlanningTypes AS pt 
+INNER JOIN org.Entity E on e.Id=pt.EntityId
+WHERE PT.PlanningType='PlanningType1' AND pt.CompanyGroupId='" + identity.CompanyGroupId + "' AND PT.BaseProcessId='"+ processId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
 
         [HttpGet, Authorize]
         public ActionResult GetProductionHistory(string ProductionOrderId)
