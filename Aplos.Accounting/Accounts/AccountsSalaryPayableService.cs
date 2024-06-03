@@ -2417,7 +2417,7 @@ namespace Library.Accounting.Accounts
                 throw new CustomException(ex.Message, ex);
             }
         }
-        public GridModel GetEmployeeMultipleAdvanceDisbursementVoucherList(GridParameter parameters)
+        public GridModel GetEmployeeMultipleAdvanceDisbursementVoucherList(GridParameter parameters,SourceType sourceType)
         {
             try
             {
@@ -2435,7 +2435,7 @@ namespace Library.Accounting.Accounts
 									INNER JOIN (select distinct EAD.VoucherId,EAD.EmployeeAdvanceId PaymentAdviseId
 									from [TRN].[EmployeeAdvanceDetail] EAD
                                     INNER JOIN [TRN].[EmployeeAdvance] EA ON  EA.Id=EAD.EmployeeAdvanceId
-									where EAD.VoucherId<>'' and EAD.IsDisburse=1 AND EA.SourceType='MultipleEmployeeAdvance' 
+									where EAD.VoucherId<>'' and EAD.IsDisburse=1 AND EA.SourceType='" + sourceType + @"'
 									) GWPA on GWPA.VoucherId=v.Id
 									LEFT JOIN TRN.VoucherDetail XVD ON XVD.VoucherId=V.Id AND XVD.BankMasterId<>''
 									LEFT JOIN TRN.VoucherDetail XVDC ON XVDC.VoucherId=V.Id AND  XVDC.CashMasterId<>''

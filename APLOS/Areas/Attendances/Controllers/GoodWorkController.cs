@@ -2402,7 +2402,7 @@ SELECT X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAm
         public JsonResult GetEmployeeMultipleAdvanceDisbursementVoucherList(GridParameter parameters)
         {
             AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
-            return Json(accountsSalaryPayableService.GetEmployeeMultipleAdvanceDisbursementVoucherList(parameters), JsonRequestBehavior.AllowGet);
+            return Json(accountsSalaryPayableService.GetEmployeeMultipleAdvanceDisbursementVoucherList(parameters,SourceType.MultipleEmployeeAdvance), JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
         public JsonResult ParkEmployeeMultipleAdvanceDisbursement(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail)
