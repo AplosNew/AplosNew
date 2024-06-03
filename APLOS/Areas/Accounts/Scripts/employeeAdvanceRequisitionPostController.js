@@ -9,7 +9,8 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
     $scope.index = -1;
     $scope.url = 'accounts/Advance';
     $scope.listUrl = $scope.url + '/GetEmployeeAdvanceRequisitionPostList';
-    $scope.saveUrl = $scope.url + '/ParkEmployeeAdvanceRequisitionPost';
+   // $scope.saveUrl = $scope.url + '/ParkEmployeeAdvanceRequisitionPost';
+    $scope.saveUrl = $scope.url + '/ParkEmployeeAdvanceRequisition';
     $scope.updateUrl = $scope.url + '/UpdateEmployeeAdvanceRequisitionPost';
     $scope.postUrl = $scope.url + '/PostEmployeeAdvanceRequisitionPost';
     $scope.unPostUrl = $scope.url + '/UnPostEmployeeAdvanceRequisitionPost';
@@ -132,7 +133,7 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
         cboService.getEmpTrnTypeByAdvanceType(advanceType ,function (result) {
             $scope.employeeTransactionTypeList = result;
             if ($scope.employeeTransactionTypeList.length === 1) {
-                $scope.advance.EmployeeTransactionTypeId = $scope.employeeTransactionTypeList[0].Value;
+                $scope.advance.EmployeeTransactionTypeId = $scope.employeeTransactionTypeList[0].EmployeeTransactionTypeId;
                 $scope.getTransactionTypeGL($scope.advance.EmployeeTransactionTypeId)
             }
         });
@@ -169,6 +170,12 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
                 $scope.advanceDetail.EmployeeId = $scope.advance.EmployeeId;
                 $scope.advanceDetail.Amount = $scope.advance.Amount;
                 $scope.advanceDetailList.push($scope.advanceDetail);
+
+                $scope.advance.GLGeneralInfoId = $scope.transactionTypeGL.AdvanceGLId;
+                $scope.advance.BudgetMasterId = $scope.transactionTypeGL.AdvanceBudgetMasterId;
+                $scope.advance.ActivityId = $scope.transactionTypeGL.AdvanceActivityId;
+                $scope.advance.EmployeeTransactionTypeId = $scope.transactionTypeGL.EmployeeTransactionTypeId;
+
                 $scope.advanceDetail = {};
             }
         }
@@ -426,19 +433,65 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
         $scope.clearResponsiblePersonPopUp();
     };
 
+    $scope.data = {
+        Id: null,
+        YearNo: null,
+        MonthNo: null,
+        FromDate: null,
+        ToDate: null,
+        UserName: null,
+        UserRef: null,
+        
+        PayDaysType: null,
+        Percentage: null,
+        Multiple: null,
+        MinimumPresentDay: null,
+        IsPayDay:null,
+        IsStandardOT: null,
+        IsAdditionalOT: null,
+        IsAdditionalOT: null,
+        PreparedById: null,
+        ApprovedById: null,
+        Remarks: null,
+        
+
+        ApprovedStatus: null,
+        PaymentsStatus: null,
+        CompanyGroupId: null,
+        CompanyId: null,
+        PlantId: null,
+        EntityId: null,
+        CurrencyId: null,
+        ToCurrencyRate: null,
+        EmployeeTransactionTypeId: null,
+        SourceType: null,
+        FiscalYearId: null,
+        FiscalYearPeriodId: null,
+        TaxYearId: null,
+        TaxYearPeriodId: null,
+        RequisitionId: null,
+        AddedBy: null,
+        AddedDate: null,
+        AddedFromIP: null,
+        UpdatedBy: null,
+        UpdatedDate: null,
+        UpdatedFromIP: null,
+        
+    };
     $scope.Save = function () {
         $scope.$broadcast("show-errors-check-validity");
         $scope.checkDocDate();
         $scope.checkPostingDate();
         if ($scope.form0.$valid && !$scope.validation() && !$scope.invalidDocDate && !$scope.invalidEntity && !$scope.invalidPostingDate) {
+            $scope.data.UserName ='Advanec Of '+ $scope.advance.EmployeeName
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",
                     url: $scope.saveUrl,
                     data: {
                         "voucherVM": $scope.advance,
-                        "voucherDetailVMList": $scope.advanceDetailList,
-                        "advanceSalarySchedulelist": $scope.loanRepaymentSchedulelist
+                        "data": $scope.data,
+                        "advanceDetail": $scope.advanceDetailList
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -563,148 +616,7 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
         $scope.voucher.TotalNoOfInstallment = $scope.voucher.NoOfInstallmentPerYear;
     };
 
-    $scope.loanRepaymentSchedulelist = [];
-    $scope.TotalPayments = 0;
-    $scope.TotalInterestPaid = 0;
-    $scope.LoadRepamentDetail = function () {
-
-        if ($scope.voucher.ProfitRate === '' || $scope.voucher.ProfitRate == 'undefined' || $scope.voucher.ProfitRate === null) {
-            $scope.voucher.ProfitRate = 0;
-        }
-        //if ($scope.voucher.IsSchedule) {
-        if ($scope.voucher.NoOfInstallmentPerYear < 12) {
-            $scope.voucher.LifeOfYear = 1;
-        }
-        else {
-        $scope.voucher.LifeOfYear = $scope.voucher.NoOfInstallmentPerYear/12;
-        }
-
-        $scope.voucher.Amount = $scope.advance.Amount;
-            $scope.loanRepaymentSchedulelist = [];
-            $("#loanDetails").children().remove();
-            //var numberOfInstallment = $scope.voucher.TotalNoOfInstallment;
-        var numberOfInstallment = $scope.voucher.NoOfInstallmentPerYear;
-            var actualAmount = parseFloat($scope.voucher.Amount);
-            var actualAmountWithoutProfit = parseFloat($scope.voucher.Amount);
-            var profitAmount = $scope.voucher.ProfitAmount;
-            //var installmentPerYear = $scope.voucher.NoOfInstallmentPerYear;
-        var installmentPerYear = 12;
-        //if ($scope.voucher.NoOfInstallmentPerYear < 12) {           
-        //    installmentPerYear = $scope.voucher.NoOfInstallmentPerYear;
-        //}
-        var rate = parseFloat((parseFloat($scope.voucher.ProfitRate) / 100) / installmentPerYear);
-        //rate = parseFloat(rate.toFixed(2));
-        //var rate = parseFloat((parseInt($scope.voucher.ProfitRate) / 100) / installmentPerYear);
-        //console.log('rate', rate);
-        //console.log('rated', $scope.voucher.ProfitRate);
-
-            var disbursmentDate = $scope.voucher.DocDate;
-            var repaymentStartDate = $scope.voucher.RepaymentStartDate;
-            // var installmentDate = new Date(repaymentStartDate);
-            var installmentDate;
-            var payment = 0.00;
-            var profit = 0.00;
-            var principal = 0.00;
-
-            var totalPayment = 0.00;
-            var totalProfit = 0.00;
-            var totalPrincipal = 0.00;
-
-            var i = 0;
-
-            var idate;
-            var periodHtml = "<div class='SearchResult'> <table><thead><tr><td style='width:220px;'>Installment date</td><td style='width:100px;'>Installment no.</td><td style='text-align:right; width:120px;'>Payment</td><td style='text-align:right; width:120px;'>Interest</td><td style='text-align:right; width:120px;'>Principal</td><td style='text-align:right; width:120px;'>Loan</td></tr></thead>";
-            //periodHtml += "<tr><td>" + FormatDate(disbursmentDate) + " (Disbursement date)" + "</td><td>" + " " + "</td><td style='text-align:right'>" + payment.toFixed(2) + "</td><td style='text-align:right'>" + profit.toFixed(2) + "</td><td style='text-align:right'>" + principal.toFixed(2) + "</td><td style='text-align:right'>" + actualAmount.toFixed(2) + "</td></tr>";
-            for (var i = 1; i <= numberOfInstallment; i++) {
-                if (i === 1) {
-                    installmentDate = new Date(repaymentStartDate);
-                    idate = installmentDate;
-                }
-                if (i > 1) {
-                    installmentDate = new Date((new Date(idate)).setMonth((new Date(idate)).getMonth() + (12 / installmentPerYear)));
-                    idate = installmentDate;
-                }
-                if (rate === 0) {
-                    payment = actualAmountWithoutProfit / numberOfInstallment;
-                }
-                else {
-                    payment = PMT(rate, numberOfInstallment, installmentPerYear, parseFloat($scope.voucher.Amount));
-                }
-                var iRate = parseFloat($scope.voucher.ProfitRate) / 100;
-                profit = (actualAmount * iRate) / installmentPerYear;
-
-                principal = payment - profit;
-
-                if (i === parseFloat(numberOfInstallment)) {
-                    actualAmount = parseFloat("0.00");
-                }
-                else {
-                    actualAmount = actualAmount - principal;
-                }
-                var schedule = new Object({
-                    InstallmentNo: i,
-                    InstallmentDate: new Date(idate),
-                    InstallmentAmount: payment.toFixed(2),
-                    ProfitAmount: profit.toFixed(2),
-                    PrincipalAmount: principal.toFixed(2),
-                    Balance: actualAmount.toFixed(2),
-                    ScheduleNo: 1
-                });
-                $scope.loanRepaymentSchedulelist.push(schedule);
-
-                totalPayment = totalPayment + payment;
-                totalProfit = totalProfit + profit;
-                totalPrincipal = totalPrincipal + principal;
-
-                $scope.TotalPayments = totalPayment.toFixed(2) ;
-                $scope.TotalInterestPaid = totalProfit.toFixed(2) ;
-
-                periodHtml += "<tr><td style ='width:220px;'>" + FormatDate(idate) + "</td><td style ='width:100px;'>" + i + "</td><td style='text-align:right; width:120px;'>" + payment.toFixed(2) + "</td><td style='text-align:right; width:120px;'>" + profit.toFixed(2) + "</td><td style='text-align:right; width:120px;'>" + principal.toFixed(2) + "</td><td style='text-align:right; width:120px;'>" + actualAmount.toFixed(2) + "</td></tr>";
-            }
-            //periodHtml += "<tr><td></td><td></td><td style='text-align:right;font-weight: bold'>" + totalPayment.toFixed(2) + "</td><td style='text-align:right;font-weight: bold'>" + totalProfit.toFixed(2) + "</td><td style='text-align:right;font-weight: bold'>" + totalPrincipal.toFixed(2) + "</td><td></tr></table></div>";
-            $("#loanDetails").append(periodHtml);
-            $scope.voucher.ProfitAmount = totalProfit.toFixed(2);
-            return false;
-       //}
-    };
-
-    function PMT(rate, numberOfInstallment, installmentPerYear, actualAmount) {
-        var numberOfYear = numberOfInstallment / installmentPerYear;
-
-        var a = 1 / rate;
-        var b = 1 + rate;
-        var c = Math.pow(b, numberOfInstallment);//
-        var d = rate * c;
-        var e = 1 / d;
-
-        var pvFactor = a - e;
-        var payment = actualAmount / pvFactor;
-        return payment;
-    }
-
-    function FormatDate(input) {
-        var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        var dt = new Date(input);
-        return [dt.getDate(), months[dt.getMonth()], dt.getFullYear()].join('-');
-    }
-
-    $scope.isVisibleInstallment = false;
-    $scope.setVisible = function (AdvanceType) {
-        if (AdvanceType === null || AdvanceType === undefined || AdvanceType === '' )
-        {
-            $scope.isVisibleInstallment = false;
-            //return 
-        }
-        else
-        {
-            if (AdvanceType === 'Salary' && $scope.getAdvanceReqScheduleList.length === 0) {
-                $scope.isVisibleInstallment = true;
-            }
-            else {
-                $scope.isVisibleInstallment = false;
-            }
-        }        
-    }
+    
     $scope.selectDoubleClick = function (args) {
         var gridObj = $("#employeeAdvanceRequisitionId").data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
@@ -724,7 +636,6 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
         $scope.GetEmployeeTransactionType(data.AdvanceType);
         $scope.GetEmployeeTransactionNo($scope.advance.EmployeeId);
         $scope.GetCurrencyExchangeRateList();
-        $scope.setVisible(data.AdvanceType);//by monir
         angular.element(document.querySelector('#EmployeeAdvanceRequisitionPopUp')).modal('hide');
 
     };

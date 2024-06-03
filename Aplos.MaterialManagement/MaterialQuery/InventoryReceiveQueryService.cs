@@ -3563,7 +3563,7 @@ namespace Aplos.MaterialManagement
 							LEFT JOIN MST.MaterialMasterArticle mma on mma.Id=boq.ArticleId
 							LEFT JOIN TRN.MasterOrderItem moi on moi.Id=boq.MasterOrderItemId
 							LEFT JOIN TRN.MasterOrder mo on mo.Id=moi.MasterOrderId
-							WHERE boq.VendorId='" + VendorId + "' AND PO.IsApproved=1 AND PO.PlantId='" + plantId + "'";
+							WHERE PO.PartyId='" + VendorId + "' AND PO.IsApproved=1 AND PO.PlantId='" + plantId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

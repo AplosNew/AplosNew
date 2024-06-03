@@ -111,7 +111,7 @@
             <label class="col-sm-3 control-label">Transaction Type<sup>*</sup></label>
             <div class="col-sm-9 show-message">
                 <div class="select-style">
-                    <select ng-change="getTransactionTypeGL(advance.EmployeeTransactionTypeId)" name="Transaction Type" class="form-control" ng-model="advance.EmployeeTransactionTypeId" tabindex="7">
+                    <select ng-change="getTransactionTypeGL(advance.EmployeeTransactionTypeId)" name="Transaction Type" class="form-control" ng-model="advance.EmployeeTransactionTypeId"  tabindex="7">
                         <option value="">--Select--</option>
                         <option ng-repeat="option in employeeTransactionTypeList" value="{{option.EmployeeTransactionTypeId}}">{{option.EmployeeTransactionTypeName}}</option>
                     </select>
@@ -247,99 +247,6 @@
             </div>
         </div>
     </div>
-
-
-
-    @*hr*@
-    <div class="col-md-12 col-sm-12 col-xs-12" ng-hide="getAdvanceReqScheduleList.length">
-        @*<div class="form-group" ng-show="true">*@
-        <fieldset class="scheduler-border" ng-show="isVisibleInstallment">
-            <legend class="scheduler-border">Advance Schedule</legend>
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <div id="div_DocDate" class="form-group" show-errors>
-                    <label class="col-sm-4 control-label" title="Repayment Start Date" tooltip>First Installment Date<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="Repayment Start Date" ng-model="voucher.RepaymentStartDate" datepicker="checkDocDate(); LoadRepamentDetail()" class="form-control" tabindex="8">
-                    </div>
-                </div>
-                <div class="form-group" show-errors>
-
-                    <label class="col-sm-4 control-label">Total Payments </label>
-                    <div class="col-sm-8 show-message">
-                        {{TotalPayments}}
-                    </div>
-                    <input type="text" maxlength="4" ng-show="false" name="Life Of Year" ng-keyup="totalInstallment();LoadRepamentDetail()" ng-model="voucher.LifeOfYear" class="form-control text-right" tabindex="10" autocomplete="off">
-                </div>
-            </div>
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Interest Rate<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="number" ng-keyup="LoadRepamentDetail()" maxlength="5" name="Interest Rate" ng-model="voucher.ProfitRate" class="form-control" tabindex="12" autocomplete="off">
-                    </div>
-                </div>
-                <div class="form-group" show-errors>
-
-                    <label class="col-sm-4 control-label">Total Interest Paid</label>
-                    <div class="col-sm-8 show-message">
-                        {{TotalInterestPaid}}
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                @*<div class="form-group col-sm-12">
-                    </div>*@
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label" title="No. Of Installment Per Year" tooltip>Advance Loan Term (monthly)<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" maxlength="4" name="No. Of Installment Per Year" ng-keyup="totalInstallment();LoadRepamentDetail()" ng-model="voucher.NoOfInstallmentPerYear" class="form-control text-right" tabindex="11" autocomplete="off">
-                        <input type="text" maxlength="10" ng-show="false" name="Total No Of Installment" ng-model="voucher.TotalNoOfInstallment" class="form-control text-right" tabindex="9" disabled autocomplete="off">
-                    </div>
-                    @*<label class="col-sm-3 control-label" title="Total No. Of Installment " tooltip>Total No.Install<sup>*</sup></label>
-                        <div class="col-sm-9 show-message">*@
-                    @*</div>*@
-                </div>
-            </div>
-
-
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group">
-                    @*<label class="col-sm-3 control-label">Total Payments </label>
-                        <div class="col-sm-9 show-message">
-                            {{TotalPayments}}
-                        </div>*@
-                </div>
-                @*<div class="form-group">
-                        <label class="col-sm-3 control-label"></label>
-                        <div class="col-sm-9 show-message">
-
-                        </div>
-                    </div>*@
-            </div>
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group">
-                    @*<label class="col-sm-3 control-label">Total Interest Paid</label>
-                        <div class="col-sm-9 show-message">
-                            {{TotalInterestPaid}}
-                        </div>*@
-                </div>
-                @*<div class="form-group">
-                        <label class="col-sm-3 control-label">Total Payments </label>
-                        <div class="col-sm-9 show-message">
-                            {{TotalPayments}}
-                        </div>
-                    </div>*@
-            </div>
-
-        </fieldset>
-        @*</div>*@
-    </div>
-    <div class="col-xs-12 col-sm-12 col-md-12 modal-table" id="loanDetails">
-    </div>
-    @*hr*@
-
-
-
 
 
     <div class="common-btn">
