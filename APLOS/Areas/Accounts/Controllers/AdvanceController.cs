@@ -2293,9 +2293,10 @@ namespace Aplos.Areas.Accounts.Controllers
         public JsonResult GetEmployeeAdvanceRequisitionPostList(GridParameter parameters)
         {
             AccountsAdvanceService _accountsAdvanceService = new AccountsAdvanceService(_sqlRepository);
-
+            AccountsSalaryPayableService _accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_accountsAdvanceService.GetEmployeeAdvanceRequisition(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.EmployeeAdvance), JsonRequestBehavior.AllowGet);
+            //return Json(_accountsSalaryPayableService.GetEmployeeMultipleAdvanceDisbursementVoucherList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.EmployeeAdvance), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
@@ -2347,8 +2348,29 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceService.InsertEmployeeAdvanceRequisition(voucherVM, voucherDetailVMList, advanceSalarySchedulelist, bankChargeDetailVMList)) });
         }
 
-     
-       
+        [HttpPost]
+        public JsonResult ParkEmployeeAdvanceRequisition(VoucherViewModel voucherVM, Dictionary<string, object> data, List<Dictionary<string, object>> advanceDetail)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.IsPark = true;
+            voucherVM.IsPosted = false;
+            voucherVM.SourceType = SourceType.EmployeeAdvance.ToString();
+            voucherVM.PartyType = PartyType.Employee.ToString();
+            if ((voucherVM.Amount == 0) || (voucherVM.Amount <= 0))
+                throw new CustomException(" Amount should more than 0");
+            if ((voucherVM.PaymentSource == "Bank") && (voucherVM.BankMasterId == null))
+                throw new CustomException(Resources.SelectBank);
+            if ((voucherVM.PaymentSource == "Cash") && (voucherVM.CashMasterId == null))
+                throw new CustomException(Resources.SelectCash);
+            if (voucherVM.EmployeeTransactionTypeId == null && voucherVM.JournalType != AdvanceType.Salary.ToString())
+                throw new CustomException(" Please Select Transaction Type");
+            
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceService.CreateEmployeeAdvanceHRPark(voucherVM, data, advanceDetail)) });
+        }
+
 
         [HttpPost]
         public JsonResult UpdateEmployeeAdvanceRequisitionPost(VoucherViewModel advanceVM, IEnumerable<VoucherDetailViewModel> advanceDetailVMList, IEnumerable<BankChargeViewModel> bankChargeDetailVMList)

@@ -3871,7 +3871,7 @@ namespace Library.Service.Advances
 
 
 
-        public string CreateEmployeeAdvancePark(VoucherViewModel voucherVM, Dictionary<string, object> data, List<Dictionary<string, object>> advanceDetail)
+        public string CreateEmployeeAdvanceHRPark(VoucherViewModel voucherVM, Dictionary<string, object> data, List<Dictionary<string, object>> advanceDetail)
         {
             try
             {
@@ -3879,6 +3879,8 @@ namespace Library.Service.Advances
                 _accountCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountCommonService.CheckingTaxYearPeriod(voucherVM);
+                var year = voucherVM.PostingDate.Year;
+                var month = voucherVM.PostingDate.Month;
                 DataSet dsMaster;
                 DataSet dsDetail;
                 DataSet dsDrvoucherDetail=null;
@@ -3890,7 +3892,7 @@ namespace Library.Service.Advances
                 var currentVoucherDetailId = 0;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from [TRN].[EmployeeAdvance] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-                con.OpenDataSetThroughAdapter("Select * from TRN.GLTransactionDetail where 1=2", out dsEmployeeSubsequentTransaction, false, "1");
+                con.OpenDataSetThroughAdapter("Select * from TRN.EmployeeSubsequentTransaction where 1=2", out dsEmployeeSubsequentTransaction, false, "1");
 
 
                 string _Id = "";
@@ -3904,6 +3906,10 @@ namespace Library.Service.Advances
                         genid.GenID("EmployeeAdvance", out _Id);
                     }
                     data["Id"] = _Id;
+                    data["YearNo"] = year;
+                    data["MonthNo"] = month;
+                    data["CurrencyId"] = voucherVM.CurrencyId;
+                    data["ToCurrencyRate"] = voucherVM.ToCurrencyRate;
                     data["FiscalYearId"] = voucherVM.FiscalYearId;
                     data["FiscalYearPeriodId"] = voucherVM.FiscalYearPeriodId;
                     data["TaxYearId"] = voucherVM.TaxYearId;
@@ -3913,6 +3919,7 @@ namespace Library.Service.Advances
                     data["PlantId"] = voucherVM.PlantId;
                     data["EntityId"] = voucherVM.EntityId;
                     data["SourceType"] = voucherVM.SourceType;
+                    data["UserRef"] = voucherVM.DocRefNo;
                     _accountCommonService.AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -3922,46 +3929,6 @@ namespace Library.Service.Advances
                 }
 
                 #endregion data update  Worker Advance
-
-                #region  Worker Advance Detail
-
-                string _MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-                con.OpenDataSetThroughAdapter("select * from [dbo].[EmployeeAdvanceDetail] where  EmployeeAdvanceId='" + _MasterId + "'", out dsDetail, false, "1");
-                int ccount = 0;
-                if (advanceDetail != null)
-                {
-                    foreach (var item in advanceDetail)
-                    {
-                        DataView dv = new DataView(dsDetail.Tables[0]);
-                        dv.RowFilter = "Id='" + item["Id"] + "'";
-                        if (dv.Count == 0)
-                        {
-                            ccount++;
-                            string detailId = _accountCommonService.MakePK(_MasterId, ccount, 2);
-
-                            item["Id"] = detailId;
-                            item["EmployeeAdvanceId"] = _MasterId;
-                            item["EmpSystemId"] = item["EmpSystemId"];
-
-                            _accountCommonService.AddNewRowD(dsDetail.Tables[0], item);
-                        }
-                        if (dv.Count > 0)
-                        {
-                            ccount++;
-                            string detailid = _accountCommonService.MakePK(_MasterId, ccount, 2);
-                            DataRow drmo = dv[0].Row;
-                            drmo.BeginEdit();
-
-                            drmo["EmployeeAdvanceId"] = _MasterId;
-                            drmo["EmpSystemId"] = item["EmpSystemId"];
-                            drmo["PayDays"] = item["PayDays"];
-                            drmo["AdvanceAmount"] = item["AdvanceAmount"];
-                            drmo["Remarks"] = item["Remarks"];
-
-                            drmo.EndEdit();
-                        }
-                    }
-                }
 
                 var advancevoucher = new Voucher
                 {
@@ -3987,7 +3954,7 @@ namespace Library.Service.Advances
                 //_voucherService.InsertVoucher(packingvoucher, voucherVM.FiscalYearPrefix);
                 _accountCommonService.InsertVoucher(advancevoucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);
 
-              
+
 
 
                 var voucherDetailDr = new VoucherDetail
@@ -4000,6 +3967,9 @@ namespace Library.Service.Advances
                     DocDate = voucherVM.DocDate,
                     DocRefNo = voucherVM.DocRefNo,
                     Narration = voucherVM.Narration,
+                    PlantId = voucherVM.PlantId,
+                    EmployeeId = voucherVM.EmployeeId,
+                    PartyType = voucherVM.PartyType,
 
                     AddedBy = advancevoucher.AddedBy,
                     AddedDate = advancevoucher.AddedDate,
@@ -4017,6 +3987,54 @@ namespace Library.Service.Advances
                     DrAmount = voucherDetailDr.DrAmount// * sales.ToCurrencyRate
                 }, ref dsDrvoucherDetailCurrency);
 
+                #region  Worker Advance Detail
+                string detailId = null;
+                string _MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                con.OpenDataSetThroughAdapter("select * from [TRN].[EmployeeAdvanceDetail] where  EmployeeAdvanceId='" + _MasterId + "'", out dsDetail, false, "1");
+                int ccount = 0;
+                if (advanceDetail != null)
+                {
+                    foreach (var item in advanceDetail)
+                    {
+                        DataView dv = new DataView(dsDetail.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        if (dv.Count == 0)
+                        {
+                            ccount++;
+                             detailId = _accountCommonService.MakePK(_MasterId, ccount, 2);
+
+                            item["Id"] = detailId;
+                            item["EmployeeAdvanceId"] = _MasterId;
+                            item["EmpSystemId"] = voucherVM.EmployeeId;
+                            item["AdvanceAmount"] = voucherVM.Amount;
+                            item["IsDisburse"] = true;
+                            item["IsApprove"] = true;
+                            item["IsWrittenOff"] = false;
+                            item["VoucherId"] = advancevoucher.Id;
+                            item["VoucherDetailId"] = voucherDetailDr.Id;
+                            item["PaymentSource"] = voucherVM.PaymentSource;
+
+                            _accountCommonService.AddNewRowD(dsDetail.Tables[0], item);
+                        }
+                        if (dv.Count > 0)
+                        {
+                            ccount++;
+                            string detailid = _accountCommonService.MakePK(_MasterId, ccount, 2);
+                            DataRow drmo = dv[0].Row;
+                            drmo.BeginEdit();
+
+                            drmo["EmployeeAdvanceId"] = _MasterId;
+                            drmo["EmpSystemId"] = item["EmpSystemId"];
+                            drmo["PayDays"] = item["PayDays"];
+                            drmo["AdvanceAmount"] = item["AdvanceAmount"];
+                            drmo["Remarks"] = item["Remarks"];
+
+                            drmo.EndEdit();
+                        }
+                    }
+                }
+
+             
                 if (dsEmployeeSubsequentTransaction.Tables[0].DefaultView.Count == 0)
                 {
                     var EmployeeSubsequentAdvance = new EmployeeSubsequentTransaction
@@ -4047,6 +4065,10 @@ namespace Library.Service.Advances
                         VoucherId = advancevoucher.Id,
                         VoucherDetailId = voucherDetailDr.Id,
                         PaymentSource = voucherVM.PaymentSource,
+                        EmployeeAdvanceDetailId = detailId,
+                        AddedBy= advancevoucher.AddedBy,
+                        AddedDate = advancevoucher.AddedDate,
+                        AddedFromIP = advancevoucher.AddedFromIP,
                     };
                     _accountCommonService.AddNewRow(dsEmployeeSubsequentTransaction.Tables[0], EmployeeSubsequentAdvance);
                 }
@@ -4101,8 +4123,10 @@ namespace Library.Service.Advances
 
 
                 #endregion  Worker Advance Detail
+             
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsDetail, dsDrvoucherDetail, dsDrvoucherDetailCurrency, dsEmployeeSubsequentTransaction, dsCrvoucherDetail, dsCrvoucherDetailCurrency, dsGLTransactionDetail);
+                // _info.SaveDataSets(dsMaster, vdataset,dsDrvoucherDetail, dsDrvoucherDetailCurrency, dsDetail, dsEmployeeSubsequentTransaction, dsCrvoucherDetail, dsCrvoucherDetailCurrency, dsGLTransactionDetail);
+                _info.SaveDataSets(dsMaster, _vdataset, dsDrvoucherDetail, dsDrvoucherDetailCurrency, dsDetail, dsEmployeeSubsequentTransaction, dsCrvoucherDetail, dsCrvoucherDetailCurrency, dsGLTransactionDetail);
 
                 return "";
             }
