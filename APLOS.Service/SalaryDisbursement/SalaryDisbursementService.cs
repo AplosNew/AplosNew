@@ -336,7 +336,7 @@ namespace Library.Service.SalaryDisbursement
 
                                         var advance = _advanceService.Find(item.AdvanceId);
                                         var advancesalaryAdvance = accountCommonExtensionService.GetEmployeeSalaryAdvane(item.EmployeeSalaryAdvanceId);
-                                        //var advancesalaryyMultipleAdvance = accountCommonExtensionService.GetEmployeeSalaryMultipleAdvane(item.WorkerAdvanceDetailId);
+                                        //var advancesalaryyMultipleAdvance = accountCommonExtensionService.GetEmployeeSalaryMultipleAdvane(item.EmployeeAdvanceDetailId);
 
                                         if (advancesalaryAdvance == null && advance!=null && advance.EmployeeId==item.EmployeeId && item.IsOrderSpecific == false)
                                         {
@@ -2959,20 +2959,20 @@ namespace Library.Service.SalaryDisbursement
                 var direct = new System.Text.StringBuilder();
                 var directsql = "";
 
-                directsql = @"UPDATE  gwpa SET gwpa.ApprovedStatus ='Approved',gwpa.PaymentsStatus=NULL
-					from WorkerAdvance gwpa
-					left join  WorkerAdvanceDetail gwpad on gwpad.WorkerAdvanceId=gwpa.Id
-					WHERE  gwpad.DisbursementVoucherId='" + voucherId + @"' ";
+                directsql = @"UPDATE  EA SET EA.ApprovedStatus ='Approved',EA.PaymentsStatus=NULL, EA.EntityId=NULL, EA.CurrencyId=NULL, EA.ToCurrencyRate=NULL, EA.EmployeeTransactionTypeId=NULL, EA.FiscalYearId=NULL, EA.FiscalYearPeriodId=NULL, EA.TaxYearId=NULL, EA.TaxYearPeriodId=NULL 
+					from [TRN].[EmployeeAdvance] EA
+					left join  [TRN].[EmployeeAdvanceDetail] EAD on EAD.EmployeeAdvanceId=EA.Id
+					WHERE  EAD.VoucherId='" + voucherId + @"' ";
                 direct.Append(directsql);
                 directsql = @"
-                              DELETE from [TRN].[EmployeeAdvanceDeduction] where WorkerAdvanceDetailId in (SELECT Id FROM [dbo].[WorkerAdvanceDetail]  where DisbursementVoucherId='" + voucherId + @"' ) ";
+                              DELETE from [TRN].[EmployeeAdvanceDeduction] where EmployeeAdvanceDetailId in (SELECT Id FROM [TRN].[EmployeeAdvanceDetail]  where VoucherId='" + voucherId + @"' ) ";
                 direct.Append(directsql);
                 directsql = @"
-                              DELETE from dbo.AdvanceReqSchedule where WorkerAdvanceDetailId in (SELECT Id FROM [dbo].[WorkerAdvanceDetail]  where DisbursementVoucherId='" + voucherId + @"' ) 
+                              DELETE from dbo.AdvanceReqSchedule where EmployeeAdvanceDetailId in (SELECT Id FROM [TRN].[EmployeeAdvanceDetail]  where VoucherId='" + voucherId + @"' ) 
                               DELETE from trn.EmployeeSubsequentTransaction where VoucherId='" + voucherId + @"' ";
                 direct.Append(directsql);
                 directsql = @"
-                              UPDATE [dbo].[WorkerAdvanceDetail] SET IsDisburse=NULL,PaymentsDate=NULL, DisbursementVoucherId=NULL, PaymentsById=NULL  where DisbursementVoucherId='" + voucherId + @"' ";
+                              UPDATE [TRN].[EmployeeAdvanceDetail] SET IsDisburse=NULL,PaymentsDate=NULL, VoucherId=NULL, VoucherDetailId=NULL, GLGeneralInfoId=NULL, BudgetMasterId=NULL, ActivityId=NULL, BudgetMasterActivityId=NULL, PaymentsById=NULL  where VoucherId='" + voucherId + @"' ";
                 direct.Append(directsql);
                 
                 _sqlRepository.ExecuteSqlCommand(direct.ToString());
