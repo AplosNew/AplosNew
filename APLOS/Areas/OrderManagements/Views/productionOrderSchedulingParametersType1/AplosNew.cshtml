@@ -29,6 +29,17 @@
 
         <div class="col-md-12">
             <div class="col-md-6">
+                <label class="col-sm-4 control-label">Planning Type Process<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select name="Planning Type Process" ng-model="PlanningTypeProcessId" ng-change="getData();getSettingsData();" class="form-control"
+                                ng-options="item.Id as item.UserName for item in planningTypeProcessList" tabindex="2" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
                 <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
                 <div class="col-sm-8 show-message text-left">
                     <div class="select-style">
@@ -37,17 +48,7 @@
                             <option value=""></option>
                         </select>
                     </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <label class="col-sm-4 control-label">Planning Type Process<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select name="Planning Type Process" ng-model="PlanningTypeProcessId" ng-change="getData();getSettingsData();" class="form-control"
-                                ng-options="item.Value as item.Text for item in planningTypeProcessList" tabindex="2" required>
-                            <option value=""></option>
-                        </select>
-                    </div>
+                    <input id="entityList" ng-model="EntityId" e-watermarktext="All" class="form-control" ej-dropdownlist e-enablefiltersearch="true" e-create="create" @*e-change="getProcessDataList"*@ e-multiselectmode="visualmode" e-datasource="entityList" e-fields-value="Id" e-fields-text="UserName" required tabindex="1" e-showcheckbox="true" />
                 </div>
             </div>
         </div>
