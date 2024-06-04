@@ -44,7 +44,7 @@
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
                         <select name="Planning Type Process" ng-model="PlanningTypeProcessId" ng-change="getData();getSettingsData();" class="form-control"
-                                ng-options="item.Value as item.Text for item in planningTypeProcessList" tabindex="2" required>
+                                ng-options="item.Id as item.UserName for item in planningTypeProcessList" tabindex="2" required>
                             <option value=""></option>
                         </select>
                     </div>
