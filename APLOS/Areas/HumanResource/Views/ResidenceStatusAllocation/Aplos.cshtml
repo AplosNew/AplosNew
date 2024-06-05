@@ -391,49 +391,47 @@
         <div class="modal-content">
             <div class="modal-header">Employee List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
-                <div class="col-md-12">
-                        <div style="color:black;" id="GridEmp" ej-grid e-datasource="dataList"
-                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true" e-templaterefresh="refreshTemplateemployee"
-                             >
-                            <div e-columns>
-                                <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridEmp" ej-grid e-datasource="dataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateemployee">
+                        <div e-columns>
+                            <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
 
 
-                                <div e-column e-field="EmployeeStatus" e-headertext="Emp Status" e-width="100"></div>
-                                <div e-column e-field="EmployeeCurrentStatus" e-headertext="Emp Cr. St." e-width="100"></div>
-                                @*<div e-column e-field="DOS" e-headertext="DOS" e-width="100"></div>*@
-                                <div e-column e-field="DOJ" e-headertext="DOJ" e-width="100"></div>
-                                <div e-column e-field="EmployeeCategory" e-headertext="Emp Category" e-width="100"></div>
-                                <div e-column e-field="Skill" e-headertext="Skill" e-width="100"></div>
-                                <div e-column e-field="LegalDesignation" e-headertext="Given Designation" e-width="100"></div>
-                                <div e-column e-field="SubSection" e-headertext="SubSection" e-width="100"></div>
-                                <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
-                                <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
-                                <div e-column e-field="EmployeeCode" e-headertext="Emp Code" e-width="100"></div>
-                                <div e-column e-field="EmployeeName" e-headertext="Emp Name" e-width="100"></div>
-                                <div e-column e-field="GenderID" e-headertext="Gender" e-width="100"></div>
-                                @*<div e-column e-field="ResidenceNumber" e-headertext="Residence Number" e-width="100"></div>
-                <div e-column e-field="Block" e-headertext="Block" e-width="100"></div>
-                <div e-column e-field="ResidentType" e-headertext="Resident Type" e-width="100"></div>*@
-                                <div e-column e-field="Location" e-headertext="Location" e-width="100"></div>
-                                <div e-column e-field="ResidenceCategory" e-headertext="Residence Category" e-width="100"></div>
-                                <div e-column e-field="ResidenceGroup" e-headertext="Res Group" e-width="100"></div>
+                            <div e-column e-field="EmployeeStatus" e-headertext="Emp Status" e-width="100"></div>
+                            <div e-column e-field="EmployeeCurrentStatus" e-headertext="Emp Cr. St." e-width="100"></div>
+                            @*<div e-column e-field="DOS" e-headertext="DOS" e-width="100"></div>*@
+                            <div e-column e-field="DOJ" e-headertext="DOJ" e-width="100"></div>
+                            <div e-column e-field="EmployeeCategory" e-headertext="Emp Category" e-width="100"></div>
+                            <div e-column e-field="Skill" e-headertext="Skill" e-width="100"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Given Designation" e-width="100"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="100"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Emp Code" e-width="100"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Emp Name" e-width="100"></div>
+                            <div e-column e-field="GenderID" e-headertext="Gender" e-width="100"></div>
+                            @*<div e-column e-field="ResidenceNumber" e-headertext="Residence Number" e-width="100"></div>
+                                <div e-column e-field="Block" e-headertext="Block" e-width="100"></div>
+                                <div e-column e-field="ResidentType" e-headertext="Resident Type" e-width="100"></div>*@
+                            <div e-column e-field="Location" e-headertext="Location" e-width="100"></div>
+                            <div e-column e-field="ResidenceCategory" e-headertext="Residence Category" e-width="100"></div>
+                            <div e-column e-field="ResidenceGroup" e-headertext="Res Group" e-width="100"></div>
 
 
-                            </div>
                         </div>
-                        <script type="text/template" id="checkboxTemplate">
-                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
-                        </script>
-                        <script type="text/x-jsrender" id="headerTemplate">
-                            <input type="checkbox" id="headchk" />
-                        </script>
+                    </div>
+                    <script type="text/template" id="checkboxTemplate">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
+                    </script>
+                    <script type="text/x-jsrender" id="headerTemplate">
+                        <input type="checkbox" id="headchk" />
+                    </script>
                 </div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li><button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Allocate</button></li>
-                        
+
                     </ul>
 
                 </div>
@@ -441,7 +439,7 @@
         </div>
     </div>
 </div>
-    
+
 
 
 
@@ -484,7 +482,7 @@
 
                             @*<div e-column e-field="Line" e-headertext="Line" e-width="100"></div>
 
-                    <div e-column e-field="ResidenceName" e-headertext="Residence Name" e-width="100"></div>
+                                <div e-column e-field="ResidenceName" e-headertext="Residence Name" e-width="100"></div>
 
 
 
