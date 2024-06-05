@@ -12099,7 +12099,7 @@ left outer join [HKP].[OrderStatus] OSS on OSS.id=So.OrderStatusId
 
 
 left outer join hkp.Season S on s.id=mo.SeasonId
-left outer join EmployeeInformation EI on ei.SystemId= MO.ResponsiblePersonId
+left outer join EmployeeInformation EI on ei.SystemId= SO.ResponsiblePersonId
 LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=MO.TotalQtyUOMId
 LEFT JOIN dbo.ProductLibrary PL ON PL.Id=MOI.ProductLibraryId
 

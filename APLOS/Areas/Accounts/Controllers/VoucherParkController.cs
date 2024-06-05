@@ -308,7 +308,8 @@ namespace Aplos.Areas.Accounts.Controllers
                     }
 
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    var advanceSql = @"UPDATE [TRN].Advance SET ISPark=1,IsPosted=0 WHERE VoucherId='" + voucherId + "'";
+                    var advanceSql = @"UPDATE [TRN].Advance SET ISPark=1,IsPosted=0 WHERE VoucherId='" + voucherId + @"'
+                                       UPDATE trn.EmployeeSubsequentTransaction SET IsPark=1 where VoucherId='" + voucherId + @"' ";
                     rdBuilder.Append(voucherSql);
                     rdBuilder.Append(advanceSql);
                 }

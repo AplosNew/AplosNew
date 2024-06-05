@@ -150,7 +150,7 @@ WHERE PT.PlanningType='PlanningType1' AND pt.CompanyGroupId='" + identity.Compan
             return null;
         }
         [Authorize, HttpGet]
-        public ActionResult GetSalesOrderListSearch(string column, string value, string productionorderid)
+        public ActionResult GetSalesOrderListSearch(string column, string value, string productionorderid, string EntityId, string ProcessId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string strkey = "1=1";
@@ -255,7 +255,10 @@ WHERE PT.PlanningType='PlanningType1' AND pt.CompanyGroupId='" + identity.Compan
 							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
 							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
 
-WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
+WHERE TEMP.ProductID IN(Select PLPM.ProductMasterId from dbo.PlanningTypeProductMaster PLPM
+LEFT JOIN dbo.PlanningTypes PT ON PT.Id=PLPM.PlanningTypeId
+Where PT.EntityId='"+ EntityId + @"' AND PT.BaseProcessId='"+ ProcessId + @"'
+) AND " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }

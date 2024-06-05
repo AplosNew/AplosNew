@@ -33,12 +33,12 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
     $scope.GetPlanningTypeProcess = function () {
         $http({
             method: 'GET',
-            url: 'OrderManagements/ProductionOrder/GetPlanningTypeProcessCbo?entityId=' + $scope.EntityId
+            url: 'OrderManagements/ProductionOrder/GetPlanningTypeProcessCbo'
         }).then(function successCallback(response) {
             $scope.planningTypeProcessList = response.data;
         });
     }
-
+    $scope.GetPlanningTypeProcess();
 
     $scope.modelFilterByList = [
         { 'name': 'Prod. Order#', 'value': 'Id' },
@@ -84,6 +84,18 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
     $scope.modelPriorityList = [];
     $scope.loadDataForPriority = function () {
         $scope.modelPriorityList = [];
+        var DropDownEntityListObj = $("#entityList").data("ejDropDownList");
+        $scope.EntityId = DropDownEntityListObj.getSelectedValue();
+
+        if (angular.isUndefinedOrNull($scope.EntityId)) {
+            for (var i = 0; i < DropDownEntityListObj.popupListItems.length; i++) {
+                if (angular.isUndefinedOrNull($scope.EntityId)) {
+                    $scope.EntityId = + DropDownEntityListObj.popupListItems[i].Id;
+                } else {
+                    $scope.EntityId += ',' + DropDownEntityListObj.popupListItems[i].Id;
+                }
+            }
+        }
         try {
             $http({
                 method: 'POST',
@@ -339,6 +351,18 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
     $scope.PRSearchValue = null;
     $scope.isLoadedPlanningBoardForTheFirstTime = false;
     $scope.getData = function () {
+        var DropDownEntityListObj = $("#entityList").data("ejDropDownList");
+        $scope.EntityId = DropDownEntityListObj.getSelectedValue();
+
+        if (angular.isUndefinedOrNull($scope.EntityId)) {
+            for (var i = 0; i < DropDownEntityListObj.popupListItems.length; i++) {
+                if (angular.isUndefinedOrNull($scope.EntityId)) {
+                    EntityId = + DropDownEntityListObj.popupListItems[i].Id;
+                } else {
+                    EntityId += ',' + DropDownEntityListObj.popupListItems[i].Id;
+                }
+            }
+        }
         $http({
             method: 'POST',
             data: {
@@ -398,7 +422,18 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
 
 
     $scope.getNewData = function () {
+        var DropDownEntityListObj = $("#entityList").data("ejDropDownList");
+        $scope.EntityId = DropDownEntityListObj.getSelectedValue();
 
+        if (angular.isUndefinedOrNull($scope.EntityId)) {
+            for (var i = 0; i < DropDownEntityListObj.popupListItems.length; i++) {
+                if (angular.isUndefinedOrNull($scope.EntityId)) {
+                    $scope.EntityId = + DropDownEntityListObj.popupListItems[i].Id;
+                } else {
+                    $scope.EntityId += ',' + DropDownEntityListObj.popupListItems[i].Id;
+                }
+            }
+        }
         $http({
             method: 'POST',
             data: { 'column': $scope.NewSearchParameters.searchBy, 'value': $scope.NewSearchParameters.search, 'baseprocessid': $scope.PlanningTypeProcessId, 'entityid': $scope.EntityId },
@@ -1651,6 +1686,18 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
     }
     $scope.Simulate = function () {
         try {
+            var DropDownEntityListObj = $("#entityList").data("ejDropDownList");
+            $scope.EntityId = DropDownEntityListObj.getSelectedValue();
+
+            if (angular.isUndefinedOrNull($scope.EntityId)) {
+                for (var i = 0; i < DropDownEntityListObj.popupListItems.length; i++) {
+                    if (angular.isUndefinedOrNull($scope.EntityId)) {
+                        EntityId = + DropDownEntityListObj.popupListItems[i].Id;
+                    } else {
+                        EntityId += ',' + DropDownEntityListObj.popupListItems[i].Id;
+                    }
+                }
+            }
             $http({
                 method: 'GET',
                 url: $scope.path + "ProductionPlanSimulationNew?entityid=" + $scope.EntityId + "&processid=" + $scope.PlanningTypeProcessId
@@ -1705,6 +1752,19 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
 
 
     $scope.SimulateVisual = function (ExtraParams) {
+        var DropDownEntityListObj = $("#entityList").data("ejDropDownList");
+        $scope.EntityId = DropDownEntityListObj.getSelectedValue();
+
+        if (angular.isUndefinedOrNull($scope.EntityId)) {
+            for (var i = 0; i < DropDownEntityListObj.popupListItems.length; i++) {
+                if (angular.isUndefinedOrNull($scope.EntityId)) {
+                    EntityId = + DropDownEntityListObj.popupListItems[i].Id;
+                } else {
+                    EntityId += ',' + DropDownEntityListObj.popupListItems[i].Id;
+                }
+            }
+        }
+
         var _data = {};
         var _path = $scope.path + "GetNewScheduleData?entityid=" + $scope.EntityId + "&processid=" + $scope.PlanningTypeProcessId + "&year=" + $scope.currentDate.year + "&month=" + $scope.currentDate.month + "&day=" + $scope.currentDate.day;
 
@@ -1998,6 +2058,19 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
     $scope.StyleGraph = [];
     $scope.GetStyleGraphData = function (styleno) {
         try {
+            var DropDownEntityListObj = $("#entityList").data("ejDropDownList");
+            $scope.EntityId = DropDownEntityListObj.getSelectedValue();
+
+            if (angular.isUndefinedOrNull($scope.EntityId)) {
+                for (var i = 0; i < DropDownEntityListObj.popupListItems.length; i++) {
+                    if (angular.isUndefinedOrNull($scope.EntityId)) {
+                        EntityId = + DropDownEntityListObj.popupListItems[i].Id;
+                    } else {
+                        EntityId += ',' + DropDownEntityListObj.popupListItems[i].Id;
+                    }
+                }
+            }
+
             $scope.graphmaxwidth = '200px';
             $http({
                 method: 'POST',
@@ -2103,6 +2176,19 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
     $scope.NewFreezeDate = null;
     $scope.FreezeConfig = {};
     $scope.getFreezeConfig = function () {
+        var DropDownEntityListObj = $("#entityList").data("ejDropDownList");
+        $scope.EntityId = DropDownEntityListObj.getSelectedValue();
+
+        if (angular.isUndefinedOrNull($scope.EntityId)) {
+            for (var i = 0; i < DropDownEntityListObj.popupListItems.length; i++) {
+                if (angular.isUndefinedOrNull($scope.EntityId)) {
+                    EntityId = + DropDownEntityListObj.popupListItems[i].Id;
+                } else {
+                    EntityId += ',' + DropDownEntityListObj.popupListItems[i].Id;
+                }
+            }
+        }
+
         $("#dialogFreezeDate").data("ejDialog").open();
 
         $http({
@@ -2114,6 +2200,19 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
         })
     }
     $scope.SaveFreezeConfig = function () {
+        var DropDownEntityListObj = $("#entityList").data("ejDropDownList");
+        $scope.EntityId = DropDownEntityListObj.getSelectedValue();
+
+        if (angular.isUndefinedOrNull($scope.EntityId)) {
+            for (var i = 0; i < DropDownEntityListObj.popupListItems.length; i++) {
+                if (angular.isUndefinedOrNull($scope.EntityId)) {
+                    EntityId = + DropDownEntityListObj.popupListItems[i].Id;
+                } else {
+                    EntityId += ',' + DropDownEntityListObj.popupListItems[i].Id;
+                }
+            }
+        }
+
         $http({
             method: 'GET',
             url: $scope.path + "SaveFreezeConfig?entityid=" + $scope.EntityId + "&date=" + $scope.NewFreezeDate
@@ -2177,6 +2276,19 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
 
     $scope.snapshotList = [];
     $scope.getSnapshotList = function () {
+        var DropDownEntityListObj = $("#entityList").data("ejDropDownList");
+        $scope.EntityId = DropDownEntityListObj.getSelectedValue();
+
+        if (angular.isUndefinedOrNull($scope.EntityId)) {
+            for (var i = 0; i < DropDownEntityListObj.popupListItems.length; i++) {
+                if (angular.isUndefinedOrNull($scope.EntityId)) {
+                    EntityId = + DropDownEntityListObj.popupListItems[i].Id;
+                } else {
+                    EntityId += ',' + DropDownEntityListObj.popupListItems[i].Id;
+                }
+            }
+        }
+
         $http({
             method: 'POST',
             url: $scope.path + "LoadNewSnapshotList?entityid=" + $scope.EntityId + "&processid=" + $scope.PlanningTypeProcessId
@@ -2218,6 +2330,19 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
     $scope.appointmentsSnapshot = [];
     $scope.loadSnapshot = function (args) {
         try {
+            var DropDownEntityListObj = $("#entityList").data("ejDropDownList");
+            $scope.EntityId = DropDownEntityListObj.getSelectedValue();
+
+            if (angular.isUndefinedOrNull($scope.EntityId)) {
+                for (var i = 0; i < DropDownEntityListObj.popupListItems.length; i++) {
+                    if (angular.isUndefinedOrNull($scope.EntityId)) {
+                        EntityId = + DropDownEntityListObj.popupListItems[i].Id;
+                    } else {
+                        EntityId += ',' + DropDownEntityListObj.popupListItems[i].Id;
+                    }
+                }
+            }
+
             $http({
                 method: 'POST',
                 url: $scope.path + "LoadSnapshot?id=" + args.data.ID + "&entityid=" + $scope.EntityId + "&processid=" + $scope.PlanningTypeProcessId
@@ -2379,7 +2504,7 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
                 target: "#entrycontainer"
             });
 
-            $scope.actionCompleteSelected();
+            $scope.actionCompleteSelected(); LoadFilterSQL
         } catch (e) {
 
         }

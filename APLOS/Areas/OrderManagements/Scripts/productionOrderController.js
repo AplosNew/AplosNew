@@ -911,7 +911,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     $scope.serachSoMaterial = function serachSoMaterial() {
         $http({
             method: 'GET',
-            url: $scope.path + 'GetSalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search + "&productionorderid=" + $scope.model.Id
+            url: $scope.path + 'GetSalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search + "&productionorderid=" + $scope.model.Id + "&EntityId=" + $scope.model.EntityId + "&ProcessId=" + $scope.model.PlanningTypeProcessId
         }).then(function successCallback(response) {
 
             for (var i = 0; i < response.data.length; i++) {
