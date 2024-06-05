@@ -878,11 +878,26 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = AplosMessage.Updated });
         }
         [HttpPost]
+        public JsonResult PostEmployeeAdvanceHR(string voucherId, string requisitionId)
+        {
+            _advanceService.PostEmployeeAdvanceHR(voucherId, requisitionId);
+            return Json(new { Message = AplosMessage.Posted });
+        }
+
+        [HttpPost]
         public JsonResult DeleteEmployeeAdvance(string advanceId, string voucherId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             _advanceService.DeleteEmployeeAdvance(identity.CompanyId, identity.PlantId, voucherId);
+            return Json(new { Message = AplosMessage.Updated });
+        }
+        [HttpPost]
+        public JsonResult DeleteEmployeeAdvanceHR(string employeeAdvanceId, string voucherId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _advanceService.DeleteEmployeeAdvanceHR(employeeAdvanceId, voucherId);
             return Json(new { Message = AplosMessage.Updated });
         }
         [HttpPost]
@@ -909,6 +924,25 @@ namespace Aplos.Areas.Accounts.Controllers
                     return RenderReportAsExcel(workbook, reportFileName);
             }
         }
+
+        [HttpGet, Authorize]
+        public ActionResult GetEmployeeAdvanceHRReport(ReportFormat reportFormat, string voucherId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _advanceReportService.GetEmployeeAdvanceHRReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId, SourceType.EmployeeAdvance);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetEmployeeAdvanceReportPortal(ReportFormat reportFormat, string employeeAdvanceRequisitionId)
         {
@@ -2292,11 +2326,9 @@ namespace Aplos.Areas.Accounts.Controllers
         [Authorize, HttpGet]
         public JsonResult GetEmployeeAdvanceRequisitionPostList(GridParameter parameters)
         {
-            AccountsAdvanceService _accountsAdvanceService = new AccountsAdvanceService(_sqlRepository);
-            AccountsSalaryPayableService _accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
+            AccountsAdvanceService _accountsSalaryPayableService = new AccountsAdvanceService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_accountsAdvanceService.GetEmployeeAdvanceRequisition(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.EmployeeAdvance), JsonRequestBehavior.AllowGet);
-            //return Json(_accountsSalaryPayableService.GetEmployeeMultipleAdvanceDisbursementVoucherList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.EmployeeAdvance), JsonRequestBehavior.AllowGet);
+            return Json(_accountsSalaryPayableService.GetEmployeeAdvanceHRList(parameters, SourceType.EmployeeAdvance), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]

@@ -3920,6 +3920,9 @@ namespace Library.Service.Advances
                     data["EntityId"] = voucherVM.EntityId;
                     data["SourceType"] = voucherVM.SourceType;
                     data["UserRef"] = voucherVM.DocRefNo;
+                    data["ResponsiblePersonId"] = voucherVM.ResponsiblePersonId;
+                    data["RequisitionId"] = voucherVM.RequisitionId;
+
                     _accountCommonService.AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -4163,6 +4166,43 @@ namespace Library.Service.Advances
                 advance.IsPark = false;
                 base.UpdateGraph(advance);
                 _voucherService.PostVoucher(advance.VoucherId);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
+        public void PostEmployeeAdvanceHR(string voucherId,string requisitionId)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var direct = new System.Text.StringBuilder();
+                var directsql = "";
+                var requisitionsql = "";
+                requisitionsql = @" UPDATE [TRN].[EmployeeAdvanceRequisition] SET IsPost=1 where SystemId='" + requisitionId + @"' ";
+                directsql = @" UPDATE trn.EmployeeSubsequentTransaction SET IsPark=0 where VoucherId='" + voucherId + @"' ";
+                direct.Append(directsql);
+                direct.Append(requisitionsql);
+                _sqlRepository.ExecuteSqlCommand(direct.ToString());
+                _voucherService.PostVoucher(voucherId);
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
@@ -9725,5 +9765,83 @@ namespace Library.Service.Advances
             }
         }
 
+        public void DeleteEmployeeAdvanceHR(string employeeAdvanceId, string voucherId)
+        {
+            var flag = false;
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon1;
+                DataSet dsMaster1 = null;
+                string setOffsql = @"SELECT VoucherNo from trn.AdvanceWriteOffDetail iwd JOIN trn.AdvanceWriteOff iw on iw.Id=iwd.AdvanceWriteOffId LEFT JOIN trn.Voucher v on v.Id = iw.VoucherId
+                                            WHERE iwd.EmployeeAdvanceDetailId in (select Id from trn.EmployeeAdvanceDetail where VoucherId = '" + voucherId + "')";
+                objCon1 = new ConnectionManager.DAL.ConManager("1");
+                objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
+
+                if (dsMaster1.Tables[0].Rows.Count > 0)
+                {
+                    throw new CustomException("Voucher Park Mode not allowed,  Voucher No '" + dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
+                }
+
+                // Delete Loan
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var vendorAdWr = new System.Text.StringBuilder();
+                var vendorAdWrsql = "";
+
+                vendorAdWrsql = @"update [TRN].[EmployeeAdvanceRequisition] set IsPost=0 WHERE  SystemId in (select RequisitionId from TRN.EmployeeAdvance where  Id = '" + employeeAdvanceId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+
+                vendorAdWrsql = @"delete trn.voucherdetailcurrency where VoucherId in (select Id from trn.voucher where  Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+
+                vendorAdWrsql = @"delete trn.GLTransactionDetail where VoucherDetailId in (select id from trn.voucherdetail where VoucherId in (select Id from trn.voucher where  Id = '" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
+               
+                vendorAdWrsql = @"delete trn.EmployeeAdvanceDetail  where voucherId in (select Id from trn.voucher where  Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.EmployeeSubsequentTransaction  where voucherId in (select Id from trn.voucher where Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"update trn.VoucherDetail set InvoiceTaxDetailId=NULL  where voucherId in (select Id from trn.voucher where  Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"update trn.InvoiceTax set VoucherDetailId=NULL where voucherId in (select Id from trn.voucher where  Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.voucherdetail where VoucherId in (select Id from trn.voucher where  Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.InvoiceTaxDetail where InvoiceTaxId in (select Id from trn.InvoiceTax where voucherId in (select Id from trn.voucher where  Id = '" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.InvoiceTax where voucherId in (select Id from trn.voucher where  Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete TRN.AdvanceDetail where AdvanceId in (select Id from TRN.Advance where voucherId in (select Id from trn.voucher where  Id = '" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete TRN.BankCharge where AdvanceId in (select Id from TRN.Advance where voucherId in (select Id from trn.voucher where  Id = '" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete TRN.EmployeeAdvance where Id in ('" + employeeAdvanceId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.voucher where Id in (select Id from trn.voucher where  Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
+       
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Library.Core;
+using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.Model.Enums;
@@ -12,6 +13,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Library.Accounting.Accounts
@@ -611,5 +613,33 @@ namespace Library.Accounting.Accounts
             return _sqlRepository.GetDataCollection(sql);
         }
 
+        public GridModel GetEmployeeAdvanceHRList(GridParameter parameters, SourceType sourceType)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                parameters.CmdText = @"SELECT V.VoucherNo, A.Id, EAD.Id As EmployeeAdvanceAdvanceId--,BC.Id AS BankChargeId
+                                ,  EAD.EmpSystemId EmployeeId, EI.EmployeeCode
+                                 , EI.EmployeeName, EIR.EmployeeCode AS ResponsibleCode,EIR.EmployeeName AS ResponsibleName, EAD.VoucherId, V.PostingDate, V.DocDate, V.DocRefNo
+                                 , A.CurrencyId, C.Code AS CurrencyCode, EAD.AdvanceAmount Amount, EAD.IsWrittenOff, EAD.WrittenOffAmount, V.IsPark
+                                 , Status = case when V.IsPark = 0 then 'Posted' else 'Parked' end,A.RequisitionId,EAR.AdvanceType,CB.EmployeeName CheckedBy,AP.EmployeeName ApprovedBy
+                                 FROM [TRN].[EmployeeAdvance] AS A
+								 LEFT JOIN  [TRN].[EmployeeAdvanceDetail] EAD ON EAD.EmployeeAdvanceId=A.Id
+                                 LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=EAD.EmpSystemId
+                                 LEFT JOIN [dbo].[EmployeeInformation] AS EIR ON EIR.SystemId=A.ResponsiblePersonId
+								 LEFT JOIN [TRN].[EmployeeAdvanceRequisition] EAR ON EAR.SystemId=A.RequisitionId
+								 LEFT JOIN [dbo].[EmployeeInformation] AS CB ON CB.SystemId=EAR.CheckedBy
+                                 LEFT JOIN [dbo].[EmployeeInformation] AS AP ON AP.SystemId=EAR.ApprovedBy
+                                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
+                                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=EAD.VoucherId
+                                    WHERE  V.Archive=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + "'AND V.CompanyId='" + identity.CompanyId + "' AND V.PlantId='" + identity.PlantId + "' AND V.SourceType='" + SourceType.EmployeeAdvance + "' AND A.FromDate IS NULL";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex);
+            }
+        }
     }
 }

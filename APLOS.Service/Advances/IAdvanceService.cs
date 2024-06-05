@@ -19,6 +19,7 @@ namespace Library.Service.Advances
         Dictionary<string, object> GetReportHeader(string voucherId);
 
         void Post(string advanceId);
+        void PostEmployeeAdvanceHR(string voucherId,string requisitionId);
         void PostCustomerAdvanceGroupWise(string advanveGroupNo);
         void UnPost(string advanceId);
 
@@ -92,7 +93,7 @@ namespace Library.Service.Advances
         void DeleteEmployeeTotalAdvanceWriteOff(string advanceWriteOffId, string voucherId);
         void PostEmployeeAdvanceRequisition(string advanceId, string voucherId);
         void DeleteEmployeeAdvance(string companyId, string plantId, string voucherId);
-
+        void DeleteEmployeeAdvanceHR(string employeeAdvanceId, string voucherId);
 
     }
 }

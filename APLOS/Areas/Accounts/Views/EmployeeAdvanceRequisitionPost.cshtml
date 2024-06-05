@@ -284,6 +284,7 @@
             <thead>
                 <tr>
                     <th>VoucherNo</th>
+                    <th>Requisition No</th>
                     <th>@Library.Model.Parties.PartyType.Employee.ToString()</th>
                     <th>Posting Date</th>
                     <th>Currency</th>
@@ -300,6 +301,7 @@
             <tbody>
                 <tr dir-paginate="x in voucherList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="getById(x.Id,x.EmployeeCode,x.EmployeeName,x.ResponsibleCode,x.ResponsibleName);">
                     <td>{{x.VoucherNo}}</td>
+                    <td>{{x.RequisitionId}}</td>
                     <td>{{x.EmployeeCode}} - {{x.EmployeeName}}</td>
                     <td>{{x.PostingDate | dateFiltering}}</td>
                     <td>{{x.CurrencyCode}}</td>
@@ -312,10 +314,10 @@
                     <td>{{x.IsPark?'Parked':'Posted'}}</td>
                     <td class="text-right">
                         <ul class="list-inline action-list">
-                            <li ng-show="x.IsPark"><a ng-click="confirmPost(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Post</a></li>
-                            <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
-                            <li><a class="btn btn-action" href="Accounts/Advance/GetEmployeeAdvanceReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
-                            <li><a class="btn btn-action" href="Accounts/Advance/GetEmployeeAdvanceReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
+                            <li ng-show="x.IsPark"><a ng-click="confirmPost(x.VoucherId,x.RequisitionId);" href="" class="btn btn-action tooltip-here">Post</a></li>
+                            <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId,x.RequisitionId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
+                            <li><a class="btn btn-action" href="Accounts/Advance/GetEmployeeAdvanceHRReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}&requisitionId={{x.RequisitionId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                            <li><a class="btn btn-action" href="Accounts/Advance/GetEmployeeAdvanceHRReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}&requisitionId={{x.RequisitionId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
                         </ul>
                     </td>
                 </tr>
@@ -364,8 +366,8 @@
     </div>
 </div>
 
-<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceId,voucherId)"></confirm-archive-generic>
-<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(advanceId,voucherId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(requisitionId,voucherId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(employeeAdvanceId,voucherId)"></confirm-archive-generic>
 
 <div class="modal fade site-modal in" id="employeeReconGLPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
