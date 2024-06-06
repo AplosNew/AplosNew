@@ -618,12 +618,11 @@ namespace Library.Accounting.Accounts
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-                parameters.CmdText = @"SELECT V.VoucherNo, A.Id, EAD.Id As EmployeeAdvanceAdvanceId--,BC.Id AS BankChargeId
+                parameters.CmdText = @"SELECT V.VoucherNo, A.Id,EAR.AdvanceType, EAD.Id As AdvanceId,'EmployeeAdvance' AdvanceCategory
                                 ,  EAD.EmpSystemId EmployeeId, EI.EmployeeCode
                                  , EI.EmployeeName, EIR.EmployeeCode AS ResponsibleCode,EIR.EmployeeName AS ResponsibleName, EAD.VoucherId, V.PostingDate, V.DocDate, V.DocRefNo
                                  , A.CurrencyId, C.Code AS CurrencyCode, EAD.AdvanceAmount Amount, EAD.IsWrittenOff, EAD.WrittenOffAmount, V.IsPark
-                                 , Status = case when V.IsPark = 0 then 'Posted' else 'Parked' end,A.RequisitionId,EAR.AdvanceType,CB.EmployeeName CheckedBy,AP.EmployeeName ApprovedBy
+                                 , [Status] = case when V.IsPark = 0 then 'Posted' else 'Parked' end,0 IsPosted,A.RequisitionId,CB.EmployeeName CheckedBy,AP.EmployeeName ApprovedBy
                                  FROM [TRN].[EmployeeAdvance] AS A
 								 LEFT JOIN  [TRN].[EmployeeAdvanceDetail] EAD ON EAD.EmployeeAdvanceId=A.Id
                                  LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=EAD.EmpSystemId
@@ -633,7 +632,34 @@ namespace Library.Accounting.Accounts
                                  LEFT JOIN [dbo].[EmployeeInformation] AS AP ON AP.SystemId=EAR.ApprovedBy
                                  LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
                                  LEFT JOIN [TRN].[Voucher] AS V ON V.Id=EAD.VoucherId
-                                    WHERE  V.Archive=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + "'AND V.CompanyId='" + identity.CompanyId + "' AND V.PlantId='" + identity.PlantId + "' AND V.SourceType='" + SourceType.EmployeeAdvance + "' AND A.FromDate IS NULL";
+                                 WHERE  V.Archive=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + "' AND V.CompanyId='" + identity.CompanyId + "' AND V.PlantId='" + identity.PlantId + "' AND V.SourceType='" + sourceType + @"' AND A.FromDate IS NULL
+                                 UNION ALL
+                                 SELECT V.VoucherNo, Id=CASE WHEN A.Id<>'' THEN A.Id ELSE ESA.Id END,AdvanceType=CASE WHEN EAR.AdvanceType<>'' THEN EAR.AdvanceType ELSE EARII.AdvanceType END 
+								 , A.Id As AdvanceId ,'Advance' AdvanceCategory,EmployeeId=CASE WHEN  A.EmployeeId<>'' THEN A.EmployeeId ELSE ESA.EmployeeId END
+								 , EmployeeCode=CASE WHEN  EI.EmployeeCode<>'' THEN EI.EmployeeCode ELSE EIAS.EmployeeCode END
+                                 , EmployeeName=CASE WHEN  EI.EmployeeName<>'' THEN EI.EmployeeName ELSE EIAS.EmployeeName END
+								 , EIR.EmployeeCode AS ResponsibleCode,EIR.EmployeeName AS ResponsibleName
+								 , V.Id VoucherId, V.PostingDate, V.DocDate, V.DocRefNo
+                                 , V.CurrencyId, C.Code AS CurrencyCode
+								 , Amount=CASE WHEN A.Amount>0 THEN A.Amount ELSE ESA.Amount END, A.IsWrittenOff, A.WrittenOffAmount, v.IsPark,'' [Status], A.IsPosted,'' RequisitionId
+                                 , EEC. EmployeeName CheckedBy ,EEA. EmployeeName ApprovedBy         
+                                 FROM [TRN].[Advance] AS A  
+                                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
+								 LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
+                                 LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=A.PartyPlantId
+                                 LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=A.EmployeeId
+                                 LEFT JOIN [dbo].[EmployeeInformation] AS EIR ON EIR.SystemId=A.ResponsiblePersonId
+                                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
+                                 LEFT JOIN [TRN].[BankCharge] AS BC ON BC.AdvanceId=A.Id
+								 LEFT JOIN [TRN].[EmployeeSalaryAdvance] AS ESA ON ESA.VoucherId=V.Id
+                                 LEFT JOIN [TRN].[EmployeeAdvanceRequisition] EAR ON EAR.SystemId=A.RequisitionId
+                                 LEFT JOIN [TRN].[EmployeeAdvanceRequisition] EARII ON EARII.SystemId=ESA.EmployeeAdvanceRequisitionId
+								 LEFT JOIN [dbo].[EmployeeInformation] AS EIAS ON EIAS.SystemId=ESA.EmployeeId
+								 LEFT JOIN EmployeeInformation EEC ON EEC.SystemId = EAR.CheckedBy
+								 LEFT JOIN EmployeeInformation EEA ON EEA.SystemId = EAR.ApprovedBy
+                                 LEFT JOIN (SELECT AdvanceId, PartyId, NetAmount FROM [TRN].[AdvanceDetail]
+                                 ) AS AD ON AD.AdvanceId=A.Id AND AD.PartyId=A.PartyId
+                                 WHERE  V.Archive=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + "' AND V.CompanyId='" + identity.CompanyId + "' AND V.PlantId='" + identity.PlantId + "' AND V.SourceType='" + sourceType + @"' AND A.OpeningBalanceId IS NULL";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
