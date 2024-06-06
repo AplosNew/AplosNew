@@ -615,6 +615,7 @@ isnull(S.username,'')<>'" + PlanningStatus.CLOSED.ToString() + @"' AND  po.entit
         [Authorize, HttpPost]
         public ActionResult GetPONewList(string column, string value, string baseprocessid, string entityid)
         {
+            string entityId = "'" + entityid.Replace(",", "','") + "'";//replaced with ""
             string strKey = "1=1";
             if (column != "")
                 strKey = column + " LIKE '%" + clsStaticInfo.nullrecorder(value) + "%'";
@@ -749,7 +750,7 @@ from trn.ProductionOrderDetail AS pod JOIN  trn.SalesOrder SO ON pod.SalesOrderI
                         WHERE po.Id NOT IN (SELECT ProductionOrderSchedulingParametersType1.ProductionOrderID
                       FROM ProductionOrderSchedulingParametersType1)
                             AND 
-isnull(S.username,'')<>'" + PlanningStatus.CLOSED.ToString() + @"' AND  po.entityid='" + entityid + @"' and PO.PlanningTypeProcessId ='" + baseprocessid + @"') AS TEMP where " + strKey;
+isnull(S.username,'')<>'" + PlanningStatus.CLOSED.ToString() + @"' AND  po.entityid IN(" + entityId + @") and PO.PlanningTypeProcessId ='" + baseprocessid + @"') AS TEMP where " + strKey;
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }

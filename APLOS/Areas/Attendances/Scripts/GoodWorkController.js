@@ -470,11 +470,12 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         }
         else {
             $scope.DT = $scope.ModelNew.WorkDate;
+            $scope.ModelNew.WorkDate = $scope.DT;
             $scope.LBLShow = true;
             $scope.dateControlShow = false;
         }
         $scope.GetGoodWorkDetailCenter();
-        $scope.getFiltersData();
+        $scope.GetGoodWorkCheckByCbo();
         $scope.Action = 'Update';
         if (baseService.arrayLength($scope.checkedByList) == 1) {
             $scope.ModelNew.CheckedBy = $scope.checkedByList[0].Value;
@@ -550,6 +551,9 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.filters = [];
     $scope.getFiltersData = function () {
         try {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.WorkDate)) {
+                $scope.ModelNew.WorkDate = $scope.DT;
+            }
             $http({
                 method: 'GET',
                 url: $scope.path + 'getFiltersData?userGroupId=' + $scope.ModelNew.UserGroupId + '&shiftId=' + $scope.ModelNew.ShiftId + '&date=' + $scope.ModelNew.WorkDate,
@@ -630,7 +634,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
                 $scope.ModelNew.CheckedBy = $scope.checkedByList[0].Value;
             }
         });
-    }
+    };
 
     $scope.userGroupDataList = [];
     $scope.GetUserGroupList = function () {
