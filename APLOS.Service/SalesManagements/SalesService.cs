@@ -3122,27 +3122,82 @@ namespace Library.Service.SalesManagements
                 voucherVM.Id = sales.Id;
                 AuditService.AddedLog(sales);
                 _salesRepository.Insert(sales);
-
-                var InventorySales = new Library.Model.Inventory.InventorySales
-                {
-                    CompanyGroupId = voucherVM.CompanyGroupId,
-                    CompanyId = voucherVM.CompanyId,
-                    PlantId = voucherVM.PlantId,
-                    EntityId = voucherVM.EntityId,
-                    CurrencyId = voucherVM.CurrencyId,
-                    SalesDate = (DateTime)voucherVM.InvoiceDate,
-                    DocDate = (DateTime)voucherVM.InvoiceDate,
-
-
-                    Id = _pkGeneratorService.GetAutoNumber(nameof(Library.Model.Inventory.InventorySales), PKGeneratorEnum.Yearly, null, DateTime.Now),
-                };
-                AuditService.AddedLog(InventorySales);
-                _SalesRepository.Insert(InventorySales);
-
                 var currentSalesMaterialId = 0;
                 var currentSalesOrderItemId = 0;
                 var currentSalesServiceId = 0;
                 var currentSalesTaxId = 0;
+                int count = 0;
+                if (dsDetail.Tables[0].Rows.Count > 0)
+                {
+                    var InventorySales = new Library.Model.Inventory.InventorySales
+                    {
+                        CompanyGroupId = voucherVM.CompanyGroupId,
+                        CompanyId = voucherVM.CompanyId,
+                        PlantId = voucherVM.PlantId,
+                        EntityId = voucherVM.EntityId,
+                        CurrencyId = voucherVM.CurrencyId,
+                        SalesDate = (DateTime)voucherVM.InvoiceDate,
+                        DocDate = (DateTime)voucherVM.InvoiceDate,
+
+
+                        Id = _pkGeneratorService.GetAutoNumber(nameof(Library.Model.Inventory.InventorySales), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                    };
+                    AuditService.AddedLog(InventorySales);
+                    _SalesRepository.Insert(InventorySales);
+                   
+                    for (int i = 0; i < dsDetail.Tables[0].Rows.Count; i++)
+                    {
+                        currentSalesMaterialId++;
+                        var SalesDetail = new Library.Model.Inventory.InventorySalesDetail
+                        {
+                            Id = _pkGeneratorService.MakePK(InventorySales.Id, currentSalesMaterialId, 2),
+                            InventorySalesId = InventorySales.Id,
+                            InventoryMaterialId = dsDetail.Tables[0].Rows[i]["InventoryMaterialId"].ToString(),
+                            TransactionQty = Convert.ToDecimal(dsDetail.Tables[0].Rows[i]["TransactionQty"].ToString()),
+                            BaseQty = Convert.ToDecimal(dsDetail.Tables[0].Rows[i]["TransactionQty"].ToString()),
+                            PolicyRate = Convert.ToDecimal(dsDetail.Tables[0].Rows[i]["PolicyRate"]),
+                            PolicyAmount = Convert.ToDecimal(dsDetail.Tables[0].Rows[i]["PolicyAmount"].ToString()),
+                            BaseUOMId = dsDetail.Tables[0].Rows[i]["BaseUOMId"].ToString(),
+                            TransactionUoMId = dsDetail.Tables[0].Rows[i]["TransactionUoMId"].ToString(),
+                            Policy = "FIFO",
+                            AddedBy = sales.AddedBy,
+                            AddedDate = sales.AddedDate,
+                            AddedFromIP = sales.AddedFromIP,
+                            UpdatedBy = null,
+                            UpdatedDate = null,
+                            UpdatedFromIP = null
+                        };
+                        _SalesDetailService.Insert(SalesDetail);
+                        for (int j = 0; j < dsHistory.Tables[0].Rows.Count; j++)
+                        {
+                            if (dsHistory.Tables[0].Rows[j]["PackingId"].ToString() == dsDetail.Tables[0].Rows[i]["PackingId"].ToString())
+                            {
+                                count++;
+                                var InventorySalesHistory = new Library.Model.Inventory.InventorySalesHistory
+                                {
+                                    Id = _pkGeneratorService.MakePK(SalesDetail.Id, count, 2),
+                                    InventorySalesDetailId = SalesDetail.Id,
+                                    InventoryReceiveDetailId = dsHistory.Tables[0].Rows[j]["InventoryReceiveDetailId"].ToString(),
+                                    Qty = Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["Qty"].ToString()),
+                                    TotalBaseAmount = Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["TotalAmount"].ToString()),
+                                    BaseRate = Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["BooksCurrencyBaseRate"].ToString()),
+                                    BooksCurrencyBaseAmount = Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["TotalMaterialBooksCurrencyAmount"].ToString()),
+
+                                    AddedBy = sales.AddedBy,
+                                    AddedDate = sales.AddedDate,
+                                    AddedFromIP = sales.AddedFromIP,
+                                    UpdatedBy = null,
+                                    UpdatedDate = null,
+                                    UpdatedFromIP = null
+                                };
+                                _SalesHistoryService.Insert(InventorySalesHistory);
+                            }
+                        }
+
+                    }
+                }
+
+                
                 if (salesMaterialVMList != null)
                 {
                     foreach (var salesMaterialVM in salesMaterialVMList)
@@ -3277,61 +3332,6 @@ namespace Library.Service.SalesManagements
 
                     }
                 }
-                currentSalesMaterialId = 0;
-                int count = 0;
-                if (dsDetail.Tables[0].Rows.Count > 0)
-                {
-                    for (int i = 0; i < dsDetail.Tables[0].Rows.Count; i++)
-                    {
-                        currentSalesMaterialId++;
-                        var SalesDetail = new Library.Model.Inventory.InventorySalesDetail
-                        {
-                            Id = _pkGeneratorService.MakePK(InventorySales.Id, currentSalesMaterialId, 2),
-                            InventorySalesId = InventorySales.Id,
-                            InventoryMaterialId = dsDetail.Tables[0].Rows[i]["InventoryMaterialId"].ToString(),
-                            TransactionQty = Convert.ToDecimal(dsDetail.Tables[0].Rows[i]["TransactionQty"].ToString()),
-                            BaseQty = Convert.ToDecimal(dsDetail.Tables[0].Rows[i]["TransactionQty"].ToString()),
-                            PolicyRate = Convert.ToDecimal(dsDetail.Tables[0].Rows[i]["PolicyRate"]),
-                            PolicyAmount = Convert.ToDecimal(dsDetail.Tables[0].Rows[i]["PolicyAmount"].ToString()),
-                            BaseUOMId = dsDetail.Tables[0].Rows[i]["BaseUOMId"].ToString(),
-                            TransactionUoMId = dsDetail.Tables[0].Rows[i]["TransactionUoMId"].ToString(),
-                            Policy = "FIFO",
-                            AddedBy = sales.AddedBy,
-                            AddedDate = sales.AddedDate,
-                            AddedFromIP = sales.AddedFromIP,
-                            UpdatedBy = null,
-                            UpdatedDate = null,
-                            UpdatedFromIP = null
-                        };
-                        _SalesDetailService.Insert(SalesDetail);
-                        for (int j = 0; j < dsHistory.Tables[0].Rows.Count; j++)
-                        {
-                            if (dsHistory.Tables[0].Rows[j]["PackingId"].ToString() == dsDetail.Tables[0].Rows[i]["PackingId"].ToString())
-                            {
-                                count++;
-                                var InventorySalesHistory = new Library.Model.Inventory.InventorySalesHistory
-                                {
-                                    Id = _pkGeneratorService.MakePK(SalesDetail.Id, count, 2),
-                                    InventorySalesDetailId = SalesDetail.Id,
-                                    InventoryReceiveDetailId = dsHistory.Tables[0].Rows[j]["InventoryReceiveDetailId"].ToString(),
-                                    Qty = Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["Qty"].ToString()),
-                                    TotalBaseAmount = Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["TotalAmount"].ToString()),
-                                    BaseRate = Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["BooksCurrencyBaseRate"].ToString()),
-                                    BooksCurrencyBaseAmount = Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["TotalMaterialBooksCurrencyAmount"].ToString()),
-
-                                    AddedBy = sales.AddedBy,
-                                    AddedDate = sales.AddedDate,
-                                    AddedFromIP = sales.AddedFromIP,
-                                    UpdatedBy = null,
-                                    UpdatedDate = null,
-                                    UpdatedFromIP = null
-                                };
-                                _SalesHistoryService.Insert(InventorySalesHistory);
-                            }
-                        }
-
-                    }
-                }
 
                 if (selectedPackingList != null)
                 {
@@ -3416,8 +3416,6 @@ namespace Library.Service.SalesManagements
                         }
                     }
                 }
-
-
 
                 _unitOfWork.SaveChanges();
                 flag = false;
