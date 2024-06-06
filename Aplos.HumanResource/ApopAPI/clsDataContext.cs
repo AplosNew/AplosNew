@@ -11953,12 +11953,12 @@ and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by Em
                 if(ToSP == "ToPlane")
                 {
                     Daysadd = " ,[Days] = DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
-                    stradd += "  and pod.ProductionOrderId is null  ORDER BY  DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
+                    stradd += "  and pod.ProductionOrderId is null  and SO.OrderStatusId = 'Active' ORDER BY  DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
                 }
                 if (ToSP == "ToSchedul")
                 {
                     Daysadd = " ,[Days] = DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
-                    stradd += "  and pod.ProductionOrderId is null  ORDER BY  DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
+                    stradd += "  and pod.ProductionOrderId is null and SO.OrderStatusId = 'Active'  ORDER BY  DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
                 }
             }
 
