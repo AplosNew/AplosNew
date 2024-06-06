@@ -569,17 +569,11 @@ namespace Library.Planning.OrderManagement
                     drmo.BeginEdit();
 
                     drmo["Qty"] = Convert.ToDecimal(drmo["Qty"].ToString()) - salesOrderMaster.Qty;
-                    drmo["OrderStatusId"] = DBNull.Value;
-                    drmo["CheckByStatus"] = "To Be Check";
-                    drmo["ApprovedStatus"] = DBNull.Value;
-                    drmo["CheckByDate"] = DBNull.Value;
-                    drmo["ApproveByDate"] = DBNull.Value;
                     drmo["UpdatedBy"] = para.UpdatedBy;
                     drmo["UpdatedDate"] = para.UpdatedDate;
                     drmo["UpdatedFromIP"] = para.UpdatedFromIP;
 
                     drmo.EndEdit();
-
                 }
 
 

@@ -223,11 +223,30 @@ function ResidenceStatusAllocationController(cboService, $window,commonMessage, 
         });
         var gridObj = $("#GridEmp").data("ejGrid");
         gridObj.clearFiltering();  // clears all the filtering
-        angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
+       // angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
+        $scope.openPopup('dialogemployeeNewPopUp');
+    }
+
+    $scope.closePopup = function (popupName) {
+        angular.element(document.querySelector("#" + popupName + "")).modal("hide");
+        try {
+            $("#" + popupName).data("ejDialog").close();
+        } catch (e) {
+
+        }
+    }
+    $scope.openPopup = function (popupName) {
+
+        try {
+            $("#" + popupName).data("ejDialog").open();
+        } catch (e) {
+
+        }
     }
 
     $scope.closeEmployeePopUps = function () {
-        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+        $scope.closePopup('dialogemployeeNewPopUp');
+       // angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     }
 
 
