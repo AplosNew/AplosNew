@@ -185,7 +185,7 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
         }
     };
 
-    baseService.init($scope.listUrl, null, null, "DESC", "VoucherNo", "VoucherNo");
+    baseService.init($scope.listUrl, null, null, "DESC", "PostingDate desc,VoucherNo", "VoucherNo");
     $scope.getData = function (pageno) {
         baseService.pagination(pageno)
             .then(function (result) {
