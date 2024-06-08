@@ -12379,7 +12379,14 @@ left join OrderControl OCT on OCT.SalesOrderId = SO.Id
 
                         dr["Id"] =  _Id;
                         dr["SalesOrderId"] = item.SalesOrderId;
-                        dr["PlaneDeliveryDate"] = item.PlaneDeliveryDate;
+                        if(item.ShippingComment != "null")
+                        {
+                            dr["PlaneDeliveryDate"] = DBNull.Value;
+                        }
+                        else
+                        {
+                            dr["PlaneDeliveryDate"] = item.PlaneDeliveryDate;
+                        }
                         dr["PlaneRemarks"] = item.PlaneRemarks;
                         dr["ShippingComment"] = item.ShippingComment;
                         dr["ShippingRemarks"] = item.ShippingRemarks;
