@@ -11960,6 +11960,12 @@ and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by Em
                     Daysadd = " ,[Days] = DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
                     stradd += "  and pod.ProductionOrderId is null and SO.OrderStatusId = 'Active'  ORDER BY  DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
                 }
+
+                if (ToSP == "PendingDispatch")
+                {
+                    Daysadd = " ,[Days] = DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
+                    stradd += "  and pod.ProductionOrderId is null and SO.OrderStatusId = 'Active' and SCM.Planedeliverydate is not null  ORDER BY  DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
+                }
             }
 
             System.Data.DataSet dsRef;
@@ -12029,6 +12035,12 @@ Isnull(so.CM,0)*isnull(so.Rate,0) CMValue
 ,POSL.ID SchedulId
 ,case when PS.UserName = 'Closed' then format(PO.UpdatedDate,'dd-MM-yyyy') else null end POCompleteDate
 
+,(select Top 1 format(Planedeliverydate,'yyyy-MMM-dd') from trn.ShippingComment where SalesorderId = SO.Id order by addeddate desc) PlaneDate 
+,(select Top 1 PlaneRemarks from trn.ShippingComment where SalesorderId = SO.Id order by addeddate desc) PlaneRemarks
+,(select Top 1 ShippingComment from trn.ShippingComment where SalesorderId = SO.Id order by addeddate desc) ShippingComment 
+,(select Top 1 ShippingRemarks from trn.ShippingComment where SalesorderId = SO.Id order by addeddate desc) ShippingRemarks
+
+
 " + Daysadd + @"
 
  FROM trn.MasterOrder MO
@@ -12036,6 +12048,7 @@ LEFT JOIN org.Plant AS p2 ON p2.id=mo.PlantId
 LEFT JOIN org.Entity AS e ON e.Id=mo.EntityId
 left outer join trn.MasterOrderItem MOI on moi.MasterOrderId=mo.Id
 LEFT join trn.SalesOrder SO on so.MasterOrderItemId=moi.Id
+left join TRN.shippingComment SCM on SCM.SalesOrderId = SO.Id
 LEFT OUTER JOIN trn.CustomerPO AS cp ON cp.Id=so.CustomerPOId
 LEFT OUTER JOIN hkp.Season SS ON ss.Id=mo.SeasonId
 
@@ -14042,6 +14055,10 @@ left join OrderControl OCT on OCT.SalesOrderId = SO.Id
         public string SchedulId { get; set; }
         public string Days { get; set; }
         public string POCompleteDate { get; set; }
+        public string PlaneDate { get; set; }
+        public string PlaneRemarks { get; set; }
+        public string ShippingComment { get; set; }
+        public string ShippingRemarks { get; set; }
 
     }
     public class OrderControlRemarksGet
