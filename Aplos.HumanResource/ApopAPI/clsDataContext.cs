@@ -12345,6 +12345,71 @@ left join OrderControl OCT on OCT.SalesOrderId = SO.Id
             }
 
         }
+
+        public string PostShippingdate(IEnumerable<ShippingRemarksGet> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "[TRN].[ShippingComment]";
+                string Id = "''";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<ShippingRemarksGet> items = DataToSave.ToList();
+
+                foreach (ShippingRemarksGet item in DataToSave)
+                {
+                    Id += ",'" + item.Id + "'";
+                }
+
+                con.OpenDataSetThroughAdapter("select * from [TRN].[ShippingComment] where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+
+                foreach (ShippingRemarksGet item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+                        dr["Id"] =  _Id;
+                        dr["SalesOrderId"] = item.SalesOrderId;
+                        dr["PlaneDeliveryDate"] = item.PlaneDeliveryDate;
+                        dr["PlaneRemarks"] = item.PlaneRemarks;
+                        dr["ShippingComment"] = item.ShippingComment;
+                        dr["ShippingRemarks"] = item.ShippingRemarks;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = "163.47.212.50";
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+                }
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+        }
         #endregion OrderControlReport
     }
 
@@ -13979,6 +14044,23 @@ left join OrderControl OCT on OCT.SalesOrderId = SO.Id
         public string Remarks { get; set; }
         public string ActionToBeTakenId { get; set; }
         public string ActionToBeTaken { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
+
+    }
+
+    public class ShippingRemarksGet
+    {
+        public string Id { get; set; }
+        public string SalesOrderId { get; set; }
+        public string PlaneDeliveryDate { get; set; }
+        public string PlaneRemarks { get; set; }
+        public string ShippingComment { get; set; }
+        public string ShippingRemarks { get; set; }
         public string AddedBy { get; set; }
         public string AddedDate { get; set; }
         public string AddedFromIP { get; set; }

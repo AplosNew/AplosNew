@@ -64,6 +64,20 @@ function PettyCashMasterController(cboService, commonMessage, $scope, $rootScope
     }
     $scope.getDataGroup();
 
+    $scope.ItemList = [];
+    $scope.GetTypeListByMaster = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetItemList",
+        }).then(function successCallback(response) {
+            $scope.ItemList = [];
+            if (baseService.arrayLength(response.data) > 0) {
+                $scope.ItemList = response.data;
+            }
+        });
+    };
+    $scope.GetTypeListByMaster();
+
     $scope.ModelTemp = {
         Id: null,
         Sequence: 0,
@@ -224,4 +238,75 @@ function PettyCashMasterController(cboService, commonMessage, $scope, $rootScope
         $scope.ModelNewGroup = Object.assign({}, $scope.ModelTempGroup);
         $scope.ModelNewGroup.SequenceGroup = seq;
     }
+
+    $scope.employeeParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'asc',
+        sort: 'EmployeeCode, FirstName, MiddleName, LastName ',
+        searchBy: 'EmployeeCode',
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
+    $scope.employeeUrl = 'OrderManagements/masterorder/GetEmployeeListResponsible';
+
+    $scope.showEmployeeListPopUp = function (name) {
+        try {
+            $scope.Name = name;
+            //$scope.employeeParameters.searchBy = 'EmployeeCode';
+            baseService.setCurrentPage('employeeList');
+            $scope.searchEmployeeByList = [];
+            $scope.getEmployeeData = function (pageno) {
+                baseService.paginationBase($scope.employeeUrl, pageno, $scope.employeeParameters)
+                    .then(function (result) {
+                        $scope.employeeList = result.Rows;
+                        $scope.employeeParameters.total_count = result.Total;
+
+                        if (baseService.arrayLength($scope.searchEmployeeByList) === 0)
+                            baseService.getDDLSearchColumn(result.Rows, $scope.searchEmployeeByList);
+                        //$scope.employeeParameters.searchBy = 'EmployeeCode';
+                    }, function () {
+                        ShowResult(commonMessage.NetworkError, 'failure');
+                    }).finally(function () {
+                    });
+            };
+            angular.element(document.querySelector('#employeePopUp')).modal('show');
+            $scope.getEmployeeData();
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.selectEmployeePopUp = function (index, id) {
+        $scope.employeeIndex = index;
+        $scope.selectedEmployee = id;
+    };
+
+    $scope.closeEmployeePopUp = function () {
+        if ($scope.employeeIndex !== -1) {
+            var employee = $scope.employeeList[$scope.employeeIndex];
+
+            if ($scope.Name == 'ck') {
+                $scope.ModelNew.CheckById = employee.SystemId;
+                $scope.ModelNew.CheckBy = employee.EmployeeName;
+            }
+            else if ($scope.Name == 'et') {
+                $scope.ModelNew.EntryById = employee.SystemId;
+                $scope.ModelNew.EntryBy = employee.EmployeeName;
+            }
+
+        }
+        $scope.hideEmployeePopUp();
+    };
+
+    $scope.hideEmployeePopUp = function () {
+        angular.element(document.querySelector('#employeePopUp')).modal('hide');
+        $scope.employeeIndex = -1;
+        $scope.selectedEmployee = null;
+    };
+
+    
 }
