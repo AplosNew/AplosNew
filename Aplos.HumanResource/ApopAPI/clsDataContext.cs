@@ -11964,7 +11964,7 @@ and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by Em
                 if (ToSP == "PendingDispatch")
                 {
                     Daysadd = " ,[Days] = DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
-                    stradd += "  and pod.ProductionOrderId is null and SO.OrderStatusId = 'Active' and SCM.Planedeliverydate is not null  ORDER BY  DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
+                    stradd += "  and SCM.Planedeliverydate is not null  ORDER BY  DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
                 }
             }
 
