@@ -384,7 +384,9 @@ WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Wh
 ,GWD.Minute CalculatedTime
 							,GWD.Purpose,GWD.PurposeCategory,ec.Id EmployeeCategoryId,EC.UserName EmployeeCategory,GWD.[Minute],GWD.Remark
 							,PR.GoodWorkPositionCodeId UserGroupId,PR1.UserReportGroup UserGroup,ei.GivenDesignationId DesignationId,D.UserName Designation,S.Id SectionId,S.UserName Section,SS.Id SubSectionId,SS.UserName SubSection,DEPT.Id DepartmentId,DEPT.UserName Department
-                            ,APD.OverStay,APD.DayStatus,GWD.GoodWorkId
+                            ,APD.OverStay,APD.DayStatus,GWD.GoodWorkId,CONVERT(varchar(15),CAST(APD.Intime AS TIME),100) InTime
+						 ,CONVERT(varchar(15),CAST(APD.OutTime AS TIME),100) OutTime
+                            ,LateDuration=CASE WHEN APD.DayStatus='L' THEN cast(DATEDIFF(MINUTE, cast(SD.InTime as time ), cast(APD.InTime as time ))as float) ElSE 0 END
                             from GoodworkDetail GWD 
                             left join EmployeeInformation EI on EI.SystemId=GWD.EmpSystemId 
 							LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
@@ -398,6 +400,7 @@ WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Wh
 							left join hkp.Designation D on D.Id=ei.GivenDesignationId
                             left join GoodWork GW on GW.Id=GWD.GoodWorkId
 							left join dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate=GW.WorkDate
+							LEFT JOIN  dbo.ShiftDefination SD ON SD.SystemID=APD.ShiftSystemID
                             where GWD.GoodWorkId in ('" + goodWorkId + "')";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
@@ -2933,6 +2936,61 @@ SELECT X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAm
                         if (dv.Count > 0)
                         {
                             item["ApprovedStatus"] = "Approved";
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult UpdateCheckedAll(List<Dictionary<string, object>> data)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster = null;
+                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+                #region GW 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                string ids = "";
+                foreach (var itm in data)
+                {
+                    if (ids.Length == 0)
+                    {
+                        ids = "'" + itm["Id"] + "'";
+                    }
+                    else
+                    {
+                        ids += ",'" + itm["Id"] + "'";
+                    }
+                }
+                objCon.OpenDataSetThroughAdapter("select * from GoodWork where Id IN(" + ids + ")", out dsMaster, false, "1");
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count > 0)
+                        {
+                            item["CheckedStatus"] = "Checked";
+                            item["ApprovedStatus"] = "To Be Approved";
+                            item["ApprovedBy"] = item["ApproveBy"];
                             DataRow drmo = dv[0].Row;
                             EditRow(drmo, item);
                         }

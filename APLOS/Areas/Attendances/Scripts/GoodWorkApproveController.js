@@ -46,16 +46,16 @@ function GoodWorkApproveController(cboService, commonMessage, $scope, $rootScope
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
-    $('.datepicker').datepicker({
-        startDate: '-1d',
-        endDate: '1d',
-        datesDisabled: $scope.DisabledDates,
-        format: 'dd-M-yyyy',
-        todayHighlight: true,
-        autoclose: true,
-        inline: true,
-        changeMonth: true
-    });
+    //$('.datepicker').datepicker({
+    //    startDate: '-1d',
+    //    endDate: '1d',
+    //    datesDisabled: $scope.DisabledDates,
+    //    format: 'dd-M-yyyy',
+    //    todayHighlight: true,
+    //    autoclose: true,
+    //    inline: true,
+    //    changeMonth: true
+    //});
 
     $scope.ModelEmpTemp = {
         Id: null,
@@ -192,11 +192,11 @@ function GoodWorkApproveController(cboService, commonMessage, $scope, $rootScope
     }
     $scope.getData();
 
-
+    $scope.WD = null;
     $scope.GetDblClick = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.ModelNew.WorkDate = $filter('dateFiltering')(new Date($scope.ModelNew.WorkDate), 'dd-MM-yyyy');
-
+        $scope.WD = $filter('dateFiltering')(new Date($scope.ModelNew.WorkDate), 'dd-MM-yyyy');
         $scope.GetGoodWorkDetailCenter();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
@@ -224,6 +224,7 @@ function GoodWorkApproveController(cboService, commonMessage, $scope, $rootScope
             $scope.ModelNew.UserGroup = $scope.GoodWorkList[0].UserGroup;
             $scope.ModelNew.Purpose = $scope.GoodWorkList[0].Purpose;
             $scope.ModelNew.PurposeCategory = $scope.GoodWorkList[0].PurposeCategory;
+            $scope.ModelNew.WorkDate = $scope.WD;
         });
     }
 
