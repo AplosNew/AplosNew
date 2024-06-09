@@ -60,12 +60,12 @@
                                 <input type="number" name="Standard Rate" ng-model="ModelNew.StandardRate" class="form-control" required tabindex="4" maxlength="50">
                             </div>
                         </div>
-                        <div class="form-group" show-errors>
+                       @* <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Standard Rate Book Currency<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <input type="number" name="Standard Rate Book Currency" ng-model="ModelNew.StandardRateBookCurrency" class="form-control" required tabindex="4" maxlength="50">
                             </div>
-                        </div>
+                        </div>*@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Remarks</label>
                             <div class="col-sm-8">
@@ -126,7 +126,6 @@
                             <div e-column e-field="SubCategory" e-headertext="Sub Category" e-width="5"></div>
                             <div e-column e-field="Item" e-headertext="Item" e-width="5"></div>
                             <div e-column e-field="StandardRate" e-headertext="Standard Rate" e-width="5"></div>
-                            <div e-column e-field="StandardRateBookCurrency" e-headertext="Standard Rate Book Currency" e-width="5"></div>
                             <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
                         </div>
                     </div>
@@ -137,61 +136,76 @@
                 <div class="row" ng-form name="PettyGroupForm">
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="SequenceGroup" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="ModelNewGroup.Sequence" e-width="100" required />
-                        </div>
-                    </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="Short Name" ng-model="ModelNewGroup.ShortName" class="form-control" maxlength="15" required tabindex="3">
+                                <input type="text" name="SequenceGroup" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="ModelNewGroup.Sequence" e-width="100" required />
                             </div>
                         </div>
                         <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Item<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="User Name" ng-model="ModelNewGroup.UserName" class="form-control" required tabindex="5" maxlength="50">
+                                <div class="select-style">
+                                    <select name="Category" class="form-control" ng-model="ModelNew.PettyCashMasterId" ng-options="item.Value as item.Text for item in ItemList" tabindex="13" required>
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Description</label>
+                            <label class="col-sm-4 control-label">Check By<sup>*</sup></label>
                             <div class="col-sm-8">
-                                <input type="text" name="Description" ng-model="ModelNewGroup.Description" class="form-control" required tabindex="5" maxlength="50">
+                                <div class="input-group">
+                                    <input type="text" name="Responsible Person" ng-model="ModelNew.CheckById" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="showEmployeeListPopUp('ck');" class="btn single-small-btn" tabindex="7"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        @*<div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="User Name" ng-model="ModelNewGroup.UserName" class="form-control" required tabindex="5" maxlength="50">
+            </div>
+        </div>*@
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Description" ng-model="ModelNewGroup.Remarks" class="form-control" required tabindex="5" maxlength="50">
                             </div>
                         </div>
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-6">
-                        
+
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Code<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <input type="text" name="Code" ng-model="ModelNewGroup.Code" class="form-control" required tabindex="2" maxlength="10">
                             </div>
                         </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" name="Standard Name" ng-model="ModelNewGroup.StandardName" class="form-control" required tabindex="4" maxlength="50">
-                            </div>
-                        </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Remarks</label>
+                            <label class="col-sm-4 control-label">Entry By<sup>*</sup></label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" rows="3" ng-model="ModelNewGroup.Remarks" maxlength="250" tabindex="6"></textarea>
+                                <div class="input-group">
+                                    <input type="text" name="Responsible Person" ng-model="ModelNew.EntryById" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="showEmployeeListPopUp('et');" class="btn single-small-btn" tabindex="7"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
                             </div>
                         </div>
+
                         <div class="form-group">
-                        <label class="col-sm-4 control-label">Active</label>
-                        <div class="col-sm-8">
-                            <div class="checkbox-site">
-                                <label>
-                                    <input type="checkbox" ng-model="ModelNewGroup.Active" tabindex="8">
-                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                </label>
+                            <label class="col-sm-4 control-label">Active</label>
+                            <div class="col-sm-8">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="ModelNewGroup.Active" tabindex="8">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
-                    </div>
                     </div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
@@ -231,9 +245,10 @@
                             <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
                             @*<div e-column e-field="AddedDate" e-format="{0:dd-MMM-yyyy}"  e-type="date" e-headertext="Date Added" e-width="2"></div>*@
                             <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
-                            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
-                            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
-                            <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                            <div e-column e-field="Item" e-headertext="Item" e-width="5"></div>
+                            <div e-column e-field="EntryPerson" e-headertext="Entry Person" e-width="5"></div>
+                            <div e-column e-field="CheckPerson" e-headertext="Check Person" e-width="5"></div>
+                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="5"></div>
                             <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
                         </div>
                     </div>
@@ -243,4 +258,80 @@
         </div>
         </div>
     </div>
-
+<div class="modal fade site-modal in" id="employeePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="employeeParameters.searchBy">
+                                            <option ng-repeat="option in searchEmployeeByList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="employeeParameters.search" ng-enter="getEmployeeData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Employee Code</th>
+                                <th>First Name</th>
+                                <th>Middle Name</th>
+                                <th>Last Name</th>
+                                <th>Employee Name</th>
+                                <th>Date Of Birth</th>
+                                <th>Designation</th>
+                                <th>Entity</th>
+                                <th>Department</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in employeeList|itemsPerPage:employeeParameters.pageSize" total-items="employeeParameters.total_count"
+                                ng-click="selectEmployeePopUp($index, x.SystemId)" ng-class="{selected : x.SystemId == selectedEmployee}" ng-dblclick="closeEmployeePopUp();" pagination-id="metaData.name + 'employeeList'">
+                                <td>{{x.EmployeeCode}}</td>
+                                <td>{{x.FirstName}}</td>
+                                <td>{{x.MiddleName}}</td>
+                                <td>{{x.LastName}}</td>
+                                <td>{{x.EmployeeName}}</td>
+                                <td>{{x.DOB | dateFiltering}}</td>
+                                <td>{{x.Designation}}</td>
+                                <td>{{x.EntityName}}</td>
+                                <td>{{x.Department}}</td>
+                                <td>{{x.EmploymentType}}</td>
+                                <td>{{x.EmployeeStatus}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'employeeList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="getEmployeeData(newPageNumber)">
+                </dir-pagination-controls>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Select</button>
+            </div>
+        </div>
+    </div>
+</div>

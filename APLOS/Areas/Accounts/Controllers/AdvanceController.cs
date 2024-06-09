@@ -1245,7 +1245,8 @@ namespace Aplos.Areas.Accounts.Controllers
                             ScheduleNo = item.ScheduleNo,
                             Balance = item.Balance,
                             YearNo = item.InstallmentDate.Year,
-                            MonthNo = item.InstallmentDate.Month
+                            MonthNo = item.InstallmentDate.Month,
+                            RequisitionId = _EmpAdvanceReqId
                         };
                         accountsCommonService.InsertAdvanceReqSchedule(advanceReqSchedule, EmpAdvanceReqList["SystemId"].ToString(), ref _dsAdvanceReqScheduleData);
                     }
@@ -2293,12 +2294,13 @@ namespace Aplos.Areas.Accounts.Controllers
            
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
-                            Format(EAR.RequisitionRequiredDate,'dd-MMM-yyyy') RequisitionRequiredDate, EAR.AdvanceType, EAR.EmpSystemId, EAR.Remarks,EAR.Amount,EAR.SystemId, EEC. EmployeeName CheckedBy,EAR.ApprovalStatus, EEA. EmployeeName ApprovedBy  FROM [TRN].[EmployeeAdvanceRequisition] EAR 
+                            Format(EAR.RequisitionRequiredDate,'dd-MMM-yyyy') RequisitionRequiredDate, EAR.AdvanceType, EAR.EmpSystemId, EAR.Remarks,EAR.Amount,EAR.SystemId, EEC. EmployeeName CheckedBy,EAR.ApprovalStatus, EEA. EmployeeName ApprovedBy  
+                            FROM [TRN].[EmployeeAdvanceRequisition] EAR 
                             LEFT JOIN SCS.Currency CURR ON CURR.Id = EAR.CurrencyId
                             LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = EAR.EmpSystemId
                             LEFT JOIN EmployeeInformation EEC ON EEC.SystemId = EAR.CheckedBy
                             LEFT JOIN EmployeeInformation EEA ON EEA.SystemId = EAR.ApprovedBy
-                            WHERE EAR.IsPost=0 AND EAR.ApprovalStatus='" + ApprovalStatus.Approved + "'";
+                            WHERE EAR.IsPost=0 AND EAR.ApprovalStatus='" + ApprovalStatus.Approved + "' and ISNULL(EAR.SystemId,'') not in (select ISNULL(RequisitionId,'') from [TRN].[EmployeeAdvance])";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
@@ -2307,7 +2309,7 @@ namespace Aplos.Areas.Accounts.Controllers
             string sql = @"SELECT a.Id,FORMAT(a.InstallmentDate, 'dd-MMM-yyyy') InstallmentDate
                             	,a.InstallmentNo,a.InstallmentAmount,a.ProfitAmount
                             	,a.PrincipalAmount,a.Balance,a.EmployeeSalaryAdvanceId
-                            	,a.YearNo,a.MonthNo,a.ScheduleNo,a.Arrear,a.RequisitionId
+                            	,a.YearNo,a.MonthNo,a.ScheduleNo,a.Arrear,a.RequisitionId,a.EmployeeAdvanceDetailId
                             FROM AdvanceReqSchedule a
                             LEFT JOIN [TRN].[EmployeeAdvanceRequisition] e ON e.SystemId = a.RequisitionId
                             WHERE A.RequisitionId = '" + requisitionId + "' ORDER BY a.InstallmentNo";
@@ -2381,7 +2383,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult ParkEmployeeAdvanceRequisition(VoucherViewModel voucherVM, Dictionary<string, object> data, List<Dictionary<string, object>> advanceDetail)
+        public JsonResult ParkEmployeeAdvanceRequisition(VoucherViewModel voucherVM, Dictionary<string, object> data, List<Dictionary<string, object>> advanceDetail, IEnumerable<AdvanceReqSchedule> advanceSalarySchedulelist)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -2400,7 +2402,7 @@ namespace Aplos.Areas.Accounts.Controllers
             if (voucherVM.EmployeeTransactionTypeId == null && voucherVM.JournalType != AdvanceType.Salary.ToString())
                 throw new CustomException(" Please Select Transaction Type");
             
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceService.CreateEmployeeAdvanceHRPark(voucherVM, data, advanceDetail)) });
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceService.CreateEmployeeAdvanceHRPark(voucherVM, data, advanceDetail, advanceSalarySchedulelist)) });
         }
 
 

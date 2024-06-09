@@ -11960,6 +11960,12 @@ and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by Em
                     Daysadd = " ,[Days] = DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
                     stradd += "  and pod.ProductionOrderId is null and SO.OrderStatusId = 'Active'  ORDER BY  DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
                 }
+
+                if (ToSP == "PendingDispatch")
+                {
+                    Daysadd = " ,[Days] = DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
+                    stradd += "  and SCM.Planedeliverydate is not null  ORDER BY  DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
+                }
             }
 
             System.Data.DataSet dsRef;
@@ -12029,6 +12035,12 @@ Isnull(so.CM,0)*isnull(so.Rate,0) CMValue
 ,POSL.ID SchedulId
 ,case when PS.UserName = 'Closed' then format(PO.UpdatedDate,'dd-MM-yyyy') else null end POCompleteDate
 
+,(select Top 1 format(Planedeliverydate,'yyyy-MMM-dd') from trn.ShippingComment where SalesorderId = SO.Id order by addeddate desc) PlaneDate 
+,(select Top 1 PlaneRemarks from trn.ShippingComment where SalesorderId = SO.Id order by addeddate desc) PlaneRemarks
+,(select Top 1 ShippingComment from trn.ShippingComment where SalesorderId = SO.Id order by addeddate desc) ShippingComment 
+,(select Top 1 ShippingRemarks from trn.ShippingComment where SalesorderId = SO.Id order by addeddate desc) ShippingRemarks
+
+
 " + Daysadd + @"
 
  FROM trn.MasterOrder MO
@@ -12036,6 +12048,7 @@ LEFT JOIN org.Plant AS p2 ON p2.id=mo.PlantId
 LEFT JOIN org.Entity AS e ON e.Id=mo.EntityId
 left outer join trn.MasterOrderItem MOI on moi.MasterOrderId=mo.Id
 LEFT join trn.SalesOrder SO on so.MasterOrderItemId=moi.Id
+left join TRN.shippingComment SCM on SCM.SalesOrderId = SO.Id
 LEFT OUTER JOIN trn.CustomerPO AS cp ON cp.Id=so.CustomerPOId
 LEFT OUTER JOIN hkp.Season SS ON ss.Id=mo.SeasonId
 
@@ -12319,6 +12332,78 @@ left join OrderControl OCT on OCT.SalesOrderId = SO.Id
                         dr["ActionToBeTakenId"] = item.ActionToBeTakenId;
                         dr["ActionToBeTaken"] = item.ActionToBeTaken;
                         
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = "163.47.212.50";
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+                }
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+        }
+
+        public string PostShippingdate(IEnumerable<ShippingRemarksGet> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "[TRN].[ShippingComment]";
+                string Id = "''";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<ShippingRemarksGet> items = DataToSave.ToList();
+
+                foreach (ShippingRemarksGet item in DataToSave)
+                {
+                    Id += ",'" + item.Id + "'";
+                }
+
+                con.OpenDataSetThroughAdapter("select * from [TRN].[ShippingComment] where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+
+                foreach (ShippingRemarksGet item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+                        dr["Id"] =  _Id;
+                        dr["SalesOrderId"] = item.SalesOrderId;
+                        if(item.ShippingComment != "null")
+                        {
+                            dr["PlaneDeliveryDate"] = DBNull.Value;
+                        }
+                        else
+                        {
+                            dr["PlaneDeliveryDate"] = item.PlaneDeliveryDate;
+                        }
+                        dr["PlaneRemarks"] = item.PlaneRemarks;
+                        dr["ShippingComment"] = item.ShippingComment;
+                        dr["ShippingRemarks"] = item.ShippingRemarks;
+
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedFromIP"] = "163.47.212.50";
                         dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -13970,6 +14055,10 @@ left join OrderControl OCT on OCT.SalesOrderId = SO.Id
         public string SchedulId { get; set; }
         public string Days { get; set; }
         public string POCompleteDate { get; set; }
+        public string PlaneDate { get; set; }
+        public string PlaneRemarks { get; set; }
+        public string ShippingComment { get; set; }
+        public string ShippingRemarks { get; set; }
 
     }
     public class OrderControlRemarksGet
@@ -13979,6 +14068,23 @@ left join OrderControl OCT on OCT.SalesOrderId = SO.Id
         public string Remarks { get; set; }
         public string ActionToBeTakenId { get; set; }
         public string ActionToBeTaken { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
+
+    }
+
+    public class ShippingRemarksGet
+    {
+        public string Id { get; set; }
+        public string SalesOrderId { get; set; }
+        public string PlaneDeliveryDate { get; set; }
+        public string PlaneRemarks { get; set; }
+        public string ShippingComment { get; set; }
+        public string ShippingRemarks { get; set; }
         public string AddedBy { get; set; }
         public string AddedDate { get; set; }
         public string AddedFromIP { get; set; }

@@ -97,6 +97,14 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(GetSequence(), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public JsonResult GetItemList()
+        {
+
+            var sql = @"SELECT Id Value , Item Text FROM [HKP].[PettyCashMaster] WHERE Active = 1 ";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost]
         public JsonResult Create(Dictionary<string, object> data)
         {

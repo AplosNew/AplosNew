@@ -349,6 +349,7 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
         return manualValidation("div_entity", $scope.invalidEntity, "Entity is required.");
     };
 
+    $scope.advanceEMIScheduleList = [];
     $scope.validation = function () {
         if (baseService.isUndefinedOrNull($scope.advance.CurrencyId)) {
             ShowResult("Please select Currency!", "failure");
@@ -359,6 +360,22 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
                 ShowResult("Please select Employee!", "failure");
                 return true;
             }
+        }
+        if ($scope.loanRepaymentSchedulelist.length > 0) {
+            $scope.advanceEMIScheduleList = [];
+            for (var i = 0; i < $scope.loanRepaymentSchedulelist.length; i++) {
+                $scope.advanceEMIScheduleList.push($scope.loanRepaymentSchedulelist[i])
+            }
+        }
+        if ($scope.getAdvanceReqScheduleList.length > 0) {
+            $scope.advanceEMIScheduleList = [];
+            for (var i = 0; i < $scope.getAdvanceReqScheduleList.length; i++) {
+                $scope.advanceEMIScheduleList.push($scope.getAdvanceReqScheduleList[i])
+            }
+        }
+        if ($scope.advance.AdvanceType == 'Salary' && $scope.advanceEMIScheduleList.length == 0) {
+            ShowResult("Please Input Installment !!", "failure");
+            return true;
         }
         return false;
     };
@@ -411,10 +428,15 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
 
     $scope.clear = function () {
         $scope.Action = "Save";
+        $scope.advance = {};
         $scope.getCboVoucherTypeEmployeeAdvanceList();
         $scope.advance.Active = true;
         $scope.advance.Id = null;
         $scope.advance.DocRefNo = null;
+        $scope.advance.CheckedBy = null;
+        $scope.advance.AdvanceType = null;
+        $scope.advance.ApprovedBy = null;
+        $scope.advance.RequisitionRequiredDate = null;
         $scope.advance.PaymentSource = 'Bank';
         $scope.advance.DocRefNo = null;
         $scope.advance.ReviewDate = null;
@@ -425,9 +447,14 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
         $scope.advance.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.currencyExchangeRate = [];
         $scope.advanceDetailList = [];
+        $scope.voucher.RepaymentStartDate = null;
+        $scope.voucher.LifeOfYear = null;
+        $scope.voucher.ProfitRate = null;
+        $scope.voucher.NoOfInstallmentPerYear = null;
         $scope.loanDetails = [];
         $scope.loanRepaymentSchedulelist = [];
-        $scope.getAdvanceReqScheduleList = [];
+        $scope.getAdvanceReqScheduleList = []; 
+        $scope.advanceEMIScheduleList = [];
         $scope.clearEmployeePopUp();
         $scope.clearCashPopUp();
         $scope.clearBankPopUp();
@@ -483,7 +510,7 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
         $scope.$broadcast("show-errors-check-validity");
         $scope.checkDocDate();
         $scope.checkPostingDate();
-        if ($scope.form0.$valid && !$scope.validation() && !$scope.invalidDocDate && !$scope.invalidEntity && !$scope.invalidPostingDate) {
+        if ($scope.form0.$valid && !$scope.invalidDocDate && !$scope.invalidEntity && !$scope.invalidPostingDate && !$scope.validation()) {
             $scope.data.UserName ='Advanec Of '+ $scope.advance.EmployeeName
             if ($scope.Action === "Save") {
                 $http({
@@ -492,7 +519,8 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
                     data: {
                         "voucherVM": $scope.advance,
                         "data": $scope.data,
-                        "advanceDetail": $scope.advanceDetailList
+                        "advanceDetail": $scope.advanceDetailList,
+                        "advanceSalarySchedulelist": $scope.advanceEMIScheduleList
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -604,7 +632,15 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
     $scope.selectDoubleClick = function (args) {
 
     }
-
+    $scope.isVisibleInstallment = false;
+    $scope.setVisible = function (AdvanceType) {
+        if (AdvanceType === "Salary") {
+            $scope.isVisibleInstallment = true;
+        }
+        else {
+            $scope.isVisibleInstallment = false;
+        }
+    } 
     $scope.totalInstallment = function () {
         //if ($scope.voucher.NoOfInstallmentPerYear < 12) {
         //    $scope.voucher.LifeOfYear = 1;
@@ -616,6 +652,130 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
         //$scope.voucher.TotalNoOfInstallment = ($scope.voucher.LifeOfYear * $scope.voucher.NoOfInstallmentPerYear);
         $scope.voucher.TotalNoOfInstallment = $scope.voucher.NoOfInstallmentPerYear;
     };
+    $scope.loanRepaymentSchedulelist = [];
+    $scope.TotalPayments = 0;
+    $scope.TotalInterestPaid = 0;
+    $scope.LoadRepamentDetail = function () {
+
+        if ($scope.voucher.ProfitRate === '' || $scope.voucher.ProfitRate == 'undefined' || $scope.voucher.ProfitRate === null) {
+            $scope.voucher.ProfitRate = 0;
+        }
+        //if ($scope.voucher.IsSchedule) {
+        if ($scope.voucher.NoOfInstallmentPerYear < 12) {
+            $scope.voucher.LifeOfYear = 1;
+        }
+        else {
+            $scope.voucher.LifeOfYear = $scope.voucher.NoOfInstallmentPerYear / 12;
+        }
+
+        $scope.voucher.Amount = $scope.advance.Amount;
+        $scope.loanRepaymentSchedulelist = [];
+        $("#loanDetails").children().remove();
+        //var numberOfInstallment = $scope.voucher.TotalNoOfInstallment;
+        var numberOfInstallment = $scope.voucher.NoOfInstallmentPerYear;
+        var actualAmount = parseFloat($scope.voucher.Amount);
+        var actualAmountWithoutProfit = parseFloat($scope.voucher.Amount);
+        var profitAmount = $scope.voucher.ProfitAmount;
+        //var installmentPerYear = $scope.voucher.NoOfInstallmentPerYear;
+        var installmentPerYear = 12;
+        //if ($scope.voucher.NoOfInstallmentPerYear < 12) {           
+        //    installmentPerYear = $scope.voucher.NoOfInstallmentPerYear;
+        //}
+        var rate = parseFloat((parseFloat($scope.voucher.ProfitRate) / 100) / installmentPerYear);
+        //rate = parseFloat(rate.toFixed(2));
+        //var rate = parseFloat((parseInt($scope.voucher.ProfitRate) / 100) / installmentPerYear);
+        //console.log('rate', rate);
+        //console.log('rated', $scope.voucher.ProfitRate);
+
+        var disbursmentDate = $scope.voucher.DocDate;
+        var repaymentStartDate = $scope.voucher.RepaymentStartDate;
+        // var installmentDate = new Date(repaymentStartDate);
+        var installmentDate;
+        var payment = 0.00;
+        var profit = 0.00;
+        var principal = 0.00;
+
+        var totalPayment = 0.00;
+        var totalProfit = 0.00;
+        var totalPrincipal = 0.00;
+
+        var i = 0;
+
+        var idate;
+        var periodHtml = "<div class='SearchResult'> <table><thead><tr><td style='width:220px;'>Installment date</td><td style='width:100px;'>Installment no.</td><td style='text-align:right; width:120px;'>Payment</td><td style='text-align:right; width:120px;'>Interest</td><td style='text-align:right; width:120px;'>Principal</td><td style='text-align:right; width:120px;'>Loan</td></tr></thead>";
+        //periodHtml += "<tr><td>" + FormatDate(disbursmentDate) + " (Disbursement date)" + "</td><td>" + " " + "</td><td style='text-align:right'>" + payment.toFixed(2) + "</td><td style='text-align:right'>" + profit.toFixed(2) + "</td><td style='text-align:right'>" + principal.toFixed(2) + "</td><td style='text-align:right'>" + actualAmount.toFixed(2) + "</td></tr>";
+        for (var i = 1; i <= numberOfInstallment; i++) {
+            if (i === 1) {
+                installmentDate = new Date(repaymentStartDate);
+                idate = installmentDate;
+            }
+            if (i > 1) {
+                installmentDate = new Date((new Date(idate)).setMonth((new Date(idate)).getMonth() + (12 / installmentPerYear)));
+                idate = installmentDate;
+            }
+            if (rate === 0) {
+                payment = actualAmountWithoutProfit / numberOfInstallment;
+            }
+            else {
+                payment = PMT(rate, numberOfInstallment, installmentPerYear, parseFloat($scope.voucher.Amount));
+            }
+            var iRate = parseFloat($scope.voucher.ProfitRate) / 100;
+            profit = (actualAmount * iRate) / installmentPerYear;
+
+            principal = payment - profit;
+
+            if (i === parseFloat(numberOfInstallment)) {
+                actualAmount = parseFloat("0.00");
+            }
+            else {
+                actualAmount = actualAmount - principal;
+            }
+            var schedule = new Object({
+                InstallmentNo: i,
+                InstallmentDate: new Date(idate),
+                InstallmentAmount: payment.toFixed(2),
+                ProfitAmount: profit.toFixed(2),
+                PrincipalAmount: principal.toFixed(2),
+                Balance: actualAmount.toFixed(2),
+                ScheduleNo: 1
+            });
+            $scope.loanRepaymentSchedulelist.push(schedule);
+
+            totalPayment = totalPayment + payment;
+            totalProfit = totalProfit + profit;
+            totalPrincipal = totalPrincipal + principal;
+
+            $scope.TotalPayments = totalPayment.toFixed(2);
+            $scope.TotalInterestPaid = totalProfit.toFixed(2);
+
+            periodHtml += "<tr><td style ='width:220px;'>" + FormatDate(idate) + "</td><td style ='width:100px;'>" + i + "</td><td style='text-align:right; width:120px;'>" + payment.toFixed(2) + "</td><td style='text-align:right; width:120px;'>" + profit.toFixed(2) + "</td><td style='text-align:right; width:120px;'>" + principal.toFixed(2) + "</td><td style='text-align:right; width:120px;'>" + actualAmount.toFixed(2) + "</td></tr>";
+        }
+        //periodHtml += "<tr><td></td><td></td><td style='text-align:right;font-weight: bold'>" + totalPayment.toFixed(2) + "</td><td style='text-align:right;font-weight: bold'>" + totalProfit.toFixed(2) + "</td><td style='text-align:right;font-weight: bold'>" + totalPrincipal.toFixed(2) + "</td><td></tr></table></div>";
+        $("#loanDetails").append(periodHtml);
+        $scope.voucher.ProfitAmount = totalProfit.toFixed(2);
+        return false;
+        //}
+    };
+
+    function PMT(rate, numberOfInstallment, installmentPerYear, actualAmount) {
+        var numberOfYear = numberOfInstallment / installmentPerYear;
+
+        var a = 1 / rate;
+        var b = 1 + rate;
+        var c = Math.pow(b, numberOfInstallment);//
+        var d = rate * c;
+        var e = 1 / d;
+
+        var pvFactor = a - e;
+        var payment = actualAmount / pvFactor;
+        return payment;
+    }
+
+    function FormatDate(input) {
+        var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        var dt = new Date(input);
+        return [dt.getDate(), months[dt.getMonth()], dt.getFullYear()].join('-');
+    }
 
     
     $scope.selectDoubleClick = function (args) {
@@ -633,10 +793,12 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
         $scope.advance.RequisitionRequiredDate = data.RequisitionRequiredDate;
         if ($scope.advance.AdvanceType === 'Salary') {
             $scope.getAdvanceReqScheduleListByRequisitionId();
+            $scope.setVisible($scope.advance.AdvanceType);
         }
         $scope.GetEmployeeTransactionType(data.AdvanceType);
         $scope.GetEmployeeTransactionNo($scope.advance.EmployeeId);
         $scope.GetCurrencyExchangeRateList();
+
         angular.element(document.querySelector('#EmployeeAdvanceRequisitionPopUp')).modal('hide');
 
     };
@@ -649,96 +811,7 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
             $scope.getAdvanceReqScheduleList = response.data;
         });
     };
-    //$scope.searchglemployeeReconGLByList = [
-    //    {
-    //        "name": "Account Group",
-    //        "value": "AccountGroupName"
-    //    },
-    //    {
-    //        "name": "GL Code",
-    //        "value": "GLGeneralInfoCode"
-    //    },
-    //    {
-    //        "name": "GL Name",
-    //        "value": "GLGeneralInfoName"
-    //    },
-    //    {
-    //        "name": "Budget",
-    //        "value": "BudgetName"
-    //    },
-    //    {
-    //        "name": "Activity",
-    //        "value": "ActivityName"
-    //    },
-    //    {
-    //        "name": "Ref No",
-    //        "value": "RefNo"
-    //    }
-    //];
-
-    //$scope.employeeReconglListParameters = {
-    //    limit: 10,
-    //    offset: 0,
-    //    order: "asc",
-    //    sort: "GLGeneralInfoCode",
-    //    searchBy: "ActivityName",
-    //    pageSize: 10,
-    //    total_count: 0,
-    //    search: null,
-    //    serverPagination: true
-    //};
-
-    //$scope.GetemployeeReconGLList = function () {
-    //    $scope.GLUrl2 = "Accounts/glitem/GetEmployeeReconAssetGLBudgetActivity";
-    //    $scope.GetemployeeReconGLListData = function (pageno) {
-    //        baseService.paginationBase($scope.GLUrl2, pageno, $scope.employeeReconglListParameters)
-    //            .then(function (result) {
-    //                $scope.employeeReconGLList = result.Rows;
-    //                $scope.employeeReconglListParameters.total_count = result.Total;
-    //            }, function () {
-    //                ShowResult(commonMessage.NetworkError, "failure");
-    //            }).finally(function () {
-    //            });
-    //    };
-    //    angular.element(document.querySelector("#employeeReconGLPopUp")).modal("show");
-    //    $scope.modalShow = true;
-    //    $scope.GetemployeeReconGLListData();
-    //};
-
-    //$scope.closeEmployeeReconGLListPopUp = function () {
-    //    angular.element(document.querySelector("#employeeReconGLPopUp")).modal("hide");
-    //};
-
-    //$scope.closeEmployeeReconGLListPopUpSelected = function () {
-    //    if ($scope.rowSelected !== null) {
-    //        angular.element(document.querySelector("#employeeReconGLPopUp")).modal("hide");
-    //    } else {
-    //        angular.element(document.querySelector("#cancelPopUp")).modal("show");
-    //    }
-    //};
-
-    //$scope.setemployeeReconGSelected = function (data) {
-    //    $scope.advanceDetailList = [];
-    //    $scope.advanceDetail.GLGeneralInfoId = data.GLGeneralInfoId;
-    //    $scope.advanceDetail.GLGeneralInfoCode = data.GLGeneralInfoCode;
-    //    $scope.advanceDetail.GLGeneralInfoName = data.GLGeneralInfoName;
-    //    $scope.advanceDetail.BudgetMasterId = data.BudgetMasterId;
-    //    $scope.advanceDetail.BudgetCode = data.BudgetCode;
-    //    $scope.advanceDetail.BudgetName = data.BudgetName;
-    //    $scope.advanceDetail.ActivityId = data.ActivityId;
-    //    $scope.advanceDetail.ActivityCode = data.ActivityCode;
-    //    $scope.advanceDetail.ActivityName = data.ActivityName;
-    //    $scope.advance.ActivityName = data.ActivityName;
-
-    //    $scope.advanceDetail.Narration = $scope.advance.Narration;
-    //    $scope.advanceDetail.EmployeeId = $scope.advance.EmployeeId;
-    //    $scope.advanceDetail.Amount = $scope.advance.Amount;
-    //    $scope.advanceDetailList.push($scope.advanceDetail);
-    //    $scope.advanceDetail = {};
-    //    $scope.closeEmployeeReconGLListPopUp();
-    //};
-
-
+    
     $scope.delete = function (employeeAdvanceId, voucherId) {
         $http({
             method: "POST",

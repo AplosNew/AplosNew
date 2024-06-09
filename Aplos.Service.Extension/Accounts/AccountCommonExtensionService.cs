@@ -19,6 +19,7 @@ using Library.Model.Finances;
 using Library.Service.Logs;
 using Library.Service.Enums;
 using Library.Model.Vouchers;
+using Library.Model.Employees;
 
 namespace Library.Service.Extension.Accounts
 {
@@ -335,6 +336,33 @@ namespace Library.Service.Extension.Accounts
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
+        public void InsertAdvanceReqSchedule(AdvanceReqSchedule financingSchedule, string employeeAdvanceDetailIdId, ref DataSet dsData)
+        {
+            financingSchedule.Id = MakePK(employeeAdvanceDetailIdId, financingSchedule.InstallmentNo, 3);
+
+            AuditService.AddedLog(financingSchedule);
+            if (dsData == null || dsData.Tables.Count == 0)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from [dbo].[AdvanceReqSchedule] where 1=2", out dsData);
+            }
+            AddNewRow<AdvanceReqSchedule>(dsData.Tables[0], financingSchedule);
+        }
+
+        public void UpdateAdvanceReqSchedule(AdvanceReqSchedule financingSchedule,  DataSet dsData)
+        {
+            AuditService.UpdatedLog(financingSchedule);
+            
+            DataView dv = new DataView(dsData.Tables[0]);
+            dv.RowFilter = "Id='" + financingSchedule.Id + "'";
+
+            if (dv.Count > 0)
+            {
+                DataRow drmo = dv[0].Row;
+                EditRow<AdvanceReqSchedule>(drmo, financingSchedule);
+            }
+        }
+
         public Dictionary<string, object> GetInvestmentGL(string companyId, string financingTypeId)
         {
            

@@ -525,6 +525,7 @@ namespace Library.Accounting.Accounts
                                         ,OI.Id OtherInvoiceId
                                         ,OtherIsPark=CASE WHEN OI.VoucherId<>'' THEN 'OtherInvoicePosted' WHEN  OI.VoucherId IS NULL THEN '' ELSE 'OtherInvoiceParked' end
                                         ,OI.VoucherId OtherInvoiceVoucherId
+										,case when v.ApprovedBystatus is null then 'To Be Checked' else  v.ApprovedBystatus end CheckStatus
                                         ,IsExpenseDistribution=CASE WHEN ISNULL((select COUNT(ID.Id) from TRN.InvoiceDetailCharges ID
 										INNER JOIN TRN.VoucherDetail VD ON VD.Id=ID.VoucherDetailId
 										WHERE VD.VoucherId=I.VoucherId),0)>0 THEN 1 ELSE 0 END,V.ApprovedByStatus,EIA.EmployeeName ApprovedBy,V.ApprovedById,V.ApprovedDate,V.Narration
@@ -546,6 +547,7 @@ namespace Library.Accounting.Accounts
                                         ,'Employee' BeneficiaryType,I.PostingDate,I.DocDate,I.DocRefNo,V.VoucherDate,V.CurrencyId, ADT.TaxAmount AdditionalTax, ADT.VoucherId AdditionalTaxVoucherId, ADT.Id AdditionalTaxId
                                         ,IsAdditionalTaxPost=CASE WHEN ADT.VoucherId<>'' THEN 'Posted' WHEN  ADT.EmployeePayableId IS NULL THEN '' ELSE 'Parked' end,V.VoucherTypeId,I.CompanyCurrencyRate
                                         ,I.PartyId,I.PartyPlantId,I.EmployeeId
+                                        ,case when AV.ApprovedBystatus is null then 'To Be Checked' else  AV.ApprovedBystatus end CheckStatus
                                         ,AV.VoucherNo TDSVoucherNo,ADT.VoucherId TDSVoucherId,[Status]= case when I.IsPark=1 then 'Parked' else 'Posted' end
                                         ,NULL OtherInvoiceId,NULL OtherIsPark,NULL OtherInvoiceVoucherId,0 IsExpenseDistribution,V.ApprovedByStatus,EIA.EmployeeName ApprovedBy,V.ApprovedById,V.ApprovedDate,V.Narration
                                         FROM TRN.[EmployeePayable] AS I
@@ -579,6 +581,7 @@ namespace Library.Accounting.Accounts
                                         ,I.PartyId,I.PartyPlantId,Null EmployeeId
                                         ,AV.VoucherNo TDSVoucherNo,ADT.VoucherId TDSVoucherId,[Status]= case when I.IsPark=1 then 'Parked' else 'Posted' end
                                         ,OI.Id OtherInvoiceId
+                                        ,case when v.ApprovedBystatus is null then 'To Be Checked' else  v.ApprovedBystatus end CheckStatus
                                         ,OtherIsPark=CASE WHEN OI.VoucherId<>'' THEN 'OtherInvoicePosted' WHEN  OI.VoucherId IS NULL THEN '' ELSE 'OtherInvoiceParked' end
                                         ,OI.VoucherId OtherInvoiceVoucherId
                                         ,IsExpenseDistribution=CASE WHEN ISNULL((select COUNT(ID.Id) from TRN.InvoiceDetailCharges ID
