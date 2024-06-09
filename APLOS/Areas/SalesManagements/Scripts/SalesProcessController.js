@@ -206,7 +206,7 @@ function SalesProcessController(cboService, commonMessage, $scope, $rootScope, b
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.ModelNew.Id = response.data.Data.Id;
-                    //ClearFields(response.data.Sequence);
+                    ClearFields(response.data.Sequence);
                     $scope.getData();
 
                 }

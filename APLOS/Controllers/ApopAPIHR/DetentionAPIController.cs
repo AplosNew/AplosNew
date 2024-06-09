@@ -1579,6 +1579,19 @@ namespace Aplos.Controllers.ApopAPIHR
                 return ex.ToString();
             }
         }
+
+        public string PostShippingdate([FromBody] IEnumerable<ShippingRemarksGet> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostShippingdate(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
         #endregion OrderControlReport
     }
 }

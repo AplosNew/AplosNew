@@ -1948,6 +1948,14 @@ namespace Aplos.Areas.Employees.Controllers
             return Json(employeeProfile.getNonEligibleOT(DesgId, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public ActionResult GetPrintData(string empId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
+            employeeProfile.GetAPPLICATIONFORMFORRECRUITMENT(empId);
+
+            return View();
+        }
     }
 }

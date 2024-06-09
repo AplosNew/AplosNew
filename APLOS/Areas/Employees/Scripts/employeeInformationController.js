@@ -4199,7 +4199,9 @@ function employeeInformationController(addressService, fileReader, cboService, c
         angular.element(document.querySelector('#employeePopUp')).modal('hide');
     }
 
-
+    $scope.Print = function (data) {
+        location.href = "Employees/EmployeeInformation/GetPrintData?empId=" + data.data.SystemId;
+    };
 
 
 }

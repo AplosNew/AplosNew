@@ -589,6 +589,7 @@
                 <th>Beneficiary</th>
                 <th>TDS Amount</th>
                 <th>TDS VoucherNo</th>
+                <th>Check/Approve Status</th>
                 <th>Status</th>
                 <th>Action</th>
             </tr>
@@ -606,6 +607,7 @@
                 <td>{{x.BeneficiaryType}}</td>
                 <td class="text-right">{{x.AdditionalTax | number:3}}</td>
                 <td>{{x.TDSVoucherNo}}</td>
+                <td>{{x.CheckStatus}}</td>
                 <td>{{x.IsPark?'Parked':'Posted'}}</td>
                 <td class="text-right">
                     <ul class="list-inline action-list">

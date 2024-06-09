@@ -139,6 +139,7 @@
                     <th>InTime</th>
                     <th>OutTime</th>
                     <th>Day Status</th>
+                    <th>Late Duration</th>
                     <th>Department</th>
                     <th>Section</th>
                     <th>SubSection</th>
@@ -176,6 +177,7 @@
                     <td>{{x.InTime}}</td>
                     <td>{{x.OutTime}}</td>
                     <td>{{x.DayStatus}}</td>
+                    <th>Late Duration</th>
                     <td>{{x.Department}}</td>
                     <td>{{x.Section}}</td>
                     <td>{{x.SubSection}}</td>
@@ -227,11 +229,12 @@
              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
             <div e-columns>
-                <div e-column e-field="WorkDate" e-headertext="Work Date" e-width="2" e-isprimarykey="true"></div>
-                <div e-column e-field="Shift" e-headertext="Shift" e-width="3"></div>
-                <div e-column e-field="CheckedStatus" e-headertext="Checked Status" e-width="3"></div>
-                <div e-column e-field="ApprovedStatus" e-headertext="Approved Status" e-width="3"></div>
-                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
+                <div e-column e-field="WorkDate" e-headertext="Work Date" e-width="30"></div>
+                <div e-column e-field="Shift" e-headertext="Shift" e-width="80"></div>
+                <div e-column e-field="UserGroup" e-headertext="UserGroup" e-width="50"></div>
+                <div e-column e-field="CheckedStatus" e-headertext="Checked Status" e-width="50"></div>
+                <div e-column e-field="ApprovedStatus" e-headertext="Approved Status" e-width="50"></div>
+                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="80"></div>
             </div>
         </div>
     </div>
