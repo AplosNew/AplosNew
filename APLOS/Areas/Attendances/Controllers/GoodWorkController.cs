@@ -2408,7 +2408,7 @@ SELECT X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAm
             return Json(accountsSalaryPayableService.GetEmployeeMultipleAdvanceDisbursementVoucherList(parameters,SourceType.MultipleEmployeeAdvance), JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
-        public JsonResult ParkEmployeeMultipleAdvanceDisbursement(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail)
+        public JsonResult ParkEmployeeMultipleAdvanceDisbursement(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail, string salaryHeadId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -2436,7 +2436,7 @@ SELECT X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAm
                 }
             }
 
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _salaryDisbursementService.ParkEmployeeMultipleAdvanceDisbursement(voucherVM, directJVList, disbursementAdviceId, goodWorkPaymentAdviseDetailIds, goodWorkPaymentAdviseDetail)) });
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _salaryDisbursementService.ParkEmployeeMultipleAdvanceDisbursement(voucherVM, directJVList, disbursementAdviceId, goodWorkPaymentAdviseDetailIds, goodWorkPaymentAdviseDetail, salaryHeadId)) });
         }
         [HttpPost]
         public JsonResult PostEmployeeMultipleAdvanceDisbursement(string voucherId)
