@@ -200,7 +200,7 @@ function GoodWorkCheckedController(cboService, commonMessage, $scope, $rootScope
         $scope.WD = $filter('dateFiltering')(new Date($scope.ModelNew.WorkDate), 'dd-MM-yyyy');
         $scope.GetGoodWorkDetailCenter();
 
-        $scope.GetSupervisorCboList();
+    
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -215,7 +215,6 @@ function GoodWorkCheckedController(cboService, commonMessage, $scope, $rootScope
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.GoodWorkList = resp.data;
-           
             $scope.ModelNew.DepartmentId = $scope.GoodWorkList[0].DepartmentId;
             $scope.ModelNew.Department = $scope.GoodWorkList[0].Department;
             $scope.ModelNew.SectionId = $scope.GoodWorkList[0].SectionId;
@@ -228,6 +227,7 @@ function GoodWorkCheckedController(cboService, commonMessage, $scope, $rootScope
             $scope.ModelNew.Purpose = $scope.GoodWorkList[0].Purpose;
             $scope.ModelNew.PurposeCategory = $scope.GoodWorkList[0].PurposeCategory;
             $scope.ModelNew.WorkDate = $scope.WD;
+            $scope.GetSupervisorCboList();
         });
     }
 

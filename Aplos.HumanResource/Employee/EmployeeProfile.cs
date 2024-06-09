@@ -1,12 +1,20 @@
 ﻿using clsAttendance;
 using Library.Crosscutting.Security;
+using Library.Data;
 using Library.Data.Sql;
 using Library.Model.Employees;
+using Library.Service.Helpers;
 using OTSBD;
+using Syncfusion.DocIO;
+using Syncfusion.DocIO.DLS;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace Aplos.HumanResource
@@ -57,7 +65,7 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
 
-                string sql = @"SELECT TOP(100) * FROM (SELECT EI.*,PO.UserName PresThanaName,ParmPO.UserName ParmThanaName,D.UserName PresDistrictName,ParmD.UserName ParmDistrictName
+                string sql = @"SELECT TOP(1000) * FROM (SELECT EI.*,PO.UserName PresThanaName,ParmPO.UserName ParmThanaName,D.UserName PresDistrictName,ParmD.UserName ParmDistrictName
                              ,C.UserName PresCountryName,ParmC.UserName ParmCountryName,ParmP.UserName ParmPostOfficeName, PerP.UserName PresPostOfficeName
                              ,PerCT.UserName PresCityName,ParCT.UserName ParmCityName,AM.CountryId
                              ,CG.[Image] CompanyGroupLogo, CNT.PhoneLength, COM.IsTINRequiredForSalaryAbove
@@ -1120,7 +1128,7 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                     if (dsEmpBankMaster.Tables[0].Rows.Count == 0)
                     {
                         DataRow dr = dsEmpBankMaster.Tables[0].NewRow();
-                        
+
                         dr["EmpSystemID"] = data.SystemId;
                         dr["BankSystemID"] = empBank["BankSystemID"];
                         dr["BankBranchId"] = empBank["BankBranchId"];
@@ -1981,7 +1989,7 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
             }
         }
 
-      
+
 
 
         #endregion
@@ -2452,7 +2460,7 @@ WHERE E.EmployeeStatus = 'Active' AND E.BudgetCode='" + budgetCode + @"' GROUP B
                         LEFT JOIN ORG.SubSection SS ON SS.Id = E.SubSectionId
                         LEFT JOIN HKP.Designation DG ON DG.Id = E.GivenDesignationId
                         LEFT JOIN HKP.LegalDesignation LDG ON LDG.Id = E.LegalDesignationId
-                        WHERE E.GroupID = '" +CompanyGroupId + "' AND EmpType='Guest'";
+                        WHERE E.GroupID = '" + CompanyGroupId + "' AND EmpType='Guest'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -2482,6 +2490,229 @@ WHERE E.EmployeeStatus = 'Active' AND E.BudgetCode='" + budgetCode + @"' GROUP B
 
 
         #endregion
+        public DataTable GetEmpInfoData(string empId)
+        {
+            string strSQL;
+
+            try
+            {
+                strSQL = @"SELECT EI.SystemId,EI.EmployeeName,EI.EmpPicPath EmployeePic,EI.NationalID UIDNO,EI.CellPhnNo MobileNo,EI.FatherName,EI.MotherName,EI.SpouseName,EI.GenderID Gender,FORMAT(EI.DOB,'dd-MMM-yyyy') DOB,DATEDIFF(YEAR,EI.DOB,GETDate()) Age
+,CS.UserName MaritalStatus,R.UserName Caste,EN.Name NomineeName,NomineeAge=DATEDIFF(YEAR,EN.DOB,GETDate()),RS.UserName Relation,EI.PresentAddress1 PresentAddress,EI.ParmanentAddress1 PermanentAddress
+,EXI.Employer NameofCompany,Years=DATEDIFF(YEAR,EXI.StartDate,EXI.EndDate),''EXPDepartment,EXI.Designation, RDP.UserName RefDepartment,EI.EmployeeName NameofCandidate,FORMAT(EI.DOJ,'dd-MMM-yyyy')DOJ, EDP.UserName Department
+,ESINo=(Select ED.DocNumber from dbo.EmployeeDocument ED
+LEFT JOIN HKP.ComplianceDocument CD ON CD.Id=ED.ComplianceDocumentId
+Where EmpSystemID=EI.SystemId AND CD.UserName='Declaration Form (ESIC)')
+,UAN=(Select ED.DocNumber from dbo.EmployeeDocument ED
+LEFT JOIN HKP.ComplianceDocument CD ON CD.Id=ED.ComplianceDocumentId
+Where EmpSystemID=EI.SystemId AND CD.UserName='Nomination Form (PF)')
+,REF.Ref1Name RefName,REMP.EmployeeCode RefCode
+FROM dbo.EmployeeInformation EI
+LEFT JOIN HKP.CivilStatus CS ON CS.Id=EI.CivilStatusID
+LEFT JOIN SCS.Religion R ON R.Id=EI.ReligionId
+LEFT JOIN dbo.EmployeeNomineeInfo EN ON EN.EmpSystemId=EI.SystemId
+LEFT JOIN [SCS].[Relationship] RS ON RS.Id=EN.Relation
+LEFT JOIN dbo.EmpExperienceInformation EXI ON  EXI.EmpSystemID=EI.SystemId
+AND EXI.SystemID=(select top(1) SystemID from dbo.EmpExperienceInformation Where SystemId=EXI.SystemID AND EmpSystemID=EI.SystemId Order By DateAdded DESC)
+LEFT JOIN dbo.EmpReferenceInformation REF ON REF.EmpSystemId=EI.SystemId
+LEFT JOIN dbo.EmployeeInformation REMP ON REMP.SystemId=REF.RefEmpSystemID
+LEFT JOIN ORG.Department RDP ON RDP.Id=REMP.DepartmentId
+LEFT JOIN ORG.Department EDP ON EDP.Id=EI.DepartmentId
+Where EI.SystemId='" + empId + "'";
+                return _sqlRepository.GetDataTable(strSQL);
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }
+
+        public void GetAPPLICATIONFORMFORRECRUITMENT(string empId)
+        {
+            var fileName = "";
+            var strPath = "";
+            var File = "";
+
+            ReportUtility ru = new ReportUtility();
+            fileName = "APPLICATIONFORMFORRECRUITMENT.docx";
+
+            strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), fileName);
+            File = strPath;
+            if (!System.IO.File.Exists(strPath))
+            {
+                throw new CustomException("File <" + fileName + "> Not Found.");
+            }
+
+            WordDocument document = new WordDocument(File, FormatType.Docx);
+
+            try
+            {
+                WSection section = document.Sections[0];
+
+                DataTable dsData;
+
+                dsData = GetEmpInfoData(empId);
+                Dictionary<string, string> columns = new Dictionary<string, string>();
+
+                foreach (DataColumn item in dsData.Columns)
+                    columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
+
+                var MaterialTotal = makeEmpInfoData(empId, document, dsData);
+               
+                Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
+
+                TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
+                List<string> strReplace = new List<string>();
+                for (int i = 0; i < allresult.Length; i++)
+                    strReplace.Add(allresult[i].SelectedText.ToString().ToUpper());
+
+                for (int i = 0; i < strReplace.Count; i++)
+                {
+                    string text = strReplace[i].ToUpper();
+                    ReplaceInfo.Add(text, 0);
+                    if (columns.ContainsKey(text.ToUpper()))
+                    {
+                        document.Replace(text, dsData.Rows[0][columns[text.ToUpper()]].ToString(), false, false);
+                    }
+                }
+
+                foreach (var item in ReplaceInfo.Keys)
+                {
+                    if (ReplaceInfo[item.ToString()] == 0)
+                        document.Replace(item.ToString(), "N/A", false, false);
+                }
+
+                if (!string.IsNullOrEmpty(dsData.Rows[0]["EmployeePic"].ToString()))
+                {
+                    var pic = dsData.Rows[0]["EmployeePic"].ToString();
+                    string picpath = ResourcesPathReader.GetEmployeeDestinationPicPath() + pic;
+                    if (System.IO.File.Exists(picpath))
+                    {
+                        try
+                        {
+                            Image Img = Image.FromFile(picpath);
+                            Image newImage = resizeImage(Img, 120, 120);
+
+                            section.Tables[0].Rows[0].Cells[0].Paragraphs[0].AppendPicture(newImage);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw (ex);
+                        }
+                    }
+                }
+
+                fileName = "APPLICATIONFORMFORRECRUITMENT-" + empId + ".docx";
+                document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
+                document.Close();
+            }
+            catch (Exception ex)
+            {
+
+
+            }
+        }
+        public Image resizeImage(Image image, int new_height, int new_width)
+        {
+            Bitmap new_image = new Bitmap(new_width, new_height);
+            Graphics g = Graphics.FromImage((Image)new_image);
+            g.InterpolationMode = InterpolationMode.High;
+            g.DrawImage(image, 0, 0, new_width, new_height);
+            return new_image;
+        }
+        public double makeEmpInfoData(string empId, WordDocument document, DataTable dsData)
+        {
+
+            int LasColumnIndex = 6;
+
+            WTable wTable = new WTable(document);
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex + 1);
+
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+            #region column headers
+            document.EnsureMinimal();
+
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            WCharacterFormat DFontSize = new WCharacterFormat(document);
+            FontBold.Bold = true;
+            FontBold.FontSize = 8.5f;
+            DFontSize.FontSize = 8f;
+
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("ARTICLE");
+            range.ApplyCharacterFormat(FontBold);
+            int colArticle = COL; COL++;
+            wTable.Rows[ROW].Cells[colArticle].Width = 200;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("PRODUCT DETAILS");
+            range.ApplyCharacterFormat(FontBold);
+            int colChar1 = COL; COL++;
+            wTable.Rows[ROW].Cells[colChar1].Width = 60;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("LOT NO");
+            range.ApplyCharacterFormat(FontBold);
+            int colLot = COL; COL++;
+            wTable.Rows[ROW].Cells[colLot].Width = 80;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN");
+            range.ApplyCharacterFormat(FontBold);
+            int colHSN = COL; COL++;
+            wTable.Rows[ROW].Cells[colHSN].Width = 60;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("NET WEIGHT (KGS.)");
+            range.ApplyCharacterFormat(FontBold);
+            int colQty = COL; COL++;
+            wTable.Rows[ROW].Cells[colQty].Width = 60;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("No of Cartons");
+            range.ApplyCharacterFormat(FontBold);
+            int colCartons = COL; COL++;
+            wTable.Rows[ROW].Cells[colCartons].Width = 50;
+
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("GROSS WEIGHT (KGS.)");
+            range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
+            int colGW = COL;
+            wTable.Rows[ROW].Cells[colQty].Width = 60;
+
+            #endregion column headers
+
+            ROW++;
+           
+            ROW++;
+
+            #region paragrpath formats
+            //Adds a new paragraph style named "MyStyle"
+            IWParagraphStyle myStyle = document.AddParagraphStyle("MyStyle");
+            //Sets the formatting of the style
+            myStyle.CharacterFormat.FontSize = 8f;
+            myStyle.CharacterFormat.TextColor = Color.Black;
+            myStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+
+
+            #endregion paragrpath formats
+
+            #region merging section
+
+            ROW = 0;
+
+            ROW++;
+            
+            #endregion merging section
+
+            //TextBodyPart textBodyPart = new TextBodyPart(document);
+            //textBodyPart.BodyItems.Add(wTable);
+            //document.Replace(replaceString, textBodyPart, true, true);
+
+
+            return 0;
+        }
     }
     public class EmployeeOperation
     {
