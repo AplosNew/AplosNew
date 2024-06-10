@@ -87,7 +87,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             try
             {
                 string CmdText = @"select IsSelected = case when ead.EmployeeId is null then Convert(bit, 'False') ELSE Convert(bit, 'True') END,ars.YearNo,ars.MonthNo,EMAD.EmpSystemId EmployeeId,e.EmployeeCode,e.EmployeeName,
-                                    EMAD.AdvanceAmount SanctionedAmount,'' AdvanceId,ars.Id AdvanceReqScheduleId,esa.Id EmployeeSalaryAdvanceId,ead.EmployeeSalaryAdvanceId
+                                    EMAD.AdvanceAmount SanctionedAmount,'' AdvanceId,ars.Id AdvanceReqScheduleId,ead.EmployeeSalaryAdvanceId
                                     ,isnull(Recovered.RecoveredAmount,0) RecoveredAmount, EMAD.AdvanceAmount -isnull(Recovered.RecoveredAmount,0) Balance,
                                     ars.InstallmentAmount CurrentInstallment ,ars.PrincipalAmount,ars.ProfitAmount InterestAmount,v.VoucherNo,ars.EmployeeAdvanceDetailId
                                     from trn.EmployeeAdvanceDetail EMAD
@@ -105,7 +105,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                     WHERE ars.YearNo='" + Year + "' and ars.MonthNo='" + Month + @"' and EMAD.EmpSystemId<>'' and esa.PlantId='" + plantId + @"'
 									UNION ALL
                                     select IsSelected = case when ead.EmployeeId is null then Convert(bit, 'False') ELSE Convert(bit, 'True') END,ars.YearNo,ars.MonthNo,esa.EmployeeId,e.EmployeeCode,e.EmployeeName,
-                                    esa.Amount SanctionedAmount,a.Id AdvanceId,ars.Id AdvanceReqScheduleId,esa.Id EmployeeSalaryAdvanceId,ead.EmployeeSalaryAdvanceId
+                                    esa.Amount SanctionedAmount,a.Id AdvanceId,ars.Id AdvanceReqScheduleId,ead.EmployeeSalaryAdvanceId
                                     ,isnull(Recovered.RecoveredAmount,0) RecoveredAmount, esa.Amount-isnull(Recovered.RecoveredAmount,0) Balance,
                                     ars.InstallmentAmount CurrentInstallment ,ars.PrincipalAmount,ars.ProfitAmount InterestAmount,v.VoucherNo,'' EmployeeAdvanceDetailId
                                     from trn.EmployeeSalaryAdvance esa
