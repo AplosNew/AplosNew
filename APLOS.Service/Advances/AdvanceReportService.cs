@@ -1522,7 +1522,33 @@ namespace Library.Service.Advances
         {
             try
             {
-                var sql = @"select ESA.VoucherId, ESA.EmployeeId,ESA.PartyType,ESA.TransactionType,ESA.SourceType,ESA.VoucherDate,ESA.PostingDate,ESA.DocDate,esa.DocRefNo
+                var sql = @"SELECT ESA.VoucherId, ESA.EmpSystemId EmployeeId,'Employee' PartyType,'' TransactionType,V.SourceType,V.VoucherDate,V.PostingDate,V.DocDate,V.DocRefNo
+                            ,V.Narration,ESA.Amount,ARS.Id AdvanceReqScheduleId,ARS.InstallmentDate,ARS.InstallmentNo, ARS.InstallmentAmount,ARS.ProfitAmount
+                            ,ARS.PrincipalAmount,ARS.OtherAmount,ars.TaxAmount,ARS.Balance, ARS.YearNo
+							
+							,MonthNo = case when ARS.MonthNo=1 then 'January'
+							           when ARS.MonthNo=2 then 'February'
+							           when ARS.MonthNo=3 then 'March'
+							           when ARS.MonthNo=4 then 'April'
+							           when ARS.MonthNo=5 then 'May'
+							           when ARS.MonthNo=6 then 'Jun'
+							           when ARS.MonthNo=7 then 'July'
+							           when ARS.MonthNo=8 then 'Augest'
+							           when ARS.MonthNo=9 then 'September'
+							           when ARS.MonthNo=10 then 'October'
+							           when ARS.MonthNo=11 then 'November'
+							           when ARS.MonthNo=12 then 'December'
+									else '' end,
+									ISNULL(ESA.WrittenOffAmount,0) SetOffAmount
+                        ,[Status]=case when ESA.WrittenOffAmount>0 then 'Paid' else '' end
+                         from TRN.EmployeeAdvanceDetail ESA 
+                             JOIN dbo.AdvanceReqSchedule ARS ON ESA.Id = ARS.EmployeeAdvanceDetailId
+							left join TRN.EmployeeAdvanceDeduction EAD ON EAD.AdvanceReqScheduleId=ARS.Id 
+							LEFT JOIN TRN.Voucher V ON V.Id=ESA.VoucherId
+							where ESA.VoucherId='" + voucherId + @"'
+UNION ALL
+
+select ESA.VoucherId, ESA.EmployeeId,ESA.PartyType,ESA.TransactionType,ESA.SourceType,ESA.VoucherDate,ESA.PostingDate,ESA.DocDate,esa.DocRefNo
                             ,ESA.Narration,ESA.Amount,ARS.Id AdvanceReqScheduleId,ARS.InstallmentDate,ARS.InstallmentNo, ARS.InstallmentAmount,ARS.ProfitAmount
                             ,ARS.PrincipalAmount,ARS.OtherAmount,ars.TaxAmount,ARS.Balance, ARS.YearNo
 							
@@ -1542,7 +1568,7 @@ namespace Library.Service.Advances
 									AW.Amount SetOffAmount
                         ,[Status]=case when AW.Amount>0 then 'Paid' else '' end
                           from TRN.EmployeeSalaryAdvance ESA 
-                            LEFT JOIN dbo.AdvanceReqSchedule ARS ON ESA.Id = ARS.EmployeeSalaryAdvanceId
+                             JOIN dbo.AdvanceReqSchedule ARS ON ESA.Id = ARS.EmployeeSalaryAdvanceId
 							left join TRN.EmployeeAdvanceDeduction EAD ON EAD.AdvanceReqScheduleId=ARS.Id 
 							LEFT JOIN TRN.Advance A ON A.Id=EAD.AdvanceId
 							LEFT JOIN (SELECT SUM(Amount) Amount,AdvanceId FROM TRN.AdvanceWriteOffDetail GROUP BY AdvanceId) AW ON AW.AdvanceId=A.Id
