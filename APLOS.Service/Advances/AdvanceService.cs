@@ -3761,7 +3761,8 @@ namespace Library.Service.Advances
                 {
                     Narration = voucher.Narration,
                     CrAmount = voucherVM.Amount,
-                    PaymentSource = voucherVM.PaymentSource
+                    PaymentSource = voucherVM.PaymentSource,
+                    PlantId = voucherVM.PlantId
                 };
 
                 if (null != bankChargeDetailVMList && bankChargeDetailVMList.Count() > 0)
@@ -3871,7 +3872,7 @@ namespace Library.Service.Advances
 
 
 
-        public string CreateEmployeeAdvanceHRPark(VoucherViewModel voucherVM, Dictionary<string, object> data, List<Dictionary<string, object>> advanceDetail)
+        public string CreateEmployeeAdvanceHRPark(VoucherViewModel voucherVM, Dictionary<string, object> data, List<Dictionary<string, object>> advanceDetail, IEnumerable<AdvanceReqSchedule> advanceSalarySchedulelist)
         {
             try
             {
@@ -3883,11 +3884,13 @@ namespace Library.Service.Advances
                 var month = voucherVM.PostingDate.Month;
                 DataSet dsMaster;
                 DataSet dsDetail;
+                DataSet dsData=null;
                 DataSet dsDrvoucherDetail=null;
                 DataSet dsCrvoucherDetail=null;
                 DataSet dsDrvoucherDetailCurrency=null;
                 DataSet dsCrvoucherDetailCurrency=null;
                 DataSet dsGLTransactionDetail = null;
+                DataSet _dsAdvanceReqScheduleData = null;
                 DataSet dsEmployeeSubsequentTransaction=null;
                 var currentVoucherDetailId = 0;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -3896,6 +3899,7 @@ namespace Library.Service.Advances
 
 
                 string _Id = "";
+                string ids =string.Empty;
 
                 #region data update Worker Advance
                 if (dsMaster.Tables[0].DefaultView.Count == 0)
@@ -4022,7 +4026,6 @@ namespace Library.Service.Advances
                         if (dv.Count > 0)
                         {
                             ccount++;
-                            string detailid = _accountCommonService.MakePK(_MasterId, ccount, 2);
                             DataRow drmo = dv[0].Row;
                             drmo.BeginEdit();
 
@@ -4033,6 +4036,55 @@ namespace Library.Service.Advances
                             drmo["Remarks"] = item["Remarks"];
 
                             drmo.EndEdit();
+                        }
+                    }
+
+                    if (advanceSalarySchedulelist != null)
+                    {
+                        foreach (var item in advanceSalarySchedulelist)
+                        {
+                            if (item.Id != null)
+                            {
+                                if (ids == "")
+                                    ids = "'" + item.Id + "'";
+                                else
+                                    ids = ids + ",'" + item.Id + "'";
+                            }
+                            
+                        }
+                        if (ids!="")
+                        {
+                            con.getDataSet("Select Id,EmployeeAdvanceDetailId,UpdatedBy,UpdatedDate,UpdatedFromIP from [dbo].[AdvanceReqSchedule] where Id in (" + ids + @") ", out dsData);
+                        }
+                        foreach (var item in advanceSalarySchedulelist)
+                        {
+                            if (item.Id == null)
+                            {
+                                var advanceReqSchedule = new AdvanceReqSchedule
+                                {
+                                    InstallmentAmount = item.InstallmentAmount,
+                                    InstallmentDate = item.InstallmentDate,
+                                    InstallmentNo = item.InstallmentNo,
+                                    PrincipalAmount = item.PrincipalAmount,
+                                    ProfitAmount = item.ProfitAmount,
+                                    ScheduleNo = item.ScheduleNo,
+                                    Balance = item.Balance,
+                                    YearNo = item.InstallmentDate.Year,
+                                    MonthNo = item.InstallmentDate.Month,
+                                    EmployeeAdvanceDetailId = detailId
+                                };
+                                _accountCommonService.InsertAdvanceReqSchedule(advanceReqSchedule, advanceReqSchedule.EmployeeAdvanceDetailId, ref _dsAdvanceReqScheduleData);
+                            }
+                            else
+                            {
+                                var advanceReqSchedule = new AdvanceReqSchedule
+                                {
+                                    Id = item.Id,
+                                    EmployeeAdvanceDetailId = detailId
+                                };
+                                _accountCommonService.UpdateAdvanceReqSchedule(advanceReqSchedule, dsData);
+                            }
+                           
                         }
                     }
                 }
@@ -4121,15 +4173,14 @@ namespace Library.Service.Advances
                     SourceType = voucherVM.PaymentSource,
                     BankMasterId = bankVoucherDetail.BankMasterId,
                     CashMasterId = bankVoucherDetail.CashMasterId,
-                    //CrAmount = totalCurrencyAmountDr
+                    CrAmount = bankVoucherDetail.CrAmount
                 }, out dsGLTransactionDetail);
 
 
                 #endregion  Worker Advance Detail
              
                 clsStaticInfo _info = new clsStaticInfo();
-                // _info.SaveDataSets(dsMaster, vdataset,dsDrvoucherDetail, dsDrvoucherDetailCurrency, dsDetail, dsEmployeeSubsequentTransaction, dsCrvoucherDetail, dsCrvoucherDetailCurrency, dsGLTransactionDetail);
-                _info.SaveDataSets(dsMaster, _vdataset, dsDrvoucherDetail, dsDrvoucherDetailCurrency, dsDetail, dsEmployeeSubsequentTransaction, dsCrvoucherDetail, dsCrvoucherDetailCurrency, dsGLTransactionDetail);
+                _info.SaveDataSets(dsMaster, _vdataset, dsDrvoucherDetail, dsDrvoucherDetailCurrency, dsDetail, _dsAdvanceReqScheduleData, dsData, dsEmployeeSubsequentTransaction, dsCrvoucherDetail, dsCrvoucherDetailCurrency, dsGLTransactionDetail);
 
                 return "";
             }

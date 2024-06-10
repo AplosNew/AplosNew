@@ -239,12 +239,18 @@ namespace Library.Service.SalaryDisbursement
             {
                 var advance = _advanceService.Find(item.AdvanceId);
                 var advancesalaryAdvance = accountCommonExtensionService.GetEmployeeSalaryAdvane(item.EmployeeSalaryAdvanceId);
+                var employeeSalaryMultipleAdvane = accountCommonExtensionService.GetEmployeeSalaryMultipleAdvane(item.EmployeeAdvanceDetailId);
                 if (advance != null)
                 {
                     isAdvance = true;
                     break;
                 }
                 else if (advancesalaryAdvance.Count > 0)
+                {
+                    isAdvance = true;
+                    break;
+                }
+                else if (employeeSalaryMultipleAdvane.Count > 0)
                 {
                     isAdvance = true;
                     break;
@@ -2287,7 +2293,7 @@ namespace Library.Service.SalaryDisbursement
                     _unitOfWork.Rollback();
             }
         }
-        public string ParkEmployeeMultipleAdvanceDisbursement(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, string goodWorkPaymentAdviseDetailIds, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail)
+        public string ParkEmployeeMultipleAdvanceDisbursement(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, string goodWorkPaymentAdviseDetailIds, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail, string salaryHeadId)
         {
             var flag = false;
             try
@@ -2419,6 +2425,65 @@ namespace Library.Service.SalaryDisbursement
                 //**************update salary lock VoucherPayableId Direct and InDirect Salary ****************
                 _unitOfWork.BeginTransaction();
 
+                string empids = string.Empty;
+                string Year = string.Empty;
+                string Month = string.Empty;
+                foreach (var item in goodWorkPaymentAdviseDetail)
+                {
+                    if (empids == "")
+                    {
+                        empids = "'" + item["EmpSystemId"] + "'";
+                    }
+                    else
+                    {
+                        empids += ",'" + item["EmpSystemId"] + "'";
+                    }
+                    Year = item["YearNo"].ToString();
+                    Month = item["MonthNo"].ToString();
+
+                }
+                DataSet dsMWESAMst = null;
+                DataTable dtMWESAMst = null;
+                DataRow drMWESAMst = null;
+                DataView dvMWESAMst = null;
+
+                DataSet dsMWESAChd = null;
+                DataTable dtMWESAChd = null;
+                DataRow drMWESAChd = null;
+                DataView dvMWESAChd = null;
+
+                var MWESAMasterSystemID = "";
+                string SalaryHeads = string.Empty;
+                if (SalaryHeads == "")
+                {
+                    SalaryHeads = "'" + salaryHeadId + "'";
+                }
+                GetMthWiseExtSalAmtMaster(empids, Convert.ToInt32(Year), Convert.ToInt32(Month), out dsMWESAMst);
+
+                dtMWESAMst = dsMWESAMst.Tables[0];
+                dvMWESAMst = new DataView();
+                dvMWESAMst.Table = dtMWESAMst;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                GetMthWiseExtSalAmtChild(identity.PlantId, empids, Convert.ToInt32(Year), Convert.ToInt32(Month), SalaryHeads, out dsMWESAChd);
+
+                dtMWESAChd = dsMWESAChd.Tables[0];
+                dvMWESAChd = new DataView();
+                dvMWESAChd.Table = dtMWESAChd;
+
+                #region NEW ID GENERATE
+                
+                string _MasterPK = string.Empty;
+                int CountM = 0;
+                bplib.clsGenID objGenIDs = new bplib.clsGenID();
+                objGenIDs.GenIDYearly(DateTime.Now.ToShortDateString().ToString(), "ExtraAmt", out _MasterPK);
+
+                int CountC = 0;
+                string ChildPK = string.Empty;
+                objGenIDs.GenIDYearly(DateTime.Now.ToShortDateString().ToString(), "ExtraAmtChild", out ChildPK);
+
+                #endregion End ID Generate
+
+
                 int count = 0;
                 DataSet dsChild;
                 DataSet dsAdvanceReqSchedule;
@@ -2427,7 +2492,7 @@ namespace Library.Service.SalaryDisbursement
                 DataRow drAdvanceReqSchedule = null;
                 DataRow drBp = null;
                 DataRow drEmployeeSubsequentTransaction = null;
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 string sqlAdvanceReqSchedule = "SELECT * FROM [dbo].[AdvanceReqSchedule] where 1=2 ";
                 con.OpenDataSetThroughAdapter(sqlAdvanceReqSchedule, out dsAdvanceReqSchedule, false, "1");
@@ -2517,10 +2582,94 @@ namespace Library.Service.SalaryDisbursement
                         drEmployeeSubsequentTransaction["AddedDate"] = System.DateTime.Now.ToString();
                         drEmployeeSubsequentTransaction["AddedFromIP"] = identity.IPAddress;
                         dsEmployeeSubsequentTransaction.Tables[0].Rows.Add(drEmployeeSubsequentTransaction);
+
+                        string strMstSysID = string.Empty;
+                        dvMWESAMst.Table = dtMWESAMst;
+                        dvMWESAMst.RowFilter = "EmpInfoSystemID = '" + item["EmpSystemId"] + "' AND MonthNo='" + Month + "' and YearNo='" + Year + "'";
+                        if (dvMWESAMst.Count == 0)
+                        {
+                            CountM++;
+                            strMstSysID = "XM" + _MasterPK + "-" + CountM;
+                            MWESAMasterSystemID = strMstSysID;
+                            drMWESAMst = dtMWESAMst.NewRow();
+                            drMWESAMst["SystemID"] = bplib.clsWebLib.RetValidLen(strMstSysID.Trim(), 50);
+                            drMWESAMst["EmpInfoSystemID"] = bplib.clsWebLib.RetValidLen(item["EmpSystemId"].ToString(), 50);
+                            drMWESAMst["AddedBy"] = identity.Name;
+                            drMWESAMst["DateAdded"] = DateTime.Now;
+                            drMWESAMst["PlantID"] = identity.PlantId;
+                            drMWESAMst["MonthNo"] = Month;
+                            drMWESAMst["YearNo"] = bplib.clsWebLib.GetNumData(Year);
+                            dtMWESAMst.Rows.Add(drMWESAMst);
+                        }
+                        else
+                        {
+                            drMWESAMst = dvMWESAMst[0].Row;
+                            drMWESAMst.BeginEdit();
+                            drMWESAMst["EmpInfoSystemID"] = bplib.clsWebLib.RetValidLen(item["EmpSystemId"].ToString(), 50);
+                            drMWESAMst["PlantId"] = identity.PlantId;
+                            drMWESAMst["MonthNo"] = Month;
+                            drMWESAMst["YearNo"] = bplib.clsWebLib.GetNumData(Year);
+                            MWESAMasterSystemID = drMWESAMst["SystemID"].ToString();
+                            drMWESAMst["UpdatedBy"] = identity.Name;
+                            drMWESAMst["DateUpdated"] = DateTime.Now;
+                            drMWESAMst.EndEdit();
+                        }
+
+                        string ChdSystemID = string.Empty;
+                        dvMWESAChd.RowFilter = "MWESAMasterSystemID = '" + MWESAMasterSystemID + "' and SalaryHeadID = '" + salaryHeadId + "' and EmployeeAdvanceDetailId = '" + item["Id"] + "' ";
+                        if (dvMWESAChd.Count == 0)
+                        {
+                            CountC++;
+                            ChdSystemID = "XC" + ChildPK + "-" + CountC;
+                            drMWESAChd = dtMWESAChd.NewRow();
+                            drMWESAChd["SystemID"] = bplib.clsWebLib.RetValidLen(ChdSystemID, 50);
+
+                            if (string.IsNullOrEmpty(strMstSysID))
+                            {
+                                drMWESAChd["MWESAMasterSystemID"] = MWESAMasterSystemID;
+                            }
+                            else
+                            {
+                                drMWESAChd["MWESAMasterSystemID"] = bplib.clsWebLib.RetValidLen(strMstSysID.Trim(), 50);
+                            }
+
+                            drMWESAChd["AddedBy"] = identity.Name;
+                            drMWESAChd["DateAdded"] = DateTime.Now;
+                            drMWESAChd["SalaryHeadID"] = bplib.clsWebLib.RetValidLen(salaryHeadId, 50);
+                            drMWESAChd["CurrencyRuleSystemID"] = null;
+                            drMWESAChd["EntryCurrencyID"] = voucherVM.CurrencyId;
+                            drMWESAChd["EntryAmount"] = item["AdvanceAmount"];
+                            drMWESAChd["DefineAmount"] = item["AdvanceAmount"];
+                            drMWESAChd["DefineCurrencyID"] = voucherVM.CurrencyId;
+                            drMWESAChd["AmtDefinitionCurrencyID"] = voucherVM.CurrencyId;
+                            drMWESAChd["AmtDefinitionRate"] = 0;
+                            drMWESAChd["ExtDataUploadApp"] = "XL";
+                            drMWESAChd["EmployeeAdvanceDetailId"] = item["Id"];
+                            dtMWESAChd.Rows.Add(drMWESAChd);
+                        }
+                        else
+                        {
+                            drMWESAChd = dvMWESAChd[0].Row;
+                            drMWESAChd.BeginEdit();
+                            
+                            drMWESAChd["SalaryHeadID"] = bplib.clsWebLib.RetValidLen(salaryHeadId, 50);
+                            drMWESAChd["CurrencyRuleSystemID"] = null;
+                            drMWESAChd["EntryCurrencyID"] = voucherVM.CurrencyId;
+                            drMWESAChd["EntryAmount"] = item["AdvanceAmount"];
+                            drMWESAChd["DefineAmount"] = item["AdvanceAmount"];
+                            drMWESAChd["DefineCurrencyID"] = voucherVM.CurrencyId;
+                            drMWESAChd["AmtDefinitionCurrencyID"] = voucherVM.CurrencyId;
+                            drMWESAChd["AmtDefinitionRate"] = 0;
+                            drMWESAChd["ExtDataUploadApp"] = "XL";
+                            drMWESAChd["UpdatedBy"] = identity.Name;
+                            drMWESAChd["DateUpdated"] = DateTime.Now;
+                            drMWESAChd["EmployeeAdvanceDetailId"] = item["Id"];
+                            drMWESAChd.EndEdit();
+                        }
                     }
                 }
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsAdvanceReqSchedule,dsChild, dsEmployeeSubsequentTransaction);
+                _info.SaveDataSets(dsAdvanceReqSchedule,dsChild, dsEmployeeSubsequentTransaction, dsMWESAMst, dsMWESAChd);
 
                 flag = true;
                 if (directVoucherId != null)
@@ -2553,6 +2702,50 @@ namespace Library.Service.SalaryDisbursement
             {
                 if (flag)
                     _unitOfWork.Rollback();
+            }
+        }
+        public void GetMthWiseExtSalAmtMaster(string empids, int YearNo, int MonthNo, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"SELECT *
+                                    FROM MonthWiseExtraSalaryAmtMaster 
+                            WHERE YearNo = " + YearNo + @" AND MonthNo = " + MonthNo + @" and EmpInfoSystemID in (" + empids + @")";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        public void GetMthWiseExtSalAmtChild(string plantid, string empids, int YearNo, int MonthNo, string SalaryHeadId, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"SELECT * FROM MonthWiseExtraSalaryAmtChild 
+                          WHERE SalaryHeadID in (" + SalaryHeadId + @") and MWESAMasterSystemID IN (SELECT SystemID FROM MonthWiseExtraSalaryAmtMaster 
+                                                                    WHERE YearNo = " + YearNo + @" AND MonthNo = " + MonthNo + @" and plantid='" + plantid + @"' and EmpInfoSystemID in (" + empids + @"))";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
             }
         }
         public string SaveBonusDisbursementPosting(VoucherViewModel voucherVM, string fromDate, string toDate, string pMode, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, string empSystemIds)
@@ -3157,7 +3350,8 @@ namespace Library.Service.SalaryDisbursement
                               DELETE from [TRN].[EmployeeAdvanceDeduction] where EmployeeAdvanceDetailId in (SELECT Id FROM [TRN].[EmployeeAdvanceDetail]  where VoucherId='" + voucherId + @"' ) ";
                 direct.Append(directsql);
                 directsql = @"
-                              DELETE from dbo.AdvanceReqSchedule where EmployeeAdvanceDetailId in (SELECT Id FROM [TRN].[EmployeeAdvanceDetail]  where VoucherId='" + voucherId + @"' ) 
+                              DELETE from dbo.AdvanceReqSchedule where EmployeeAdvanceDetailId in (SELECT Id FROM [TRN].[EmployeeAdvanceDetail]  where VoucherId='" + voucherId + @"' )
+                              DELETE from dbo.MonthWiseExtraSalaryAmtChild where EmployeeAdvanceDetailId in (SELECT Id FROM [TRN].[EmployeeAdvanceDetail]  where VoucherId='" + voucherId + @"' )
                               DELETE from trn.EmployeeSubsequentTransaction where VoucherId='" + voucherId + @"' ";
                 direct.Append(directsql);
                 directsql = @"
