@@ -2497,15 +2497,15 @@ WHERE E.EmployeeStatus = 'Active' AND E.BudgetCode='" + budgetCode + @"' GROUP B
             try
             {
                 strSQL = @"SELECT EI.SystemId,EI.EmployeeName,EI.EmpPicPath EmployeePic,EI.NationalID UIDNO,EI.CellPhnNo MobileNo,EI.FatherName,EI.MotherName,EI.SpouseName,EI.GenderID Gender,FORMAT(EI.DOB,'dd-MMM-yyyy') DOB,DATEDIFF(YEAR,EI.DOB,GETDate()) Age
-,CS.UserName MaritalStatus,R.UserName Caste,EN.Name NomineeName,NomineeAge=DATEDIFF(YEAR,EN.DOB,GETDate()),RS.UserName Relation,EI.PresentAddress1 PresentAddress,EI.ParmanentAddress1 PermanentAddress
-,EXI.Employer NameofCompany,Years=DATEDIFF(YEAR,EXI.StartDate,EXI.EndDate),''EXPDepartment,EXI.Designation, RDP.UserName RefDepartment,EI.EmployeeName NameofCandidate,FORMAT(EI.DOJ,'dd-MMM-yyyy')DOJ, EDP.UserName Department
+,CS.UserName MaritalStatus,R.UserName Caste,EN.Name NomineeName,NomineeAge=DATEDIFF(YEAR,EN.DOB,GETDate()),RS.UserName NomineeRelation,EI.PresentAddress1 PresentAddress,EI.ParmanentAddress1 PermanentAddress
+,EXI.Employer NameofCompany,Years=CAST((EXI.DurationYear)AS varchar(20))+' Y '+CAST((EXI.DurationMonth)AS varchar(20))+' M',EXI.Designation, RDP.UserName RefDepartment,EI.EmployeeName NameofCandidate,FORMAT(EI.DOJ,'dd-MMM-yyyy')DOJ, EDP.UserName Department
 ,ESINo=(Select ED.DocNumber from dbo.EmployeeDocument ED
 LEFT JOIN HKP.ComplianceDocument CD ON CD.Id=ED.ComplianceDocumentId
 Where EmpSystemID=EI.SystemId AND CD.UserName='Declaration Form (ESIC)')
 ,UAN=(Select ED.DocNumber from dbo.EmployeeDocument ED
 LEFT JOIN HKP.ComplianceDocument CD ON CD.Id=ED.ComplianceDocumentId
 Where EmpSystemID=EI.SystemId AND CD.UserName='Nomination Form (PF)')
-,REF.Ref1Name RefName,REMP.EmployeeCode RefCode
+,REF.Ref1Name RefName,REMP.EmployeeCode RefCode,LD.UserName LegalDesignation,EQ.ExamDegreeType Qualification,S.UserName Section
 FROM dbo.EmployeeInformation EI
 LEFT JOIN HKP.CivilStatus CS ON CS.Id=EI.CivilStatusID
 LEFT JOIN SCS.Religion R ON R.Id=EI.ReligionId
@@ -2513,10 +2513,16 @@ LEFT JOIN dbo.EmployeeNomineeInfo EN ON EN.EmpSystemId=EI.SystemId
 LEFT JOIN [SCS].[Relationship] RS ON RS.Id=EN.Relation
 LEFT JOIN dbo.EmpExperienceInformation EXI ON  EXI.EmpSystemID=EI.SystemId
 AND EXI.SystemID=(select top(1) SystemID from dbo.EmpExperienceInformation Where SystemId=EXI.SystemID AND EmpSystemID=EI.SystemId Order By DateAdded DESC)
+LEFT JOIN dbo.EmpAcademicQualificationInformation EQ ON  EQ.EmpSystemID=EI.SystemId
+AND EQ.SystemID=(select top(1) SystemID from dbo.EmpAcademicQualificationInformation Q
+LEFT JOIN [SCS].[QualificationLevel] L ON L.Id=Q.EductLevelSystemID
+Where Q.SystemID=EQ.SystemID AND Q.EmpSystemID=EI.SystemId Order By L.Sequence DESC)
 LEFT JOIN dbo.EmpReferenceInformation REF ON REF.EmpSystemId=EI.SystemId
 LEFT JOIN dbo.EmployeeInformation REMP ON REMP.SystemId=REF.RefEmpSystemID
 LEFT JOIN ORG.Department RDP ON RDP.Id=REMP.DepartmentId
 LEFT JOIN ORG.Department EDP ON EDP.Id=EI.DepartmentId
+LEFT JOIN HKP.LegalDesignation LD ON LD.Id=EI.LegalDesignationId
+LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
 Where EI.SystemId='" + empId + "'";
                 return _sqlRepository.GetDataTable(strSQL);
             }
@@ -2529,7 +2535,26 @@ Where EI.SystemId='" + empId + "'";
 
             }
         }
+        public DataTable GetFamiliInfo(string empId)
+        {
+            string strSQL;
+            try
+            {
+                strSQL = @"select D.Name,Relation=RS.UserName,Age=DATEDIFF(YEAR,D.DOB,GETDate()) from dbo.EmployeeDependantInfo D
+LEFT JOIN [SCS].[Relationship] RS ON RS.Id=D.RelationId
+Where EmpSystemId='"+ empId + "'";
 
+                return _sqlRepository.GetDataTable(strSQL);
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }
         public void GetAPPLICATIONFORMFORRECRUITMENT(string empId)
         {
             var fileName = "";
@@ -2552,16 +2577,17 @@ Where EI.SystemId='" + empId + "'";
             {
                 WSection section = document.Sections[0];
 
-                DataTable dsData;
+                DataTable dsData, dsFamiliInfo;
 
                 dsData = GetEmpInfoData(empId);
+                dsFamiliInfo = GetFamiliInfo(empId);
                 Dictionary<string, string> columns = new Dictionary<string, string>();
 
                 foreach (DataColumn item in dsData.Columns)
                     columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
 
                 var MaterialTotal = makeEmpInfoData(empId, document, dsData);
-               
+                var addInfo = makefamilyInfo(empId, document, dsFamiliInfo);
                 Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
 
                 TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
@@ -2615,6 +2641,137 @@ Where EI.SystemId='" + empId + "'";
 
             }
         }
+
+        public double makefamilyInfo(string empId, WordDocument document, DataTable dsaddInfo)
+        {
+            string replaceString = "{familyInfo}";
+
+
+            IWParagraphStyle arightAlign = document.AddParagraphStyle("addrightAlign");
+            //Sets the formatting of the style
+            arightAlign.CharacterFormat.FontSize = 8f;
+            arightAlign.CharacterFormat.TextColor = Color.Black;
+            arightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
+            int LasColumnIndex = 3;
+            WTable wTable = new WTable(document);
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex);
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+            #region column headers
+            document.EnsureMinimal();
+
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            WCharacterFormat DFontSize = new WCharacterFormat(document);
+            FontBold.Bold = true;
+            DFontSize.FontSize = 8f;
+
+            //IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
+            //range.ApplyCharacterFormat(FontBold);
+            //range.ApplyCharacterFormat(DFontSize);
+            //int colTermsAndCondition = COL; COL++;
+
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Name");
+            range.ApplyCharacterFormat(FontBold);
+            int colName = COL; COL++;
+            wTable.Rows[ROW].Cells[colName].Width = 200;
+            //wTable.Rows[ROW].Cells[colName].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+            //wTable.Rows[ROW].Cells[colName].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+            //wTable.Rows[ROW].Cells[colName].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+            //wTable.Rows[ROW].Cells[colName].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Relation");
+            range.ApplyCharacterFormat(FontBold);
+            int colRelation = COL; COL++;
+            wTable.Rows[ROW].Cells[colRelation].Width = 150;
+            //wTable.Rows[ROW].Cells[colRelation].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+            //wTable.Rows[ROW].Cells[colRelation].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+            //wTable.Rows[ROW].Cells[colRelation].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+            //wTable.Rows[ROW].Cells[colRelation].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Age");
+            range.ApplyCharacterFormat(FontBold);
+            int colAge = COL;
+            wTable.Rows[ROW].Cells[colAge].Width = 100; 
+            //wTable.Rows[ROW].Cells[colAge].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+            //wTable.Rows[ROW].Cells[colAge].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+            //wTable.Rows[ROW].Cells[colAge].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+            //wTable.Rows[ROW].Cells[colAge].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+
+
+            #endregion column headers
+            double totalValue = 0;
+            int sl = 0;
+            int startRow = 0;
+            for (int i = 0; i < dsaddInfo.Rows.Count; i++)
+            {
+                ROW++;
+                sl++;
+                wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+                TROW.Cells[colName].AddParagraph().AppendText(dsaddInfo.Rows[i]["Name"].ToString()).ApplyCharacterFormat(DFontSize);
+                //TROW.Cells[colName].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+                //TROW.Cells[colName].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+                //TROW.Cells[colName].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+                //TROW.Cells[colName].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colRelation].AddParagraph().AppendText(dsaddInfo.Rows[i]["Relation"].ToString()).ApplyCharacterFormat(DFontSize);
+                //TROW.Cells[colRelation].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+                //TROW.Cells[colRelation].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+                //TROW.Cells[colRelation].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+                //TROW.Cells[colRelation].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colAge].AddParagraph().AppendText(dsaddInfo.Rows[i]["Age"].ToString()).ApplyCharacterFormat(DFontSize);
+                //TROW.Cells[colAge].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+                //TROW.Cells[colAge].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+                //TROW.Cells[colAge].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+                //TROW.Cells[colAge].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+
+            }
+            ROW++;
+
+            #region Total
+            //int TotalRow = ROW;
+            //wTable.AddRow();
+            //WTableRow _TROW = wTable.LastRow;
+
+            //range.ApplyCharacterFormat(FontBold);
+            #endregion Total
+            ROW++;
+            #region paragrpath formats
+
+            IWParagraphStyle myaddStyle = document.AddParagraphStyle("AddinfoStyle");
+            //Sets the formatting of the style
+            myaddStyle.CharacterFormat.FontSize = 8f;
+            myaddStyle.CharacterFormat.TextColor = Color.Black;
+            myaddStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+            #endregion paragrpath formats
+
+            #region merging section
+
+            //tax codes merging (horizontal)
+            ROW = 0;
+            ROW++;
+            #endregion merging section
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTable);
+            document.Replace(replaceString, textBodyPart, true, true);
+
+            return 0;
+        }
+
         public Image resizeImage(Image image, int new_height, int new_width)
         {
             Bitmap new_image = new Bitmap(new_width, new_height);

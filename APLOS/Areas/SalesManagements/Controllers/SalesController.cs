@@ -2509,33 +2509,40 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
-            DataSet dsChild, dsInvMat;
+            DataSet dsChild=null;
+            DataSet dsInvMat=null;
             string id = string.Empty;
             string inid = string.Empty;
             try
             {
                 #region Sales 
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                foreach (var item in data.Where(r => r["SourceType"].ToString() == "SalesMaterial"))
+                foreach (var item in data.Where(r => r["SalesCategory"].ToString() == "SalesMaterial"))
                 {
                     if (id == "")
                         id = "'" + item["Id"] + "'";
                     else
                         id = id + ",'" + item["Id"] + "'";
                 }
-                foreach (var item in data.Where(r => r["SourceType"].ToString() == "InventorySales"))
+                foreach (var item in data.Where(r => r["SalesCategory"].ToString() == "InventorySales"))
                 {
                     if (inid == "")
                         inid = "'" + item["Id"] + "'";
                     else
                         inid = inid + ",'" + item["Id"] + "'";
                 }
-                string mosql = "SELECT * FROM TRN.SalesMaterial WHERE Id IN (" + id + ")";
-                string invsql = "SELECT * FROM TRN.InventorySalesDetail WHERE Id IN (" + inid + ")";
+                string mosql = "SELECT * FROM TRN.Salesl WHERE Id IN (" + id + ")";
+                string invsql = "SELECT * FROM TRN.InventorySales WHERE Id IN (" + inid + ")";
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(mosql, out dsChild, false, "1");
-                objCon.OpenDataSetThroughAdapter(invsql, out dsInvMat, false, "1");
-                foreach (var item in data.Where(r => r["SourceType"].ToString() == "SalesMaterial"))
+                if (!string.IsNullOrEmpty(id))
+                {
+                    objCon.OpenDataSetThroughAdapter(mosql, out dsChild, false, "1"); 
+                }
+                if (!string.IsNullOrEmpty(inid))
+                {
+                    objCon.OpenDataSetThroughAdapter(invsql, out dsInvMat, false, "1"); 
+                }
+                foreach (var item in data.Where(r => r["SalesCategory"].ToString() == "SalesMaterial"))
                 {
                     DataView dv = new DataView(dsChild.Tables[0]);
                     dv.RowFilter = "Id='" + item["Id"] + "'";
@@ -2557,7 +2564,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
                 }
 
-                foreach (var item in data.Where(r => r["SourceType"].ToString() == "InventorySales"))
+                foreach (var item in data.Where(r => r["SalesCategory"].ToString() == "InventorySales"))
                 {
                     DataView dv = new DataView(dsInvMat.Tables[0]);
                     dv.RowFilter = "Id='" + item["Id"] + "'";

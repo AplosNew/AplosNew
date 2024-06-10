@@ -1028,6 +1028,17 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
         }
     };
 
+    $scope.SalaryHeadId = null;
+    $scope.SalaryHeadList = [];
+    $scope.pathSalaryHead = 'Payrolls/EmployeeAdvanceDeduction/';
+    $scope.getSalaryHeadListList = function () {
+        $http.get($scope.pathSalaryHead + 'GetSalaryHeadListeList')
+            .then(function (response) {
+                $scope.SalaryHeadList = response.data;
+            });
+    };
+    $scope.getSalaryHeadListList();
+
     $scope.salaryLockPayableGLData = [];
     $scope.EmployeeListNew = [];
     $scope.getSalaryLockPayableGL = function () {
@@ -1090,6 +1101,10 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
                 return true;
             }
         }
+        if (baseService.isUndefinedOrNull($scope.SalaryHeadId)) {
+            ShowResult("Please select Advance GL!", "failure");
+            return true;
+        }
 
         $scope.$broadcast("show-errors-check-validity");
         try {
@@ -1102,7 +1117,8 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
                         "voucherVM": $scope.voucher,
                         "directJVList": $scope.salaryLockPayableGLData,
                         "disbursementAdviceId": $scope.voucher.DisbursementAdviceId,
-                        "goodWorkPaymentAdviseDetail": $scope.EmployeeListNew
+                        "goodWorkPaymentAdviseDetail": $scope.EmployeeListNew,
+                        "salaryHeadId": $scope.SalaryHeadId
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
