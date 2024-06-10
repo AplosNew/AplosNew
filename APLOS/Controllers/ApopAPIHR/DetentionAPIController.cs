@@ -1593,5 +1593,28 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
         #endregion OrderControlReport
+
+        #region Pending dispatch
+        public List<Default2> GetMoCustomer()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetMoCustomer(out List<Default2> activelists);
+            return activelists;
+        }
+
+        public List<SocreationGet> GetSODetail(string CustomerId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetSODetail(out List<SocreationGet> activelists, CustomerId);
+            return activelists;
+        }
+
+        public List<SocreationGet> GetPODetail(string SOId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetPODetail(out List<SocreationGet> activelists, SOId);
+            return activelists;
+        }
+        #endregion Pending dispatch
     }
 }

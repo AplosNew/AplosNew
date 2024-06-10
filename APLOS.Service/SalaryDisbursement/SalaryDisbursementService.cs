@@ -629,7 +629,7 @@ namespace Library.Service.SalaryDisbursement
                                             _employeeSubsequentTransactionRepository.Insert(EmployeeSubsequentAdvancedirect);
                                             item.IsOrderSpecific = true;
 
-                                            directsql = @"update [TRN].[EmployeeAdvanceDetail] set WrittenOffAmount=" + item.Amount + @", IsWrittenOff=1 where Id='" + item.EmployeeAdvanceDetailId + @"' 
+                                            directsql = @"update [TRN].[EmployeeAdvanceDetail] set WrittenOffAmount=" + item.Amount + @", IsWrittenOff=1, SalaryPayableVoucherId='" + directVoucherId + @"' where Id='" + item.EmployeeAdvanceDetailId + @"' 
                                                           ";
                                             direct.Append(directsql);
 
@@ -1118,7 +1118,7 @@ namespace Library.Service.SalaryDisbursement
                                             _employeeSubsequentTransactionRepository.Insert(EmployeeSubsequentAdvancedirect);
                                             item.IsOrderSpecific = true;
 
-                                            inDirectsql = @"update [TRN].[EmployeeAdvanceDetail] set WrittenOffAmount=" + item.Amount + @", IsWrittenOff=1 where Id='" + item.EmployeeAdvanceDetailId + @"' 
+                                            inDirectsql = @"update [TRN].[EmployeeAdvanceDetail] set WrittenOffAmount=" + item.Amount + @", IsWrittenOff=1, SalaryPayableVoucherId='" + InDirectVoucherId + @"' where Id='" + item.EmployeeAdvanceDetailId + @"' 
                                                           ";
                                             inDirect.Append(directsql);
                                         }
@@ -3092,7 +3092,8 @@ namespace Library.Service.SalaryDisbursement
                
                 var directsql = "";
 
-                directsql = @"update [dbo].[SalaryLock] set PayableVoucherId=NULL where Id in (
+                directsql = @"update [TRN].[EmployeeAdvanceDetail] set WrittenOffAmount=NULL, IsWrittenOff=NULL, SalaryPayableVoucherId=NULL where SalaryPayableVoucherId='" + voucherId + @"'
+                              update [dbo].[SalaryLock] set PayableVoucherId=NULL where Id in (
                         select sl.Id     from [dbo].[SalaryLock] sl 
 						 left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
 						 left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
@@ -3337,6 +3338,18 @@ namespace Library.Service.SalaryDisbursement
             try
             {
                 _unitOfWork.BeginTransaction();
+                ConnectionManager.DAL.ConManager objCon1;
+                DataSet dsMaster2 = null;
+                string setOffsql2 = @"SELECT VoucherNo from trn.AdvanceWriteOffDetail iwd JOIN trn.AdvanceWriteOff iw on iw.Id=iwd.AdvanceWriteOffId LEFT JOIN trn.Voucher v on v.Id = iw.VoucherId
+                                            WHERE iwd.EmployeeAdvanceDetailId in (select Id from [TRN].[EmployeeAdvanceDetail] where VoucherId = '" + voucherId + "')";
+                objCon1 = new ConnectionManager.DAL.ConManager("1");
+                objCon1.OpenDataSetThroughAdapter(setOffsql2, out dsMaster2, false, "1");
+
+                if (dsMaster2.Tables[0].Rows.Count > 0)
+                {
+                    throw new CustomException("Voucher Delete is not allowed,  Voucher No '" + dsMaster2.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
+                }
+
                 flag = true;
                 var direct = new System.Text.StringBuilder();
                 var directsql = "";
