@@ -3761,7 +3761,8 @@ namespace Library.Service.Advances
                 {
                     Narration = voucher.Narration,
                     CrAmount = voucherVM.Amount,
-                    PaymentSource = voucherVM.PaymentSource
+                    PaymentSource = voucherVM.PaymentSource,
+                    PlantId = voucherVM.PlantId
                 };
 
                 if (null != bankChargeDetailVMList && bankChargeDetailVMList.Count() > 0)
@@ -4172,7 +4173,7 @@ namespace Library.Service.Advances
                     SourceType = voucherVM.PaymentSource,
                     BankMasterId = bankVoucherDetail.BankMasterId,
                     CashMasterId = bankVoucherDetail.CashMasterId,
-                    //CrAmount = totalCurrencyAmountDr
+                    CrAmount = bankVoucherDetail.CrAmount
                 }, out dsGLTransactionDetail);
 
 

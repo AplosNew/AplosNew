@@ -146,12 +146,19 @@ namespace Library.HumanResource.Payroll
                 {
                     if (item.IsSelected == true)
                     {
-                        if (item.EmployeeSalaryAdvanceId != null && item.AdvanceId == null) {
+                         if (item.EmployeeAdvanceDetailId !=null)
+                        {
+                            dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "' and EmployeeAdvanceDetailId='" + item.EmployeeAdvanceDetailId + "'";
+
+                        }
+                        else if (item.EmployeeSalaryAdvanceId != null && item.AdvanceId == null) {
 
                             dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "'  and EmployeeSalaryAdvanceId='" + item.EmployeeSalaryAdvanceId + "' ";
                         }
-                        else { 
-                            dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "' and AdvanceId='" + item.AdvanceId +"'";
+                        
+                        else
+                        {
+                            dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "' and AdvanceId='" + item.AdvanceId + "'";
 
                         }
                         if (dsChild.Tables[0].DefaultView.Count == 1)
@@ -161,6 +168,7 @@ namespace Library.HumanResource.Payroll
                             dr["AdvanceId"] = item.AdvanceId;
                             dr["AdvanceReqScheduleId"] = item.AdvanceReqScheduleId;
                             dr["EmployeeSalaryAdvanceId"] = item.EmployeeSalaryAdvanceId;
+                            dr["EmployeeAdvanceDetailId"] = item.EmployeeAdvanceDetailId;
                             dr["YearNo"] = item.YearNo;
                             dr["MonthNo"] = item.MonthNo;
 
@@ -180,6 +188,7 @@ namespace Library.HumanResource.Payroll
                             drBp["AdvanceId"] = item.AdvanceId;
                             drBp["AdvanceReqScheduleId"] = item.AdvanceReqScheduleId;
                             drBp["EmployeeSalaryAdvanceId"] = item.EmployeeSalaryAdvanceId;
+                            drBp["EmployeeAdvanceDetailId"] = item.EmployeeAdvanceDetailId;
                             drBp["YearNo"] = item.YearNo;
                             drBp["MonthNo"] = item.MonthNo;
 
@@ -644,4 +653,5 @@ public class SalaryAdvance
     public string PrincipalAmount { get; set; }
     public double InterestAmount { get; set; }
     public double SalaryHead { get; set; }
+    public string EmployeeAdvanceDetailId { get; set; }
 }

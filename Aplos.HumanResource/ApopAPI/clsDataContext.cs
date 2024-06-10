@@ -12281,6 +12281,10 @@ left join OrderControl OCT on OCT.SalesOrderId = SO.Id
                         SchedulId = dsRef.Tables[0].Rows[i]["SchedulId"].ToString(),
                         Days = dsRef.Tables[0].Rows[i]["Days"].ToString(),
                         POCompleteDate = dsRef.Tables[0].Rows[i]["POCompleteDate"].ToString(),
+                        PlaneDate = dsRef.Tables[0].Rows[i]["PlaneDate"].ToString(),
+                        PlaneRemarks = dsRef.Tables[0].Rows[i]["PlaneRemarks"].ToString(),
+                        ShippingComment = dsRef.Tables[0].Rows[i]["ShippingComment"].ToString(),
+                        ShippingRemarks = dsRef.Tables[0].Rows[i]["ShippingRemarks"].ToString(),
 
                     });
                 }
@@ -12431,6 +12435,180 @@ left join OrderControl OCT on OCT.SalesOrderId = SO.Id
 
         }
         #endregion OrderControlReport
+
+        #region Pending Dispatch
+        public void GetMoCustomer(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct PT.Id Value , PT.UserName Name from trn.MasterOrder MO
+left join hkp.Party PT on mo.PartyId = PT.Id 
+left join trn.MasterOrderItem MOI on MOI.MasterOrderId = MO.Id
+left join trn.SalesOrder so on so.MasterOrderItemId = moi.id
+where SO.OrderStatusId = 'Active'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetSODetail(out List<SocreationGet> DataList , string CustomerId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<SocreationGet>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct  SO.Id as SalesOrderNumber,  SO.Rate,  MO.Id as MasterOrder , MO.Type  ,MA.Id ArticleId, MA.StandardName  as Article, SO.Qty SoQty
+--,BKD.PONo,BKD.LotNo , '' Qty , '' Remarks , 'Save' [Save]
+from TRN.SalesOrder SO 
+left join TRN.MasterOrderItem MOI on MOI.Id = SO.MasterOrderItemId
+left join TRN.MasterOrder MO on MO.Id = MOI.MasterOrderId
+left join MasterOrderExchangeRates EXR on EXR.TransactionId = MO.Id 
+left join HKP.Party PT on PT.Id = MO.PartyId 
+left join MST.MaterialMasterArticle MA on MA.Id = MOI.ArticleId
+left join HKP.HSNCode HSN on HSN.Id = MA.HSNCodeId
+left join ProductLibrary PL on PL.Id = MOI.ProductLibraryId
+left join ProductLibraryAttribute PLA on PLA.ProductLibraryId = PL.Id --and PLA
+left join TRN.PackingLineItem PLI on PLI.SOId = SO.Id
+left join TRN.Packing PK on PK.PackingId = PLI.PackingId
+left join ItemScanChild ISCM on left(ISCM.PackingId,6) = PK.PackingId
+left join TRN.Sales SS on SS.InvoiceNo = ISCM.SalesId
+left join (Select pol.Id,pol.PackingLineItemId,pol.ProductCode,pol.PONo,pol.LotNo,pol.PlanQty,pol.Status,pol.Remarks, isnull(bk.booked,0) as BookQty , bk.NoBages from trn.POLotReference pol 
+							left join
+							(select PLI.SOId, sum(isc.NetWeight) booked , isc.PackingId , Count(isc.RefNo) NoBages 
+                from itemscanchild isc
+                left join trn.POLotReference PLR on PLR.Id = isc.PackingId
+                left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
+				   group by PLI.SOId , isc.PackingId  ) as bk on bk.PackingId = pol.Id) BKD on BKD.PackingLineItemId = PLI.PackingLineItemId
+							where BKD.PackingLineItemId <> ''  and SO.OrderStatusId = 'Active' and MO.PartyId = '" + CustomerId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new SocreationGet
+                    {
+                        SalesOrderNumber = dsRef.Tables[0].Rows[i]["SalesOrderNumber"].ToString(),
+                        Rate = dsRef.Tables[0].Rows[i]["Rate"].ToString(),
+                        MasterOrder = dsRef.Tables[0].Rows[i]["MasterOrder"].ToString(),
+                        Type = dsRef.Tables[0].Rows[i]["Type"].ToString(),
+                        ArticleId = dsRef.Tables[0].Rows[i]["ArticleId"].ToString(),
+                        Article = dsRef.Tables[0].Rows[i]["Article"].ToString(),
+                        SoQty = dsRef.Tables[0].Rows[i]["SoQty"].ToString(),
+                        PONo = dsRef.Tables[0].Rows[i]["PONo"].ToString(),
+                        LotNo = dsRef.Tables[0].Rows[i]["LotNo"].ToString(),
+                        Qty = dsRef.Tables[0].Rows[i]["Qty"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+                        Save = dsRef.Tables[0].Rows[i]["Save"].ToString(),
+
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetPODetail(out List<SocreationGet> DataList, string SOId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<SocreationGet>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct  SO.Id as SalesOrderNumber,  SO.Rate,  MO.Id as MasterOrder , MO.Type  ,MA.Id ArticleId, MA.StandardName  as Article, SO.Qty SoQty
+,BKD.PONo,BKD.LotNo , '' Qty , '' Remarks , 'Save' [Save]
+from TRN.SalesOrder SO 
+left join TRN.MasterOrderItem MOI on MOI.Id = SO.MasterOrderItemId
+left join TRN.MasterOrder MO on MO.Id = MOI.MasterOrderId
+left join MasterOrderExchangeRates EXR on EXR.TransactionId = MO.Id 
+left join HKP.Party PT on PT.Id = MO.PartyId 
+left join MST.MaterialMasterArticle MA on MA.Id = MOI.ArticleId
+left join HKP.HSNCode HSN on HSN.Id = MA.HSNCodeId
+left join ProductLibrary PL on PL.Id = MOI.ProductLibraryId
+left join ProductLibraryAttribute PLA on PLA.ProductLibraryId = PL.Id --and PLA
+left join TRN.PackingLineItem PLI on PLI.SOId = SO.Id
+left join TRN.Packing PK on PK.PackingId = PLI.PackingId
+left join ItemScanChild ISCM on left(ISCM.PackingId,6) = PK.PackingId
+left join TRN.Sales SS on SS.InvoiceNo = ISCM.SalesId
+left join (Select pol.Id,pol.PackingLineItemId,pol.ProductCode,pol.PONo,pol.LotNo,pol.PlanQty,pol.Status,pol.Remarks, isnull(bk.booked,0) as BookQty , bk.NoBages from trn.POLotReference pol 
+							left join
+							(select PLI.SOId, sum(isc.NetWeight) booked , isc.PackingId , Count(isc.RefNo) NoBages 
+                from itemscanchild isc
+                left join trn.POLotReference PLR on PLR.Id = isc.PackingId
+                left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
+				   group by PLI.SOId , isc.PackingId  ) as bk on bk.PackingId = pol.Id) BKD on BKD.PackingLineItemId = PLI.PackingLineItemId
+							where BKD.PackingLineItemId <> ''  and SO.OrderStatusId = 'Active' and SO.Id = '" + SOId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new SocreationGet
+                    {
+                        SalesOrderNumber = dsRef.Tables[0].Rows[i]["SalesOrderNumber"].ToString(),
+                        Rate = dsRef.Tables[0].Rows[i]["Rate"].ToString(),
+                        MasterOrder = dsRef.Tables[0].Rows[i]["MasterOrder"].ToString(),
+                        Type = dsRef.Tables[0].Rows[i]["Type"].ToString(),
+                        ArticleId = dsRef.Tables[0].Rows[i]["ArticleId"].ToString(),
+                        Article = dsRef.Tables[0].Rows[i]["Article"].ToString(),
+                        SoQty = dsRef.Tables[0].Rows[i]["SoQty"].ToString(),
+                        PONo = dsRef.Tables[0].Rows[i]["PONo"].ToString(),
+                        LotNo = dsRef.Tables[0].Rows[i]["LotNo"].ToString(),
+                        Qty = dsRef.Tables[0].Rows[i]["Qty"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+                        Save = dsRef.Tables[0].Rows[i]["Save"].ToString(),
+
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        #endregion Pending Dispatch
     }
 
 
@@ -14091,6 +14269,23 @@ left join OrderControl OCT on OCT.SalesOrderId = SO.Id
         public string UpdatedBy { get; set; }
         public string UpdatedDate { get; set; }
         public string UpdatedFromIP { get; set; }
+
+    }
+
+    public class SocreationGet
+    {
+        public string SalesOrderNumber { get; set; }
+        public string Rate { get; set; }
+        public string MasterOrder { get; set; }
+        public string Type { get; set; }
+        public string ArticleId { get; set; }
+        public string Article { get; set; }
+        public string SoQty { get; set; }
+        public string PONo { get; set; }
+        public string LotNo { get; set; }
+        public string Qty { get; set; }
+        public string Remarks { get; set; }
+        public string Save { get; set; }
 
     }
 }
