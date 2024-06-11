@@ -12485,7 +12485,7 @@ where SO.OrderStatusId = 'Active'";
             try
             {
                 strSQL = @"select distinct  SO.Id as SalesOrderNumber,  SO.Rate,  MO.Id as MasterOrder , MO.Type  ,MA.Id ArticleId, MA.StandardName  as Article, SO.Qty SoQty
---,BKD.PONo,BKD.LotNo , '' Qty , '' Remarks , 'Save' [Save]
+,BKD.PONo,BKD.LotNo , '' Qty , '' Remarks , 'Save' [Save]
 from TRN.SalesOrder SO 
 left join TRN.MasterOrderItem MOI on MOI.Id = SO.MasterOrderItemId
 left join TRN.MasterOrder MO on MO.Id = MOI.MasterOrderId
