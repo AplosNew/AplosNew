@@ -85,18 +85,25 @@ function InputCreditApproveController(cboService, commonMessage, $scope, $rootSc
 
                 dataSource: data,
                 columns: [
-                    { field: "Id", headerText: "Id", width: 50 },                  
-                    { field: "MaterialMasterName", headerText: "Material", width: 100 },
-                    { field: "MaterialMasterArticleName", headerText: "Article", width: 100 },
-                    { field: "HSNCode", headerText: "HSNCode", width: 50 },
-                    { field: "SKU1", headerText: "SKU1", width: 40 },
-                    { field: "SKU2", headerText: "SKU2", width: 40 },
-                    { field: "TransactionRate", headerText: "Rate", width: 50 },
-                    { field: "TransactionQty", headerText: "Qty", width: 50 },
-                    { field: "TransactionAmount", headerText: "Amount", width: 50 },
-                    { field: "TaxAmount", headerText: "Tax Amount", width: 50 },
-                    { field: "ServiceCharge", headerText: "Service Charge", width: 50 },
-                    { field: "ServiceTax", headerText: "Service Tax", width: 50 }
+                    { field: "Id", headerText: "Id", width: 50 },
+                    { field: "SalesCategory", headerText: "SalesCategory", width: 50 },
+                    { field: "InvoiceDate", headerText: "InvoiceDate", width: 50 },
+                    { field: "InoviceNo", headerText: "InoviceNo", width: 50 },
+                    { field: "Customer", headerText: "Customer", width: 40 },
+                    { field: "GSTNNo", headerText: "GSTNNo", width: 40 },
+                    { field: "InvoiceTotalAmount", headerText: "InvoiceTotalAmount", width: 50 },
+                    { field: "BasicAmount", headerText: "BasicAmount", width: 50 },
+                    { field: "TaxAmount", headerText: "TaxAmount", width: 50 },
+                    { field: "Service", headerText: "Service", width: 50 },
+                    { field: "ServiceAmount", headerText: "ServiceAmount", width: 50 },
+                    { field: "PartyAcountGroup", headerText: "PartyAcountGroup", width: 50 },
+                    { field: "Country", headerText: "Country", width: 50 },
+                    { field: "State", headerText: "State", width: 50 },
+                    { field: "VoucherNo", headerText: "VoucherNo", width: 50 },
+                    { field: "PostingDate", headerText: "PostingDate", width: 50 },
+                    { field: "IsPark", headerText: "IsPark", width: 50 },
+                    { field: "PostingStatus", headerText: "PostingStatus", width: 50 },
+                    { field: "Remarks", headerText: "Remarks", width: 50 }
 
                 ]
             });

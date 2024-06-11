@@ -297,14 +297,22 @@ namespace Aplos.Areas.Accounts.Controllers
                 {
                     ConnectionManager.DAL.ConManager objCon1;
                     DataSet dsMaster1 = null;
+                    DataSet dsMaster2 = null;
                     string setOffsql = @"SELECT VoucherNo from trn.AdvanceWriteOffDetail iwd JOIN trn.AdvanceWriteOff iw on iw.Id=iwd.AdvanceWriteOffId LEFT JOIN trn.Voucher v on v.Id = iw.VoucherId
                                             WHERE iwd.AdvanceId in (select Id from trn.Advance where VoucherId = '" + voucherId + "')";
+                    string setOffsql2 = @"SELECT VoucherNo from trn.AdvanceWriteOffDetail iwd JOIN trn.AdvanceWriteOff iw on iw.Id=iwd.AdvanceWriteOffId LEFT JOIN trn.Voucher v on v.Id = iw.VoucherId
+                                            WHERE iwd.EmployeeAdvanceDetailId in (select Id from [TRN].[EmployeeAdvanceDetail] where VoucherId = '" + voucherId + "')";
                     objCon1 = new ConnectionManager.DAL.ConManager("1");
                     objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
+                    objCon1.OpenDataSetThroughAdapter(setOffsql2, out dsMaster2, false, "1");
 
                     if (dsMaster1.Tables[0].Rows.Count > 0)
                     {
                         throw new CustomException("Voucher Park Mode not allowed,  Voucher No '" + dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
+                    }
+                    if (dsMaster2.Tables[0].Rows.Count > 0)
+                    {
+                        throw new CustomException("Voucher Park Mode not allowed,  Voucher No '" + dsMaster2.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
                     }
 
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";

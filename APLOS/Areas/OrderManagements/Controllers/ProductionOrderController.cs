@@ -245,6 +245,92 @@ WHERE PT.PlanningType='PlanningType1' AND pt.CompanyGroupId='" + identity.Compan
    LEFT JOIN org.Entity AS PSE ON PSE.Id=ISNULL(POS.EntityIdWithinCompany,POS.EntityIdWithinGroup)
    WHERE POS.ProductionOrderID='" + productionorderid + @"' AND IsBaseProcess=1) POS ON POS.ProductionOrderID=PR.Id
                        WHERE  SO.Id IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderDetail] WHERE ProductionOrderID='" + productionorderid + @"') AND OC.UserName<>'Projected'
+UNION
+SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Checked,null AS Id,null AS ProductionOrderId
+	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
+	                            , SO.Id AS SalesOrderId, P.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping 
+	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
+	                            , MOI.ArticleId, ART.StandardName AS ArticleName
+	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
+	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), CommitmentDate, 106),' ','-')
+	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
+	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
+	                            , SO.Qty, SO.Rate,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
+	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END
+								,ST.POStatus,ST.POEntity,''ProcessEntity
+                       FROM [TRN].[SalesOrder] AS SO 
+                       JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
+                       JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
+                       LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
+					   LEFT JOIN trn.ProductDefinition AS pd ON pd.MaterialMasterId=moi.MaterialMasterId
+					   LEFT JOIN [MST].[ProductMaster] PM ON pm.Id=pd.ProductMasterId
+                       LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
+                       LEFT JOIN [HKP].[Party] AS P ON MO.PartyId = P.Id
+					   LEFT JOIN HKP.BUYER b on b.Id=MO.BuyerId
+                       LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
+                       LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
+                       LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+                       LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
+                       LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
+                       LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
+					   LEFT JOIN(Select D.SalesOrderId,s.UserName POStatus,PE.UserName POEntity from TRN.ProductionOrder P
+					   INNER JOIN TRN.ProductionOrderDetail D ON D.ProductionOrderId=P.Id
+					   LEFT JOIN org.Entity AS PE ON PE.Id=P.EntityId
+					   INNER JOIN HKP.ProductionStatus S ON S.Id=P.ProductionStatusId) ST ON SalesOrderId=SO.Id
+
+                       WHERE   
+                       (
+                            --if there is no jobwork, i can create my own production order
+                       	    (ISNULL(moi.JobWorkType,'')='' AND MO.PlantId='" + identity.PlantId + @"' )
+                                OR 
+                       	    (ISNULL(moi.JobWorkType,'')<>'' AND EOUT.PlantId='" + identity.PlantId + @"' )
+                       )
+                       AND (OS.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' " + activeStatus + @" and  SO.Id not IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderDetail])) AND MOI.ArticleId<>'' AND OC.UserName<>'Projected'
+                        AND PM.Id IN(Select PLPM.ProductMasterId from dbo.PlanningTypeProductMaster PLPM
+LEFT JOIN dbo.PlanningTypes PT ON PT.Id=PLPM.PlanningTypeId
+Where PT.EntityId='" + EntityId + @"' AND PT.BaseProcessId='" + ProcessId + @"'
+) 
+						UNION
+						
+						SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Checked,POD.Id,POD.ProductionOrderId
+	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
+	                            , SO.Id AS SalesOrderId, P.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping
+	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
+	                            , MOI.ArticleId, ART.StandardName AS ArticleName
+	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
+	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), SO.CommitmentDate, 106),' ','-')
+	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
+	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
+	                            , SO.Qty, SO.Rate,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
+	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END
+								,S.UserName POStatus,PE.UserName POEntity,POS.ProcessEntity
+                       FROM [TRN].[SalesOrder] AS SO 
+                        left outer join [TRN].[ProductionOrderDetail] POD on POD.SalesOrderId=SO.Id and POD.ProductionOrderID='" + productionorderid + @"'
+                       INNER JOIN TRN.ProductionOrder PR ON POD.ProductionOrderId=PR.Id
+						LEFT JOIN org.Entity AS PE ON PE.Id=PR.EntityId
+					   INNER JOIN HKP.ProductionStatus S ON S.Id=PR.ProductionStatusId
+                       JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
+                       JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
+                       LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
+					   LEFT JOIN trn.ProductDefinition AS pd ON pd.MaterialMasterId=moi.MaterialMasterId
+					   LEFT JOIN [MST].[ProductMaster] PM ON pm.Id=pd.ProductMasterId
+                       LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
+                       LEFT JOIN [HKP].[Party] AS P ON MO.PartyId = P.Id
+					   LEFT JOIN HKP.BUYER b on b.Id=MO.BuyerId
+                       LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
+                       LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
+                       LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+                       LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
+                       LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
+					   LEFT JOIN(Select PSE.UserName ProcessEntity,POS.ProductionOrderID from [TRN].ProductionOrderProcessSet POS
+   LEFT JOIN org.Entity AS PSE ON PSE.Id=ISNULL(POS.EntityIdWithinCompany,POS.EntityIdWithinGroup)
+   WHERE POS.ProductionOrderID='" + productionorderid + @"' AND IsBaseProcess=1) POS ON POS.ProductionOrderID=PR.Id
+                       WHERE  SO.Id IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderDetail] WHERE ProductionOrderID='" + productionorderid + @"') AND OC.UserName<>'Projected'
+AND PM.Id IN(Select PLPM.ProductMasterId from dbo.PlanningTypeProductMaster PLPM
+LEFT JOIN dbo.PlanningTypes PT ON PT.Id=PLPM.PlanningTypeId
+Where PT.EntityId='" + EntityId + @"' AND PT.BaseProcessId='" + ProcessId + @"'
+) 
+
 						) AS TEMP 
 
                             LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON TEMP.MasterOrderItemId=MOI.Id
@@ -255,10 +341,7 @@ WHERE PT.PlanningType='PlanningType1' AND pt.CompanyGroupId='" + identity.Compan
 							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
 							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
 
-WHERE TEMP.ProductID IN(Select PLPM.ProductMasterId from dbo.PlanningTypeProductMaster PLPM
-LEFT JOIN dbo.PlanningTypes PT ON PT.Id=PLPM.PlanningTypeId
-Where PT.EntityId='"+ EntityId + @"' AND PT.BaseProcessId='"+ ProcessId + @"'
-) AND " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
+WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }

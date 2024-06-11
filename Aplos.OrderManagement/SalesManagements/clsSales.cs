@@ -5165,16 +5165,18 @@ Order By A.sequence";
         public List<Dictionary<string, object>> GetSalesMaterialDataList(string plantId, string fromDate, string toDate, string inputCreditId)
         {
             var cmdText = @"SELECT * FROM(SELECT Flag=CAST(CASE WHEN SA.InputCreditId IS NULL THEN 0 ELSE 1 END AS bit),SA.Id,'SalesMaterial' SalesCategory,FORMAT(SA.InvoiceDate,'dd-MMM-yyyy')InvoiceDate,SA.Id InvoiceNo,P.UserName Customer,SA.PartyId CustomerId,P.TINNO GSTNNo	
-	,InvoiceTotalAmount= ISNULL(SM.Amount,0) + ISNULL(SRS.Amount,0),BasicAmount=SM.Amount,TaxAmount=SM.TaxAmount,SRM.UserName SalesService
-	,ServiceAmount=SS.Amount+SS.TaxAmount,CN.UserName Country,ST.UserName [State]
+	,InvoiceTotalAmount= ISNULL(SM.Amount,0) + ISNULL(SRS.Amount,0),BasicAmount=SM.Amount,TaxAmount=SM.TaxAmount
+	,SalesService=STUFF((select distinct ','+SM.UserName 
+		                                         from HKP.ServiceMaster SM								 
+												 join  TRN.SalesService SS ON SS.Id=SS.ServiceMasterId                                     
+									             where SS.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+	,ServiceAmount=SRS.Amount+SRS.TaxAmount,CN.UserName Country,ST.UserName [State]
 	,PAG.UserName AS PartyAccountGroup,V.VoucherNo,FORMAT(V.PostedDate,'dd-MMM-yyyy')PostedDate,CASE  WHEN SA.RowState='Parked' THEN 'Parked' ELSE 'Posted' END AS IsPark
-	, SA.InputCreditId 
+	, SA.InputCreditId,PostingStatus=CASE WHEN  SA.VoucherId IS NULL THEN 'Pending' WHEN SA.RowState='Parked' THEN 'Parked' ELSE 'Posted' END,SA.Narration Remarks
 	FROM TRN.Sales AS SA 
 	LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount,SUM(M.TaxAmount)TaxAmount FROM [TRN].[SalesMaterial] M GROUP BY M.SalesId) AS SM ON SM.SalesId=SA.Id
-	LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SRS ON SRS.SalesId=SA.Id
+	LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount,SUM(M.TaxAmount)TaxAmount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SRS ON SRS.SalesId=SA.Id
 	LEFT JOIN HKP.Party P ON P.Id=SA.PartyId
-	LEFT JOIN TRN.SalesService SS ON SS.SalesId=SA.Id
-    LEFT JOIN HKP.ServiceMaster SRM ON SRM.Id=SS.ServiceMasterId
 	LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id and CP.PartyType='Customer'
     LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=CP.PartyAccountGroupId 
 	LEFT JOIN MST.AddressMaster AM ON AM.Id=P.AddressMasterId
@@ -5184,68 +5186,76 @@ Order By A.sequence";
             WHERE SA.PlantId='" + plantId + @"' AND SA.AddedDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SA.InputCreditId,'" + inputCreditId + @"')='" + inputCreditId + @"'
 UNION
 SELECT Flag=CAST(CASE WHEN SA.InputCreditId IS NULL THEN 0 ELSE 1 END AS bit),SA.Id,'InventorySales' SalesCategory,FORMAT(SA.SalesDate,'dd-MMM-yyyy')InvoiceDate,SA.Id InvoiceNo,P.UserName Customer,SA.CustomerId,P.TINNO GSTNNo	
-	,InvoiceTotalAmount= ISNULL(SM.Amount,0),BasicAmount=SM.Amount,TaxAmount=0,SRM.UserName SalesService
-	,ServiceAmount=SS.Amount+SS.TaxAmount,CN.UserName Country,ST.UserName [State]
+	,InvoiceTotalAmount= ISNULL(SM.Amount,0),BasicAmount=SM.Amount,SAT.TaxAmount
+		,SalesService=STUFF((select distinct ','+SM.UserName 
+		                                         from HKP.ServiceMaster SM								 
+												 join TRN.[InventorySalesService] SS ON SS.Id=SS.ServiceMasterId                                     
+									             where SS.InventorySalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+	,ServiceAmount=SRS.Amount+SRS.TaxAmount,CN.UserName Country,ST.UserName [State]
 	,PAG.UserName AS PartyAccountGroup,V.VoucherNo,FORMAT(V.PostedDate,'dd-MMM-yyyy')PostedDate,CASE  WHEN SA.Status='Parking' THEN 'Parking' ELSE 'Posting' END AS IsPark
 	, SA.InputCreditId 
+	,PostingStatus=CASE WHEN  SA.VoucherId IS NULL THEN 'Pending' WHEN SA.Status='Parked' THEN 'Parked' ELSE 'Posted' END,SA.Remarks
 	FROM TRN.InventorySales SA
 	LEFT JOIN (SELECT M.InventorySalesId,SUM(M.TotalSalesAmount) AS Amount FROM [TRN].InventorySalesDetail M GROUP BY M.InventorySalesId) AS SM ON SM.InventorySalesId=SA.Id
+	LEFT JOIN (SELECT M.InventorySalesId,SUM(M.TaxAmount) AS TaxAmount FROM [TRN].InventorySalesTax M GROUP BY M.InventorySalesId) AS SAT ON SAT.InventorySalesId=SA.Id
+	LEFT JOIN (SELECT M.InventorySalesId,SUM(M.Amount) AS Amount,SUM(M.TotalTaxAmount)TaxAmount FROM [TRN].[InventorySalesService] M GROUP BY M.InventorySalesId) AS SRS ON SRS.InventorySalesId=SA.Id
 	LEFT JOIN HKP.Party P ON P.Id=SA.CustomerId
-	LEFT JOIN TRN.SalesService SS ON SS.SalesId=SA.Id
-    LEFT JOIN HKP.ServiceMaster SRM ON SRM.Id=SS.ServiceMasterId
 	LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id and CP.PartyType='Customer'
     LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=CP.PartyAccountGroupId 
 	LEFT JOIN MST.AddressMaster AM ON AM.Id=P.AddressMasterId
 	LEFT JOIN SCS.Country CN ON CN.Id=AM.CountryId
 	LEFT JOIN SCS.[State] ST ON ST.Id=AM.StateId
 	LEFT JOIN trn.Voucher V ON V.Id=SA.VoucherId
-            WHERE SA.AddedDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SA.InputCreditId,'" + inputCreditId + @"')='" + inputCreditId + @"')A Order By A.Id";
+            WHERE SA.AddedDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SA.InputCreditId,'" + inputCreditId + @"')='" + inputCreditId + @"' AND SA.CustomerId<>'')A Order By A.Id";
 
             return _sqlRepository.GetDataCollection(cmdText);
         }
 
         public List<Dictionary<string, object>> GetTaggedSalesMaterialDataList(string inputCreditId)
         {
-            var cmdText = @"SELECT Flag=CAST(CASE WHEN SM.InputCreditId IS NULL THEN 0 ELSE 1 END AS bit),SM.Id,MO.Id MasterOrderId,SO.Id SONo,po.PONumber, FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate,DT.UserName DestinationName,MM.UserName MaterialMasterName,ART.StandardName AS MaterialMasterArticleName
-,ISNULL(AHSN.Code,HSN.Code) HSNCode,FCV.UserName SKU1,SCV.UserName SKU2,SM.TransactionRate,SM.TransactionQty,SM.TransactionAmount,SM.TaxAmount
-,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/NULLIF((Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id),0))*SM.TransactionAmount
-	           ,ServiceTax=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesTax] WHERE SalesId=SA.Id  AND SalesServiceId<>'')/NULLIF((Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id),0))*SM.TransactionAmount
-           ,SM.InputCreditId,'SalesMaterial' SourceType
-			FROM TRN.SalesMaterial AS SM 
-            LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
-            LEFT JOIN [TRN].[SalesOrder] AS SO ON SM.SalesOrderId=SO.Id
-            JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
-			JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
-			LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
-			LEFT JOIN [MST].[Destination] AS DT ON DT.Id=SO.DestinationId
-
-            LEFT JOIN MST.MaterialMaster AS MM ON MM.Id=SM.MaterialMasterId
-			left join HKP.HSNCode as HSN on HSN.Id = MM.HSNCodeId
-            LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
-            LEFT JOIN MST.MaterialMasterArticle AS ART ON SM.ArticleId=ART.Id
-			left join HKP.HSNCode as AHSN on AHSN.Id = ART.HSNCodeId
-            LEFT JOIN TRN.FirstCharacteristics AS FC ON FC.Id=SM.FirstCharacteristicsId AND SM.SalesOrderId=FC.SalesOrderId
-            LEFT JOIN HKP.CharacteristicsValue AS FCV ON FCV.Id=SM.FirstCharacteristicsValueId
-
-            LEFT JOIN TRN.SecondCharacteristics AS SC ON SC.Id=SM.SecondCharacteristicsId AND SM.SalesOrderId=SC.SalesOrderId
-            LEFT JOIN HKP.CharacteristicsValue AS SCV ON SCV.Id=SM.SecondCharacteristicsValueId
-            WHERE SM.InputCreditId='" + inputCreditId + @"'
+            var cmdText = @"SELECT * FROM(SELECT Flag=CAST(CASE WHEN SA.InputCreditId IS NULL THEN 0 ELSE 1 END AS bit),SA.Id,'SalesMaterial' SalesCategory,FORMAT(SA.InvoiceDate,'dd-MMM-yyyy')InvoiceDate,SA.Id InvoiceNo,P.UserName Customer,SA.PartyId CustomerId,P.TINNO GSTNNo	
+	,InvoiceTotalAmount= ISNULL(SM.Amount,0) + ISNULL(SRS.Amount,0),BasicAmount=SM.Amount,TaxAmount=SM.TaxAmount
+	,SalesService=STUFF((select distinct ','+SM.UserName 
+		                                         from HKP.ServiceMaster SM								 
+												 join  TRN.SalesService SS ON SS.Id=SS.ServiceMasterId                                     
+									             where SS.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+	,ServiceAmount=SRS.Amount+SRS.TaxAmount,CN.UserName Country,ST.UserName [State]
+	,PAG.UserName AS PartyAccountGroup,V.VoucherNo,FORMAT(V.PostedDate,'dd-MMM-yyyy')PostedDate,CASE  WHEN SA.RowState='Parked' THEN 'Parked' ELSE 'Posted' END AS IsPark
+	, SA.InputCreditId,PostingStatus=CASE WHEN  SA.VoucherId IS NULL THEN 'Pending' WHEN SA.RowState='Parked' THEN 'Parked' ELSE 'Posted' END,SA.Narration Remarks
+	FROM TRN.Sales AS SA 
+	LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount,SUM(M.TaxAmount)TaxAmount FROM [TRN].[SalesMaterial] M GROUP BY M.SalesId) AS SM ON SM.SalesId=SA.Id
+	LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount,SUM(M.TaxAmount)TaxAmount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SRS ON SRS.SalesId=SA.Id
+	LEFT JOIN HKP.Party P ON P.Id=SA.PartyId
+	LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id and CP.PartyType='Customer'
+    LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=CP.PartyAccountGroupId 
+	LEFT JOIN MST.AddressMaster AM ON AM.Id=P.AddressMasterId
+	LEFT JOIN SCS.Country CN ON CN.Id=AM.CountryId
+	LEFT JOIN SCS.[State] ST ON ST.Id=AM.StateId
+	LEFT JOIN trn.Voucher V ON V.Id=SA.VoucherId
+            WHERE SA.InputCreditId='" + inputCreditId + @"'
 UNION
-			SELECT Flag = CAST(CASE WHEN SM.InputCreditId IS NULL THEN 0 ELSE 1 END AS bit),SM.Id,'' MasterOrderId,'' SONo,''PONumber, '' DeliveryDate,'' DestinationName,MM.UserName MaterialMasterName, ART.StandardName AS MaterialMasterArticleName
-,ISNULL(AHSN.Code, HSN.Code) HSNCode,FCV.UserName SKU1, SCV.UserName SKU2, SM.SalesRate TransactionRate, SM.TransactionQty,SM.TotalSalesAmount TransactionAmount,0 TaxAmount
-,ServiceCharge = 0,ServiceTax = 0,SM.InputCreditId,'InventorySales' SourceType
-				FROM TRN.InventorySalesDetail AS SM
-				LEFT JOIN TRN.InventoryMaterial IM ON IM.Id = SM.InventoryMaterialId
-			LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IM.MaterialMasterId
-			left join HKP.HSNCode as HSN on HSN.Id = MM.HSNCodeId
-			LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-			LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
-			left join HKP.HSNCode as AHSN on AHSN.Id = ART.HSNCodeId
-			LEFT JOIN TRN.FirstCharacteristics AS FC ON FC.Id = IM.FirstCharacteristicsId
-			LEFT JOIN HKP.CharacteristicsValue AS FCV ON FCV.Id = IM.FirstCharacteristicsValueId
-			LEFT JOIN TRN.SecondCharacteristics AS SC ON SC.Id = IM.SecondCharacteristicsId
-			LEFT JOIN HKP.CharacteristicsValue AS SCV ON SCV.Id = IM.SecondCharacteristicsValueId
-			WHERE SM.InputCreditId = '" + inputCreditId + @"'";
+			SELECT Flag=CAST(CASE WHEN SA.InputCreditId IS NULL THEN 0 ELSE 1 END AS bit),SA.Id,'InventorySales' SalesCategory,FORMAT(SA.SalesDate,'dd-MMM-yyyy')InvoiceDate,SA.Id InvoiceNo,P.UserName Customer,SA.CustomerId,P.TINNO GSTNNo	
+	,InvoiceTotalAmount= ISNULL(SM.Amount,0),BasicAmount=SM.Amount,SAT.TaxAmount
+		,SalesService=STUFF((select distinct ','+SM.UserName 
+		                                         from HKP.ServiceMaster SM								 
+												 join TRN.[InventorySalesService] SS ON SS.Id=SS.ServiceMasterId                                     
+									             where SS.InventorySalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+	,ServiceAmount=SRS.Amount+SRS.TaxAmount,CN.UserName Country,ST.UserName [State]
+	,PAG.UserName AS PartyAccountGroup,V.VoucherNo,FORMAT(V.PostedDate,'dd-MMM-yyyy')PostedDate,CASE  WHEN SA.Status='Parking' THEN 'Parking' ELSE 'Posting' END AS IsPark
+	, SA.InputCreditId 
+	,PostingStatus=CASE WHEN  SA.VoucherId IS NULL THEN 'Pending' WHEN SA.Status='Parked' THEN 'Parked' ELSE 'Posted' END,SA.Remarks
+	FROM TRN.InventorySales SA
+	LEFT JOIN (SELECT M.InventorySalesId,SUM(M.TotalSalesAmount) AS Amount FROM [TRN].InventorySalesDetail M GROUP BY M.InventorySalesId) AS SM ON SM.InventorySalesId=SA.Id
+	LEFT JOIN (SELECT M.InventorySalesId,SUM(M.TaxAmount) AS TaxAmount FROM [TRN].InventorySalesTax M GROUP BY M.InventorySalesId) AS SAT ON SAT.InventorySalesId=SA.Id
+	LEFT JOIN (SELECT M.InventorySalesId,SUM(M.Amount) AS Amount,SUM(M.TotalTaxAmount)TaxAmount FROM [TRN].[InventorySalesService] M GROUP BY M.InventorySalesId) AS SRS ON SRS.InventorySalesId=SA.Id
+	LEFT JOIN HKP.Party P ON P.Id=SA.CustomerId
+	LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id and CP.PartyType='Customer'
+    LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=CP.PartyAccountGroupId 
+	LEFT JOIN MST.AddressMaster AM ON AM.Id=P.AddressMasterId
+	LEFT JOIN SCS.Country CN ON CN.Id=AM.CountryId
+	LEFT JOIN SCS.[State] ST ON ST.Id=AM.StateId
+	LEFT JOIN trn.Voucher V ON V.Id=SA.VoucherId
+			WHERE SA.InputCreditId = '" + inputCreditId + @"'";
 
             return _sqlRepository.GetDataCollection(cmdText);
         }

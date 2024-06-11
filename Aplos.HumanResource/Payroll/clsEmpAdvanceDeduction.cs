@@ -52,8 +52,10 @@ namespace Library.HumanResource.Payroll
                 DataRow drBp = null;
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                string sql = "SELECT * FROM [TRN].[EmployeeAdvanceDeduction] where YearNo= '" + Year + "' and MonthNo='" + Month + "' ";
-                con.OpenDataSetThroughAdapter(sql, out dsChild, false, "1");
+                //string sql = "SELECT * FROM [TRN].[EmployeeAdvanceDeduction] where YearNo= '" + Year + "' and MonthNo='" + Month + "' ";
+                con.getDataSet("SELECT * FROM [TRN].[EmployeeAdvanceDeduction] where YearNo= '" + Year + "' and MonthNo='" + Month + "'", out dsChild);
+
+               // con.OpenDataSetThroughAdapter(sql, out dsChild, false, "1");
 
                 string empids = string.Empty;
                 string deleteEmpId = string.Empty;
@@ -151,16 +153,16 @@ namespace Library.HumanResource.Payroll
                             dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "' and EmployeeAdvanceDetailId='" + item.EmployeeAdvanceDetailId + "'";
 
                         }
-                        else if (item.EmployeeSalaryAdvanceId != null && item.AdvanceId == null) {
+                        //else if (item.EmployeeSalaryAdvanceId != null && item.AdvanceId == null) {
 
-                            dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "'  and EmployeeSalaryAdvanceId='" + item.EmployeeSalaryAdvanceId + "' ";
-                        }
+                        //    dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "'  and EmployeeSalaryAdvanceId='" + item.EmployeeSalaryAdvanceId + "' ";
+                        //}
                         
-                        else
-                        {
-                            dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "' and AdvanceId='" + item.AdvanceId + "'";
+                        //else
+                        //{
+                        //    dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "' and AdvanceId='" + item.AdvanceId + "'";
 
-                        }
+                        //}
                         if (dsChild.Tables[0].DefaultView.Count == 1)
                         {
                             DataRow dr = dsChild.Tables[0].DefaultView[0].Row;
@@ -514,7 +516,11 @@ namespace Library.HumanResource.Payroll
                         }
                     }
                 }
-                objEmpExtAmt.SaveDataSets(dsMWESAMst, dsMWESAChd, dsChild);
+                OTSBD.clsStaticInfo _info = new OTSBD.clsStaticInfo();
+                _info.SaveDataSets(dsMWESAMst, dsMWESAChd, dsChild);
+
+               // objEmpExtAmt.SaveDataSets(dsMWESAMst, dsMWESAChd, dsChild);
+
             }
             catch (Exception ex)
             {

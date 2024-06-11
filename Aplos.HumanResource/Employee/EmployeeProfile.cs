@@ -2506,6 +2506,7 @@ Where EmpSystemID=EI.SystemId AND CD.UserName='Declaration Form (ESIC)')
 LEFT JOIN HKP.ComplianceDocument CD ON CD.Id=ED.ComplianceDocumentId
 Where EmpSystemID=EI.SystemId AND CD.UserName='Nomination Form (PF)')
 ,REF.Ref1Name RefName,REMP.EmployeeCode RefCode,LD.UserName LegalDesignation,EQ.ExamDegreeType Qualification,S.UserName Section
+,RG.UserName ResidenceGroup,TG.UserName TransportGroup,RM.ResidenceNumber,RT.StandardName [Route]
 FROM dbo.EmployeeInformation EI
 LEFT JOIN HKP.CivilStatus CS ON CS.Id=EI.CivilStatusID
 LEFT JOIN SCS.Religion R ON R.Id=EI.ReligionId
@@ -2523,6 +2524,13 @@ LEFT JOIN ORG.Department RDP ON RDP.Id=REMP.DepartmentId
 LEFT JOIN ORG.Department EDP ON EDP.Id=EI.DepartmentId
 LEFT JOIN HKP.LegalDesignation LD ON LD.Id=EI.LegalDesignationId
 LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
+LEFT JOIN dbo.ResidenceGroup RG ON RG.Id=EI.ResidenceGroupId
+LEFT  JOIN dbo.ResidenceAllocatedEmployees RA ON RA.EmployeeSystemId=EI.SystemId
+LEFT JOIN ResidenceMaster RM ON RM.Id=RA.ResidenceId
+LEFT JOIN dbo.TransportGroup TG ON TG.Id=EI.TransportGroupId
+LEFT  JOIN dbo.EmployeeTransportAllocation ETA ON EI.SystemId = ETA.EmployeeSystemId AND ETA.AssignStatus = 1
+left join RouteSchedule RSC on RSC.Id = ETA.TripId
+left join MST.Route RT on RT.Id = RSC.RouteId
 Where EI.SystemId='" + empId + "'";
                 return _sqlRepository.GetDataTable(strSQL);
             }
@@ -2667,39 +2675,22 @@ Where EmpSystemId='"+ empId + "'";
             FontBold.Bold = true;
             DFontSize.FontSize = 8f;
 
-            //IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
-            //range.ApplyCharacterFormat(FontBold);
-            //range.ApplyCharacterFormat(DFontSize);
-            //int colTermsAndCondition = COL; COL++;
-
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Name");
             range.ApplyCharacterFormat(FontBold);
             int colName = COL; COL++;
             wTable.Rows[ROW].Cells[colName].Width = 200;
-            //wTable.Rows[ROW].Cells[colName].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
-            //wTable.Rows[ROW].Cells[colName].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
-            //wTable.Rows[ROW].Cells[colName].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
-            //wTable.Rows[ROW].Cells[colName].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
 
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Relation");
             range.ApplyCharacterFormat(FontBold);
             int colRelation = COL; COL++;
             wTable.Rows[ROW].Cells[colRelation].Width = 150;
-            //wTable.Rows[ROW].Cells[colRelation].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
-            //wTable.Rows[ROW].Cells[colRelation].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
-            //wTable.Rows[ROW].Cells[colRelation].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
-            //wTable.Rows[ROW].Cells[colRelation].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
 
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Age");
             range.ApplyCharacterFormat(FontBold);
             int colAge = COL;
             wTable.Rows[ROW].Cells[colAge].Width = 100; 
-            //wTable.Rows[ROW].Cells[colAge].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
-            //wTable.Rows[ROW].Cells[colAge].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
-            //wTable.Rows[ROW].Cells[colAge].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
-            //wTable.Rows[ROW].Cells[colAge].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
 
 
             #endregion column headers
@@ -2712,8 +2703,6 @@ Where EmpSystemId='"+ empId + "'";
                 sl++;
                 wTable.AddRow();
                 WTableRow TROW = wTable.LastRow;
-
-                // WTableRow TROW = wTable.Rows[1].Clone();
                 for (int CE = 0; CE < TROW.Cells.Count; CE++)
                 {
                     foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
@@ -2723,31 +2712,11 @@ Where EmpSystemId='"+ empId + "'";
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
                 TROW.Cells[colName].AddParagraph().AppendText(dsaddInfo.Rows[i]["Name"].ToString()).ApplyCharacterFormat(DFontSize);
-                //TROW.Cells[colName].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
-                //TROW.Cells[colName].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
-                //TROW.Cells[colName].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
-                //TROW.Cells[colName].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
                 TROW.Cells[colRelation].AddParagraph().AppendText(dsaddInfo.Rows[i]["Relation"].ToString()).ApplyCharacterFormat(DFontSize);
-                //TROW.Cells[colRelation].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
-                //TROW.Cells[colRelation].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
-                //TROW.Cells[colRelation].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
-                //TROW.Cells[colRelation].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
                 TROW.Cells[colAge].AddParagraph().AppendText(dsaddInfo.Rows[i]["Age"].ToString()).ApplyCharacterFormat(DFontSize);
-                //TROW.Cells[colAge].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
-                //TROW.Cells[colAge].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
-                //TROW.Cells[colAge].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
-                //TROW.Cells[colAge].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
 
             }
             ROW++;
-
-            #region Total
-            //int TotalRow = ROW;
-            //wTable.AddRow();
-            //WTableRow _TROW = wTable.LastRow;
-
-            //range.ApplyCharacterFormat(FontBold);
-            #endregion Total
             ROW++;
             #region paragrpath formats
 
