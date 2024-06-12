@@ -12609,7 +12609,7 @@ left join (Select pol.Id,pol.PackingLineItemId,pol.ProductCode,pol.PONo,pol.LotN
             }
         }
 
-        public string PostPendingDispatchSave(IEnumerable<PendingDispatchGet> DataToSave)
+        public string PostPendingDispatchSavesMobile(IEnumerable<PendingDispatchGet> DataToSave)
         {
             try
             {
