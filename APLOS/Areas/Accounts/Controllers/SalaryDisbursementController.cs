@@ -504,7 +504,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         and sl.BonusDisbursementAdviceId='" + disbursementAdviceId + @"'
                         and spc.DisbusmentAmount!=0  
                         and spd.PlantId='" + identity.PlantId + @"' 
-						and ISNULL(SH.HeadCategory, '')  in ('Monthly Bonus Retain')
+						and ISNULL(SH.HeadCategory, '')  in ('Monthly Bonus Retain','Annual Bonus Retain')
                         ORDER BY ei.EmployeeCode,sl.YearNo,sl.MonthNo ";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -559,13 +559,13 @@ namespace Aplos.Areas.Accounts.Controllers
                 left join MST.ManpowerBudget MPB on MPB.Id = ei.BudgetCode
                 left join ORG.Position PO on PO.Id = MPB.PositionId
                 left join trn.Voucher v on v.Id=sl.PayableVoucherId
-				left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Monthly Bonus' and vd.SalaryHeadId=sh.SalaryHeadID and Vd.AccountsGroupId=sl.AccountsGroupId
+				left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Monthly Bonus' and vd.SalaryHeadId=sh.SalaryHeadID and Vd.AccountsGroupId=sl.AccountsGroupId and vd.CrAmount>0
 				LEFT JOIN HKP.GLGeneralInfo CDGL ON CDGL.Id=vd.GLGeneralInfoId
                 LEFT JOIN MST.BudgetMaster CDBM ON CDBM.Id=vd.BudgetMasterId
                 LEFT JOIN HKP.Budget CDB ON CDB.Id=CDBM.BudgetId
                 LEFT JOIN HKP.Activity CDA ON CDA.Id=vd.ActivityId
                 where sl.PayableVoucherId<>'' AND sl.BonusDisbursementVoucherId IS NULL and sl.IsBonusDisbursed=1 
-                and ISNULL(SH.HeadCategory, '')  in ('Monthly Bonus Retain') and spc.DisbusmentAmount != 0 and vd.CrAmount>0 
+                and ISNULL(SH.HeadCategory, '')  in ('Monthly Bonus Retain') and spc.DisbusmentAmount != 0  
                 and sl.BonusDisbursementAdviceId='" + disbursementAdviceId + @"' " + EmpSystemIds + @"
                        
                 group by sh.SalaryHead, sl.YearNo, sl.MonthNo, sh.HeadType, sh.[Sequence]
@@ -592,13 +592,13 @@ namespace Aplos.Areas.Accounts.Controllers
                 left join MST.ManpowerBudget MPB on MPB.Id = ei.BudgetCode
                 left join ORG.Position PO on PO.Id = MPB.PositionId
                 left join trn.Voucher v on v.Id=sl.PayableVoucherId
-				left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=sh.SalaryHeadID and Vd.AccountsGroupId=sl.AccountsGroupId
+				left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=sh.SalaryHeadID and Vd.AccountsGroupId=sl.AccountsGroupId and vd.CrAmount>0 
 				LEFT JOIN HKP.GLGeneralInfo CDGL ON CDGL.Id=vd.GLGeneralInfoId
                 LEFT JOIN MST.BudgetMaster CDBM ON CDBM.Id=vd.BudgetMasterId
                 LEFT JOIN HKP.Budget CDB ON CDB.Id=CDBM.BudgetId
                 LEFT JOIN HKP.Activity CDA ON CDA.Id=vd.ActivityId
                 where sl.PayableVoucherId<>'' AND sl.BonusDisbursementVoucherId IS NULL and sl.IsBonusDisbursed=1 
-                and ISNULL(SH.HeadCategory, '')  in ('Annual Bonus Retain') and spc.DisbusmentAmount != 0 and vd.CrAmount>0 
+                and ISNULL(SH.HeadCategory, '')  in ('Annual Bonus Retain') and spc.DisbusmentAmount != 0 
                 and sl.BonusDisbursementAdviceId='" + disbursementAdviceId + @"' " + EmpSystemIds + @"
                        
                 group by sh.SalaryHead, sl.YearNo, sl.MonthNo, sh.HeadType, sh.[Sequence]
