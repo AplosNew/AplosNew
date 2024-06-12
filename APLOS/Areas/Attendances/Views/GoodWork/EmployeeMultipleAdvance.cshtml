@@ -426,7 +426,7 @@
                             <label class="col-sm-4 control-label">Transaction Type<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
-                                    <select ng-change="getTransactionTypeGL(voucher.EmployeeTransactionTypeId)" name="Transaction Type" class="form-control" ng-model="voucher.EmployeeTransactionTypeId" tabindex="7" required>
+                                    <select ng-disabled="employeeTransactionTypeList.length==1" ng-change="getTransactionTypeGL(voucher.EmployeeTransactionTypeId)" name="Transaction Type" class="form-control" ng-model="voucher.EmployeeTransactionTypeId" tabindex="7" required>
                                         <option value="">--Select--</option>
                                         <option ng-repeat="option in employeeTransactionTypeList" value="{{option.EmployeeTransactionTypeId}}">{{option.EmployeeTransactionTypeName}}</option>
                                     </select>
@@ -449,24 +449,10 @@
                     </div>
                     <div class="col-xs-12 col-sm-4 col-md-4">
                         <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select id="entityId" class="form-control" name="Entity" ng-model="voucher.EntityId" tabindex="16" required>
-                                        <option value="">--Select--</option>
-                                        <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="clearfix"></div>
-                    <div class="col-xs-12 col-sm-4 col-md-4">
-                        <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Advance GL<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
-                                    <select id="SalaryHeadId" class="form-control" ng-model="SalaryHeadId" name="SalaryHead" required tabindex="1">
+                                    <select ng-disabled="SalaryHeadList.length==1" id="SalaryHeadId" class="form-control" ng-model="SalaryHeadId" name="SalaryHead" required tabindex="1">
                                         <option value="">--Select--</option>
                                         <option ng-repeat="option in SalaryHeadList" value="{{option.Id}}">{{option.UserName}}</option>
                                     </select>
