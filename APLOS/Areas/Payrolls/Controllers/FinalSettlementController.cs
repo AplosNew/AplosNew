@@ -2035,14 +2035,28 @@ WHERE  spc.EmpInfoSystemID= '" + empId + @"' AND PayableVoucherId<>'' AND sl.Dis
 			 ) AS varchar(100))
 
 			 WHEN OL.UserName='Bonus' THEN CAST((
-			 select cast(SUM(spc.DisbusmentAmount)AS decimal(18,2))BonusAmount  from SalaryProcChild SPC
+			 Select SUM(BonusAmount)BonusAmount from(
+select cast(SUM(spc.DisbusmentAmount)AS decimal(18,2))BonusAmount  from SalaryProcChild SPC
 left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
 JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID
 Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.YearNo AND sl.MonthNo=SPM.MonthNo
+LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
+left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Monthly Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 
 Where HeadCategory IN('Monthly Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
 AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND ISNULL(sl.IsBonusDisbursed,0) = 1  
 AND sl.BonusDisbursementVoucherId IS NULL 
 AND SPC.EmpInfoSystemID='" + empId + @"'
+UNION
+select cast(SUM(spc.DisbusmentAmount)AS decimal(18,2))BonusAmount  from SalaryProcChild SPC
+left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
+JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID
+Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.YearNo AND sl.MonthNo=SPM.MonthNo
+LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
+left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 
+Where HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
+AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND ISNULL(sl.IsBonusDisbursed,0) = 1  
+AND sl.BonusDisbursementVoucherId IS NULL 
+AND SPC.EmpInfoSystemID='" + empId + @"')A
 			 ) AS varchar(100))
            
 WHEN OL.Formula='SeparationDate - ResignDate' THEN CAST(DATEDIFF(Day,

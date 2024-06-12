@@ -1616,11 +1616,11 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
-        public string PostPendingDispatchSavesMobile([FromBody] IEnumerable<PendingDispatchGet> DataToSave)
+        public string PostPendingDispatchSave([FromBody] IEnumerable<PendingDispatchGet> DataToSave)
         {
             try
             {
-                string Id = clsData.PostPendingDispatchSavesMobile(DataToSave);
+                string Id = clsData.PostPendingDispatchSave(DataToSave);
                 return Id;
             }
             catch (Exception ex)

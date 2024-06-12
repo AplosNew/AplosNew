@@ -11,7 +11,7 @@ function partyPaymentStatusReportController(commonMessage, $scope, $rootScope, b
     $scope.partyList = [];
 
     $scope.report = {
-        FromDate: $filter('dateFiltering')(Date.now()),
+        FromDate: '01-Apr-2024',
         ToDate: $filter('dateFiltering')(Date.now()),
         GLGeneralInfoId: '',
         GLNameCode: null,
