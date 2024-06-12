@@ -1615,6 +1615,19 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetPODetail(out List<SocreationGet> activelists, SOId);
             return activelists;
         }
+
+        public string PostPendingDispatchSave([FromBody] IEnumerable<PendingDispatchGet> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostPendingDispatchSave(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
         #endregion Pending dispatch
     }
 }
