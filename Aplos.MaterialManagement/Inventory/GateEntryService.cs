@@ -2822,7 +2822,7 @@ ORDER BY IR.ID DESC";
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                var sql = @"select E.SystemId As Value, (E.EmployeeCode+'-'+E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where A.PlantId='" + identity.PlantId + "' AND A.ActionStatus='CheckedBy' AND E.EmployeeStatus='Active'";
                 return _sqlRepository.GetDataCollection(sql);

@@ -23,6 +23,11 @@ namespace Aplos.Areas.Administration.Controllers
             return View();
         }
 
+        public ActionResult GeneralApprovedApplication()
+        {
+            return View();
+        }
+
 
         [HttpGet, Authorize]
         public JsonResult GetUNApprovalList(string POTypeApprovalStatus)
@@ -41,6 +46,15 @@ namespace Aplos.Areas.Administration.Controllers
 
         [HttpPost, Authorize]
         public JsonResult UpdateApprovalStatus(string PoId, string PoValue, string CheckedStataus, string AuthorizedBy, string ApproveRejectReason)
+        {
+            CheckQueryService checkQueryService = new CheckQueryService(_sqlRepository);
+
+            checkQueryService.UpdateApprovalStatus(PoId, PoValue, CheckedStataus, AuthorizedBy, ApproveRejectReason);
+            return Json(new { Message = "PO Approved" + AplosMessage.Success });
+        }
+
+        [HttpPost]
+        public JsonResult UpdateApprovalStatusApplication(string PoId, string PoValue, string CheckedStataus, string AuthorizedBy, string ApproveRejectReason)
         {
             CheckQueryService checkQueryService = new CheckQueryService(_sqlRepository);
 
