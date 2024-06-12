@@ -12626,7 +12626,7 @@ left join (Select pol.Id,pol.PackingLineItemId,pol.ProductCode,pol.PONo,pol.LotN
                     Id += ",'" + item.Id + "'";
                 }
 
-                con.OpenDataSetThroughAdapter("select * from TRN.PendingDispatchRemarks where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from TRN.PendingDispatchRemarks where Id in (" + Id + ")", out dsMaster, false, "1");
 
 
                 foreach (PendingDispatchGet item in DataToSave)
