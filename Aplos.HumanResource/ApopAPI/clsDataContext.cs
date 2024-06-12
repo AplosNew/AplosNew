@@ -12727,7 +12727,7 @@ left join (Select pol.Id,pol.PackingLineItemId,pol.ProductCode,pol.PONo,pol.LotN
                 }
 
 
-                clsStaticInfo _info = new clsStaticInfo();
+                OTSBD.clsStaticInfo _info = new OTSBD.clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
                 string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
