@@ -5183,7 +5183,28 @@ Order By A.sequence";
 	LEFT JOIN SCS.Country CN ON CN.Id=AM.CountryId
 	LEFT JOIN SCS.[State] ST ON ST.Id=AM.StateId
 	LEFT JOIN trn.Voucher V ON V.Id=SA.VoucherId
-            WHERE SA.PlantId='" + plantId + @"' AND SA.AddedDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SA.InputCreditId,'" + inputCreditId + @"')='" + inputCreditId + @"'
+            WHERE SA.PlantId='" + plantId + @"' AND SA.AddedDate between '" + fromDate + @"' AND '" + toDate + @"' AND SA.InputCreditId='" + inputCreditId + @"'
+UNION 
+ SELECT Flag=CAST(CASE WHEN SA.InputCreditId IS NULL THEN 0 ELSE 1 END AS bit),SA.Id,'SalesMaterial' SalesCategory,FORMAT(SA.InvoiceDate,'dd-MMM-yyyy')InvoiceDate,SA.Id InvoiceNo,P.UserName Customer,SA.PartyId CustomerId,P.TINNO GSTNNo	
+	,InvoiceTotalAmount= ISNULL(SM.Amount,0) + ISNULL(SRS.Amount,0),BasicAmount=SM.Amount,TaxAmount=SM.TaxAmount
+	,SalesService=STUFF((select distinct ','+SM.UserName 
+		                                         from HKP.ServiceMaster SM								 
+												 join  TRN.SalesService SS ON SS.Id=SS.ServiceMasterId                                     
+									             where SS.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+	,ServiceAmount=SRS.Amount+SRS.TaxAmount,CN.UserName Country,ST.UserName [State]
+	,PAG.UserName AS PartyAccountGroup,V.VoucherNo,FORMAT(V.PostedDate,'dd-MMM-yyyy')PostedDate,CASE  WHEN SA.RowState='Parked' THEN 'Parked' ELSE 'Posted' END AS IsPark
+	, SA.InputCreditId,PostingStatus=CASE WHEN  SA.VoucherId IS NULL THEN 'Pending' WHEN SA.RowState='Parked' THEN 'Parked' ELSE 'Posted' END,SA.Narration Remarks
+	FROM TRN.Sales AS SA 
+	LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount,SUM(M.TaxAmount)TaxAmount FROM [TRN].[SalesMaterial] M GROUP BY M.SalesId) AS SM ON SM.SalesId=SA.Id
+	LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount,SUM(M.TaxAmount)TaxAmount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SRS ON SRS.SalesId=SA.Id
+	LEFT JOIN HKP.Party P ON P.Id=SA.PartyId
+	LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id and CP.PartyType='Customer'
+    LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=CP.PartyAccountGroupId 
+	LEFT JOIN MST.AddressMaster AM ON AM.Id=P.AddressMasterId
+	LEFT JOIN SCS.Country CN ON CN.Id=AM.CountryId
+	LEFT JOIN SCS.[State] ST ON ST.Id=AM.StateId
+	LEFT JOIN trn.Voucher V ON V.Id=SA.VoucherId
+            WHERE SA.PlantId='" + plantId + @"' AND SA.AddedDate between '" + fromDate + @"' AND '" + toDate + @"' AND SA.InputCreditId IS NULL
 UNION
 SELECT Flag=CAST(CASE WHEN SA.InputCreditId IS NULL THEN 0 ELSE 1 END AS bit),SA.Id,'InventorySales' SalesCategory,FORMAT(SA.SalesDate,'dd-MMM-yyyy')InvoiceDate,SA.Id InvoiceNo,P.UserName Customer,SA.CustomerId,P.TINNO GSTNNo	
 	,InvoiceTotalAmount= ISNULL(SM.Amount,0),BasicAmount=SM.Amount,SAT.TaxAmount
@@ -5206,7 +5227,31 @@ SELECT Flag=CAST(CASE WHEN SA.InputCreditId IS NULL THEN 0 ELSE 1 END AS bit),SA
 	LEFT JOIN SCS.Country CN ON CN.Id=AM.CountryId
 	LEFT JOIN SCS.[State] ST ON ST.Id=AM.StateId
 	LEFT JOIN trn.Voucher V ON V.Id=SA.VoucherId
-            WHERE SA.AddedDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SA.InputCreditId,'" + inputCreditId + @"')='" + inputCreditId + @"' AND SA.CustomerId<>'')A Order By A.Id";
+            WHERE SA.AddedDate between '" + fromDate + @"' AND '" + toDate + @"' AND SA.InputCreditId='" + inputCreditId + @"' AND SA.CustomerId<>''
+UNION
+SELECT Flag=CAST(CASE WHEN SA.InputCreditId IS NULL THEN 0 ELSE 1 END AS bit),SA.Id,'InventorySales' SalesCategory,FORMAT(SA.SalesDate,'dd-MMM-yyyy')InvoiceDate,SA.Id InvoiceNo,P.UserName Customer,SA.CustomerId,P.TINNO GSTNNo	
+	,InvoiceTotalAmount= ISNULL(SM.Amount,0),BasicAmount=SM.Amount,SAT.TaxAmount
+		,SalesService=STUFF((select distinct ','+SM.UserName 
+		                                         from HKP.ServiceMaster SM								 
+												 join TRN.[InventorySalesService] SS ON SS.Id=SS.ServiceMasterId                                     
+									             where SS.InventorySalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+	,ServiceAmount=SRS.Amount+SRS.TaxAmount,CN.UserName Country,ST.UserName [State]
+	,PAG.UserName AS PartyAccountGroup,V.VoucherNo,FORMAT(V.PostedDate,'dd-MMM-yyyy')PostedDate,CASE  WHEN SA.Status='Parking' THEN 'Parking' ELSE 'Posting' END AS IsPark
+	, SA.InputCreditId 
+	,PostingStatus=CASE WHEN  SA.VoucherId IS NULL THEN 'Pending' WHEN SA.Status='Parked' THEN 'Parked' ELSE 'Posted' END,SA.Remarks
+	FROM TRN.InventorySales SA
+	LEFT JOIN (SELECT M.InventorySalesId,SUM(M.TotalSalesAmount) AS Amount FROM [TRN].InventorySalesDetail M GROUP BY M.InventorySalesId) AS SM ON SM.InventorySalesId=SA.Id
+	LEFT JOIN (SELECT M.InventorySalesId,SUM(M.TaxAmount) AS TaxAmount FROM [TRN].InventorySalesTax M GROUP BY M.InventorySalesId) AS SAT ON SAT.InventorySalesId=SA.Id
+	LEFT JOIN (SELECT M.InventorySalesId,SUM(M.Amount) AS Amount,SUM(M.TotalTaxAmount)TaxAmount FROM [TRN].[InventorySalesService] M GROUP BY M.InventorySalesId) AS SRS ON SRS.InventorySalesId=SA.Id
+	LEFT JOIN HKP.Party P ON P.Id=SA.CustomerId
+	LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id and CP.PartyType='Customer'
+    LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=CP.PartyAccountGroupId 
+	LEFT JOIN MST.AddressMaster AM ON AM.Id=P.AddressMasterId
+	LEFT JOIN SCS.Country CN ON CN.Id=AM.CountryId
+	LEFT JOIN SCS.[State] ST ON ST.Id=AM.StateId
+	LEFT JOIN trn.Voucher V ON V.Id=SA.VoucherId
+            WHERE SA.AddedDate between '" + fromDate + @"' AND '" + toDate + @"' AND SA.InputCreditId IS NULL AND SA.CustomerId<>''
+)A Order By A.Id";
 
             return _sqlRepository.GetDataCollection(cmdText);
         }

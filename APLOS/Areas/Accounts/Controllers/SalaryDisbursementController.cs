@@ -504,7 +504,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         and sl.BonusDisbursementAdviceId='" + disbursementAdviceId + @"'
                         and spc.DisbusmentAmount!=0  
                         and spd.PlantId='" + identity.PlantId + @"' 
-						and ISNULL(SH.HeadCategory, '')  in ('Monthly Bonus Retain')
+						and ISNULL(SH.HeadCategory, '')  in ('Monthly Bonus Retain','Annual Bonus Retain')
                         ORDER BY ei.EmployeeCode,sl.YearNo,sl.MonthNo ";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -559,13 +559,13 @@ namespace Aplos.Areas.Accounts.Controllers
                 left join MST.ManpowerBudget MPB on MPB.Id = ei.BudgetCode
                 left join ORG.Position PO on PO.Id = MPB.PositionId
                 left join trn.Voucher v on v.Id=sl.PayableVoucherId
-				left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Monthly Bonus' and vd.SalaryHeadId=sh.SalaryHeadID and Vd.AccountsGroupId=sl.AccountsGroupId
+				left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Monthly Bonus' and vd.SalaryHeadId=sh.SalaryHeadID and Vd.AccountsGroupId=sl.AccountsGroupId and vd.CrAmount>0
 				LEFT JOIN HKP.GLGeneralInfo CDGL ON CDGL.Id=vd.GLGeneralInfoId
                 LEFT JOIN MST.BudgetMaster CDBM ON CDBM.Id=vd.BudgetMasterId
                 LEFT JOIN HKP.Budget CDB ON CDB.Id=CDBM.BudgetId
                 LEFT JOIN HKP.Activity CDA ON CDA.Id=vd.ActivityId
                 where sl.PayableVoucherId<>'' AND sl.BonusDisbursementVoucherId IS NULL and sl.IsBonusDisbursed=1 
-                and ISNULL(SH.HeadCategory, '')  in ('Monthly Bonus Retain') and spc.DisbusmentAmount != 0 and vd.CrAmount>0 
+                and ISNULL(SH.HeadCategory, '')  in ('Monthly Bonus Retain') and spc.DisbusmentAmount != 0  
                 and sl.BonusDisbursementAdviceId='" + disbursementAdviceId + @"' " + EmpSystemIds + @"
                        
                 group by sh.SalaryHead, sl.YearNo, sl.MonthNo, sh.HeadType, sh.[Sequence]
@@ -592,13 +592,13 @@ namespace Aplos.Areas.Accounts.Controllers
                 left join MST.ManpowerBudget MPB on MPB.Id = ei.BudgetCode
                 left join ORG.Position PO on PO.Id = MPB.PositionId
                 left join trn.Voucher v on v.Id=sl.PayableVoucherId
-				left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=sh.SalaryHeadID and Vd.AccountsGroupId=sl.AccountsGroupId
+				left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=sh.SalaryHeadID and Vd.AccountsGroupId=sl.AccountsGroupId and vd.CrAmount>0 
 				LEFT JOIN HKP.GLGeneralInfo CDGL ON CDGL.Id=vd.GLGeneralInfoId
                 LEFT JOIN MST.BudgetMaster CDBM ON CDBM.Id=vd.BudgetMasterId
                 LEFT JOIN HKP.Budget CDB ON CDB.Id=CDBM.BudgetId
                 LEFT JOIN HKP.Activity CDA ON CDA.Id=vd.ActivityId
                 where sl.PayableVoucherId<>'' AND sl.BonusDisbursementVoucherId IS NULL and sl.IsBonusDisbursed=1 
-                and ISNULL(SH.HeadCategory, '')  in ('Annual Bonus Retain') and spc.DisbusmentAmount != 0 and vd.CrAmount>0 
+                and ISNULL(SH.HeadCategory, '')  in ('Annual Bonus Retain') and spc.DisbusmentAmount != 0 
                 and sl.BonusDisbursementAdviceId='" + disbursementAdviceId + @"' " + EmpSystemIds + @"
                        
                 group by sh.SalaryHead, sl.YearNo, sl.MonthNo, sh.HeadType, sh.[Sequence]
@@ -3488,14 +3488,14 @@ Where HeadCategory='Net Payable' ";
                                     ,sl.IsBonusDisbursed
                                     ,IsLock = case when sl.IsLocked = 1 then 'Locked' else 'Unlocked' end
                                     ,IsDisburse = case when sl.IsBonusDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end 
-                                    ,SPCD.NetPayment
+                                    ,SPCD.NetPayment,SPCD.SalaryHeadID
                                     ,SPM.SystemID SalaryProcId,SPM.AddedBy,AG.UserName AccountsGroup
                                     ,FORMAT(DA.AddedDate,'dd-MMM-yyyy') DisbursementDate
                                     ,sl.BonusDisbursementAdviceId,DA.Remarks
                                     from SalaryProcessLogDetail s
                                     JOIN SalaryProcMaster SPM ON SPM.SystemID = s.SalaryProcessId 
                                     left join EmployeeInformation e on e.SystemId= s.EmpSystemId
-                                    INNER JOIN (select SPC.DisbusmentAmount NetPayment,SPC.EmpInfoSystemID,spm.YearNo,spm.MonthNo from SalaryProcChild SPC
+                                    INNER JOIN (select SPC.DisbusmentAmount NetPayment,SPC.EmpInfoSystemID,spm.YearNo,spm.MonthNo,SPC.SalaryHeadID from SalaryProcChild SPC
                                     left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
                                     JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID 
                                     Where HeadCategory IN('Monthly Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
@@ -3530,9 +3530,9 @@ Where HeadCategory='Net Payable' ";
                                     left join [HKP].[Bank] bb on bb.Id = s.BankSystemID
                                     Left join SalaryLock sl on sl.EmpSystemId=e.SystemId AND sl.YearNo=SPM.YearNo AND sl.MonthNo=SPM.MonthNo
                                     LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
-                                    LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.BonusDisbursementVoucherId 
+                                    LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.BonusDisbursementVoucherId left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Monthly Bonus' and vd.SalaryHeadId=SPCD.SalaryHeadID and vd.CrAmount>0 
                                     LEFT JOIN [dbo].[BonusDisbursementAdvice]  DA ON DA.Id=sl.BonusDisbursementAdviceId 
-                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' AND ISNULL(e.PaymentMode,'')='" + paymentMode + "' AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND ISNULL(sl.IsBonusDisbursed,0) = 0 AND sl.PastDisbursed IS NULL " + wcPayrollGroup + @" 
+                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' AND ISNULL(e.PaymentMode,'')='" + paymentMode + "' AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND ISNULL(sl.IsBonusDisbursed,0) = 0  AND sl.PastDisbursed IS NULL " + wcPayrollGroup + @" 
                                     AND CONCAT(sl.YearNo,RIGHT('00'+Isnull(Cast(SL.MonthNo AS VARCHAR(max)), ''),2)) 
 									BETWEEN  CONCAT(YEAR('" + fromDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + fromDate + @"') AS VARCHAR(max)), ''),2))
 									AND CONCAT(YEAR('" + toDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + toDate + @"') AS VARCHAR(max)), ''),2))
@@ -3578,14 +3578,14 @@ select [isSelect] = Convert(bit, 'False'),[isToBeSelect] = Convert(bit, 'False')
                                     ,sl.IsBonusDisbursed
                                     ,IsLock = case when sl.IsLocked = 1 then 'Locked' else 'Unlocked' end
                                     ,IsDisburse = case when sl.IsBonusDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end 
-                                    ,SPCD.NetPayment
+                                    ,SPCD.NetPayment,SPCD.SalaryHeadID
                                     ,SPM.SystemID SalaryProcId,SPM.AddedBy,AG.UserName AccountsGroup
                                     ,FORMAT(DA.AddedDate,'dd-MMM-yyyy') DisbursementDate
                                     ,sl.BonusDisbursementAdviceId,DA.Remarks
                                     from SalaryProcessLogDetail s
                                     JOIN SalaryProcMaster SPM ON SPM.SystemID = s.SalaryProcessId 
                                     left join EmployeeInformation e on e.SystemId= s.EmpSystemId
-                                    INNER JOIN (select SPC.DisbusmentAmount NetPayment,SPC.EmpInfoSystemID,spm.YearNo,spm.MonthNo from SalaryProcChild SPC
+                                    INNER JOIN (select SPC.DisbusmentAmount NetPayment,SPC.EmpInfoSystemID,spm.YearNo,spm.MonthNo,SPC.SalaryHeadID from SalaryProcChild SPC
                                     left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
                                     JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID 
                                     Where HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
@@ -3620,9 +3620,10 @@ select [isSelect] = Convert(bit, 'False'),[isToBeSelect] = Convert(bit, 'False')
                                     left join [HKP].[Bank] bb on bb.Id = s.BankSystemID
                                     Left join SalaryLock sl on sl.EmpSystemId=e.SystemId AND sl.YearNo=SPM.YearNo AND sl.MonthNo=SPM.MonthNo
                                     LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
-                                    LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.BonusDisbursementVoucherId 
+                                    LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.BonusDisbursementVoucherId
+                                    left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=SPCD.SalaryHeadID and vd.CrAmount>0
                                     LEFT JOIN [dbo].[BonusDisbursementAdvice]  DA ON DA.Id=sl.BonusDisbursementAdviceId 
-                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' AND ISNULL(e.PaymentMode,'')='" + paymentMode + "' AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND ISNULL(sl.IsBonusDisbursed,0) = 0 " + wcPayrollGroup + @" 
+                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' AND ISNULL(e.PaymentMode,'')='" + paymentMode + "' AND ISNULL(sl.PayableVoucherId,'')<>''  and sl.islocked=1 AND ISNULL(sl.IsBonusDisbursed,0) = 0 " + wcPayrollGroup + @" 
                                     AND CONCAT(sl.YearNo,RIGHT('00'+Isnull(Cast(SL.MonthNo AS VARCHAR(max)), ''),2)) 
 									BETWEEN  CONCAT(YEAR('" + fromDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + fromDate + @"') AS VARCHAR(max)), ''),2))
 									AND CONCAT(YEAR('" + toDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + toDate + @"') AS VARCHAR(max)), ''),2))

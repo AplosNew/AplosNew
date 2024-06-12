@@ -2531,7 +2531,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                     else
                         inid = inid + ",'" + item["Id"] + "'";
                 }
-                string mosql = "SELECT * FROM TRN.Salesl WHERE Id IN (" + id + ")";
+                string mosql = "SELECT * FROM TRN.Sales WHERE Id IN (" + id + ")";
                 string invsql = "SELECT * FROM TRN.InventorySales WHERE Id IN (" + inid + ")";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 if (!string.IsNullOrEmpty(id))

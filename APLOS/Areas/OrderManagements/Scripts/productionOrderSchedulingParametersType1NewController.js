@@ -4,8 +4,8 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
     $rootScope.title = "Product Planning";
     $scope.Action = 'Save';
     $scope.index = -1;
-    //$rootScope.isLeftMenuHide = true;
-    //$rootScope.ShowHideSideBar();
+
+    $scope.EntityId = null;
     $scope.baseProcess = { Id: null, UserName: null };
     $scope.modelList = [];
     $scope.productionMaterialList = [];
@@ -351,65 +351,62 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
     $scope.PRSearchValue = null;
     $scope.isLoadedPlanningBoardForTheFirstTime = false;
     $scope.getData = function () {
-        var DropDownEntityListObj = $("#entityList").data("ejDropDownList");
-        $scope.EntityId = DropDownEntityListObj.getSelectedValue();
-
-        if (angular.isUndefinedOrNull($scope.EntityId)) {
-            for (var i = 0; i < DropDownEntityListObj.popupListItems.length; i++) {
-                if (angular.isUndefinedOrNull($scope.EntityId)) {
-                    EntityId = + DropDownEntityListObj.popupListItems[i].Id;
-                } else {
-                    EntityId += ',' + DropDownEntityListObj.popupListItems[i].Id;
+        try {
+            var DropDownEntityListObj = $("#entityList").data("ejDropDownList");
+            $scope.EntityId = DropDownEntityListObj.getSelectedValue();
+            
+            if (angular.isUndefinedOrNull($scope.EntityId)) {
+                for (var i = 0; i < DropDownEntityListObj.popupListItems.length; i++) {
+                    if (angular.isUndefinedOrNull($scope.EntityId)) {
+                        $scope.EntityId = + DropDownEntityListObj.popupListItems[i].Id;
+                    } else {
+                        $scope.EntityId += ',' + DropDownEntityListObj.popupListItems[i].Id;
+                    }
                 }
             }
+            $http({
+                method: 'POST',
+                data: {
+                    'baseprocessid': $scope.PlanningTypeProcessId, 'entityid': $scope.EntityId, 'column': $scope.PRSearchColumn, 'value': $scope.PRSearchValue
+                },
+                url: $scope.getListUrl
+            }).then(function successCallback(response) {
+                for (var i = 0; i < response.data.length; i++) {
+                    response.data[i].LSD = new Date(response.data[i].LSD);
+                    response.data[i].FirstShipmentDate = new Date(response.data[i].FirstShipmentDate);
+                    response.data[i].LastShipmentDate = new Date(response.data[i].LastShipmentDate);
+                    response.data[i].LSD = new Date(response.data[i].LSD);
+                }
+
+                $scope.modelList = response.data;
+                $scope.GetAllWorkcenterWisePlanningSummary();
+
+                if ($scope.modelList.length > 0)
+                    $scope.isLoadedPlanningBoardForTheFirstTime = true;
+
+                if ($scope.TabActiveIndex == 1) {
+                    $scope.OpenSimulatedData();
+                    $scope.OpenSimulatedData();
+                }
+            });
+
+
+            $http({
+                method: 'POST',
+                data: {
+                    'EntityId': $scope.EntityId
+                },
+                url: $scope.path + 'GetSPTEfficiencySlab'
+            }).then(function successCallback(response) {
+
+                $scope.SPTEfficiencySlab = response.data;
+                if ($scope.SPTEfficiencySlab.length > 0)
+                    $scope.model["IncrementType"] = 'PERCENTAGE';
+            });
+
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
-        $http({
-            method: 'POST',
-            data: {
-                'baseprocessid': $scope.PlanningTypeProcessId, 'entityid': $scope.EntityId, 'column': $scope.PRSearchColumn, 'value': $scope.PRSearchValue
-            },
-            url: $scope.getListUrl
-        }).then(function successCallback(response) {
-            for (var i = 0; i < response.data.length; i++) {
-                response.data[i].LSD = new Date(response.data[i].LSD);
-                response.data[i].FirstShipmentDate = new Date(response.data[i].FirstShipmentDate);
-                response.data[i].LastShipmentDate = new Date(response.data[i].LastShipmentDate);
-                response.data[i].LSD = new Date(response.data[i].LSD);
-            }
-
-            $scope.modelList = response.data;
-            $scope.GetAllWorkcenterWisePlanningSummary();
-
-            if ($scope.modelList.length > 0)
-                $scope.isLoadedPlanningBoardForTheFirstTime = true;
-
-            if ($scope.TabActiveIndex == 1) {
-                $scope.OpenSimulatedData();
-                $scope.OpenSimulatedData();
-            }
-
-
-        });
-        //if ($scope.isLoadedPlanningBoardForTheFirstTime == false) {
-        //    //load the planning board for the first time
-
-        //    //$scope.OpenSimulatedData();
-        //}
-
-
-        $http({
-            method: 'POST',
-            data: {
-                'EntityId': $scope.EntityId
-            },
-            url: $scope.path + 'GetSPTEfficiencySlab'
-        }).then(function successCallback(response) {
-
-            $scope.SPTEfficiencySlab = response.data;
-            if ($scope.SPTEfficiencySlab.length>0)
-                $scope.model["IncrementType"] = 'PERCENTAGE';
-        });
-
     };
 
 
@@ -1320,7 +1317,6 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
     };
 
 
-    $scope.EntityId = null;
     $scope.workCenterFilterList = [
         {
             'name': 'Code',
