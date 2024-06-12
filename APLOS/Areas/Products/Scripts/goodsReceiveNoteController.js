@@ -868,6 +868,8 @@ function goodsReceiveNoteController(addressService, $window, factoryService, cbo
         try {
             $scope.detailModel.ArticleId = ob.Id;
             $scope.detailModel.ArticleName = ob.StandardName;
+            $scope.detailModel.MinimumValue = ob.MinimumValue;
+            $scope.detailModel.MaximumValue = ob.MaximumValue;
             manualValidation('div_ar', false);
             angular.element(document.querySelector('#articleSearchPop')).modal('hide');
         } catch (e) {

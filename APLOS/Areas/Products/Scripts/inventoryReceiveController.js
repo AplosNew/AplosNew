@@ -1260,6 +1260,8 @@ function inventoryReceiveController(accountService, addressService, $window, fac
         try {
             $scope.detailModel.ArticleId = ob.Id;
             $scope.detailModel.ArticleName = ob.StandardName;
+            $scope.detailModel.MinimumValue = ob.MinimumValue;
+            $scope.detailModel.MaximumValue = ob.MaximumValue;
             getTaxCategoryList(ob.HSNCodeId, ob.HSNCode);
             manualValidation('div_ar', false);
             angular.element(document.querySelector('#articleSearchPop')).modal('hide');

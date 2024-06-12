@@ -3753,6 +3753,9 @@ namespace Library.MaterialManagement.Inventory
                         receiveDetail.InventoryMaterialId = itemDetail.InventoryMaterialId;
                         InsertGraph(receiveDetail);
                         UpdateInventoryDetail(receiveDetail, ratio, ratioServiceTax, Convert.ToDecimal(itemDetail.ToCurrencyRate), itemDetail.IsNonCreditable);
+                        updateArticleMinMaxValue( itemDetail.MinimumValue,  itemDetail.MaximumValue, Convert.ToDecimal(itemDetail.TotalMaterialTranAmount),  itemDetail.ArticleId);
+
+
                     }
 
                     // insert in receive tax
@@ -3838,6 +3841,24 @@ namespace Library.MaterialManagement.Inventory
                     _unitOfWork.Rollback();
                 }
             }
+        }
+        public void updateArticleMinMaxValue(string minvalue,string maxvalue,decimal trnAmount,string articleId)
+        {
+            if (Convert.ToDecimal(maxvalue) < trnAmount)
+            {
+                var rdBuilder = new System.Text.StringBuilder();
+                var builderSql = @"UPDATE MST.MaterialMasterArticle SET MaximumValue=" + trnAmount + " WHERE Id=" + articleId + "";
+                rdBuilder.Append(builderSql);
+                _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+            }
+            else if (Convert.ToDecimal(minvalue) < trnAmount)
+            {
+                var rdBuilder = new System.Text.StringBuilder();
+                var builderSql = @"UPDATE MST.MaterialMasterArticle SET MinimumValue=" + trnAmount + " WHERE Id=" + articleId + "";
+                rdBuilder.Append(builderSql);
+                _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+            }
+
         }
         private GRNBinAllocationMap InsertGRNBinAllocationMap( GRNBinAllocationMap gRNBinAllocationMap, ref DataSet vDetailData)
         {

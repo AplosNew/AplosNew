@@ -83,7 +83,7 @@ namespace Library.Service.Materials
                                     , MM.Code AS MaterialCode, MG.UserName AS MaterialGroup
                                     , ART.Code, ART.ShortName, ART.StandardName
 									,HSNCodeId=CASE WHEN ART.HSNCodeId IS NULL THEN MM.HSNCodeId ELSE ART.HSNCodeId END
-									,HSNCode=CASE WHEN ART.HSNCodeId IS NULL THEN MHSN.Code ELSE HSN.Code END
+									,HSNCode=CASE WHEN ART.HSNCodeId IS NULL THEN MHSN.Code ELSE HSN.Code END,ART.MinimumValue,ART.MaximumValue
                         FROM MST.MaterialMasterArticle AS ART
                         LEFT JOIN MST.MaterialMaster AS MM ON ART.MaterialMasterId=MM.Id 
                         LEFT JOIN MST.MaterialGroupMaster AS MG ON MM.MaterialGroupMasterId=MG.Id
@@ -113,7 +113,7 @@ namespace Library.Service.Materials
                                     , MM.Code AS MaterialCode, MG.UserName AS MaterialGroup
                                     , ART.Code, ART.ShortName, ART.StandardName
 									,HSNCodeId=CASE WHEN ART.HSNCodeId IS NULL THEN MM.HSNCodeId ELSE ART.HSNCodeId END
-									,HSNCode=CASE WHEN ART.HSNCodeId IS NULL THEN MHSN.Code ELSE HSN.Code END
+									,HSNCode=CASE WHEN ART.HSNCodeId IS NULL THEN MHSN.Code ELSE HSN.Code END,ART.MinimumValue,ART.MaximumValue
                         FROM MST.MaterialMasterArticle AS ART
                         LEFT JOIN MST.MaterialMaster AS MM ON ART.MaterialMasterId=MM.Id 
                         LEFT JOIN MST.MaterialGroupMaster AS MG ON MM.MaterialGroupMasterId=MG.Id
