@@ -11,6 +11,9 @@ function UtilityTransactionReportController(cboService, commonMessage, $scope, $
 
     $scope.ToDate = null;
     $scope.FromDate = null;
+    $scope.UtilityGroupId = null;
+
+   
 
     $scope.getUtilityTransactionData = function () {
        
@@ -22,13 +25,27 @@ function UtilityTransactionReportController(cboService, commonMessage, $scope, $
         $http({
             method: 'POST',
             url: $scope.path + 'getUtilityTransactionData',
-            data: {'ToDate': $scope.ToDate, 'FromDate': $scope.FromDate },
+            data: { 'ToDate': $scope.ToDate, 'FromDate': $scope.FromDate, 'UtilityGroupId': $scope.UtilityGroupId },
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.UtilityTransactionList = resp.data;
         });
 
     } 
+
+    $scope.UserGroupList = [];
+    $scope.GetUtilitygroupMaster = function () {
+        $http({
+            method: 'GET',
+            url: 'Materials/UtilityTransactionReport/GetUserGroup'
+        }).then(function successCallback(response) {
+            $scope.UserGroupList = [];
+            if (baseService.arrayLength(response.data) > 0) {
+                $scope.UserGroupList = response.data;
+            }
+        });
+    };
+    $scope.GetUtilitygroupMaster();
 
     $scope.UtilityTransactionReport = function () {
         if (angular.isUndefinedOrNull($scope.FromDate) || angular.isUndefinedOrNull($scope.ToDate)) {
