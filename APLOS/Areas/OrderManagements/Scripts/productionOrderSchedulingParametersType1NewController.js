@@ -577,15 +577,24 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
     //{
     //    $scope.entityList = result;
     //});
-    $scope.getAllEntities = function () {
+    //$scope.getAllEntities = function () {
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.path + "GetAllEntityForPlanningType1"
+    //    }).then(function successCallback(response) {
+    //        $scope.entityList = response.data;
+    //    });
+    //}
+    //$scope.getAllEntities();
+
+    $scope.GetPlanningTypeEntiy = function () {
         $http({
-            method: 'POST',
-            url: $scope.path + "GetAllEntityForPlanningType1"
+            method: 'GET',
+            url: 'OrderManagements/ProductionOrder/GetPlanningTypeEntityCbo?processId=' + $scope.PlanningTypeProcessId
         }).then(function successCallback(response) {
             $scope.entityList = response.data;
         });
     }
-    $scope.getAllEntities();
 
     cboService.getProductionStatusCboByGroup(function (result) {
         $scope.productionStatusList = result;

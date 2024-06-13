@@ -51,57 +51,58 @@ namespace Aplos.Areas.Materials.Controllers
             return View();
         }
 
-       // [HttpGet, Authorize]
-       // public ActionResult getFilters()
-       // {
-       //     try
-       //     {
-       //         var sql = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],MAX(CONVERT(varchar(5),UT.AddedDate,108)) [Time],UM.UtilityGroup [Group],UM.UtilitySubGroup SubGroup,UM.UtilityCategory Category
-							//,UM.UtilitySubCategory SubCategory,UM.Item,EI.EmployeeName ResponsiblePerson 
-							//,format(UT.AddedDate,'dd-MMM-yyyy')AddedDate,UT.Quantity,UT.Reading,UT.Remarks
-							//from UtilityTransaction UT
-							//left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
-							//left join EmployeeInformation EI on EI.SystemId=UM.ResponsiblePersonId
-							//group by UT.Id,UT.Date,UT.AddedDate,UM.UtilityGroup,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory
-							//,UM.Item,EI.EmployeeName,UT.Quantity,UT.Reading,UT.Remarks";
+        // [HttpGet, Authorize]
+        // public ActionResult getFilters()
+        // {
+        //     try
+        //     {
+        //         var sql = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],MAX(CONVERT(varchar(5),UT.AddedDate,108)) [Time],UM.UtilityGroup [Group],UM.UtilitySubGroup SubGroup,UM.UtilityCategory Category
+        //,UM.UtilitySubCategory SubCategory,UM.Item,EI.EmployeeName ResponsiblePerson 
+        //,format(UT.AddedDate,'dd-MMM-yyyy')AddedDate,UT.Quantity,UT.Reading,UT.Remarks
+        //from UtilityTransaction UT
+        //left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
+        //left join EmployeeInformation EI on EI.SystemId=UM.ResponsiblePersonId
+        //group by UT.Id,UT.Date,UT.AddedDate,UM.UtilityGroup,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory
+        //,UM.Item,EI.EmployeeName,UT.Quantity,UT.Reading,UT.Remarks";
 
-       //         return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-       //     }
-       //     catch (Exception e)
-       //     {
-       //         throw e;
-       //     }
-       // }
+        //         return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         throw e;
+        //     }
+        // }
+
+        [HttpGet, Authorize]
+        public JsonResult GetUserGroup()
+        {
+
+            var sql = @"SELECT Id Value , UserName Text FROM HKP.UtilityGroup where Active = 1 ";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
 
         [Authorize, HttpPost]
-        public ActionResult getUtilityTransactionData(string ToDate, string FromDate)
+        public ActionResult getUtilityTransactionData(string ToDate, string FromDate , string UtilityGroupId)
         {
-            var str = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],MAX(CONVERT(varchar(5),UT.AddedDate,108)) [Time],UG.UserName [Group],UM.UtilitySubGroup SubGroup,UM.UtilityCategory Category,UM.Item
-							,UM.UtilitySubCategory SubCategory,UM.Item,EI.EmployeeName ResponsiblePerson 
-							,format(UT.AddedDate,'dd-MMM-yyyy')AddedDate,UT.Quantity,UT.Reading,isnull(UT.Remarks,'')Remarks
-                            ,Amount=isnull(UT.Quantity*(SELECT TOP(1) Rate FROM dbo.UtilityDetail  WHERE EffectiveDate between '" + FromDate + @"' and '" + ToDate + @"' AND UtilityMasterId=UT.UtilityMasterId ORDER BY EffectiveDate),0)
-                            ,isnull(UT.MultiplyingFactor,0) MultiplyingFactor
-							,FinalQuantity=isnull(UT.MultiplyingFactor,0)*UT.Quantity
-							,ET.UserName Entity , UOM.UserName UOM 
-                            ,case when  UD.Rate is null then 0 else UD.Rate end Rate
-							,case when  UD.EffectiveDate is null then '' else format(UD.EffectiveDate,'dd-MMM-yyyy') end EffectiveDate
-							,PT.UserName PartyName , RS.EmployeeName ResponsiblePerson , AD.EmployeeName [Admin] , UM.EntryLegDays , 
-							case when um.Active = 1 then 'Active' else 'InActive' end Status
-							from UtilityTransaction UT
-							left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
-							left join EmployeeInformation EI on EI.SystemId=UM.ResponsiblePersonId
-                            left join HKP.UtilityGroup UG on UG.Id=UM.UtilityGroupId
-							left join org.Entity ET on ET.Id = UM.EntityId
-							left join [SCS].[UnitOfMeasurement] UOM on UOM.Id = UM.UoMId
-							left join UtilityDetail UD on UD.UtilityMasterId = UM.Id and UD.EffectiveDate between '" + FromDate + @"' and '" + ToDate + @"'
-							left join hkp.Party PT on PT.Id = UM.PartyId
-							left join EmployeeInformation RS on RS.SystemId = UM.ResponsiblePersonId
-							left join EmployeeInformation AD on AD.SystemId = UM.AdminId
-                             where UT.Date between '" + FromDate + @"' and '" + ToDate + @"'
-                             group by UT.Id,UT.Date,UT.AddedDate,UM.UserName,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory
-							,UM.Item,EI.EmployeeName,UT.Quantity,UT.Reading,UT.Remarks,UG.UserName,UT.MultiplyingFactor,UT.UtilityMasterId , ET.UserName , UOM.UserName
-							,UD.Rate , UD.EffectiveDate ,PT.UserName , PT.UserName , RS.EmployeeName ,  AD.EmployeeName , UM.EntryLegDays
-							,um.Active";
+            var str = @"declare @Fromdate date = '" + FromDate +@"' 
+, @Todate date = '" + ToDate + @"'  
+,@UtilityGroupid  Varchar(20)= '" + UtilityGroupId + @"' ;
+ 
+select format(UT.Date,'yyyy-MM-dd') TransactionDate, UT.UtilityMasterId , UM.UserName UtilityMasterName,isnull(UMSS.Id,'') InputSouceId,isnull(UMSS.UserName,'') InputSouceName,   isnull(UT.MultiplyingFactor,0)*UT.Quantity TransactionQuantity , isnull(UMS.Reading,0) SumOfChild
+,(isnull(UT.MultiplyingFactor,0)*UT.Quantity) - isnull(UMS.Reading,0) NetQty , UG.UserName UtilityGroup
+,Rate = isnull((select Top 1 Rate from UtilityDetail where EffectiveDate Between @Fromdate and @Todate and UtilityMasterId = UM.Id Order by AddedDate desc),0)
+,Um.UtilityCategory,UM.UtilitySubCategory , UOM.UserName UOM , UT.Quantity , UT.MultiplyingFactor , UT.Remarks ,UT.Id
+from UtilityTransaction UT
+left join (select format(UT.Date,'yyyy-MM-dd') [Date], UM.InPutSourceId , UMSS.UserName InputSouce, sum(isnull(UT.MultiplyingFactor,0)*UT.Quantity) Reading 
+			from UtilityTransaction UT 
+			left join UtilityMaster UM on UM.Id = UT.UtilityMasterId 
+			left join UtilityMaster UMSS on UMSS.Id = UM.InPutSourceId
+			Group by [Date],UM.InPutSourceId ,UMSS.UserName ) UMS on UMS.Date = UT.Date and UMS.InPutSourceId = UT.UtilityMasterId
+			left join UtilityMaster UM on UM.Id	= UT.UtilityMasterId
+			left join UtilityMaster UMSS on UMSS.Id = UM.InPutSourceId 
+			left join hkp.UtilityGroup UG on UG.Id = UM.UtilityGroupId
+            left join [SCS].[UnitOfMeasurement] UOM on UOM.Id = UT.UoMId
+			where UT.[Date] Between @Fromdate and  @Todate and UM.UtilityGroupId = @UtilityGroupid and UM.Active = 1";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
@@ -140,62 +141,62 @@ namespace Aplos.Areas.Materials.Controllers
                 int ROW = 6; int COL = 1;
 
                 #region columns
-                sheet[ROW, COL].Text = "Date";
-                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].Text = "TransactionDate";
+                sheet[ROW, COL].ColumnWidth = 12;
                 int ColDate = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Time";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int ColTime = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Entity";
+                sheet[ROW, COL].Text = "UtilityMasterName";
                 sheet[ROW, COL].ColumnWidth = 15;
-                int ColEntity = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Category";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int ColCategory = COL;
+                int ColMasterName = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Sub Category";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int ColSubCategory = COL;
+                sheet[ROW, COL].Text = "InputSouceName";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColSourceName = COL;
+                COL++;
+                sheet[ROW, COL].Text = "TransactionQuantity";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int ColTrnQty = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Item";
-                sheet[ROW, COL].ColumnWidth = 20;
-                int ColItem = COL;
+                sheet[ROW, COL].Text = "SumOfChild";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColSumOfChild = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Group";
+                sheet[ROW, COL].Text = "NetQty";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColNetQty = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "UtilityGroup";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int ColGroup = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "SubGroup";
+                sheet[ROW, COL].Text = "Rate";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColRate = COL;
+                COL++;
+
+               
+
+               
+                sheet[ROW, COL].Text = "UtilityCategory";
                 sheet[ROW, COL].ColumnWidth = 15;
-                int ColSubGroup = COL;
+                int ColCategory = COL;
                 COL++;
-
-               
-
-               
-                sheet[ROW, COL].Text = "PartyName";
-                sheet[ROW, COL].ColumnWidth = 20;
-                int ColPartyName = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Reading";
+                sheet[ROW, COL].Text = "UtilitySubCategory";
                 sheet[ROW, COL].ColumnWidth = 12;
-                int ColReading = COL;
+                int ColSunCategory = COL;
                 COL++;
                 sheet[ROW, COL].Text = "UOM";
-                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].ColumnWidth = 10;
                 int ColUOM = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Quantity";
-                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].ColumnWidth = 10;
                 int ColQuantity = COL;
                 COL++;
 
@@ -204,7 +205,7 @@ namespace Aplos.Areas.Materials.Controllers
                 int ColMultiplyingFactor = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Final Quantity";
+                /*sheet[ROW, COL].Text = "Final Quantity";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int ColFinalQuantity = COL;
                 COL++;
@@ -245,12 +246,12 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet[ROW, COL].Text = "Status";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int ColStatus = COL;
-                COL++;
+                COL++; 
 
                 sheet[ROW, COL].Text = "Remarks";
                 sheet[ROW, COL].ColumnWidth = 15;
-                int ColRemarks = COL;
-                
+                int ColRemarks = COL; */
+
                 #endregion columns
                 int endCol = COL;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
@@ -265,22 +266,30 @@ namespace Aplos.Areas.Materials.Controllers
 
                 for (int i = 0; i < data.Count; i++)
                 {
-                    sheet[ROW, ColDate].Text = data[i]["Date"].ToString(); 
-                    sheet[ROW, ColTime].Text = data[i]["Time"].ToString(); 
-                    sheet[ROW, ColCategory].Text = data[i]["Category"].ToString();
-                    sheet[ROW, ColSubCategory].Text = data[i]["SubCategory"].ToString();
-                    sheet[ROW, ColItem].Text = data[i]["Item"].ToString();
-                    sheet[ROW, ColGroup].Text = data[i]["Group"].ToString();
-                    sheet[ROW, ColSubGroup].Text = data[i]["SubGroup"].ToString();
+                    sheet[ROW, ColDate].Text = data[i]["TransactionDate"].ToString(); 
+                    sheet[ROW, ColMasterName].Text = data[i]["UtilityMasterName"].ToString(); 
+                    sheet[ROW, ColSourceName].Text = data[i]["InputSouceName"].ToString();
+                    sheet[ROW, ColTrnQty].Number = clsStaticInfo.dbl(data[i]["TransactionQuantity"].ToString());
+                    sheet[ROW, ColTrnQty].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColSumOfChild].Number = clsStaticInfo.dbl(data[i]["SumOfChild"].ToString());
+                    sheet[ROW, ColSumOfChild].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColNetQty].Number = clsStaticInfo.dbl(data[i]["NetQty"].ToString());
+                    sheet[ROW, ColNetQty].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColGroup].Text = data[i]["UtilityGroup"].ToString();
+                    sheet[ROW, ColRate].Number = clsStaticInfo.dbl(data[i]["Rate"].ToString());
+                    sheet[ROW, ColRate].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColCategory].Text = data[i]["UtilityCategory"].ToString();
+                    sheet[ROW, ColSunCategory].Text = data[i]["UtilitySubCategory"].ToString();
+                    sheet[ROW, ColUOM].Text = data[i]["UOM"].ToString();
+                    /* sheet[ROW, ColSubGroup].Text = data[i]["SubGroup"].ToString();*/
                     sheet[ROW, ColQuantity].Number = clsStaticInfo.dbl(data[i]["Quantity"].ToString());
                     sheet[ROW, ColQuantity].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    sheet[ROW, ColFinalQuantity].Number = clsStaticInfo.dbl(data[i]["FinalQuantity"].ToString());
-                    sheet[ROW, ColFinalQuantity].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                   /* sheet[ROW, ColFinalQuantity].Number = clsStaticInfo.dbl(data[i]["FinalQuantity"].ToString());
+                    sheet[ROW, ColFinalQuantity].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);*/
 
                     sheet[ROW, ColMultiplyingFactor].Number = clsStaticInfo.dbl(data[i]["MultiplyingFactor"].ToString());
                     sheet[ROW, ColMultiplyingFactor].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    sheet[ROW, ColReading].Number = clsStaticInfo.dbl(data[i]["Reading"].ToString());
-                    sheet[ROW, ColReading].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    
                     //if (reading == 0)
                     //{
                     //    reading= clsStaticInfo.dbl(data.Rows[i]["Quantity"].ToString());
@@ -292,19 +301,18 @@ namespace Aplos.Areas.Materials.Controllers
                     //    sheet[ROW, ColReading].Number = reading;
                     //}
                                        
-                    sheet[ROW, ColAmount].Number = clsStaticInfo.dbl(data[i]["Amount"].ToString());
-                    sheet[ROW, ColAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    sheet[ROW, ColEntity].Text = data[i]["Entity"].ToString();
-                    sheet[ROW, ColUOM].Text = data[i]["UOM"].ToString();
-                    sheet[ROW, ColEffectiveDate].Text = data[i]["EffectiveDate"].ToString();
-                    sheet[ROW, ColRate].Number = clsStaticInfo.dbl(data[i]["Rate"].ToString());
-                    sheet[ROW, ColRate].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    sheet[ROW, ColPartyName].Text = data[i]["PartyName"].ToString();
-                    sheet[ROW, ColResponsiblePerson].Text = data[i]["ResponsiblePerson"].ToString();
+                  /*  sheet[ROW, ColAmount].Number = clsStaticInfo.dbl(data[i]["Amount"].ToString());
+                    sheet[ROW, ColAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);*/
+                  /*  sheet[ROW, ColEntity].Text = data[i]["Entity"].ToString();*/
+                   
+                   /* sheet[ROW, ColEffectiveDate].Text = data[i]["EffectiveDate"].ToString();*/
+                    
+                   /* sheet[ROW, ColPartyName].Text = data[i]["PartyName"].ToString();*/
+                   /* sheet[ROW, ColResponsiblePerson].Text = data[i]["ResponsiblePerson"].ToString();
                     sheet[ROW, ColAdmin].Text = data[i]["Admin"].ToString();
                     sheet[ROW, ColEntryLegDays].Text = data[i]["EntryLegDays"].ToString();
-                    sheet[ROW, ColStatus].Text = data[i]["Status"].ToString();
-                    sheet[ROW, ColRemarks].Text = data[i]["Remarks"].ToString();
+                    sheet[ROW, ColStatus].Text = data[i]["Status"].ToString();*/
+                   /* sheet[ROW, ColRemarks].Text = data[i]["Remarks"].ToString();*/
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;

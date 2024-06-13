@@ -11402,7 +11402,7 @@ where QAT.ParameterId='" + ParameterId + "'";
                     Id += ",'" + item.Id + "'";
                 }
 
-                con.OpenDataSetThroughAdapter("select * from UtilityTransaction where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from UtilityTransaction where Id='" + items[0].Id +  "'", out dsMaster, false, "1");
 
 
                 foreach (UtilityMasterGet item in DataToSave)
@@ -12450,7 +12450,7 @@ left join OrderControl OCT on OCT.SalesOrderId = SO.Id
 left join hkp.Party PT on mo.PartyId = PT.Id 
 left join trn.MasterOrderItem MOI on MOI.MasterOrderId = MO.Id
 left join trn.SalesOrder so on so.MasterOrderItemId = moi.id
-where SO.OrderStatusId = 'Active'";
+where (SO.OrderStatusId = 'Active' or so.OrderStatusId = 'ToShip')";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -12609,71 +12609,7 @@ left join (Select pol.Id,pol.PackingLineItemId,pol.ProductCode,pol.PONo,pol.LotN
             }
         }
 
-        public string PostPendingDispatchSavesMobile(IEnumerable<PendingDispatchGet> DataToSave)
-        {
-            try
-            {
-                DataSet dsMaster;
-                string TableName = "TRN.PendingDispatchRemarks";
-                string Id = "''";
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                if (DataToSave.Count() == 0)
-                    return "";
-                List<PendingDispatchGet> items = DataToSave.ToList();
-
-                foreach (PendingDispatchGet item in DataToSave)
-                {
-                    Id += ",'" + item.Id + "'";
-                }
-
-                con.OpenDataSetThroughAdapter("select * from TRN.PendingDispatchRemarks where Id in (" + Id + ")", out dsMaster, false, "1");
-
-
-                foreach (PendingDispatchGet item in DataToSave)
-                {
-                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
-                    if (dsMaster.Tables[0].DefaultView.Count == 0)
-                    {
-                        DataRow dr = dsMaster.Tables[0].NewRow();
-
-
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID(TableName, out string _Id);
-
-                        dr["Id"] = _Id;
-                        dr["SOId"] = item.SOId;
-                        
-                        dr["POId"] = item.POId;
-                        dr["Remarks"] = item.Remarks;
-                        dr["LOTNO"] = item.LOTNO;
-                        dr["Quantity"] = item.Quantity;
-
-                        dr["AddedBy"] = item.AddedBy;
-                        dr["AddedFromIP"] = "163.47.212.50";
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
-
-
-
-                        dsMaster.Tables[0].Rows.Add(dr);
-
-                    }
-
-                }
-
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-
-                return MasterId;
-
-            }
-            catch (Exception ex)
-            {
-                return ex.ToString();
-            }
-
-        }
+       
 
         public string PostPendingDispatchSave(IEnumerable<PendingDispatchGet> DataToSave)
         {

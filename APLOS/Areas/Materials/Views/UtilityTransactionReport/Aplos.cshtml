@@ -24,38 +24,49 @@
     </div>*@
 <h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>&nbsp;{{title}}</h3>
 
-<div class="row">
-    <div class="form-elements form-horizontal" ng-form="modelForm">
-        <div class="col-xs-12 col-sm-12 col-sm-12 ">
-            <div class="col-md-4">
+<div class="row" ng-form="modelForm">
+    <div class="form-elements form-horizontal">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+                
+            
                 <div class="form-group" show-errors id="div_FromDate">
-                    <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
-                    <div class="col-sm-7 show-message">
+                    <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
                         <input type="text" name="Form Date" ng-model="FromDate" datepicker class="form-control">
-                        @*<input id="datepicker" e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="FromDate" e-width="100%" />*@
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group" show-errors id="div_ToDate">
-                    <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
-                    <div class="col-sm-7 show-message">
-                        <input type="text" name="To Date" ng-model="ToDate" datepicker class="form-control">
-                        @*<input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="ToDate" e-width="100%" />*@
+                <div class="form-group"  show-errors>
+                    <label class="col-sm-4 control-label">Utility Group<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select name="Utility Group" ng-model="UtilityGroupId" class="form-control"
+                                    ng-options="item.Value as item.Text for item in UserGroupList" tabindex="2" required>
+                                <option value="">--Select--</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
+            
+                
+           
+
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors id="div_ToDate">
+                <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
+                <div class="col-sm-7 show-message">
+                    <input type="text" name="To Date" ng-model="ToDate" datepicker class="form-control">
+                </div>
             </div>
-            <div class="col-md-3">
+
+            <div class="form-group">
                 <div class="common-btn">
                     <ul class="list-inline text-left">
                         <li> <button ng-click="getUtilityTransactionData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> View </button></li>
                     </ul>
                 </div>
             </div>
-            @*<div id="filters">
-                </div>*@
 
-            
         </div>
     </div>
 </div>
@@ -67,13 +78,12 @@
                  e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                 <div e-columns>
                     @*<div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>*@
-                    <div e-column e-field="Item" e-headertext="Item" e-width="2"></div>
-                    <div e-column e-field="Group" e-headertext="Group" e-width="2"></div>
-                    <div e-column e-field="SubGroup" e-headertext="Sub Group" e-width="3"></div>
-                    <div e-column e-field="Category" e-headertext="Category" e-width="3"></div>
-                    <div e-column e-field="SubCategory" e-headertext="Sub Category" e-width="3"></div>
-                    <div e-column e-field="AddedDate" e-headertext="AddedDate" @*e-type="number"*@ e-width="3"></div>
-                    <div e-column e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="3"></div>
+                    <div e-column e-field="TransactionDate" e-headertext="TransactionDate" e-width="2"></div>
+                    <div e-column e-field="UtilityMasterName" e-headertext="UtilityMasterName" e-width="2"></div>
+                    <div e-column e-field="InputSouceName" e-headertext="InputSouceName" e-width="3"></div>
+                    <div e-column e-field="TransactionQuantity" e-headertext="TransactionQuantity" e-width="3"></div>
+                    <div e-column e-field="SumOfChild" e-headertext="SumOfChild" e-width="3"></div>
+                    <div e-column e-field="NetQty" e-headertext="NetQty" @*e-type="number"*@ e-width="3"></div>
                 </div>
             </div>
         </div>
