@@ -582,7 +582,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
                             	,'' QualityStatus
                             	,IRD.TransactionUoMId POUoMId
                             	,IRD.Tolerance
-                            	,IRD.RefferenceNo,boq.RMDescription
+                            	,IRD.RefferenceNo,boq.RMDescription,ART.MinimumValue,ART.MaximumValue
                             FROM TRN.POBOQMAP AS poboq
 							LEFT JOIN TRN.PurchaseOrderDetail AS IRD ON IRD.Id=poboq.PODetailId
                             LEFT JOIN BOQ boq ON boq.Id=poboq.BOQDetailId
