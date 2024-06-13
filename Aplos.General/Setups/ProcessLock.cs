@@ -35,7 +35,7 @@ namespace Library.General.Setups
                 _sqlRepository.ExecuteSqlCommand(@"IF OBJECT_ID('ProcessLock', 'U') IS NULL
                                                 CREATE TABLE ProcessLock
                                                 (
-	                                                ProcessId VARCHAR(30) PRIMARY KEY,
+	                                                ProcessId VARCHAR(300) PRIMARY KEY,
 	                                                ProcessStartTime DATETIME,
 	                                                MaxDurationInMinutes INT,
 	                                                UserId VARCHAR(100)

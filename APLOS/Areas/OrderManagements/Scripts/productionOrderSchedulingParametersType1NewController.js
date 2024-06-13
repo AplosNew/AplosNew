@@ -352,6 +352,9 @@ function ProductionOrderSchedulingParametersType1NewController(cboService, commo
     $scope.isLoadedPlanningBoardForTheFirstTime = false;
     $scope.getData = function () {
         try {
+            if (baseService.isUndefinedOrNull($scope.PlanningTypeProcessId)) {
+                throw "Select Planning Type Process.";
+            }
             var DropDownEntityListObj = $("#entityList").data("ejDropDownList");
             $scope.EntityId = DropDownEntityListObj.getSelectedValue();
             

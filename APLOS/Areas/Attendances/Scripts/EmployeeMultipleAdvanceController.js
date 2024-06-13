@@ -46,10 +46,6 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
             "value": "DocRefNo"
         },
         {
-            "name": "Payment Advise Id",
-            "value": "PaymentAdviseId"
-        },
-        {
             "name": "Payment Bank",
             "value": "PaymentBank"
         },
@@ -905,6 +901,7 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
     };
     cboService.getCboEntityByPlant(null, null, '', function (result) {
         $scope.entityList = result;
+        $scope.voucher.EntityId = $scope.entityList[0].Value;
     });
     cboService.getCboTransactionCurrencyByCompany('', function (result) {
         $scope.tranCurrencyList = result;
@@ -940,8 +937,19 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
     cboService.getCboEmployeeAdvanceSalaryTransactionType(function (result) {
         $scope.employeeTransactionTypeList = result;
         if ($scope.employeeTransactionTypeList.length === 1) {
-            $scope.voucher.EmployeeTransactionTypeId = $scope.employeeTransactionTypeList[0].Value;
+            $scope.voucher.EmployeeTransactionTypeId = $scope.employeeTransactionTypeList[0].EmployeeTransactionTypeId;
             $scope.voucher.AdvanceType = $scope.employeeTransactionTypeList[0].AdvanceType;
+            $scope.voucher.GLGeneralInfoId = $scope.employeeTransactionTypeList[0].AdvanceGLId;
+            $scope.voucher.GLGeneralInfoCode = $scope.employeeTransactionTypeList[0].AdvanceGLCode;
+            $scope.voucher.GLGeneralInfoName = $scope.employeeTransactionTypeList[0].AdvanceGLCode + "-" + $scope.employeeTransactionTypeList[0].AdvanceGLName;
+            $scope.voucher.BudgetMasterId = $scope.employeeTransactionTypeList[0].AdvanceBudgetMasterId;
+            $scope.voucher.BudgetCode = $scope.employeeTransactionTypeList[0].AdvanceBudgetCode;
+            $scope.voucher.BudgetName = $scope.employeeTransactionTypeList[0].AdvanceBudgetName;
+            $scope.voucher.ActivityId = $scope.employeeTransactionTypeList[0].AdvanceActivityId;
+            $scope.voucher.ActivityCode = $scope.employeeTransactionTypeList[0].AdvanceActivityCode;
+            $scope.voucher.ActivityName = $scope.employeeTransactionTypeList[0].AdvanceActivityName;
+            $scope.voucher.JournalType = $scope.employeeTransactionTypeList[0].AdvanceType;
+            $scope.voucher.DrBudgetMasterId = $scope.employeeTransactionTypeList[0].AdvanceBudgetMasterActivityId;
         }
     });
     baseService.getCompanyConfiguration(function (result) {
@@ -1035,6 +1043,9 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
         $http.get($scope.pathSalaryHead + 'GetSalaryHeadListeList')
             .then(function (response) {
                 $scope.SalaryHeadList = response.data;
+                if ($scope.SalaryHeadList.length === 1) {
+                    $scope.SalaryHeadId = $scope.SalaryHeadList[0].Id;
+                }
             });
     };
     $scope.getSalaryHeadListList();
