@@ -11402,7 +11402,7 @@ where QAT.ParameterId='" + ParameterId + "'";
                     Id += ",'" + item.Id + "'";
                 }
 
-                con.OpenDataSetThroughAdapter("select * from UtilityTransaction where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from UtilityTransaction where Date='" + items[0].Date + "' and UtilityMasterId='" + items[0].UtilityMasterId + "'", out dsMaster, false, "1");
 
 
                 foreach (UtilityMasterGet item in DataToSave)
