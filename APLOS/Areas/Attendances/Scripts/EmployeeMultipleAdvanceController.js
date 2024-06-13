@@ -46,10 +46,6 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
             "value": "DocRefNo"
         },
         {
-            "name": "Payment Advise Id",
-            "value": "PaymentAdviseId"
-        },
-        {
             "name": "Payment Bank",
             "value": "PaymentBank"
         },
