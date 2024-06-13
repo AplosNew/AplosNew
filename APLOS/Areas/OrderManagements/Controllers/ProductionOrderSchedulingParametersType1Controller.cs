@@ -398,7 +398,7 @@ from trn.ProductionOrderDetail AS pod JOIN  trn.SalesOrder SO ON pod.SalesOrderI
 			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 from trn.ProductionOrderDetail AS pod JOIN  trn.SalesOrder SO ON pod.SalesOrderId=so.Id group by pod.ProductionOrderId) AS SO ON so.ProductionOrderId=po.Id
                             LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
-                            WHERE isnull(s.username,'') IN ('" + PlanningStatus.ACTIVE.ToString() + @"','" + PlanningStatus.RUNNING.ToString() + @"') AND  PO.entityid IN(" + entityId + @") and PO.PlanningTypeProcessId ='"+ baseprocessid + @"' ) AS TEMP WHERE " + strkey + " ORDER BY ProductionPriority";
+                            WHERE isnull(s.username,'') IN ('" + PlanningStatus.ACTIVE.ToString() + @"','" + PlanningStatus.RUNNING.ToString() + @"') AND  PO.entityid IN(" + entityId + @") and PO.PlanningTypeProcessId ='" + baseprocessid + @"' ) AS TEMP WHERE " + strkey + " ORDER BY ProductionPriority";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -1821,7 +1821,7 @@ SELECT ept.EntityId FROM hkp.EntityProcessTag AS ept WHERE ept.ProcessId IN (SEL
                 try
                 {
 
-                    string EntityIds = "'" + entityid + "'";
+                    string EntityIds = "" + entityid + "";
                     string _sql = @"SELECT distinct WCM.EntityId
                                   from (SELECT distinct W.ProductionOrderId,W.WorkCenterMasterId FROM trn.ProductionOrderWorkCenter AS W
                                 UNION
@@ -1830,7 +1830,7 @@ SELECT ept.EntityId FROM hkp.EntityProcessTag AS ept WHERE ept.ProcessId IN (SEL
                                 JOIN trn.ProductionOrder AS po ON po.Id=w.ProductionOrderId
                                 join scs.WorkCenterMaster AS wcm ON wcm.Id=w.WorkCenterMasterId
                                 INNER JOIN hkp.ProductionStatus AS ps ON ps.Id = po.ProductionStatusId
-                                WHERE  (po.EntityId='" + entityid + @"' OR WCM.EntityId='" + entityid + @"') 
+                                WHERE  (po.EntityId IN(" + entityid + @") OR WCM.EntityId IN(" + entityid + @")) 
                             AND ps.UserName NOT IN ('" + PlanningStatus.CLOSED.ToString() + @"')
 UNION
 SELECT distinct po.EntityId FROM 
@@ -1838,14 +1838,14 @@ trn.ProductionOrderWorkCenter W
 JOIN trn.ProductionOrder AS po ON W.ProductionOrderId=po.Id
 JOIN scs.WorkCenterMaster AS wcm ON wcm.Id=w.WorkCenterMasterId
 INNER JOIN hkp.ProductionStatus AS ps ON ps.Id = po.ProductionStatusId
-WHERE WCM.EntityId='" + entityid + @"' AND ps.UserName NOT IN ('" + PlanningStatus.CLOSED.ToString() + @"')
+WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningStatus.CLOSED.ToString() + @"')
 UNION
 SELECT distinct po.EntityId FROM 
 trn.RunningOrderWorkCenter W
 JOIN trn.ProductionOrder AS po ON W.ProductionOrderId=po.Id
 JOIN scs.WorkCenterMaster AS wcm ON wcm.Id=w.WorkCenterMasterId
 INNER JOIN hkp.ProductionStatus AS ps ON ps.Id = po.ProductionStatusId
-WHERE WCM.EntityId='" + entityid + @"' AND ps.UserName NOT IN ('" + PlanningStatus.CLOSED.ToString() + @"')";
+WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningStatus.CLOSED.ToString() + @"')";
 
                     DataTable dt = _sqlRepository.GetDataTable(_sql);
                     for (int i = 0; i < dt.Rows.Count; i++)
@@ -3759,7 +3759,7 @@ isnull(po.ProductionStatusId,'') IN (" + parameters["ProductionStatusId"] + @")
                             LEFT OUTER JOIN (select ProductionOrderID,Max(ProductionDate) AS LastPlanDate  from ProductionPlanningType1 group by productionOrderID) 
 							AS FAIL on fail.ProductionOrderID=pt.ProductionOrderID
                             INNER JOIN org.Entity AS e ON e.Id=p.EntityId
-                            WHERE pt.ProductionDate between '" + startDate.ToString("dd-MMM-yyyy") + @"' and '" + endDate.ToString("dd-MMM-yyyy") + @"' AND WC.EntityID='" + entityid + @"' AND WC.processid='" + processid + @"'
+                            WHERE pt.ProductionDate between '" + startDate.ToString("dd-MMM-yyyy") + @"' and '" + endDate.ToString("dd-MMM-yyyy") + @"' AND WC.EntityID IN(" + entityid + @") AND WC.processid='" + processid + @"'
                             ) AS K 
 --WHERE K.seq=1
 ORDER BY k.Entity,K.WorkCenterMasterId,CONVERT(DATE, K.ProductionDate) ";
@@ -3789,13 +3789,11 @@ ORDER BY k.Entity,K.WorkCenterMasterId,CONVERT(DATE, K.ProductionDate) ";
                                   FROM [SCS].[WorkCenterMaster] WC 
                             LEFT OUTER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[WorkCenterMasterEffectiveDate] GROUP BY WorkCenterMasterId) E ON e.WorkCenterMasterId=wc.Id
                             LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=wc.ResponsiblePersonId
-                             WHERE WC.EntityID='" + entityid
-                + @"' AND WC.[Active]=1 AND WC.ProcessId='" + processid + "' ORDER BY WC.Sequence";
+                             WHERE WC.EntityID IN(" + entityid + @") AND WC.[Active]=1 AND WC.ProcessId='" + processid + "' ORDER BY WC.Sequence";
             DataTable _dtWC = _sqlRepository.GetDataTable(sqlWC);
 
 
-            string sqlFreeze = "select * from  trn.FreezeConfigPlanningType1 WHERE EntityId='" + entityid
-              + @"' ";
+            string sqlFreeze = "select * from  trn.FreezeConfigPlanningType1 WHERE EntityId IN(" + entityid + ") ";
 
             DateTime freezedate = System.DateTime.Now.AddYears(-100);
             DataTable dtFreeze = _sqlRepository.GetDataTable(sqlFreeze);
@@ -3816,7 +3814,7 @@ ORDER BY k.Entity,K.WorkCenterMasterId,CONVERT(DATE, K.ProductionDate) ";
 
 
             string sqlWORKDAYDATA = @"SELECT distinct FORMAT(ppc.WorkingDate, 'dddd') AS WorkingDays
-                                    FROM ProductionPlanningCalendar AS ppc WHERE ISNULL(ppc.WorkingHours,0)>0 AND ppc.EntityID = '" + entityid + "'";
+                                    FROM ProductionPlanningCalendar AS ppc WHERE ISNULL(ppc.WorkingHours,0)>0 AND ppc.EntityID IN(" + entityid + ")";
 
             DataTable dtWorkDays = _sqlRepository.GetDataTable(sqlWORKDAYDATA);
             List<string> days = new List<string>();
@@ -3926,7 +3924,7 @@ isnull(po.ProductionStatusId,'') IN (" + parameters["ProductionStatusId"] + @")
                             LEFT OUTER JOIN (select ProductionOrderID,Max(ProductionDate) AS LastPlanDate  from ProductionPlanningType1 group by productionOrderID) 
 							AS FAIL on fail.ProductionOrderID=K.ProductionOrderID
                             INNER JOIN org.Entity AS e ON e.Id=K.EntityId
-                            WHERE CONVERT(DATE,K.ProductionDate) between '" + startDate.ToString("dd-MMM-yyyy") + @"' and '" + endDate.ToString("dd-MMM-yyyy") + @"' AND K.EntityID='" + entityid + @"' AND K.processid='" + processid + @"'
+                            WHERE CONVERT(DATE,K.ProductionDate) between '" + startDate.ToString("dd-MMM-yyyy") + @"' and '" + endDate.ToString("dd-MMM-yyyy") + @"' AND K.EntityID IN(" + entityid + @") AND K.processid='" + processid + @"'
                             ORDER BY e.UserName,K.WorkCenterMasterId,K.ProductionDate ";
 
 
@@ -3935,13 +3933,11 @@ isnull(po.ProductionStatusId,'') IN (" + parameters["ProductionStatusId"] + @")
                             CASE WHEN ISNULL(E.StartDate,'')='' THEN wc.UserName+' (Missing Start Date)'  ELSE wc.UserName + ' ('+isnull(ei.EmployeeName, '')+')'  END AS UserName
                               FROM [SCS].[WorkCenterMaster] WC 
                             LEFT OUTER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[WorkCenterMasterEffectiveDate] GROUP BY WorkCenterMasterId) E ON e.WorkCenterMasterId=wc.Id
-                            LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=wc.ResponsiblePersonId WHERE WC.EntityID='" + entityid
-                + @"' AND WC.ProcessId='" + processid + "' AND WC.[Active]=1 ORDER BY WC.UserName";
+                            LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=wc.ResponsiblePersonId WHERE WC.EntityID IN('" + entityid+ @") AND WC.ProcessId='" + processid + "' AND WC.[Active]=1 ORDER BY WC.UserName";
             DataTable _dtWC = _sqlRepository.GetDataTable(sqlWC);
 
 
-            string sqlFreeze = "select * from  trn.FreezeConfigPlanningType1 WHERE EntityId='" + entityid
-              + @"' ";
+            string sqlFreeze = "select * from  trn.FreezeConfigPlanningType1 WHERE EntityId IN('" + entityid + @")";
 
             DateTime freezedate = System.DateTime.Now.AddYears(-100);
             DataTable dtFreeze = _sqlRepository.GetDataTable(sqlFreeze);
@@ -3962,7 +3958,7 @@ isnull(po.ProductionStatusId,'') IN (" + parameters["ProductionStatusId"] + @")
 
 
             string sqlWORKDAYDATA = @"SELECT distinct FORMAT(ppc.WorkingDate, 'dddd') AS WorkingDays
-                                    FROM ProductionPlanningCalendar AS ppc WHERE ISNULL(ppc.WorkingHours,0)>0 AND ppc.EntityID = '" + entityid + "'";
+                                    FROM ProductionPlanningCalendar AS ppc WHERE ISNULL(ppc.WorkingHours,0)>0 AND ppc.EntityID IN('" + entityid + @")";
 
             DataTable dtWorkDays = _sqlRepository.GetDataTable(sqlWORKDAYDATA);
             List<string> days = new List<string>();
