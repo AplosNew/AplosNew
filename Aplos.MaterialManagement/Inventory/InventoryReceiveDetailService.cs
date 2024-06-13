@@ -678,6 +678,7 @@ namespace Library.MaterialManagement.Inventory
 
                                     receiveDetail.InventoryMaterialId = itemDetail.InventoryMaterialId;
                                     InsertGraph(receiveDetail);
+                                    updateArticleMinMaxValue(itemDetail.MinimumValue, itemDetail.MaximumValue, Convert.ToDecimal(itemDetail.TotalMaterialTranAmount), itemDetail.ArticleId);
                                     if (grnBinAllocationMap != null)
                                     {
                                         int b = 0;
