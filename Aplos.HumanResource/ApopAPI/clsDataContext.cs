@@ -11921,7 +11921,7 @@ and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by Em
                 stradd += " and SO.OrderStatusId = '" + Status + "' ";
             }
 
-            if (Date != "null")
+            /*if (Date != "null")
             {
                 if(Days != "null")
                 {
@@ -11935,7 +11935,7 @@ and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by Em
                     }
                 }
                 
-            }
+            }*/
 
             
             if(ToSP != "null")
@@ -11943,22 +11943,26 @@ and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by Em
                 if(ToSP == "ToShip")
                 {
                     Daysadd = " ,[Days] = case when so.CommitmentDate is not null then  DATEDIFF(DAY,  GETDATE() , so.CommitmentDate  ) when  so.CommitmentDate is null and so.PlanExFactoryDate is not null then  DATEDIFF(DAY,  GETDATE() , so.PlanExFactoryDate  )  else DATEDIFF(DAY, GETDATE(), so.DeliveryDate) end ";
-                    stradd += " and SO.OrderStatusId = 'ToShip' ORDER BY  case when so.CommitmentDate is not null then  DATEDIFF(DAY,  GETDATE() , so.CommitmentDate  ) when  so.CommitmentDate is null and so.PlanExFactoryDate is not null then  DATEDIFF(DAY,  GETDATE() , so.PlanExFactoryDate  ) else DATEDIFF(DAY, GETDATE(), so.DeliveryDate) end Asc ";
+                    stradd += " and SO.OrderStatusId = 'ToShip' and (case when so.CommitmentDate is not null then  DATEDIFF(DAY,  GETDATE() , so.CommitmentDate  ) when  so.CommitmentDate is null and so.PlanExFactoryDate is not null then  DATEDIFF(DAY,  GETDATE() , so.PlanExFactoryDate  )  else DATEDIFF(DAY, GETDATE(), so.DeliveryDate) end) <= " + Date +
+                        "ORDER BY  (case when so.CommitmentDate is not null then  DATEDIFF(DAY,  GETDATE() , so.CommitmentDate  ) when  so.CommitmentDate is null and so.PlanExFactoryDate is not null then  DATEDIFF(DAY,  GETDATE() , so.PlanExFactoryDate  )  else DATEDIFF(DAY, GETDATE(), so.DeliveryDate) end) asc";
                 }
                 if (ToSP == "Pending")
                 {
                     Daysadd = " ,[Days] = case when so.CommitmentDate is not null then  DATEDIFF(DAY,  GETDATE() , so.CommitmentDate  ) when  so.CommitmentDate is null and so.PlanExFactoryDate is not null then  DATEDIFF(DAY,  GETDATE() , so.PlanExFactoryDate  )  else DATEDIFF(DAY, GETDATE(), so.DeliveryDate) end ";
-                    stradd += " and SO.OrderStatusId <> 'ToShip' ORDER BY  case when so.CommitmentDate is not null then  DATEDIFF(DAY,  GETDATE() , so.CommitmentDate  ) when  so.CommitmentDate is null and so.PlanExFactoryDate is not null then  DATEDIFF(DAY,  GETDATE() , so.PlanExFactoryDate  ) else DATEDIFF(DAY, GETDATE(), so.DeliveryDate) end Asc ";
+                    stradd += " and SO.OrderStatusId <> 'ToShip' and (case when so.CommitmentDate is not null then  DATEDIFF(DAY,  GETDATE() , so.CommitmentDate  ) when  so.CommitmentDate is null and so.PlanExFactoryDate is not null then  DATEDIFF(DAY,  GETDATE() , so.PlanExFactoryDate  )  else DATEDIFF(DAY, GETDATE(), so.DeliveryDate) end) <= " + Date +
+                        "ORDER BY  (case when so.CommitmentDate is not null then  DATEDIFF(DAY,  GETDATE() , so.CommitmentDate  ) when  so.CommitmentDate is null and so.PlanExFactoryDate is not null then  DATEDIFF(DAY,  GETDATE() , so.PlanExFactoryDate  )  else DATEDIFF(DAY, GETDATE(), so.DeliveryDate) end) asc";
                 }
                 if(ToSP == "ToPlane")
                 {
                     Daysadd = " ,[Days] = DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
-                    stradd += "  and pod.ProductionOrderId is null  and SO.OrderStatusId = 'Active' ORDER BY  DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
+                    stradd += "  and pod.ProductionOrderId is null  and SO.OrderStatusId = 'Active' and DATEDIFF(DAY,  GETDATE() , so.AddedDate) <= " + Date + 
+                        " ORDER BY  DATEDIFF(DAY,  GETDATE() , so.AddedDate) asc";
                 }
                 if (ToSP == "ToSchedul")
                 {
                     Daysadd = " ,[Days] = DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
-                    stradd += "  and pod.ProductionOrderId is null and SO.OrderStatusId = 'Active'  ORDER BY  DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
+                    stradd += "  and pod.ProductionOrderId is null and SO.OrderStatusId = 'Active'  and DATEDIFF(DAY,  GETDATE() , so.AddedDate) <= " + Date + 
+                        "ORDER BY  DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
                 }
 
                 if (ToSP == "PendingDispatch")
@@ -12042,7 +12046,7 @@ Isnull(so.CM,0)*isnull(so.Rate,0) CMValue
 
 
 " + Daysadd + @"
-
+,Case When " + Daysadd + @" < 0 then 'Over due' when  " + Daysadd + @" = 0 then 'Today' else 'Future' end Colour
  FROM trn.MasterOrder MO
 LEFT JOIN org.Plant AS p2 ON p2.id=mo.PlantId
 LEFT JOIN org.Entity AS e ON e.Id=mo.EntityId
@@ -12285,6 +12289,7 @@ left join OrderControl OCT on OCT.SalesOrderId = SO.Id
                         PlaneRemarks = dsRef.Tables[0].Rows[i]["PlaneRemarks"].ToString(),
                         ShippingComment = dsRef.Tables[0].Rows[i]["ShippingComment"].ToString(),
                         ShippingRemarks = dsRef.Tables[0].Rows[i]["ShippingRemarks"].ToString(),
+                        Colour = dsRef.Tables[0].Rows[i]["Colour"].ToString(),
 
                     });
                 }
@@ -14305,6 +14310,7 @@ left join (Select pol.Id,pol.PackingLineItemId,pol.ProductCode,pol.PONo,pol.LotN
         public string PlaneRemarks { get; set; }
         public string ShippingComment { get; set; }
         public string ShippingRemarks { get; set; }
+        public string Colour { get; set; }
 
     }
     public class OrderControlRemarksGet
