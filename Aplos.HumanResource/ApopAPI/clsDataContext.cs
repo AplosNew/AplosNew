@@ -12046,7 +12046,7 @@ Isnull(so.CM,0)*isnull(so.Rate,0) CMValue
 
 
 " + Daysadd + @"
-,Case When " + Daysadd + @" < 0 then 'Over due' when  " + Daysadd + @" = 0 then 'Today' else 'Future' end Colour
+,Case When " + Daysadd.ToString().Replace(",[Days] =","") + @" < 0 then 'Over due' when  " + Daysadd.ToString().Replace(",[Days] =", "") + @" = 0 then 'Today' else 'Future' end Colour
  FROM trn.MasterOrder MO
 LEFT JOIN org.Plant AS p2 ON p2.id=mo.PlantId
 LEFT JOIN org.Entity AS e ON e.Id=mo.EntityId
