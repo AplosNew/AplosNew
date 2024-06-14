@@ -679,7 +679,7 @@ namespace Library.Accounting.Accounts
                                  LEFT JOIN [dbo].[EmployeeInformation] AS EIR ON EIR.SystemId=A.ResponsiblePersonId
                                  LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
                                  LEFT JOIN [TRN].[BankCharge] AS BC ON BC.AdvanceId=A.Id
-								 LEFT JOIN [TRN].[EmployeeSalaryAdvance] AS ESA ON ESA.VoucherId=V.Id
+								  JOIN [TRN].[EmployeeSalaryAdvance] AS ESA ON ESA.VoucherId=V.Id
                                  LEFT JOIN [TRN].[EmployeeAdvanceRequisition] EAR ON EAR.SystemId=A.RequisitionId
                                  LEFT JOIN [TRN].[EmployeeAdvanceRequisition] EARII ON EARII.SystemId=ESA.EmployeeAdvanceRequisitionId
 								 LEFT JOIN [dbo].[EmployeeInformation] AS EIAS ON EIAS.SystemId=ESA.EmployeeId
@@ -687,7 +687,8 @@ namespace Library.Accounting.Accounts
 								LEFT JOIN EmployeeInformation EEA ON EEA.SystemId = EAR.ApprovedBy
                                 LEFT JOIN (SELECT AdvanceId, PartyId, NetAmount FROM [TRN].[AdvanceDetail]
                                 ) AS AD ON AD.AdvanceId=A.Id AND AD.PartyId=A.PartyId
-                                WHERE  V.Archive=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + "' AND V.CompanyId='" + identity.CompanyId + "' AND V.PlantId='" + identity.PlantId + "' AND V.SourceType='" + sourceType + @"'  and A.Id is null";
+                                WHERE  V.Archive=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + "' AND V.CompanyId='" + identity.CompanyId + "' AND V.PlantId='" + identity.PlantId + "' AND V.SourceType='" + sourceType + @"'
+                                AND V.Id not in (select VoucherId from trn.advance where employeeId<>'')";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)

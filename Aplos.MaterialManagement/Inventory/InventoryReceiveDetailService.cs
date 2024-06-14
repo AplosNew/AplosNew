@@ -678,6 +678,7 @@ namespace Library.MaterialManagement.Inventory
 
                                     receiveDetail.InventoryMaterialId = itemDetail.InventoryMaterialId;
                                     InsertGraph(receiveDetail);
+                                    updateArticleMinMaxValue(itemDetail.MinimumValue, itemDetail.MaximumValue, Convert.ToDecimal(itemDetail.TotalMaterialTranAmount), itemDetail.ArticleId);
                                     if (grnBinAllocationMap != null)
                                     {
                                         int b = 0;
@@ -1170,6 +1171,7 @@ namespace Library.MaterialManagement.Inventory
                                     _inventoryMaterialMasterService.InsertOrUpdateFromReceive(itemDetail);
                                     receiveDetail.InventoryMaterialId = itemDetail.InventoryMaterialId;
                                     InsertGraph(receiveDetail);
+                                    updateArticleMinMaxValue(itemDetail.MinimumValue, itemDetail.MaximumValue, Convert.ToDecimal(itemDetail.TotalMaterialTranAmount), itemDetail.ArticleId);
                                     foreach (var boqallocat in BOQAllocationSave.Where(r => r.PODetailsID == receiveDetail.PODetailsID))
                                     {
                                         if (string.IsNullOrEmpty(boqallocat.Id))
@@ -1546,7 +1548,7 @@ namespace Library.MaterialManagement.Inventory
                                 _inventoryMaterialMasterService.InsertOrUpdateFromReceive(itemDetail);
                                 receiveDetail.InventoryMaterialId = itemDetail.InventoryMaterialId;
                                 InsertGraph(receiveDetail);
-
+                                updateArticleMinMaxValue(itemDetail.MinimumValue, itemDetail.MaximumValue, Convert.ToDecimal(itemDetail.TotalMaterialTranAmount), itemDetail.ArticleId);
 
 
                                 int rejectDetailId = 1;
