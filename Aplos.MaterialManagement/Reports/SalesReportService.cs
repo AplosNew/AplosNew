@@ -1254,7 +1254,13 @@ namespace Library.MaterialManagement.Reports
                 //Closes the instance of document objects
 
                 //Saves the PDF file 
-                string Prefix = "LocalTaxInvoiceWithoutSKU" + plantId;
+                // string Prefix = "LocalTaxInvoiceWithoutSKU" + plantId;
+
+               
+                string firstStinrg = dsOrderMaster.Rows[0]["InvoiceParty"].ToString().Substring(0, dsOrderMaster.Rows[0]["InvoiceParty"].ToString().IndexOf(' '));
+                
+
+                string Prefix = salesId+"-"+ firstStinrg;
 
                 pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
                 //Closes the instance of document objects
