@@ -181,8 +181,6 @@ function SalesProcessController(cboService, commonMessage, $scope, $rootScope, b
     };
     $scope.GetSequence();
 
-
-
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.Action = 'Update';
@@ -272,9 +270,104 @@ function SalesProcessController(cboService, commonMessage, $scope, $rootScope, b
                 ShowResult(response.data.Message, 'failure');
             }
     };
+    $scope.SalesTypeList = [];
+    $scope.getSalesTypeData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetSalesTypelist",
+            data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.SalesTypeList = response.data;
+            $scope.GetSalesTypeSequence();
+        });
+    }
+    $scope.getSalesTypeData();
+    $scope.ModelTem = {
+        Id: null,
+        Sequence: 0,
+        Code: null,
+        ShortName: null,
+        StandardName: null,
+        UserName: null,
+        Description: null,
+        Remarks: null,
+        Active: true
+    };
+    $scope.SalesTypeModel = Object.assign({}, $scope.ModelTem);
 
+    $scope.GetSalesTypeSequence = function () {
+        cboService.getSequence($scope.path + "GetSalesTypeAutoSequence", function (data) {
+            $scope.SalesTypeModel.Sequence = data;
+        });
+    };
+    $scope.GetSalesTypeSequence();
 
+    $scope.GetSalesType = function (args) {
+        $scope.SalesTypeModel = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
 
+    $scope.SaveSalesType = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.SalesTypeModelForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.path + "CreateSalesType",
+                data: { 'data': $scope.SalesTypeModel },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearSalesTypeFields(response.data.Sequence);
+                    $scope.getSalesTypeData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+    $scope.DeleteSalesType = function () {
+        if (!baseService.isUndefinedOrNull($scope.SalesTypeModel.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.path + "DeleteSalesType" + $scope.SalesTypeModel.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearSalesTypeFields(response.data.Sequence);
+                    $scope.getDeleteSalesTypeData();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
+    $scope.ClearalesType = function () {
+        ClearSalesTypeFields($scope.GetSalesTypeSequence());
+        return true;
+    };
+
+    function ClearSalesTypeFields(seq) {
+        $scope.Action = 'Save';
+        $scope.SalesTypeModel = Object.assign({}, $scope.ModelTem);
+        $scope.SalesTypeModel.Sequence = seq;
+    }
 
 
 

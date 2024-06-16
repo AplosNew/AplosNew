@@ -69,12 +69,14 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
         });
     }
 
+    
     $scope.summaryofReqRows = [{
-        title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "RequiredQty", dataMember: "RequiredQty", format: "{0:N2}" }],
-                        summaryColumns:[{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BOMQty", dataMember: "BOMQty", format: "{0:N2}" }],
-        showCaptionSummary: true
+        title: "Total Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BOMQty", dataMember: "BOMQty", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "RequiredQty", dataMember: "RequiredQty", format: "{0:N2}" }
+        ]
+        , showCaptionSummary: true
+
     }];
-    //$scope.GetItemList();
 
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
     $scope.materialType = 'BOM';

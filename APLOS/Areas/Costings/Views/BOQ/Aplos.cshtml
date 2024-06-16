@@ -114,13 +114,12 @@
                                     <div e-column e-type="string" e-field="BOQCriteria" e-headertext="BOQ Criteria" e-width="80px"></div>
                                     <div e-column e-type="string" e-field="CriteriaDetail" e-headertext="Criteria Detail" e-width="120px"></div>
                                     <div e-column e-type="string" e-field="Id" e-headertext="BOQ System Id" e-width="120px"></div>
-                                    <div e-column e-template="#ItemDesc" e-headertext="Item Desc" e-width="120px"></div>
+                                    <div e-column e-template="#ItemDesc" e-type="string" e-field="RMDescription" e-headertext="Item Desc" e-width="120px"></div>
                                     <div e-column e-template="#VendorItem" e-headertext="Vendor Ref." e-width="120px"></div>
                                     <div e-column e-template="#BuyerRef" e-headertext="Customer Ref." e-width="120px"></div>
                                     <div e-column e-template="#OwnRef" e-headertext="Own Ref." e-width="120px"></div>
                                     <div e-column e-type="string" e-field="UOM" e-headertext="UoM" e-width="50px"></div>
-                                    <div e-column e-type="number" e-template="#EnterSKUTemplate" e-headertext="RequiredQty" e-textalign="right" e-width="120px"></div>
-
+                                    <div e-column e-type="number" e-template="#EnterSKUTemplate" e-field="RequiredQty" e-headertext="RequiredQty" e-textalign="right" e-width="120px"></div>
                                     <div e-column e-type="number" e-field="BOMQty" e-headertext="Plan Qty" e-textalign="right" e-width="80px"></div>
                                     <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="80px"></div>
                                     <div e-column e-type="number" e-field="Rate" e-headertext="Rate" e-textalign="right" e-width="80px"></div>
@@ -159,8 +158,8 @@
                                 <a href="POPResources/BOQAttachment/{{data.FileName}}" target="_blank"> {{data.FileOriginalName}}</a>
                             </script>
                             <script type="text/template" id="EnterSKUTemplate">
-                                <div class="col-xs-12 col-sm-10 col-md-10" style="padding:0px;margin:0px;">
-                                    <input type="text" n-decimals="4" ng-model="data.RequiredQty" ng-blur="$parent.CalRequiredAmount(this)" class="form-control">
+                                <div class="col-xs-12 col-sm-10 col-md-10" style="padding:0px;margin:0px;text-align:right">
+                                    <input type="text" n-decimals="4" ng-model="data.RequiredQty" ng-blur="$parent.CalRequiredAmount(this)" style="color: black; width: 78px; text-align: right;" class="form-control" />
                                 </div>
                             </script>
                             @*<script type="text/template" id="EnterSKUTemplate">
