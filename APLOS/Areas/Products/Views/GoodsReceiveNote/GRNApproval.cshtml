@@ -372,68 +372,30 @@
 <confirm-archive-generic modalid="poapprovalalert1" title="Confirmation" message={{message}} data-ng-click-right-button="SaveUpdate1();"></confirm-archive-generic>
 
 
-@*<div class="modal site-modal" id="PopUpRecentApprovedData" role="dialog" data-backdrop="static">
+<div class="modal site-modal" id="PopUpRecentApprovedData" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
             <div class="modal-header"> Recent Approved Data  <button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="modal-body form-elements form-horizontal">
-                        <div style="color:black;" id="GridMasterOrder" ej-grid e-datasource="RecentApprovedData" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
-                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
-                            <div e-columns>
-                                <div e-column e-field="Vendor" e-headertext="Vendor" e-width="70"></div>
-                                <div e-column e-field="GRNDate" e-headertext="GRNDate" e-width="80"></div>
-                                <div e-column e-field="Material" e-headertext="Material" e-width="150"></div>
-                                <div e-column e-field="Article" e-headertext="Article" e-width="150"></div>
-                                <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
-                                <div e-column e-field="Rate" e-headertext="Rate" e-width="70"></div>
-                                <div e-column e-field="ItemType" e-headertext="ItemType" e-width="70"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="common-btn" style="padding-right: 15px;">
-                        <ul class="list-inline text-right">
-                            <li> <button ng-click="CloseRecentApprovedDataPopUp();" class="btn">Close</button></li>
-                        </ul>
+            <div class="modal-body">
+                <div style="color:black;" id="GridMasterOrder" ej-grid e-datasource="RecentApprovedData" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                    <div e-columns>
+                        <div e-column e-field="Vendor" e-headertext="Vendor" e-width="70"></div>
+                        <div e-column e-field="GRNDate" e-headertext="GRNDate" e-width="80"></div>
+                        <div e-column e-field="Material" e-headertext="Material" e-width="150"></div>
+                        <div e-column e-field="Article" e-headertext="Article" e-width="150"></div>
+                        <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
+                        <div e-column e-field="Rate" e-headertext="Rate" e-width="70"></div>
+                        <div e-column e-field="ItemType" e-headertext="ItemType" e-width="70"></div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>*@
+            <div class="common-btn" style="padding-right: 15px;">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="CloseRecentApprovedDataPopUp();" class="btn">Close</button></li>
+                </ul>
 
-
-
-<div class="modal fade site-modal in" id="PopUpRecentApprovedData" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg modellgModify">
-        <div class="modal-content">
-            <div class="modal-header"> Master Order<button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
-                <label style="color:cornflowerblue">Select Master Order</label>
-                <div class="col-md-12">
-                    <div class="content-container-fluid" style="color:black;">
-                        <div style="color:black;" id="GridMasterOrder" ej-grid e-datasource="RecentApprovedData" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
-                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
-                            <div e-columns>
-                                <div e-column e-field="Vendor" e-headertext="Vendor" e-width="70"></div>
-                                <div e-column e-field="GRNDate" e-headertext="GRNDate" e-width="80"></div>
-                                <div e-column e-field="Material" e-headertext="Material" e-width="150"></div>
-                                <div e-column e-field="Article" e-headertext="Article" e-width="150"></div>
-                                <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
-                                <div e-column e-field="Rate" e-headertext="Rate" e-width="70"></div>
-                                <div e-column e-field="ItemType" e-headertext="ItemType" e-width="70"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="common-btn" style="padding-right: 15px;">
-                    <ul class="list-inline text-right">
-                        <li> <button ng-click="CloseMasterOrder();" class="btn">Close</button></li>
-                    </ul>
-                </div>
             </div>
         </div>
     </div>
