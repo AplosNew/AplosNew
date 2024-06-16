@@ -8894,7 +8894,32 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
-
+        public IEnumerable<object> GetRecentApprovedData(string grnId)
+        {
+            try
+            {
+                var Sql = @" SELECT top(10) IR.GRNDate,P.UserName Vendor,MM.UserName Material,ART.StandardName Article,IRD.TransactionQty Qty
+                            ,IRD.MaterialTranRate Rate,ItemType=case when IRD.TotalMaterialTranAmount>ART.MinimumValue THEN 'A' WHEN IRD.TotalMaterialTranAmount>ART.MaximumValue THEN 'C' ELSE 'B' END
+                            ,ART.MinimumValue,ART.MaximumValue 
+                            from trn.InventoryReceiveDetail IRD
+                            JOIN  trn.InventoryReceive IR   ON IR.Id=IRD.InventoryReceiveId
+                            LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
+                            LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
+                            LEFT JOIN MST.MaterialMasterArticle ART ON ART.Id=IM.ArticleId
+                            LEFT JOIN HKP.Party P ON P.Id=IR.PartyId
+                            WHERE IM.ArticleId in (select IM.ArticleId from trn.InventoryReceiveDetail IRD
+                            					JOIN  trn.InventoryReceive IR   ON IR.Id=IRD.InventoryReceiveId
+                            					LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId where IR.Id='"+ grnId + @"')
+                            ORDER BY IR.GRNDate DESC ";
+                return _sqlRepository.GetDataCollection(Sql); 
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
 
         public IEnumerable<object> GetListForGRNApprovalHoldReject(string plantId)
         {

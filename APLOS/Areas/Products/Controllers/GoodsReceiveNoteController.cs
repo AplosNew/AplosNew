@@ -1506,10 +1506,13 @@ namespace Aplos.Areas.Products.Controllers
             return Json(_inventoryReveiveService.getListForGRNRejectHoldList(identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetRecentApprovedData(string grnId)
+        {
+            return Json(_inventoryReveiveService.GetRecentApprovedData(grnId), JsonRequestBehavior.AllowGet);
+        }
 
-
-
-
+        
         [HttpGet, Authorize]
         public JsonResult GetListForGRNApproval()
         {

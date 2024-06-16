@@ -1318,6 +1318,24 @@ function grnApprovalController(accountService, addressService, $window, cboServi
         $scope.message = 'Are you sure to ' + $scope.POPUpStatus + '?';
         angular.element(document.querySelector('#poapprovealert')).modal('show');
     };
+    $scope.RecentApprovedData = [];
+    $scope.GetRecentApprovedData = function (z) {
+        $scope.RecentApprovedData = [];
+        var x = "#" + z;
+        var gridObj = $(x).data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        $http({
+            method: 'GET',
+            url: 'Products/GoodsReceiveNote/GetRecentApprovedData?grnId=' + data.Id
+        }).then(function (response) {
+            $scope.RecentApprovedData = response.data;
+        });
+        angular.element(document.querySelector('#PopUpRecentApprovedData')).modal('show');
+    }
+    $scope.CloseRecentApprovedDataPopUp = function () {
+        angular.element(document.querySelector('#PopUpRecentApprovedData')).modal('hide');
+
+    }
 
 
     //#endregion

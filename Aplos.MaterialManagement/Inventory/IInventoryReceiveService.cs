@@ -11,29 +11,17 @@ namespace Library.MaterialManagement.Inventory
     public interface IInventoryReceiveService : IService<InventoryReceive>   
     {
         GridModel Query(GridParameter parameters, string plantId);
-
-		
-		IEnumerable<object> Posted();
-        
-		
+        IEnumerable<object> GetRecentApprovedData(string grnId);
+        IEnumerable<object> Posted();
         GridModel QueryEmpGrn(GridParameter parameters, string plantId); 
-
-
         IEnumerable<object> GetListForHold(string plantId,string PoType,string Status, string vendorId);
         IEnumerable<object> LoadAcceptanceDetails(string AcceptanceId);
         IEnumerable<object> LoadAcceptanceDetailsBOQ(string AcceptanceId);
-
-        
         IEnumerable<object> GetSavedPOList(string GRNId);
         IEnumerable<object> GetSavedPOListBOQ(string GRNId);
-
         IEnumerable<object> GetSavedPOList1(string GRNId);
-
         IEnumerable<object> GetListForREqPOGRN(string plantId, string PoType, string Status);
-
-        
         IEnumerable<object> GetListOfPOGateEntry(string CompanyGroupId, string CompanyId, string PlantId, string partyCode); 
-       
         void Insert(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMaterial);
         IEnumerable<object> GetListOfPOGateEntryEmployee(string CompanyGroupId, string CompanyId, string PlantId, string EmployeeId);
 		IEnumerable<object> GetListForInvShortagePayable(string plantId);
@@ -47,18 +35,12 @@ namespace Library.MaterialManagement.Inventory
         IEnumerable<object> GetMaterialLedger(string fromDate, string toDate);
 
         IEnumerable<object> GetPurchaseReturnRegister(string fromDate, string toDate, string Type);
-
-
-
-        //IWorkbook GetDailyTransactionReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, DateTime date, string entityId);
         IEnumerable<object> GetTotalReceiveTaxList(string receiveId);
 
         IEnumerable<object> GetServiceTaxList(string serviceId);
         IEnumerable<object> GetServiceTaxListBOQ(string serviceId);
         IEnumerable<object> GetServiceTaxListPR(string serviceId);
         IEnumerable<object> GetServiceTaxListPO(string serviceId);
-       
-
         decimal GetToCurrencyRate(string currencyId, string baseCurrencyId, DateTime docDate, string companyId);
         decimal GetToCurrencyRateForJWR(string currencyId, string baseCurrencyId, DateTime docDate, string companyId);
         
@@ -66,7 +48,6 @@ namespace Library.MaterialManagement.Inventory
 		
 		decimal GetChargesTaxRatio(string receiveId, string detailId, decimal detailTotalAmnt, string serviceId, decimal svcTotalAmnt, bool isNonCreditable);
 
-      
         void Delete(string id);
         void JWDelete(string id);
         void GRNApproved(IEnumerable<InventoryReceive> entities,string GRNStatus);
