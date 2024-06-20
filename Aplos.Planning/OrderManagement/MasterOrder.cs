@@ -300,6 +300,7 @@ namespace Library.Planning.OrderManagement
             DataSet dsToSalesOrder;
             DataSet dsToFirstCharacteristics;
             DataSet dsToSecondCharacteristics;
+            DataSet dsToSOCostingConfirm;
             DataSet dsToThirdCharacteristics;
             try
             {
@@ -316,11 +317,13 @@ namespace Library.Planning.OrderManagement
                 con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[FirstCharacteristics] WHERE 1=2", out dsToFirstCharacteristics, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[SecondCharacteristics] WHERE 1=2", out dsToSecondCharacteristics, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[ThirdCharacteristics] WHERE 1=2", out dsToThirdCharacteristics, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM dbo.SOCostingConfirmation WHERE 1=2", out dsToSOCostingConfirm, false, "1");
 
                 DataTable dtFromMaster = _sqlRepository.GetDataTable("SELECT * FROM [TRN].[SalesOrder] WHERE MasterOrderItemId='" + masterItemId + "'");
                 DataTable dtFromFirstCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TRN.FirstCharacteristics Where SalesOrderId IN(Select Id from TRN.SalesOrder Where MasterOrderItemId='" + masterItemId + "')");
                 DataTable dtFromSecondCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TRN.SecondCharacteristics Where SalesOrderId IN(Select Id from TRN.SalesOrder Where MasterOrderItemId='" + masterItemId + "')");
                 DataTable dtFromThirdCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TRN.ThirdCharacteristics Where SalesOrderId IN(Select Id from TRN.SalesOrder Where MasterOrderItemId='" + masterItemId + "')");
+                DataTable dtFromSOCostingConfirm = _sqlRepository.GetDataTable("SELECT * FROM dbo.SOCostingConfirmation Where SalesOrderId IN(Select Id from TRN.SalesOrder Where MasterOrderItemId='" + masterItemId + "')");
 
                 int SCount = 0;
                 for (int m = 0; m < dtFromMaster.Rows.Count; m++)
@@ -389,11 +392,22 @@ namespace Library.Planning.OrderManagement
                             }
                         }
                     }
+
+                    dtFromSOCostingConfirm.DefaultView.RowFilter = "SalesOrderId='" + dtFromMaster.Rows[m]["Id"].ToString() + "'";
+                    for (int l = 0; l < dtFromSOCostingConfirm.DefaultView.Count; l++)
+                    {
+                        DataRow drSOCostingConfirm = dsToSOCostingConfirm.Tables[0].NewRow();
+                        CopyRow(dtFromSOCostingConfirm.DefaultView[l].Row, ref drSOCostingConfirm);
+                        drSOCostingConfirm["Id"] = NewId + (l + 1);
+                        drSOCostingConfirm["SalesOrderId"] = NewId;
+                        dsToSOCostingConfirm.Tables[0].Rows.Add(drSOCostingConfirm);
+                    }
+
                 }
 
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsToSalesOrder, dsToFirstCharacteristics, dsToSecondCharacteristics, dsToThirdCharacteristics);
+                _info.SaveDataSets(dsToSalesOrder, dsToFirstCharacteristics, dsToSecondCharacteristics, dsToThirdCharacteristics, dsToSOCostingConfirm);
 
 
             }
@@ -425,6 +439,7 @@ namespace Library.Planning.OrderManagement
             DataSet dsToSalesOrder;
             DataSet dsToFirstCharacteristics;
             DataSet dsToSecondCharacteristics;
+            DataSet dsToSOCostingConfirm;
             DataSet dsToThirdCharacteristics;
             try
             {
@@ -444,11 +459,13 @@ namespace Library.Planning.OrderManagement
                 con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[FirstCharacteristics] WHERE 1=2", out dsToFirstCharacteristics, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[SecondCharacteristics] WHERE 1=2", out dsToSecondCharacteristics, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[ThirdCharacteristics] WHERE 1=2", out dsToThirdCharacteristics, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM dbo.SOCostingConfirmation WHERE 1=2", out dsToSOCostingConfirm, false, "1");
 
                 DataTable dtFromMaster = _sqlRepository.GetDataTable("SELECT * FROM [TRN].[SalesOrder] WHERE Id='" + MasterId + "'");
                 DataTable dtFromFirstCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TRN.FirstCharacteristics WHERE SalesOrderId='" + MasterId + "'");
                 DataTable dtFromSecondCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TRN.SecondCharacteristics WHERE SalesOrderId='" + MasterId + "'");
                 DataTable dtFromThirdCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TRN.ThirdCharacteristics WHERE SalesOrderId='" + MasterId + "'");
+                DataTable dtFromSOCostingConfirm = _sqlRepository.GetDataTable("SELECT * FROM dbo.SOCostingConfirmation WHERE SalesOrderId='" + MasterId + "'");
 
                 if (TotalMOIQty < SOQty + Convert.ToDecimal(dtFromMaster.Rows[0]["Qty"].ToString()))
                 {
@@ -497,8 +514,19 @@ namespace Library.Planning.OrderManagement
                     }
                 }
 
+                dtFromSOCostingConfirm.DefaultView.RowFilter = "SalesOrderId='" + MasterId + "'";
+                for (int l = 0; l < dtFromSOCostingConfirm.DefaultView.Count; l++)
+                {
+                    DataRow drSOCostingConfirm = dsToSOCostingConfirm.Tables[0].NewRow();
+                    CopyRow(dtFromSOCostingConfirm.DefaultView[l].Row, ref drSOCostingConfirm);
+                    drSOCostingConfirm["Id"] = NewId + (l + 1);
+                    drSOCostingConfirm["SalesOrderId"] = NewId;
+                    dsToSOCostingConfirm.Tables[0].Rows.Add(drSOCostingConfirm);
+                }
+
+
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsToSalesOrder, dsToFirstCharacteristics, dsToSecondCharacteristics, dsToThirdCharacteristics);
+                _info.SaveDataSets(dsToSalesOrder, dsToFirstCharacteristics, dsToSecondCharacteristics, dsToThirdCharacteristics, dsToSOCostingConfirm);
 
 
             }
@@ -536,6 +564,7 @@ namespace Library.Planning.OrderManagement
             DataSet dsToFirstCharacteristics;
             DataSet dsToSecondCharacteristics;
             DataSet dsToThirdCharacteristics;
+            DataSet dsToSOCostingConfirm;
             try
             {
 
@@ -553,11 +582,13 @@ namespace Library.Planning.OrderManagement
                 con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[FirstCharacteristics] WHERE 1=2", out dsToFirstCharacteristics, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[SecondCharacteristics] WHERE 1=2", out dsToSecondCharacteristics, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[ThirdCharacteristics] WHERE 1=2", out dsToThirdCharacteristics, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM dbo.SOCostingConfirmation WHERE 1=2", out dsToSOCostingConfirm, false, "1");
 
                 DataTable dtFromMaster = _sqlRepository.GetDataTable("SELECT * FROM [TRN].[SalesOrder] WHERE Id='" + salesOrderMaster.ParentId + "'");
                 DataTable dtFromFirstCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TRN.FirstCharacteristics WHERE SalesOrderId='" + salesOrderMaster.ParentId + "'");
                 DataTable dtFromSecondCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TRN.SecondCharacteristics WHERE SalesOrderId='" + salesOrderMaster.ParentId + "'");
                 DataTable dtFromThirdCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TRN.ThirdCharacteristics WHERE SalesOrderId='" + salesOrderMaster.ParentId + "'");
+                DataTable dtFromSOCostingConfirm = _sqlRepository.GetDataTable("SELECT * FROM dbo.SOCostingConfirmation WHERE SalesOrderId='" + salesOrderMaster.ParentId + "'");
 
                 DataView dv = new DataView(dsParentSalesOrder.Tables[0]);
                 dv.RowFilter = "Id='" + salesOrderMaster.ParentId + "'";
@@ -617,9 +648,19 @@ namespace Library.Planning.OrderManagement
                         }
                     }
                 }
+                dtFromSOCostingConfirm.DefaultView.RowFilter = "SalesOrderId='" + salesOrderMaster.ParentId + "'";
+                for (int l = 0; l < dtFromSOCostingConfirm.DefaultView.Count; l++)
+                {
+                    DataRow drSOCostingConfirm = dsToSOCostingConfirm.Tables[0].NewRow();
+                    CopyRow(dtFromSOCostingConfirm.DefaultView[l].Row, ref drSOCostingConfirm);
+                    drSOCostingConfirm["Id"] = NewId + (l + 1);
+                    drSOCostingConfirm["SalesOrderId"] = NewId;
+                    dsToSOCostingConfirm.Tables[0].Rows.Add(drSOCostingConfirm);
+                }
+
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsParentSalesOrder,dsToSalesOrder, dsToFirstCharacteristics, dsToSecondCharacteristics, dsToThirdCharacteristics);
+                _info.SaveDataSets(dsParentSalesOrder,dsToSalesOrder, dsToFirstCharacteristics, dsToSecondCharacteristics, dsToThirdCharacteristics, dsToSOCostingConfirm);
 
 
             }
