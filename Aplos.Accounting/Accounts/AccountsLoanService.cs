@@ -249,7 +249,7 @@ namespace Library.Accounting.Accounts
 					LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id = BUM.BudgetId
 		            LEFT JOIN [HKP].[Activity] AS ACT ON ACT.Id = FD.ActivityId
 					LEFT JOIN(SELECT LP.FinancingId,SUM(LP.Amount) InterestAmount
-											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('InterestPayable','OtherExpensesPayable') group by LP.FinancingId) LIP ON LIP.FinancingId=F.Id
+											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('InterestPayable','OtherExpensesPayable','LoanTax') group by LP.FinancingId) LIP ON LIP.FinancingId=F.Id
 											LEFT JOIN(SELECT LP.SetOffFinancingId,SUM(LP.Amount) LoanPayment
 											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('LoanPayment') and LP.SourceType='Loan' group by LP.SetOffFinancingId) LPY ON LPY.SetOffFinancingId=F.Id
 											LEFT JOIN(SELECT LP.SetOffFinancingId,SUM(LP.Amount) LoanPayment
@@ -317,7 +317,7 @@ namespace Library.Accounting.Accounts
 
                     LEFT JOIN(SELECT LP.FinancingId, SUM(LP.Amount) InterestAmount
 
-                                            FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('InterestPayable','OtherExpensesPayable') group by LP.FinancingId) LIP ON LIP.FinancingId = F.Id
+                                            FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('InterestPayable','OtherExpensesPayable','LoanTax') group by LP.FinancingId) LIP ON LIP.FinancingId = F.Id
 
                                             LEFT JOIN(SELECT LP.SetOffFinancingId, SUM(LP.Amount) LoanPayment
 
