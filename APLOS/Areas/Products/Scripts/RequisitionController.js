@@ -935,6 +935,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 		try {
 			$scope.detailModel.ArticleId = ob.data.Id;
 			$scope.detailModel.ArticleName = ob.data.StandardName;
+			$scope.detailModel.TransactionUoMId = ob.data.BaseUOMId;
 			manualValidation('div_ar', false);
 			$scope.GetRequisitionStockBalance(ob.data.MaterialMasterId, ob.data.Id);
 			angular.element(document.querySelector('#materialarticleNewPopUp')).modal('hide');
@@ -943,7 +944,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 			ShowResult(e, '', 'articleSearchPop');
 		}
 	};
-
 	$scope.RequisitionStockBalanceList = [];
 	$scope.GetRequisitionStockBalance = function (materialMasterId,articleId) {
 		$http({
@@ -3719,6 +3719,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 			$scope.detailModel.MaterialMasterName = ob.data.MaterialMasterName;
 			$scope.detailModel.ArticleId = ob.data.Id;
 			$scope.detailModel.ArticleName = ob.data.StandardName;
+			$scope.detailModel.TransactionUoMId = ob.data.BaseUOMId;
 			angular.element(document.querySelector('#materialarticleNewPopUp')).modal('hide');
 
 			$scope.mmChangeFlag = true;
@@ -3727,6 +3728,9 @@ function RequisitionController(accountService, addressService, $window, cboServi
 			ShowResult(e, '', 'articleSearchPop');
 		}
 	};
+
+	
+
 
 	function GetArticleAlias() {
 		$http.get("Materials/materialmasterarticle/getArticleAliaslist?articleId=" + $scope.detailModel.ArticleId)

@@ -662,6 +662,7 @@ function ServiceRequisitionController(accountService, addressService, $window, c
         }).then(function successCallback(response) {
             $scope.checkedByList = response.data;
         });
+        console.log('checkedByList', $scope.checkedByList);
     }
     $scope.GetSupervisorCboList();
 

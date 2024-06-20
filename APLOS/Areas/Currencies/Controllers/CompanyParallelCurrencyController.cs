@@ -3,9 +3,12 @@ using Aplos.Helpers;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
+using Library.Data;
+using Library.Data.Sql;
 using Library.Model.Currencies;
 using Library.Service.Core;
 using Library.Service.Currencies;
+using Library.Service.Properties;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -18,11 +21,12 @@ namespace Aplos.Areas.Currencies.Controllers
         #region Constructor
 
         private readonly ICompanyParallelCurrencyService _companyParallelCurrencyService;
-
+        private readonly ISqlRepository _sqlRepository;
         public CompanyParallelCurrencyController(
-            ICompanyParallelCurrencyService companyParallelCurrencyService)
+            ICompanyParallelCurrencyService companyParallelCurrencyService, ISqlRepository sqlRepository)
         {
             _companyParallelCurrencyService = companyParallelCurrencyService;
+            _sqlRepository = sqlRepository;
         }
 
         #endregion Constructor
@@ -131,7 +135,20 @@ namespace Aplos.Areas.Currencies.Controllers
         {
             
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_companyParallelCurrencyService.GetCbo(identity.CompanyId), JsonRequestBehavior.AllowGet);
+            return Json(GetParallelCurrencyCbo(identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+
+        private IEnumerable<object> GetParallelCurrencyCbo(string companyId)
+        {
+            
+                if (string.IsNullOrEmpty(companyId))
+                    throw new CustomException(ResourcesCore.CompanyIdNull);
+                var sql = @"SELECT CPC.CurrencyId AS Value, C.Code AS Text, CPC.CurrencyId, C.Code, IsBaseCurrency=CASE WHEN CPC.CurrencyId=CO.BaseCurrencyId THEN 1 ELSE 0 END
+                            FROM [SCS].[CompanyParallelCurrency] AS CPC
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=CPC.CurrencyId
+                            LEFT JOIN [ORG].[Company] AS CO ON CO.Id=CPC.CompanyId
+                            WHERE CPC.CompanyId='" + companyId + "' ORDER BY C.Code";
+                return _sqlRepository.GetDataCollection(sql);
         }
 
         [Authorize, HttpGet]
