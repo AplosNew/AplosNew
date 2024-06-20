@@ -3880,7 +3880,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.itemIndex = index;
         $scope.masterItemId = data.MasterOrderItemId;
         $scope.soId = data.Id;
-
+        $scope.soModel = data;
         $http({
             method: 'GET',
             url: 'OrderManagements/MasterOrder/GetCostingSORateData?SalesOrderId=' + data.Id + '&lineId=' + $scope.masterItemId
