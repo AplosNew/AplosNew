@@ -715,12 +715,12 @@ WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Wh
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetGoodWorkReportInDateRange(string reportFileName, string fromDate, string toDate)
+        public ActionResult GetGoodWorkReportInDateRangeX(string reportFileName, string fromDate, string toDate)
         {
             try
             {
                 string fileName = "";
-                fileName = GetGoodWorkReportInDateRangexlx("", reportFileName, fromDate, toDate);
+                fileName = GetGoodWorkReportInDateRangexlx(null,"", reportFileName);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -729,7 +729,7 @@ WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Wh
             }
         }
 
-        public string GetGoodWorkReportInDateRangexlx(string ReportHeader, string reportFileName, string fromDate, string toDate)
+        public string GetGoodWorkReportInDateRangexlx(DataTable data,string ReportHeader, string reportFileName)
         {
             ExcelEngine excelEngine = null;
             IApplication application = null;
@@ -744,7 +744,6 @@ WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Wh
                 workbook.Worksheets[0].Name = "Good Work Report";
                 sheet = workbook.Worksheets[0];
                 int ROW = 5; int COL = 1;
-                DataTable data = GetGWReportDataInDateRange(fromDate, toDate);
 
                 #region columns
                 sheet[ROW, COL].Text = "Employee Code"; sheet[ROW, COL].ColumnWidth = 15; int ColEmployeeCode = COL; COL++;
@@ -760,7 +759,7 @@ WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Wh
                 sheet[ROW, COL].Text = "Employee Category"; sheet[ROW, COL].ColumnWidth = 10; int ColEC = COL; COL++;
                 sheet[ROW, COL].Text = "Legal Designation"; sheet[ROW, COL].ColumnWidth = 20; int ColLD = COL; COL++;
                 sheet[ROW, COL].Text = "Section"; sheet[ROW, COL].ColumnWidth = 12; int ColSection = COL; COL++;
-                sheet[ROW, COL].Text = "Department"; sheet[ROW, COL].ColumnWidth = 12; int ColDepartment = COL; COL++;
+                sheet[ROW, COL].Text = "Department"; sheet[ROW, COL].ColumnWidth = 20; int ColDepartment = COL; COL++;
                 sheet[ROW, COL].Text = "Work Date"; sheet[ROW, COL].ColumnWidth = 8; int ColWorkDate = COL; COL++;
                 sheet[ROW, COL].Text = "Over Time"; sheet[ROW, COL].ColumnWidth = 10; int ColOverTime = COL; COL++;
                 sheet[ROW, COL].Text = "Over Stay"; sheet[ROW, COL].ColumnWidth = 10; int ColOverStay = COL; COL++;
@@ -844,6 +843,50 @@ WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Wh
             }
         }
 
+
+        [HttpPost, Authorize]
+        public ActionResult GetGoodWorkReportInDateRange(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                DataTable dt = new DataTable("DD");
+                foreach (string item in data[0].Keys)
+                {
+                    if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        continue;
+
+                    dt.Columns.Add(item);
+                }
+
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    foreach (string item in data[i].Keys)
+                    {
+                        if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                            continue;
+
+                        dr[item] = data[i][item];
+                    }
+
+                    dt.Rows.Add(dr);
+                }
+                //string filename = GridToExcelReportUpd(dt, "", reportFileName);
+
+                string fileName = "";
+                fileName = GetGoodWorkReportInDateRangexlx(dt, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+    
+
         public DataTable GetGWReportDataInDateRange(string fromDate, string toDate)
         {
             try
@@ -877,6 +920,39 @@ Order By GW.WorkDate";
             }
         }
 
+
+        public ActionResult GetGWDataInDateRange(string fromDate, string toDate)
+        {
+            try
+            {
+                var sql = @"select EI.EmployeeCode,EI.EmployeeName,GWS.UserName GoodWorkGroupName,R.EmployeeName ResponsiblePersonName,EN.UserName Entity
+,FORMAT(GW.AddedDate,'dd-MMM-yyyy')GoodWorkEntryDate,GW.CheckedStatus,GW.ApprovedStatus,FORMAT(GPA.AddedDate,'dd-MMM-yyyy')PaymentCreationDate
+,GPAP.EmployeeName PaymentApprovedBy,EC.UserName EmployeeCategory,D.UserName LegalDesignation,S.UserName Section,DEPT.UserName Department
+,format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,GWD.Minute OverTime,APD.OverStay,APD.DayStatus
+from GoodWork GW 
+left join GoodworkDetail GWD on GW.Id=GWD.GoodWorkId
+left join EmployeeInformation EI on EI.SystemId=GWD.EmpSystemId 
+LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
+LEFT JOIN ORG.Department DEPT ON EI.DepartmentId=DEPT.Id
+LEFT join MST.DesignationMaster DM on DM.DesignationId=EI.GivenDesignationId
+LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
+LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+left join hkp.LegalDesignation D on D.Id=ei.LegalDesignationId
+left join dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate=GW.WorkDate
+LEFT JOIN dbo.GoodWorkSetup GWS ON GWS.Id=GW.UserGroupId
+LEFT JOIN dbo.EmployeeInformation R ON GWS.ResponsiblePersonId=R.SystemId
+LEFT JOIN [dbo].[GoodWorkPaymentAdvise] GPA ON GPA.Id=GWD.GWPaymentAdviseId
+LEFT JOIN dbo.EmployeeInformation GPAP ON GPAP.SystemId=GPA.ApprovedById
+LEFT JOIN ORG.Entity EN ON EN.Id=PMB.EntityId
+where GW.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' and APD.DayStatus <> 'A'
+Order By GW.WorkDate";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
         #region Payable Creation and Worker Advance
 
         [HttpGet, Authorize]
