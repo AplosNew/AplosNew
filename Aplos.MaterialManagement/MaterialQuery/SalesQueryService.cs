@@ -1258,33 +1258,24 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			try
 			{
 				var str = @"SELECT  P.Code PartyCode, P.UserName AS PartyName,PPI.UserName AS BillTo	
-									,Sum(SMD.TransactionAmount) TransactionAmount
-									--,CU.Code AS Currency
-									,sum(round(isnull(ServiceData.ServiceAmount,0),2)) ServiceCharge
-									,sum(round(isnull(ServiceData.ServiceTax,0),2)) ServiceTax
-									,sum(round(isnull(TAxInfo.TaxAmount,0),2)) CGST			
-									,sum(round(isnull(TAxInfo2.TaxAmount,0),2)) SGST
-									,sum(round(isnull(TAxInfo1.TaxAmount,0),2)) IGST
-									,sum(round(isnull(TAxInfo3.TaxAmount,0),2)) TDS
-									,round(isnull(TAxInfo6.TaxAmount,0),2) TCS
-									,sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2)) BooksCGST		
-									,sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2)) BooksSGST
-									,sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) BooksIGST
-									,round(isnull(TAxInfo6.BooksTaxAmount,0),2) BooksTCS
-
-									,sum(round(isnull(ServiceData.ServiceAmount,0),2))+Sum(SMD.TransactionAmount ) TotalTaxableAmount
-									,Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0)) BooksCurrencyTransactionAmount
-									,sum(ISNULL(ServiceData.BooksCurrencyTransactionAmount,0)) ServiceBooksCurrencyTransactionAmount
-
-									,sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)) BooksServiceCharge
-									,(Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0))+sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)))  BooksTotalTaxableAmount
+									,[Invoice Value (BC)]=Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0))+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(ServiceData.BooksCurrencyTaxAmount,0),2))
+									,[Basic Value (BC)]=Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0)) 
+									,[Total Tax, Service & Charges(BC)]=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(ServiceData.BooksCurrencyTaxAmount,0),2))
+									,[Total Tax (BC)]=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)
+									,[Service Charges (BC)]=sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)) 
+									,[Service Charge Tax (BC)]=sum(round(isnull(ServiceData.BooksCurrencyTaxAmount,0),2))
+									,[CGST (BC)]=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2)) 		
+									,[SGST (BC)]=sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))
+									,[IGST (BC)]=sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))
+									,[TCS (BC)]=round(isnull(TAxInfo6.BooksTaxAmount,0),2) 
 									,IV.SetOff SetOffAmount
-									,Balance=(Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0))
-										+sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)))
-										+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))
-										+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))
-										+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))
-										+round(isnull(TAxInfo6.TaxAmount,0),2)-isnull(IV.SetOff,0)
+									,Balance=Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0))
+									+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))
+									+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))
+									+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))
+									+round(isnull(TAxInfo6.BooksTaxAmount,0),2)
+									+sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2))
+									+sum(round(isnull(ServiceData.BooksCurrencyTaxAmount,0),2))-isnull(IV.SetOff,0)
 									,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,SA.PartyType,PAG.UserName PartyAccountGroup
 									,P.TINNO GSTINNo,CN.UserName Country
 									FROM TRN.Sales AS SA
@@ -1361,7 +1352,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 												WHERE B.Code='TCS'  
 												Group BY SA.PartyId				
 									) TAxInfo6 ON TAxInfo6.PartyId=SA.PartyId
-									LEFT JOIN(Select ISS.SalesId, Sum(ISS.Amount) ServiceAmount,Sum(ISS.TaxAmount) ServiceTax,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
+									LEFT JOIN(Select ISS.SalesId, Sum(ISS.Amount) ServiceAmount,Sum(ISS.TaxAmount) ServiceTax,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount,sum(BooksCurrencyTaxAmount) BooksCurrencyTaxAmount
 											from trn.SalesService AS ISS
 											LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 											left jOIN [TRN].[Sales] AS IR ON IR.Id=ISs.SalesId
@@ -1373,24 +1364,17 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 								SELECT  P.Code PartyCode, P.UserName AS PartyName,PPI.UserName AS BillTo
 								
-								,Sum(IID.Qty *IID.SalesRate) TransactionAmount
-								,sum(SCr.ServiceAmount) ServiceCharge
-								,sum(SCr.TotalTaxAmount) ServiceTax
-								
-								,sum(round(isnull(TAxInfo.TaxAmount,0),2)) CGST				
-								,sum(round(isnull(TAxInfo2.TaxAmount,0),2)) SGST
-								,sum(round(isnull(TAxInfo1.TaxAmount,0),2)) IGST
-								,sum(round(isnull(TAxInfo3.TaxAmount,0),2)) TDS
-								,round(isnull(TAxInfo6.TaxAmount,0),2) TCS
-								,sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2)) BooksCGST		
-								,sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2)) BooksSGST
-								,sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) BooksIGST
-								,round(isnull(TAxInfo6.BooksTaxAmount,0),2) BooksTCS			
-								,sum(round(isnull(SCr.ServiceAmount,0),2))+Sum(IID.TransactionAmount ) TotalTaxableAmount
-								,Sum(IID.BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
-								,sum(SCr.BooksCurrencyTransactionAmount) ServiceBooksCurrencyTransactionAmount
-								,sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)) BooksServiceCharge
-								,(Sum(IId.BooksCurrencyTransactionAmount)+sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)))  BooksTotalTaxableAmount
+								,[Invoice Value (BC)]=Sum(ISNULL(IID.BooksCurrencyTransactionAmount,0))+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(SCr.BooksCurrencyTaxAmount,0),2))
+									,[Basic Value (BC)]=Sum(ISNULL(IID.BooksCurrencyTransactionAmount,0)) 
+									,[Total Tax, Service & Charges(BC)]=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(SCr.BooksCurrencyTaxAmount,0),2))
+									,[Total Tax (BC)]=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)
+									,[Service Charges (BC)]=sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)) 
+									,[Service Charge Tax (BC)]=sum(round(isnull(SCr.BooksCurrencyTaxAmount,0),2))
+									,[CGST (BC)]=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2)) 		
+									,[SGST (BC)]=sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))
+									,[IGST (BC)]=sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))
+									,[TCS (BC)]=round(isnull(TAxInfo6.BooksTaxAmount,0),2) 
+
 								,0 SetOff,0 Balance
 								 ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,'' PartyType,PAG.UserName PartyAccountGroup
 								,P.TINNO GSTINNo,CN.UserName Country
