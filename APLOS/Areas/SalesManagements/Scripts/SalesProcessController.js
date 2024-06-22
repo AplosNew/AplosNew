@@ -2,6 +2,7 @@
 SalesProcessController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function SalesProcessController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = 'Sales Process';
+    $scope.SalesTypetitle = 'Sales Type';
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'SalesManagements/Sales/';
@@ -291,6 +292,7 @@ function SalesProcessController(cboService, commonMessage, $scope, $rootScope, b
         StandardName: null,
         UserName: null,
         Description: null,
+        SalesCategory: null,
         Remarks: null,
         Active: true
     };

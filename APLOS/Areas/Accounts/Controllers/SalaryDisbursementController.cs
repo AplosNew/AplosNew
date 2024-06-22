@@ -979,7 +979,7 @@ namespace Aplos.Areas.Accounts.Controllers
             string sql = @"select [isSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'False'),* FROM (  SELECT   dISTINCT   
                                      isnull(e.SystemId,'') EmpSystemId
 									,ISNULL(e.EmployeeId,'')  EmployeeId 
-	                                ,sl.Id,CheckBoxSelect=case when  sl.Id is null then  CONVERT(bit,0) when sl.IsDisbursed <> 1  then CONVERT(bit,0) else  CONVERT(bit,1) end   
+	                                ,sl.Id,CheckBoxSelect=  CONVERT(bit,0) 
 									,SPM.MonthNo,SPM.YearNo ,sl.IsLocked AS Lock
                                     ,ISNULL(e.EmployeeCode,'') EmployeeCode
                                     ,ISNULL(e.EmployeeName,'') EmployeeName								
@@ -3129,93 +3129,28 @@ Where HeadCategory='Net Payable' ";
         public void SaveSalaryUnDisbursedLock(List<SalaryLock> EmployeeList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMaster;
+            
             try
             {
-                string EmpIdLoop = "";
+                string IdLoop = "";
                 foreach (var item in EmployeeList)
                 {
-                    if (EmpIdLoop == "")
+                    if (IdLoop == "")
                     {
-                        EmpIdLoop = "'" + item.EmpSystemId + "'"; ;
+                        IdLoop = "'" + item.Id + "'"; ;
                     }
                     else
                     {
-                        EmpIdLoop += ",'" + item.EmpSystemId + "'";
+                        IdLoop += ",'" + item.Id + "'";
 
                     }
                 }
 
-                string sql = "select * from SalaryLock where  MonthNo='" + EmployeeList[0].MonthNo + @"' and YearNo='" + EmployeeList[0].YearNo + @"' and EmpSystemId IN (" + EmpIdLoop + @")";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
-                DataView DvMaster = new DataView(dsMaster.Tables[0]);
-
-                dsMaster.Tables[0].DefaultView.RowFilter = "DisbursementVoucherId <> '' ";
-                while (dsMaster.Tables[0].DefaultView.Count > 0)
-                {
-                    for (int i = 0; i < EmployeeList.Count; i++)
-                    {
-                        if (EmployeeList[i].EmpSystemId == dsMaster.Tables[0].DefaultView[0]["EmpSystemId"].ToString() && EmployeeList[i].IsLocked == false)
-                        {
-                            throw new Exception("Accounting Disbursement already done for this Employee [" + EmployeeList[i].EmployeeCode + "]");
-                        }
-                    }
-                }
-
-                foreach (var item in EmployeeList)
-                {
-                    DvMaster.RowFilter = "EmpSystemId='" + item.EmpSystemId + @"'";
-
-                    if (DvMaster.Count == 0)
-                    {
-                        DataRow dr = dsMaster.Tables[0].NewRow();
-
-                        string sID = string.Empty;
-                        bplib.clsGenID objGenID = new bplib.clsGenID();
-                        objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "SalaryLock", out sID);
-
-                        dr["Id"] = "SL" + sID;
-                        dr["EmpSystemId"] = item.EmpSystemId;
-                        dr["YearNo"] = item.YearNo;
-                        dr["MonthNo"] = item.MonthNo;
-                        dr["IsLocked"] = item.Lock;
-                        dr["IsDisbursed"] = item.CheckBoxSelect;
-                        dr["PayableVoucherId"] = item.PayableVoucherId;
-                        dr["DisbursementVoucherId"] = item.PayableVoucherId;
-
-                        //dr["DisbursedAddedBy"] = identity.Name;
-                        dr["AddedBy"] = identity.Name;
-                        //dr["DisbursedAddedDate"] = DateTime.Now;
-                        dr["AddedDate"] = DateTime.Now;
-                        dr["AddedFromIP"] = identity.IPAddress;
-
-                        dsMaster.Tables[0].Rows.Add(dr);
-                    }
-                    else
-                    {
-                        DataRow dr = DvMaster[0].Row;
-                        dr.BeginEdit();
-
-                        dr["EmpSystemId"] = item.EmpSystemId;
-                        dr["YearNo"] = item.YearNo;
-                        dr["MonthNo"] = item.MonthNo;
-                        dr["IsLocked"] = item.Lock;
-                        dr["IsDisbursed"] = item.CheckBoxSelect;
-                        dr["PayableVoucherId"] = item.PayableVoucherId;
-                        dr["DisbursementVoucherId"] = item.DisbursementVoucherId;
-
-                        dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = DateTime.Now;
-                        dr["UpdatedFromIP"] = identity.IPAddress;
-
-                        dr.EndEdit();
-                    }
-                    DvMaster.RowFilter = null;
-                    clsStaticInfo obj = new clsStaticInfo();
-                    obj.SaveDataSets(dsMaster);
-                }
+                var vendorAdWr = new System.Text.StringBuilder();
+                var vendorAdWrsql = "";
+                vendorAdWrsql = @"update [dbo].[SalaryLock] set IsDisbursed=0, DisbursementAdviceId=null, UpdatedBy='" + identity.Name + "', UpdatedDate='" + DateTime.Now + "', UpdatedFromIP='" + identity.IPAddress + "' where Id IN (" + IdLoop + @") ";
+                vendorAdWr.Append(vendorAdWrsql);
+                _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
             }
             catch (Exception ex)
             {
