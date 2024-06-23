@@ -1257,17 +1257,17 @@ namespace Aplos.MaterialManagement.MaterialQuery
 		{
 			try
 			{
-				var str = @"SELECT  P.Code PartyCode, P.UserName AS PartyName,PPI.UserName AS BillTo	
-									,[Invoice Value (BC)]=Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0))+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(ServiceData.BooksCurrencyTaxAmount,0),2))
-									,[Basic Value (BC)]=Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0)) 
-									,[Total Tax, Service & Charges(BC)]=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(ServiceData.BooksCurrencyTaxAmount,0),2))
-									,[Total Tax (BC)]=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)
-									,[Service Charges (BC)]=sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)) 
-									,[Service Charge Tax (BC)]=sum(round(isnull(ServiceData.BooksCurrencyTaxAmount,0),2))
-									,[CGST (BC)]=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2)) 		
-									,[SGST (BC)]=sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))
-									,[IGST (BC)]=sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))
-									,[TCS (BC)]=round(isnull(TAxInfo6.BooksTaxAmount,0),2) 
+				var str = @"SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo	,PAG.UserName PartyAccountGroup,C.Code BookCurrency
+									,InvoiceValueBC=Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0))+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(ServiceData.BooksCurrencyTaxAmount,0),2))
+									,BasicValueBC=Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0)) 
+									,TotalTaxServiceAndChargesBC=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(ServiceData.BooksCurrencyTaxAmount,0),2))
+									,TotalTaxBC=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)
+									,ServiceChargesBC=sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)) 
+									,ServiceChargeTaxBC=sum(round(isnull(ServiceData.BooksCurrencyTaxAmount,0),2))
+									,CGSTBC=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2)) 		
+									,SGSTBC=sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))
+									,IGSTBC=sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))
+									,TCSBC=round(isnull(TAxInfo6.BooksTaxAmount,0),2) 
 									,IV.SetOff SetOffAmount
 									,Balance=Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0))
 									+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))
@@ -1276,8 +1276,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									+round(isnull(TAxInfo6.BooksTaxAmount,0),2)
 									+sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2))
 									+sum(round(isnull(ServiceData.BooksCurrencyTaxAmount,0),2))-isnull(IV.SetOff,0)
-									,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,SA.PartyType,PAG.UserName PartyAccountGroup
-									,P.TINNO GSTINNo,CN.UserName Country
+									,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,SA.PartyType
+									,CN.UserName Country,EI.EmployeeName ResponsiblePerson
 									FROM TRN.Sales AS SA
 									LEFT JOIN (select Id, SalesId,SalesOrderId, Sum(TransactionAmount) TransactionAmount,Sum(NetAmount) NetAmount,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from TRN.SalesMaterial Group BY SalesId,SalesOrderId,Id)SMD  ON SA.Id=SMD.SalesId
 									LEFT JOIN SCS.Currency AS CU ON CU.Id=SA.CurrencyId
@@ -1288,10 +1288,13 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
 									LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
 									LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=SA.InvoicingPartyPlantId
+									LEFT JOIN [HKP].[PartyPlant] AS PPD ON PPD.Id=SA.DeliveryPartyPlantId
 									LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
 									LEFT JOIN [SCS].[Country] AS CN ON CN.Id=AM.CountryId
 									LEFT JOIN [SCS].[State] AS ST ON ST.Id=AM.StateId
-									LEFT JOIN [SCS].[Currency] AS C ON C.Id=SA.CurrencyId
+									LEFT JOIN [ORG].[Company] AS CO ON CO.Id=SA.CompanyId
+									LEFT JOIN [SCS].[Currency] AS C ON C.Id=CO.BaseCurrencyId
+									LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=P.ResponsiblePersonId
 									LEFT JOIN (SELECT PartyId,PartyPlantId,sum(WrittenOffAmount) SetOff,SourceType 
 													from [TRN].Invoice where  PartyType='Customer' and SourceType='SalesInvoice'
 													and CONVERT(Date,DocDate) 
@@ -1359,25 +1362,25 @@ namespace Aplos.MaterialManagement.MaterialQuery
 											group by ISS.SalesId
 											)ServiceData on ServiceData.SalesId=SA.Id
 									WHERE SA.PlantId='" + PlantId + @"' AND convert(Date,SA.InvoiceDate) between '" + FromDate + @"' AND '" + ToDate + @"'
-									Group By P.Id,iv.setOff, p.Code	 ,PPI.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,SA.PartyType,PAG.UserName ,TAxInfo6.TaxAmount,TAxInfo6.BooksTaxAmount,P.TINNO,CN.UserName 
+									Group By P.Id,iv.setOff, p.Code	 ,PPI.UserName,PPD.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,SA.PartyType,PAG.UserName ,TAxInfo6.TaxAmount,TAxInfo6.BooksTaxAmount,P.TINNO,CN.UserName ,C.Code,EI.EmployeeName
 								UNION ALL
 
-								SELECT  P.Code PartyCode, P.UserName AS PartyName,PPI.UserName AS BillTo
+								SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo,PAG.UserName PartyAccountGroup,C.Code BookCurrency
 								
-								,[Invoice Value (BC)]=Sum(ISNULL(IID.BooksCurrencyTransactionAmount,0))+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(SCr.BooksCurrencyTaxAmount,0),2))
-									,[Basic Value (BC)]=Sum(ISNULL(IID.BooksCurrencyTransactionAmount,0)) 
-									,[Total Tax, Service & Charges(BC)]=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(SCr.BooksCurrencyTaxAmount,0),2))
-									,[Total Tax (BC)]=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)
-									,[Service Charges (BC)]=sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)) 
-									,[Service Charge Tax (BC)]=sum(round(isnull(SCr.BooksCurrencyTaxAmount,0),2))
-									,[CGST (BC)]=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2)) 		
-									,[SGST (BC)]=sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))
-									,[IGST (BC)]=sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))
-									,[TCS (BC)]=round(isnull(TAxInfo6.BooksTaxAmount,0),2) 
+								,InvoiceValueBC=Sum(ISNULL(IID.BooksCurrencyTransactionAmount,0))+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(SCr.BooksCurrencyTaxAmount,0),2))
+									,BasicValueBC=Sum(ISNULL(IID.BooksCurrencyTransactionAmount,0)) 
+									,TotalTaxServiceAndChargesBC=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(SCr.BooksCurrencyTaxAmount,0),2))
+									,TotalTaxBC=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)
+									,ServiceChargesBC=sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)) 
+									,ServiceChargeTaxBC=sum(round(isnull(SCr.BooksCurrencyTaxAmount,0),2))
+									,CGSTBC=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2)) 		
+									,SGSTBC=sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))
+									,IGSTBC=sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))
+									,TCSBC=round(isnull(TAxInfo6.BooksTaxAmount,0),2) 
 
 								,0 SetOff,0 Balance
-								 ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,'' PartyType,PAG.UserName PartyAccountGroup
-								,P.TINNO GSTINNo,CN.UserName Country
+								 ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,'' PartyType
+								,CN.UserName Country,EI.EmployeeName ResponsiblePerson
 								FROM[TRN].[InventorySales] AS II
 								left JOIN (select InventoryMaterialId,Id,InventorySalesId,sum(PolicyRate) PolicyRate, sum(TransactionQty) Qty ,Sum(SalesRate) SalesRate,(Sum(SalesRate)*sum(TransactionQty)) TransactionAmount, IsAsset,BaseUOMId,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from  TRN.InventorySalesDetail group by InventoryMaterialId,InventorySalesId,IsAsset,BaseUOMId,Id) AS IID ON IID.InventorySalesId= II.Id AND IID.IsAsset= 0
 								left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId=TUoM.Id	
@@ -1385,6 +1388,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
 								Left JOIN [ORG].[Entity] E On E.id= II.EntityId
 								LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=II.InvoicingPartyPlantId
+								LEFT JOIN [HKP].[PartyPlant] AS PPD ON PPD.Id=II.DeliveryPartyPlantId
 								left Join hkp.Party P On p.id=II.CustomerId
 								left Join MST.AddressMaster AM On AM.id=P.AddressMasterId
 								left Join SCS.Country  CN On CN.id=AM.CountryId
@@ -1394,7 +1398,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
 									LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
 								Left Join [ORG].[Plant] Pnt On Pnt.Id=II.PlantId
-
+									LEFT JOIN [ORG].[Company] AS CO ON CO.Id=II.CompanyId
+									LEFT JOIN [SCS].[Currency] AS C ON C.Id=CO.BaseCurrencyId
 								LEFT JOIN(Select sum(Amount) ServiceAmount, sum(TotalTaxAmount) TotalTaxAmount,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount,Sum(BooksCurrencyTaxAmount) BooksCurrencyTaxAmount,InventorySalesId from trn.InventorySalesService group by InventorySalesId)SCr ON SCr.InventorySalesId=II.Id
 								LEFT JOIN(Select distinct sum(TaxAmount) TaxAmount, InventorySalesId,sum(BooksCurrencyTaxAmount) BooksCurrencyTaxAmount from trn.InventorySalesTax group by InventorySalesId)SCr1 ON SCr1.InventorySalesId=II.Id
 
@@ -1450,7 +1455,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 											GROUP BY A.InventorySalesId
 								) TAxInfo6 ON TAxInfo6.InventorySalesId=II.Id
 								WHERE II.PlantId='" + PlantId + @"' and II.CustomerId<>'' AND convert(Date,II.SalesDate) between '" + FromDate + @"' AND '" + ToDate + @"'
-								GROUP BY P.Id, p.Code, PPI.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName,TAxInfo6.TaxAmount,TAxInfo6.BooksTaxAmount,P.TINNO,CN.UserName";
+								GROUP BY P.Id, p.Code, PPI.UserName,PPD.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName,TAxInfo6.TaxAmount,TAxInfo6.BooksTaxAmount,P.TINNO,CN.UserName,C.Code,EI.EmployeeName";
 
                 if (isreport)
                 {
