@@ -50,6 +50,7 @@ namespace Library.Model.Accounts
         public string BankReconciliationUploadedDataId { get; set; }
         public string VoucherDetailId { get; set; }
         public string GLTransactionDetailId { get; set; }
+        public string ReconGroupNo { get; set; }
         #endregion Navigation Properties
     }
 }
