@@ -11,6 +11,7 @@ using Library.Model.Vouchers;
 using Library.Service.Enums;
 using Library.Service.Helpers;
 using Library.Service.Logs;
+using Library.Service.Systems;
 using Library.ViewModel.Accounts;
 using Library.ViewModel.OrderManagements;
 using Library.ViewModel.Vouchers;
@@ -289,6 +290,7 @@ namespace Library.Accounting.Accounts
                 DataTable QryVoucherType = _sqlRepository.GetDataTable("select VT.Id VoucherTypeId from [SCS].[VoucherType] VT LEFT JOIN [SCS].[VoucherTypeMatrix] VTM ON VT.Id=VTM.VoucherTypeId where VTM.SourceType='" + SourceType.BankJournal.ToString() + "' ");
                 DataTable QryRoundingGL = _sqlRepository.GetDataTable("SELECT TOP(1) FTGL.* FROM [HKP].[FinancingTypeGL] AS FTGL  INNER JOIN [ORG].[Company] AS C ON C.COAId=FTGL.COAId    LEFT JOIN [HKP].[FinancingType] AS FT ON FT.Id=FTGL.FinancingTypeId WHERE FT.SourceType='Rounding' ");
                 _accountsCommonService.GetParallelCurrency(voucherVM.Rows[0]["CompanyId"].ToString(), out string companyCurrencyId, out string companyCurrencyCode);
+                string ReconGroupNo = _accountsCommonService.GetAutoNumber("BankReconGroup", PKGeneratorEnum.Yearly, null, DateTime.Now);
 
 
 
@@ -432,6 +434,7 @@ namespace Library.Accounting.Accounts
                         BankReconciliationUploadedDataId = bankReconciliationList.FirstOrDefault().BankReconciliationUploadedDataId,
                         VoucherDetailId = voucherDr.Id,
                         GLTransactionDetailId = glTransactionDetail.Id,
+                        ReconGroupNo = ReconGroupNo,
                     };
 
                     _accountsCommonService.InsertBankReconciliationMap(bankReconciliationMapDr, ref _BankReconciliationUploadedDataAdjustment);
@@ -533,6 +536,7 @@ namespace Library.Accounting.Accounts
                         BankReconciliationUploadedDataId = bankReconciliationList.FirstOrDefault().BankReconciliationUploadedDataId,
                         VoucherDetailId = voucherCr.Id,
                         GLTransactionDetailId = glTransactionDetail.Id,
+                        ReconGroupNo = ReconGroupNo,
                     };
 
                     _accountsCommonService.InsertBankReconciliationMap(bankReconciliationMapCr, ref _BankReconciliationUploadedDataAdjustment);
@@ -547,6 +551,7 @@ namespace Library.Accounting.Accounts
                         BankReconciliationUploadedDataId = item.BankReconciliationUploadedDataId,
                         VoucherDetailId = item.VoucherDetailId,
                         GLTransactionDetailId = item.GLTransactionDetailId,
+                        ReconGroupNo = ReconGroupNo,
                     };
 
                     _accountsCommonService.InsertBankReconciliationMap(bankReconciliationMap, ref _BankReconciliationUploadedData);
