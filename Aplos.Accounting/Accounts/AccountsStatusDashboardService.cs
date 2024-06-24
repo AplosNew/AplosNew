@@ -3674,7 +3674,7 @@ namespace Library.Accounting.Accounts
                 
                 WHERE  V.IsPark=0  AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice','InventorySales')
                 and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + searchDate + @"
-                and ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0 and  IV.IsWrittenOff=0
+                and ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0 
                 
                 union all
 				 SELECT ISNULL( IV.PartyId,'') NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,ISNULL( IV.PartyId,'')PartyId
@@ -3764,7 +3764,7 @@ namespace Library.Accounting.Accounts
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
                 WHERE IV.Archive=0 AND V.IsPark=0  AND IV.PartyType='Customer' AND IV.SourceType in ('DebitNote','CustomerReceipt')
-                     AND ISNULL(CC.CompanyCurrencyAmountDr,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)>0 and  IV.IsWrittenOff=0
+                     AND ISNULL(CC.CompanyCurrencyAmountDr,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)>0 
                  and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + searchDate + @"
 				)
 				X 
