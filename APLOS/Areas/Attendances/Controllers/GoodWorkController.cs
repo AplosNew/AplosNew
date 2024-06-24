@@ -1539,7 +1539,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 								,apd.GWPaymentAdviseId 
 								,onw.FormulaDesID
                                 ,EN.UserName Entity,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
-								,B.Basic,B.BasicSalaryHeadID
+								,B.Basic,format((B.Basic/26/8),'N2')BasicRate,B.BasicSalaryHeadID
                                 ,format(sum(apd.OverStay),'N2') OverStayMinute
                                 ,format((sum(apd.OverStay)/60),'N2') OverStayHour
                                 ,DesM.UserName GivenDesignation,DG.UserName LegalDesignation,EI.PaymentMode PaymentSource
@@ -1615,7 +1615,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 								,apd.GWPaymentAdviseId 
 								,onw.FormulaDesID
                                 ,EN.UserName Entity,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
-								,B.Basic,B.BasicSalaryHeadID
+								,B.Basic,format((B.Basic/26/8),'N2')BasicRate,B.BasicSalaryHeadID
                                 ,format(sum(apd.OverStay),'N2') OverStayMinute
                                 ,format((sum(apd.OverStay)/60),'N2') OverStayHour
                                 ,DesM.UserName GivenDesignation,DG.UserName LegalDesignation,EI.PaymentMode PaymentSource
@@ -1741,10 +1741,10 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                         
                             drmo.BeginEdit();
                             drmo["Rate"] = Convert.ToDecimal(sFormulaResult);
-                            drmo["Amount"] = Math.Floor((((((basic/30)*payDays) + ((standardOTHour + additionalOTHour) * rate)) * percentage/100)/multiple)) * multiple - tobeApprovedAmount- approvedAmount- paidAmount;
+                            drmo["Amount"] = Math.Floor((((((basic/26)*payDays) + ((standardOTHour + additionalOTHour) * rate)) * percentage/100)/multiple)) * multiple - tobeApprovedAmount- approvedAmount- paidAmount;
                             if (saveUpdate == "Save")
                             {
-                                drmo["AdvanceAmount"] = Math.Floor((((((basic / 30) * payDays) + ((standardOTHour + additionalOTHour) * rate)) * percentage / 100) / multiple)) * multiple - tobeApprovedAmount - approvedAmount - paidAmount;
+                                drmo["AdvanceAmount"] = Math.Floor((((((basic / 26) * payDays) + ((standardOTHour + additionalOTHour) * rate)) * percentage / 100) / multiple)) * multiple - tobeApprovedAmount - approvedAmount - paidAmount;
                             }
                             else
                             {
@@ -1754,7 +1754,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                                 }
                                 else
                                 {
-                                    drmo["AdvanceAmount"] = Math.Floor((((((basic / 30) * payDays) + ((standardOTHour + additionalOTHour) * rate)) * percentage / 100) / multiple)) * multiple - tobeApprovedAmount - approvedAmount - paidAmount;
+                                    drmo["AdvanceAmount"] = Math.Floor((((((basic / 26) * payDays) + ((standardOTHour + additionalOTHour) * rate)) * percentage / 100) / multiple)) * multiple - tobeApprovedAmount - approvedAmount - paidAmount;
                                 }
                             }
 
