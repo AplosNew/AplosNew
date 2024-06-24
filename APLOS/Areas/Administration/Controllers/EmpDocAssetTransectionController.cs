@@ -262,13 +262,13 @@ left join dbo.EmployeeInformation EI on DS.GivenById=EI.SystemId
                 {
 
                     var fileName = Path.GetFileName(UploadDefault_data + new FileInfo(file.FileName).Extension);
-                    var destinationPath = Path.Combine(ResourcesPathReader.GetProductImagePath(), fileName);
+                    var destinationPath = Path.Combine(ResourcesPathReader.GetEmpDocAssetTransactionPath(), fileName);
 
-                    if (System.IO.Directory.Exists(ResourcesPathReader.GetProductImagePath()) == false)
+                    if (System.IO.Directory.Exists(ResourcesPathReader.GetEmpDocAssetTransactionPath()) == false)
                     {
                         try
                         {
-                            System.IO.Directory.CreateDirectory(ResourcesPathReader.GetProductImagePath());
+                            System.IO.Directory.CreateDirectory(ResourcesPathReader.GetEmpDocAssetTransactionPath());
                         }
                         catch (Exception)
                         {
