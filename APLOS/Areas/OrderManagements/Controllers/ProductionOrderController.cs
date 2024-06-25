@@ -62,6 +62,10 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             return View();
         }
+        public ActionResult Type2()
+        {
+            return View();
+        }
         #endregion
 
         #region -- Operations
@@ -109,6 +113,17 @@ namespace Aplos.Areas.OrderManagements.Controllers
             string sql = @"SELECT distinct P.Id,P.UserName FROM PlanningTypes AS pt 
 INNER JOIN hkp.Process AS p ON p.Id=pt.BaseProcessId
 WHERE PT.PlanningType='PlanningType1' AND pt.CompanyGroupId='" + identity.CompanyGroupId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetPlanningType2ProcessCbo()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT distinct P.Id,P.UserName FROM PlanningTypes AS pt 
+INNER JOIN hkp.Process AS p ON p.Id=pt.BaseProcessId
+WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.CompanyGroupId + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
