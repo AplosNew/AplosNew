@@ -3559,6 +3559,36 @@ namespace Library.Accounting.Accounts
                     ) AS CC ON CC.VoucherDetailId=VD.Id
                     WHERE V.Archive=0 AND V.IsPark=0 AND V.PlantId='" + plantId + @"' AND convert(Date,V.PostingDate) <= '" + toDate + @"' AND VD.PartyId=X.PartyId AND VD.PartyType IN ('Customer') 
 					GROUP BY VD.PartyId),0) LedgerBalanceAmount
+                ,ISNULL( round(SUM(X.ActualBalance),0),2) -ISNULL((SELECT round(sum(VDCA.CrAmount),2) -round(sum(ISNULL(AW.AdvanceWriteOffBooksAmount,0)),2) FROM TRN.Advance A
+					INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
+					INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdvanceDetailId=AD.Id
+				    INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCA ON VDCA.VoucherDetailId=VDA.Id
+                    LEFT JOIN (select round(SUM(VDCW.DrAmount),2) AdvanceWriteOffBooksAmount,AdvanceId from [TRN].[AdvanceWriteOffDetail] AWD
+					INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.AdvanceWriteOffDetailId=AWD.Id
+					INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+                    LEFT JOIN [TRN].[AdvanceWriteOff] AW ON AW.Id=AWD.AdvanceWriteOffId WHERE AW.IsPark=0 AND AW.Archive=0 GROUP BY AdvanceId)AW ON AW.AdvanceId=A.Id
+					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId AND A.IsPark=0 and A.SourceType='CustomerAdvance'  group by A.PartyId ),0) 
+                    -ISNULL((SELECT round(SUM(VDC.CrAmount),2) - round(SUM(ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)),2)  FROM [TRN].[AdjustmentNote] A
+					 INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
+                     INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
+                     INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VDA.Id
+					 LEFT JOIN (select round(SUM(ISNULL(VDCW.DrAmount,0)),2) AdjustmentNoteWriteOffBooksAmount,AdjustmentNoteId from [TRN].[InvoiceWriteOffDetail] IWD
+										INNER JOIN [TRN].[InvoiceWriteOff] IW ON IW.Id=IWD.InvoiceWriteOffId
+										INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.InvoiceWriteOffDetailId=IWD.Id
+										 INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+										where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null
+										GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=AD.AdjustmentNoteId
+					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and VDA.PartyType='Customer' and A.SourceType='CreditNote'  AND A.IsPark=0  group by A.PartyId ),0) 
+                 -ISNULL((SELECT  round(SUM(ISNULL(CC.CompanyCurrencyDrAmount, 0)),2) - round(SUM(ISNULL(CC.CompanyCurrencyCrAmount, 0)),2) AS LedgerBalanceAmount
+                    FROM [TRN].[VoucherDetail] AS VD
+                    LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                    LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                    FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                    WHERE CPC.ParallelCurrencyType='CompanyCurrency' 
+                    ) AS CC ON CC.VoucherDetailId=VD.Id
+                    WHERE V.Archive=0 AND V.IsPark=0 AND V.PlantId='" + plantId + @"' AND convert(Date,V.PostingDate) <= '" + toDate + @"' AND VD.PartyId=X.PartyId AND VD.PartyType IN ('Customer') 
+					GROUP BY VD.PartyId),0) DiffrenceActualVsLedger
                 ,CASE WHEN (SELECT COUNT(V.Id)NoOfPendingPostWriteOff
                     FROM [TRN].[VoucherDetail] AS VD
 		            LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
@@ -4108,21 +4138,6 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, COL].ColumnWidth = 12;
                 COL++;
 
-                worksheet[ROW, COL].Text = "Party Group";
-                int colPartyGroup = COL;
-                worksheet[ROW, COL].ColumnWidth = 12;
-                COL++;
-
-                worksheet[ROW, COL].Text = "Party Category";
-                int colPartyCategory = COL;
-                worksheet[ROW, COL].ColumnWidth = 12;
-                COL++;
-
-                worksheet[ROW, COL].Text = "Party Sub Category";
-                int colPartySubCategory = COL;
-                worksheet[ROW, COL].ColumnWidth = 12;
-                COL++;
-
                 worksheet[ROW, COL].Text = "ResponsiblePerson";
                 int colResponsiblePerson = COL;
                 worksheet[ROW, COL].ColumnWidth = 12;
@@ -4138,9 +4153,28 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, COL].ColumnWidth = 35;
                 COL++;
 
-                worksheet[ROW, COL].Text = "No Of Invoice";
-                int colNoOfInvoice = COL;
-                worksheet[ROW, COL].ColumnWidth = 12;
+                //worksheet[ROW, COL].Text = "No Of Invoice";
+                //int colNoOfInvoice = COL;
+                //worksheet[ROW, COL].ColumnWidth = 12;
+                //COL++;
+
+
+                worksheet[ROW, COL].Text = "InvoiceValue (BC)";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colBooksGross = COL;
+                worksheet[ROW, COL].ColumnWidth = 20;
+                COL++;
+
+                worksheet[ROW, COL].Text = "SetOffAmount (BC)";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colBooksSetOff = COL;
+                worksheet[ROW, COL].ColumnWidth = 20;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Balance (BC)";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colBooksBalance = COL;
+                worksheet[ROW, COL].ColumnWidth = 20;
                 COL++;
 
                 worksheet[ROW, COL].Text = "Advance";
@@ -4161,36 +4195,11 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, COL].ColumnWidth = 15;
                 COL++;
 
-                worksheet[ROW, COL].Text = "Books Gross Sales";
-                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colBooksGross = COL;
-                worksheet[ROW, COL].ColumnWidth = 20;
-                COL++;
-
-                worksheet[ROW, COL].Text = "Books Set-Off";
-                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colBooksSetOff = COL;
-                worksheet[ROW, COL].ColumnWidth = 20;
-                COL++;
-
-                worksheet[ROW, COL].Text = "Books Balance";
-                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colBooksBalance = COL;
-                worksheet[ROW, COL].ColumnWidth = 20;
-                COL++;
-
-
-                worksheet[ROW, COL].Text = "Net Balance";
-                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colNetBalance = COL;
-                worksheet[ROW, COL].ColumnWidth = 20;
-                COL++;
-
-                worksheet[ROW, COL].Text = "Ledger Balance Amount";
-                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colLedgerBalanceAmount = COL;
-                worksheet[ROW, COL].ColumnWidth = 22;
-                COL++;
+                //worksheet[ROW, COL].Text = "Net Balance";
+                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colNetBalance = COL;
+                //worksheet[ROW, COL].ColumnWidth = 20;
+                //COL++;
 
                 worksheet[ROW, COL].Text = "Actual Balance";
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -4198,7 +4207,19 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, COL].ColumnWidth = 20;
                 COL++;
 
-                worksheet[ROW, COL].Text = "WriteOff Pending Post";
+                worksheet[ROW, COL].Text = "Ledger Balance";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colLedgerBalanceAmount = COL;
+                worksheet[ROW, COL].ColumnWidth = 22;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Diffrence Actual Vs Ledger";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colDiffrenceActualVsLedger = COL;
+                worksheet[ROW, COL].ColumnWidth = 22;
+                COL++;
+
+                worksheet[ROW, COL].Text = "SetOff Pending Post";
                 int colWriteOffPendingPost = COL;
                 worksheet[ROW, COL].ColumnWidth = 21;
                 COL++;
@@ -4249,6 +4270,26 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colOnword60 = COL;
                 worksheet[ROW, COL].ColumnWidth = 15;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Party Group";
+                int colPartyGroup = COL;
+                worksheet[ROW, COL].ColumnWidth = 12;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Party Category";
+                int colPartyCategory = COL;
+                worksheet[ROW, COL].ColumnWidth = 12;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Party Sub Category";
+                int colPartySubCategory = COL;
+                worksheet[ROW, COL].ColumnWidth = 12;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Party Code";
+                int colPartyCode = COL;
+                worksheet[ROW, COL].ColumnWidth = 12;
                 COL++;
 
                 worksheet[ROW, COL].Text = "Is Vendor";
@@ -4302,7 +4343,7 @@ namespace Library.Accounting.Accounts
                 for (int i = 0; i < dsData.Rows.Count; i++)
                 {
                     //worksheet[ROW, colSLNO].Number = i + 1;
-                    worksheet[ROW, colNoOfInvoice].Number = clsStaticInfo.dbl(dsData.Rows[i]["NoOfInvoice"].ToString());
+                    //worksheet[ROW, colNoOfInvoice].Number = clsStaticInfo.dbl(dsData.Rows[i]["NoOfInvoice"].ToString());
                     worksheet[ROW, colPartyNature].Text = dsData.Rows[i]["PartyNature"].ToString();
                     worksheet[ROW, colPartyGroup].Text = dsData.Rows[i]["PartyGroup"].ToString();
                     worksheet[ROW, colPartyCategory].Text = dsData.Rows[i]["PartyCategory"].ToString();
@@ -4321,8 +4362,8 @@ namespace Library.Accounting.Accounts
                     worksheet[ROW, colBooksBalance].Number = clsStaticInfo.dbl(dsData.Rows[i]["BooksBalance"].ToString());
                     worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                    worksheet[ROW, colNetBalance].Number = clsStaticInfo.dbl(dsData.Rows[i]["NetBalance"].ToString());
-                    worksheet[ROW, colNetBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                    //worksheet[ROW, colNetBalance].Number = clsStaticInfo.dbl(dsData.Rows[i]["NetBalance"].ToString());
+                    //worksheet[ROW, colNetBalance].NumberFormat = "#,##0.00;(#,##0.00)";
 
                     worksheet[ROW, colActualBalance].Number = clsStaticInfo.dbl(dsData.Rows[i]["ActualBalance"].ToString());
                     worksheet[ROW, colActualBalance].NumberFormat = "#,##0.00;(#,##0.00)";
@@ -4363,8 +4404,12 @@ namespace Library.Accounting.Accounts
                     worksheet[ROW, colLedgerBalanceAmount].Number = clsStaticInfo.dbl(dsData.Rows[i]["LedgerBalanceAmount"].ToString());
                     worksheet[ROW, colLedgerBalanceAmount].NumberFormat = "#,##0.00;(#,##0.00)";
 
+                    worksheet[ROW, colDiffrenceActualVsLedger].Number = clsStaticInfo.dbl(dsData.Rows[i]["DiffrenceActualVsLedger"].ToString());
+                    worksheet[ROW, colDiffrenceActualVsLedger].NumberFormat = "#,##0.00;(#,##0.00)";
+
                     worksheet[ROW, colWriteOffPendingPost].Text = dsData.Rows[i]["WriteOffPendingPost"].ToString();
 
+                    worksheet[ROW, colPartyCode].Text = dsData.Rows[i]["PartyCode"].ToString();
                     worksheet[ROW, colIsVendor].Text = dsData.Rows[i]["IsVendor"].ToString();
 
                     ROW++;
@@ -4386,9 +4431,9 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
                 worksheet[ROW, colBooksBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-                worksheet[ROW, colNetBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colNetBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colActualBalance) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colNetBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colNetBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //worksheet[ROW, colNetBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colNetBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colActualBalance) + (ROW - 1).ToString() + ")";
+                //worksheet[ROW, colNetBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[ROW, colNetBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 worksheet[ROW, colActualBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colActualBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colActualBalance) + (ROW - 1).ToString() + ")";
                 worksheet[ROW, colActualBalance].NumberFormat = "#,##0.00;(#,##0.00)";
@@ -4397,6 +4442,10 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, colLedgerBalanceAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colLedgerBalanceAmount) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colLedgerBalanceAmount) + (ROW - 1).ToString() + ")";
                 worksheet[ROW, colLedgerBalanceAmount].NumberFormat = "#,##0.00;(#,##0.00)";
                 worksheet[ROW, colLedgerBalanceAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colDiffrenceActualVsLedger].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colDiffrenceActualVsLedger) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colDiffrenceActualVsLedger) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colDiffrenceActualVsLedger].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colDiffrenceActualVsLedger].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 worksheet[ROW, colODueMoreThan30].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueMoreThan30) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueMoreThan30) + (ROW - 1).ToString() + ")";
                 worksheet[ROW, colODueMoreThan30].NumberFormat = "#,##0.00;(#,##0.00)";
@@ -4767,28 +4816,8 @@ namespace Library.Accounting.Accounts
                 sheet1[xlsRow, xlsCol].ColumnWidth = 12;
                 xlsCol++;
 
-                sheet1[xlsRow, xlsCol].Text = "Party Group";
-                int colPartyGroup = xlsCol;
-                sheet1[xlsRow, xlsCol].ColumnWidth = 12;
-                xlsCol++;
-
-                sheet1[xlsRow, xlsCol].Text = "Party Category";
-                int colPartyCategory = xlsCol;
-                sheet1[xlsRow, xlsCol].ColumnWidth = 12;
-                xlsCol++;
-
-                sheet1[xlsRow, xlsCol].Text = "Party Sub Category";
-                int colPartySubCategory = xlsCol;
-                sheet1[xlsRow, xlsCol].ColumnWidth = 12;
-                xlsCol++;
-
                 sheet1[xlsRow, xlsCol].Text = "Responsible Person";
                 int colResponsiblePerson = xlsCol;
-                sheet1[xlsRow, xlsCol].ColumnWidth = 12;
-                xlsCol++;
-
-                sheet1[xlsRow, xlsCol].Text = "Entity";
-                int colEntity = xlsCol;
                 sheet1[xlsRow, xlsCol].ColumnWidth = 12;
                 xlsCol++;
 
@@ -4800,6 +4829,26 @@ namespace Library.Accounting.Accounts
                 int iPartyName = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Party";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 30;
+                xlsCol++;
+
+                
+                int iGross = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "InvoiceValue (BC)";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                xlsCol++;
+
+               
+                int iSetOff = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "SetOffAmount (BC)";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                xlsCol++;
+                
+                int iBalance = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Balance (BC)";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 xlsCol++;
 
                 int iPartyPlantName = xlsCol;
@@ -4817,54 +4866,59 @@ namespace Library.Accounting.Accounts
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
                 xlsCol++;
 
-
-                //xlsCol++;
+                
                 int iActualDueDate = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Due Date";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                //xlsCol++;
-
-
                 xlsCol++;
+
+
                 int iInvoiceNo = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Doc Ref";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-
                 xlsCol++;
+
                 int iDocDate = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Doc Date";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-
                 xlsCol++;
+
                 sheet1[xlsRow, xlsCol].Text = "Due Days";
                 sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int iBaseNoOfDays = xlsCol;
                 sheet1[xlsRow, xlsCol].ColumnWidth = 13;
-
                 xlsCol++;
+
                 int iCurrencyCode = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Currency";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10;
-
-                //Gross
                 xlsCol++;
-                int iGross = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Books Gross Sales";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                
 
-
+                sheet1[xlsRow, xlsCol].Text = "Party Group";
+                int colPartyGroup = xlsCol;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 12;
                 xlsCol++;
-                int iSetOff = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Books Set-Off";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
+                sheet1[xlsRow, xlsCol].Text = "Party Category";
+                int colPartyCategory = xlsCol;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 12;
                 xlsCol++;
-                int iBalance = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Books Balance";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet1[xlsRow, xlsCol].Text = "Party Sub Category";
+                int colPartySubCategory = xlsCol;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 12;
+                xlsCol++;
+
+                sheet1[xlsRow, xlsCol].Text = "Entity";
+                int colEntity = xlsCol;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 12;
+                xlsCol++;
+
+                sheet1[xlsRow, xlsCol].Text = "Party Code";
+                int colPartyCode = xlsCol;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 12;
+                
 
                 //xlsCol++;
                 int iGSTIN = xlsCol;
@@ -4941,6 +4995,7 @@ namespace Library.Accounting.Accounts
                         sheet1.Range[xlsRow, colEntity].Text = dtRCMPayable.Rows[i]["Entity"].ToString();
                         sheet1.Range[xlsRow, colPartyId].Text = dtRCMPayable.Rows[i]["PartyId"].ToString();
                         sheet1.Range[xlsRow, iPartyName].Text = dtRCMPayable.Rows[i]["PartyName"].ToString();
+                        sheet1.Range[xlsRow, colPartyCode].Text = dtRCMPayable.Rows[i]["PartyCode"].ToString();
 
                         sheet1.Range[xlsRow, iPartyPlantName].Text = dtRCMPayable.Rows[i]["PartyPlantName"].ToString();
                         sheet1.Range[xlsRow, iCurrencyCode].Text = dtRCMPayable.Rows[i]["CurrencyCode"].ToString();
@@ -4987,6 +5042,7 @@ namespace Library.Accounting.Accounts
                 sheet1[perStartRow, iBaseNoOfDays, xlsRow - 1, iBaseNoOfDays].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, colVoucherNo, xlsRow - 1, colVoucherNo].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iPartyName, xlsRow - 1, iPartyName].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, colPartyCode, xlsRow - 1, colPartyCode].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, colPartyNature, xlsRow - 1, colPartyNature].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, colPartyGroup, xlsRow - 1, colPartyGroup].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, colPartyId, xlsRow - 1, colPartyId].BorderAround(ExcelLineStyle.Hair);
