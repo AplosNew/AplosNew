@@ -296,5 +296,11 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             templateUrl: 'OrderManagements/ProductionOrderSchedulingParametersType1/AplosNew',
             controller: 'productionOrderSchedulingParametersType1NewController'
         })
+        .when('/pro-order-type2', {
+            templateUrl: 'OrderManagements/productionorder/Type2',
+            controller: 'productionOrderType2Controller'
+        })
+
+
         ;
 }

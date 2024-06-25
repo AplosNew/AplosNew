@@ -403,8 +403,8 @@ namespace Library.Service.SalesManagements
                 _salesRepository.Update(sales);
 
                 var currentSalesMaterialId = _salesMaterialRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 4) AS INT)), 0) Id FROM TRN.SalesMaterial WHERE SalesId='{sales.Id}'").First();
-                var currentSalesTaxId = _salesMaterialRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 4) AS INT)), 0) Id FROM TRN.SalesTax WHERE SalesId='{sales.Id}' AND SalesServiceId IS NULL" ).First();
-                var currentServiceSalesTaxId = _salesMaterialRepository.SqlQuery<int>($"SELECT Count(Id) Id FROM TRN.SalesTax WHERE SalesId='{sales.Id}' AND SalesmaterialId IS NULL" ).First();
+                var currentSalesTaxId = _salesMaterialRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 4) AS INT)), 0) Id FROM TRN.SalesTax WHERE SalesId='{sales.Id}' AND SalesServiceId IS NULL").First();
+                var currentServiceSalesTaxId = _salesMaterialRepository.SqlQuery<int>($"SELECT Count(Id) Id FROM TRN.SalesTax WHERE SalesId='{sales.Id}' AND SalesmaterialId IS NULL").First();
 
                 var currentSalesServiceId = 0;
                 if (salesMaterialVMList != null)
@@ -659,7 +659,7 @@ namespace Library.Service.SalesManagements
                                         currentServiceSalesTaxId++;
                                         var salesTax = new SalesTax
                                         {
-                                            Id = _pkGeneratorService.MakePK("S"+salesService.Id, currentServiceSalesTaxId, 2),
+                                            Id = _pkGeneratorService.MakePK("S" + salesService.Id, currentServiceSalesTaxId, 2),
                                             AddedBy = sales.AddedBy,
                                             AddedDate = sales.AddedDate,
                                             AddedFromIP = sales.AddedFromIP,
@@ -1944,8 +1944,8 @@ namespace Library.Service.SalesManagements
                 var currentSalesTaxId = 0;
                 if (salesMaterialVMList != null)
                 {
-                    //var historyId = _salesMaterialRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM TRN.SalesMaterial WHERE SalesId='{sales.Id}'").First();
-                    var historyId = _salesMaterialRepository.SqlQuery<int>($"SELECT ISNULL(COUNT(Id), 0) Id FROM TRN.SalesMaterial WHERE SalesId='{sales.Id}'").First();
+                    var historyId = _salesMaterialRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM TRN.SalesMaterial WHERE SalesId='{sales.Id}'").First();
+                    //var historyId = _salesMaterialRepository.SqlQuery<int>($"SELECT ISNULL(COUNT(Id), 0) Id FROM TRN.SalesMaterial WHERE SalesId='{sales.Id}'").First();
                     foreach (var salesMaterialVM in salesMaterialVMList)
                     {
                         currentSalesMaterialId++;
@@ -3144,7 +3144,7 @@ namespace Library.Service.SalesManagements
                     };
                     AuditService.AddedLog(InventorySales);
                     _SalesRepository.Insert(InventorySales);
-                   
+
                     for (int i = 0; i < dsDetail.Tables[0].Rows.Count; i++)
                     {
                         currentSalesMaterialId++;
@@ -3197,7 +3197,7 @@ namespace Library.Service.SalesManagements
                     }
                 }
 
-                
+
                 if (salesMaterialVMList != null)
                 {
                     foreach (var salesMaterialVM in salesMaterialVMList)
@@ -3508,15 +3508,16 @@ namespace Library.Service.SalesManagements
                 var currentSalesTaxId = 0;
                 if (salesMaterialVMList != null)
                 {
+                    var historyId = _salesMaterialRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM TRN.SalesMaterial WHERE SalesId='{sales.Id}'").First();
                     foreach (var salesMaterialVM in salesMaterialVMList)
                     {
                         currentSalesMaterialId++;
-
                         if (string.IsNullOrEmpty(salesMaterialVM.Id))
                         {
+                            historyId++;
                             var salesMaterial = new SalesMaterial
                             {
-                                Id = _pkGeneratorService.MakePK(sales.Id, currentSalesMaterialId, 2),
+                                Id = _pkGeneratorService.MakePK(sales.Id, historyId, 2),
                                 SalesId = sales.Id,
                                 SalesOrderId = salesMaterialVM.SalesOrderId,
                                 MaterialMasterId = salesMaterialVM.MaterialMasterId,
