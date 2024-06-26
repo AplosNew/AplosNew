@@ -2857,8 +2857,8 @@ namespace Aplos.Areas.Accounts.Controllers
                 };
                 if (isActivityLevel)
                 {
-                    parameters.CmdText = @"SELECT * FROM (SELECT [AccountCodeId], [ParallelCurrencyId], [CurrencyCode],SUM(CAST([DRcumulative] AS DECIMAL(18,2))) DRcumulative
-									, SUM(CAST([CRcumulative] AS DECIMAL(18,2)))CRcumulative
+                    parameters.CmdText = @"SELECT * FROM (SELECT [AccountCodeId], [ParallelCurrencyId], [CurrencyCode],SUM(CAST([CBDRcumulative] AS DECIMAL(18,2))) DRcumulative
+									, SUM(CAST([CBCRcumulative] AS DECIMAL(18,2)))CRcumulative
 									, [BalanceType], [MainHead], [GLGeneralInfoId], [GL], [GLGeneralInfoCode], [Budget], [BudgetMasterId], [Activity], [ActivityId]
 									FROM [TRN].[FiscalYearCloseTrialBalance]  FYCB WHERE FYCB.FiscalYearCloseId= '" + fiscalYearCloseId + @"' AND FYCB.CompanyId='" + companyId + @"'  AND FYCB.PlantId='" + plantId + @"'   
                                     GROUP BY [AccountCodeId], [ParallelCurrencyId], [CurrencyCode], [BalanceType], [MainHead], [GLGeneralInfoId], [GL], [GLGeneralInfoCode]
@@ -2869,8 +2869,8 @@ namespace Aplos.Areas.Accounts.Controllers
                 }
                 else if (isBudgetLevel)
                 {
-                    parameters.CmdText = @"SELECT * FROM ( SELECT [AccountCodeId], [ParallelCurrencyId], [CurrencyCode],SUM(CAST([DRcumulative] AS DECIMAL(18,2))) DRcumulative
-									, SUM(CAST([CRcumulative] AS DECIMAL(18,2)))CRcumulative
+                    parameters.CmdText = @"SELECT * FROM ( SELECT [AccountCodeId], [ParallelCurrencyId], [CurrencyCode],SUM(CAST([CBDRcumulative] AS DECIMAL(18,2))) DRcumulative
+									, SUM(CAST([CBCRcumulative] AS DECIMAL(18,2)))CRcumulative
 									, [BalanceType], [MainHead], [GLGeneralInfoId], [GL], [GLGeneralInfoCode], [Budget], [BudgetMasterId]
 									FROM [TRN].[FiscalYearCloseTrialBalance]  FYCB WHERE FYCB.FiscalYearCloseId= '" + fiscalYearCloseId + @"' AND FYCB.CompanyId='" + companyId + @"'  AND FYCB.PlantId='" + plantId + @"'   
                                     GROUP BY [AccountCodeId], [ParallelCurrencyId], [CurrencyCode], [BalanceType], [MainHead], [GLGeneralInfoId], [GL], [GLGeneralInfoCode]
@@ -2881,8 +2881,8 @@ namespace Aplos.Areas.Accounts.Controllers
                 }
                 else if (isDetailLevel)
                 {
-                    parameters.CmdText = @"SELECT * FROM (SELECT [AccountCodeId], [ParallelCurrencyId], [CurrencyCode],CAST([DRcumulative] AS DECIMAL(18,2)) DRcumulative
-									, CAST([CRcumulative] AS DECIMAL(18,2))CRcumulative
+                    parameters.CmdText = @"SELECT * FROM (SELECT [AccountCodeId], [ParallelCurrencyId], [CurrencyCode],CAST([CBDRcumulative] AS DECIMAL(18,2)) DRcumulative
+									, CAST([CBCRcumulative] AS DECIMAL(18,2))CRcumulative
 									, [BalanceType], [MainHead], [GLGeneralInfoId], [GL], [GLGeneralInfoCode], [Budget], [BudgetMasterId], [Activity], [ActivityId],[Particulars]
                                     , BankMasterId, CashMasterId, PartyId,PartyPlantId
 									FROM [TRN].[FiscalYearCloseTrialBalance]  FYCB WHERE FYCB.FiscalYearCloseId= '" + fiscalYearCloseId + @"' AND FYCB.CompanyId='" + companyId + @"'  AND FYCB.PlantId='" + plantId + @"'   
@@ -2896,8 +2896,8 @@ namespace Aplos.Areas.Accounts.Controllers
 
                 else
                 {
-                    parameters.CmdText = @"SELECT * FROM ( SELECT [AccountCodeId], [ParallelCurrencyId], [CurrencyCode],SUM(CAST([DRcumulative] AS DECIMAL(18,2))) DRcumulative
-									, SUM(CAST([CRcumulative] AS DECIMAL(18,2)))CRcumulative
+                    parameters.CmdText = @"SELECT * FROM ( SELECT [AccountCodeId], [ParallelCurrencyId], [CurrencyCode],SUM(CAST([CBDRcumulative] AS DECIMAL(18,2))) DRcumulative
+									, SUM(CAST([CBCRcumulative] AS DECIMAL(18,2)))CRcumulative
 									, [BalanceType], [MainHead], [GLGeneralInfoId], [GL], [GLGeneralInfoCode]
 									FROM [TRN].[FiscalYearCloseTrialBalance]  FYCB WHERE FYCB.FiscalYearCloseId= '" + fiscalYearCloseId + @"' AND FYCB.CompanyId='" + companyId + @"'  AND FYCB.PlantId='" + plantId + @"'   
                                     GROUP BY [AccountCodeId], [ParallelCurrencyId], [CurrencyCode], [BalanceType], [MainHead], [GLGeneralInfoId], [GL], [GLGeneralInfoCode] )T
