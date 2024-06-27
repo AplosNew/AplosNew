@@ -13,18 +13,20 @@ namespace Library.Service.OrderManagements
         IEnumerable<object> GetSalesOrderList(GridParameter parameters, string companyId);
 
         IEnumerable<object> GetProductionRecipeMaterialList(string productionOrderId);
-
+        IEnumerable<object> GetProductionOrderType2MaterialList(string productionOrderId);
         IEnumerable<object> GetProductionOrderProcessSetList(string productionOrderId);
-
+        IEnumerable<object> GetProductionOrderType2ProcessSetList(string productionOrderId);
         IEnumerable<object> GetProductionOrderEntityList(string productionOrderId);
 
         IEnumerable<object> GetWorkCenterList(string[] entityIds,string processid);
 
         IEnumerable<object> GetProductionOrderWorkCenterList(string productionOrderId);
+        IEnumerable<object> GetProductionOrderType2WorkCenterList(string productionOrderId);
         IEnumerable<object> GetWorkCenterListByEntity(string entityId);
 
         IEnumerable<object> GetWorkCenterListByEntityandFirstProcess(string entityId, string processId, string productionOrderId);
         IEnumerable<object> GetSavedWorkCenterListByEntityandFirstProcess(string ProductionOrderId);
+        IEnumerable<object> GetSavedType2WorkCenterListByEntityandFirstProcess(string ProductionOrderId);
         void InsertGraph(ProductionOrder master, IEnumerable<ProductionOrderDetail> detaillist
             , IEnumerable<ProductionOrderProcessSet> processSetlist
             , IEnumerable<ProductionOrderEntity> entitylist
