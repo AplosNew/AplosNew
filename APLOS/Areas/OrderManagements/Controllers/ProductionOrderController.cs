@@ -25,6 +25,7 @@ using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 using Library.Service.Systems;
+using Aplos.MaterialManagement.MaterialQuery;
 
 namespace Aplos.Areas.OrderManagements.Controllers
 {
@@ -139,6 +140,16 @@ WHERE PT.PlanningType='PlanningType1' AND pt.CompanyGroupId='" + identity.Compan
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetPlanningType2EntityCbo(string processId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT DISTINCT E.Id,E.UserName FROM PlanningTypes AS pt 
+INNER JOIN org.Entity E on e.Id=pt.EntityId
+WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.CompanyGroupId + "' AND PT.BaseProcessId='" + processId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public ActionResult GetProductionHistory(string ProductionOrderId)
@@ -375,9 +386,22 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetProductionOrderType2MaterialList(string productionOrderId)
+        {
+            return Json(_productionOrderService.GetProductionOrderType2MaterialList(productionOrderId), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpGet, Authorize]
         public JsonResult GetProductionOrderProcessSetList(string productionOrderId)
         {
             return Json(_productionOrderService.GetProductionOrderProcessSetList(productionOrderId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetProductionOrderType2ProcessSetList(string productionOrderId)
+        {
+            return Json(_productionOrderService.GetProductionOrderType2ProcessSetList(productionOrderId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -405,9 +429,21 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetSavedType2WorkCenterListByEntityandFirstProcess(string productionOrderId)
+        {
+            return Json(_productionOrderService.GetSavedType2WorkCenterListByEntityandFirstProcess(productionOrderId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetProductionOrderWorkCenterList(string productionOrderId)
         {
             return Json(_productionOrderService.GetProductionOrderWorkCenterList(productionOrderId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetProductionOrderType2WorkCenterList(string productionOrderId)
+        {
+            return Json(_productionOrderService.GetProductionOrderType2WorkCenterList(productionOrderId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -2766,7 +2802,280 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
             }
         }
 
+        #region ProductionOrderType2
+        [HttpPost]
+        public JsonResult CreateProductionOrderType2(Dictionary<string, object> data, List<Dictionary<string, object>> detaillist, List<Dictionary<string, object>> processSetlist, List<Dictionary<string, object>> workcenterlist, List<Dictionary<string, object>> fpworkcenterlist)
+        {
+            try
+            {
 
+                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+                DataSet dsMaster;
+                DataSet dsDetail;
+                DataSet dsProcDetail;
+                DataSet dsWCDetail;
+                DataSet dsFPWCDetail;
+                DataSet dsDD = null;
+                DataSet dsPDD = null;
+                DataSet dsWCDD = null;
+                DataSet dsFPWCDD = null;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionOrderType2] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].DefaultView.Count == 0)
+                {
+                    if (_Id == "")
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("ProductionOrderType2", out _Id);
+                    }
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    data["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].DefaultView[0].Row, data);
+                }
+
+                #endregion data update
+
+                #region ProductionOrderType2Detail
+
+                string _MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionOrderType2Detail] where ProductionOrderId='" + data["Id"] + "'", out dsDetail, false, "1");
+                con.OpenDataSetThroughAdapter("select count(Id) countId from [TRN].[ProductionOrderType2Detail] where ProductionOrderId='" + data["Id"] + "'", out dsDD, false, "1");
+                int ccount = Convert.ToInt32(dsDD.Tables[0].Rows[0]["countId"].ToString());
+                if (detaillist != null)
+                {
+                    foreach (var item in detaillist)
+                    {
+                        DataView dv = new DataView(dsDetail.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        if (dv.Count == 0)
+                        {
+                            ccount++;
+                            string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
+                            item["Id"] = detailid;
+                            item["ProductionOrderId"] = _MasterId;
+                            
+
+                            materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
+                        }
+                        if (dv.Count > 0)
+                        {
+                            DataRow drmo = dv[0].Row;
+                            drmo.BeginEdit();
+                            drmo["SalesOrderId"] = item["SalesOrderId"];
+                            drmo.EndEdit();
+                        }
+                    }
+                }
+                #endregion ProductionOrderType2Detail
+
+                #region ProductionOrderType2ProcessSet
+
+
+                con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionOrderType2ProcessSet] where ProductionOrderId='" + data["Id"] + "'", out dsProcDetail, false, "1");
+                con.OpenDataSetThroughAdapter("select count(Id) countId from [TRN].[ProductionOrderType2ProcessSet] where ProductionOrderId='" + data["Id"] + "'", out dsPDD, false, "1");
+                int pcount = Convert.ToInt32(dsPDD.Tables[0].Rows[0]["countId"].ToString());
+                if (processSetlist != null)
+                {
+                    foreach (var item in processSetlist)
+                    {
+                        DataView dv = new DataView(dsProcDetail.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        if (dv.Count == 0)
+                        {
+                            pcount++;
+                            string detailid = materialCommonService.MakePK(_MasterId, pcount, 2);
+                            item["Id"] = detailid;
+                            item["ProductionOrderId"] = _MasterId;
+
+
+                            materialCommonService.AddNewRowD(dsProcDetail.Tables[0], item);
+                        }
+                        if (dv.Count > 0)
+                        {
+                            DataRow drmo = dv[0].Row;
+                            drmo.BeginEdit();
+                            drmo["ProcessId"] = item["ProcessId"];
+                            drmo.EndEdit();
+                        }
+                    }
+                }
+                #endregion ProductionOrderType2ProcessSet
+
+                #region ProductionOrderType2WorkCenter
+
+
+                con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionOrderType2WorkCenter] where ProductionOrderId='" + data["Id"] + "'", out dsWCDetail, false, "1");
+                con.OpenDataSetThroughAdapter("select count(Id) countId from [TRN].[ProductionOrderType2WorkCenter] where ProductionOrderId='" + data["Id"] + "'", out dsWCDD, false, "1");
+                int wccount = Convert.ToInt32(dsWCDD.Tables[0].Rows[0]["countId"].ToString());
+                if (workcenterlist != null)
+                {
+                    foreach (var item in workcenterlist)
+                    {
+                        DataView dv = new DataView(dsWCDetail.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        if (dv.Count == 0)
+                        {
+                            wccount++;
+                            string detailid = materialCommonService.MakePK(_MasterId, wccount, 2);
+                            item["Id"] = detailid;
+                            item["ProductionOrderId"] = _MasterId;
+
+
+                            materialCommonService.AddNewRowD(dsWCDetail.Tables[0], item);
+                        }
+                        if (dv.Count > 0)
+                        {
+                            DataRow drmo = dv[0].Row;
+                            drmo.BeginEdit();
+                            drmo["WorkCenterMasterId"] = item["WorkCenterMasterId"];
+                            drmo.EndEdit();
+                        }
+                    }
+                }
+                #endregion ProductionOrderType2WorkCenter
+
+                #region ProductionOrderType2FirstProcessWorkCenter
+
+
+                con.OpenDataSetThroughAdapter("select * from [dbo].[ProductionOrderType2FirstProcessWorkCenter] where ProductionOrderId='" + data["Id"] + "'", out dsFPWCDetail, false, "1");
+                con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[ProductionOrderType2FirstProcessWorkCenter] where ProductionOrderId='" + data["Id"] + "'", out dsFPWCDD, false, "1");
+                int fpwccount = Convert.ToInt32(dsFPWCDD.Tables[0].Rows[0]["countId"].ToString());
+                if (fpworkcenterlist != null)
+                {
+                    foreach (var item in fpworkcenterlist)
+                    {
+                        DataView dv = new DataView(dsWCDetail.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        if (dv.Count == 0)
+                        {
+                            fpwccount++;
+                            string detailid = materialCommonService.MakePK(_MasterId, fpwccount, 2);
+                            item["Id"] = detailid;
+                            item["ProductionOrderId"] = _MasterId;
+
+
+                            materialCommonService.AddNewRowD(dsWCDetail.Tables[0], item);
+                        }
+                        if (dv.Count > 0)
+                        {
+                            DataRow drmo = dv[0].Row;
+                            drmo.BeginEdit();
+                            drmo["WorkCenterMasterId"] = item["WorkCenterMasterId"];
+                            drmo["ProcessId"] = item["ProcessId"];
+                            drmo.EndEdit();
+                        }
+                    }
+                }
+                #endregion ProductionOrderType2FirstProcessWorkCenter
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, dsDetail, dsProcDetail, dsWCDetail, dsFPWCDetail);
+                return Json(new { Error = false, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetType2List(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 100 * from (SELECT PO.*,UsedInPB=CAST(CASE WHEN m.productionorderid IS NOT NULL THEN 1 ELSE 0 END AS BIT),isnull(po.Remarks,'') AS ProductionRemarks,isnull(s.UserName,'') AS ProductionStatus, isnull(EN.UserName,'') AS EntityName, 
+            isnull(PS.UserName,'') AS ProductionStatusName,ISNULL(so.Qty,0) AS SOQuantity
+           
+                            FROM [TRN].[ProductionOrderType2] AS PO
+                        JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
+                        LEFT JOIN [HKP].[ProductionStatus] AS PS ON PO.EntityId = PS.Id
+                        LEFT JOIN TRN.ProductionSummary M ON m.productionorderid=PO.Id
+                                AND m.Id=(SELECT TOP 1 ID FROM TRN.ProductionSummary EII WHERE EII.productionorderid=PO.Id ORDER BY EII.AddedDate DESC )
+                        LEFT OUTER  JOIN (SELECT pod.ProductionOrderId,SUM(so.Qty) AS Qty
+                                            FROM trn.SalesOrder AS so
+                        INNER JOIN trn.ProductionOrderType2Detail AS pod ON pod.SalesOrderId=so.Id 
+                  
+                                          GROUP BY pod.ProductionOrderId
+
+                        ) AS SO ON so.ProductionOrderId=po.Id
+                        LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
+
+                                                    WHERE PO.PlantId='" + identity.PlantId + "' OR EN.PlantId='" + identity.PlantId + "') AS TEMP WHERE " + strkey;
+
+
+            sql = @"select top 100 * from ( " + new Library.OrderManagement.Production.ProductionOrder().ProductionOrderType2List() + @"
+                            WHERE PO.PlantId='" + identity.PlantId + "' OR EN.PlantId='" + identity.PlantId + "') AS TEMP WHERE " + strkey + " ORDER BY AddedDate DESC";
+
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult DeleteType2(string masterid)
+        {
+            //_productionOrderService.DeleteGraph(masterid);
+            //return Json(new { Message = AplosMessage.Deleted });
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+
+                //objCon.ExecuteNonQueryWrapper(@"delete from ExpectedSOWiseProductionCompletion where ProductionOrderId='" + masterid + "'", true, "1");
+                //objCon.ExecuteNonQueryWrapper(@"delete from ProductionPlanningType1 where ProductionOrderId='" + masterid + "'", true, "1");
+                //objCon.ExecuteNonQueryWrapper(@"delete from ProductionPlanningType1 where ProductionOrderId='" + masterid + "'", true, "1");
+                //objCon.ExecuteNonQueryWrapper(@"delete from ProductionPlanningSnapshotType1 where ProductionOrderId='" + masterid + "'", true, "1");
+                //objCon.ExecuteNonQueryWrapper(@"delete from ProductionPlanningSnapshot2Type1 where ProductionOrderId='" + masterid + "'", true, "1");
+                //objCon.ExecuteNonQueryWrapper(@"delete from ProductionOrderSchedulingParametersType1 where ProductionOrderId='" + masterid + "'", true, "1");
+
+
+                //objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrderType2SubprocessSet where ProductionOrderId='" + masterid + "'", true, "1");
+                objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrderType2ProcessSet where ProductionOrderId='" + masterid + "'", true, "1");
+                //objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrderType2ProcessCriteria where ProductionOrderId='" + masterid + "'", true, "1");
+                objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrdervWorkCenter where ProductionOrderId='" + masterid + "'", true, "1");
+                objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrderType2Detail where ProductionOrderId='" + masterid + "'", true, "1");
+
+                //objCon.ExecuteNonQueryWrapper(@"delete from [TRN].[ProductionBulletinTemplateDetail] 
+                //                                Where ProductionBulletinTemplateMasterId in (Select Id from [TRN].[ProductionBulletinTemplateMaster] 
+                //                                Where ProductionBulletinTemplateId=(Select Id from [TRN].[ProductionBulletinTemplate] where ProductionOrderId='" + masterid + "'))", true, "1");
+
+                //objCon.ExecuteNonQueryWrapper(@"delete from [TRN].[ProductionBulletinTemplateMaster] 
+                //                               Where ProductionBulletinTemplateId=(Select Id from [TRN].[ProductionBulletinTemplate] where ProductionOrderId='" + masterid + "')", true, "1");
+
+                //objCon.ExecuteNonQueryWrapper(@"delete from [TRN].[ProductionBulletinTemplate] where ProductionOrderId='" + masterid + "'", true, "1");
+
+                objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrderType2 where Id='" + masterid + "'", true, "1");
+
+
+
+
+                objCon.CommitTransaction();
+                return Json(new { Message = AplosMessage.Deleted });
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Message = "Production Order might have Planning, TNA or Production Data, therefore can not delete!", Error = true });
+            }
+
+        }
+
+
+
+        #endregion
     }
 
     public class MultiCode
