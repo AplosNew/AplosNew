@@ -382,22 +382,21 @@
                                         <div e-column e-headertext="All" e-headertemplateid="#headerTemplateCustomer" e-template="#checkMasterCustomer" e-textalign="center" e-width="30"></div>
                                         <div e-column e-field="NoOfInvoice" e-template="#customerhLink" e-headertext="No Of Invoice" e-width="40"></div>
                                         <div e-column e-field="PartyNature" e-headertext="Party Nature" e-width="80"></div>
-                                        <div e-column e-field="PartyGroup" e-headertext="Party Group" e-width="80"></div>
-                                        <div e-column e-field="PartyCategory" e-headertext="Party Category" e-width="80"></div>
-                                        <div e-column e-field="PartySubCategory" e-headertext="Party Sub Category" e-width="80"></div>
                                         <div e-column e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="80"></div>
                                         <div e-column e-field="PartyId" e-headertext="Party Id" e-width="80"></div>
                                         <div e-column e-field="PartyName" e-headertext="Party" e-width="150"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksAdvance" e-headertext="Books Advance" e-width="50" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksGrossSales" e-headertext="InvoiceValue (BC)" e-width="80" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksReceipts" e-headertext="SetOffAmount (BC)" e-width="80" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksBalance" e-headertext="Balance (BC)" e-width="80" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksAdvance" e-headertext="Advance" e-width="50" e-textalign="right" style="height: 20px;"></div>
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="DebitNote" e-headertext="Debit Note" e-width="50" e-textalign="right" style="height: 20px;"></div>
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="CreditNote" e-headertext="Credit Note" e-width="50" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksGrossSales" e-headertext="Books Gross Sales" e-width="80" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksReceipts" e-headertext="Books Set-Off" e-width="80" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksBalance" e-headertext="Books Balance" e-width="80" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-field="NetBalance" e-headertext="Net Balance" e-width="90" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-field="LedgerBalanceAmount" e-headertext="Ledger Balance Amount" e-width="90" e-textalign="right" style="height: 20px;"></div>
+                                        @*<div e-column e-type="numeric" e-field="NetBalance" e-headertext="Net Balance" e-width="90" e-textalign="right" style="height: 20px;"></div>*@
                                         <div e-column e-type="numeric" e-field="ActualBalance" e-headertext="Actual Balance" e-width="90" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-field="WriteOffPendingPost" e-headertext="WriteOff Pending Post" e-width="50"></div>
+                                        <div e-column e-type="numeric" e-field="LedgerBalanceAmount" e-headertext="Ledger Balance" e-width="90" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-type="numeric" e-field="DiffrenceActualVsLedger" e-headertext="Diffrence Actual Vs Ledger" e-width="90" e-textalign="right" style="height: 20px;"></div>
+
+                                        <div e-column e-field="WriteOffPendingPost" e-headertext="SetOff Pending Post" e-width="50"></div>
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OverDueMoreThan30" e-headertext="OverDueMoreThan 30" e-width="60" e-textalign="right" style="height: 20px;"></div>
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OverDueMoreThan15" e-headertext="OverDueMoreThan 15" e-width="60" e-textalign="right" style="height: 20px;"></div>
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OverDueLessThan15" e-headertext="OverDueLessThan 15" e-width="60" e-textalign="right" style="height: 20px;"></div>
@@ -406,6 +405,10 @@
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="EightToThirtyBalance" e-headertext="EightToThirty Balance" e-width="60" e-textalign="right" style="height: 20px;"></div>
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ThirtyToSixtyBalance" e-headertext="ThirtyToSixty Balance" e-width="60" e-textalign="right" style="height: 20px;"></div>
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Onword60" e-headertext="Onword 60" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-field="PartyGroup" e-headertext="Party Group" e-width="80"></div>
+                                        <div e-column e-field="PartyCategory" e-headertext="Party Category" e-width="80"></div>
+                                        <div e-column e-field="PartySubCategory" e-headertext="Party Sub Category" e-width="80"></div>
+                                        <div e-column e-field="PartyCode" e-headertext="Party Code" e-width="40"></div>
                                         <div e-column e-field="IsVendor" e-headertext="Is Vendor" e-width="40"></div>
                                     </div>
                                 </div>

@@ -141,7 +141,8 @@ namespace Aplos.Areas.Attendances.Controllers
                          WHERE  EI.PlantId='" + identity.PlantId + @"'  " + ec + @"  " + dep + @"  " + sec + @"   " + subsec + @"   " + des + @" " + userGr + @"
                          and ei.SystemId in (select EmpSystemID from dbo.AttdnProcessData where ShiftSystemId='" + shiftId + @"' and WorkDate='" + workDate + @"')  
                         AND ei.SystemId IN(Select EmployeeId From [dbo].[ExceptionGoodWorkEmployee] where GoodWorkSetUpId = '" + userGroupId + @"')
-                        and EI.EmployeeStatus='Active' and EI.BudgetCode in (SELECT BudgetId FROM dbo.GoodWorkBudgetSetup where GoodWorkSetUpId = '" + userGroupId + @"') 
+                        and EI.EmployeeStatus='Active' and EI.BudgetCode in (SELECT BudgetId FROM dbo.GoodWorkBudgetSetup where GoodWorkSetUpId = '" + userGroupId + @"')
+                        AND ei.SystemId NOT IN(select GWD.EmpSystemId  from GoodWork GW left join GoodworkDetail GWD on GW.Id=GWD.GoodWorkId where GW.WorkDate between '" + workDate + @"' AND '" + workDate + @"')
                          ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
             }
             catch (Exception ex)
@@ -1538,7 +1539,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 								,apd.GWPaymentAdviseId 
 								,onw.FormulaDesID
                                 ,EN.UserName Entity,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
-								,B.Basic,B.BasicSalaryHeadID
+								,B.Basic,format((B.Basic/26/8),'N2')BasicRate,B.BasicSalaryHeadID
                                 ,format(sum(apd.OverStay),'N2') OverStayMinute
                                 ,format((sum(apd.OverStay)/60),'N2') OverStayHour
                                 ,DesM.UserName GivenDesignation,DG.UserName LegalDesignation,EI.PaymentMode PaymentSource
@@ -1614,7 +1615,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 								,apd.GWPaymentAdviseId 
 								,onw.FormulaDesID
                                 ,EN.UserName Entity,Department.UserName Department,Section.UserName Section,SubSection.UserName SubSection
-								,B.Basic,B.BasicSalaryHeadID
+								,B.Basic,format((B.Basic/26/8),'N2')BasicRate,B.BasicSalaryHeadID
                                 ,format(sum(apd.OverStay),'N2') OverStayMinute
                                 ,format((sum(apd.OverStay)/60),'N2') OverStayHour
                                 ,DesM.UserName GivenDesignation,DG.UserName LegalDesignation,EI.PaymentMode PaymentSource
@@ -1740,10 +1741,10 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                         
                             drmo.BeginEdit();
                             drmo["Rate"] = Convert.ToDecimal(sFormulaResult);
-                            drmo["Amount"] = Math.Floor((((((basic/30)*payDays) + ((standardOTHour + additionalOTHour) * rate)) * percentage/100)/multiple)) * multiple - tobeApprovedAmount- approvedAmount- paidAmount;
+                            drmo["Amount"] = Math.Floor((((((basic/26)*payDays) + ((standardOTHour + additionalOTHour) * rate)) * percentage/100)/multiple)) * multiple - tobeApprovedAmount- approvedAmount- paidAmount;
                             if (saveUpdate == "Save")
                             {
-                                drmo["AdvanceAmount"] = Math.Floor((((((basic / 30) * payDays) + ((standardOTHour + additionalOTHour) * rate)) * percentage / 100) / multiple)) * multiple - tobeApprovedAmount - approvedAmount - paidAmount;
+                                drmo["AdvanceAmount"] = Math.Floor((((((basic / 26) * payDays) + ((standardOTHour + additionalOTHour) * rate)) * percentage / 100) / multiple)) * multiple - tobeApprovedAmount - approvedAmount - paidAmount;
                             }
                             else
                             {
@@ -1753,7 +1754,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                                 }
                                 else
                                 {
-                                    drmo["AdvanceAmount"] = Math.Floor((((((basic / 30) * payDays) + ((standardOTHour + additionalOTHour) * rate)) * percentage / 100) / multiple)) * multiple - tobeApprovedAmount - approvedAmount - paidAmount;
+                                    drmo["AdvanceAmount"] = Math.Floor((((((basic / 26) * payDays) + ((standardOTHour + additionalOTHour) * rate)) * percentage / 100) / multiple)) * multiple - tobeApprovedAmount - approvedAmount - paidAmount;
                                 }
                             }
 
