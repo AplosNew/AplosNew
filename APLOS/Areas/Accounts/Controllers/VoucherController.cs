@@ -1362,6 +1362,11 @@ namespace Aplos.Areas.Accounts.Controllers
             var cbDebit = 0;
             var cbCredit = 0;
 
+            var mainColGLGeneralInfoId = 0;
+            var mainColBudgetMasterId = 0;
+            var mainColActivityId = 0;
+            var mainColControlId = 0;
+
             if (dtLocal.Rows.Count > 0)
             {
                 var dvParallelCurrency = new DataView(dsLocal.Tables[0])
@@ -1444,6 +1449,15 @@ namespace Aplos.Areas.Accounts.Controllers
 
                     oRU.SetHeaderText(ref sheet, row - 2, obDebit, dtParallelCurrency.Rows[n]["CurrencyCode"].ToString(), ExcelHAlign.HAlignCenter);
                     sheet[row - 2, obDebit, row - 2, cbCredit].Merge();
+
+                    if (isActivityLevel || isDetailLevel)
+                    {
+                        oRU.SetHeaderText(ref sheet, row - 2, headreColIndex, "GLGeneralInfoId", ExcelHAlign.HAlignLeft); mainColGLGeneralInfoId = headreColIndex; headreColIndex++; 
+                        oRU.SetHeaderText(ref sheet, row - 2, headreColIndex, "BudgetMasterId", ExcelHAlign.HAlignLeft); mainColBudgetMasterId = headreColIndex; headreColIndex++;
+                        oRU.SetHeaderText(ref sheet, row - 2, headreColIndex, "ActivityId", ExcelHAlign.HAlignLeft); mainColActivityId = headreColIndex; headreColIndex++;
+                        oRU.SetHeaderText(ref sheet, row - 2, headreColIndex, "ControlId", ExcelHAlign.HAlignLeft); mainColControlId = headreColIndex; headreColIndex++;
+                    }
+
                     var dic = new Dictionary<string, int>
                 {
                     { dtParallelCurrency.Rows[n]["ParallelCurrencyId"].ToString(), headreColIndex }
@@ -1466,9 +1480,11 @@ namespace Aplos.Areas.Accounts.Controllers
                     {
                         row++;
                         var AccountCodeId = dtMainBody.Rows[n]["GLGeneralInfoCode"].ToString();
+                        var GLGeneralInfoId = dtMainBody.Rows[n]["GLGeneralInfoId"].ToString();
                         var BudgetMasterId = dtMainBody.Rows[n]["BudgetMasterId"].ToString();
                         var ActivityId = dtMainBody.Rows[n]["ActivityId"].ToString();
-                       
+                        var ControlId = dtMainBody.Rows[n]["ControlId"].ToString();
+
                         var _Balancetype = dtMainBody.Rows[n]["Balancetype"].ToString();
                         mainColIndex = 1;
 
@@ -1563,6 +1579,10 @@ namespace Aplos.Areas.Accounts.Controllers
                                 }
                             
                         }
+                        oRU.SetText(ref sheet, row, mainColGLGeneralInfoId, GLGeneralInfoId);
+                        oRU.SetText(ref sheet, row, mainColBudgetMasterId, BudgetMasterId);
+                        oRU.SetText(ref sheet, row, mainColActivityId, ActivityId);
+                        oRU.SetText(ref sheet, row, mainColControlId, ControlId);
                     }
                 }
                 else if (isBudgetLevel)
@@ -1654,12 +1674,13 @@ namespace Aplos.Areas.Accounts.Controllers
                     {
                         row++;
                         var AccountCodeId = dtMainBody.Rows[n]["GLGeneralInfoCode"].ToString();
+                        var GLGeneralInfoId = dtMainBody.Rows[n]["GLGeneralInfoId"].ToString();
                         var BudgetMasterId = dtMainBody.Rows[n]["BudgetMasterId"].ToString();
                         var ActivityId = dtMainBody.Rows[n]["ActivityId"].ToString();
                         var BankMasterId = dtMainBody.Rows[n]["BankMasterId"].ToString();
                         var CashMasterId = dtMainBody.Rows[n]["CashMasterId"].ToString();
                         var PartyId = dtMainBody.Rows[n]["PartyId"].ToString();
-                        var PartyPlantId = dtMainBody.Rows[n]["PartyPlantId"].ToString();
+                        var ControlId = dtMainBody.Rows[n]["ControlId"].ToString();
                         var _Balancetype = dtMainBody.Rows[n]["Balancetype"].ToString();
                         mainColIndex = 1;
 
@@ -1668,6 +1689,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         oRU.SetText(ref sheet, row, mainColIndex, dtMainBody.Rows[n]["Activity"].ToString()); mainColIndex++;
 
                         oRU.SetText(ref sheet, row, mainColIndex, dtMainBody.Rows[n]["Particulars"].ToString()); mainColIndex++;
+
                         //if(dtMainBody.Rows[n]["Particulars"].ToString().Length >= 34)
                         //{
                         //    sheet.Range[row, colParticulers].RowHeight = 12.75 * 2;
@@ -1847,7 +1869,7 @@ namespace Aplos.Areas.Accounts.Controllers
                             {
                                 var dvDrCr = new DataView(dsLocal.Tables[0])
                                 {
-                                    RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "' AND ActivityId='" + ActivityId + "'  AND PartyId = '" + PartyId + "' AND PartyPlantId = '" + PartyPlantId + "'"
+                                    RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "' AND ActivityId='" + ActivityId + "'  AND PartyId = '" + PartyId + "' "
                                 };
                                 var dtActDrCr = dvDrCr.ToTable();
                                 if (dtActDrCr.Rows.Count != 0)
@@ -1929,9 +1951,9 @@ namespace Aplos.Areas.Accounts.Controllers
 
                                 var dvDrCr = new DataView(dsLocal.Tables[0])
                                 {
-                                    RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "' AND ActivityId='" + ActivityId + "' AND ISNULL(BankMasterId,'') = '' AND ISNULL(CashMasterId,'') = '' AND ISNULL(PartyId,'') = '' AND ISNULL(PartyPlantId,'') = ''"
+                                    RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "' AND ActivityId='" + ActivityId + "' AND ISNULL(BankMasterId,'') = '' AND ISNULL(CashMasterId,'') = '' AND ISNULL(PartyId,'') = '' "
 
-                                    // RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "' AND ActivityId='" + ActivityId + "'  AND PartyId = '" + PartyId + "' AND PartyPlantId = '" + PartyPlantId + "'"
+                                    // RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "' AND ActivityId='" + ActivityId + "'  AND PartyId = '" + PartyId + "' "
                                 };
                                 var dtActDrCr = dvDrCr.ToTable();
                                 if (dtActDrCr.Rows.Count != 0)
@@ -2011,6 +2033,10 @@ namespace Aplos.Areas.Accounts.Controllers
                                 }
                             }
                         }
+                        oRU.SetText(ref sheet, row, mainColGLGeneralInfoId, GLGeneralInfoId); 
+                        oRU.SetText(ref sheet, row, mainColBudgetMasterId, BudgetMasterId); 
+                        oRU.SetText(ref sheet, row, mainColActivityId, ActivityId); 
+                        oRU.SetText(ref sheet, row, mainColControlId, ControlId); 
                     }
 
                 }
@@ -2198,12 +2224,12 @@ namespace Aplos.Areas.Accounts.Controllers
                                            , SUM(PDRcumulative) PDRcumulative, SUM(PCRcumulative) PCRcumulative
 										   ,BalanceType,[MainHead],GLGeneralInfoId,GL,GLGeneralInfoCode,Budget
 										 ,ISNULL(BudgetMasterId,'') BudgetMasterId
-										 ,Activity,ISNULL(ActivityId,'') ActivityId
+										 ,Activity,ISNULL(ActivityId,'') ActivityId,ControlId
 		                                 FROM
 		                                ( SELECT distinct	GL.Id AS AccountCodeId,
 		                                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
-		                                        SUM(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount) - sum(VDC.CrAmount)) ELSE 0 END) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId
-			                                                ) AS OBDRcumulative, sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount) - sum(VDC.DrAmount)) ELSE 0 END) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId
+		                                        SUM(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount) - sum(VDC.CrAmount)) ELSE 0 END) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id, VDC.ParallelCurrencyId,BMA.Id order by VDC.ParallelCurrencyId
+			                                                ) AS OBDRcumulative, sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount) - sum(VDC.DrAmount)) ELSE 0 END) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id, VDC.ParallelCurrencyId,BMA.Id order by VDC.ParallelCurrencyId
 			                                                ) AS OBCRcumulative, 0 DRcumulative, 0 CRcumulative, 0 CBDRcumulative, 0 CBCRcumulative,0 FROBDRcumulative, 0 FROBCRcumulative,0 PDRcumulative,0 PCRcumulative,       
 										    ACT.BalanceType,
                                             ACT.Id AS [MainHead],
@@ -2211,8 +2237,7 @@ namespace Aplos.Areas.Accounts.Controllers
                                             VD.BudgetMasterId,
 		                                    BUD.UserName AS Budget,
 											A.UserName AS Activity,
-											
-                                            A.Id AS ActivityId
+                                            A.Id AS ActivityId,BMA.Id ControlId
 	                                        FROM TRN.VoucherDetailCurrency AS VDC
 		                                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
 		                                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
@@ -2223,10 +2248,10 @@ namespace Aplos.Areas.Accounts.Controllers
 											LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
                                             LEFT JOIN [HKP].[Budget] AS BUD ON BM.BudgetId=BUD.Id
 											LEFT JOIN HKP.Activity A ON VD.ActivityId=A.Id
+                                            LEFT JOIN [MST].BudgetMasterActivity BMA ON BMA.ActivityId=A.Id AND BMA.BudgetMasterId=BM.Id
 											LEFT JOIN [MST].BankMaster AS BA ON BA.Id=VD.BankMasterId
 											LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
 											LEFT JOIN [HKP].Party AS P ON P.Id=VD.PartyId
-											LEFT JOIN [HKP].PartyPlant AS PP ON PP.Id=VD.PartyPlantId
                                             WHERE v.PostingDate < '" + fromDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"'
                                             AND  v.IsPark=0
                                             AND VDC.VoucherDetailId NOT IN ( SELECT VD.Id FROM  TRN.VoucherDetail AS VD  
@@ -2236,15 +2261,15 @@ namespace Aplos.Areas.Accounts.Controllers
 																LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
 																WHERE ACT.Id IN('Revenue','Expense') AND V.FiscalYearId in(select FiscalYearId from [SCS].[FiscalYearClose] ))
                                             GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName, 
-											GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId, A.UserName, BUD.UserName, v.PostingDate, A.Id
+											GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId, A.UserName, BUD.UserName, v.PostingDate, A.Id,BMA.Id
 											
 											UNION 
 
 										
 											   SELECT distinct	GL.Id AS AccountCodeId,
 		                                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,0 OBDRcumulative,0 OBCRcumulative,
-		                                        SUM(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount) - sum(VDC.CrAmount)) ELSE 0 END) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId
-			                                                ) AS DRcumulative, sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount) - sum(VDC.DrAmount)) ELSE 0 END) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId
+		                                        SUM(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount) - sum(VDC.CrAmount)) ELSE 0 END) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id, VDC.ParallelCurrencyId,BMA.Id order by VDC.ParallelCurrencyId
+			                                                ) AS DRcumulative, sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount) - sum(VDC.DrAmount)) ELSE 0 END) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id, VDC.ParallelCurrencyId,BMA.Id order by VDC.ParallelCurrencyId
 			                                                ) AS CRcumulative
                                  
                                            , 0 CBDRcumulative, 0 CBCRcumulative,0 FROBDRcumulative, 0 FROBCRcumulative   
@@ -2264,9 +2289,7 @@ namespace Aplos.Areas.Accounts.Controllers
                                             VD.BudgetMasterId,
 		                                    BUD.UserName AS Budget,
 											A.UserName AS Activity,
-											
-
-                                            A.Id AS ActivityId
+                                            A.Id AS ActivityId,BMA.Id ControlId
 	                                        FROM TRN.VoucherDetailCurrency AS VDC
 		                                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
 		                                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
@@ -2277,18 +2300,18 @@ namespace Aplos.Areas.Accounts.Controllers
 											LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
                                             LEFT JOIN [HKP].[Budget] AS BUD ON BM.BudgetId=BUD.Id
 											LEFT JOIN HKP.Activity A ON VD.ActivityId=A.Id
+                                            LEFT JOIN [MST].BudgetMasterActivity BMA ON BMA.ActivityId=A.Id AND BMA.BudgetMasterId=BM.Id
 											LEFT JOIN [MST].BankMaster AS BA ON BA.Id=VD.BankMasterId
 											LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
 											LEFT JOIN [HKP].Party AS P ON P.Id=VD.PartyId
-											LEFT JOIN [HKP].PartyPlant AS PP ON PP.Id=VD.PartyPlantId
                                             WHERE CONVERT(DATE, v.PostingDate) BETWEEN CONVERT(DATE, '" + fromDate + "') AND CONVERT(DATE, '" + toDate + @"') AND SourceType!='OpeningBalance' AND v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"'
                                             AND  V.IsPark=0
                                            GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName, 
-											GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId, A.UserName, BUD.UserName, v.PostingDate, A.Id
+											GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId, A.UserName, BUD.UserName, v.PostingDate, A.Id,BMA.Id
                                             UNION
                                                         SELECT DISTINCT GL.Id AS AccountCodeId, VDC.ParallelCurrencyId, CU.Code AS CurrencyCode, 0 OBDRcumulative,0 OBCRcumulative, 0 DRcumulative, 0 CRcumulative, 0 CBDRcumulative, 0 CBCRcumulative ,
-															SUM(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount) - sum(VDC.CrAmount)) ELSE 0 END) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId
-			                                                ) AS FROBDRcumulative, sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount) - sum(VDC.DrAmount)) ELSE 0 END) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId
+															SUM(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount) - sum(VDC.CrAmount)) ELSE 0 END) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id, VDC.ParallelCurrencyId,BMA.Id order by VDC.ParallelCurrencyId
+			                                                ) AS FROBDRcumulative, sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount) - sum(VDC.DrAmount)) ELSE 0 END) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id, VDC.ParallelCurrencyId,BMA.Id order by VDC.ParallelCurrencyId
 			                                                ) AS FROBCRcumulative,0 PDRcumulative,0 PCRcumulative
 															, ACT.BalanceType,
                                             ACT.Id AS [MainHead],
@@ -2296,10 +2319,8 @@ namespace Aplos.Areas.Accounts.Controllers
                                             VD.BudgetMasterId,
 		                                    BUD.UserName AS Budget,
 											A.UserName AS Activity,
-											
-
-                                            A.Id AS ActivityId
-	                                                FROM TRN.VoucherDetailCurrency AS VDC
+                                            A.Id AS ActivityId,BMA.Id ControlId
+	                                        FROM TRN.VoucherDetailCurrency AS VDC
 		                                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
 		                                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
 		                                    LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
@@ -2309,20 +2330,19 @@ namespace Aplos.Areas.Accounts.Controllers
 											LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
                                             LEFT JOIN [HKP].[Budget] AS BUD ON BM.BudgetId=BUD.Id
 											LEFT JOIN HKP.Activity A ON VD.ActivityId=A.Id
+                                            LEFT JOIN [MST].BudgetMasterActivity BMA ON BMA.ActivityId=A.Id AND BMA.BudgetMasterId=BM.Id
 											LEFT JOIN [MST].BankMaster AS BA ON BA.Id=VD.BankMasterId
 											LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
 											LEFT JOIN [HKP].Party AS P ON P.Id=VD.PartyId
-											LEFT JOIN [HKP].PartyPlant AS PP ON PP.Id=VD.PartyPlantId
-	                                               
-                                                    WHERE V.PostingDate = '" + fromDate + @"' AND V.CompanyId = '" + companyId + @"' AND V.PlantId = '" + plantId + @"' AND v.IsPark = 0 and v.SourceType='OpeningBalance'
+                                            WHERE V.PostingDate = '" + fromDate + @"' AND V.CompanyId = '" + companyId + @"' AND V.PlantId = '" + plantId + @"' AND v.IsPark = 0 and v.SourceType='OpeningBalance'
 
                                                 
                                                 GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName, 
-											GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId, A.UserName, BUD.UserName, v.PostingDate, A.Id, BA.AccountTitle, CM.UserName
+											GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId, A.UserName, BUD.UserName, v.PostingDate, A.Id, BA.AccountTitle, CM.UserName,BMA.Id
 											
 											) TOTAL	
 											GROUP BY AccountCodeId,ParallelCurrencyId,CurrencyCode,BalanceType,[MainHead],GLGeneralInfoId,GL,GLGeneralInfoCode,Budget
-		                                    ,BudgetMasterId,Activity,ActivityId
+		                                    ,BudgetMasterId,Activity,ActivityId,ControlId
                                             )ttd 
                                                WHERE ISNULL(DRcumulative,0.00) <> 0.00 OR ISNULL(CRcumulative,0) <> 0.00 OR
 											ISNULL(OBDRcumulative,0.00) <> 0.00 OR ISNULL(OBCRcumulative,0) <> 0.00 OR
@@ -2431,12 +2451,12 @@ namespace Aplos.Areas.Accounts.Controllers
 										   ,BalanceType,[MainHead],GLGeneralInfoId,GL,GLGeneralInfoCode,Budget
 										 ,ISNULL(BudgetMasterId,'') BudgetMasterId
 										 ,Activity,Particulars,ISNULL(ActivityId,'') ActivityId,ISNULL(BankMasterId,'') BankMasterId
-										 ,ISNULL(CashMasterId,'') CashMasterId,ISNULL(PartyId,'') PartyId,ISNULL(PartyPlantId,'') PartyPlantId
+										 ,ISNULL(CashMasterId,'') CashMasterId,ISNULL(PartyId,'') PartyId,ControlId
 		                                 FROM
 		                                ( SELECT distinct	GL.Id AS AccountCodeId,
 		                                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
-		                                        SUM(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount) - sum(VDC.CrAmount)) ELSE 0 END) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VD.PartyPlantId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId
-			                                                ) AS OBDRcumulative, sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount) - sum(VDC.DrAmount)) ELSE 0 END) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VD.PartyPlantId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId
+		                                        SUM(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount) - sum(VDC.CrAmount)) ELSE 0 END) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VDC.ParallelCurrencyId,BMA.Id order by VDC.ParallelCurrencyId
+			                                                ) AS OBDRcumulative, sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount) - sum(VDC.DrAmount)) ELSE 0 END) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VDC.ParallelCurrencyId,BMA.Id order by VDC.ParallelCurrencyId
 			                                                ) AS OBCRcumulative, 0 DRcumulative, 0 CRcumulative, 0 CBDRcumulative, 0 CBCRcumulative,0 FROBDRcumulative, 0 FROBCRcumulative,0 PDRcumulative,0 PCRcumulative,       
 										    ACT.BalanceType,
                                             ACT.Id AS [MainHead],
@@ -2447,10 +2467,10 @@ namespace Aplos.Areas.Accounts.Controllers
 											[Particulars]=CASE 
 											WHEN BA.AccountTitle<>'' THEN BA.AccountTitle
 											WHEN CM.UserName<>'' THEN CM.UserName
-											WHEN P.UserName<>'' THEN PP.UserName
+                                            WHEN P.UserName<>'' THEN P.UserName
 											ELSE ''	END,
 
-                                            A.Id AS ActivityId, VD.BankMasterId, VD.CashMasterId, VD.PartyId, VD.PartyPlantId
+                                            A.Id AS ActivityId, VD.BankMasterId, VD.CashMasterId, VD.PartyId,BMA.Id ControlId
 	                                        FROM TRN.VoucherDetailCurrency AS VDC
 		                                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
 		                                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
@@ -2461,10 +2481,10 @@ namespace Aplos.Areas.Accounts.Controllers
 											LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
                                             LEFT JOIN [HKP].[Budget] AS BUD ON BM.BudgetId=BUD.Id
 											LEFT JOIN HKP.Activity A ON VD.ActivityId=A.Id
+											LEFT JOIN [MST].BudgetMasterActivity BMA ON BMA.ActivityId=A.Id AND BMA.BudgetMasterId=BM.Id
 											LEFT JOIN [MST].BankMaster AS BA ON BA.Id=VD.BankMasterId
 											LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
 											LEFT JOIN [HKP].Party AS P ON P.Id=VD.PartyId
-											LEFT JOIN [HKP].PartyPlant AS PP ON PP.Id=VD.PartyPlantId
                                             WHERE v.PostingDate < '" + fromDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"'
                                             AND  v.IsPark=0
                                             AND VDC.VoucherDetailId NOT IN ( SELECT VD.Id FROM  TRN.VoucherDetail AS VD  
@@ -2475,26 +2495,26 @@ namespace Aplos.Areas.Accounts.Controllers
 																WHERE ACT.Id IN('Revenue','Expense') AND V.FiscalYearId in(select FiscalYearId from [SCS].[FiscalYearClose] ))
                                             GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName, 
 											GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId, A.UserName, BUD.UserName, v.PostingDate, A.Id, BA.AccountTitle, CM.UserName
-											,VD.BankMasterId, VD.CashMasterId, P.UserName, PP.UserName, VD.PartyId, VD.PartyPlantId
+											,VD.BankMasterId, VD.CashMasterId, P.UserName, VD.PartyId,BMA.Id
 
 											UNION 
 
-											   SELECT distinct	GL.Id AS AccountCodeId,
+											    SELECT distinct	GL.Id AS AccountCodeId,
 		                                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,0 OBDRcumulative,0 OBCRcumulative,
-		                                        SUM(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount) - sum(VDC.CrAmount)) ELSE 0 END) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VD.PartyPlantId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId
-			                                                ) AS DRcumulative, sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount) - sum(VDC.DrAmount)) ELSE 0 END) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VD.PartyPlantId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId
+		                                        SUM(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount) - sum(VDC.CrAmount)) ELSE 0 END) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VDC.ParallelCurrencyId,BMA.Id  order by VDC.ParallelCurrencyId
+			                                                ) AS DRcumulative, sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount) - sum(VDC.DrAmount)) ELSE 0 END) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VDC.ParallelCurrencyId,BMA.Id  order by VDC.ParallelCurrencyId
 			                                                ) AS CRcumulative
                                  
                                            , 0 CBDRcumulative, 0 CBCRcumulative,0 FROBDRcumulative, 0 FROBCRcumulative   
 										    , SUM(CASE WHEN SUM(VDC.DrAmount)<>0 THEN (SUM(VDC.DrAmount)) 
 																		 ELSE 0 END
 															) OVER (
-			                                           PARTITION BY GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VD.PartyPlantId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId
+			                                           PARTITION BY GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId
 			                                                ) AS PDRcumulative
 															
 															, SUM(CASE WHEN SUM(VDC.CrAmount)<>0 THEN (SUM(VDC.CrAmount)) 
 																		 ELSE 0 END
-															) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VD.PartyPlantId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId
+															) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId
 			                                                ) AS PCRcumulative,
 										    ACT.BalanceType,
                                             ACT.Id AS [MainHead],
@@ -2505,10 +2525,10 @@ namespace Aplos.Areas.Accounts.Controllers
 											[Particulars]=CASE 
 											WHEN BA.AccountTitle<>'' THEN BA.AccountTitle 
 											WHEN CM.UserName<>'' THEN CM.UserName
-											WHEN P.UserName<>'' THEN PP.UserName
+                                            WHEN P.UserName<>'' THEN P.UserName
 											ELSE ''	END,
 
-                                            A.Id AS ActivityId, VD.BankMasterId, VD.CashMasterId, VD.PartyId, VD.PartyPlantId
+                                            A.Id AS ActivityId, VD.BankMasterId, VD.CashMasterId, VD.PartyId,BMA.Id ControlId
 	                                        FROM TRN.VoucherDetailCurrency AS VDC
 		                                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
 		                                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
@@ -2519,20 +2539,20 @@ namespace Aplos.Areas.Accounts.Controllers
 											LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
                                             LEFT JOIN [HKP].[Budget] AS BUD ON BM.BudgetId=BUD.Id
 											LEFT JOIN HKP.Activity A ON VD.ActivityId=A.Id
+											LEFT JOIN [MST].BudgetMasterActivity BMA ON BMA.ActivityId=A.Id AND BMA.BudgetMasterId=BM.Id
 											LEFT JOIN [MST].BankMaster AS BA ON BA.Id=VD.BankMasterId
 											LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
 											LEFT JOIN [HKP].Party AS P ON P.Id=VD.PartyId
-											LEFT JOIN [HKP].PartyPlant AS PP ON PP.Id=VD.PartyPlantId
                                             WHERE CONVERT(DATE, v.PostingDate) BETWEEN CONVERT(DATE, '" + fromDate + "') AND CONVERT(DATE, '" + toDate + @"') AND SourceType!='OpeningBalance' AND v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"'
                                             AND  V.IsPark=0
                                             GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName, 
 											GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId, A.UserName, BUD.UserName, v.PostingDate, A.Id, BA.AccountTitle, CM.UserName
-											,VD.BankMasterId, VD.CashMasterId, P.UserName, PP.UserName, VD.PartyId, VD.PartyPlantId
+											,VD.BankMasterId, VD.CashMasterId, P.UserName, VD.PartyId,BMA.Id 
 											 
                                             UNION
-                                                        SELECT DISTINCT GL.Id AS AccountCodeId, VDC.ParallelCurrencyId, CU.Code AS CurrencyCode, 0 OBDRcumulative,0 OBCRcumulative, 0 DRcumulative, 0 CRcumulative, 0 CBDRcumulative, 0 CBCRcumulative ,
-															SUM(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount) - sum(VDC.CrAmount)) ELSE 0 END) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VD.PartyPlantId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId
-			                                                ) AS FROBDRcumulative, sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount) - sum(VDC.DrAmount)) ELSE 0 END) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VD.PartyPlantId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId
+                                                         SELECT DISTINCT GL.Id AS AccountCodeId, VDC.ParallelCurrencyId, CU.Code AS CurrencyCode, 0 OBDRcumulative,0 OBCRcumulative, 0 DRcumulative, 0 CRcumulative, 0 CBDRcumulative, 0 CBCRcumulative ,
+															SUM(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount) - sum(VDC.CrAmount)) ELSE 0 END) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VDC.ParallelCurrencyId,BMA.Id  order by VDC.ParallelCurrencyId
+			                                                ) AS FROBDRcumulative, sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount) - sum(VDC.DrAmount)) ELSE 0 END) OVER (PARTITION BY GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VDC.ParallelCurrencyId,BMA.Id  order by VDC.ParallelCurrencyId
 			                                                ) AS FROBCRcumulative,0 PDRcumulative,0 PCRcumulative
 															, ACT.BalanceType,
                                             ACT.Id AS [MainHead],
@@ -2543,10 +2563,10 @@ namespace Aplos.Areas.Accounts.Controllers
 											[Particulars]=CASE 
 											WHEN BA.AccountTitle<>'' THEN BA.AccountTitle
 											WHEN CM.UserName<>'' THEN CM.UserName
-											WHEN P.UserName<>'' THEN PP.UserName
+                                            WHEN P.UserName<>'' THEN P.UserName
 											ELSE ''	END,
 
-                                            A.Id AS ActivityId, VD.BankMasterId, VD.CashMasterId, VD.PartyId, VD.PartyPlantId
+                                            A.Id AS ActivityId, VD.BankMasterId, VD.CashMasterId, VD.PartyId,BMA.Id ControlId
 	                                                FROM TRN.VoucherDetailCurrency AS VDC
 		                                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
 		                                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
@@ -2557,20 +2577,19 @@ namespace Aplos.Areas.Accounts.Controllers
 											LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
                                             LEFT JOIN [HKP].[Budget] AS BUD ON BM.BudgetId=BUD.Id
 											LEFT JOIN HKP.Activity A ON VD.ActivityId=A.Id
+											LEFT JOIN [MST].BudgetMasterActivity BMA ON BMA.ActivityId=A.Id AND BMA.BudgetMasterId=BM.Id
 											LEFT JOIN [MST].BankMaster AS BA ON BA.Id=VD.BankMasterId
 											LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
 											LEFT JOIN [HKP].Party AS P ON P.Id=VD.PartyId
-											LEFT JOIN [HKP].PartyPlant AS PP ON PP.Id=VD.PartyPlantId
-	                                               
-                                                    WHERE V.PostingDate = '" + fromDate + @"' AND V.CompanyId = '" + companyId + @"' AND V.PlantId = '" + plantId + @"' AND v.IsPark = 0 and v.SourceType='OpeningBalance'
+                                            WHERE V.PostingDate = '" + fromDate + @"' AND V.CompanyId = '" + companyId + @"' AND V.PlantId = '" + plantId + @"' AND v.IsPark = 0 and v.SourceType='OpeningBalance'
 
                                                 GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName, 
 											GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId, A.UserName, BUD.UserName, v.PostingDate, A.Id, BA.AccountTitle, CM.UserName
-											,VD.BankMasterId, VD.CashMasterId, P.UserName, PP.UserName, VD.PartyId, VD.PartyPlantId
+											,VD.BankMasterId, VD.CashMasterId, P.UserName, VD.PartyId,BMA.Id
 											) TOTAL
 
 											GROUP BY AccountCodeId,ParallelCurrencyId,CurrencyCode,BalanceType,[MainHead],GLGeneralInfoId,GL,GLGeneralInfoCode,Budget
-		                                    ,BudgetMasterId,Activity,Particulars,ActivityId,BankMasterId,CashMasterId,PartyId,PartyPlantId
+		                                    ,BudgetMasterId,Activity,Particulars,ActivityId,BankMasterId,CashMasterId,PartyId,ControlId
                                            
                                             )ttd 
                                             WHERE ISNULL(DRcumulative,0.00) <> 0.00 OR ISNULL(CRcumulative,0) <> 0.00 OR
