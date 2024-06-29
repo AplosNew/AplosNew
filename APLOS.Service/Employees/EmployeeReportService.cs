@@ -671,6 +671,10 @@ namespace Library.Service.Employees
             report.SetText(ref sheet, _row, 2, headerData["EmployeeName"].ToString());
             sheet[report.GetColumnNameForXls(2) + _row + ":" + report.GetColumnNameForXls(3) + _row].Merge();
             _row++;
+            report.SetMasterHeaderText(ref sheet, _row, 1, "Entity");
+            report.SetText(ref sheet, _row, 2, headerData["EntityName"].ToString());
+            sheet[report.GetColumnNameForXls(2) + _row + ":" + report.GetColumnNameForXls(3) + _row].Merge();
+            _row++;
 
             var _rowL = 11;
             if (headerData["BeneficiaryType"].ToString() == BeneficiaryType.Vendor.ToString())
