@@ -1285,6 +1285,7 @@ upanelApp.controller("IndependentServiceGRNController", IndependentServiceGRNCon
 upanelApp.controller("SalesProcessController", SalesProcessController);
 upanelApp.controller("FNFReportController", FNFReportController);
 upanelApp.controller("GeneralApprovedApplicationController", GeneralApprovedApplicationController);
+upanelApp.controller("productionOrderType2Controller", productionOrderType2Controller);
 
 
 

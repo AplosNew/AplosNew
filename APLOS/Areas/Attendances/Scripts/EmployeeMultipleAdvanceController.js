@@ -1544,6 +1544,7 @@ function EmployeeMultipleAdvanceController(cboService, commonMessage, $scope, $r
             obj.Section = dataList[i].Section;
             obj.SubSection = dataList[i].SubSection;
             obj.Basic = dataList[i].Basic;
+            obj.BasicRate = dataList[i].BasicRate;
             obj.PayDays = dataList[i].PayDays;
             obj.StandardOTHour = dataList[i].StandardOTHour;
             obj.AdditionalOTHour = dataList[i].AdditionalOTHour;

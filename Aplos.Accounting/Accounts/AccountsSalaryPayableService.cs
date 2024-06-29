@@ -675,7 +675,7 @@ namespace Library.Accounting.Accounts
             }
             string sql = @"
             SELECT x.* FROM (
-                        SELECT sh.SalaryHead,sh.HeadCategory SalaryHeadCategory,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType,sl.EmpSystemId EmployeeId,ei.EmployeeName
+                        SELECT sh.SalaryHead,shgl.AccountsGroupId,sh.HeadCategory SalaryHeadCategory,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType,sl.EmpSystemId EmployeeId,ei.EmployeeName
                         ,sl.PayableVoucherId VoucherId
                         , 0 CrAmount
 						,CASE WHEN ISNULL(ESA.PrincipalAmount,0)>0 THEN ISNULL(ESA.PrincipalAmount,0) 
@@ -759,7 +759,7 @@ namespace Library.Accounting.Accounts
             }
             string sql = @"
             SELECT x.* FROM (
-                        SELECT sh.SalaryHead,sh.HeadCategory SalaryHeadCategory,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType,sl.EmpSystemId EmployeeId,ei.EmployeeName
+                        SELECT sh.SalaryHead,shgl.AccountsGroupId,sh.HeadCategory SalaryHeadCategory,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType,sl.EmpSystemId EmployeeId,ei.EmployeeName
                         ,sl.PayableVoucherId VoucherId
                         , 0 CrAmount
 						,CASE WHEN ISNULL(ESA.PrincipalAmount,0)>0 THEN ISNULL(ESA.PrincipalAmount,0) 

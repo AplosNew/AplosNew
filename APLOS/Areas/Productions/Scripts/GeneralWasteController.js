@@ -118,7 +118,7 @@ function GeneralWasteController(cboService, commonMessage, $scope, $rootScope, b
                 else {
                     ShowResult(response.data.Message, 'success');
                     ClearFields(response.data.Sequence);
-                    $scope.ViewGridPop();
+                    $scope.getView();
 
                 }
             }), function errorCallBack(response) {

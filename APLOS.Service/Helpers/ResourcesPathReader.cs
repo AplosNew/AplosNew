@@ -103,6 +103,17 @@ namespace Library.Service.Helpers
 				throw new CustomException(ServiceResources.FilePathNotFound);
 			}
 		}
+		public static string GetEmpDocAssetTransactionPath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "/EmpDocAssetTransaction/");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
 		public static string GetBlackListImagePath()
 		{
 			try

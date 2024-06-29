@@ -3,8 +3,8 @@
 </h3>
 <div class="row">
     <div class="col-xs-12">
-        <div class="row">
-            <div class="col-xs-5 col-sm-5 col-md-5" style="margin-top:20px;">
+        <div class="row form-elements form-horizontal">
+            <div class="col-xs-4 col-sm-4 col-md-4" style="margin-top:20px;">
                 <div class="form-group">
                     <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
@@ -13,7 +13,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xs-5 col-sm-5 col-md-5" style="margin-top:20px;">
+            <div class="col-xs-4 col-sm-4 col-md-4" style="margin-top:20px;">
                 <div class="form-group">
                     <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
@@ -22,9 +22,10 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xs-2 col-sm-2 col-md-2" style="margin-top:20px;">
+            <div class="col-xs-4 col-sm-4 col-md-4" style="margin-top:20px;">
                 <div class="common-btn" style="margin-top:10px;">
                     <ul class="list-inline text-left">
+                        <li> <button ng-click="GetGWData();" class="btn"><i class="glyphicon glyphicon-eye-open"></i> View </button></li>
                         <li> <button ng-click="GoodWorkReport();" class="btn"><i class="glyphicon glyphicon-download"></i> Report </button></li>
                     </ul>
                 </div>
@@ -32,7 +33,33 @@
         </div>
 
     </div>
+    <div class="col-xs-12">
+        <div class="content-container-fluid" style="color:black;">
+            <div style="color:black;" id="GridEmp" ej-grid e-datasource="GWlist" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                  e-allowselection="true" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-field="EmployeeCode" e-headertext="EmployeeCode" e-width="40"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                    <div e-column e-field="GoodWorkGroupName" e-headertext="Good Work Group Name" e-width="80"></div>
+                    <div e-column e-field="ResponsiblePersonName" e-headertext="Responsible Person Name" e-width="80"></div>
+                    <div e-column e-field="Entity" e-headertext="Entity" e-width="40"></div>
+                    <div e-column e-field="GoodWorkEntryDate" e-headertext="Good Work Entry Date" e-width="40"></div>
+                    <div e-column e-field="CheckedStatus" e-headertext="Checked Status" e-width="40"></div>
+                    <div e-column e-field="ApprovedStatus" e-headertext="Approved Status" e-width="40"></div>
+                    <div e-column e-field="PaymentCreationDate" e-headertext="Payment Creation Date" e-width="40"></div>
+                    <div e-column e-field="PaymentApprovedBy" e-headertext="Payment ApprovedBy" e-width="40"></div>
+                    <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-width="40"></div>
+                    <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
+                    <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                    <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                    <div e-column e-field="WorkDate" e-headertext="Work Date" e-width="40"></div>
+                    <div e-column e-field="OverTime" e-headertext="Over Time" e-width="30"></div>
+                    <div e-column e-field="OverStay" e-headertext="Over Stay" e-width="30"></div>
+                    <div e-column e-field="DayStatus" e-headertext="Day Status" e-width="30"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-   
 </div>
 

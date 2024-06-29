@@ -292,7 +292,7 @@ JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id WHERE BP.Bus
                             ,MMA.IsMachineApplicable,MMA.IsWorkCenterApplicable
 							, OS.UserName AS OurStyleName, M.WithSKU, ISNULL(ART.HasAttribute,CAST(0 AS BIT)) AS HasAttribute
 							, hasInventory=CASE WHEN IM.MaterialMasterId<>'' THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END
-							, M.IsOriginApplicable,M.IsAsset
+							, M.IsOriginApplicable,M.IsAsset,M.BaseUOMId
                             ,M.IsReplacement,Replacement=case when M.IsReplacement=1 then 'Yes' else 'No' end,BPM.BusinessProcessName
 		                    FROM MST.MaterialMasterArticle MMA
 							LEFT JOIN [MST].[MaterialMaster] M ON M.Id=MMA.MaterialMasterId

@@ -1508,6 +1508,7 @@ namespace Library.Accounting.Accounts
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 DataSet _BankReconciliationUploadedData = null;
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string ReconGroupNo = GetAutoNumber("BankReconGroup", PKGeneratorEnum.Yearly, null, DateTime.Now);
 
                 foreach (var item in bankReconciliationList)
                 {
@@ -1516,6 +1517,7 @@ namespace Library.Accounting.Accounts
                         BankReconciliationUploadedDataId = item.BankReconciliationUploadedDataId,
                         VoucherDetailId = item.VoucherDetailId,
                         GLTransactionDetailId = item.GLTransactionDetailId,
+                        ReconGroupNo = ReconGroupNo,
                     };
 
                     InsertBankReconciliationMap(bankReconciliationMap, ref _BankReconciliationUploadedData);

@@ -447,57 +447,61 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
         var gridObj = $("#empInfoGridSalaryUnDisbursed").data("ejGrid");
         gridObj.refreshContent();
     };
-
-    $scope.SalaryUndisbursedTemp = [];
+    
     $scope.SalaryUnDisbursement = function () {
         try {
             var EmployeeListSalaryUndisbursedNew = [];
-            for (var i = 0; i < $scope.SalaryUnDisburseList.length; i++) {
-                EmployeeListSalaryUndisbursedNew.push($scope.SalaryUnDisburseList[i]);
+            for (var i = 0; i < $scope.EmployeeListTemp.length; i++) {
+                if ($scope.EmployeeListTemp[i].CheckBoxSelect) {
+                    EmployeeListSalaryUndisbursedNew.push($scope.EmployeeListTemp[i]);
+                }
             }
 
             if (EmployeeListSalaryUndisbursedNew.length == 0) {
-                throw "Please Select LeaveType";
+                throw "Please Select Employee.";
             }
 
-            if (baseService.arrayLength($scope.SalaryUnDisburseList) > 0) {
-                angular.forEach($scope.SalaryUnDisburseList, function (a) {
+            //if (baseService.arrayLength($scope.SalaryUnDisburseList) > 0) {
+            //    angular.forEach($scope.SalaryUnDisburseList, function (a) {
 
-                    if (a.CheckBoxSelect) {
-                        var ob = {};
-                        ob.Id = null;
-                        ob.EmpSystemId = a.EmpSystemId;
-                        ob.PayableVoucherId = a.PayableVoucherId;
-                        ob.DisbursementVoucherId = a.DisbursementVoucherId;
-                        ob.MonthNo = a.MonthNo;
-                        ob.YearNo = a.YearNo;
-                        ob.Lock = a.Lock;
-                        ob.CheckBoxSelect = a.CheckBoxSelect;
-                        $scope.SalaryUndisbursedTemp.push(ob);
-                        // EmployeeListSalaryUndisbursedNew = {};
+            //        if (a.CheckBoxSelect) {
+            //            var ob = {};
+            //            ob.Id = null;
+            //            ob.EmpSystemId = a.EmpSystemId;
+            //            ob.PayableVoucherId = a.PayableVoucherId;
+            //            ob.DisbursementVoucherId = a.DisbursementVoucherId;
+            //            ob.MonthNo = a.MonthNo;
+            //            ob.YearNo = a.YearNo;
+            //            ob.Lock = a.Lock;
+            //            ob.CheckBoxSelect = a.CheckBoxSelect;
+            //            $scope.SalaryUndisbursedTemp.push(ob);
+            //            // EmployeeListSalaryUndisbursedNew = {};
 
-                    }
+            //        }
 
-                });
-            }
+            //    });
+            //}
 
-            var data = ej.DataManager(EmployeeListSalaryUndisbursedNew).executeLocal(ej.Query().select(["EmpSystemId", "PayableVoucherId", "DisbursementVoucherId", "Id", "MonthNo", "YearNo", "Lock", "CheckBoxSelect"]));
+            //var data = ej.DataManager(EmployeeListSalaryUndisbursedNew).executeLocal(ej.Query().select(["EmpSystemId", "PayableVoucherId", "DisbursementVoucherId", "Id", "MonthNo", "YearNo", "Lock", "CheckBoxSelect"]));
 
             $scope.$broadcast('show-errors-check-validity');
+            $scope.saveBtnDisable = true;
             $http({
                 method: 'POST',
                 url: $scope.path + 'SaveSalaryUnDisbursed',
-                data: { 'EmployeeList': $scope.SalaryUndisbursedTemp },
+                data: { 'EmployeeList': EmployeeListSalaryUndisbursedNew },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
+                    $scope.saveBtnDisable = false;
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.GetEmployeeInformation();
-                    var gridObj = $("#empInfoGridSalaryUnDisbursed").data("ejGrid");
-                    gridObj.refreshContent();
+                    $scope.saveBtnDisable = false;
+                    //var gridObj = $("#empInfoGridSalaryUnDisbursed").data("ejGrid");
+                    //gridObj.refreshContent();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

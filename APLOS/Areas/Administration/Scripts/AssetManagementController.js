@@ -46,7 +46,7 @@ function AssetManagementController(cboService, commonMessage, $scope, $rootScope
         Category: null,
         SubCategory: null,
         Type: null,
-        EsstimatedValue: null,
+        EstimatedValue: null,
 
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
@@ -128,7 +128,7 @@ function AssetManagementController(cboService, commonMessage, $scope, $rootScope
             Category: null,
             SubCategory: null,
             Type: null,
-            EsstimatedValue: null,
+            EstimatedValue: null,
         };
 
     }

@@ -174,12 +174,12 @@
                 <div class="">
                     <div class="col-md-12">
                         <div id="empInfoGrid" ej-grid e-datasource="EmployeeListTemp" e-recorddoubleclick="Get" e-allowscrolling="true" e-pageSettings-pageSize="15"
-                             e-actioncomplete="actionCompleteSelected" e-templaterefresh="refreshTemplateemployee"
+                             e-actioncomplete="actionCompleteSelected" @*e-templaterefresh="refreshTemplateemployee"*@
                              e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
                              e-allowselection="true" e-filtersettings-filterType="excel" style="margin-left:1%">
 
                             <div e-columns>
-                                @*<div e-column e-headertext="" e-headertemplateid="#headerTemplateB" e-template="#checkboxTemplateB" e-textalign="center" e-width="30"></div>*@
+                                <div e-column e-headertext="" e-headertemplateid="#headerTemplateB" e-template="#checkboxTemplateB" e-textalign="center" e-width="30"></div>
                                 <div e-column e-field="DisbursementAdviceId" e-headertext="DisbursementAdviceId" e-allowediting="false" e-width="80"></div>
                                 <div e-column e-field="Remarks" e-headertext="Remarks" e-allowediting="false" e-width="150"></div>
                                 <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="80"></div>
@@ -190,10 +190,10 @@
                                 <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-allowediting="false" e-width="80"></div>
                                 <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="80"></div>
                                 <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="Line" e-headertext="Line" e-allowediting="false" e-width="80"></div>
+                                @*<div e-column e-field="Line" e-headertext="Line" e-allowediting="false" e-width="80"></div>*@
                                 <div e-column e-field="PayableVoucherNo" e-headertext="Payable Voucher No" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="IsLock" e-headertext="Lock" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="DisbursementVoucherNo" e-headertext="Disbursement Voucher No" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="IsLock" e-headertext="Lock" e-allowediting="false" e-width="60"></div>
+                                <div e-column e-field="DisbursementVoucherNo" e-headertext="Disbursement Voucher No" e-allowediting="false" e-width="100"></div>
                                 <div e-column e-field="IsDisburse" e-headertext="Disbursed" e-allowediting="false" e-width="80"></div>
                                 <div e-column e-field="DisbursementDate" e-headertext="Disbursement Date" e-allowediting="false" e-width="80"></div>
                                 <div e-column e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="80"></div>
@@ -207,12 +207,11 @@
                             </div>
                         </div>
 
-                        @*<script type="text/template" id="checkboxTemplateB">
-                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" e-enabled="{{data.IsDisbursed == true && data.DisbursementVoucherId != '' ?'false':'true'}}" />
+                        <script type="text/template" id="checkboxTemplateB">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" e-enabled="{{data.DisbursementVoucherId != '' ?'false':'true'}}" />
                         </script>
 
-                        <script type="text/x-jsrender" id="headerTemplateB">
-
+                        @*<script type="text/x-jsrender" id="headerTemplateB">
                             <input type="checkbox" id="headchkB" e-checked="data.CheckBoxSelect" />
                         </script>*@
 
@@ -221,8 +220,8 @@
                     <div class="col-sm-12">
                         <div class="col-sm-6">
                             <div class="common-btn">
-                                <ul style="display:flex; justify-content:space-between">
-                                    @*<li> <button ng-click="SalaryUnDisbursement();" class="btn"><i class="glyphicon glyphicon-lock"></i>Salary UnDisbursement</button></li>*@
+                                <ul class="list-inline text-left">
+                                    <li> <button ng-click="SalaryUnDisbursement();" class="btn" ng-disabled="saveBtnDisable==true"><i class="glyphicon glyphicon-lock"></i>Salary UnDisbursement</button></li>
                                     <li> <button ng-click="XlsSalaryDisbursement();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
                                 </ul>
                             </div>

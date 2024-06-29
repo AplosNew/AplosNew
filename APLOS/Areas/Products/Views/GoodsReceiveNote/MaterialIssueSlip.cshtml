@@ -934,10 +934,10 @@
 
 
 <div class="modal site-modal" id="ListIssueSlipPopup" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
             <div class="modal-header">Inventory Issue Slip<button type="button" class="close" ng-click="IssueSlipTypeHide();">&times;</button></div>
-            <div class="modal-body" style="width:900px;">
+            <div class="modal-body" >
                 <div class="row text-right">
                     <div class="col-xs-12 col-sm-12 col-sm-12">
                         <div class="search-form">
@@ -965,23 +965,22 @@
                     <div e-columns>
                         <div e-column e-headertext="" e-headertemplateid="#headerTemplate2" e-template="#checkboxTemplate2" e-textalign="center" e-width="30"></div>
                         <div e-column e-type="string" e-field="MaterialType" e-headertext="Material Type" e-width="100"></div>
-                        <div e-column e-type="string" e-field="MaterialMasterGroupName" e-headertext="Material Group Name" e-width="200"></div>
-                        <div e-column e-type="string" e-field="MaterialMasterName" e-headertext="Material Name" e-width="80"></div>
-                        <div e-column e-type="string" e-field="StandardName" e-headertext="Article" e-width="80"></div>
-                        <div e-column e-type="string" e-field="FirstCharacteristicsValue" e-headertext="Sku1" e-width="80"></div>
-                        <div e-column e-type="string" e-field="SecondCharacteristicsValue" e-headertext="Sku2" e-width="80"></div>
-                        <div e-column e-type="string" e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="80"></div>
-                        <div e-column e-type="string" e-field="CountryName" e-headertext="Country" e-width="80"></div>
-                        <div e-column e-type="string" e-field="SalesOrderId" e-headertext="Sales Order" e-width="80"></div>
-                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="RequisitionQty" e-headertext="Requested Qty" e-width="70" e-textalign="right"></div>
+                        <div e-column e-type="string" e-field="MaterialMasterGroupName" e-headertext="Material Group Name" e-width="100"></div>
+                        <div e-column e-type="string" e-field="MaterialMasterName" e-headertext="Material Name" e-width="120"></div>
+                        <div e-column e-type="string" e-field="StandardName" e-headertext="Article Name" e-width="150"></div>
+                        <div e-column e-type="string" e-field="FirstCharacteristicsValue" e-headertext="Sku1" e-width="60"></div>
+                        <div e-column e-type="string" e-field="SecondCharacteristicsValue" e-headertext="Sku2" e-width="60"></div>
+                        @*<div e-column e-type="string" e-field="SalesOrderId" e-headertext="Sales Order" e-width="80"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="RequisitionQty" e-headertext="Requested Qty" e-width="70" e-textalign="right"></div>*@
                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TotalQty" e-headertext="StockQty" e-width="80" e-textalign="right"></div>
                         <div e-column e-type="string" e-field="StockUOM" e-headertext="S.B.UoM" e-width="70"></div>
                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="IssuedQty" e-headertext="IssuedQty" e-width="80" e-textalign="right"></div>
+                        @*<div e-column e-type="string" e-field="CountryName" e-headertext="Country" e-width="80"></div>
                         <div e-column e-type="string" e-field="consumptionUoM" e-headertext="Con.UOM" e-width="60"></div>
                         <div e-column e-type="string" e-field="TransactionUoMName" e-headertext="TranUOM" e-width="60"></div>
                         <div e-column e-type="string" e-field="POUoMName" e-headertext="POUoM" e-width="60"></div>
                         <div e-column e-type="string" e-field="Consumption" e-headertext="Consumption" e-width="150"></div>
-                        <div e-column e-type="string" e-field="WastagePer" e-headertext="WastagePer" e-width="80"></div>
+                        <div e-column e-type="string" e-field="WastagePer" e-headertext="WastagePer" e-width="80"></div>*@
 
                     </div>
                 </div>

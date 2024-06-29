@@ -2744,9 +2744,8 @@ namespace Library.MaterialManagement.Products
 
                 var sql = @" SELECT IRM.Id,IRM.ProductionOrderId, pr.PlannedQty ,MIC.PlanPercentage,RecoveryPercentage=(100+(100-isnull(MIC.PlanPercentage,0))) ,RequestedQty ,RejectedQty
                             FROM TRN.IssueRequestMaster IRM
-                            LEFT JOIN (select IssueRequestMasterId,CostCenterId,ExpenseActivityId,sum(RequestedQty) RequestedQty,sum(RejectedQty)RejectedQty 
-									FROM  TRN.IssueRequest group by IssueRequestMasterId,ExpenseActivityId,CostCenterId) IR ON IR.IssueRequestMasterId=IRM.Id
-                            LEFT JOIN [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
+                            LEFT JOIN (select IssueRequestMasterId,ExpenseActivityId,sum(RequestedQty) RequestedQty,sum(RejectedQty)RejectedQty 
+									FROM  TRN.IssueRequest group by IssueRequestMasterId,ExpenseActivityId) IR ON IR.IssueRequestMasterId=IRM.Id
 							LEFT JOIN trn.ProductionOrder PR ON PR.Id=IRM.ProductionOrderId
 							LEFT JOIN dbo.MaterialIssueControlMaster MIC ON MIC.POId=pr.Id
                             LEFT JOIN hkp.Budget B On B.Id=IR.ExpenseActivityId

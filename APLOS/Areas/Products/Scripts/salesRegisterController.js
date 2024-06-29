@@ -169,9 +169,9 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
             }
             else if ($scope.report.ReportType == 'PartyWise') {
                 $scope.SalesRegisterPartyList = response.data.NewData;
-                for (var i = 0; i < $scope.SalesRegisterPartyList.length; i++) {
-                    response.data[i].GRNEntryDate = new Date($scope.SalesRegisterPartyList[i].GRNEntryDate);
-                }
+                //for (var i = 0; i < $scope.SalesRegisterPartyList.length; i++) {
+                //    response.data[i].GRNEntryDate = new Date($scope.SalesRegisterPartyList[i].GRNEntryDate);
+                //}
             }
             else if ($scope.report.ReportType == 'ItemWise') {
                 $scope.SalesRegisterItemList = response.data.NewData;

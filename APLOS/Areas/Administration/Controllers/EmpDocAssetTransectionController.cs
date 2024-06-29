@@ -8,13 +8,16 @@ using Library.Data.Sql;
 using Library.Model.Parties;
 using Library.Model.Setups;
 using Library.Service.Enums;
+using Library.Service.Helpers;
 using Library.Service.Setups;
 using Newtonsoft.Json;
 using OTSBD;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Threading;
+using System.Web;
 using System.Web.Mvc;
 
 
@@ -24,12 +27,7 @@ namespace Aplos.Areas.Administration.Controllers
 {
     public class EmpDocAssetTransectionController : BaseController
     {
-        string TableName = "dbo.DocumentSet";
-        string TableName1 = "dbo.DocumentationMaster";
-  
-        //authentication for
-        //GetList Create Delete
-
+        string TableName = "dbo.EmpDocAssetTransaction";
 
         #region Constructor
 
@@ -56,9 +54,16 @@ namespace Aplos.Areas.Administration.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
            
 
-            string sql = @"select * from (select DS.*,EI.EmployeeName as ResponsiblePerson from dbo.DocumentSet DS
-                                                 left join dbo.EmployeeInformation EI on DS.ResponsiblePersonId=EI.SystemId
-                                                 ) AS TEMP WHERE " + strkey + " order by Sequence ";
+            string sql = @"SELECT * FROM (select DS.*,EI.EmployeeCode+'-'+EI.EmployeeName GivenBy,EC.Category,ESC.SubCategory,EV.EstimatedValue
+,EIT.Item,ECL.Criticltylevel
+from dbo.EmpDocAssetTransaction DS
+LEFT JOIN [HKP].[EmpDocAssetMaster] EC ON EC.Id=DS.CategoryId
+LEFT JOIN [HKP].[EmpDocAssetMaster] ESC ON ESC.Id=DS.SubCategoryId
+LEFT JOIN [HKP].[EmpDocAssetMaster] EV ON EV.Id=DS.EstimatedValueId
+LEFT JOIN [HKP].[EmpDocAssetMaster] EIT ON EIT.Id=DS.ItemId
+LEFT JOIN [HKP].[EmpDocAssetMaster] ECL ON ECL.Id=DS.CriticltylevelId
+left join dbo.EmployeeInformation EI on DS.GivenById=EI.SystemId
+                                                 ) AS TEMP WHERE " + strkey + " ORDER BY Sequence";
 
           return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -110,10 +115,10 @@ namespace Aplos.Areas.Administration.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetEsstimatedValue()
+        public JsonResult GetEstimatedValue()
         {
 
-            var sql = @"SELECT Id Value , EsstimatedValue Text FROM [HKP].[EmpDocAssetMaster] WHERE Active = 1 ";
+            var sql = @"SELECT Id Value , EstimatedValue Text FROM [HKP].[EmpDocAssetMaster] WHERE Active = 1 ";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -136,10 +141,6 @@ namespace Aplos.Areas.Administration.Controllers
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Code already exists!!!");
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same User Name already exists!!!");
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
@@ -222,9 +223,6 @@ namespace Aplos.Areas.Administration.Controllers
             dr["AddedBy"] = identity.Name;
             dr["AddedDate"] = System.DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
 
             dt.Rows.Add(dr);
         }
@@ -249,257 +247,85 @@ namespace Aplos.Areas.Administration.Controllers
             dr.EndEdit();
         }
 
+
+        #region upload product picture
         [HttpPost, Authorize]
-        public ActionResult GetDMList(string column, string value)
-        {
-            string strkey = "1=1";
-            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                strkey = column + " like '%" + value + "%'";
-
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT 0 Flag,* FROM (SELECT DS.* FROM dbo.DocumentationMaster DS) AS TEMP WHERE " + strkey + " order by Sequence ";
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet, Authorize]
-        public JsonResult GetDMAutoSequence()
-        {
-            return Json(GetDMSequence(), JsonRequestBehavior.AllowGet);
-        }
-
-        private double GetDMSequence()
-        {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName1 + "");
-            if (dt.Rows.Count > 0)
-                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
-
-            return 1;
-        }
-
-        [HttpPost]
-        public JsonResult CreateDocumentationMaster(Dictionary<string, object> data)
+        public ActionResult SaveDefault(IEnumerable<HttpPostedFileBase> UploadDefault, string UploadDefault_data)
         {
             try
             {
-                DataSet dsMaster;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                UploadDefault_data = UploadDefault_data.Replace("\"", "");
+                if (string.IsNullOrEmpty(UploadDefault_data))
+                    throw new Exception("Save the data first");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName1 + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Code already exists!!!");
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName1 + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same User Name already exists!!!");
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName1 + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
-                string _Id = "";
-
-                #region data update
-                if (dsMaster.Tables[0].Rows.Count == 0 && data["Id"] == null)
+                foreach (var file in UploadDefault)
                 {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID(TableName, out _Id);
 
-                    data["Id"] = _Id;
-                    AddNewRow(dsMaster.Tables[0], data);
-                }
-                else
-                {
-                    _Id = data["Id"].ToString();
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
-                }
-                #endregion data update
+                    var fileName = Path.GetFileName(UploadDefault_data + new FileInfo(file.FileName).Extension);
+                    var destinationPath = Path.Combine(ResourcesPathReader.GetEmpDocAssetTransactionPath(), fileName);
 
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-
-                return Json(new { Error = false, Data = data, Sequence = GetDMSequence(), Message = AplosMessage.Updated });
-            }
-
-
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message });
-            }
-        }
-
-        public ActionResult DeleteDocumentaitonMaster(string id)
-        {
-            string sql = @"select * from dbo.DocumentationMaster where Id = '" + id + "'";
-
-
-            try
-            {
-                DataSet dsMaster;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                if (string.IsNullOrEmpty(id))
-                    throw new Exception("Select entry first");
-
-               
-                con.BeginTransaction();
-                con.executeQuery("delete from dbo.DocumentationMaster where id='" + id + "'");
-                con.CommitTransaction();
-
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-
-
-        }
-
-        [HttpGet,Authorize]
-        public ActionResult GetDocumentSetDetailList(string documentSetId)
-        {
-            string sql = @"Select DSD.*,DM.Sequence,DM.Code,DM.ShortName,DM.StandardName,DM.UserName,DM.Source,DM.DocumentType,DM.DocumentFormat From  [dbo].[DocumentSetDetail] DSD
-LEFT JOIN [dbo].[DocumentationMaster] DM ON DSD.DocumentationMasterId=DM.Id
-Where DSD.DocumentSetId='" + documentSetId + "' ORDER BY DM.Sequence";
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
-
-        private string GetDocumentSetDetailPK()
-        {
-            string sID = string.Empty;
-            bplib.clsGenID objGenID = new bplib.clsGenID();
-            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "DocumentSetDetail", out sID);
-            return sID;
-        }
-
-        [HttpPost,Authorize]
-        public JsonResult SaveTaggedDocmuent(List<Dictionary<string, object>> data, string documentSetId)
-        {
-            try
-            {
-               DataSet dsMaster;
-                ConnectionManager.DAL.ConManager objCon;
-                #region FUND 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.DocumentSetDetail where  DocumentSetId='" + documentSetId + "'", out dsMaster, false, "1");
-                if (data != null)
-                {
-                    foreach (var item in data)
+                    if (System.IO.Directory.Exists(ResourcesPathReader.GetEmpDocAssetTransactionPath()) == false)
                     {
-                        DataView dv = new DataView(dsMaster.Tables[0]);
-                        dv.RowFilter = "Id='" + item["Id"] + "'";
-
-                        if (dv.Count == 0)
+                        try
                         {
-                            item["Id"] = GetDocumentSetDetailPK();
-
-                            AddNewRow(dsMaster.Tables[0], item);
+                            System.IO.Directory.CreateDirectory(ResourcesPathReader.GetEmpDocAssetTransactionPath());
                         }
-                        else
+                        catch (Exception)
                         {
-                            DataRow drmo = dv[0].Row;
-                            EditRow(drmo, item);
+
                         }
                     }
-                }
-
-                #endregion
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-
-                return Json(new { Error = false,Message = AplosMessage.Updated });
-            }
 
 
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message });
-            }
-        }
+                    ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
+                    string sql = "select* from dbo.EmpDocAssetTransaction where id='" + UploadDefault_data + "'";
+                    DataSet dsLocal = null;
+                    connection.BeginTransaction();
+                    connection.getDataSet(sql, out dsLocal);
+                    connection.CommitTransaction();
 
-        [HttpPost,Authorize]
-        public JsonResult CreateDocumentSetWithParty(string DocumentSetId, string SelectedpartyList)
-        {
-            try
-            {
-                var settings = new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore,
-                    MissingMemberHandling = MissingMemberHandling.Ignore
-                };
-                List<Party> party = JsonConvert.DeserializeObject<List<Party>>(SelectedpartyList, settings);
-
-                SaveDocumentSetWithParty(DocumentSetId, party);
-                return Json(new { Message = AplosMessage.Insert });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, ex.Message });
-            }
-
-        }
-
-        private void SaveDocumentSetWithParty(string DocumentSetId, List<Party> party)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ConnectionManager.DAL.ConManager objCon;
-            DataSet dsParty;
-            string id = string.Empty;
-            try
-            {
-                foreach (var item in party)
-                {
-                    if (id == "")
-                        id = "'" + item.Id + "'";
-                    else
-                        id = id + ",'" + item.Id + "'";
-                }
-                string mosql = "SELECT * FROM HKP.Party WHERE Id IN (" + id + ")";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(mosql, out dsParty, false, "1");
-
-                foreach (var item in party)
-                {
-                    DataView dv = new DataView(dsParty.Tables[0]);
-                    dv.RowFilter = "Id='" + item.Id + "'";
-                    
-                    if (dv.Count > 0)
+                    if (dsLocal.Tables[0].Rows.Count > 0)
                     {
-                        DataRow drmo = dv[0].Row;
+                        dsLocal.Tables[0].Rows[0].BeginEdit();
+                        dsLocal.Tables[0].Rows[0]["FileName"] = fileName;
+                        dsLocal.Tables[0].Rows[0].EndEdit();
 
-                        drmo.BeginEdit();
-
-                        drmo["DocumentSetId"] = DocumentSetId;
-                        drmo["UpdatedBy"] = identity.Name;
-                        drmo["UpdatedDate"] = DateTime.Now.ToString();
-                        drmo["UpdatedFromIP"] = identity.IPAddress;
-
-                        drmo.EndEdit();
-
+                        file.SaveAs(destinationPath);
+                        clsStaticInfo info = new clsStaticInfo();
+                        info.SaveDataSets(dsLocal);
                     }
-
                 }
-
-                clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsParty);
-
+                return Content("");
             }
             catch (Exception ex)
             {
-                throw (ex);
+                HttpResponse Response = System.Web.HttpContext.Current.Response;
+                Response.Clear();
+                Response.ContentType = "application/json; charset=utf-8";
+                Response.StatusCode = 204;
+                Response.Status = "204 No Content";
+                Response.StatusDescription = ex.Message;
+                Response.End();
+
+                return Content("");
             }
         }
-
-        [HttpGet, Authorize]
-        public ActionResult GetPartyDocumentSetDetailList(string documentSetId)
+        [Authorize]
+        public ActionResult RemoveDefault(string[] fileNames)
         {
-            string sql = @"SELECT * FROM HKP.Party WHERE DocumentSetId='"+ documentSetId + "'";
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            foreach (var fullName in fileNames)
+            {
+                var fileName = Path.GetFileName(fullName);
+                var physicalPath = Path.Combine(Server.MapPath("~/App_Data"), fileName);
+                if (System.IO.File.Exists(physicalPath))
+                {
+                    System.IO.File.Delete(physicalPath);
+                }
+            }
+            return Content("");
         }
 
-
+        #endregion upload product picture
 
     }
 
