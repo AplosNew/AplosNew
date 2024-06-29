@@ -279,6 +279,11 @@ namespace Library.Service.SalaryDisbursement
                 voucherVM.CurrencyId = companyCurrencyId;
                 voucherVM.CompanyCurrencyRate = 1;
 
+                var directtotalAmountDr = 0.0M;
+                var directtotalAmountCr = 0.0M;
+                var inDirecttotalAmountDr = 0.0M;
+                var inDirecttotalAmountCr = 0.0M;
+
                 var direct = new System.Text.StringBuilder();
                 var directsql = "";
                 var inDirect = new System.Text.StringBuilder();
@@ -316,6 +321,9 @@ namespace Library.Service.SalaryDisbursement
                                 AccountsGroupId = directVoucherDetailVM.AccountsGroupId
                             }, currentVoucherDetailId);
 
+                            directtotalAmountDr += directVoucherDetailDr.DrAmount;
+                            directtotalAmountCr += directVoucherDetailDr.CrAmount;
+
                             // INSERT INTO VoucherDetailCurrency
                             _voucherService.InsertVoucherDetailCompanyCurrency(directVoucherDetailDr, new VoucherDetailCurrency
                             {
@@ -336,13 +344,13 @@ namespace Library.Service.SalaryDisbursement
                                 var directdata = voucherVM;
                                 directdata.VoucherId = directVoucherId;
                                 directdata.PartyType = "Employee";
-                                directdata.Amount = directSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance" && r.ActivityId == directVoucherDetailVM.ActivityId).Sum(r => r.Amount);
-                                bool isAdvance = CheckAdvanceWriteOff(directSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance"  && r.ActivityId == directVoucherDetailVM.ActivityId));
+                                directdata.Amount = directSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance" && r.ActivityId == directVoucherDetailVM.ActivityId && r.AccountsGroupId == directVoucherDetailVM.AccountsGroupId).Sum(r => r.Amount);
+                                bool isAdvance = CheckAdvanceWriteOff(directSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance"  && r.ActivityId == directVoucherDetailVM.ActivityId && r.AccountsGroupId == directVoucherDetailVM.AccountsGroupId));
                                 if (isAdvance)
                                 {
                                     var advanceWriteOff = InsertAdvanceWriteOff(directdata);
                                     decimal directAmount = 0;
-                                    foreach (var item in directSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance" && r.ActivityId == directVoucherDetailVM.ActivityId))
+                                    foreach (var item in directSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance" && r.ActivityId == directVoucherDetailVM.ActivityId && r.AccountsGroupId == directVoucherDetailVM.AccountsGroupId))
                                     {
 
                                         var advance = _advanceService.Find(item.AdvanceId);
@@ -412,6 +420,10 @@ namespace Library.Service.SalaryDisbursement
                                                 AccountsGroupId = directVoucherDetailVM.AccountsGroupId
                                             }, currentVoucherDetailId);
                                             directAmount += directVoucherDetailDr.CrAmount;
+
+                                            directtotalAmountDr += directVoucherDetailDr.DrAmount;
+                                            directtotalAmountCr += directVoucherDetailDr.CrAmount;
+
                                             // INSERT INTO VoucherDetailCurrency
                                             _voucherService.InsertVoucherDetailCompanyCurrency(directVoucherDetailDr, new VoucherDetailCurrency
                                             {
@@ -497,6 +509,10 @@ namespace Library.Service.SalaryDisbursement
                                                 AccountsGroupId = directVoucherDetailVM.AccountsGroupId
                                             }, currentVoucherDetailId);
                                             directAmount += directVoucherDetailDr.CrAmount;
+
+                                            directtotalAmountDr += directVoucherDetailDr.DrAmount;
+                                            directtotalAmountCr += directVoucherDetailDr.CrAmount;
+
                                             // INSERT INTO VoucherDetailCurrency
                                             _voucherService.InsertVoucherDetailCompanyCurrency(directVoucherDetailDr, new VoucherDetailCurrency
                                             {
@@ -582,6 +598,10 @@ namespace Library.Service.SalaryDisbursement
                                                 AccountsGroupId = directVoucherDetailVM.AccountsGroupId
                                             }, currentVoucherDetailId);
                                             directAmount += directVoucherDetailDr.CrAmount;
+
+                                            directtotalAmountDr += directVoucherDetailDr.DrAmount;
+                                            directtotalAmountCr += directVoucherDetailDr.CrAmount;
+
                                             // INSERT INTO VoucherDetailCurrency
                                             _voucherService.InsertVoucherDetailCompanyCurrency(directVoucherDetailDr, new VoucherDetailCurrency
                                             {
@@ -651,6 +671,9 @@ namespace Library.Service.SalaryDisbursement
                                             AccountsGroupId=directVoucherDetailVM.AccountsGroupId
                                         }, currentVoucherDetailId);
 
+                                        directtotalAmountDr += directVoucherDetailDrAdd.DrAmount;
+                                        directtotalAmountCr += directVoucherDetailDrAdd.CrAmount;
+
                                         // INSERT INTO VoucherDetailCurrency
                                         _voucherService.InsertVoucherDetailCompanyCurrency(directVoucherDetailDrAdd, new VoucherDetailCurrency
                                         {
@@ -681,6 +704,9 @@ namespace Library.Service.SalaryDisbursement
                                         SalaryType = directVoucherDetailVM.SalaryType,
                                         AccountsGroupId = directVoucherDetailVM.AccountsGroupId
                                     }, currentVoucherDetailId);
+
+                                    directtotalAmountDr += directVoucherDetailDr.DrAmount;
+                                    directtotalAmountCr += directVoucherDetailDr.CrAmount;
 
                                     // INSERT INTO VoucherDetailCurrency
                                     _voucherService.InsertVoucherDetailCompanyCurrency(directVoucherDetailDr, new VoucherDetailCurrency
@@ -720,6 +746,9 @@ namespace Library.Service.SalaryDisbursement
                                         SalaryType = directVoucherDetailVM.SalaryType,
                                         AccountsGroupId = directVoucherDetailVM.AccountsGroupId
                                     }, currentVoucherDetailId);
+
+                                    directtotalAmountDr += directVoucherDetailDr.DrAmount;
+                                    directtotalAmountCr += directVoucherDetailDr.CrAmount;
 
                                     // INSERT INTO VoucherDetailCurrency
                                     _voucherService.InsertVoucherDetailCompanyCurrency(directVoucherDetailDr, new VoucherDetailCurrency
@@ -801,6 +830,9 @@ namespace Library.Service.SalaryDisbursement
                                 AccountsGroupId = voucherDetailVM.AccountsGroupId
                             }, currentVoucherDetailId);
 
+                            inDirecttotalAmountDr += voucherDetailDr.DrAmount;
+                            inDirecttotalAmountCr += voucherDetailDr.CrAmount;
+
                             // INSERT INTO VoucherDetailCurrency
                             _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailDr, new VoucherDetailCurrency
                             {
@@ -821,13 +853,13 @@ namespace Library.Service.SalaryDisbursement
                                 var indirectdata = voucherVM;
                                 indirectdata.VoucherId = InDirectVoucherId;
                                 indirectdata.PartyType = "Employee";
-                                indirectdata.Amount = indirectSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance" && r.ActivityId == voucherDetailVM.ActivityId).Sum(r => r.Amount);
-                                bool isAdvance = CheckAdvanceWriteOff(indirectSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance" && r.ActivityId == voucherDetailVM.ActivityId));
+                                indirectdata.Amount = indirectSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance" && r.ActivityId == voucherDetailVM.ActivityId && r.AccountsGroupId == voucherDetailVM.AccountsGroupId).Sum(r => r.Amount);
+                                bool isAdvance = CheckAdvanceWriteOff(indirectSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance" && r.ActivityId == voucherDetailVM.ActivityId && r.AccountsGroupId == voucherDetailVM.AccountsGroupId));
                                 if (isAdvance)
                                 {
                                     var indirectadvanceWriteOff = InsertAdvanceWriteOff(indirectdata);
                                     decimal indirectAdvanceAmountTemp = 0;
-                                    foreach (var item in indirectSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance" && r.ActivityId == voucherDetailVM.ActivityId))
+                                    foreach (var item in indirectSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance" && r.ActivityId == voucherDetailVM.ActivityId && r.AccountsGroupId == voucherDetailVM.AccountsGroupId))
                                     {
 
                                         var advance = _advanceService.Find(item.AdvanceId);
@@ -894,6 +926,9 @@ namespace Library.Service.SalaryDisbursement
 
                                             }, currentVoucherDetailId);
                                             indirectAdvanceAmountTemp += VoucherDetailDr.CrAmount;
+
+                                            inDirecttotalAmountDr += VoucherDetailDr.DrAmount;
+                                            inDirecttotalAmountCr += VoucherDetailDr.CrAmount;
 
                                             // INSERT INTO VoucherDetailCurrency
                                             _voucherService.InsertVoucherDetailCompanyCurrency(VoucherDetailDr, new VoucherDetailCurrency
@@ -983,6 +1018,9 @@ namespace Library.Service.SalaryDisbursement
                                             }, currentVoucherDetailId);
                                             indirectAdvanceAmountTemp += VoucherDetailDr.CrAmount;
 
+                                            inDirecttotalAmountDr += VoucherDetailDr.DrAmount;
+                                            inDirecttotalAmountCr += VoucherDetailDr.CrAmount;
+
                                             // INSERT INTO VoucherDetailCurrency
                                             _voucherService.InsertVoucherDetailCompanyCurrency(VoucherDetailDr, new VoucherDetailCurrency
                                             {
@@ -1071,6 +1109,9 @@ namespace Library.Service.SalaryDisbursement
                                             }, currentVoucherDetailId);
                                             indirectAdvanceAmountTemp += VoucherDetailDr.CrAmount;
 
+                                            inDirecttotalAmountDr += VoucherDetailDr.DrAmount;
+                                            inDirecttotalAmountCr += VoucherDetailDr.CrAmount;
+
                                             // INSERT INTO VoucherDetailCurrency
                                             _voucherService.InsertVoucherDetailCompanyCurrency(VoucherDetailDr, new VoucherDetailCurrency
                                             {
@@ -1142,6 +1183,9 @@ namespace Library.Service.SalaryDisbursement
                                             AccountsGroupId = voucherDetailVM.AccountsGroupId
                                         }, currentVoucherDetailId);
 
+                                        inDirecttotalAmountDr += voucherDetailDr.DrAmount;
+                                        inDirecttotalAmountCr += voucherDetailDr.CrAmount;
+
                                         // INSERT INTO VoucherDetailCurrency
                                         _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailDr, new VoucherDetailCurrency
                                         {
@@ -1170,6 +1214,9 @@ namespace Library.Service.SalaryDisbursement
                                         SalaryType = voucherDetailVM.SalaryType,
                                         AccountsGroupId = voucherDetailVM.AccountsGroupId
                                     }, currentVoucherDetailId);
+
+                                    inDirecttotalAmountDr += voucherDetailDr.DrAmount;
+                                    inDirecttotalAmountCr += voucherDetailDr.CrAmount;
 
                                     // INSERT INTO VoucherDetailCurrency
                                     _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailDr, new VoucherDetailCurrency
@@ -1205,6 +1252,9 @@ namespace Library.Service.SalaryDisbursement
                                         SalaryType = voucherDetailVM.SalaryType,
                                         AccountsGroupId = voucherDetailVM.AccountsGroupId
                                     }, currentVoucherDetailId);
+
+                                    inDirecttotalAmountDr += VoucherDetailDr.DrAmount;
+                                    inDirecttotalAmountCr += VoucherDetailDr.CrAmount;
 
                                     currentVoucherDetailId++;
                                     // INSERT INTO VoucherDetailCurrency
@@ -1257,7 +1307,10 @@ namespace Library.Service.SalaryDisbursement
                         }
                     }
                 }
-
+                if (directtotalAmountDr != directtotalAmountCr)
+                    throw new CustomException("Direct Dr and Cr amount is not equal.");
+                if (inDirecttotalAmountDr != inDirecttotalAmountCr)
+                    throw new CustomException("InDirect Dr and Cr amount is not equal.");
 
                 _unitOfWork.SaveChanges();
                 flag = false;

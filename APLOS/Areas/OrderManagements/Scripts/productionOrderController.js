@@ -375,7 +375,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     $scope.model = {
         Id: null
         , RecipeId: null
-        , PlantId: $window.plantid
+        , PlantId: $window.plantId
         , EntityId: null
         , ProductionStatusId: null
         , FirstInputDate: null
@@ -437,11 +437,11 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         $scope.model = Row.data;
         //$scope.model = Object.assign({}, $scope.model);
         $scope.model = Object.assign({}, Row.data);
-
+        $scope.GetPlanningTypeEntiy();
         if (baseService.isUndefinedOrNull($scope.model.UserDefineLotNo)) {
             $scope.model.UserDefineLotNo = $scope.model.Id;
         }
-        $scope.GetPlanningTypeProcess();
+     
         getProductionRecipeMaterialList();
 
         //$scope.GetBulletinTamplate2ndIndexReport(Row.data.Id);
@@ -762,7 +762,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         $scope.DisableActionButtons = false;
         $scope.btndisable = false;
         $scope.Action = "Save";
-        $scope.model = { PlantId: $window.plantid };
+        $scope.model = { PlantId: $window.plantId };
         $scope.processList = [];
         $scope.productionMaterialList = [];
         $scope.prdProcessSetList = [];

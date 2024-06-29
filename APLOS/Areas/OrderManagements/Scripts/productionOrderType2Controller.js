@@ -16,10 +16,10 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     $scope.bulletintab = true;
 
     $scope.path = 'OrderManagements/ProductionOrder/';
-    $scope.getListUrl = $scope.path + 'getlist';
-    $scope.saveUrl = $scope.path + 'create';
+    $scope.getListUrl = $scope.path + 'GetType2List';
+    $scope.saveUrl = $scope.path + 'CreateProductionOrderType2';
     $scope.updateUrl = $scope.path + 'edit';
-    $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.deleteUrl = $scope.path + 'DeleteType2/';
 
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
 
@@ -131,7 +131,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     $scope.GetPlanningTypeEntiy = function () {
         $http({
             method: 'GET',
-            url: 'OrderManagements/ProductionOrder/GetPlanningTypeEntityCbo?processId=' + $scope.model.PlanningTypeProcessId
+            url: 'OrderManagements/ProductionOrder/GetPlanningType2EntityCbo?processId=' + $scope.model.PlanningTypeProcessId
         }).then(function successCallback(response) {
             $scope.entityList = response.data;
         });
@@ -362,7 +362,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     $scope.model = {
         Id: null
         , RecipeId: null
-        , PlantId: $window.plantid
+        , PlantId: $window.plantId
         , EntityId: null
         , ProductionStatusId: null
         , FirstInputDate: null
@@ -394,7 +394,8 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         , IsWorkCenterValidateApplicable: true
         , UserDefineLotNo: null
         , UsedInPB: false
-        , PlanningTypeProcessId:null
+        , PlanningTypeProcessId: null
+        , WCPreferenceType: 'INCLUDE'
     };
     $scope.model = Object.assign({}, $scope.model);
 
@@ -418,17 +419,17 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         $scope.MCtotalMP = 0;
         $scope.NonMCtotalMP = 0;
 
-        $scope.DisableActionButtons = true;
+        $scope.DisableActionButtons = false;
         $scope.operationList = [];
         $scope.lotControlList = [];
         $scope.model = Row.data;
         //$scope.model = Object.assign({}, $scope.model);
         $scope.model = Object.assign({}, Row.data);
-
+        $scope.GetPlanningTypeEntiy();
         if (baseService.isUndefinedOrNull($scope.model.UserDefineLotNo)) {
             $scope.model.UserDefineLotNo = $scope.model.Id;
         }
-        $scope.GetPlanningTypeProcess();
+
         getProductionRecipeMaterialList();
 
         //$scope.GetBulletinTamplate2ndIndexReport(Row.data.Id);
@@ -471,7 +472,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     function getProductionRecipeMaterialList() {
         $http({
             method: 'GET',
-            url: $scope.path + 'GetProductionRecipeMaterialList?productionOrderId=' + $scope.model.Id
+            url: $scope.path + 'GetProductionOrderType2MaterialList?productionOrderId=' + $scope.model.Id
         }).then(function successCallback(response) {
             $scope.recipeMaterialListSelected = response.data;
             getProductionProcessSetList();
@@ -506,7 +507,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     function getProductionProcessSetList() {
         $http({
             method: 'GET',
-            url: $scope.path + 'GetProductionOrderProcessSetList?productionOrderId=' + $scope.model.Id
+            url: $scope.path + 'GetProductionOrderType2ProcessSetList?productionOrderId=' + $scope.model.Id
         }).then(function successCallback(response) {
             $scope.prdProcessSetList = response.data;
             for (var i = 0; i < $scope.prdProcessSetList.length; i++) {
@@ -517,7 +518,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                 UomCboByFGMaterialMaster($scope.prdProcessSetList[i].MaterialMasterId);
             }
 
-            getProductionOrderEntityList();
+            getProductionOrderWorkCenterList();
 
         });
     }
@@ -536,90 +537,13 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     function getProductionOrderWorkCenterList() {
         $http({
             method: 'GET',
-            url: $scope.path + 'GetProductionOrderWorkCenterList?productionOrderId=' + $scope.model.Id
+            url: $scope.path + 'GetProductionOrderType2WorkCenterList?productionOrderId=' + $scope.model.Id
         }).then(function successCallback(response) {
             $scope.productionWorkCenterList = response.data;
-            $scope.getProductionBulletinData($scope.model.Id);
+           // $scope.getProductionBulletinData($scope.model.Id);
             $scope.GetSavedWorkCenterListByEntityandFirstProcess();
         });
     }
-
-    $scope.Save_BACKUP = function () {
-        try {
-            daysSortValidation($scope.prdProcessSetList);
-            isJobWorkType($scope.prdProcessSetList);
-            //isEntityExistInGrid($scope.prdProcessSetList, $scope.processSetNew.EntityId);
-
-            var isBaseProcess = false;
-            for (var i = 0; i < baseService.arrayLength($scope.prdProcessSetList); i++) {
-                if ($scope.prdProcessSetList[i].IsBaseProcess) {
-                    isBaseProcess = true;
-                    break;
-                }
-                isBaseProcess = false;
-            }
-            if (!isBaseProcess) throw 'Please select base process';
-
-            angular.copy($scope.model, $scope.model);
-            $scope.$broadcast('show-errors-check-validity');
-            if ($scope.modelNewForm.$valid) {
-                if ($scope.Action === "Save") {
-                    $http({
-                        method: 'POST'
-                        , url: $scope.saveUrl
-                        , data: {
-                            'master': $scope.model
-                            , 'detaillist': $scope.productionMaterialList
-                            , 'processSetlist': $scope.prdProcessSetList
-                            , 'entitylist': $scope.productionEntityList
-                            , 'workcenterlist': $scope.productionWorkCenterList
-                        }
-                        , dataType: 'JSON'
-                    }).then(function successCallback(response) {
-                        if (response.data.Error === true) {
-                            ShowResult(response.data.Message, 'failure');
-                        }
-                        else {
-                            ShowResult(response.data.Message, 'success');
-                            $scope.getData();
-                            ClearFields();
-                        }
-                    }), function errorCallBack(response) {
-                        ShowResult(response.data.Message, 'failure');
-                    };
-                }
-                else if ($scope.Action === "Update") {
-                    $http({
-                        method: 'POST'
-                        , url: $scope.updateUrl
-                        , data: {
-                            'master': $scope.model
-                            , 'detaillist': $scope.productionMaterialList
-                            , 'processSetlist': $scope.prdProcessSetList
-                            , 'entitylist': $scope.productionEntityList
-                            , 'workcenterlist': $scope.productionWorkCenterList
-                        }
-                        , dataType: 'JSON'
-                    }).then(function successCallback(response) {
-                        if (response.data.Error === true) {
-                            ShowResult(response.data.Message, 'failure');
-                        }
-                        else {
-                            ShowResult(response.data.Message, 'success');
-                            $scope.model.Id = response.data.DATA;
-                            $scope.getData();
-                            //$scope.load(response.data.DATA);
-                            // ClearFields();
-                        }
-                    }, function errorCallBack(response) {
-                        ShowResult(response.data.Message, 'failure');
-                    });
-                }
-            }
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    };
 
     $scope.btndisable = false;
     $scope.Save = function () {
@@ -664,10 +588,10 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                     method: 'POST'
                     , url: $scope.saveUrl
                     , data: {
-                        'master': $scope.model
+                        'data': $scope.model
                         , 'detaillist': $scope.recipeMaterialListSelected
                         , 'processSetlist': $scope.prdProcessSetList
-                        , 'entitylist': $scope.productionEntityList
+                        //, 'entitylist': $scope.productionEntityList
                         , 'workcenterlist': $scope.productionWorkCenterList
                         , 'fpworkcenterlist': $scope.productionFPWorkCenterList
                         //, 'UploadDefault': push
@@ -749,7 +673,45 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         $scope.DisableActionButtons = false;
         $scope.btndisable = false;
         $scope.Action = "Save";
-        $scope.model = { PlantId: $window.plantid };
+        $scope.model = {
+            Id: null
+            , RecipeId: null
+            , PlantId: $window.plantId
+            , EntityId: null
+            , ProductionStatusId: null
+            , FirstInputDate: null
+            , TargetCommitmentDate: null
+            , Lsd: null
+            , LsdRemark: null
+            , TargetLsd: null
+            , CommitmentDate: null
+            , CommitmentDateRemarks: null
+            , CalculationBasis: null
+            , SPT: null
+            , NoOfWorkStation: null
+            , MinRequiredTargetHourly: null
+            , Cm: null
+            , CmCurrencyId: null
+            , Efficiency: null
+            , FirstDayOutPut: null
+            , IncrementType: null
+            , IncrementValue: null
+            , MinAllocatedLine: null
+            , Qty: null
+            , StandardTime: null
+            , MinWorkingDays: null
+            , ProductionPriority: null
+            , DaysToGetTheTarget: null
+            , Remarks: null
+            , color: '#ffffff'
+            , IsPreDefineLotApplicable: false
+            , IsWorkCenterValidateApplicable: true
+            , UserDefineLotNo: null
+            , UsedInPB: false
+            , PlanningTypeProcessId: null
+            , WCPreferenceType: 'INCLUDE'
+        };
+        $scope.model = Object.assign({}, $scope.model);
         $scope.processList = [];
         $scope.productionMaterialList = [];
         $scope.prdProcessSetList = [];
@@ -1250,7 +1212,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
             }
             else if (i === index) {
                 $scope.prdProcessSetList[i].IsProductionVerification = true;
-              
+
             }
         }
     };
@@ -1466,7 +1428,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                 }).finally(function () {
                 });
         };
-       
+
         $scope.index = index;
 
         var jobWorkType = $scope.prdProcessSetList[index].JobWorkType;
@@ -1610,7 +1572,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     // #endregion Entity
 
     // #region  Work Center
-    $scope.model = { WCPreferenceType: 'INCLUDE' };
+
     $scope.workCenterList = [];
     $scope.workcenterfor = '';
     //$scope.workcenterDialog = $("#workCenterPopUp").ejDialog({ target: "#entrycontainer" });
@@ -1855,11 +1817,11 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     $scope.GetSavedWorkCenterListByEntityandFirstProcess = function () {
         $http({
             method: 'GET',
-            url: 'OrderManagements/ProductionOrder/GetSavedWorkCenterListByEntityandFirstProcess?productionOrderId=' + $scope.model.Id
+            url: 'OrderManagements/ProductionOrder/GetSavedType2WorkCenterListByEntityandFirstProcess?productionOrderId=' + $scope.model.Id
         }).then(function successCallback(res) {
             $scope.productionFPWorkCenterList = res.data;
             if ($scope.model.IsPreDefineLotApplicable) {
-                $scope.GetPOLotControlSettingsData();
+              //  $scope.GetPOLotControlSettingsData();
             }
         });
     }
@@ -2011,7 +1973,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         $scope.popUpIndex = -1;
         angular.element(document.querySelector('#confirmRecipeMaterialPopUp')).modal('hide');
     };
-   
+
 
     //#region 
 

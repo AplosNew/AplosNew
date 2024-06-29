@@ -53,7 +53,7 @@
         top: -6px;
     }
 </style>
-<togglable name="Production Order"></togglable>
+<togglable name="Production Order Type2"></togglable>
 <div class="form-horizontal form-elements" ng-form="modelNewForm" id="mainPOContainer">
     <div class="col-xs-6 col-sm-6 col-md-6" id="ProductionEntity">
        
@@ -162,7 +162,7 @@
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Material</a></li>
             <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Process Set</a></li>
-            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" data-toggle="tab">Bulletin</a></li>
+            @*<li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" data-toggle="tab">Bulletin</a></li>*@
             <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" data-toggle="tab">Work Center</a></li>
             <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" data-toggle="tab">First Process Work Center</a></li>
             <li ng-show="model.IsPreDefineLotApplicable==true" role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6)" href="" data-toggle="tab">Lot Control</a></li>
@@ -769,7 +769,7 @@
                                     </ul>
                                 </div>
 
-                                <div class="content-container-fluid" style="color:black;">
+                                @*<div class="content-container-fluid" style="color:black;">
                                     <div style="color:black;" id="GridBulMacOperation" ej-grid e-datasource="machineOperationList" e-gridlines="vertical" e-allowscrolling="true" e-showstackedheader="true" e-allowpaging="true" e-allowResizing="true" e-enabletouch="true">
                                         <div e-stackedheaderrows>
                                             <div e-stackedheaderrow>
@@ -845,7 +845,7 @@
                                             </div>
                                         </script>
                                     </div>
-                                </div>
+                                </div>*@
                                 <div class="clearfix"></div><br />
                                 <div class="common-btn">
                                     <ul class="list-inline text-right">
@@ -1456,7 +1456,7 @@
     </p>
 </ej-dialog>
 
-<div class="row">
+@*<div class="row">
     <div class="form-group">
         <ej-dialog id="BullPoUp" title="Bulletin" e-enablemodal="true" e-position-y="0" e-showoninit="false"
                    e-close="onDialogClose" e-minwidth="1000" e-minheight="80" e-open="enableBtn" e-target="#ProductionEntity">
@@ -1479,9 +1479,9 @@
             </div>
         </ej-dialog>
     </div>
-</div>
+</div>*@
 
-<div class="row">
+@*<div class="row">
     <div class="form-group">
         <ej-dialog id="ProdBullPoUp" title="ProductionBulletin" e-enablemodal="true" e-position-y="0" e-showoninit="false"
                    e-close="onDialogClose" e-minwidth="1000" e-minheight="80" e-open="enableBtn" e-target="#ProductionEntity">
@@ -1511,7 +1511,7 @@
             </div>
         </ej-dialog>
     </div>
-</div>
+</div>*@
 
 <!--Bulletin-->
 <!-- #region PRBPoUp -->
@@ -1665,7 +1665,7 @@
 </div>
 <!-- #endregion Process-->
 <!-- #region Operation -->
-<div class="row">
+@*<div class="row">
     <div class="form-group">
         <ej-dialog id="OperationPoUp" title="Operation" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#addoperation"
                    e-close="onDialogClose" e-minwidth="1000" e-minheight="80" e-open="enableBtn">
@@ -1707,7 +1707,7 @@
             </div>
         </ej-dialog>
     </div>
-</div>
+</div>*@
 
 <!-- #endregion Operation-->
 <confirm-archive-generic modalid="confirmRecipeMaterialPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow();"></confirm-archive-generic>
@@ -2008,7 +2008,7 @@
 </div>
 <!-- #endregion -->
 
-<div class="modal fade site-modal in" id="PitchPopup" role="dialog" data-backdrop="static">
+<!--<div class="modal fade site-modal in" id="PitchPopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header">
@@ -2051,11 +2051,11 @@
             </div>
         </div>
     </div>
-</div>
+</div>-->
 
 <!-- #region Needle -->
 
-<div class="modal fade site-modal in" id="NeedlematerialMasterbyTypePopup" role="dialog" data-backdrop="static">
+<!--<div class="modal fade site-modal in" id="NeedlematerialMasterbyTypePopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -2185,12 +2185,12 @@
             </div>
         </div>
     </div>
-</div>
+</div>-->
 
 
 <!-- #endregion -->
 <!-- #region Bobbin -->
-<div class="modal fade site-modal in" id="BobbinmaterialMasterbyTypePopup" role="dialog" data-backdrop="static">
+<!--<div class="modal fade site-modal in" id="BobbinmaterialMasterbyTypePopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -2320,11 +2320,11 @@
             </div>
         </div>
     </div>
-</div>
+</div>-->
 
 <!-- #endregion -->
 <!-- #region Looper -->
-<div class="modal fade site-modal in" id="LoopermaterialMasterbyTypePopup" role="dialog" data-backdrop="static">
+<!--<div class="modal fade site-modal in" id="LoopermaterialMasterbyTypePopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -2454,13 +2454,13 @@
             </div>
         </div>
     </div>
-</div>
+</div>-->
 
 
 <!-- #endregion -->
 
 
-<div class="modal fade site-modal in" id="SeqPopup" role="dialog" data-backdrop="static">
+<!--<div class="modal fade site-modal in" id="SeqPopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header">
@@ -2538,9 +2538,9 @@
             </div>
         </div>
     </div>
-</div>
+</div>-->
 
-<div class="modal fade site-modal in" id="OperationPopUp" role="dialog" data-backdrop="static">
+@*<div class="modal fade site-modal in" id="OperationPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -2646,7 +2646,7 @@
             </div>
         </div>
     </div>
-</div>
+</div>*@
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterPopUp.cshtml")
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
 
