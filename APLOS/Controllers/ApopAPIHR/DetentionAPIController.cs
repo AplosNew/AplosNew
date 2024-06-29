@@ -145,6 +145,13 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.getmyappicon(out List<DefaultMyAppIconList> myappiconlis, userid, Iconid);
             return myappiconlis;
         }
+
+        public List<DefaultMyAppIconList> getmyappiconVisibal(string userid, string Iconid)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.getmyappiconVisibal(out List<DefaultMyAppIconList> myappiconlis, userid, Iconid);
+            return myappiconlis;
+        }
         public List<DefaultMyAppIconList> getModuleaccess(string userid, string Moduleid)
         {
             clsDataContext clsData = new clsDataContext();
