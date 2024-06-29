@@ -1746,7 +1746,6 @@ namespace Aplos.Areas.Products.Controllers
         }
         #endregion
 
-
         #region  IssueSlipChecked and Approval
         [HttpGet, Authorize]
         public JsonResult IssueSlipUnChecked(string IssuStatus)
@@ -1780,7 +1779,6 @@ namespace Aplos.Areas.Products.Controllers
         #endregion
 
 
-
         #region  ApprovingIssueSlip 
 
 
@@ -1810,8 +1808,6 @@ namespace Aplos.Areas.Products.Controllers
 
         #endregion
 
-
-
         #region MaterialWiseIssueSlip 2 Step 
         [Authorize, HttpPost]
         public JsonResult GetIssueSlipFilterData(string column, string value)
@@ -1831,7 +1827,6 @@ namespace Aplos.Areas.Products.Controllers
         #endregion
 
 
-
         #region AssetIssueWiseIssueSlip  
         [Authorize, HttpGet]
         public JsonResult GetAssetIssueSlipFilterData()
@@ -1841,7 +1836,6 @@ namespace Aplos.Areas.Products.Controllers
 
         }
         #endregion
-
 
 
         #region Purchase Return Code Start Here
@@ -3592,7 +3586,6 @@ UNION ALL
         }
 
 
-
         [Authorize, HttpGet]
         public JsonResult GetCheckedByAndApprovedBY(string CheckedBy, string ApprovedBy)
         {
@@ -3658,15 +3651,12 @@ UNION ALL
                     return true;
                 else
                     return false;
-
             }
             catch (Exception ex)
             {
 
                 return false;
             }
-
-
         }
 
 
@@ -3839,28 +3829,13 @@ UNION ALL
 
 
                 var sql = @"SELECT Concat(SO.Id,'-',ISNULL(FCS.CharacteristicsValueId,''),'-',ISNULL(SCS.CharacteristicsValueId,''),'-',ISNULL(TCS.CharacteristicsValueId,'')) SOMATART
-					,MOI.MaterialMasterId
-					,MM.UserName MaterialName
-					,MOI.ArticleId
-					,Article.StandardName ArticleName 
-					,FCS.CharacteristicsValueId  FirstCharacteristicsValueId
-					,IsNULL(V1.UserName, '') AS FirstCharacteristicsValue
-					,FC.Id FirstCharacteristicsId
-
-					,IsNULL(v2.UserName, '') AS SecondCharacteristicsValue
-					,SCS.CharacteristicsValueId SecondCharacteristicsValueId
-					,SC.Id SecondCharacteristicsId
-
-					,IsNULL(v3.UserName, '') AS ThirdCharacteristicsValue
-					,TCS.CharacteristicsValueId ThirdCharacteristicsValueId
-					,TC.Id ThirdCharacteristicsId
-					,null Active
-					,SO.Id SalesOrderId
-					,SCS.Qty OrderQty	
+					,MOI.MaterialMasterId ,MM.UserName MaterialName ,MOI.ArticleId ,Article.StandardName ArticleName 
+					,FCS.CharacteristicsValueId  FirstCharacteristicsValueId ,IsNULL(V1.UserName, '') AS FirstCharacteristicsValue
+					,FC.Id FirstCharacteristicsId ,IsNULL(v2.UserName, '') AS SecondCharacteristicsValue
+					,SCS.CharacteristicsValueId SecondCharacteristicsValueId ,SC.Id SecondCharacteristicsId ,IsNULL(v3.UserName, '') AS ThirdCharacteristicsValue
+					,TCS.CharacteristicsValueId ThirdCharacteristicsValueId ,TC.Id ThirdCharacteristicsId ,null Active ,SO.Id SalesOrderId ,SCS.Qty OrderQty	
 					,SUM(CEILING((isnull(SO.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0))))) AS PlanOrderQty
-					,D.UserName Destination
-					,CPO.PONumber
-					,CPO.PODate,null RequisitionForQty
+					,D.UserName Destination ,CPO.PONumber ,CPO.PODate,null RequisitionForQty
 					,Concat(SO.Id,'-',ISNULL(FCS.CharacteristicsValueId,''),'-',ISNULL(SCS.CharacteristicsValueId,''),'-',ISNULL(TCS.CharacteristicsValueId,'')) SOFSTId
 					FROM trn.SalesOrder SO 
 					left JOIN trn.MasterOrderItem MOI ON  SO.MasterOrderItemId=MOI.Id					
