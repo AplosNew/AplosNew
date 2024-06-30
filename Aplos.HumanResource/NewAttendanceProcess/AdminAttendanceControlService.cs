@@ -626,9 +626,15 @@ namespace Library.HumanResource.NewAttendanceProcess
                     EmpSel = "and EmpSystemID in (" + Emps + ")";
                 }
 
-                var str = @"select RowId,EmpSystemID,WorkDate,InTime,OutTime,ShiftSystemID,DayStatus 
-                            from AttdnProcessData where WorkDate between '" + FD + @"' and '" + TD + @"'
-                            AND PlantID='" + PlId + @"' "+EmpSel+"";
+                var str = @"select EMP.EmployeeName,APD.RowId,APD.EmpSystemID,APD.WorkDate,APD.InTime,APD.OutTime,APD.ShiftSystemID,APD.DayStatus,DEPT.UserName Department,S.UserName Section,SS.UserName SubSection,LN.UserName Line
+                            from AttdnProcessData APD
+							LEFT OUTER JOIN EmployeeInformation EMP ON APD.EmpSystemid=EMP.SystemID
+                            LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                            LEFT JOIN ORG.Line LN ON LN.Id=EMP.LineId
+                            LEFT JOIN ORG.Department DEPT ON EMP.DepartmentId=DEPT.Id
+							where APD.WorkDate between '" + FD + @"' and '" + TD + @"'
+                            AND APD.PlantID='" + PlId + @"' "+EmpSel+"";
                 return _sqlRepository.GetDataTable(str);
             }
             catch(Exception ex)

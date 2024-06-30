@@ -241,10 +241,29 @@ namespace Aplos.Areas.HumanResource.Controllers
             report.SetHeaderText(ref sheet, ROW, COL, "EmpSystemID", 8, ExcelHAlign.HAlignLeft);
             int ColEmpId = COL;
             COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee  Name", 25, ExcelHAlign.HAlignLeft);
+            int ColEN = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Department", 25, ExcelHAlign.HAlignLeft);
+            int ColDepartment = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Section", 20, ExcelHAlign.HAlignLeft);
+            int ColSection = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "SubSection", 28, ExcelHAlign.HAlignLeft);
+            int ColSS = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Line", 8, ExcelHAlign.HAlignLeft);
+            int ColLine = COL;
+            COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "WorkDate", 8, ExcelHAlign.HAlignLeft);
             int ColWD = COL;
             COL++;
+          
 
             report.SetHeaderText(ref sheet, ROW, COL, "InTime", 8, ExcelHAlign.HAlignLeft);
             int ColInT = COL;
@@ -279,6 +298,11 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColOuT].Text = data.Rows[i]["OutTime"].ToString();
                 sheet[ROW, ColShId].Text = data.Rows[i]["ShiftSystemID"].ToString();
                 sheet[ROW, ColDS].Text = data.Rows[i]["DayStatus"].ToString();
+                sheet[ROW, ColEN].Text = data.Rows[i]["EmployeeName"].ToString();
+                sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
+                sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
+                sheet[ROW, ColSS].Text = data.Rows[i]["SubSection"].ToString();
+                sheet[ROW, ColLine].Text = data.Rows[i]["Line"].ToString();
 
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
