@@ -240,6 +240,27 @@ namespace Library.Service.HumanResources.Profile
                 objCon = null;
             }
         }//End Function 
+
+        public void GetEmployeeCodeType( out System.Data.DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"SELECT g.UserName+'_#'+g.Id UserName FROM dbo.EmployeeCodeType g order by UserName";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function 
+
         public void GetLegalDesignation(string Plantid, out System.Data.DataSet dsRef)
         {
             string strSQL;
@@ -317,6 +338,7 @@ namespace Library.Service.HumanResources.Profile
             DataSet dsLegalDesignation;
             DataSet dsCity;
             DataSet dsBudgetCode;
+            DataSet dsEmployeeCodeType;
             int maxRow = 5001;
 
             #endregion
@@ -338,6 +360,7 @@ namespace Library.Service.HumanResources.Profile
                 GetCountry(out dsCountry);
                 GetCity(out dsCity);
                 GetBudgetCode(PlantId, out dsBudgetCode);
+                GetEmployeeCodeType(out dsEmployeeCodeType);
 
                 ReportUtility ru = new ReportUtility();
 
@@ -387,7 +410,7 @@ namespace Library.Service.HumanResources.Profile
 
                 CreateSource(dsJobLocation, 15, "JobLocation", ref sheetSource); int JobLocationCol = 15;
 
-
+                CreateSource(dsEmployeeCodeType, 1, "EmployeeCodeType", ref sheetSource); int EmployeeCodeTypeCol = 16;
 
 
 
@@ -429,7 +452,7 @@ namespace Library.Service.HumanResources.Profile
                 //ru.SetList(ref sheet1, xlsRow + 1, maxRow, xlsCol, dsCivilStatus); xlsCol += 1;
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SpouseName"); xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PresentAddress1"); xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PresentAddress1", ExcelKnownColors.Red); xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PresentAddress2"); xlsCol += 1;
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PermanentAddress1"); xlsCol += 1;
@@ -534,7 +557,7 @@ namespace Library.Service.HumanResources.Profile
                 //ru.SetList(ref sheet1, sheetSource, 5, xlsRow, maxRow, xlsCol, dsCity); xlsCol += 1;
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IsConfirmed"); xlsCol += 1;
-
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCodeType", ExcelKnownColors.Red); xlsCol += 1;
                 endXlsCol = xlsCol;
 
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);

@@ -155,12 +155,80 @@ namespace Library.Service.HumanResources.Profile
         }
         private void UpdateEmployeeInformationDataRow(DataSet dsBudgetCodeInfo, string groupid, string companyid, string plantid, string user, string OPN_FLAG, string systemid, string EmployeeId, EmployeeProfileUploadTemplate ep, string GivenDesignation, string _DOCBaseON, string _DOCCount, ref DataRow drLocal, ref DataSet dsEmpJoblocation, ref DataSet dsAppsAuthorization, string emp_job, string auth_pk)
         {
+            clsEmployeeLoad objEL = new clsEmployeeLoad();
             try
             {
+                DataSet  dsEmpCodeGenSetting, dsMaxEmpCode = null;
                 string _plantid = plantid;
                 string _groupid = groupid;
                 string _companyid = companyid;
                 //clsValidation clsValidation = new clsValidation();
+
+
+                #region empCode new
+                string strEmpSystemID = "";
+                bplib.clsGenID objGenID = new bplib.clsGenID();
+                objGenID.GenHRID(DateTime.Now.ToShortDateString().ToString(), "EMP_BASIC", out strEmpSystemID);
+                string syspad = GetPadding(strEmpSystemID);
+                ep.SystemId = DateTime.Now.ToString("yy") + syspad;
+                systemid = DateTime.Now.ToString("yy") + syspad;
+
+                string Prefix = null;
+                objEL.GetEmpCodeGenSetting(plantid, ep.EmployeeCodeTypeId, out Prefix, out dsEmpCodeGenSetting);
+                ep.EmployeeId = Prefix + ep.SystemId;
+
+
+                if (string.IsNullOrEmpty(ep.EmployeeCode))
+                {
+                    objEL.GetMaxEmpCode(plantid, ep.EmployeeCodeTypeId, out dsMaxEmpCode);
+
+                    if (dsEmpCodeGenSetting.Tables[0].Rows.Count > 0)
+                    {
+                        if (Convert.ToBoolean(dsEmpCodeGenSetting.Tables[0].Rows[0]["IsEmployeeCodeOpenField"]) == false)
+                        {
+                            if (dsEmpCodeGenSetting.Tables[0].Rows[0]["EmpCodeGenType"].ToString() == "AutoIncrement")
+                            {
+                                if (dsMaxEmpCode.Tables[0].Rows.Count > 0)
+                                {
+                                    int v = Convert.ToInt32(bplib.clsWebLib.GetNumData(dsMaxEmpCode.Tables[0].Rows[0]["EmployeeCode"].ToString())) + 1;
+                                    if (v == 1)
+                                    {
+                                        if (Convert.ToInt32(bplib.clsWebLib.GetNumData(dsEmpCodeGenSetting.Tables[0].Rows[0]["EmpCodeStartValue"].ToString())) != 0)
+                                        {
+                                            int code = Convert.ToInt32(bplib.clsWebLib.GetNumData(dsEmpCodeGenSetting.Tables[0].Rows[0]["EmpCodeStartValue"].ToString())) + 1;
+                                            ep.EmployeeCode = code.ToString();
+                                        }
+                                        else
+                                        {
+                                            Exception ex = new Exception("Employee code start value doesn't define in Employee Code Generation...");
+                                            throw ex;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        ep.EmployeeCode = v.ToString();
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                ep.EmployeeCode = ep.SystemId;
+                            }
+                        }
+                        if (dsEmpCodeGenSetting.Tables[0].Rows[0]["IsAutoEmpCodeWithPrefix"].ToString() == "True")
+                        {
+                            ep.EmployeeCode = Prefix + ep.EmployeeCode;
+                        }
+
+                    }
+                }
+                #endregion
+
+
+
+
+
+
                 if (OPN_FLAG == "ADDNEW")
                 {
                     drLocal["SystemID"] = systemid;
@@ -993,6 +1061,7 @@ namespace Library.Service.HumanResources.Profile
 
                 foreach (var item in epList)
                 {
+                    CheckField(item.EmployeeCodeTypeId, "EmployeeCodeType");
                     CheckField(item.EmployeeCode, "EmployeeCode");
                     CheckField(item.Salutation, "Salutation");
                     CheckField(item.FirstName, "First Name");
