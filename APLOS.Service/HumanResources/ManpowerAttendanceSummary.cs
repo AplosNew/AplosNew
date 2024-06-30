@@ -6859,83 +6859,6 @@ where  ap.WorkDate='" + WorkDate + @"' and e.SystemId in (" + strSql + ")  " + S
 
                 #region ----Depertment, Section, SubSection, Line-----
 
-                //oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol, "Department", 18);
-                //sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Font.Bold = true;
-                //sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Font.Size = 15;
-                //sheet1.Range[xlsRow, 1, xlsRow, xlsCol].RowHeight = 20;
-
-                //var dpt = string.Empty;
-                //if (sDepID == "null")
-                //{
-                //    dpt = "ALL";
-                //}
-                //else
-                //{
-                //    dpt = Dep;
-                //}
-                //oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol + 1, dpt, 25);
-
-                //xlsRow++;
-
-                //oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol, "Section", 10);
-                //sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Font.Bold = true;
-                //sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Font.Size = 15;
-                //sheet1.Range[xlsRow, 1, xlsRow, xlsCol].RowHeight = 20;
-                //sheet1.Range[xlsRow, 1, xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                //var sec = string.Empty;
-                //if (sSecID == "null")
-                //{
-                //    sec = "ALL";
-                //}
-                //else
-                //{
-                //    sec = Sec;
-                //}
-                //oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol + 1, sec, 25);
-
-                //xlsRow = 6;
-
-                //oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol + 5, "SubSection", 10);
-                //sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Font.Bold = true;
-                //sheet1.Range[xlsRow, 1, xlsRow, xlsCol + 11].CellStyle.Font.Size = 15;
-                //var ssec = string.Empty;
-                //if (sSubSecID == "null")
-                //{
-                //    ssec = "ALL";
-                //}
-                //else
-                //{
-                //    ssec = dtlocal.Rows[0]["SubSection"].ToString();
-                //}
-                //oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol + 6, ssec, 25);
-
-                //xlsRow++;
-
-                //oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol + 5, "Line", 5);
-                //sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Font.Bold = true;
-                //sheet1.Range[xlsRow, 1, xlsRow, xlsCol + 11].CellStyle.Font.Size = 15;
-                //sheet1.Range[xlsRow, 1, xlsRow, xlsCol + 11].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                //var sline = string.Empty;
-
-                ////sline = SheetHeader;
-
-                //oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol + 6, sline, 25);
-                //sheet1.Range[xlsRow, 1, xlsRow, xlsCol + 11].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                #region Line Loop
-                //char[] spChar = { '*', '/', '|', '-', '_', '\'' };
-
-                //int HeaderRow = 3;
-                //if (FLAG == "SUBS")
-                //{
-                //    HeaderRow = 8;
-                //}
-                //else
-                //{
-                //    HeaderRow = 9;
-                //}
-
-                //xlsRow += 1;
-                #endregion line loop
 
                 #endregion ------Depertment, Section, SubSection, Line-----
 
@@ -7141,48 +7064,14 @@ where  ap.WorkDate='" + WorkDate + @"' and e.SystemId in (" + strSql + ")  " + S
                     sheet1.Range[xlsRow, cEmpYstdyOt].BorderAround(ExcelLineStyle.Thin);
                     sheet1.Range[xlsRow, cEmpYstdyOt].HorizontalAlignment = ExcelHAlign.HAlignRight;
                     sheet1.Range[xlsRow, cEmpYstdyOt].VerticalAlignment = ExcelVAlign.VAlignTop;
-
-                    //string tyot = string.Empty;//OTConsiderOn
-                    //if (bplib.clsWebLib.GetBoolData(dtlocal.Rows[i]["IsOTEntitledToday"].ToString()) == true)
-                    //{
-                    //    if (string.IsNullOrEmpty(dtlocal.Rows[i]["OTHr"].ToString()))
-                    //    {
-                    //        if (!string.IsNullOrEmpty(dtlocal.Rows[i]["ToDayDayCategory"].ToString()))
-                    //        {
-                    //            if (dtlocal.Rows[i]["ToDayDayCategory"].ToString() == "Present" || dtlocal.Rows[i]["ToDayDayCategory"].ToString() == "Late")
-                    //            {
-                    //                sheet1.Range[xlsRow, cEmpTodyOt].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_yellow;
-                    //            }
-                    //        }
-
-                    //    }
-                    //    else
-                    //    {
-                    //        if (bplib.clsWebLib.GetBoolData(dtlocal.Rows[i]["ToDayReConfirm"].ToString()) == true)
-                    //        {
-                    //            sheet1.Range[xlsRow, cEmpTodyOt].CellStyle.Interior.ColorIndex = ExcelKnownColors.Orange;
-                    //        }
-                    //    }
-                    //    if (!string.IsNullOrEmpty(dtlocal.Rows[i]["ToDayDayCategory"].ToString()))
-                    //    {
-                    //        if (dtlocal.Rows[i]["ToDayDayCategory"].ToString() == "Present" || dtlocal.Rows[i]["ToDayDayCategory"].ToString() == "Late")
-                    //        {
-                    //            oru.GetOT(dtlocal.Rows[i]["OTConsiderOn"].ToString(), dtlocal.Rows[i]["OTHr"].ToString(), out tyot);
-                    //        }
-                    //    }
-
-                    //}
-                    //sheet1.Range[xlsRow, cEmpTodyOt].Text = tyot;
-                    //sheet1.Range[xlsRow, cEmpTodyOt].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    //sheet1.Range[xlsRow, cEmpTodyOt].VerticalAlignment = ExcelVAlign.VAlignTop;
-                    //xlsRow++;
+                    xlsRow++;
                 }
 
                 sheet1.Range[startDataRow, 1, xlsRow - 1, endXlsCol].BorderInside(ExcelLineStyle.Hair);
                 sheet1.Range[startDataRow, 1, xlsRow - 1, endXlsCol].BorderAround(ExcelLineStyle.Hair);
                 sheet1.Range[startDataRow, 1, xlsRow - 1, endXlsCol].CellStyle.Font.Size = 15f;
 
-                sheet1.Range[10, 1, xlsRow, cInchargeSignature].RowHeight = 65;
+                sheet1.Range[startDataRow, 1, xlsRow, cInchargeSignature].RowHeight = 65;
 
                 //sheet1.Range[xlsRow - 1, 1, xlsRow - 1, endXlsCol].RowHeight = 30;
 
