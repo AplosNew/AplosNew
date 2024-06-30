@@ -451,6 +451,53 @@ where FullName != 'null'  and U.UserId = '" + userid + "' and IconId = '" + Icon
             }
         }
 
+        public void getmyappiconVisibal(out List<DefaultMyAppIconList> DataList, string userid, string Iconid)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<DefaultMyAppIconList>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select AR.Id RoleId, AR.Name Role, ARD.IconId, ARD.ModuleId,  ARM.EmployeeId, EI.EmployeeName FullName,
+ EI.SystemId UserId , AR.Active
+from  SEC.AppRole AR
+left join SEC.AppRoleDetail ARD on ARD.RoleId = AR.Id
+left join SEC.AppRoleMapping ARM on ARM.RoleId = AR.Id
+left join EmployeeInformation EI on EI.SystemId = ARM.EmployeeId
+left join dbo.MobileAppIcon MA on MA.Id = ARD.ModuleId
+left join dbo.MobileAppModule MAM on MAM.Id = MA.ModuleId
+where EmployeeName != 'null'  and EI.SystemId = '" + userid + "' and ARD.IconId = '" + Iconid + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new DefaultMyAppIconList
+                    {
+                        RoleId = dsRef.Tables[0].Rows[i]["RoleId"].ToString(),
+                        ModuleId = dsRef.Tables[0].Rows[i]["ModuleId"].ToString(),
+                        IconID = dsRef.Tables[0].Rows[i]["IconID"].ToString(),
+                        Role = dsRef.Tables[0].Rows[i]["Role"].ToString(),
+                        EmployeeId = dsRef.Tables[0].Rows[i]["EmployeeId"].ToString(),
+                        FullName = dsRef.Tables[0].Rows[i]["FullName"].ToString(),
+                        UserID = dsRef.Tables[0].Rows[i]["UserID"].ToString(),
+                        Active = bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[i]["Active"]),
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public void getModuleaccess(out List<DefaultMyAppIconList> DataList, string userid, string Moduleid)
         {
             clsConnectionManager objCon = null;
