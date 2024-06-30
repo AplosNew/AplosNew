@@ -410,12 +410,16 @@ namespace Library.Service.HumanResources.Profile
 
                 CreateSource(dsJobLocation, 15, "JobLocation", ref sheetSource); int JobLocationCol = 15;
 
-                CreateSource(dsEmployeeCodeType, 1, "EmployeeCodeType", ref sheetSource); int EmployeeCodeTypeCol = 16;
-
+                string[] _EmployeeCodeType = { "Internal", "Contractual" };
+                CreateSource(dsEmployeeCodeType, 16, "EmployeeCodeType", ref sheetSource);
+                int EmployeeCodeTypeCol = 16;
+                //CreateSource(_EmployeeCodeType, 16, "EmployeeCodeType", ref sheetSource);
 
 
 
                 #region ------------------Column Header------------------
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCodeType", ExcelKnownColors.Red);
+                ru.SetList(ref sheet1, xlsRow, maxRow, xlsCol, sheetSource, EmployeeCodeTypeCol, dsEmployeeCodeType.Tables[0].Rows.Count); xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCode", ExcelKnownColors.Red);
                 //IRange range = sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol];
                 ////range.Text = "012";
@@ -556,8 +560,8 @@ namespace Library.Service.HumanResources.Profile
                 ru.SetList(ref sheet1, xlsRow, maxRow, xlsCol, sheetSource, CityCol, dsCity.Tables[0].Rows.Count); xlsCol += 1;
                 //ru.SetList(ref sheet1, sheetSource, 5, xlsRow, maxRow, xlsCol, dsCity); xlsCol += 1;
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IsConfirmed"); xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCodeType", ExcelKnownColors.Red); xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IsConfirmed");
+               
                 endXlsCol = xlsCol;
 
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);

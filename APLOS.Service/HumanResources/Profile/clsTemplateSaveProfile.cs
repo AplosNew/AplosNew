@@ -155,6 +155,8 @@ namespace Library.Service.HumanResources.Profile
         }
         private void UpdateEmployeeInformationDataRow(DataSet dsBudgetCodeInfo, string groupid, string companyid, string plantid, string user, string OPN_FLAG, string systemid, string EmployeeId, EmployeeProfileUploadTemplate ep, string GivenDesignation, string _DOCBaseON, string _DOCCount, ref DataRow drLocal, ref DataSet dsEmpJoblocation, ref DataSet dsAppsAuthorization, string emp_job, string auth_pk)
         {
+
+          
             clsEmployeeLoad objEL = new clsEmployeeLoad();
             try
             {
@@ -163,24 +165,40 @@ namespace Library.Service.HumanResources.Profile
                 string _groupid = groupid;
                 string _companyid = companyid;
                 //clsValidation clsValidation = new clsValidation();
-
+                
 
                 #region empCode new
                 string strEmpSystemID = "";
                 bplib.clsGenID objGenID = new bplib.clsGenID();
                 objGenID.GenHRID(DateTime.Now.ToShortDateString().ToString(), "EMP_BASIC", out strEmpSystemID);
                 string syspad = GetPadding(strEmpSystemID);
-                ep.SystemId = DateTime.Now.ToString("yy") + syspad;
+               
                 systemid = DateTime.Now.ToString("yy") + syspad;
 
                 string Prefix = null;
-                objEL.GetEmpCodeGenSetting(plantid, ep.EmployeeCodeTypeId, out Prefix, out dsEmpCodeGenSetting);
-                ep.EmployeeId = Prefix + ep.SystemId;
 
+                var _EmployeeCodeTypeId = GetPK(ep.EmployeeCodeType);
+                if (_EmployeeCodeTypeId == string.Empty)
+                {
+                    drLocal["EmployeeCodeTypeId"] = DBNull.Value;
+                }
+                else
+                {
+                    drLocal["EmployeeCodeTypeId"] = _EmployeeCodeTypeId;
+
+                }
+
+
+                objEL.GetEmpCodeGenSetting(plantid, _EmployeeCodeTypeId, out Prefix, out dsEmpCodeGenSetting);
+                 EmployeeId = Prefix + systemid;
+                if (Convert.ToBoolean(dsEmpCodeGenSetting.Tables[0].Rows[0]["IsEmployeeCodeOpenField"]) == false)
+                {
+                    ep.EmployeeCode = null;
+                }
 
                 if (string.IsNullOrEmpty(ep.EmployeeCode))
                 {
-                    objEL.GetMaxEmpCode(plantid, ep.EmployeeCodeTypeId, out dsMaxEmpCode);
+                    objEL.GetMaxEmpCode(plantid, _EmployeeCodeTypeId, out dsMaxEmpCode);
 
                     if (dsEmpCodeGenSetting.Tables[0].Rows.Count > 0)
                     {
@@ -212,7 +230,7 @@ namespace Library.Service.HumanResources.Profile
                             }
                             else
                             {
-                                ep.EmployeeCode = ep.SystemId;
+                                ep.EmployeeCode = systemid;
                             }
                         }
                         if (dsEmpCodeGenSetting.Tables[0].Rows[0]["IsAutoEmpCodeWithPrefix"].ToString() == "True")
@@ -1061,7 +1079,7 @@ namespace Library.Service.HumanResources.Profile
 
                 foreach (var item in epList)
                 {
-                    CheckField(item.EmployeeCodeTypeId, "EmployeeCodeType");
+                    CheckField(item.EmployeeCodeType, "EmployeeCodeType");
                     CheckField(item.EmployeeCode, "EmployeeCode");
                     CheckField(item.Salutation, "Salutation");
                     CheckField(item.FirstName, "First Name");
