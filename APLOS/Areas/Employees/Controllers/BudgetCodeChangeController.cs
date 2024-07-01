@@ -367,13 +367,13 @@ DesignationId=(select DesignationId from  ORG.Position where Id =(select Positio
 
         private DataTable GetBudgets()
         {
-            var str = @"Select Id as BudgetId , Code as BudgetCode from mst.ManpowerBudget";
+            var str = @"Select Id as BudgetId , Code as BudgetCode from mst.ManpowerBudget Where Active=1";
             return _sqlRepository.GetDataTable(str);
         }
 
         private DataTable GetEmployees()
         {
-            var str = @"Select SystemId as EmployeeId , EmployeeCode  from dbo.EmployeeInformation";
+            var str = @"Select SystemId as EmployeeId , EmployeeCode  from dbo.EmployeeInformation  where EmpType<>'Guest' AND EmployeeStatus='Active' ";
             return _sqlRepository.GetDataTable(str);
         }
 
