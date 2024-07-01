@@ -281,7 +281,7 @@ DesignationId=(select DesignationId from  ORG.Position where Id =(select Positio
                         }
                         else
                         {
-                            throw new Exception("The Employee Code or yhe BudgetCode at Line no - " + i + 1 + " doesn't exist!! Please Check Again!!");
+                            throw new Exception("The Employee Code or the BudgetCode at Line no - " + i + 1 + " doesn't exist!! Please Check Again!!");
                         }
 
                     }

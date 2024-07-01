@@ -931,12 +931,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                             {
                                 if (Convert.ToDateTime(dsMaster.Tables[0].DefaultView[0]["InTime"].ToString()) > Convert.ToDateTime(dsMaster.Tables[0].DefaultView[0]["OutTime"].ToString()))
                                 {
-                                    throw new Exception("Out time is earlier than In time - " + i);
+                                    throw new Exception("Out time is earlier than In time for RowId '" + data[i]["RowId"].ToString() + "'");
                                 }
 
                                 if (Convert.ToDateTime(dsMaster.Tables[0].DefaultView[0]["OutTime"].ToString()) > DateTime.Now)
                                 {
-                                    throw new Exception("Out time is greater than Now - " + i);
+                                    throw new Exception("Out time is greater than Now for RowId '" + data[i]["RowId"].ToString() + "'");
                                 }
 
                                 TimeSpan ts = Convert.ToDateTime(dsMaster.Tables[0].DefaultView[0]["InTime"].ToString()).Subtract(Convert.ToDateTime(dsMaster.Tables[0].DefaultView[0]["OutTime"].ToString()));
