@@ -846,6 +846,296 @@ namespace Aplos.Areas.Attendances.Controllers
             }
         }
 
+        public string GetDailyStatusCountReport(string CGId, string CompanyId, string PlantId, string SheetName1, string s1, string workDate, string shift, string Entity, string Dept, string Ydate, string Sec, string SSec, string designationList, string empCategoryList, string LineId, string Dstatus, bool WithFatherName, string JobLocation, bool IsWithLine)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            clsReport objRpt = null;
+            DataSet dsAttn = null;
+            DataSet dsEmp = null;
+            DataView dvAttn = null;
+            DataView dvEmp = null;
+            int colFN = 0;
+            int colLine = 0;
+            ReportUtility oru = new ReportUtility();
+            string yot = string.Empty;//OTConsiderOn
+            string tot = string.Empty;//OTConsiderOn
+            try
+            {
+                objRpt = new clsReport();
+
+                #region Variable
+
+
+                ParaAttendanceReport op = new global::ParaAttendanceReport();
+                op.PlantId = identity.PlantId;
+                op.ADate = workDate;
+                #endregion Variable
+
+                if (string.IsNullOrEmpty(workDate.Trim()) == true || bplib.clsWebLib.IsDateOK(workDate.Trim()) == false)
+                {
+                    Exception ex = new Exception("Please define Attendance Date..! (allowed format is  dd-MMM-yyyy ex: '01-jan-2008')...");
+                    throw (ex);
+                }
+
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(2);
+                workbook.Worksheets[1].Name = "Data";
+                sheet = workbook.Worksheets[1];
+
+                getEmployee(CGId, CompanyId, PlantId, workDate, shift, Entity, Dept, Ydate, Sec, SSec, designationList, empCategoryList, LineId, Dstatus, JobLocation, out dsAttn);
+
+                int ROW = 6; int COL = 1;
+
+                #region columns
+                sheet[ROW, COL].Text = "Sl No."; sheet[ROW, COL].ColumnWidth = 4.70; int colSL = COL; COL++;
+                sheet[ROW, COL].Text = "Employee Code"; sheet[ROW, COL].ColumnWidth = 9; int colEC = COL; COL++;
+                sheet[ROW, COL].Text = "Employee Name"; sheet[ROW, COL].ColumnWidth = 25; int colEN = COL; COL++;
+                if (WithFatherName == true)
+                {
+                    sheet[ROW, COL].Text = "Father Name"; sheet[ROW, COL].ColumnWidth = 25; colFN = COL; COL++;
+                }
+                sheet[ROW, COL].Text = "Department"; sheet[ROW, COL].ColumnWidth = 25; int colDepartment = COL; COL++;
+                sheet[ROW, COL].Text = "Section"; sheet[ROW, COL].ColumnWidth = 22; int colSection = COL; COL++;
+                sheet[ROW, COL].Text = "Subsection"; sheet[ROW, COL].ColumnWidth = 22; int colSubsection = COL; COL++;
+                sheet[ROW, COL].Text = "Designation"; sheet[ROW, COL].ColumnWidth = 22; int colDesignation = COL; COL++;
+                if (IsWithLine)
+                {
+                    sheet[ROW, COL].Text = "Line"; sheet[ROW, COL].ColumnWidth = 10; colLine = COL; COL++;
+                }
+                sheet[ROW, COL].Text = "Shift Name"; sheet[ROW, COL].ColumnWidth = 17; int colShiftName = COL; COL++;
+                sheet[ROW, COL].Text = "Shift InTime"; sheet[ROW, COL].ColumnWidth = 7; int colShiftInTime = COL; COL++;
+                sheet[ROW, COL].Text = "Shift OutTime"; sheet[ROW, COL].ColumnWidth = 7; int colShiftOutTime = COL; COL++;
+                sheet[ROW, COL].Text = "InTime"; sheet[ROW, COL].ColumnWidth = 7; int colInTime = COL; COL++;
+                sheet[ROW, COL].Text = "OutTime"; sheet[ROW, COL].ColumnWidth = 7; int colOutTime = COL; COL++;
+                sheet[ROW, COL].Text = "OnRole"; sheet[ROW, COL].ColumnWidth = 7; int colOnRole = COL; COL++;
+                sheet[ROW, COL].Text = "Present"; sheet[ROW, COL].ColumnWidth = 7; int colPresent = COL; int p = COL; COL++;
+                sheet[ROW, COL].Text = "Late"; sheet[ROW, COL].ColumnWidth = 7; int colLate = COL; int l = COL; COL++;
+                sheet[ROW, COL].Text = "Absent"; sheet[ROW, COL].ColumnWidth = 7; int colAbsent = COL; int a = COL; COL++;
+                sheet[ROW, COL].Text = "Leave"; sheet[ROW, COL].ColumnWidth = 7; int colLeave = COL; int lv = COL; COL++;
+                sheet[ROW, COL].Text = "MLv"; sheet[ROW, COL].ColumnWidth = 7; int colMLv = COL; int mlv = COL; COL++;
+                sheet[ROW, COL].Text = "WeekOff"; sheet[ROW, COL].ColumnWidth = 7; int colWeekOff = COL; int w = COL; COL++;
+                sheet[ROW, COL].Text = "Half Day"; sheet[ROW, COL].ColumnWidth = 7; int colHalfDay = COL; int o = COL; COL++;
+                sheet[ROW, COL].Text = "Holiday"; sheet[ROW, COL].ColumnWidth = 7; int colPlanQty = COL; int h = COL; COL++;
+                sheet[ROW, COL].Text = "Yesterday Status"; sheet[ROW, COL].ColumnWidth = 7; int colYesterdayStatus = COL; int y = COL; COL++;
+                sheet[ROW, COL].Text = "Yesterday OT"; sheet[ROW, COL].ColumnWidth = 7; int colYesterdayOT = COL; int yo = COL; COL++;
+                sheet[ROW, COL].Text = "Today OT"; sheet[ROW, COL].ColumnWidth = 7; int colTodayOT = COL; int t = COL;
+
+
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+                int strCount = 0;
+                for (int i = 0; i < dsAttn.Tables[0].Rows.Count; i++)
+                {
+                    strCount += 1;
+                    sheet[ROW, colSL].Number = strCount;
+                    sheet[ROW, colEC].Text = dsAttn.Tables[0].Rows[i]["EmployeeCode"].ToString();
+                    sheet[ROW, colEN].Text = dsAttn.Tables[0].Rows[i]["EmployeeName"].ToString();
+                    if (WithFatherName == true)
+                    {
+                        sheet[ROW, colFN].Text = dsAttn.Tables[0].Rows[i]["FatherName"].ToString();
+                    }
+                    sheet[ROW, colDepartment].Text = dsAttn.Tables[0].Rows[i]["Department"].ToString();
+                    sheet[ROW, colSection].Text = dsAttn.Tables[0].Rows[i]["Section"].ToString();
+                    sheet[ROW, colSubsection].Text = dsAttn.Tables[0].Rows[i]["SubSection"].ToString();
+                    sheet[ROW, colDesignation].Text = dsAttn.Tables[0].Rows[i]["Designation"].ToString();
+                    if (IsWithLine)
+                    {
+                        sheet[ROW, colLine].Text = dsAttn.Tables[0].Rows[i]["Line"].ToString();
+                    }
+                    sheet[ROW, colShiftName].Text = dsAttn.Tables[0].Rows[i]["ShiftName"].ToString();
+                    sheet[ROW, colShiftInTime].Text = dsAttn.Tables[0].Rows[i]["ShiftIn"].ToString();
+                    sheet[ROW, colShiftOutTime].Text = dsAttn.Tables[0].Rows[i]["ShiftOut"].ToString();
+                    sheet[ROW, colInTime].Text = dsAttn.Tables[0].Rows[i]["InTime"].ToString();
+                    if (bplib.clsWebLib.GetBoolData(dsAttn.Tables[0].Rows[i]["IsManualInTime"].ToString().Trim()))
+                    {
+                        sheet.Range[ROW, colInTime].CellStyle.Font.Color = ExcelKnownColors.Orange;
+                    }
+                    sheet[ROW, colOutTime].Text = dsAttn.Tables[0].Rows[i]["OutTime"].ToString();
+                    if (bplib.clsWebLib.GetBoolData(dsAttn.Tables[0].Rows[i]["IsManualOutTime"].ToString().Trim()))
+                    {
+                        sheet.Range[ROW, colInTime].CellStyle.Font.Color = ExcelKnownColors.Orange;
+                    }
+                    sheet[ROW, colOnRole].Number = clsStaticInfo.dbl(dsAttn.Tables[0].Rows[i]["OnRole"].ToString().Trim());
+                    if (dsAttn.Tables[0].Rows[i]["Category"].ToString() == "Present")
+                    {
+                        sheet[ROW, p].Number = 1;
+                    }
+                    else if (dsAttn.Tables[0].Rows[i]["Category"].ToString() == "Absent")
+                    {
+                        sheet[ROW, a].Number = 1;
+                    }
+                    else if (dsAttn.Tables[0].Rows[i]["Category"].ToString() == "Leave")
+                    {
+                        if (dsAttn.Tables[0].Rows[i]["DayStatus"].ToString().ToUpper() == "MLV" || dsAttn.Tables[0].Rows[i]["DayStatus"].ToString().ToUpper() == "ML")
+                        {
+                            sheet[ROW, mlv].Number = 1;
+                        }
+                        else
+                        {
+                            sheet[ROW, lv].Number = 1;
+                        }
+                    }
+                    else if (dsAttn.Tables[0].Rows[i]["Category"].ToString() == "WEEKEND")
+                    {
+                        sheet[ROW, w].Number = 1;
+                    }
+                    else if (dsAttn.Tables[0].Rows[i]["Category"].ToString() == "HALF DAY")
+                    {
+                        sheet[ROW, o].Number = 1;
+                    }
+                    else
+                    {
+                        sheet[ROW, h].Number = 1;
+                    }
+                    sheet[ROW, y].Text = dsAttn.Tables[0].Rows[i]["PrvDayStatus"].ToString();
+
+                    if (!string.IsNullOrEmpty(dsAttn.Tables[0].Rows[i]["YesterdayOTHr"].ToString()))
+                    {
+                        oru.GetOT(dsAttn.Tables[0].Rows[i]["OTConsiderOn"].ToString(), dsAttn.Tables[0].Rows[i]["YesterdayOTHr"].ToString(), out yot);
+                        if (yot == "0:00")
+                        {
+                            yot = "";
+                        }
+                    }
+                    sheet.Range[ROW, yo].Text = yot;
+                    if (!string.IsNullOrEmpty(dsAttn.Tables[0].Rows[i]["TodaysOT"].ToString()))
+                    {
+                        oru.GetOT(dsAttn.Tables[0].Rows[i]["OTConsiderOn"].ToString(), dsAttn.Tables[0].Rows[i]["TodaysOT"].ToString(), out tot);
+                        if (tot == "0:00")
+                        {
+                            tot = "";
+                        }
+                    }
+                    sheet.Range[ROW, t].Text = tot;
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+                IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
+                table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Daily Status Count Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+
+
+                //#region Pivot
+                ////  DataTable dtDistinctParameter = dtOrder.DefaultView.ToTable(true, "Parameter");
+
+                //string fPath = fPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + "DailyStatusCount" + identity.UserId + ".xlsx";
+
+                //workbook.SaveAs(fPath);
+                //workbook = application.Workbooks.Open(fPath);
+                //try { System.IO.File.Delete(fPath); } catch (Exception) { }
+
+                //workbook.Worksheets[0].Name = "Shift Wise";
+
+                //IWorksheet pivotSheet = workbook.Worksheets[0];
+                //IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
+                //IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
+
+                //pivotTable.Fields[colDepartment - 1].Axis = PivotAxisTypes.Row;
+
+                //    pivotTable.Fields[colLine - 1].Axis = PivotAxisTypes.Row;
+                ////if (IsWithLine)
+                ////{
+                ////}
+                //pivotTable.Fields[colShiftName - 1].Axis = PivotAxisTypes.Column;
+
+
+                //IPivotField field = pivotTable.Fields[p - 1];
+                //IPivotField fielda = pivotTable.Fields[a - 1];
+                //field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                //pivotTable.DataFields.Add(field, "Present", PivotSubtotalTypes.Sum);
+                //pivotTable.DataFields.Add(fielda, "Absent", PivotSubtotalTypes.Sum);
+
+                //for (int i = 0; i < pivotTable.Fields.Count; i++)
+                //{
+                //    if (i == colDepartment - 1 || i == colLine - 1 || i == colShiftName - 1)
+                //        pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                //}
+
+                //pivotTable.ShowRowGrand = false;
+                //pivotTable.ShowDrillIndicators = false;
+                //pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
+                //pivotTable.Options.NullString = "";
+                //pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
+
+                //sheet = workbook.Worksheets[0];
+                //reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Daily Status Count Report", identity.CompanyId, identity.CompanyName, "");
+
+                //reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                //sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                //sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                //sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                //sheet.IsGridLinesVisible = false;
+                //workbook.Worksheets[0].UsedRange["A7"].FreezePanes();
+
+
+                //#endregion Buyer Summary
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName1 + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public string DailyStatusCountReport(string CGId, string CompanyId, string PlantId, string SheetName1, string s1, string workDate, string shift, string Entity, string Dept, string Ydate, string Sec, string SSec, string designationList, string empCategoryList, string LineId, string Dstatus, bool WithFatherName, string JobLocation, bool IsWithLine)
         {
             #region Variable
