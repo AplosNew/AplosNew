@@ -763,7 +763,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
             try
             {
-                var POQtyData=_productionSummaryData.GetPOQty(productionOrderId, processId);
+                var POQtyData = _productionSummaryData.GetPOQty(productionOrderId, processId);
                 string sqlrwc = @"select * from TRN.RunningOrderWorkCenter Where ProductionOrderId='" + productionOrderId + @"'";
                 var rwc = _sqlRepository.GetDataCollection(sqlrwc);
                 return Json(new { POQtyData, rwc }, JsonRequestBehavior.AllowGet);
@@ -831,13 +831,13 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             //}
             return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
         }
-       
+
         [HttpPost]
         public JsonResult CreateWC(ProductionSummary ps, string ProcessId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ps.PlantId = identity.PlantId;
-            _ProductionSummaryService.SaveMasterWC(ps,identity.CompanyGroupId, ProcessId);
+            _ProductionSummaryService.SaveMasterWC(ps, identity.CompanyGroupId, ProcessId);
             return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
         }
         [HttpPost]
@@ -2216,7 +2216,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 for (int i = 0; i < pivotTable.Fields.Count; i++)
                 {
                     if (i == colProcess - 1 || i == colEntity - 1 || i == colActualDate - 1)
-                    pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                        pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
                 }
 
                 pivotTable.ShowRowGrand = false;
@@ -3091,7 +3091,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetPerametreWiseOrderReport(string fromDate, string toDate, string EntityId, string ProcessId,string ShiftId)
+        public ActionResult GetPerametreWiseOrderReport(string fromDate, string toDate, string EntityId, string ProcessId, string ShiftId)
         {
             try
             {
@@ -3106,7 +3106,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
         }
 
-        public string PerametreWiseOrderReport(string fromDate, string toDate, string SheetName, string EntityId, string ProcessId,string ShiftId)
+        public string PerametreWiseOrderReport(string fromDate, string toDate, string SheetName, string EntityId, string ProcessId, string ShiftId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ExcelEngine excelEngine = null;
@@ -3557,13 +3557,13 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
                 for (int i = 0; i < pivotTable.Fields.Count; i++)
                 {
-                    if (i == colActualDate - 1 || i == colProcess - 1 || i == colEntity - 1|| i == colWorkCenter - 1 || i == colProductionShift - 1 || i == colDetentionInMin - 1
+                    if (i == colActualDate - 1 || i == colProcess - 1 || i == colEntity - 1 || i == colWorkCenter - 1 || i == colProductionShift - 1 || i == colDetentionInMin - 1
                         || i == colUtilization - 1 || i == colbuyer - 1 || i == colBuyerOrderNo - 1 || i == colPORefNo - 1 || i == colProductCode - 1 || i == colMaterial - 1
                         || i == colArticle - 1 || i == colEntryId - 1 || i == colEntryBy - 1 || i == colUOM - 1 || i == colProductionQty - 1 || i == colRemarks - 1 || i == colSequence - 1 || i == colParameter - 1)
-                    pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                        pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
                 }
-               
-        
+
+
                 pivotTable.ShowRowGrand = false;
                 pivotTable.ShowDrillIndicators = false;
                 pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
@@ -3596,6 +3596,9 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 throw ex;
             }
         }
+
+      
+
 
         #endregion
     }

@@ -846,6 +846,296 @@ namespace Aplos.Areas.Attendances.Controllers
             }
         }
 
+        public string GetDailyStatusCountReport(string CGId, string CompanyId, string PlantId, string SheetName1, string s1, string workDate, string shift, string Entity, string Dept, string Ydate, string Sec, string SSec, string designationList, string empCategoryList, string LineId, string Dstatus, bool WithFatherName, string JobLocation, bool IsWithLine)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            clsReport objRpt = null;
+            DataSet dsAttn = null;
+            DataSet dsEmp = null;
+            DataView dvAttn = null;
+            DataView dvEmp = null;
+            int colFN = 0;
+            int colLine = 0;
+            ReportUtility oru = new ReportUtility();
+            string yot = string.Empty;//OTConsiderOn
+            string tot = string.Empty;//OTConsiderOn
+            try
+            {
+                objRpt = new clsReport();
+
+                #region Variable
+
+
+                ParaAttendanceReport op = new global::ParaAttendanceReport();
+                op.PlantId = identity.PlantId;
+                op.ADate = workDate;
+                #endregion Variable
+
+                if (string.IsNullOrEmpty(workDate.Trim()) == true || bplib.clsWebLib.IsDateOK(workDate.Trim()) == false)
+                {
+                    Exception ex = new Exception("Please define Attendance Date..! (allowed format is  dd-MMM-yyyy ex: '01-jan-2008')...");
+                    throw (ex);
+                }
+
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(2);
+                workbook.Worksheets[1].Name = "Data";
+                sheet = workbook.Worksheets[1];
+
+                getEmployee(CGId, CompanyId, PlantId, workDate, shift, Entity, Dept, Ydate, Sec, SSec, designationList, empCategoryList, LineId, Dstatus, JobLocation, out dsAttn);
+
+                int ROW = 6; int COL = 1;
+
+                #region columns
+                sheet[ROW, COL].Text = "Sl No."; sheet[ROW, COL].ColumnWidth = 4.70; int colSL = COL; COL++;
+                sheet[ROW, COL].Text = "Employee Code"; sheet[ROW, COL].ColumnWidth = 9; int colEC = COL; COL++;
+                sheet[ROW, COL].Text = "Employee Name"; sheet[ROW, COL].ColumnWidth = 25; int colEN = COL; COL++;
+                if (WithFatherName == true)
+                {
+                    sheet[ROW, COL].Text = "Father Name"; sheet[ROW, COL].ColumnWidth = 25; colFN = COL; COL++;
+                }
+                sheet[ROW, COL].Text = "Department"; sheet[ROW, COL].ColumnWidth = 25; int colDepartment = COL; COL++;
+                sheet[ROW, COL].Text = "Section"; sheet[ROW, COL].ColumnWidth = 22; int colSection = COL; COL++;
+                sheet[ROW, COL].Text = "Subsection"; sheet[ROW, COL].ColumnWidth = 22; int colSubsection = COL; COL++;
+                sheet[ROW, COL].Text = "Designation"; sheet[ROW, COL].ColumnWidth = 22; int colDesignation = COL; COL++;
+                if (IsWithLine)
+                {
+                    sheet[ROW, COL].Text = "Line"; sheet[ROW, COL].ColumnWidth = 10; colLine = COL; COL++;
+                }
+                sheet[ROW, COL].Text = "Shift Name"; sheet[ROW, COL].ColumnWidth = 17; int colShiftName = COL; COL++;
+                sheet[ROW, COL].Text = "Shift InTime"; sheet[ROW, COL].ColumnWidth = 7; int colShiftInTime = COL; COL++;
+                sheet[ROW, COL].Text = "Shift OutTime"; sheet[ROW, COL].ColumnWidth = 7; int colShiftOutTime = COL; COL++;
+                sheet[ROW, COL].Text = "InTime"; sheet[ROW, COL].ColumnWidth = 7; int colInTime = COL; COL++;
+                sheet[ROW, COL].Text = "OutTime"; sheet[ROW, COL].ColumnWidth = 7; int colOutTime = COL; COL++;
+                sheet[ROW, COL].Text = "OnRole"; sheet[ROW, COL].ColumnWidth = 7; int colOnRole = COL; COL++;
+                sheet[ROW, COL].Text = "Present"; sheet[ROW, COL].ColumnWidth = 7; int colPresent = COL; int p = COL; COL++;
+                sheet[ROW, COL].Text = "Late"; sheet[ROW, COL].ColumnWidth = 7; int colLate = COL; int l = COL; COL++;
+                sheet[ROW, COL].Text = "Absent"; sheet[ROW, COL].ColumnWidth = 7; int colAbsent = COL; int a = COL; COL++;
+                sheet[ROW, COL].Text = "Leave"; sheet[ROW, COL].ColumnWidth = 7; int colLeave = COL; int lv = COL; COL++;
+                sheet[ROW, COL].Text = "MLv"; sheet[ROW, COL].ColumnWidth = 7; int colMLv = COL; int mlv = COL; COL++;
+                sheet[ROW, COL].Text = "WeekOff"; sheet[ROW, COL].ColumnWidth = 7; int colWeekOff = COL; int w = COL; COL++;
+                sheet[ROW, COL].Text = "Half Day"; sheet[ROW, COL].ColumnWidth = 7; int colHalfDay = COL; int o = COL; COL++;
+                sheet[ROW, COL].Text = "Holiday"; sheet[ROW, COL].ColumnWidth = 7; int colPlanQty = COL; int h = COL; COL++;
+                sheet[ROW, COL].Text = "Yesterday Status"; sheet[ROW, COL].ColumnWidth = 7; int colYesterdayStatus = COL; int y = COL; COL++;
+                sheet[ROW, COL].Text = "Yesterday OT"; sheet[ROW, COL].ColumnWidth = 7; int colYesterdayOT = COL; int yo = COL; COL++;
+                sheet[ROW, COL].Text = "Today OT"; sheet[ROW, COL].ColumnWidth = 7; int colTodayOT = COL; int t = COL;
+
+
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+                int strCount = 0;
+                for (int i = 0; i < dsAttn.Tables[0].Rows.Count; i++)
+                {
+                    strCount += 1;
+                    sheet[ROW, colSL].Number = strCount;
+                    sheet[ROW, colEC].Text = dsAttn.Tables[0].Rows[i]["EmployeeCode"].ToString();
+                    sheet[ROW, colEN].Text = dsAttn.Tables[0].Rows[i]["EmployeeName"].ToString();
+                    if (WithFatherName == true)
+                    {
+                        sheet[ROW, colFN].Text = dsAttn.Tables[0].Rows[i]["FatherName"].ToString();
+                    }
+                    sheet[ROW, colDepartment].Text = dsAttn.Tables[0].Rows[i]["Department"].ToString();
+                    sheet[ROW, colSection].Text = dsAttn.Tables[0].Rows[i]["Section"].ToString();
+                    sheet[ROW, colSubsection].Text = dsAttn.Tables[0].Rows[i]["SubSection"].ToString();
+                    sheet[ROW, colDesignation].Text = dsAttn.Tables[0].Rows[i]["Designation"].ToString();
+                    if (IsWithLine)
+                    {
+                        sheet[ROW, colLine].Text = dsAttn.Tables[0].Rows[i]["Line"].ToString();
+                    }
+                    sheet[ROW, colShiftName].Text = dsAttn.Tables[0].Rows[i]["ShiftName"].ToString();
+                    sheet[ROW, colShiftInTime].Text = dsAttn.Tables[0].Rows[i]["ShiftIn"].ToString();
+                    sheet[ROW, colShiftOutTime].Text = dsAttn.Tables[0].Rows[i]["ShiftOut"].ToString();
+                    sheet[ROW, colInTime].Text = dsAttn.Tables[0].Rows[i]["InTime"].ToString();
+                    if (bplib.clsWebLib.GetBoolData(dsAttn.Tables[0].Rows[i]["IsManualInTime"].ToString().Trim()))
+                    {
+                        sheet.Range[ROW, colInTime].CellStyle.Font.Color = ExcelKnownColors.Orange;
+                    }
+                    sheet[ROW, colOutTime].Text = dsAttn.Tables[0].Rows[i]["OutTime"].ToString();
+                    if (bplib.clsWebLib.GetBoolData(dsAttn.Tables[0].Rows[i]["IsManualOutTime"].ToString().Trim()))
+                    {
+                        sheet.Range[ROW, colInTime].CellStyle.Font.Color = ExcelKnownColors.Orange;
+                    }
+                    sheet[ROW, colOnRole].Number = clsStaticInfo.dbl(dsAttn.Tables[0].Rows[i]["OnRole"].ToString().Trim());
+                    if (dsAttn.Tables[0].Rows[i]["Category"].ToString() == "Present")
+                    {
+                        sheet[ROW, p].Number = 1;
+                    }
+                    else if (dsAttn.Tables[0].Rows[i]["Category"].ToString() == "Absent")
+                    {
+                        sheet[ROW, a].Number = 1;
+                    }
+                    else if (dsAttn.Tables[0].Rows[i]["Category"].ToString() == "Leave")
+                    {
+                        if (dsAttn.Tables[0].Rows[i]["DayStatus"].ToString().ToUpper() == "MLV" || dsAttn.Tables[0].Rows[i]["DayStatus"].ToString().ToUpper() == "ML")
+                        {
+                            sheet[ROW, mlv].Number = 1;
+                        }
+                        else
+                        {
+                            sheet[ROW, lv].Number = 1;
+                        }
+                    }
+                    else if (dsAttn.Tables[0].Rows[i]["Category"].ToString() == "WEEKEND")
+                    {
+                        sheet[ROW, w].Number = 1;
+                    }
+                    else if (dsAttn.Tables[0].Rows[i]["Category"].ToString() == "HALF DAY")
+                    {
+                        sheet[ROW, o].Number = 1;
+                    }
+                    else
+                    {
+                        sheet[ROW, h].Number = 1;
+                    }
+                    sheet[ROW, y].Text = dsAttn.Tables[0].Rows[i]["PrvDayStatus"].ToString();
+
+                    if (!string.IsNullOrEmpty(dsAttn.Tables[0].Rows[i]["YesterdayOTHr"].ToString()))
+                    {
+                        oru.GetOT(dsAttn.Tables[0].Rows[i]["OTConsiderOn"].ToString(), dsAttn.Tables[0].Rows[i]["YesterdayOTHr"].ToString(), out yot);
+                        if (yot == "0:00")
+                        {
+                            yot = "";
+                        }
+                    }
+                    sheet.Range[ROW, yo].Text = yot;
+                    if (!string.IsNullOrEmpty(dsAttn.Tables[0].Rows[i]["TodaysOT"].ToString()))
+                    {
+                        oru.GetOT(dsAttn.Tables[0].Rows[i]["OTConsiderOn"].ToString(), dsAttn.Tables[0].Rows[i]["TodaysOT"].ToString(), out tot);
+                        if (tot == "0:00")
+                        {
+                            tot = "";
+                        }
+                    }
+                    sheet.Range[ROW, t].Text = tot;
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+                IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
+                table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Daily Status Count Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+
+
+                //#region Pivot
+                ////  DataTable dtDistinctParameter = dtOrder.DefaultView.ToTable(true, "Parameter");
+
+                //string fPath = fPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + "DailyStatusCount" + identity.UserId + ".xlsx";
+
+                //workbook.SaveAs(fPath);
+                //workbook = application.Workbooks.Open(fPath);
+                //try { System.IO.File.Delete(fPath); } catch (Exception) { }
+
+                //workbook.Worksheets[0].Name = "Shift Wise";
+
+                //IWorksheet pivotSheet = workbook.Worksheets[0];
+                //IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
+                //IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
+
+                //pivotTable.Fields[colDepartment - 1].Axis = PivotAxisTypes.Row;
+
+                //    pivotTable.Fields[colLine - 1].Axis = PivotAxisTypes.Row;
+                ////if (IsWithLine)
+                ////{
+                ////}
+                //pivotTable.Fields[colShiftName - 1].Axis = PivotAxisTypes.Column;
+
+
+                //IPivotField field = pivotTable.Fields[p - 1];
+                //IPivotField fielda = pivotTable.Fields[a - 1];
+                //field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                //pivotTable.DataFields.Add(field, "Present", PivotSubtotalTypes.Sum);
+                //pivotTable.DataFields.Add(fielda, "Absent", PivotSubtotalTypes.Sum);
+
+                //for (int i = 0; i < pivotTable.Fields.Count; i++)
+                //{
+                //    if (i == colDepartment - 1 || i == colLine - 1 || i == colShiftName - 1)
+                //        pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                //}
+
+                //pivotTable.ShowRowGrand = false;
+                //pivotTable.ShowDrillIndicators = false;
+                //pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
+                //pivotTable.Options.NullString = "";
+                //pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
+
+                //sheet = workbook.Worksheets[0];
+                //reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Daily Status Count Report", identity.CompanyId, identity.CompanyName, "");
+
+                //reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                //sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                //sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                //sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                //sheet.IsGridLinesVisible = false;
+                //workbook.Worksheets[0].UsedRange["A7"].FreezePanes();
+
+
+                //#endregion Buyer Summary
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName1 + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public string DailyStatusCountReport(string CGId, string CompanyId, string PlantId, string SheetName1, string s1, string workDate, string shift, string Entity, string Dept, string Ydate, string Sec, string SSec, string designationList, string empCategoryList, string LineId, string Dstatus, bool WithFatherName, string JobLocation, bool IsWithLine)
         {
             #region Variable
@@ -1016,6 +1306,11 @@ namespace Aplos.Areas.Attendances.Controllers
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     xlsCol += 1;
                     sheet1.Range[xlsRow, xlsCol].Text = "OutTime";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "OnRole";
                     sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -1196,7 +1491,12 @@ namespace Aplos.Areas.Attendances.Controllers
                         {
                             sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Color = ExcelKnownColors.Orange;
                         }
-                        // xlsCol += 1;
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Number =clsStaticInfo.dbl(dvAttn[i]["OnRole"].ToString().Trim());
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                      
 
                         if (dvAttn[i]["Category"].ToString() == "Present")
 
@@ -1489,6 +1789,725 @@ namespace Aplos.Areas.Attendances.Controllers
 
             }
         }
+
+        public string DailyStatusCountReportNew(string CGId, string CompanyId, string PlantId, string SheetName1, string s1, string workDate, string shift, string Entity, string Dept, string Ydate, string Sec, string SSec, string designationList, string empCategoryList, string LineId, string Dstatus, bool WithFatherName, string JobLocation, bool IsWithLine)
+        {
+            #region Variable
+
+            clsReport objRpt = null;
+            clsReport objRptD = null;
+            ReportUtility oru = new ReportUtility();
+            DataSet dsHeading = null;
+            string yot = string.Empty;//OTConsiderOn
+            string tot = string.Empty;//OTConsiderOn
+            DataSet dsAttn = null;
+            DataSet dsEmp = null;
+            DataView dvAttn = null;
+            DataView dvEmp = null;
+
+            DataSet dsFactory = null;
+            DataSet dsCmp = null;
+
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet1 = null;
+
+            int xlsRow = 1, xlsCol = 1;
+            int endXlsCol = 1;
+            string FactoryName = "";
+            string CmpName = "";
+            string sOfficeInTime = "00:00:00";
+            string sInTime = "00:00:00";
+            var report = new ReportUtility();
+
+            DataSet dsExtraAbsent = null;
+            DataView dvExtraAbsent = null;
+
+            #endregion Variable
+
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string companyId = identity.CompanyId;
+                objRpt = new clsReport();
+
+                var ob = new clsStaticInfo();
+
+                objRpt.GetExtraAbsentForDaily(identity.PlantId, workDate, out dsExtraAbsent);
+                dvExtraAbsent = new DataView(dsExtraAbsent.Tables[0]);
+                bool IsExtraAbsent = false;
+                #region Variable
+
+
+                ParaAttendanceReport op = new global::ParaAttendanceReport();
+                op.PlantId = identity.PlantId;
+                op.ADate = workDate;
+                #endregion Variable
+
+                if (string.IsNullOrEmpty(workDate.Trim()) == true || bplib.clsWebLib.IsDateOK(workDate.Trim()) == false)
+                {
+                    Exception ex = new Exception("Please define Attendance Date..! (allowed format is  dd-MMM-yyyy ex: '01-jan-2008')...");
+                    throw (ex);
+                }
+
+                #region DataSet
+                getEmployee(CGId, CompanyId, PlantId, workDate, shift, Entity, Dept, Ydate, Sec, SSec, designationList, empCategoryList, LineId, Dstatus, JobLocation, out dsAttn);
+
+                dvAttn = new DataView();
+                dvAttn.Table = dsAttn.Tables[0];
+
+                objRpt.SelectedPlantWiseCompany(identity.PlantId.Trim(), out dsCmp);
+                objRpt.SelectedPlant(identity.PlantId, out dsFactory);
+                #endregion DataSet
+
+                if (dvAttn.Count > 0)
+                {
+                    excelEngine = new ExcelEngine();
+                    application = excelEngine.Excel;
+
+                    workbook = application.Workbooks.Create(2);
+                    sheet1 = workbook.Worksheets[1];
+                    sheet1.IsGridLinesVisible = true;
+                    ReportUtility reportUtility = new ReportUtility();
+                    xlsRow = 7;
+                    int intRow = 0;
+                    int startRow = 0;
+                    string strSubSec = "0";
+                    //string strSec = "0";
+                    // string strUnit = "0";
+                    int strCount = 0;
+                    int colLine = 0;
+                    //string strLateBy = "00:00:00";
+
+                    #region ------------------Column Header------------------
+                    xlsCol = 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Sl No.";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 4.70;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Employee Code";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 8.50;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Employee Name";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 24;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+                    if (WithFatherName == true)
+                    {
+                        sheet1.Range[xlsRow, xlsCol].Text = "Father Name";
+                        sheet1.Range[xlsRow, xlsCol].ColumnWidth = 24;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                    }
+
+                    sheet1.Range[xlsRow, xlsCol].Text = "Department";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 26;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                   int colDpt = xlsCol;
+                    xlsCol += 1;
+
+                    sheet1.Range[xlsRow, xlsCol].Text = "Section";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 26;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+
+                    sheet1.Range[xlsRow, xlsCol].Text = "Subsection";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 26;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+
+                    sheet1.Range[xlsRow, xlsCol].Text = "Designation";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+
+                    if (IsWithLine)
+                    {
+                        sheet1.Range[xlsRow, xlsCol].Text = "Line";
+                        sheet1.Range[xlsRow, xlsCol].ColumnWidth = 24;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        colLine = xlsCol;
+                        xlsCol += 1;
+                    }
+
+                    sheet1.Range[xlsRow, xlsCol].Text = "Shift Name";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 17;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    int colShiftName = xlsCol;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Shift InTime";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Shift OutTime";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "InTime";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "OutTime";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "OnRole";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Present";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    int p = xlsCol;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Late";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    int l = xlsCol;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Absent";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    int a = xlsCol;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Leave";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    int lv = xlsCol;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "MLv";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 8;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    int mlv = xlsCol;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "WeekOff";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    int w = xlsCol;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Half Day";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    int o = xlsCol;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Holiday";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    int h = xlsCol;
+
+
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Yesterday Status";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    int y = xlsCol;
+
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Yesterday OT";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    int yo = xlsCol;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Today OT";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    int t = xlsCol;
+                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Interior.Color = System.Drawing.Color.Gray;
+                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Font.Bold = true;
+
+                    endXlsCol = xlsCol;
+                    xlsCol = 1;
+                    xlsRow += 1;
+                    #endregion ------------------Column Header------------------
+                    strCount = 0;
+                    startRow = 8;
+                    for (int i = 0; i < dvAttn.Count; i++)
+                    {
+                        xlsCol = 1;
+
+                        xlsRow += intRow;
+                        intRow = 1;
+                         
+                        if (strSubSec.ToUpper() == "GENERAL")
+                        {
+
+                        }
+                        #region ----------------------Data-----------------------
+
+                        strCount += 1;
+                        sheet1.Range[xlsRow, xlsCol].Number = strCount;
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["EmployeeCode"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["EmployeeName"].ToString().ToUpper();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                        if (WithFatherName == true)
+                        {
+                            sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["FatherName"].ToString().ToUpper();
+                            sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            xlsCol += 1;
+                        }
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Department"].ToString().ToUpper();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Section"].ToString().ToUpper();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["SubSection"].ToString().ToUpper();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Designation"].ToString().ToUpper();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                        if (IsWithLine)
+                        {
+                            sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Line"].ToString().ToUpper();
+                            sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            xlsCol += 1;
+                        }
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["ShiftName"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["ShiftIn"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["ShiftOut"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["InTime"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        if (bplib.clsWebLib.GetBoolData(dvAttn[i]["IsManualInTime"].ToString().Trim()))
+                        {
+                            sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Color = ExcelKnownColors.Orange;
+                        }
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["OutTime"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        if (bplib.clsWebLib.GetBoolData(dvAttn[i]["IsManualOutTime"].ToString().Trim()))
+                        {
+                            sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Color = ExcelKnownColors.Orange;
+                        }
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Number = clsStaticInfo.dbl(dvAttn[i]["OnRole"].ToString().Trim());
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+                        if (dvAttn[i]["Category"].ToString() == "Present")
+
+                        {
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, p].Number = 1;
+                            sheet1.Range[xlsRow, p].RowHeight = 13;
+                            sheet1.Range[xlsRow, p].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, p].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+                        }
+                        else if (dvAttn[i]["Category"].ToString() == "Late")
+                        {
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, l].Number = 1;
+                            sheet1.Range[xlsRow, l].RowHeight = 13;
+                            sheet1.Range[xlsRow, l].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, l].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        }
+                        else if (dvAttn[i]["Category"].ToString() == "Absent")
+                        {
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, a].Number = 1;
+                            sheet1.Range[xlsRow, a].RowHeight = 13;
+                            sheet1.Range[xlsRow, a].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, a].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        }
+                        else if (dvAttn[i]["Category"].ToString() == "Leave")
+                        {
+                            if (dvAttn[i]["DayStatus"].ToString().ToUpper() == "MLV" || dvAttn[i]["DayStatus"].ToString().ToUpper() == "ML")
+                            {
+                                xlsCol += 1;
+                                sheet1.Range[xlsRow, mlv].Number = 1;
+                                sheet1.Range[xlsRow, mlv].RowHeight = 13;
+                                sheet1.Range[xlsRow, mlv].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, mlv].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            }
+                            else
+                            {
+                                xlsCol += 1;
+                                sheet1.Range[xlsRow, lv].Number = 1;
+                                sheet1.Range[xlsRow, lv].RowHeight = 13;
+                                sheet1.Range[xlsRow, lv].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, lv].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            }
+                        }
+
+                        else if (dvAttn[i]["Category"].ToString().ToUpper() == "WEEKEND")
+                        {
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, w].Number = 1;
+                            sheet1.Range[xlsRow, w].RowHeight = 13;
+                            sheet1.Range[xlsRow, w].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, w].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        }
+
+                        else if (dvAttn[i]["Category"].ToString().ToUpper() == "HALF DAY")
+                        {
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, o].Number = 1;
+                            sheet1.Range[xlsRow, o].RowHeight = 13;
+                            sheet1.Range[xlsRow, o].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, o].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+                        }
+                        else
+                        {
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, h].Number = 1;
+                            sheet1.Range[xlsRow, h].RowHeight = 13;
+                            sheet1.Range[xlsRow, h].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, h].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        }
+
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, y].Text = dvAttn[i]["PrvDayStatus"].ToString().Trim();
+                        sheet1.Range[xlsRow, y].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, y].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        if (!string.IsNullOrEmpty(dvAttn[i]["YesterdayOTHr"].ToString()))
+                        {
+                            oru.GetOT(dvAttn[i]["OTConsiderOn"].ToString(), dvAttn[i]["YesterdayOTHr"].ToString(), out yot);
+                            if (yot == "0:00")
+                            {
+                                yot = "";
+                            }
+                        }
+
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, yo].Text = yot;
+                        sheet1.Range[xlsRow, yo].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, yo].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        if (!string.IsNullOrEmpty(dvAttn[i]["TodaysOT"].ToString()))
+                        {
+                            oru.GetOT(dvAttn[i]["OTConsiderOn"].ToString(), dvAttn[i]["TodaysOT"].ToString(), out tot);
+                            if (tot == "0:00")
+                            {
+                                tot = "";
+                            }
+                        }
+
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, t].Text = tot;
+                        sheet1.Range[xlsRow, t].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, t].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        // xlsRow += 1;
+
+                        #endregion ----------------------Data-----------------------
+
+
+                    }
+                    int endxlsRow = xlsRow;
+                   
+                    #region Line Setup
+                    sheet1.Range[xlsRow - 1, 1, xlsRow - 1, xlsCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow - 1, 1, xlsRow - 1, xlsCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow - 1, 1, xlsRow - 1, xlsCol].WrapText = true;
+
+                    IListObject table = sheet1.ListObjects.Create("Table1", sheet1.Range[7, 1, endxlsRow, endXlsCol]);
+                    table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
+                    #endregion
+
+                    #region UsedRange Alignment
+                    sheet1.UsedRange.WrapText = true;
+                    sheet1.UsedRange.CellStyle.Font.Size = 8;
+                    sheet1.Range["A1"].CellStyle.Font.Size = 14;
+                    sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    #endregion UsedRange Alignment
+
+                    #region ******************Report Header******************
+                    try
+                    {
+                        string strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), companyId + ".jpg");  // IDCardEng.xlsx
+                        Image companyLogo = Image.FromFile(strPath);
+                        if (companyLogo != null)
+                        {
+                            double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(2);
+                            int totalWidthPixel = (int)(totalWidth * 7.5);
+                            int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2) + sheet1.GetRowHeight(3) + sheet1.GetRowHeight(3)) * 1.50);
+
+                            companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
+                            IPictureShape pic = null;
+
+                            pic = sheet1.Pictures.AddPicture(1, 1, companyLogo);
+
+
+                        }
+
+
+                    }
+                    catch (Exception)
+                    {
+
+
+                    }
+
+                    xlsRow = 1;
+                    xlsCol = 1;
+
+                    FactoryName = string.Empty;
+
+                    string FactoryAddress = string.Empty;
+
+                    if (dsCmp.Tables[0].Rows.Count > 0)
+                    {
+                        CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
+                    }
+                    else
+                    {
+                        CmpName = "";
+                    }
+                    sheet1.Range[xlsRow, 3].Text = CmpName;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 12;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 30;
+                    sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    xlsRow += 1;
+                    if (dsFactory.Tables[0].Rows.Count > 0)
+                    {
+                        FactoryName = dsFactory.Tables[0].Rows[0]["UserName"].ToString();
+                        //FactoryName = dsFactory.Tables[0].Rows[0]["PlantName"].ToString();
+                    }
+                    else
+                    {
+                        FactoryName = "";
+                    }
+                    sheet1.Range[xlsRow, 3].Text = FactoryName;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                    sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    xlsRow += 1;
+                    if (dsFactory.Tables[0].Rows.Count > 0)
+                    {
+                        FactoryAddress = dsFactory.Tables[0].Rows[0]["Address1"].ToString();
+                    }
+                    else
+                    {
+                        FactoryAddress = "";
+                    }
+                    sheet1.Range[xlsRow, 3].Text = FactoryAddress;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 26;
+                    sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    xlsRow += 1;
+                    sheet1.Range[xlsRow, 3].Text = "Daily Status Count Report";
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 11;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                    sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    xlsRow += 1;
+                    sheet1.Range[xlsRow, 3].Text = "Attendance Date:- " + workDate;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 9;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                    sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    #endregion ******************Report Header******************
+
+                    #region Freeze Panes
+                    sheet1.IsDisplayZeros = false;
+                    sheet1.UsedRange["A8"].FreezePanes();
+                    sheet1.FirstVisibleColumn = 1;
+                    sheet1.FirstVisibleRow = 9;
+                    #endregion
+
+                    #region Page Setup
+                    sheet1.PageSetup.TopMargin = 0.5;
+                    sheet1.PageSetup.BottomMargin = 0.7;
+                    //sheet1.PageSetup.PrintTitleRows = "$1:$2";
+                    sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                    sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + identity.UserId.Trim() + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:mm tt").ToString();
+                    sheet1.PageSetup.LeftMargin = 0.5;
+                    sheet1.PageSetup.RightMargin = 0.2;
+                    sheet1.PageSetup.Orientation = ExcelPageOrientation.Portrait;
+                    sheet1.PageSetup.FitToPagesTall = 0;
+                    sheet1.PageSetup.FitToPagesWide = 1;
+                    sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+
+                    sheet1.Name = "DailyStatusCount";
+                    #endregion             
+
+                    //workbook.Version = ExcelVersion.Excel97to2003;
+                    report.PageSetup(ref sheet1, 5, ExcelPageOrientation.Portrait);
+
+                    // return workbook;
+
+                    var filePath = "";
+                    var SheetName = "";
+                    //return workbook;
+                    //workbook.Version = ExcelVersion.Excel97to2003;
+
+                    #region Pivot
+                    //  DataTable dtDistinctParameter = dtOrder.DefaultView.ToTable(true, "Parameter");
+
+                    string fPath = fPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + "OrderTempReport" + identity.UserId + ".xlsx";
+
+                    workbook.SaveAs(fPath);
+                    workbook = application.Workbooks.Open(fPath);
+                    try { System.IO.File.Delete(fPath); } catch (Exception) { }
+
+                    workbook.Worksheets[0].Name = "Report";
+
+                    IWorksheet pivotSheet = workbook.Worksheets[0];
+                    IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, endxlsRow - 1, endXlsCol]);
+                    IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A8"], cache);
+
+                    pivotTable.Fields[colDpt - 1].Axis = PivotAxisTypes.Row;
+                    if (IsWithLine)
+                    {
+                        pivotTable.Fields[colLine - 1].Axis = PivotAxisTypes.Row; 
+                    }
+                    pivotTable.Fields[colShiftName - 1].Axis = PivotAxisTypes.Column;
+
+
+                    IPivotField field = pivotTable.Fields[p - 1];
+                    field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                    pivotTable.DataFields.Add(field, "Present", PivotSubtotalTypes.Sum);
+
+                    for (int i = 0; i < pivotTable.Fields.Count; i++)
+                    {
+                        if (i == colDpt - 1 || i == colLine - 1 || i == colShiftName - 1)
+                            pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                    }
+
+                    pivotTable.ShowRowGrand = false;
+                    pivotTable.ShowDrillIndicators = false;
+                    pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
+                    pivotTable.Options.NullString = "";
+                    pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
+
+                    sheet1 = workbook.Worksheets[0];
+                    reportUtility.CompanyPlantHeaderNew(ref sheet1, 1, "DailyStatusCountReport", identity.CompanyId, identity.CompanyName, "");
+
+                    reportUtility.PageSetup(ref sheet1, 6, ExcelPageOrientation.Landscape);
+                    sheet1[xlsRow,xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[1, 1, 6, endXlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                    sheet1.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                    sheet1.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet1.IsGridLinesVisible = false;
+                    workbook.Worksheets[0].UsedRange["A8"].FreezePanes();
+
+
+                    #endregion Buyer Summary
+
+                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                    workbook.SaveAs(filePath);
+                    workbook.Close();
+                    excelEngine.Dispose();
+                    return filePath;
+                }
+                else
+                {
+                    throw new Exception("No Data found...");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+
+            }
+        }
+
         string GetDuration(string dti, string dto, string intime, string outtime)
         {
             string res = string.Empty;
@@ -1604,13 +2623,14 @@ namespace Aplos.Areas.Attendances.Controllers
                         , LG.UserName Designation
                          , kk.PrvDayStatus
 						,kk.YesterdayOTHr,ap.IsManualInTime,ap.IsManualOutTime,hr.OTConsiderOn
-                        ,ISNULL(L.UserName,'') Line,s.UserName Section,ss.UserName SubSection
+                        ,ISNULL(L.UserName,'') Line,s.UserName Section,ss.UserName SubSection,ISNULL(TN.TotalNumber,0) OnRole
                         from EmployeeInformation e
                         left join AttdnProcessData ap on ap.EmpSystemID = e.SystemId
                         left join DayType dt on dt.DayType = ap.DayStatus
                         LEFT JOIN dbo.ShiftDefination SD ON ap.ShiftSystemID = SD.SystemID
                         LEFT OUTER JOIN ShiftTimeChgMaster AS cs ON ap.WorkDate BETWEEN cs.FromDate AND cs.ToDate AND sd.SystemID=cs.ShiftDefinationID
                                             left join mst.ManpowerBudget mp on mp.id = e.BudgetCode
+                                            LEFT JOIN(Select SUM(TotalNumber)TotalNumber,ManpowerBudgetId from mst.ManpowerBudgetDetail Group BY ManpowerBudgetId) TN ON TN.ManpowerBudgetId=MP.Id
                                             left join org.Entity en on en.id = mp.EntityId
                                             left join ORG.Position p on p.Id = mp.PositionId
                                             left join org.Department dep on dep.Id = p.DepartmentId

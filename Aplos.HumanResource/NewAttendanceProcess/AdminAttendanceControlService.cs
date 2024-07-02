@@ -626,9 +626,15 @@ namespace Library.HumanResource.NewAttendanceProcess
                     EmpSel = "and EmpSystemID in (" + Emps + ")";
                 }
 
-                var str = @"select RowId,EmpSystemID,WorkDate,InTime,OutTime,ShiftSystemID,DayStatus 
-                            from AttdnProcessData where WorkDate between '" + FD + @"' and '" + TD + @"'
-                            AND PlantID='" + PlId + @"' "+EmpSel+"";
+                var str = @"select EMP.EmployeeName,APD.RowId,APD.EmpSystemID,APD.WorkDate,APD.InTime,APD.OutTime,APD.ShiftSystemID,APD.DayStatus,DEPT.UserName Department,S.UserName Section,SS.UserName SubSection,LN.UserName Line
+                            from AttdnProcessData APD
+							LEFT OUTER JOIN EmployeeInformation EMP ON APD.EmpSystemid=EMP.SystemID
+                            LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                            LEFT JOIN ORG.Line LN ON LN.Id=EMP.LineId
+                            LEFT JOIN ORG.Department DEPT ON EMP.DepartmentId=DEPT.Id
+							where APD.WorkDate between '" + FD + @"' and '" + TD + @"'
+                            AND APD.PlantID='" + PlId + @"' "+EmpSel+"";
                 return _sqlRepository.GetDataTable(str);
             }
             catch(Exception ex)
@@ -925,12 +931,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                             {
                                 if (Convert.ToDateTime(dsMaster.Tables[0].DefaultView[0]["InTime"].ToString()) > Convert.ToDateTime(dsMaster.Tables[0].DefaultView[0]["OutTime"].ToString()))
                                 {
-                                    throw new Exception("Out time is earlier than In time - " + i);
+                                    throw new Exception("Out time is earlier than In time for RowId '" + data[i]["RowId"].ToString() + "'");
                                 }
 
                                 if (Convert.ToDateTime(dsMaster.Tables[0].DefaultView[0]["OutTime"].ToString()) > DateTime.Now)
                                 {
-                                    throw new Exception("Out time is greater than Now - " + i);
+                                    throw new Exception("Out time is greater than Now for RowId '" + data[i]["RowId"].ToString() + "'");
                                 }
 
                                 TimeSpan ts = Convert.ToDateTime(dsMaster.Tables[0].DefaultView[0]["InTime"].ToString()).Subtract(Convert.ToDateTime(dsMaster.Tables[0].DefaultView[0]["OutTime"].ToString()));

@@ -7521,6 +7521,7 @@ Dp.UserName Department, ad.seq,ad.ds,FORMAT(CAST(sd.InTime AS datetime2), N'hh:m
                                     ISNULL(LG.UserName,'') Designation, 
                                     EI.SystemId EmpSystemId,
                                     EI.EmployeeCode, EI.EmployeeName , CONVERT(VARCHAR(5), AD.InTime, 108) IInTime,CONVERT(VARCHAR(5), SD.InTime, 108) ShiftIn,
+                                    CONVERT(VARCHAR(5), SD.InTime, 108) iShiftIn,CONVERT(VARCHAR(5), SD.OutTime, 108) ShiftOut,
                                     TodayStatus=case 
 									when  AD.SEQ=1 THEN AD.DS when isnull(EI.EmployeeCurrentStatus,'') <>'' then EI.EmployeeCurrentStatus else AD.DayStatus 																		
 									END,
@@ -7956,6 +7957,162 @@ Dp.UserName Department, ad.seq,ad.ds,FORMAT(CAST(sd.InTime AS datetime2), N'hh:m
                 str = "' '";
             return str;
         }
+
+        public void GetDailyAttnRptData(ParaAttendanceReport op, Dictionary<string, string> parameters, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            clsStaticInfo obs = null;
+            string ShiftIds_WC = "";
+            try
+            {
+                
+                obs = new clsStaticInfo();
+                strSql = @"SELECT EmpSystemId,EmployeeCode
+	                            , EmployeeName
+	                            , DOJ
+	                            , DesignationGroupID
+	                            , UnitID
+	                            , DivisionID
+	                            , DepartmentID
+	                            , SectionID
+	                            , SubSectionID
+	                            , LineID
+	                            , EmpCategoryID
+                                ,dti,dto
+	                            , PDate
+	                            , DayStatus
+	                            , InTime
+                                ,ShiftName
+                                ,ShiftInTimeShow,ShiftOutTimeShow
+                                ,InTimeShow
+                                ,OutTimeShow
+                                --,CONVERT(VARCHAR(5),dateadd(MINUTE,-LeastInTime, ShiftInTime), 108) LeastEntryTime
+                                ,LeastPunchTime
+	                            , InDeviceID
+	                            , OutTime
+	                            , OutDeviceID
+	                            , OTHr
+	                            , ShiftInTime = CASE
+		                            WHEN ShiftChangeInTime IS NULL
+			                            THEN ShiftInTime
+		                            ELSE ShiftChangeInTime
+		                            END
+	                            , PlantID
+                                ,'0' Duration
+                                ,'0' LateBy,ShortLeave,LeaveType,IsManualDayStatus,IsManualInTime,IsManualOutTime
+                                " + obs.EntityAlias() + @"
+                                ,JobLocation,Entity
+			                FROM
+                            (
+                              SELECT E.SystemId EmpSystemId,CONVERT(int,E.EmployeeCode) EmployeeCode
+	                                , E.EmployeeName
+	                                , REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ
+	                                , E.DesignationGroupID
+	                                , E.UnitID
+	                                , E.DivisionID
+	                                , E.DepartmentID
+	                                , E.SectionID
+	                                , E.SubSectionID
+	                                , E.LineID
+                                    ,AD.InTime dti,AD.OutTime dto
+	                                , REPLACE(CONVERT(VARCHAR(11), AD.WorkDate, 113), ' ', '-') PDate
+	                                , E.EmployeeCategorySystemID EmpCategoryID
+	                                , AD.DayStatus
+                                    ,CONVERT(VARCHAR(15),CAST(LIT.ptime AS TIME),100)  +' ('+ ARD.PType+')' LeastPunchTime
+	                                , CONVERT(VARCHAR(5), AD.InTime, 108) InTime
+                                    ,CONVERT(varchar(15),CAST(AD.InTime AS TIME),100) InTimeShow
+	                                , ARIN.DeviceID InDeviceID
+	                                , CONVERT(VARCHAR(5), AD.OutTime, 108) OutTime
+                                    ,CONVERT(varchar(15),CAST(AD.OutTime AS TIME),100) OutTimeShow
+	                                , AROUT.DeviceID OutDeviceID
+	                                , AD.OTHr
+	                                , CONVERT(VARCHAR(5), SFCG.InTime, 108) ShiftChangeInTime
+                                    --,sd.InTimeStartMargin LeastInTime
+	                                , CONVERT(VARCHAR(5), SD.InTime, 108) ShiftInTime
+                                    ,CONVERT(varchar(15),CAST(SD.InTime AS TIME),100) ShiftInTimeShow
+                                    ,CONVERT(varchar(15),CAST(SD.OutTime AS TIME),100) ShiftOutTimeShow
+                                    , SD.ShiftDefinationName ShiftName
+	                                , AD.PlantID
+                                    ,E.GivenDesignationId, AD.CountedShortLeave ShortLeave ,lt.Code LeaveType
+                                    ,ad.IsManualDayStatus,ad.IsManualInTime,ad.IsManualOutTime
+                                    " + obs.EntityColumnsS() + @"
+                                    ,jl.JobLocation,e.JobLocationID,en.UserName Entity,mp.EntityId
+
+                                FROM dbo.EmployeeInformation E
+							                INNER JOIN (select * from dbo.AttdnProcessData " + ShiftIds_WC + @")AD ON E.SystemID = AD.EmpSystemID
+							                LEFT JOIN (SELECT * FROM dbo.ShiftTimeChgMaster WHERE '" + op.ADate + @"' BETWEEN FromDate AND ToDate) AS SFCG
+																                ON AD.ShiftSystemID = SFCG.ShiftDefinationID
+							                LEFT JOIN dbo.ShiftDefination SD ON AD.ShiftSystemID = SD.SystemID
+							                LEFT JOIN dbo.AttdnRawData ARIN ON AD.InTimeRowID = ARIN.RowID
+							                LEFT JOIN dbo.AttdnRawData AROUT ON AD.OutTimeRowID = AROUT.RowID  
+
+                                            left join JobLocation jl on jl.SystemID=e.JobLocationID
+											left join mst.ManpowerBudget mp on mp.id=e.BudgetCode
+											left join org.Entity en on en.id=mp.EntityId                                            
+                                          
+											left join LeaveType lt on lt.Id=ad.LTSystemID
+                                            LEFT JOIN
+												(
+												SELECT LogDownLoadNum
+												,min(ptime) ptime
+												from AttdnRawData
+												where pdate='" + op.ADate + @"' --and PType='IN'--and LogDownLoadNum='1800004'
+												group by LogDownLoadNum
+												) LIT on LIT.LogDownLoadNum=E.SystemId
+                                            LEFT JOIN AttdnRawData ARD ON ARD.LogDownLoadNum=LIT.LogDownLoadNum  AND ARD.PTime=LIT.ptime
+							                " + obs.EntityTables() + @"
+
+			                    WHERE AD.WorkDate  = '" + op.ADate + @"' AND( EmployeeStatus = 'Active' OR COnvert(date,DOS) >= Convert(Date,'" + op.ADate + @"'
+                            ))) A  WHERE EmpSystemId IN(" + parameters["EmpSystemId"] + ")";
+
+                
+                strSql = strSql + @"
+                        GROUP BY  EmpSystemId,EmployeeCode
+	                            , EmployeeName
+	                            , DOJ
+	                            , DesignationGroupID
+	                            , UnitID
+	                            , DivisionID
+	                            , DepartmentID
+	                            , SectionID
+	                            , SubSectionID
+	                            , LineID
+	                            , EmpCategoryID
+                                ,dti,dto
+	                            , PDate
+	                            , DayStatus
+	                            , InTime
+                                ,LeastPunchTime
+	                            , InDeviceID
+	                            , OutTime
+	                            , OutDeviceID
+	                            , OTHr
+	                            , ShiftChangeInTime
+                                ,ShiftName
+                                ,ShiftInTimeShow,ShiftOutTimeShow
+                                ,InTimeShow
+                                ,OutTimeShow
+	                            , ShiftInTime
+	                            , PlantID,ShortLeave,LeaveType,IsManualDayStatus,IsManualInTime,IsManualOutTime
+                                " + obs.EntityAlias() + @" ,JobLocation,JobLocationID,Entity,EntityId
+                        ORDER BY 
+                    UnitId, SectionId, SubSectionId, DayStatus, 
+                    EmployeeCode";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+
 
         public void GetDailyAttnRpt(ParaAttendanceReport op, string[] empParameters /*Dictionary<string, string> empParameters*/, out DataSet dsRef)
         {

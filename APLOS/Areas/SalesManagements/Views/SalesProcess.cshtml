@@ -4,7 +4,8 @@
     <div class="site-tab">
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);GetMaterialList();" href="" aria-controls="Sales" role="tab" data-toggle="tab">Sales Process</a></li>
-            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);getSPData();" href="" aria-controls="Purchase" role="tab" data-toggle="tab">Transaction</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);" href="" aria-controls="SalesType" role="tab" data-toggle="tab">Sales Type</a></li>
+            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);getSPData();" href="" aria-controls="Purchase" role="tab" data-toggle="tab">Transaction</a></li>
         </ul>
     </div>
     <div class="tab-content">
@@ -48,41 +49,41 @@
                     </div>
                 </div>
             </div>
-                <div class="row text-right aplos-grid-toggle">
-                    <div class="col-xs-12 col-sm-12 col-sm-12">
-                        <div class="search-form">
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-3 col-md-3">
-                                    <div class="select-style">
-                                        <select ng-model="searchBy">
-                                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-                                        </select>
-                                    </div>
+            <div class="row text-right aplos-grid-toggle">
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="search-form">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="searchBy">
+                                        <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
                                 </div>
-                                <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
-                                </div>
-                                <div class="col-xs-12 col-sm-2 col-md-2">
-                                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="table-responsive aplos-grid-toggle">
-                    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                        <div e-columns>
-                            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
-                            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
-                            <div e-column e-field="SalesProcess" e-headertext="SalesProcess" e-width="5"></div>
-                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="5"></div>
-                        </div>
+            </div>
+            <div class="table-responsive aplos-grid-toggle">
+                <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+                        <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
+                        <div e-column e-field="SalesProcess" e-headertext="SalesProcess" e-width="5"></div>
+                        <div e-column e-field="Remarks" e-headertext="Remarks" e-width="5"></div>
                     </div>
                 </div>
+            </div>
         </div>
-        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-form="tabForm2" id="Purchase">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-form="tabForm2" id="SalesType">
             <togglable name="{{SalesTypetitle}}"></togglable>
             <div class="form-elements form-horizontal">
                 <div class="row">
@@ -162,13 +163,32 @@
                     </div>
                 </div>
             </div>
+            
+            <div id="GridST" ej-grid e-datasource="SalesTypeList" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                <div e-columns>
+                    <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+                    <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
+                    <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+                    <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
+                    <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+                    <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                    <div e-column e-field="SalesCategory" e-headertext="Sales Category" e-width="5"></div>
+                    <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+
+                </div>
+            </div>
+          
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-form="tabForm2" id="Purchase">
+            
             <div class="common-btn">
                 <ul class="list-inline text-right">
                     <li> <button ng-click="SaveSPT();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
                 </ul>
             </div>
             <div id="GridSalPT" ej-grid e-datasource="SPList" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="strue">
                 <div e-columns>
                     @*<div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>*@
                     <div e-column e-field="SalesType" e-headertext="Sales Type" e-width="2"></div>
@@ -199,12 +219,12 @@
             </script>
             <script type="text/template" id="StandardDaysfromInvoice">
                 <div class="col-sm-12">
-                    <input type="text" name="StandardDaysfromInvoice" ng-model="data.StandardDaysfromInvoice" class="form-control" required tabindex="4" maxlength="50">
+                    <input tabindex="1" type="text" name="Responsible Prerson" ng-model="data.StandardDaysfromInvoice" class="form-control">
                 </div>
             </script>
             <script type="text/template" id="StandardDaysFromPreviousProcess">
                 <div class="col-sm-12">
-                    <input type="text" name="StandardDaysFromPreviousProcess" ng-model="data.StandardDaysFromPreviousProcess" class="form-control" required tabindex="4" maxlength="50">
+                    <input tabindex="1" type="text" name="Responsible Prerson" ng-model="data.StandardDaysFromPreviousProcess" class="form-control">
                 </div>
             </script>
             <script type="text/template" id="BankApplicable">
@@ -253,7 +273,6 @@
                 </div>
             </script>
         </div>
-
     </div>
 </div>
 

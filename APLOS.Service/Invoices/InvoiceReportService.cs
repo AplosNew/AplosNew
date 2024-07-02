@@ -530,6 +530,7 @@ namespace Library.Service.Invoices
 
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Vendor Plant");
             reportUtility.SetText(ref sheet, row, 2, header["VendorPlant"].ToString());
+
             reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");
             reportUtility.SetText(ref sheet, row, 5, header["Status"].ToString());
             //sheet[row, 5].ColumnWidth = 15;
@@ -1273,7 +1274,7 @@ namespace Library.Service.Invoices
 							--,PostedBy = case when u.FullName<>'' then u.FullName else v.PostedBy end
 							 , UPPER(V.Narration) AS Narration 
 					    	, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
-                            , P.UserName AS Vendor, PP.UserName AS VendorPlant, BJ.CurrencyId, C.Code AS CurrencyCode
+                            , P.UserName AS Vendor,PP.UserName+' - '+'GSTIN:'+'('+PP.GSTIN+')' AS VendorPlant, BJ.CurrencyId, C.Code AS CurrencyCode,P.TINNO GSTINNo
                             FROM [TRN].[Invoice] AS BJ
                             LEFT JOIN [TRN].[Voucher] AS V ON V.Id=BJ.VoucherId
                             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
