@@ -6,6 +6,7 @@ function salaryLockController(commonMessage, $scope, $rootScope, baseService, $r
     $scope.exportgriddataUrl = 'GridReports/ExcelExport';
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.SaveSalaryLockUrl = $scope.path + 'Save';
+    $scope.SaveSalaryViewLockUrl = $scope.path + 'SaveSalaryViewLock';
     $scope.Action = 'Lock Salary';
     $scope.paymentMode = null;
     $scope.sheetType = false;
@@ -280,25 +281,14 @@ function salaryLockController(commonMessage, $scope, $rootScope, baseService, $r
         }
     };
 
-    $scope.SalaryUnLock = function () {
+    $scope.SalaryViewUnLock = function () {
         try {
-            var EmployeeListNew = [];
-            for (var i = 0; i < $scope.EmployeeListTemp.length; i++) {
-                EmployeeListNew.push($scope.EmployeeListTemp[i]);
-            }
-
-            if (EmployeeListNew.length == 0) {
-                throw "Please Select LeaveType";
-            }
-
-            var data = ej.DataManager(EmployeeListNew).executeLocal(ej.Query().select(["EmpSystemId", "PayableVoucherId", "DisbursementVoucherId", "Id", "Flag", "CheckBoxSelect", "SalaryStructureId"]));
-
-            $scope.$broadcast('show-errors-check-validity');
+            
             $http({
                 method: 'POST',
-                url: $scope.SaveSalaryLockUrl,
+                url: $scope.SaveSalaryViewLockUrl,
                 data: {
-                    'EmployeeList': data, 'Month': $scope.month, 'Year': $scope.year, 'isActive': $scope.isActive, 'isSeperated': $scope.isSeperated, 'isMaternity': $scope.isMaternity, 'SalaryStructureId': $scope.SalaryStructureId
+                  'Month': $scope.month, 'Year': $scope.year
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -338,6 +328,7 @@ function salaryLockController(commonMessage, $scope, $rootScope, baseService, $r
 
         }
     };
+
 
 }
 
