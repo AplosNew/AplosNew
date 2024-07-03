@@ -136,6 +136,7 @@ namespace Library.HumanResource.Payroll.SalaryProcess
                                     ,DeG.UserName Designation,EC.UserName EmployeeCategory
                                     ,e.GivenDesignationId,PMB.AccountsGroupId,E.BudgetCode BudgetId
                                   ,IsLock = case when sl.IsLocked = 1 then 'Locked' else 'Unlocked' end
+                                    ,SalaryView= CASE WHEN ISNULL(sl.SalaryView,0)=0 THEN 'Yes' ELSE 'No' END
                                   ,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end
 
 	                                  ,(PMB.EntityId) EntityId

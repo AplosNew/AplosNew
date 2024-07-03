@@ -1636,5 +1636,14 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
         #endregion Pending dispatch
+
+        #region Daily Inverification
+        public List<Default2> GetActiveEmployee(string EmpSysId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetActiveEmployee(out List<Default2> activelists , EmpSysId);
+            return activelists;
+        }
+        #endregion Daily Inverification
     }
 }

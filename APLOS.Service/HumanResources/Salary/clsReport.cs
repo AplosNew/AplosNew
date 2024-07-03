@@ -4658,7 +4658,7 @@ where QCD.QCId='" + PlannedId + @"' order by QII.SNO";
             try
             {
                 strSql = @"  select distinct EI.systemid,EI.PaymentMode 
-                            ,b.EmpSystemID,b.BankAccNo,b.IsApproved 
+                            ,b.EmpSystemID,b.BankAccNo,b.IsApproved,EI.EmployeeStatus
                             ,Remark=case when isnull(EI.PaymentMode,'')='Bank' and ISNULL(b.BankAccNo,'')='' then 'Bank Acc is required'
                             when (isnull(EI.PaymentMode,'')<>'Bank' and isnull(EI.PaymentMode,'')<>'Transfer') and ISNULL(b.BankAccNo,'')<>'' then 'Payment mode is not valid'
                             when (isnull(EI.PaymentMode,'')='Bank' or isnull(EI.PaymentMode,'')='Transfer') and ISNULL(b.BankAccNo,'')<>'' and b.IsApproved=0 then 'Bank Acc Approval required'

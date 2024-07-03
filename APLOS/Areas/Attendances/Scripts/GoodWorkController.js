@@ -39,6 +39,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
+    function DateFunc() {
     $('.datepicker').datepicker({
         startDate: '-1d',
         endDate: '1d',
@@ -49,6 +50,8 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         inline: true,
         changeMonth: true
     });
+    }
+    DateFunc();
 
     $scope.ModelEmpTemp = {
         Id: null,

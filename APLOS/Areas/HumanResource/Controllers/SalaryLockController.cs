@@ -363,6 +363,7 @@ Where C.EmpInfoSystemID IN (" + EmpIdLoop + @") AND PO.DirectManpowerCost=0 AND 
                     dr["SalaryRuleMasterId"] = sps.SalaryRuleMasterId;
                     dr["SalaryStructureId"] = sps.SalaryStructureId;
                     dr["PastDisbursed"] = sps.PastDisbursed;
+                    dr["SalaryView"] = sps.SalaryView;
 
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
@@ -379,7 +380,7 @@ Where C.EmpInfoSystemID IN (" + EmpIdLoop + @") AND PO.DirectManpowerCost=0 AND 
                     dr["AccountsGroupId"] = sps.AccountsGroupId;
                     dr["BudgetId"] = sps.BudgetId;
                     dr["SalaryRuleMasterId"] = sps.SalaryRuleMasterId;
-
+                    dr["SalaryView"] = sps.SalaryView;
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = System.DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
@@ -488,6 +489,26 @@ Where C.EmpInfoSystemID IN (" + EmpIdLoop + @") AND PO.DirectManpowerCost=0 AND 
             }
         }//end of function
 
+        [HttpPost]
+        public JsonResult SaveSalaryViewLock(string Month, string Year)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(@"Update dbo.SalaryLock set SalaryView=1 Where  YearNo="+Year+" AND MonthNo="+ Month + "", true, "1");
+
+                objCon.CommitTransaction();
+                return Json(new { Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
         public class SalaryLock : BaseModel
         {
             #region Scalar Properties            
@@ -507,6 +528,7 @@ Where C.EmpInfoSystemID IN (" + EmpIdLoop + @") AND PO.DirectManpowerCost=0 AND 
             public string BudgetId { get; set; }
             public string PastDisbursed { get; set; }
             public string SalaryRuleMasterId { get; set; }
+            public string SalaryView { get; set; }
             public bool CheckBoxSelect { get; set; }
             #endregion Scalar Properties
 
