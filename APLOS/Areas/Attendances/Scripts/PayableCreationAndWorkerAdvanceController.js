@@ -554,7 +554,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
                 method: 'POST',
                 // url: $scope.path + "LoadPCEmployeelist",
                 url: $scope.path + "GetGoodWorkEmployeelist",
-                data: { 'fromDate': $scope.ModelPCNew.FromDate, 'toDate': $scope.ModelPCNew.ToDate, 'tabName': $scope.TabName, 'saveUpdate': $scope.PCAction},
+                data: { 'fromDate': $scope.ModelPCNew.FromDate, 'toDate': $scope.ModelPCNew.ToDate, 'tabName': $scope.TabName, 'saveUpdate': $scope.PCAction, 'goodWorkPaymentAdviseId': $scope.ModelPCNew.Id},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.PCEmployeeList = response.data;
@@ -576,7 +576,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             $http({
                 method: 'POST',
                 url: $scope.path + "GetGoodWorkEmployeelist",
-                data: { 'fromDate': $scope.ModelOTNew.FromDate, 'toDate': $scope.ModelOTNew.ToDate, 'tabName': $scope.TabName, 'saveUpdate': $scope.PCOTAction },
+                data: { 'fromDate': $scope.ModelOTNew.FromDate, 'toDate': $scope.ModelOTNew.ToDate, 'tabName': $scope.TabName, 'saveUpdate': $scope.PCOTAction, 'goodWorkPaymentAdviseId': $scope.ModelOTNew.Id },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.PCOTEmployeeList = response.data;
