@@ -1082,5 +1082,9 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/BudgetMaster/BudgetControl",
             controller: "BudgetControlController"
         })
+        .when("/DNCN-control", {
+            templateUrl: "Accounts/AdjustmentNote/DebitCreditNoteProcessControl",
+            controller: "DebitCreditNoteProcessControlController"
+        })
         ;
 } 
