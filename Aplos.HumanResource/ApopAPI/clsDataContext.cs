@@ -6256,6 +6256,54 @@ and EmployeeCode = '" + EmpSysId + "' order by AddedDate Desc ";
                 throw (ex);
             }
         }
+
+        public string PostUpdateParmenentBudgetCodeChange(IEnumerable<TempBudgetCode> DataToSave, string EmpsysId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                //  string TableName = "dbo.AttdnProcessData";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                List<TempBudgetCode> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from dbo.EmployeeInformation where SystemId='" + EmpsysId + "'", out dsMaster, false, "1");
+
+                foreach (TempBudgetCode item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["BudgetCode"] = item.NewBudgetId;
+
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+
+                        dr.EndEdit();
+
+                    }
+                }
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["SystemId"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         #endregion Budget Code Change
         // location
         public void GetCartoonLocation(out List<Default2> DataList)
