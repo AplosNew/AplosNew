@@ -421,7 +421,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 objRpt.SelectedPlant(plantId, out dsFactory);
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
-                workbook = application.Workbooks.Create(26);
+                workbook = application.Workbooks.Create(27);
                 int xlsRow = 1, xlsCol = 1;
                 int endXlsCol = 1;
                 string FactoryName = "";
@@ -919,6 +919,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     linkManualInOutPunch.TextToDisplay = sheet20.Range[xlsRow, iReportName].Text;
                     linkManualInOutPunch.ScreenTip = "Go To " + sheet20.Range[xlsRow, iReportName].Text;
                     linkManualInOutPunch.Address = "27_ManualInOut_Entry!A1";
+                    xlsRow++;
 
                     sheet20.Range[2, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
                     sheet20.Range[2, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
@@ -9538,8 +9539,9 @@ namespace Library.HumanResource.NewAttendanceProcess
 
 
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    
                 }
                 #endregion
 
@@ -10731,7 +10733,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
                         LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId
                         WHERE (ap.ManualInTime is not null and ap.IsManualInTime=1) AND (ap.OriginalManualOutTime is not null and ap.IsManualOutTime=1)							  
-                              AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'   
+                            AND  AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'   
                            and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"'	
                        ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric,AP.WorkDate";
                 con.getDataSet(strSql, out dsRef);
