@@ -6283,7 +6283,7 @@ and EmployeeCode = '" + EmpSysId + "' order by AddedDate Desc ";
 
 
                         dr["UpdatedBy"] = item.UpdatedBy;
-                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["DateUpdated"] = System.DateTime.Now.ToString();
 
 
                         dr.EndEdit();
