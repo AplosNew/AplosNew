@@ -11,7 +11,7 @@ using APLOS;
 
 namespace Aplos.Controllers
 {
-    [BasicAuthentication]
+   // [BasicAuthentication]
     public class MyAppPaySlipController : ApiController
     {
         MyAppPaySlipService _slip = new MyAppPaySlipService();
