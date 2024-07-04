@@ -752,6 +752,20 @@ namespace Aplos.Controllers.ApopAPIHR
 
             }
         }
+
+        public string PostUpdateParmenentBudgetCodeChange([FromBody] IEnumerable<TempBudgetCode> DataToSave, string EmpsysId)
+        {
+            try
+            {
+                string Id = clsData.PostUpdateParmenentBudgetCodeChange(DataToSave, EmpsysId);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
         #endregion Budget Code Change 
 
         // Location  

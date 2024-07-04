@@ -231,13 +231,23 @@ namespace Library.Service.EmployeeServices
                 var Sql = @"select emp.SystemId as EmpId,emp.EmployeeName as Name,apd.WorkDate,emp.EmployeeCode,emp.EmploymentType,mb.Code AS BudgetCode,mb.Id as BudgetCodeId,
                         dx.StandardName as Department,emp.EmployeeGroupSystemID,dx.Id as DepartmentId,CONVERT(VARCHAR(12),emp.DOJ,107) as DOJ,l.Id as LegalDesignationId,l.StandardName as LegalDesignation,
                         d.StandardName as Designation,
-                               d.Id as DesignationId
+                               d.Id as DesignationId , sd.ShiftDefinationName Shift , SC.StandardName Section,SBC.StandardName SubSection
+							   ,LL.UserName Line
                                 from dbo.AttdnProcessData apd
 								 left join dbo.EmployeeInformation emp on emp.SystemId = apd.EmpSystemID 
 								left join hkp.Designation d on d.Id=emp.DesignationSystemID
 								left join org.Department dx on dx.Id=emp.DepartmentId
 					LEFT JOIN MST.ManpowerBudget MB ON apd.BudgetId = MB.Id
 					left join hkp.LegalDesignation l on l.Id=emp.LegalDesignationId
+					left join ORG.Section SC on SC.Id = EMP.SectionId
+left join ORG.SubSection SBC on SBC.Id = EMP.SubSectionId
+left join ShiftDefination sd on sd.systemid = MB.shiftdefinationid
+left join ORG.Position POS on POS.Id = MB.PositionId
+left join org.Department DP on DP.Id= POS.DepartmentId
+LEFT JOIN hkp.Designation DSG on DSG.id = POS.DesignationId
+left join mst.DesignationMaster DM on DM.DesignationId = POS.DesignationId
+left join HKP.EmployeeCategory EC on EC.Id = Dm.EmployeeCategoryId
+left join org.Line LL on LL.Id	= MB.LineId
                                 where EmployeeCode='" + Code + "' and apd.WorkDate = convert(date, getdate())";
 
                        return _sqlRepository.GetDataCollection(Sql, null);
