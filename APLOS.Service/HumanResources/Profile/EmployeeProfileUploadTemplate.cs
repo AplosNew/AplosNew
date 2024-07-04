@@ -9,6 +9,9 @@ namespace Library.Service.HumanResources.Profile
     public class EmployeeProfileUploadTemplate
     {
         //
+        //public string SystemId { get; set; }
+        //public string EmployeeId { get; set; }
+        public string EmployeeCodeType { get; set; }
         public string EmployeeCode { get; set; }
         public string Salutation { get; set; }
         public string FirstName { get; set; }

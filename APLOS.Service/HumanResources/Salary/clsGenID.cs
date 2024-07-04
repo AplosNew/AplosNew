@@ -386,7 +386,8 @@ namespace bplib
 
                     LastNumber = Convert.ToDecimal(clsWebLib.GetNumData(("" + drLocal["LastNumber"].ToString())));
                     LastNumberR = LastNumber + 1;
-                    LastNumber = LastNumber + Count + 1;
+                    //LastNumber = LastNumber + Count + 1;
+                    LastNumber = LastNumber  + 1;
 
                     drLocal.BeginEdit();
                     drLocal["Dates"] = strEntryDate.Trim();
@@ -396,8 +397,8 @@ namespace bplib
                 objCoManager.SaveDataSetThroughAdapter(ref dsLocal, false, "1");
                 //strID = /*strID + "-" +*/ (int)LastNumber + "";
                 //strID = (int)LastNumberR + "";
-                strID = System.DateTime.Now.Year.ToString() + ((int)LastNumberR).ToString() + "";
-
+                //strID = System.DateTime.Now.Year.ToString() + ((int)LastNumberR).ToString() + "";
+                strID = System.DateTime.Now.ToString("yyyy").Substring(2, 2) + ((int)LastNumber).ToString() + "";
             }
             catch (Exception ex)
             {

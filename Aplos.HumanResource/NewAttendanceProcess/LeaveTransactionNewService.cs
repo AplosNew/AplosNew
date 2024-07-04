@@ -1142,7 +1142,8 @@ Where A.EmployeeId='" + EmpSystemID+"'"
             {
                 if (esic.Tables[0].Rows.Count > 0)
                 {
-                    _sql = @"SELECT DISTINCT LT.ID, LT.UserName,LT.IsESIC,LT.IsGeneral, EPLT.ESICPolicyMasterID,LPD.IsAvailExceptionAllowedOnSpecialAppeal FROM dbo.ESICPolicyLeaveType AS EPLT
+                    _sql = @"SELECT DISTINCT LT.ID, LT.UserName,LT.IsESIC,LT.IsGeneral, EPLT.ESICPolicyMasterID--,LPD.IsAvailExceptionAllowedOnSpecialAppeal
+FROM dbo.ESICPolicyLeaveType AS EPLT
                   LEFT JOIN dbo.LeaveType AS LT ON LT.Id = EPLT.LeaveTypeID
                   LEFT JOIN LeavePolicyDetail LPD ON LPD.LTSystemID=LT.Id
                   WHERE

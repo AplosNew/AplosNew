@@ -58,7 +58,7 @@ namespace Aplos.Areas.Materials.Controllers
         public ActionResult GetList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],UM.Id UtilityMasterId,UM.UserName UtilityMaster,UT.Quantity
+            string sql = @"select top(1000) UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],UM.Id UtilityMasterId,UM.UserName UtilityMaster,UT.Quantity
 							            ,UT.Reading,UOM.Id UoMId,UOM.UserName UoM,UT.Quantity,UT.Reading
                                         ,UT.LastReading,FORMAT(UT.LastReadingDate,'dd-MMM-yyyy')LastReadingDate,CONVERT(varchar(5),UT.LastReadingTime,108) LastReadingTime
                                         ,UT.Remarks, UM.MultiplyingFactor
@@ -66,7 +66,10 @@ namespace Aplos.Areas.Materials.Controllers
 										left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
 										left join SCS.UnitOfMeasurement UOM on UOM.Id=UM.UoMId
                                         order by UT.Date Desc";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+
+            var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         //[HttpGet, Authorize]

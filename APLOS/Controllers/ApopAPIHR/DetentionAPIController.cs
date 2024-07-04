@@ -752,6 +752,20 @@ namespace Aplos.Controllers.ApopAPIHR
 
             }
         }
+
+        public string PostUpdateParmenentBudgetCodeChange([FromBody] IEnumerable<TempBudgetCode> DataToSave, string EmpsysId)
+        {
+            try
+            {
+                string Id = clsData.PostUpdateParmenentBudgetCodeChange(DataToSave, EmpsysId);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
         #endregion Budget Code Change 
 
         // Location  
@@ -1636,5 +1650,14 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
         #endregion Pending dispatch
+
+        #region Daily Inverification
+        public List<Default2> GetActiveEmployee(string EmpSysId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetActiveEmployee(out List<Default2> activelists , EmpSysId);
+            return activelists;
+        }
+        #endregion Daily Inverification
     }
 }

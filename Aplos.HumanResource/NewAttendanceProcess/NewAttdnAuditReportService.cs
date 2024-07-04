@@ -59,6 +59,8 @@ namespace Library.HumanResource.NewAttendanceProcess
             DataTable dtManualInEntry = null;
             DataSet dsManualOutEntry = null;
             DataTable dtManualOutEntry = null;
+            DataSet dsManualInOutEntry = null;
+            DataTable dtManualInOutEntry = null;
             DataSet dsManualDayStatusEntry = null;
             DataTable dtManualDayStatusEntry = null;
             DataTable dtNotInLegalDesignationMaster = null;
@@ -140,7 +142,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtAbsent = dsAbsent.Tables[0];
 
                 }
-                catch (Exception )
+                catch (Exception)
                 {
 
                 }
@@ -150,7 +152,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtInPunchMissing = dsInMissPunch.Tables[0];
 
                 }
-                catch (Exception )
+                catch (Exception)
                 {
 
                 }
@@ -160,7 +162,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtLeaveWithPunch = dsLeaveWithPunch.Tables[0];
 
                 }
-                catch (Exception )
+                catch (Exception)
                 {
                 }
                 try
@@ -169,7 +171,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtOTEntitledWithOutMissing = dsOTEntitledWithOutMissing.Tables[0];
 
                 }
-                catch (Exception )
+                catch (Exception)
                 {
 
                 }
@@ -179,7 +181,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtOTNotEntitledWithOutMissing = dsOTNotEntitledWithOutMissing.Tables[0];
 
                 }
-                catch (Exception )
+                catch (Exception)
                 {
                 }
                 try
@@ -188,7 +190,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtUnApprovedProfile = dsUnApprovedProfile.Tables[0];
 
                 }
-                catch (Exception )
+                catch (Exception)
                 {
 
                 }
@@ -198,7 +200,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtProfileNoSalary = dsProfileNoSalary.Tables[0];
 
                 }
-                catch (Exception )
+                catch (Exception)
                 {
 
                 }
@@ -208,7 +210,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtNoSalaryStructureApprove = dsNoSalaryStructureApprove.Tables[0];
 
                 }
-                catch (Exception )
+                catch (Exception)
                 {
                 }
                 try
@@ -217,7 +219,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtWorkDuration = dsWorkDuration.Tables[0];
 
                 }
-                catch (Exception )
+                catch (Exception)
                 {
                 }
                 try
@@ -226,7 +228,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtOtNotConfirmOverstay = dsOtNotConfirmOverstayReport.Tables[0];
 
                 }
-                catch (Exception )
+                catch (Exception)
                 {
                 }
                 try
@@ -235,7 +237,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtLongAbsentisom = dsLongAbsentisom.Tables[0];
 
                 }
-                catch (Exception )
+                catch (Exception)
                 {
 
                 }
@@ -245,7 +247,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtTBS = dsTBS.Tables[0];
 
                 }
-                catch (Exception )
+                catch (Exception)
                 {
                 }
                 try
@@ -254,7 +256,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtMaternityLeave = dsMaternityLeave.Tables[0];
 
                 }
-                catch (Exception )
+                catch (Exception)
                 {
 
                 }
@@ -264,17 +266,17 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtBankRemarks = dsBankRemarks.Tables[0];
 
                 }
-                catch (Exception )
+                catch (Exception)
                 {
 
-                }               
+                }
                 try
                 {
                     objRpt.GetAttendanceNotLockPlant(FromDate, ToDate, plantId, companyId, companyGroupId, out dsAttendanceNotLockPlant);
                     dtAttendanceNotLockPlant = dsAttendanceNotLockPlant.Tables[0];
 
                 }
-                catch (Exception )
+                catch (Exception)
                 {
                 }
                 try
@@ -283,7 +285,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtTotalAbsent = dsTotalAbsent.Tables[0];
 
                 }
-                catch (Exception )
+                catch (Exception)
                 {
 
                 }
@@ -293,7 +295,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtLongAtbsPlantSetting = dsLongAtbsPlantSetting.Tables[0];
 
                 }
-                catch (Exception )
+                catch (Exception)
                 {
                 }
                 try
@@ -302,7 +304,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtNotInLegalDesignationMaster = dsNotInLegalDesignationMaster.Tables[0];
 
                 }
-                catch (Exception )
+                catch (Exception)
                 {
 
                 }
@@ -312,7 +314,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtSalaryNotApproved = dsSalaryNotApproved.Tables[0];
 
                 }
-                catch (Exception )
+                catch (Exception)
                 {
 
                 }
@@ -322,7 +324,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtSeparatedAbsent = dsSeparatedAbsent.Tables[0];
 
                 }
-                catch (Exception )
+                catch (Exception)
                 {
 
                 }
@@ -332,7 +334,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtOffdayMissingPunch = dsOffdayMissingPunch.Tables[0];
 
                 }
-                catch (Exception )
+                catch (Exception)
                 {
 
                 }
@@ -342,7 +344,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtOffdayWithPunch = dsOffdayWithPunch.Tables[0];
 
                 }
-                catch (Exception )
+                catch (Exception)
                 {
 
                 }
@@ -352,7 +354,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtShiftUnassign = dsShiftUnassign.Tables[0];
 
                 }
-                catch (Exception )
+                catch (Exception)
                 {
 
                 }
@@ -386,6 +388,16 @@ namespace Library.HumanResource.NewAttendanceProcess
                 {
 
                 }
+                try
+                {
+                    Gen.GetManualInOutEntry(FromDate, ToDate, plantId, companyId, out dsManualInOutEntry);
+                    dtManualInOutEntry = dsManualInOutEntry.Tables[0];
+
+                }
+                catch (Exception)
+                {
+
+                }
 
                 try
                 {
@@ -397,6 +409,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                 {
 
                 }
+                finally
+                {
+
+                }
 
 
                 #endregion DataSet
@@ -405,7 +421,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 objRpt.SelectedPlant(plantId, out dsFactory);
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
-                workbook = application.Workbooks.Create(26);
+                workbook = application.Workbooks.Create(27);
                 int xlsRow = 1, xlsCol = 1;
                 int endXlsCol = 1;
                 string FactoryName = "";
@@ -436,6 +452,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var iTelephoneNo = 0;
                 var iOutTime = 0;
                 var iRawPunch = 0;
+                var iRawInPunch = 0;
+                var iRawOutPunch = 0;
                 var iManualByWhom = 0;
                 var iSection = 0;
                 var iSubSection = 0;
@@ -455,6 +473,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var iWorkDuration = 0;
                 var iWorkTimeDifferent = 0;
                 var iEmployeeCurrentStatus = 0;
+                var iEmployeeBankStatus = 0;
                 var iTotalAbsentDays = 0;
                 var iEmployeeCurrentStatusEffectiveDate = 0;
                 var iPaymentMode = 0;
@@ -889,6 +908,18 @@ namespace Library.HumanResource.NewAttendanceProcess
                     linkManualDayStatus.Address = "26_ManualDayStatus_Entry!A1";
                     xlsRow++;
 
+                    sheet20.Range[xlsRow, isl].Text = "27";
+                    sheet20.Range[xlsRow, iLogic].Text = "ManualInOut Entry";
+                    sheet20.Range[xlsRow, iReportName].Text = "27-ManualInOut Entries";
+                    sheet20.Range[xlsRow, iObjective].Text = "Manual-InOut Punches of Employees";
+                    sheet20.Range[xlsRow, iCount].Number = dtManualInOutEntry.Rows.Count;
+
+                    IHyperLink linkManualInOutPunch = sheet20.HyperLinks.Add(sheet20.Range[xlsRow, iReportName]);
+                    linkManualInOutPunch.Type = ExcelHyperLinkType.Workbook;
+                    linkManualInOutPunch.TextToDisplay = sheet20.Range[xlsRow, iReportName].Text;
+                    linkManualInOutPunch.ScreenTip = "Go To " + sheet20.Range[xlsRow, iReportName].Text;
+                    linkManualInOutPunch.Address = "27_ManualInOut_Entry!A1";
+                    xlsRow++;
 
                     sheet20.Range[2, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
                     sheet20.Range[2, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
@@ -5767,6 +5798,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet17.Range[xlsRow, iDOJ].ColumnWidth = 12;
 
                     xlsCol += 1;
+                    iEmployeeBankStatus = xlsCol;
+                    sheet17.Range[xlsRow, iEmployeeBankStatus].Text = "Employee Status";
+                    sheet17.Range[xlsRow, iEmployeeBankStatus].ColumnWidth = 15;
+
+                    xlsCol += 1;
                     iEmployeeCurrentStatus = xlsCol;
                     sheet17.Range[xlsRow, iEmployeeCurrentStatus].Text = "Employee Current Status";
                     sheet17.Range[xlsRow, iEmployeeCurrentStatus].ColumnWidth = 15;
@@ -5832,6 +5868,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                             sheet17.Range[xlsRow, iRemark].Text = dtBankRemarks.Rows[i]["Remark"].ToString();
 
+                            sheet17.Range[xlsRow, iEmployeeBankStatus].Text = dtBankRemarks.Rows[i]["EmployeeStatus"].ToString();
                             sheet17.Range[xlsRow, iEmployeeCurrentStatus].Text = dtBankRemarks.Rows[i]["EmployeeCurrentStatus"].ToString();
 
                             sheet17.Range[xlsRow, iEmployeeCategory].Text = dtBankRemarks.Rows[i]["EmployeeCategory"].ToString();
@@ -9213,6 +9250,301 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 #endregion 
 
+                #region  ManualInOut Entries of Employees 27
+                try
+                {
+                    IWorksheet sheet32 = null;
+
+                    xlsRow = 1; xlsCol = 1;
+                    endXlsCol = 1;
+                    FactoryName = "";
+                    CmpName = "";
+                    SheetIndex++;
+                    sheet32 = workbook.Worksheets[SheetIndex];
+                    xlsRow = 6;
+
+                    #region ------------------Column Header------------------
+                    igoto = xlsCol;
+                    sheet32.Range[5, igoto].Text = "Goto Index";
+                    sheet32.Range[5, igoto].ColumnWidth = 6;
+                    IHyperLink linkManualInOutPunch = sheet32.HyperLinks.Add(sheet32.Range[5, igoto]);
+                    linkManualInOutPunch.Type = ExcelHyperLinkType.Workbook;
+                    linkManualInOutPunch.TextToDisplay = sheet32.Range[5, igoto].Text;
+                    linkManualInOutPunch.ScreenTip = "Go To " + sheet32.Range[5, igoto].Text;
+                    linkManualInOutPunch.Address = "1_Index!A1";
+
+                    isl = xlsCol;
+                    sheet32.Range[xlsRow, isl].Text = "SL";
+                    sheet32.Range[xlsRow, isl].ColumnWidth = 7;
+
+                    xlsCol += 1;
+                    iEmployeeCode = xlsCol;
+                    sheet32.Range[xlsRow, iEmployeeCode].Text = "Employee Code";
+                    sheet32.Range[xlsRow, iEmployeeCode].ColumnWidth = 14;
+
+                    xlsCol += 1;
+                    iEmployeeName = xlsCol;
+                    sheet32.Range[xlsRow, iEmployeeName].Text = "Employee Name";
+                    sheet32.Range[xlsRow, iEmployeeName].ColumnWidth = 20;
+
+                    xlsCol += 1;
+                    iDesignation = xlsCol;
+                    sheet32.Range[xlsRow, iDesignation].Text = "Designation";
+                    sheet32.Range[xlsRow, iDesignation].ColumnWidth = 18;
+
+                    xlsCol += 1;
+                    iDepartment = xlsCol;
+                    sheet32.Range[xlsRow, iDepartment].Text = "Department";
+                    sheet32.Range[xlsRow, iDepartment].ColumnWidth = 25;
+
+                    xlsCol += 1;
+                    iSection = xlsCol;
+                    sheet32.Range[xlsRow, iSection].Text = "Section";
+                    sheet32.Range[xlsRow, iSection].ColumnWidth = 18;
+
+                    xlsCol += 1;
+                    iSubSection = xlsCol;
+                    sheet32.Range[xlsRow, iSubSection].Text = "SubSection";
+                    sheet32.Range[xlsRow, iSubSection].ColumnWidth = 18;
+
+                    xlsCol += 1;
+                    iEmployeeCategory = xlsCol;
+                    sheet32.Range[xlsRow, iEmployeeCategory].Text = "Employee Category";
+                    sheet32.Range[xlsRow, iEmployeeCategory].ColumnWidth = 18;
+
+                    xlsCol += 1;
+                    iEntity = xlsCol;
+                    sheet32.Range[xlsRow, iEntity].Text = "Entity";
+                    sheet32.Range[xlsRow, iEntity].ColumnWidth = 18;
+
+                    xlsCol += 1;
+                    iDOJ = xlsCol;
+                    sheet32.Range[xlsRow, iDOJ].Text = "DOJ";
+                    sheet32.Range[xlsRow, iDOJ].ColumnWidth = 18;
+
+                    xlsCol += 1;
+                    iRawInPunch = xlsCol;
+                    sheet32.Range[xlsRow, iRawInPunch].Text = "Punch InTime";
+                    sheet32.Range[xlsRow, iRawInPunch].ColumnWidth = 18;
+
+                    xlsCol += 1;
+                    iRawOutPunch = xlsCol;
+                    sheet32.Range[xlsRow, iRawOutPunch].Text = "Punch OutTime";
+                    sheet32.Range[xlsRow, iRawOutPunch].ColumnWidth = 18;
+
+                    xlsCol += 1;
+                    iManualByWhom = xlsCol;
+                    sheet32.Range[xlsRow, iManualByWhom].Text = "By Whom";
+                    sheet32.Range[xlsRow, iManualByWhom].ColumnWidth = 18;
+
+
+                    sheet32.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+                    sheet32.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet32.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet32.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Font.Bold = true;
+
+                    xlsRow++;
+                    endXlsCol = xlsCol;
+                    #endregion ------------------Column Header------------------
+                    SLNo = 1;
+                    if (dtManualInOutEntry.Rows.Count > 0)
+                    {
+                        #region ----------------------Data-----------------------
+
+                        for (int i = 0; i < dtManualInOutEntry.Rows.Count; i++)
+                        {
+
+                            sheet32.Range[xlsRow, isl].Text = SLNo.ToString();
+
+                            sheet32.Range[xlsRow, iEmployeeCode].Text = dtManualInOutEntry.Rows[i]["EmployeeCode"].ToString();
+
+                            sheet32.Range[xlsRow, iEmployeeName].Text = dtManualInOutEntry.Rows[i]["EmployeeName"].ToString();
+
+                            sheet32.Range[xlsRow, iEmployeeCategory].Text = dtManualInOutEntry.Rows[i]["EmpCategory"].ToString();
+
+                            sheet32.Range[xlsRow, iDepartment].Text = dtManualInOutEntry.Rows[i]["Department"].ToString();
+
+                            sheet32.Range[xlsRow, iDesignation].Text = dtManualInOutEntry.Rows[i]["Designation"].ToString();
+
+                            sheet32.Range[xlsRow, iSection].Text = dtManualInOutEntry.Rows[i]["Section"].ToString();
+
+                            sheet32.Range[xlsRow, iSubSection].Text = dtManualInOutEntry.Rows[i]["SubSection"].ToString();
+
+                            sheet32.Range[xlsRow, iEntity].Text = dtManualInOutEntry.Rows[i]["Entity"].ToString();
+
+                            sheet32.Range[xlsRow, iDOJ].Text = dtManualInOutEntry.Rows[i]["DOJ"].ToString();
+
+                            sheet32.Range[xlsRow, iRawInPunch].Text = dtManualInOutEntry.Rows[i]["PunchInTime"].ToString();
+                            sheet32.Range[xlsRow, iRawOutPunch].Text = dtManualInOutEntry.Rows[i]["PunchOutTime"].ToString();
+
+                            sheet32.Range[xlsRow, iManualByWhom].Text = dtManualInOutEntry.Rows[i]["ManualByWhom"].ToString();
+
+                            xlsRow++;
+                            SLNo++;
+
+                        }
+
+                        #endregion ----------------------Data-----------------------
+
+                        #region Line Setup
+
+                        sheet32.Range[6, 1, xlsRow - 1, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                        sheet32.Range[6, 1, xlsRow - 1, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                        sheet32.Range[6, 1, xlsRow - 1, endXlsCol].WrapText = true;
+
+                        #endregion Line Setup
+
+
+                    }
+
+                    #region ******************Report Header******************
+                    try
+                    {
+                        string strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), companyId + ".jpg");  // IDCardEng.xlsx
+                        Image companyLogo = Image.FromFile(strPath);
+                        if (companyLogo != null)
+                        {
+                            double totalWidth = sheet32.GetColumnWidth(1) + sheet32.GetColumnWidth(2);
+                            int totalWidthPixel = (int)(totalWidth * 7.5);
+                            int totalheight = (int)((sheet32.GetRowHeight(1) + sheet32.GetRowHeight(2) + sheet32.GetRowHeight(3) + sheet32.GetRowHeight(3)) * 1.50);
+
+                            companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
+                            IPictureShape pic = null;
+
+                            pic = sheet32.Pictures.AddPicture(1, 1, companyLogo);
+
+                        }
+
+
+                    }
+                    catch (Exception)
+                    {
+
+
+                    }
+
+                    xlsRow = 1;
+                    xlsCol = 1;
+
+                    FactoryName = string.Empty;
+
+                    if (dsCmp.Tables[0].Rows.Count > 0)
+                    {
+                        CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
+                    }
+                    else
+                    {
+                        CmpName = "";
+                    }
+                    sheet32.Range[xlsRow, 3].Text = CmpName;
+                    sheet32.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    sheet32.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                    sheet32.Range[xlsRow, 3].CellStyle.Font.Size = 12;
+                    sheet32.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                    sheet32.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet32.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet32.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = Color.Snow;
+
+                    xlsRow += 1;
+                    if (dsFactory.Tables[0].Rows.Count > 0)
+                    {
+
+                        FactoryName = dsFactory.Tables[0].Rows[0]["UserName"].ToString();
+                    }
+                    else
+                    {
+                        FactoryName = "";
+                    }
+                    sheet32.Range[xlsRow, 3].Text = FactoryName;
+                    sheet32.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    sheet32.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                    sheet32.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                    sheet32.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet32.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet32.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = Color.Snow;
+
+                    xlsRow += 1;
+                    if (dsFactory.Tables[0].Rows.Count > 0)
+                    {
+                        FactoryAddress = dsFactory.Tables[0].Rows[0]["Address1"].ToString();
+                    }
+                    else
+                    {
+                        FactoryAddress = "";
+                    }
+                    sheet32.Range[xlsRow, 3].Text = FactoryAddress;
+                    sheet32.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    sheet32.Range[xlsRow, 3].CellStyle.Font.Size = 22;
+                    sheet32.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 17;
+                    sheet32.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet32.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet32.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = Color.Snow;
+
+                    xlsRow += 1;
+                    sheet32.Range[xlsRow, 3].Text = (SheetIndex + 1) + "-ManualInOut Entries";
+                    sheet32.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    sheet32.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                    sheet32.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                    sheet32.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                    sheet32.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet32.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet32.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = Color.Snow;
+
+                    #endregion ******************Report Header******************
+
+                    #region Freeze Panes
+
+                    sheet32.IsDisplayZeros = false;
+                    sheet32.UsedRange["A7"].FreezePanes();
+                    sheet32.FirstVisibleColumn = 1;
+                    sheet32.FirstVisibleRow = 6;
+
+                    #endregion Freeze Panes
+
+                    #region UsedRange Alignment
+
+                    sheet32.UsedRange.WrapText = true;
+                    sheet32.UsedRange.CellStyle.Font.Size = 8;
+                    sheet32.Range["A1"].CellStyle.Font.Size = 14;
+                    sheet32.Range["A2"].CellStyle.Font.Size = 10;
+                    sheet32.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+
+                    #endregion UsedRange Alignment
+
+                    #region Page Setup
+                    sheet32.PageSetup.TopMargin = 0.5;
+                    sheet32.PageSetup.BottomMargin = 0.7;
+                    sheet32.PageSetup.PrintTitleRows = "$1:$5";
+                    sheet32.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                    sheet32.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + username + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                    sheet32.PageSetup.LeftMargin = 0.5;
+                    sheet32.PageSetup.RightMargin = 0.2;
+                    sheet32.PageSetup.Orientation = ExcelPageOrientation.Portrait;
+                    sheet32.PageSetup.FitToPagesTall = 0;
+                    sheet32.PageSetup.FitToPagesWide = 1;
+                    sheet32.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                    sheet32.IsDisplayZeros = false;
+
+                    if (dtManualOutEntry.Rows.Count > 0)
+                    {
+                        sheet32.Name = (SheetIndex + 1) + "_ManualInOut_Entry";
+                        sheet32.TabColorRGB = Color.Red;
+
+                    }
+                    else
+                    {
+                        sheet32.Name = (SheetIndex + 1) + "_ManualInOut_Entry";
+                    }
+                    #endregion Page Setup
+
+
+                }
+                catch (Exception ex)
+                {
+                    
+                }
+                #endregion
+
                 return workbook;
             }
             catch (Exception ex)
@@ -10323,6 +10655,87 @@ namespace Library.HumanResource.NewAttendanceProcess
                        ORDER BY 
                         	EmployeeCodePreFix,EmployeeCodeNumeric
                                ,AP.WorkDate";
+                con.getDataSet(strSql, out dsRef);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
+
+        public void GetManualInOutEntry(string FromDate, string ToDate, string plantId, string companyId, out DataSet dsRef)
+        {
+            clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT  FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId,EI.CellPhnNo TelePhnNo
+                            ,EI.EmployeeCode
+                        	,EI.EmployeeName,ap.ManualByWhom
+                        	,PMB.Code BudgetCode
+                            , LGD.userName LegalDesignation
+                            , DeG.UserName Designation
+                            , DP.UserName Department
+                            , se.UserName Section
+                            , Sus.UserName SubSection
+                            , E.UserName Entity
+                            , PR.UserName PositionName
+                            , FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                            , EC.UserName as EmpCategory
+                            , L.UserName Line  ,AP.DayStatus
+							 ,AP.IsManualInTime,FORMAT(ap.ManualInTime,'dd-MMM-yyyy hh:mm:ss tt') AS PunchInTime
+                             ,AP.IsManualOutTime,FORMAT(ap.ManualOutTime,'dd-MMM-yyyy hh:mm:ss tt') as PunchOutTime							 
+							,FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                        	,SD.ShiftDefinationName ShiftName
+                        	,sd.ShiftType
+                        	,ShiftOutTime = CASE 
+                        		WHEN cs.OutTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.OutTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)
+                        		END
+                        	,ShiftInTime = CASE 
+                        		WHEN cs.InTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100)
+                        		END
+                        FROM AttdnProcessData AP
+                        
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
+
+                        LEFT JOIN (
+                        	SELECT m.ShiftDefinationID
+                        		,c.ShiftDate
+                        		,m.InTime
+                        		,m.SystemID
+                        		,m.OutTime
+                        	FROM [ShiftTimeChgMaster] m
+                        	LEFT JOIN [ShiftTimeChgChild] c ON m.SystemID = c.STCMasterSystemID
+                        	) CS ON cs.ShiftDefinationID = AP.ShiftSystemID
+                        	AND cs.ShiftDate = AP.WorkDate
+                        LEFT JOIN [ShiftDefination] sd ON sd.SystemID = AP.ShiftSystemID
+                        
+                        LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode = PMB.Id
+                        LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+                        LEFT JOIN ORG.Entity E ON PMB.EntityId = E.Id                        
+                        LEFT JOIN ORG.Department DP ON DP.Id = PR.DepartmentId
+                        LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = EI.LegalDesignationId
+                        LEFT join  [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LGD.Id
+                        left join [MST].[DesignationMaster] dm on dm.Id=dmld.DesignationMasterId
+						LEFT JOIN HKP.Designation DeG ON DeG.Id = dm.DesignationId
+                        left join HKP.EmployeeCategory EC ON EC.ID=DM.EmployeeCategoryId
+                        LEFT JOIN ORG.Section AS Se ON Se.Id = PR.SectionID
+                        LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
+                        LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId
+                        WHERE (ap.ManualInTime is not null and ap.IsManualInTime=1) AND (ap.OriginalManualOutTime is not null and ap.IsManualOutTime=1)							  
+                            AND  AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'   
+                           and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"'	
+                       ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric,AP.WorkDate";
                 con.getDataSet(strSql, out dsRef);
             }
             catch (Exception ex)

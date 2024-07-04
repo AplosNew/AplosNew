@@ -406,5 +406,9 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/CutPlanEdit/Aplos',
             controller: 'CutPlanEditController'
         })
+        .when('/salespurchase-transactiontype', {
+            templateUrl: 'Productions/SalesPurchaseTransactionType/Aplos',
+            controller: 'SalesPurchaseTransactionTypeController'
+        })
         ;
 }

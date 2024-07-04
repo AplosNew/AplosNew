@@ -6256,6 +6256,54 @@ and EmployeeCode = '" + EmpSysId + "' order by AddedDate Desc ";
                 throw (ex);
             }
         }
+
+        public string PostUpdateParmenentBudgetCodeChange(IEnumerable<TempBudgetCode> DataToSave, string EmpsysId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                //  string TableName = "dbo.AttdnProcessData";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                List<TempBudgetCode> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from dbo.EmployeeInformation where SystemId='" + EmpsysId + "'", out dsMaster, false, "1");
+
+                foreach (TempBudgetCode item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["BudgetCode"] = item.NewBudgetId;
+
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["DateUpdated"] = System.DateTime.Now.ToString();
+
+
+                        dr.EndEdit();
+
+                    }
+                }
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["SystemId"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         #endregion Budget Code Change
         // location
         public void GetCartoonLocation(out List<Default2> DataList)
@@ -12729,6 +12777,43 @@ left join (Select pol.Id,pol.PackingLineItemId,pol.ProductCode,pol.PONo,pol.LotN
 
         }
         #endregion Pending Dispatch
+
+        #region Daily Inverification
+        public void GetActiveEmployee(out List<Default2> DataList ,  string EmpSysId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select EmployeeStatus Value , EmployeeName Name from EmployeeInformation 
+where SystemId = '" + EmpSysId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        #endregion Daily Inverification
     }
 
 

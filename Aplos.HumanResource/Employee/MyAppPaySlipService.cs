@@ -41,6 +41,7 @@ namespace Aplos.HumanResource
             int _x = 0;
             double _basic = 0;
             double _netPay = 0;
+            double _StrCTC = 0;
 
             try
             {
@@ -225,6 +226,12 @@ namespace Aplos.HumanResource
                             _netPay = clsStaticInfo.dbl(result["DisbusmentAmount"].ToString());
                         }
 
+                        result = drSalaryHeadCollection.Where(row => row["HeadCategory"].Equals("CTC")).FirstOrDefault();
+                        if (result != null)
+                        {
+                            _StrCTC = clsStaticInfo.dbl(result["DisbusmentAmount"].ToString());
+                        }
+
                         double TotalEarning = _Total_Earning;
                         double totDeduction = 0.00;
                         if ((double)_Total_Deduction > 0)
@@ -237,6 +244,7 @@ namespace Aplos.HumanResource
                         }
                         master.TotalDeduction = totDeduction;
                         master.NetPay = _netPay;
+                        master.StrCTC = _StrCTC;
                         master.TotalEarning = TotalEarning;
 
                     }
@@ -994,6 +1002,7 @@ namespace Aplos.HumanResource
         public double TotalDeduction { get; set; }
         public double TotalEarning { get; set; }
         public double NetPay { get; set; }
+        public double StrCTC { get; set; }
         public string EmployeeStatus { get; set; }
         public string EmployeeCode { get; set; }
         public string DOJ { get; set; }

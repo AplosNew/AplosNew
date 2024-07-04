@@ -1045,6 +1045,23 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         });
     }
 
+    function getInvoicingPartyPlantIdServiceTaxCategoryList(hsnCodeId, HSNCode) {
+        $scope.taxCategoryList = [];
+        $http({
+            method: 'GET'
+            , url: 'SalesManagements/Sales/GetTaxCategoryList?receiveId=' + $scope.salesVM.InvoicingPartyPlantId + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.salesVM.InvoiceDate
+            //, url: 'SalesManagements/Sales/GetTaxCategoryList?receiveId=' + $scope.salesVM.DeliveryPartyPlantId + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.salesVM.InvoiceDate
+        }).then(function (response) {
+            $scope.taxCategoryList = response.data;
+            for (var i = 0; i < $scope.taxCategoryList.length; i++) {
+                if (baseService.isUndefinedOrNull($scope.taxCategoryList[i].hsnCodeId)) {
+                    $scope.taxCategoryList[i].HSNCode = HSNCode;
+                    $scope.taxCategoryList[i].HSNCodeId = hsnCodeId;
+                }
+            }
+        });
+    }
+
     $scope.changeService = function (id) {
         $scope.serviceModel.ServiceMasterId = id;
         if (baseService.isUndefinedOrNull($scope.serviceModel.ServiceMasterId))
@@ -1052,7 +1069,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         var hsnCodeId = $.grep($scope.serviceList, function (item) { return item.Value === $scope.serviceModel.ServiceMasterId; })[0].HSNCodeId;
         var HSNCode = $.grep($scope.serviceList, function (item) { return item.Value === $scope.serviceModel.ServiceMasterId; })[0].HSNCode;
         $scope.serviceModel.ChargeName = angular.element("#charge :selected").text();
-        getServiceTaxCategoryList(hsnCodeId, HSNCode);
+        getInvoicingPartyPlantIdServiceTaxCategoryList(hsnCodeId, HSNCode);
     };
 
     $scope.serviceChargePopUp = function () {
