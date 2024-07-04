@@ -263,7 +263,7 @@ namespace Library.Accounting.Accounts
                 
                 WHERE IV.Archive=0  AND V.IsPark=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
                AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + searchDate + @"
-                AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0 and  IV.IsWrittenOff=0
+                AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0 
                 UNION ALL
                 SELECT  IV.PartyId NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,IV.PartyId,P.Code PartyCode,P.UserName PartyName,c.Code CurrencyCode
 				, ISNULL(IVD.InvoiceBooksAmount,0) AS Gross,
@@ -363,7 +363,7 @@ namespace Library.Accounting.Accounts
                 WHERE IV.Archive=0  AND V.IsPark=0  AND IV.SourceType in ('InventoryPayable','ServicePayable')
                  AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
                 AND IR.PurchaseDocumentAcceptanceId IS NULL " + searchDate + @"
-                 and ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0 and  IV.IsWrittenOff=0
+                 and ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0 
 
                 union all
 				 SELECT IV.PartyId NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,IV.PartyId,P.Code PartyCode,P.UserName PartyName,c.Code CurrencyCode
@@ -454,7 +454,7 @@ namespace Library.Accounting.Accounts
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
                 WHERE IV.Archive=0  AND V.IsPark=0 AND IV.PartyType='Vendor' AND IV.SourceType in ('VendorPayment','CreditNote')
-                    AND ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)>0 and  IV.IsWrittenOff=0
+                    AND ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)>0 
                AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + searchDate + @"
                 
 				)
