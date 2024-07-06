@@ -153,17 +153,18 @@ namespace Library.HumanResource.Payroll
                             dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "' and EmployeeAdvanceDetailId='" + item.EmployeeAdvanceDetailId + "'";
 
                         }
-                        //else if (item.EmployeeSalaryAdvanceId != null && item.AdvanceId == null) {
+                        else if (item.EmployeeSalaryAdvanceId != null && item.AdvanceId == null)
+                        {
 
-                        //    dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "'  and EmployeeSalaryAdvanceId='" + item.EmployeeSalaryAdvanceId + "' ";
-                        //}
-                        
-                        //else
-                        //{
-                        //    dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "' and AdvanceId='" + item.AdvanceId + "'";
+                            dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "'  and EmployeeSalaryAdvanceId='" + item.EmployeeSalaryAdvanceId + "' ";
+                        }
 
-                        //}
-                        if (dsChild.Tables[0].DefaultView.Count == 1)
+                        else if (item.AdvanceId!=null && item.EmployeeSalaryAdvanceId==null && item.EmployeeAdvanceDetailId==null)
+                        {
+                            dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "' and AdvanceId='" + item.AdvanceId + "'";
+
+                        }
+                        if (dsChild.Tables[0].DefaultView.Count == 1 && dsChild.Tables[0].DefaultView[0].Row["Id"]!=null)
                         {
                             DataRow dr = dsChild.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
@@ -179,7 +180,7 @@ namespace Library.HumanResource.Payroll
                             dr["UpdatedFromIP"] = identity.IPAddress;
                             dr.EndEdit();
                         }
-                        else
+                        else 
                         {
                             count++;
                             string pk = "EAD" + BPId + "_" + count;
@@ -519,7 +520,7 @@ namespace Library.HumanResource.Payroll
                 OTSBD.clsStaticInfo _info = new OTSBD.clsStaticInfo();
                 _info.SaveDataSets(dsMWESAMst, dsMWESAChd, dsChild);
 
-               // objEmpExtAmt.SaveDataSets(dsMWESAMst, dsMWESAChd, dsChild);
+                //objEmpExtAmt.SaveDataSets(dsMWESAMst, dsMWESAChd, dsChild);
 
             }
             catch (Exception ex)
