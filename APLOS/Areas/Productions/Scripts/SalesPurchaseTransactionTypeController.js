@@ -7,6 +7,7 @@ function SalesPurchaseTransactionTypeController(cboService, commonMessage, $scop
     $scope.path = 'Productions/SalesPurchaseTransactionType/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
+    $scope.getSeqUrl2 = $scope.path + 'GetAutoSequence2';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
@@ -36,7 +37,7 @@ function SalesPurchaseTransactionTypeController(cboService, commonMessage, $scop
     }
     $scope.getData();
 
-    $scope.ModelTemp2 = {
+    $scope.ModelTemp = {
         Id: null,
         Sequence: 1,
         Code: null,
@@ -172,7 +173,7 @@ function SalesPurchaseTransactionTypeController(cboService, commonMessage, $scop
     $scope.PurchaseModel = Object.assign({}, $scope.ModelTemp2);
 
     $scope.GetSequence2 = function () {
-        cboService.getSequence($scope.getSeqUrl, function (data) {
+        cboService.getSequence($scope.getSeqUrl2, function (data) {
             $scope.PurchaseModel.Sequence = data;
         });
     };
