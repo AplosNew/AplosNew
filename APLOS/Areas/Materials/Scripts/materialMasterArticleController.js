@@ -210,14 +210,14 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         angular.element(document.querySelector('#articlePoUp')).modal('hide');
         CloseModalShowResult('articlePoUp');
     };
-
+    $scope.id =null
     $scope.AddArticle = function () {
         try {
 
             if (baseService.arrayLength($scope.attributeList) === 0)
                 throw 'This material has no attribute';
 
-            var id = $scope.articleNew.Id;
+            $scope.id = $scope.articleNew.Id;
             //if (!baseService.isUndefinedOrNull($scope.articleNew.Id) && !baseService.isUndefinedOrNull(id.startsWith('n-')))
             //    articleFieldValidation($scope.articleNew.Code, 'Code');
             articleFieldValidation($scope.articleNew.ShortName, 'ShortName');
@@ -491,6 +491,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
 
     $scope.edit = function (data, index) {
         $scope.attributeList = [];
+        $scope.articleNew.Id = data.Id;
         $scope.articleNew.Code = data.Code;
         $scope.articleNew.ShortName = data.ShortName;
         $scope.articleNew.StandardName = data.StandardName;
@@ -536,7 +537,8 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
 
     $scope.updateArticle = function () {
         try {
-            if (!baseService.isUndefinedOrNull($scope.articleNew.Id) && !baseService.isUndefinedOrNull(id.startsWith('n-')))
+            //if (!baseService.isUndefinedOrNull($scope.articleNew.Id) && !baseService.isUndefinedOrNull($scope.id.startsWith('n-')))
+            if (!baseService.isUndefinedOrNull($scope.articleNew.Id))
                 articleFieldValidation($scope.articleNew.Code, 'Code');
             articleFieldValidation($scope.articleNew.ShortName, 'ShortName');
             articleFieldValidation($scope.articleNew.StandardName, 'StandardName');
@@ -555,10 +557,10 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
                 var _invalid = $scope.IsMandatoryButNull($scope.attributeList[i].IsMandatory, $scope.attributeList[i].MaterialAttributeValueFreeText);
                 if (_invalid) throw $scope.attributeList[i].MaterialAttributeName + ' value is required!';
             }
-            for (var t = 0; t < $scope.articleList.length; t++) {
-                if ($scope.index !== t && !materialValueDuplecateCheck($scope.articleList[t].MaterialMasterArticleValues, $scope.attributeList))
-                    throw 'This combination already exist.!';
-            }
+            //for (var t = 0; t < $scope.articleList.length; t++) {
+            //    if ($scope.index !== t && !materialValueDuplecateCheck($scope.articleList[t].MaterialMasterArticleValues, $scope.attributeList))
+            //        throw 'This combination already exist.!';
+            //}
 
 
             for (var m = 0; m < $scope.attributeList.length; m++) {

@@ -37,7 +37,7 @@ function SalesPurchaseTransactionTypeController(cboService, commonMessage, $scop
     }
     $scope.getData();
 
-    $scope.ModelTemp2 = {
+    $scope.ModelTemp = {
         Id: null,
         Sequence: 1,
         Code: null,
