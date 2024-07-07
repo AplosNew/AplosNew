@@ -24,6 +24,11 @@ function SalesPurchaseTransactionTypeController(cboService, commonMessage, $scop
         return $scope.tab === tabNum;
     };
 
+    $scope.transactionTypesList = [];
+    cboService.getEnumCbo('Enum/GetTransactionTypeEnumCbo', function (result) {
+        $scope.transactionTypesList = result;
+    });
+
     $scope.getData = function () {
         $http({
             method: 'POST',

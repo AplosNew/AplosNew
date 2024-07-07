@@ -58,13 +58,10 @@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Transaction Type<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    @*<input type="text" name="Sales Category" ng-model="SalesTypeModel.TransactionType" class="form-control" required tabindex="4" maxlength="50">*@
                                     <div class="select-style">
-                                        <select name="Transaction Type" id="FST" class="form-control" ng-model="ModelNew.TransactionType" tabindex="3">
+                                        <select name="Transaction Type" id="TransactionType" class="form-control" ng-model="ModelNew.TransactionType" tabindex="3">
                                             <option value="">--Select--</option>
-                                            <option value="JobWork">Job Work</option>
-                                            <option value="Inventory">Inventory</option>
-                                            <option value="Service">Service</option>
+                                            <option ng-repeat="option in transactionTypesList" value="{{option.Value}}">{{option.Text}}</option>
                                         </select>
                                     </div>
                                 </div>
@@ -187,9 +184,7 @@
                                     <div class="select-style">
                                         <select name="Transaction Type" id="FST" class="form-control" ng-model="PurchaseModel.TransactionType" tabindex="3">
                                             <option value="">--Select--</option>
-                                            <option value="JobWork">Job Work</option>
-                                            <option value="Inventory">Inventory</option>
-                                            <option value="Service">Service</option>
+                                            <option ng-repeat="option in transactionTypesList" value="{{option.Value}}">{{option.Text}}</option>
                                         </select>
                                     </div>
                                 </div>
