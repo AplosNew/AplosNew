@@ -62,9 +62,9 @@
                                     <div class="select-style">
                                         <select name="Transaction Type" id="FST" class="form-control" ng-model="ModelNew.TransactionType" tabindex="3">
                                             <option value="">--Select--</option>
-                                            <option value="GRN">GRN</option>
-                                            <option value="Sales">Sales</option>
-                                            <option value="Sales">Sales</option>
+                                            <option value="JobWork">Job Work</option>
+                                            <option value="Inventory">Inventory</option>
+                                            <option value="Service">Service</option>
                                         </select>
                                     </div>
                                 </div>
@@ -119,14 +119,18 @@
                 </div>
             </div>
             <div class="table-responsive aplos-grid-toggle">
-                <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+                <div id="GridSales" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get"
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                     <div e-columns>
                         <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
                         <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
-                        <div e-column e-field="SalesProcess" e-headertext="SalesProcess" e-width="5"></div>
-                        <div e-column e-field="Remarks" e-headertext="Remarks" e-width="5"></div>
+                        <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+                        <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
+                        <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+                        <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                        <div e-column e-field="TransactionType" e-headertext="Transaction Type" e-width="5"></div>
+                        <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
                     </div>
                 </div>
             </div>
@@ -136,7 +140,7 @@
             <div class="form-elements form-horizontal">
                 <div class="row">
 
-                    <div ng-form name="PurchaseModelForm" id="SalesTypediv">
+                    <div ng-form name="PurchaseModelForm" id="PurchaseTypediv">
                         <input type="hidden" ng-model="PurchaseModel.Id">
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group" show-errors>
@@ -180,13 +184,12 @@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Transaction Type<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    @*<input type="text" name="Sales Category" ng-model="SalesTypeModel.TransactionType" class="form-control" required tabindex="4" maxlength="50">*@
                                     <div class="select-style">
                                         <select name="Transaction Type" id="FST" class="form-control" ng-model="PurchaseModel.TransactionType" tabindex="3">
                                             <option value="">--Select--</option>
-                                            <option value="GRN">GRN</option>
-                                            <option value="Sales">Sales</option>
-                                            <option value="Sales">Sales</option>
+                                            <option value="JobWork">Job Work</option>
+                                            <option value="Inventory">Inventory</option>
+                                            <option value="Service">Service</option>
                                         </select>
                                     </div>
                                 </div>
@@ -211,33 +214,57 @@
                         </div>
                         <div class="common-btn">
                             <ul class="list-inline text-right">
-                                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                <li> <button ng-click="Save2();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                <li><button ng-click="removeRow()" data-toggle="modal" class="btn btn-action tooltip-here" data-placement="top" title="Delete"><i class="glyphicon glyphicon-trash"></i>Delete</button></li>
+                                <li> <button ng-click="Clear2();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                             </ul>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div id="GridST" ej-grid e-datasource="SalesTypeList" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                <div e-columns>
-                    <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
-                    <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
-                    <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
-                    <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
-                    <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
-                    <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
-                    <div e-column e-field="SalesCategory" e-headertext="Sales Category" e-width="5"></div>
-                    <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
-
+            <div class="row text-right aplos-grid-toggle">
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="search-form">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="searchBy">
+                                        <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="GetPurchaseList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive aplos-grid-toggle">
+                <div id="GridPurchase" ej-grid e-datasource="PurchaseList" e-recorddoubleclick="Get2"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+                        <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
+                        <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+                        <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
+                        <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+                        <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                        <div e-column e-field="TransactionType" e-headertext="Transaction Type" e-width="5"></div>
+                        <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+                    </div>
                 </div>
             </div>
 
         </div>
-        
+
     </div>
 </div>
 
 <confirm-modal></confirm-modal>
+<confirm-archive-generic data-modalid="confirmgenericPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="Delete2()"></confirm-archive-generic>

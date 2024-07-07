@@ -9,6 +9,7 @@ function SalesPurchaseTransactionTypeController(cboService, commonMessage, $scop
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.getSeqUrl2 = $scope.path + 'GetAutoSequence2';
     $scope.saveUrl = $scope.path + 'create';
+    $scope.savePurchaseUrl = $scope.path + 'CreatePurchase';
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
@@ -77,6 +78,7 @@ function SalesPurchaseTransactionTypeController(cboService, commonMessage, $scop
     };
 
     $scope.Save = function () {
+        $scope.ModelNew.SalesPurchaseType = 'Sales';
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
             $http({
@@ -189,11 +191,12 @@ function SalesPurchaseTransactionTypeController(cboService, commonMessage, $scop
     };
 
     $scope.Save2 = function () {
+        $scope.PurchaseModel.SalesPurchaseType= 'Purchase';
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.PurchaseModelForm.$valid) {
             $http({
                 method: 'POST',
-                url: $scope.saveUrl,
+                url: $scope.savePurchaseUrl,
                 data: { 'data': $scope.PurchaseModel },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -211,6 +214,14 @@ function SalesPurchaseTransactionTypeController(cboService, commonMessage, $scop
             }
 
         }
+    };
+
+    $scope.removeRow = function () {
+        if (baseService.isUndefinedOrNull($scope.PurchaseModel.Id))
+            $scope.message_confirmation = 'Are you sure want to delete this data....';
+        else
+            $scope.message_confirmation = 'Are you sure want to delete [ ' + $scope.PurchaseModel.UserName + ' ]';
+        angular.element(document.querySelector('#confirmgenericPopUp')).modal('show');
     };
 
     $scope.Delete2 = function () {
