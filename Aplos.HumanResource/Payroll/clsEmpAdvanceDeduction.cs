@@ -148,23 +148,23 @@ namespace Library.HumanResource.Payroll
                 {
                     if (item.IsSelected == true)
                     {
-                         if (item.EmployeeAdvanceDetailId !=null)
+                         if (item.AdvanceReqScheduleId !=null)
                         {
-                            dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "' and EmployeeAdvanceDetailId='" + item.EmployeeAdvanceDetailId + "'";
+                            dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "' and AdvanceReqScheduleId='" + item.AdvanceReqScheduleId + "'";
 
                         }
-                        else if (item.EmployeeSalaryAdvanceId != null && item.AdvanceId == null)
-                        {
+                        //else if (item.EmployeeSalaryAdvanceId != null && item.AdvanceId == null)
+                        //{
 
-                            dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "'  and EmployeeSalaryAdvanceId='" + item.EmployeeSalaryAdvanceId + "' ";
-                        }
+                        //    dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "'  and EmployeeSalaryAdvanceId='" + item.EmployeeSalaryAdvanceId + "' ";
+                        //}
 
-                        else if (item.AdvanceId!=null && item.EmployeeSalaryAdvanceId==null && item.EmployeeAdvanceDetailId==null)
-                        {
-                            dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "' and AdvanceId='" + item.AdvanceId + "'";
+                        //else if (item.AdvanceId!=null)
+                        //{
+                        //    dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "' and AdvanceId='" + item.AdvanceId + "'";
 
-                        }
-                        if (dsChild.Tables[0].DefaultView.Count == 1 && dsChild.Tables[0].DefaultView[0].Row["Id"]!=null)
+                        //}
+                        if (dsChild.Tables[0].DefaultView.Count == 1 )
                         {
                             DataRow dr = dsChild.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
