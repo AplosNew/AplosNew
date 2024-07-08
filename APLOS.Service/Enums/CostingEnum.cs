@@ -98,4 +98,11 @@ namespace Library.Service.Enums
         [Description("Sample-7")]
         Sample7,
     }
+
+    public enum TransactionTypeEnum
+    {
+        JobWork,
+        Inventory,
+        Service
+    }
 }

@@ -19,7 +19,7 @@ using System.Web.Mvc;
 
 namespace Aplos.Areas.Productions.Controllers
 {
-    public class SalesPurchaseTransactionTypeController  : BaseController
+    public class SalesPurchaseTransactionTypeController : BaseController
     {
         //abcd
         //this is my code from tarek
@@ -46,9 +46,15 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetCbo()
+        public JsonResult GetSalesTypeCbo()
         {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName + ""), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName + " Where SalesPurchaseType='Sales'"), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetPurchaseTypeCbo()
+        {
+            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName + " Where SalesPurchaseType='Purchase'"), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost]
@@ -112,11 +118,11 @@ namespace Aplos.Areas.Productions.Controllers
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "' AND SalesPurchaseType='Sales'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Code already exists!!!");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "' AND SalesPurchaseType='Sales'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same User Name already exists!!!");
 
@@ -131,7 +137,7 @@ namespace Aplos.Areas.Productions.Controllers
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] = "DT" + _Id;
+                    data["Id"] = _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -144,7 +150,7 @@ namespace Aplos.Areas.Productions.Controllers
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
 
-                return Json(new { Error = false, Data= data, Sequence = GetSequence(), Message = AplosMessage.Updated });
+                return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)
@@ -162,11 +168,11 @@ namespace Aplos.Areas.Productions.Controllers
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "' AND SalesPurchaseType='Purchase'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Code already exists!!!");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "' AND SalesPurchaseType='Purchase'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same User Name already exists!!!");
 
