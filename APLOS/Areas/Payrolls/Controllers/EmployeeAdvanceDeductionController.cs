@@ -113,7 +113,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                     left join  trn.Advance a  on esa.VoucherId=a.VoucherId
                                     join dbo.AdvanceReqSchedule ars on ars.EmployeeSalaryAdvanceId=esa.Id
                                     left join EmployeeInformation e on e.SystemId=esa.EmployeeId
-                                    left join [TRN].[EmployeeAdvanceDeduction] ead on ead.EmployeeId = esa.EmployeeId AND esa.Id=ead.EmployeeSalaryAdvanceId AND ead.YearNo='" + Year + "' and ead.MonthNo='" + Month + @"'
+                                    left join [TRN].[EmployeeAdvanceDeduction] ead on esa.Id=ead.EmployeeSalaryAdvanceId AND ead.YearNo='" + Year + "' and ead.MonthNo='" + Month + @"'
                                     left join (select ead.EmployeeSalaryAdvanceId,SUM(ars.InstallmentAmount) RecoveredAmount 
 									from trn.EmployeeSalaryAdvance esa 
 													left join dbo.AdvanceReqSchedule ars ON ars.EmployeeSalaryAdvanceId=esa.Id
