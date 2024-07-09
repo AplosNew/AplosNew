@@ -529,6 +529,17 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         return false;
     }
 
+    $scope.TrancastionTypeCboList = [];
+    function GetTrancastionTypeCboList() {
+        $http({
+            method: 'GET',
+            url: 'Productions/SalesPurchaseTransactionType/GetPurchaseTypeCbo'
+        }).then(function (response) {
+            $scope.TrancastionTypeCboList = response.data;
+        });
+    }
+    GetTrancastionTypeCboList();
+
     $scope.Save = function () {
         //$scope.detailModel.BaseUOMId = $filter("filter")($scope.inventoryMaterialListPO, { check: 1 })[0].Value;
         $scope.product = {};

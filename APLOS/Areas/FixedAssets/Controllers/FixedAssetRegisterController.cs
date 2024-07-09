@@ -1873,7 +1873,9 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             FixedAssetQueryService fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(new { DATA = fixedAssetQueryService.GetAssetRegisterElasticSearchDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate), Error = false }, JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(new { DATA = fixedAssetQueryService.GetAssetRegisterElasticSearchDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate) }, JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
         #endregion
 
