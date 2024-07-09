@@ -170,7 +170,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
         ResidenceGroupId: null,
         ExcludeOT: false,
         IsOutSider: false,
-        EmpCodeType: null
+        EmpCodeType: null,
+        CasteId:null
     };
     $scope.employeeNew = Object.assign({}, $scope.model);
     $scope.employeeInformation = Object.assign({}, $scope.model);
@@ -251,6 +252,16 @@ function employeeInformationController(addressService, fileReader, cboService, c
         });
     }
 
+    $scope.CasteCboList = [];
+    function GetCasteCboList() {
+        $http({
+            method: 'GET',
+            url: 'Employees/Caste/GetCbo'
+        }).then(function (response) {
+            $scope.CasteCboList = response.data;
+        });
+    }
+    GetCasteCboList();
 
     function GetEmpCodeGenSetting() {
         $http({
