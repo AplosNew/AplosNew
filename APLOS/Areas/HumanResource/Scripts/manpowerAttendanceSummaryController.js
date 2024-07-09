@@ -29,7 +29,9 @@ function manpowerAttendanceSummaryController(commonMessage, $scope, $rootScope, 
     $scope.sectionId = null;
     $scope.subSenctionId = null;
     $scope.payGroupId = null;
-    $scope.attdnDate = $filter('dateFiltering')(Date.now());
+
+    var newdate = new Date();
+    $scope.attdnDate = $filter('dateFiltering')(newdate.setDate(newdate.getDate() - 1));
 
     $scope.monthList = [
         {
@@ -786,6 +788,15 @@ function manpowerAttendanceSummaryController(commonMessage, $scope, $rootScope, 
         $http.get('employees/EmployeeCodeType/GetCbo')
             .then(function (response) {
                 $scope.EmployeeCodeTypeList = response.data;
+
+                //if (baseService.arrayLength($scope.EmployeeCodeTypeList)==1) {
+
+                //    for (var i = 0; i < $scope.PlantList.length; i++) {
+                //        if ($scope.PlantList[i].PlantId == $window.plantId) {
+                //            index = i;
+                //        }
+                //    }
+                //}
             });
     }
     $scope.EmployeeCodeTypeCbo();

@@ -252,16 +252,30 @@ function employeeInformationController(addressService, fileReader, cboService, c
         });
     }
 
-    $scope.CasteCboList = [];
+    $scope.EmpAddInfoLabel = null;
+    $scope.EmpAddInfoLabelId = null;
     function GetCasteCboList() {
         $http({
             method: 'GET',
             url: 'Employees/Caste/GetCbo'
         }).then(function (response) {
-            $scope.CasteCboList = response.data;
+            $scope.EmpAddInfoLabel = response.data[0].Text;
+            $scope.EmpAddInfoLabelId = response.data[0].Value;
+            GetCasteDetailCboList();
         });
     }
     GetCasteCboList();
+
+    $scope.CasteDetailCboList = [];
+    function GetCasteDetailCboList() {
+        $http({
+            method: 'GET',
+            url: 'Employees/Caste/GetChildCbo?masterId=' + $scope.EmpAddInfoLabelId
+        }).then(function (response) {
+            $scope.CasteDetailCboList = response.data;
+        });
+    }
+    
 
     function GetEmpCodeGenSetting() {
         $http({
@@ -1929,6 +1943,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
             IFSCCode: null,
             MICRCode: null
         }
+        $scope.EmpAddInfoLabel = null;
+        $scope.EmpAddInfoLabelId = null;
     }
 
     $scope.Save = function () {
