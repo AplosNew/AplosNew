@@ -2092,24 +2092,24 @@
                                             </div>
                                         </div>
                                         @*<div class="form-group">
-                                                <label class="col-sm-4 control-label">Accounts Group</label>
-                                                <div class="col-sm-8">
-                                                    <div class="select-style">
-                                                        <select name="AccountsGroup" ng-model="employeeInformation.AccountsGroupId" class="col-sm-3 form-control"
-                                                                ng-options="item.Value as item.Text for item in accountsGroupList">
-                                                            <option></option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>*@
+            <label class="col-sm-4 control-label">Accounts Group</label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select name="AccountsGroup" ng-model="employeeInformation.AccountsGroupId" class="col-sm-3 form-control"
+                            ng-options="item.Value as item.Text for item in accountsGroupList">
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>*@
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Residence Group<sup ng-show="IsResidenceGroupMandatory===true">*</sup></label>
                                             <div class="col-sm-8">
                                                 <div class="select-style">
                                                     @*<select id="ResidenceGroup" class="form-control" name="Residence Group" ng-model="employeeInformation.ResidenceGroupId" tabindex="3">
-                                                            <option value="">--Select--</option>
-                                                            <option ng-repeat="option in ResidenceGroupList" value="{{option.Value}}">{{option.Text}}</option>
-                                                        </select>*@
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in ResidenceGroupList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>*@
                                                     <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="ResidenceGroupList" e-value="employeeInformation.ResidenceGroupId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
                                                 </div>
                                             </div>
@@ -2136,18 +2136,18 @@
                                                 </div>
                                             </div>
                                         </div>
-
                                         <div class="form-group">
-                                            <label class="col-sm-4 control-label">Is Entry Complete</label>
+                                            <label class="col-sm-4 control-label">Caste</label>
                                             <div class="col-sm-8">
-                                                <div class="checkbox-site">
-                                                    <label>
-                                                        <input type="checkbox" ng-model="employeeInformation.IsEntryComplete" />
-                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                    </label>
+                                                <div class="select-style">
+                                                    <select name="Caste" ng-model="employeeInformation.CasteId" class="col-sm-3 form-control"
+                                                            ng-options="item.Value as item.Text for item in CasteCboList">
+                                                        <option></option>
+                                                    </select>
                                                 </div>
                                             </div>
                                         </div>
+                                        
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-6">
                                         <div class="form-group">
@@ -2165,11 +2165,11 @@
                                             <label class="col-sm-4 control-label">Transport Group<sup ng-show="IsTransportGroupMandatory===true">*</sup></label>
                                             <div class="col-sm-8">
                                                 @*<div class="select-style">
-                                                        <select id="TransportGroupId" class="form-control" name="Transport Group" ng-model="employeeInformation.TransportGroupId" tabindex="3">
-                                                            <option value="">--Select--</option>
-                                                            <option ng-repeat="option in TransportGroupList" value="{{option.Value}}">{{option.Text}}</option>
-                                                        </select>
-                                                    </div>*@
+                    <select id="TransportGroupId" class="form-control" name="Transport Group" ng-model="employeeInformation.TransportGroupId" tabindex="3">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in TransportGroupList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>*@
                                                 <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="TransportGroupList" e-value="employeeInformation.TransportGroupId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
                                             </div>
                                         </div>
@@ -2177,6 +2177,17 @@
                                             <label class="col-sm-4 control-label">Appointment Issue Date<sup>*</sup></label>
                                             <div class="col-sm-8">
                                                 <input type="text" ng-model="employeeInformation.IssueDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="11">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Is Entry Complete</label>
+                                            <div class="col-sm-8">
+                                                <div class="checkbox-site">
+                                                    <label>
+                                                        <input type="checkbox" ng-model="employeeInformation.IsEntryComplete" />
+                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

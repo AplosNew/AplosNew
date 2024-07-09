@@ -528,5 +528,11 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             templateUrl: 'Employees/EmployeeReport/MyappEmployeeLedgerReport',
             controller: 'myappEmployeeLedgerReportController'
         })
+        .when('/caste', {
+            templateUrl: 'Employees/Caste/Aplos',
+            controller: 'CasteController'
+        })
+
+
         ;
 } 
