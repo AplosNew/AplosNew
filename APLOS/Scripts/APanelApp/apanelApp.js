@@ -1,6 +1,6 @@
 ﻿"use strict";
 angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.dirPagination", "toaster", "angularjs-dropdown-multiselect", "ejangular"])
-    
+
     .controller("AdditionalElementCodeSettingsController", AdditionalElementCodeSettingsController)
     .controller('serviceMasterController', ServiceMasterController)
     .controller('companyServiceMasterController', companyServiceMasterController)
@@ -500,18 +500,18 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('PerformanceGradeMasterController', PerformanceGradeMasterController)
     .controller('BOQCostingApprovalSettingController', BOQCostingApprovalSettingController)
     .controller('GoalSettingApprovalController', GoalSettingApprovalController)
-    .controller("DocumentCategoryController", DocumentCategoryController)    
+    .controller("DocumentCategoryController", DocumentCategoryController)
     .controller('ScatteredWeekOffController', ScatteredWeekOffController)
-    .controller('TrainingMasterController', TrainingMasterController)    
-    
+    .controller('TrainingMasterController', TrainingMasterController)
+
     .controller("StorageBinMasterController", StorageBinMasterController)
     .controller("OTRegionController", OTRegionController)
     .controller("QualityProcessController", QualityProcessController)
     .controller("PackingTypeController", PackingTypeController)
     .controller("ProductionBookingProcessparameterController", ProductionBookingProcessparameterController)
     .controller("UtilityGroupController", UtilityGroupController)
-    
-    
+
+
     .controller("ExperienceMasterController", ExperienceMasterController)
     .controller("EmployerMasterController", EmployerMasterController)
     .controller("QualificationMasterController", QualificationMasterController)
@@ -531,6 +531,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("RemarksControlController", RemarksControlController)
     .controller("TermsandConditionGroupController", TermsandConditionGroupController)
     .controller("DependantTaskController", DependantTaskController)
+    .controller("SalesPurchaseTransactionTypeController", SalesPurchaseTransactionTypeController)
 
     
 
