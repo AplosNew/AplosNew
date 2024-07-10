@@ -92,7 +92,7 @@
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
-            <div e-column e-headertext="Actions" e-template="#ShowActionButtons" e-width="3"></div>
+            <div e-column e-headertext="Detail" e-template="#ShowActionButtons" e-width="3"></div>
             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
             <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
             <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
@@ -104,7 +104,7 @@
         <script type="text/template" id="ShowActionButtons">
             <div class="common-btn">
                 <ul class="list-inline text-center">
-                    <li><button ng-click="$parent.GetDetailData(data);" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i></button></li>
+                    <li><button ng-click="$parent.GetDetailData(data);" class="btn" tabindex="9"><i class="glyphicon glyphicon-list" style="top: 1px;"></i></button></li>
                 </ul>
             </div>
         </script>

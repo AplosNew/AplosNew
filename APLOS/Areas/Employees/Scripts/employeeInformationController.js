@@ -1945,6 +1945,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         }
         $scope.EmpAddInfoLabel = null;
         $scope.EmpAddInfoLabelId = null;
+        GetCasteCboList();
     }
 
     $scope.Save = function () {
