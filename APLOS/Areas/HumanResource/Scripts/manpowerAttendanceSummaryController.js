@@ -789,14 +789,21 @@ function manpowerAttendanceSummaryController(commonMessage, $scope, $rootScope, 
             .then(function (response) {
                 $scope.EmployeeCodeTypeList = response.data;
 
-                //if (baseService.arrayLength($scope.EmployeeCodeTypeList)==1) {
-
-                //    for (var i = 0; i < $scope.PlantList.length; i++) {
-                //        if ($scope.PlantList[i].PlantId == $window.plantId) {
-                //            index = i;
-                //        }
+                //var index = 0;
+                //for (var i = 0; i < $scope.EmployeeCodeTypeList.length; i++) {
+                //    if ($scope.EmployeeCodeTypeList[i].Value == $window.plantId) {
+                //        index = i;
                 //    }
                 //}
+
+                $('#typeList').ejDropDownList(
+                    {
+                        dataSource: $scope.EmployeeCodeTypeList,
+                        fields: { text: "Text", value: "Value" },
+                        selectedIndex: 0, showCheckBox: true, multiSelectMode: ej.MultiSelectMode.VisualMode
+                        , width: 250
+                    });
+
             });
     }
     $scope.EmployeeCodeTypeCbo();

@@ -2045,8 +2045,6 @@ namespace Aplos.Areas.Accounts.Controllers
                 {
                     for (int n = 0; n < dtMainBody.Rows.Count; n++)
                     {
-                        if (clsStaticInfo.dbl(dtMainBody.Rows[n]["OBDRcumulative"].ToString()) + clsStaticInfo.dbl(dtMainBody.Rows[n]["OBCRcumulative"].ToString()) + clsStaticInfo.dbl(dtMainBody.Rows[n]["DRcumulative"].ToString()) + clsStaticInfo.dbl(dtMainBody.Rows[n]["CRcumulative"].ToString()) + clsStaticInfo.dbl(dtMainBody.Rows[n]["CBDRcumulative"].ToString()) + clsStaticInfo.dbl(dtMainBody.Rows[n]["CBCRcumulative"].ToString()) != 0)
-                        {
                             row++;
                             var AccountCodeId = dtMainBody.Rows[n]["GLGeneralInfoCode"].ToString();
                             var _Balancetype = dtMainBody.Rows[n]["Balancetype"].ToString();
@@ -2121,7 +2119,6 @@ namespace Aplos.Areas.Accounts.Controllers
                                 }
                             }
                             mainColIndex = 1;
-                        }
                     }
                 }
 
