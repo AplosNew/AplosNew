@@ -62,7 +62,19 @@
                                 </ul>
                             </div>
                         </div>
-                        
+
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" id="div_currency">
+                            <label class="col-sm-4 control-label">Trancastion Type<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" id="Trancastion Type" ng-model="productNew.TrancastionTypeId" ng-options="item.Value as item.Text for item in TrancastionTypeCboList" tabindex="8">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="clearfix"></div>
                     <div class="col-xs-12 col-sm-12">
@@ -554,30 +566,21 @@
         </div>
 
         <div class="col-md-6 pdl3 pdr3">
-            <div class="col-md-4"><div class="form-group">
-                <label class="col-sm-4 control-label">Non Creditable</label>
-                <div class="col-sm-8 pdr3">
-                    <div class="checkbox-site" style="margin-left:45px">
-                        <label>
-                            <input type="checkbox" ng-disabled="inventoryMaterialListPO.length>0 || inventoryMaterialList.length>0" ng-model="productNew.IsNonCreditable">
-                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                        </label>
-                    </div>
-                </div>
-
-            </div></div>
-            <div class="col-md-8">
-                <div class="form-group" id="div_currency">
-                    <label class="col-sm-6 control-label">Trancastion Type<sup>*</sup></label>
-                    <div class="col-sm-6 show-message pdr3">
-                        <div class="select-style">
-                            <select class="form-control" id="Trancastion Type" ng-model="productNew.TrancastionTypeId" ng-options="item.Value as item.Text for item in TrancastionTypeCboList" tabindex="8">
-                                <option value=""></option>
-                            </select>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Non Creditable</label>
+                    <div class="col-sm-8 pdr3">
+                        <div class="checkbox-site" style="margin-left:45px">
+                            <label>
+                                <input type="checkbox" ng-disabled="inventoryMaterialListPO.length>0 || inventoryMaterialList.length>0" ng-model="productNew.IsNonCreditable">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
                         </div>
                     </div>
+
                 </div>
             </div>
+
         </div>
         <div class="clearfix"></div>
         <div class="col-xs-12 col-sm-6 col-md-6">
@@ -710,8 +713,8 @@
                                                 <div e-column e-field="TransactionQty" e-template="#CurrentQty" e-headertext="GRNQtyAllocation" e-width="80"></div>
                                                 <div e-column e-field="RejectionQty" e-template="#RejectionQty" e-headertext="RejectionQtyAllocation" e-width="80"></div>
                                                 @*<div e-column e-field="BalanceQty" e-headertext="Balance" e-template="#Balance" e-width="60"></div>
-                                                <div e-column e-field="TransactionRate" e-template="#Rate" e-headertext="Rate" e-width="60"></div>
-                                                <div e-column e-field="TransactionAmount" e-headertext="Amount" e-template="#Amount" e-width="80"></div>*@
+                                                    <div e-column e-field="TransactionRate" e-template="#Rate" e-headertext="Rate" e-width="60"></div>
+                                                    <div e-column e-field="TransactionAmount" e-headertext="Amount" e-template="#Amount" e-width="80"></div>*@
                                                 <div e-column e-field="RequisitionDetailId" e-headertext="ReqRowId" e-width="70"></div>
                                                 @*<div e-column e-template="#DelButton" e-width="20"></div>*@
                                             </div>
@@ -767,33 +770,33 @@
 
                                 <div class="clearfix"></div>
                                 @*<div class="col-md-12 modal-table table-responsive" style="padding-top: 13px;" ng-show="taxCategoryList.length>0">
-                                    <table class="table table-striped" ng-show="GetListForMasterOrder.length>0">
+                                        <table class="table table-striped" ng-show="GetListForMasterOrder.length>0">
 
-                                        <thead>
-                                            <tr>
-                                                <th>Tax Category</th>
-                                                <th>HSN Code</th>
-                                                <th>Percentage</th>
-                                                <th>Tax Amount (BC)</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr ng-repeat="x in taxCategoryList">
-                                                <td>{{x.UserName}}</td>
-                                                <td>{{x.HSNCode}}</td>
-                                                <td class="text-right">{{x.Percentage}}</td>
-                                                <td class="text-right">
-                                                    <input type="text" n-decimals="{{currencyPrecision}}" ng-model="x.TaxAmount" ng-keyup="sumTaxAmount();" class="form-control text-right" />
-                                                </td>
-                                            </tr>
+                                            <thead>
+                                                <tr>
+                                                    <th>Tax Category</th>
+                                                    <th>HSN Code</th>
+                                                    <th>Percentage</th>
+                                                    <th>Tax Amount (BC)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-repeat="x in taxCategoryList">
+                                                    <td>{{x.UserName}}</td>
+                                                    <td>{{x.HSNCode}}</td>
+                                                    <td class="text-right">{{x.Percentage}}</td>
+                                                    <td class="text-right">
+                                                        <input type="text" n-decimals="{{currencyPrecision}}" ng-model="x.TaxAmount" ng-keyup="sumTaxAmount();" class="form-control text-right" />
+                                                    </td>
+                                                </tr>
 
-                                            <tr>
-                                                <td colspan="3" class="text-right">Total Tax (BC)</td>
-                                                <td class="text-right">{{x.BaseTaxAmount| setDecimal:currencyPrecision}}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>*@
+                                                <tr>
+                                                    <td colspan="3" class="text-right">Total Tax (BC)</td>
+                                                    <td class="text-right">{{x.BaseTaxAmount| setDecimal:currencyPrecision}}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>*@
                                 <div class="clearfix"></div>
                                 <div class="common-btn">
                                     <ul class="list-inline text-right">
@@ -808,15 +811,15 @@
                     </div>
 
                     @*<script type="text/template" id="Rate">
-                        <div class="checkbox-site">
-                            <div id="control">
-                                <input id="text-Rate" class="form-control" ng-keyup="calculateRequisitionData(x)" type="text" e-fields-text="data.Rate" e-value="detailModel.TransactionRate" e-width="100%" />
+                            <div class="checkbox-site">
+                                <div id="control">
+                                    <input id="text-Rate" class="form-control" ng-keyup="calculateRequisitionData(x)" type="text" e-fields-text="data.Rate" e-value="detailModel.TransactionRate" e-width="100%" />
+                                </div>
+
+
                             </div>
 
-
-                        </div>
-
-                    </script>*@
+                        </script>*@
                 </div>
                 <div class="modal fade site-modal in" id="ListOfSo" role="dialog" data-backdrop="static">
                     <div class="modal-dialog modal-lg modellgModify">
@@ -828,17 +831,17 @@
                                 <div class="col-lg-12">
                                     @*<div class="content-container-fluid" style="color:black;">*@
                                     @*<div style="color:black;" id="GridReqso" ng-init="chkinit()" ej-grid e-datasource="soList"
-                                    e-allowfiltering="true"
-                                    e-allowpaging="true"
-                                    e-allowsorting="true"
-                                    e-templaterefresh="refreshTemplateemployee"
-                                    e-filtersettings-filterType="excel"
-                                    e-responsive="true"
-                                    e-enabletouch="true"
-                                    e-allowselection="true"
-                                    e-rowdatabound="rowDataBound"
-                                    e-actioncomplete="actionCompleteSelected"
-                                    e-allowscrolling="true">*@
+                                        e-allowfiltering="true"
+                                        e-allowpaging="true"
+                                        e-allowsorting="true"
+                                        e-templaterefresh="refreshTemplateemployee"
+                                        e-filtersettings-filterType="excel"
+                                        e-responsive="true"
+                                        e-enabletouch="true"
+                                        e-allowselection="true"
+                                        e-rowdatabound="rowDataBound"
+                                        e-actioncomplete="actionCompleteSelected"
+                                        e-allowscrolling="true">*@
                                     <div style="color:black;" id="GridReqso" ej-grid e-datasource="soList" @*e-recorddoubleclick="GetSequence"*@
                                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
                                          e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
@@ -858,15 +861,15 @@
 
 
                                             @*<div e-column e-field="DeliveryDate" e-headertext="ReqDate" e-width="80"></div>
-                                            <div e-column e-field="ReqQty" e-headertext="BOQQty/ReqQty" e-width="80"></div>
-                                            <div e-column e-field="POTransactionQty" e-headertext="PoRaisedQty" e-width="80"></div>*@
+                                                <div e-column e-field="ReqQty" e-headertext="BOQQty/ReqQty" e-width="80"></div>
+                                                <div e-column e-field="POTransactionQty" e-headertext="PoRaisedQty" e-width="80"></div>*@
                                             <div e-column e-field="allowCatedQty" e-headertext="Valid Qty Allocated" e-width="100"></div>
                                             <div e-column e-field="RejectQty" e-headertext="Rejected Qty Allocated" e-width="100"></div>
                                             <div e-column e-field="TransactionQty" e-template="#SOQty" e-headertext="GRNQtyAllocation" e-width="80"></div>
                                             <div e-column e-field="RejectionQty" e-template="#SORejQty" e-headertext="RejectionQtyAllocation" e-width="80"></div>
                                             @*<div e-column e-field="BalanceQty" e-headertext="Balance" e-template="#Balance" e-width="60"></div>
-                                            <div e-column e-field="TransactionRate" e-template="#Rate" e-headertext="Rate" e-width="60"></div>
-                                            <div e-column e-field="TransactionAmount" e-headertext="Amount" e-template="#Amount" e-width="80"></div>*@
+                                                <div e-column e-field="TransactionRate" e-template="#Rate" e-headertext="Rate" e-width="60"></div>
+                                                <div e-column e-field="TransactionAmount" e-headertext="Amount" e-template="#Amount" e-width="80"></div>*@
                                             <div e-column e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="70"></div>
                                             @*<div e-column e-template="#DelButton" e-width="20"></div>*@
                                         </div>
@@ -879,12 +882,12 @@
                                     </script>
 
                                     @*<script type="text/template" id="SOChecked">
-                                        <input type="checkbox" e-change="$parent.getsoList(this)" e-value="data.Active" ej-checkbox class="rowCheckbox" e-checked="data.Active" width="20" />
-                                    </script>*@
+                                            <input type="checkbox" e-change="$parent.getsoList(this)" e-value="data.Active" ej-checkbox class="rowCheckbox" e-checked="data.Active" width="20" />
+                                        </script>*@
                                     @*<script type="text/template" id="SOQty">
-                                        <input type="text" class="input ejinputtext form-control" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right; padding-right:15px;" ng-model="data.TransactionQty" width="150" />
+                                            <input type="text" class="input ejinputtext form-control" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right; padding-right:15px;" ng-model="data.TransactionQty" width="150" />
 
-                                    </script>*@
+                                        </script>*@
                                     <script type="text/template" id="SORejQty">
                                         @*<input type="text" class="input ejinputtext form-control" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right; padding-right:15px;" ng-model="data.RejectionQty" width="150" />*@
                                         <div class="col-sm-10" style="padding:0px; width:70px;">
@@ -900,27 +903,27 @@
                                     </script>
 
                                     @*<script type="text/template" id="Rate1">
-                                        <div class="form-group">
-                                            <input type="text" id="c" class="input ejinputtext form-control" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionRate" width="150" ng-change="$parent.calculateRequisitionData(this)" />
-                                        </div>
-                                    </script>
-                                    <script type="text/template" id="Balance1">
-                                        <div class="form-group">
-                                            <input type="text" id="d" class="input ejinputtext form-control" ng-disabled="true" style="background-color:white;font-weight:bold;color:black;text-align:right;" ng-model="data.BalanceQty" width="150" />
-                                        </div>
-                                    </script>
-                                    <script type="text/template" id="Amount1">
-                                        <div class="form-group">
-                                            <input type="text" id="e" class="input ejinputtext form-control" ng-disabled="true" style="background-color:white;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionAmount" width="150" />
-                                        </div>
-                                    </script>
-                                    <script type="text/template" id="DelButton1">
-                                        <div class="form-group">
-                                            <button ng-click="$parent.valuePassInDelModal(this)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
-                                        </div>
-                                    </script>
+                                            <div class="form-group">
+                                                <input type="text" id="c" class="input ejinputtext form-control" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionRate" width="150" ng-change="$parent.calculateRequisitionData(this)" />
+                                            </div>
+                                        </script>
+                                        <script type="text/template" id="Balance1">
+                                            <div class="form-group">
+                                                <input type="text" id="d" class="input ejinputtext form-control" ng-disabled="true" style="background-color:white;font-weight:bold;color:black;text-align:right;" ng-model="data.BalanceQty" width="150" />
+                                            </div>
+                                        </script>
+                                        <script type="text/template" id="Amount1">
+                                            <div class="form-group">
+                                                <input type="text" id="e" class="input ejinputtext form-control" ng-disabled="true" style="background-color:white;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionAmount" width="150" />
+                                            </div>
+                                        </script>
+                                        <script type="text/template" id="DelButton1">
+                                            <div class="form-group">
+                                                <button ng-click="$parent.valuePassInDelModal(this)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                            </div>
+                                        </script>
 
-                                    <div id="GridT"></div>*@
+                                        <div id="GridT"></div>*@
 
                                     @*</div>*@
                                 </div>
@@ -929,33 +932,33 @@
 
                                 <div class="clearfix"></div>
                                 @*<div class="col-md-12 modal-table table-responsive" style="padding-top: 13px;" ng-show="taxCategoryList.length>0">
-                                    <table class="table table-striped" ng-show="GetListForMasterOrder.length>0">
+                                        <table class="table table-striped" ng-show="GetListForMasterOrder.length>0">
 
-                                        <thead>
-                                            <tr>
-                                                <th>Tax Category</th>
-                                                <th>HSN Code</th>
-                                                <th>Percentage</th>
-                                                <th>Tax Amount (BC)</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr ng-repeat="x in taxCategoryList">
-                                                <td>{{x.UserName}}</td>
-                                                <td>{{x.HSNCode}}</td>
-                                                <td class="text-right">{{x.Percentage}}</td>
-                                                <td class="text-right">
-                                                    <input type="text" n-decimals="{{currencyPrecision}}" ng-model="x.TaxAmount" ng-keyup="sumTaxAmount();" class="form-control text-right" />
-                                                </td>
-                                            </tr>
+                                            <thead>
+                                                <tr>
+                                                    <th>Tax Category</th>
+                                                    <th>HSN Code</th>
+                                                    <th>Percentage</th>
+                                                    <th>Tax Amount (BC)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-repeat="x in taxCategoryList">
+                                                    <td>{{x.UserName}}</td>
+                                                    <td>{{x.HSNCode}}</td>
+                                                    <td class="text-right">{{x.Percentage}}</td>
+                                                    <td class="text-right">
+                                                        <input type="text" n-decimals="{{currencyPrecision}}" ng-model="x.TaxAmount" ng-keyup="sumTaxAmount();" class="form-control text-right" />
+                                                    </td>
+                                                </tr>
 
-                                            <tr>
-                                                <td colspan="3" class="text-right">Total Tax (BC)</td>
-                                                <td class="text-right">{{x.BaseTaxAmount| setDecimal:currencyPrecision}}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>*@
+                                                <tr>
+                                                    <td colspan="3" class="text-right">Total Tax (BC)</td>
+                                                    <td class="text-right">{{x.BaseTaxAmount| setDecimal:currencyPrecision}}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>*@
                                 <div class="clearfix"></div>
                                 <div class="common-btn">
                                     <ul class="list-inline text-right">
@@ -1507,7 +1510,7 @@
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmountForServiceCharge1(x);" width="20" ng-model="x.Amount" ng-disabled="x.POID===null"></td>
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-keyup="calculateAmountForServiceCharge(x);" ng-model="x.Bal" ng-disabled="true"></td>
                                 @*<td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmountForServiceCharge1(x);" width="20" ng-model="x.GRNServiceAmount" ng-disabled="true"></td>
-                                <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmountForServiceCharge1(x);" width="20" ng-model="x.Amount" ng-disabled="x.enableid2"></td>*@
+                                    <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmountForServiceCharge1(x);" width="20" ng-model="x.Amount" ng-disabled="x.enableid2"></td>*@
                                 @*<td class="text-right">{{x.Amount|number}}</td>*@
                                 @*<td class="text-right">{{x.TotalTaxAmount|number}}</td>*@
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TotalTaxAmount" ng-disabled="true"></td>
@@ -1616,10 +1619,10 @@
                     </table>
                 </div>
                 @*<div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li><button ng-click="serviceChargePopUpEdit()" ;" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Update</button></li>
-                    </ul>
-                </div>*@
+                        <ul class="list-inline text-right">
+                            <li><button ng-click="serviceChargePopUpEdit()" ;" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Update</button></li>
+                        </ul>
+                    </div>*@
             </div>
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">

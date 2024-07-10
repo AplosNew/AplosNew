@@ -22,6 +22,7 @@ function manpowerAttendanceSummaryController(commonMessage, $scope, $rootScope, 
     $scope.isCompletedMonth = null;
     $scope.salaryProcessId = null;
     $scope.withLine = false;
+    $scope.withDesignation = false;
 
     $scope.unitId = null;
     $scope.departmentId = null;
@@ -178,7 +179,7 @@ function manpowerAttendanceSummaryController(commonMessage, $scope, $rootScope, 
             var typeList = DropDownListObj.getSelectedValue();
 
             //string divisionId, string unitId, string sectionId, string subSectionId, string departmentId, string payGroupId
-            $scope.parameters = 'workDate=' + $scope.attdnDate + '&withLine=' + $scope.withLine + '&PlantId=' + PlantId + '&typeList=' + typeList + '&WithoutTBS=' + $scope.WithoutTBS + '&WithoutLA=' + $scope.WithoutLA;
+            $scope.parameters = 'workDate=' + $scope.attdnDate + '&withLine=' + $scope.withLine + '&withDesignation=' + $scope.withDesignation + '&PlantId=' + PlantId + '&typeList=' + typeList + '&WithoutTBS=' + $scope.WithoutTBS + '&WithoutLA=' + $scope.WithoutLA;
             location.href = 'humanresource/ManpowerAttendanceSummary/GetmanpowerAttendanceSummaryrReportOld?' + $scope.parameters;
         } catch (e) {
             ShowResult(e, 'failure');
