@@ -1722,8 +1722,8 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
     };
     $scope.checkedOutBoundInvoiceList = [];
     $scope.CustomerAvailableInvoiceList = [];
-    $scope.searchByCustomer = "UserName"; $scope.searchCustomer = "";
-    $scope.searchByCustomerList = [{ value: 'VoucherNo', name: "VoucherNo" }, { value: 'EntityName', name: "Entity" }, { value: 'PartyPlantName', name: "Party" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'DocDate', name: "DocDate" }, { value: 'PostingDate', name: "Invoice Date" }, { value: 'DocRefNo', name: "Invoice No" }];
+    $scope.searchByCustomer = "VoucherNo"; $scope.searchCustomer = "";
+    $scope.searchByCustomerList = [{ value: 'VoucherNo', name: "VoucherNo" }, { value: 'EntityName', name: "Entity" }, { value: 'PartyPlantName', name: "Party" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'DocDate', name: "DocDate" }, { value: 'PostingDate', name: "Invoice Date" }, { value: 'DocRefNo', name: "Invoice No" }, { value: 'SalesNo', name: "Sales No" }];
 
     $scope.showOutBoundInvoicePopUp = function () {
         try {

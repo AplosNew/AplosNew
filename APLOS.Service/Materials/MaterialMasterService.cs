@@ -8701,7 +8701,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                      LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryReceiveDetailId=IRD.ID 
                                      LEFT JOIN  TRN.InventoryIssueDetail IID on IID.ID=IH.InventoryIssueDetailId
                                      LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id 
-                                     Where  Ih.Qty>0 --ANd IH.InventoryReceiveDetailId='2020258-1'
+                                     Where  Ih.Qty>0 and Convert(date ,II.IssueDate) < '" + toDate+ @"'
                                      group by IH.InventoryReceiveDetailId,II.IssueDate,II.Id,II.IssueType,Ih.TotalAmount
 
                                      Union all
@@ -8724,7 +8724,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                      from  [TRN].[InventoryReceiveDetail] AS IRD 
                                      LEFT JOIN TRN.PurchaseReturnDetail IH On IH.InventoryReceiveDetailId=IRD.ID 
                                      LEFT JOIN TRN.PurchaseReturn II ON IH.PurchaseReturnId=II.Id 
-                                     Where Ih.TransactionQty>0 --ANd IH.InventoryReceiveDetailId='2020258-1'
+                                     Where Ih.TransactionQty>0  AND Convert(date ,II.DocDate)  < '" + toDate + @"'
                                      group by IH.InventoryReceiveDetailId,II.POReturnDate ,II.Id
 
 
@@ -8752,7 +8752,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                      LEFT JOIN TRN.InventoryIssueReturnHistory IH On IH.InventoryReceiveDetailId=IRD.ID 
                                      --LEFT JOIN  TRN.InventoryIssueDetail IID on IID.ID=IH.InventoryIssueDetailId
                                      LEFT JOIN TRN.InventoryIssueReturn II ON IH.InventoryIssueReturnId=II.Id 
-                                     Where  Ih.Qty>0 --ANd IH.InventoryReceiveDetailId='2020258-1'
+                                     Where  Ih.Qty>0 and Convert(date ,II.IssueDate)  < '" + toDate + @"'
                                      group by IH.InventoryReceiveDetailId,II.IssueDate ,II.Id
 
                              Union all
