@@ -1551,6 +1551,7 @@ namespace Library.Service.HumanResources
                 {
                     sheet[ROW, COL].Text = "Designation"; sheet[ROW, COL].ColumnWidth = 22;  colDesignation = COL; COL++; 
                 }
+                sheet[ROW, COL].Text = "Budget Code"; sheet[ROW, COL].ColumnWidth = 16; int colBC= COL; COL++;
                 sheet[ROW, COL].Text = "Budgeted"; sheet[ROW, COL].ColumnWidth = 8; int colBudgeted = COL; COL++;
                 sheet[ROW, COL].Text = "OnRoll"; sheet[ROW, COL].ColumnWidth = 8; int colOnRoll = COL; COL++;
                 sheet[ROW, COL].Text = "Present"; sheet[ROW, COL].ColumnWidth = 8; int colPresent = COL; COL++;
@@ -1588,7 +1589,8 @@ namespace Library.Service.HumanResources
                     {
                         sheet[ROW, colLine].Text = dtManPBSummary.Rows[i]["LineName"].ToString(); 
                     }
-                    
+                    sheet[ROW, colBC].Text = dtManPBSummary.Rows[i]["BudgetCode"].ToString();
+
                     sheet[ROW, colBudgeted].Number = Library.Service.Extension.clsStaticInfo.dbl(dtManPBSummary.Rows[i]["Budgeted"].ToString());
                     sheet[ROW, colOnRoll].Number = Library.Service.Extension.clsStaticInfo.dbl(dtManPBSummary.Rows[i]["OnRoll"].ToString());
                     sheet[ROW, colPresent].Number = Library.Service.Extension.clsStaticInfo.dbl(dtManPBSummary.Rows[i]["Present"].ToString());
@@ -1665,15 +1667,22 @@ namespace Library.Service.HumanResources
                 {
                     pivotTable.Fields[colDesignation - 1].Axis = PivotAxisTypes.Row; 
                 }
-               
+
                 //pivotTable.Fields[colActualDate - 1].Axis = PivotAxisTypes.Column;
 
-
+                pivotTable.Fields[colBC - 1].Axis = PivotAxisTypes.Row;
                 IPivotField field = pivotTable.Fields[colOnRoll - 1];
                 field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
 
-                pivotTable.Fields[colBudgeted - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.DataFields.Add(field, "OnRoll", PivotSubtotalTypes.Sum);
+                //pivotTable.DataFields.Add(field, "Budgeted", PivotSubtotalTypes.Sum);
+                //pivotTable.DataFields.Add(field, "Present", PivotSubtotalTypes.Sum);
+                //pivotTable.DataFields.Add(field, "Absent", PivotSubtotalTypes.Sum);
+                //pivotTable.DataFields.Add(field, "Late", PivotSubtotalTypes.Sum);
+                //pivotTable.DataFields.Add(field, "Leave", PivotSubtotalTypes.Sum);
+                //pivotTable.DataFields.Add(field, "Others", PivotSubtotalTypes.Sum);
+
+                pivotTable.Fields[colBudgeted - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colPresent - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colAbsent - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colLate - 1].Axis = PivotAxisTypes.Row;
@@ -1683,7 +1692,7 @@ namespace Library.Service.HumanResources
                 for (int i = 0; i < pivotTable.Fields.Count; i++)
                 {
                     if (i == colEC - 1 || i == colDPT - 1 || i == colSection - 1 || i == colSS - 1 || i == colLine - 1 || i == colDesignation - 1 || i == colBudgeted - 1 || i == colPresent - 1
-                        || i == colAbsent - 1 || i == colLate - 1 || i == colLeave - 1 || i == colOthers  - 1)
+                        || i == colAbsent - 1 || i == colLate - 1 || i == colLeave - 1 || i == colOthers  - 1 || i == colBC - 1)
                         pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
                 }
 
@@ -5218,6 +5227,7 @@ namespace Library.Service.HumanResources
                             	,ISNULL(SUM(SUM_Absent), 0) Absent
                             	,ISNULL(SUM(SUM_Late), 0) Late
                             	,ISNULL(SUM(Others), 0) Others
+                                ,Code BudgetCode
                             FROM (
                             	SELECT m.DesignationName
                             		,M.EmpCategory
@@ -5230,7 +5240,7 @@ namespace Library.Service.HumanResources
                             		,EmpAttdn.SUM_Leave
                             		,EmpAttdn.SUM_Late
                             		,EmpInfo.TotalManpower
-                            		,ISNULL(ShiftNotAssigned.TotalEmployee, 0) + ISNULL(AttdnNotProcessedToday.TotalEmployee, 0) + ISNULL(EmpAttdn.SUM_Off, 0) Others
+                            		,ISNULL(ShiftNotAssigned.TotalEmployee, 0) + ISNULL(AttdnNotProcessedToday.TotalEmployee, 0) + ISNULL(EmpAttdn.SUM_Off, 0) Others,M.Code
                             	FROM
                             		--------------------1 budgetCode from [MST].[ManpowerBudget]--------------------------------------
                             		(
@@ -5561,13 +5571,13 @@ namespace Library.Service.HumanResources
                             		AND ShiftNotAssigned.SubSectionId = M.SubSectionId
                             		" + joiningLineShiftNotAssigned + @"
                             	) EDE
-                            GROUP BY DesignationName
+                            GROUP BY DesignationName,Code
                             	,EDE.EmpCategory,EDE.Department,EDE.SectionName
                             	,SubSectionName
                             	" + selectLine + @"
                             ORDER BY EDE.EmpCategory,EDE.Department,EDE.SectionName
                             	,SubSectionName " + selectLine + @"
-                            	,DesignationName";
+                            	,DesignationName,Code";
 
                 return _sqlRepository.GetDataCollection(strSql);
             }
