@@ -469,12 +469,17 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
     };
 
 
-    $scope.delete = function ( voucherId) {
+    $scope.delete = function (voucherId, deletedRemarks) {
+        if (baseService.isUndefinedOrNull(deletedRemarks)) {
+            ShowResult("Please insert deleted remarks!", "failure");
+            return true;
+        }
         $http({
             method: "POST",
             url: $scope.deleteUrl,
             data: {
                 "voucherId": voucherId
+                , "deletedRemarks": deletedRemarks
             },
             dataType: "JSON"
         }).then(function successCallback(response) {
@@ -482,6 +487,8 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
                 ShowResult(response.data.Message, "failure");
             }
             else {
+                $scope.deletedRemarks = "";
+                $scope.closeconfirmDeletePopUp_Remarks();
                 ShowResult(response.data.Message, "success");
                 $scope.getData();
                 $scope.Clear();
@@ -492,11 +499,16 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
         });
         return true;
     };
-
+    $scope.deletedRemarks = "";
     $scope.confirmDelete = function (voucherId) {
         $scope.voucherId = voucherId;
         $scope.message_delete_confirmation = "Are you sure to Delete?";
-        angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
+        /*angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");*/
+        angular.element(document.querySelector("#confirmDeletePopUp_Remarks")).modal("show");
+    };
+
+    $scope.closeconfirmDeletePopUp_Remarks = function () {
+        angular.element(document.querySelector("#confirmDeletePopUp_Remarks")).modal("hide");
     };
 
     $scope.ShowJournalPopUp = function (id, data) {

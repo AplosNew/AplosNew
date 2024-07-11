@@ -360,6 +360,26 @@
     </div>
 </div>
 
+<div class="modal fade site-modal in" id="confirmDeletePopUp_Remarks" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:600px">
+        <div class="modal-content" ng-form name="confirmDeletePopUp_RemarksForm">
+            <div class="modal-header">Are you sure to Delete?</div>
+            <div class="modal-body">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-2 control-label">Remarks<sup>*</sup></label>
+                    <div class="col-sm-10 show-message">
+                        <textarea rows="4" type="text" maxlength="500" name="DeletedRemarks" tabindex="8" class="form-control" ng-model="deletedRemarks" required></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn btn-default" ng-click="closeconfirmDeletePopUp_Remarks()">No</button>
+                <button type="button" class="btn btn-default" ng-click="delete(voucherId,deletedRemarks)">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(voucherId)"></confirm-archive-generic>
 
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(voucherId)"></confirm-archive-generic>
