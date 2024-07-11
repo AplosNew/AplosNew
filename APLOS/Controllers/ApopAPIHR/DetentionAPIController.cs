@@ -1659,5 +1659,14 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
         #endregion Daily Inverification
+
+        #region Payslip
+        public List<Default2> GetEmployeeBankDetail(string EmpSysId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetEmployeeBankDetail(out List<Default2> activelists, EmpSysId);
+            return activelists;
+        }
+        #endregion Payslip
     }
 }
