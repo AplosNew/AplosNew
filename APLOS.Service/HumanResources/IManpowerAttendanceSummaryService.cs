@@ -21,8 +21,10 @@ namespace Library.Service.HumanResources
         //IWorkbook ExcelDailyDayStatus(string PlantId, string PrevWorkDate, string companyId, string TextFromDate, string sDepID, string sSecID, string sSubSecID, string sLineID, string dayStatus, string Dep, string Sec,string  employeeCategory,string shift,string entity);
         IWorkbook GetSummaryManpowerAttendanceExcel(string companyGroupId, string companyId, string workDate, bool withLine, bool withDesignation, string PlantIds, string typeLists,bool WithoutTBS,bool WithoutLA);
         IWorkbook GetSummaryManpowerAttendanceExcelNew(string companyGroupId, string companyId, string workDate, bool withLine, bool withDesignation, string PlantIds, string typeLists, bool WithoutTBS, bool WithoutLA);
+        string GetSummaryManpowerAttendanceExcelNew1(string companyGroupId, string companyId, string workDate, bool withLine, bool withDesignation,DataTable dtManPBSummary);
         IWorkbook GetSummaryManpowerAttendanceExcelWithLine(string companyGroupId, string companyId, string PlantId, string workDate, bool withLine,string typeLists,bool WithoutTBS,bool WithoutLA);
         IWorkbook GetSummaryManpowerAttendanceExcelWithLineNew(string companyGroupId, string companyId, string PlantId, string workDate, bool withLine);
+        IEnumerable<object> GetDailyManpowerAttendanceSummaryData(string companyGroupId, string companyId, string WorkDate, bool withLine, bool withDesignation, string plantId, string typeList, bool WithoutTBS, bool WithoutLA);
         IWorkbook GetSummaryManpowerAttendanceExcelNew(string companyGroupId, string companyId, string PlantId, string workDate, bool withLine);
         IWorkbook GetSummaryManpowerAttendanceGroupWiseExcel(string PlantId, string companyId, string workDate, string sUnitID, string sDivID, string sDepID, string sSecID, string sSubSecID);
         //IWorkbook EmployeeSalaryRegister(PayRegisterParamList PayRegisterParam);
