@@ -1532,7 +1532,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.CompareMaxValue = 0;
     $scope.SaveMaster = function () {
         try {
-            $scope.getProdLevel();
+           // $scope.getProdLevel();
             // ValidationMaster();
             if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
                 $scope.productionSummaryNew.MasterOrderItemId = null;

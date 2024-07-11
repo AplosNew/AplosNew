@@ -538,6 +538,7 @@
     <Compile Include="Areas\EmployeeServices\Controllers\EmployeeServicesRateController.cs" />
     <Compile Include="Areas\EmployeeServices\Controllers\EmployeeServiceTypeController.cs" />
     <Compile Include="Areas\EmployeeServices\EmployeeServicesAreaRegistration.cs" />
+    <Compile Include="Areas\Employees\Controllers\CasteController.cs" />
     <Compile Include="Areas\Employees\Controllers\DocumentCategoryController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmployeeCodeGenerationController.cs" />
     <Compile Include="Areas\Employees\Controllers\AccountsGroupController.cs" />
@@ -1842,6 +1843,7 @@
   <ItemGroup>
     <Content Include="Areas\Accounts\Scripts\GLManagementController.js" />
     <Content Include="Areas\Accounts\Scripts\BudgetControlController.js" />
+    <Content Include="Areas\Accounts\Scripts\DebitCreditNoteProcessControlController.js" />
     <Content Include="Areas\Accounts\Scripts\roundOffJournalController.js" />
     <Content Include="Areas\Accounts\Scripts\PettyCashMasterController.js" />
     <Content Include="Areas\Accounts\Scripts\pfesiDisbursementController.js" />
@@ -1960,6 +1962,7 @@
     <Content Include="Areas\Commercial\Scripts\ContractSummaryController.js" />
     <Content Include="Areas\Commercial\Scripts\LCPendingReportController.js" />
     <Content Include="Areas\Costings\Scripts\OrderLineCostingItemServiceMasterMappingController.js" />
+    <Content Include="Areas\Employees\Scripts\CasteController.js" />
     <Content Include="Areas\FixedAssets\Scripts\assetDisposeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\assetDisposePostController.js" />
     <Content Include="Areas\HumanResource\Scripts\LeaveTransectionController.js" />
@@ -4986,6 +4989,8 @@
     <Content Include="Areas\Administration\Views\GeneralCheckedApproved\GeneralApprovedApplication.cshtml" />
     <Content Include="Areas\OrderManagements\Views\ProductionOrder\Type2.cshtml" />
     <Content Include="Areas\Productions\Views\SalesPurchaseTransactionType\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\DebitCreditNoteProcessControl.cshtml" />
+    <Content Include="Areas\Employees\Views\Caste\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

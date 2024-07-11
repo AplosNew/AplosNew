@@ -2001,6 +2001,12 @@ namespace Library.Service.Accounts
                                             LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
                                             where act.IsBalanceSheet=0 AND v.PostingDate <= '" + date + @"' AND V.CompanyId='" + companyId + @"'  AND V.PlantId='" + plantId + @"'
                                             and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
+                                            AND VDC.VoucherDetailId NOT IN ( SELECT VD.Id FROM  TRN.VoucherDetail AS VD  
+																INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+																LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+																LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+																LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+																WHERE ACT.Id IN('Revenue','Expense') AND V.FiscalYearId in(select FiscalYearId from [SCS].[FiscalYearClose] ))
                                              group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode,v.PostingDate,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName,A.UserName,A.Id";
 
                     return _sqlRepository.GetGridData(parameters).Source;
@@ -2030,6 +2036,12 @@ namespace Library.Service.Accounts
                                             LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
                                             where act.IsBalanceSheet=0 AND v.PostingDate <= '" + date + @"' AND V.CompanyId='" + companyId + @"'  AND V.PlantId='" + plantId + @"'
                                             and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
+                                            AND VDC.VoucherDetailId NOT IN ( SELECT VD.Id FROM  TRN.VoucherDetail AS VD  
+																INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+																LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+																LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+																LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+																WHERE ACT.Id IN('Revenue','Expense') AND V.FiscalYearId in(select FiscalYearId from [SCS].[FiscalYearClose] ))
                                              group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode,v.PostingDate,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName";
 
                     return _sqlRepository.GetGridData(parameters).Source;
@@ -2060,6 +2072,12 @@ namespace Library.Service.Accounts
                                             LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
                                             where act.IsBalanceSheet=0 AND v.PostingDate <= '" + date + @"' AND V.CompanyId='" + companyId + @"'  AND V.PlantId='" + plantId + @"'
                                             and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
+                                            AND VDC.VoucherDetailId NOT IN ( SELECT VD.Id FROM  TRN.VoucherDetail AS VD  
+																INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+																LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+																LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+																LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+																WHERE ACT.Id IN('Revenue','Expense') AND V.FiscalYearId in(select FiscalYearId from [SCS].[FiscalYearClose] ))
                                              group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode,v.PostingDate,ACT.BalanceType,AG.UserName,ACT.Id";
 
                     return _sqlRepository.GetGridData(parameters).Source;
@@ -4365,6 +4383,12 @@ namespace Library.Service.Accounts
                     LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
                     where act.IsBalanceSheet=0 AND v.PostingDate < '" + fromDate + @"' AND V.CompanyId='" + companyId + @"' AND V.PlantId='" + plantId + @"'
                     and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
+                    AND VDC.VoucherDetailId NOT IN ( SELECT VD.Id FROM  TRN.VoucherDetail AS VD  
+																INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+																LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+																LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+																LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+																WHERE ACT.Id IN('Revenue','Expense') AND V.FiscalYearId in(select FiscalYearId from [SCS].[FiscalYearClose] ))
                     group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode
                   --  ,v.PostingDate
 					,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName,A.UserName,A.Id
@@ -4430,6 +4454,12 @@ UNION ALL
                     LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
                     where act.IsBalanceSheet=0 AND v.PostingDate < '" + fromDate + @"' AND V.CompanyId='" + companyId + @"' AND V.PlantId='" + plantId + @"'
                     and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
+                    AND VDC.VoucherDetailId NOT IN ( SELECT VD.Id FROM  TRN.VoucherDetail AS VD  
+																INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+																LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+																LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+																LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+																WHERE ACT.Id IN('Revenue','Expense') AND V.FiscalYearId in(select FiscalYearId from [SCS].[FiscalYearClose] ))
                     group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode
                   --  ,v.PostingDate
 					,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName
@@ -4497,6 +4527,12 @@ UNION ALL
                     LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
                     where act.IsBalanceSheet=0 AND v.PostingDate < '" + fromDate + @"' AND V.CompanyId='" + companyId + @"' AND V.PlantId='" + plantId + @"'
                     and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
+                    AND VDC.VoucherDetailId NOT IN ( SELECT VD.Id FROM  TRN.VoucherDetail AS VD  
+																INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+																LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+																LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+																LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+																WHERE ACT.Id IN('Revenue','Expense') AND V.FiscalYearId in(select FiscalYearId from [SCS].[FiscalYearClose] ))
                     group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode
                   --  ,v.PostingDate
 					,ACT.BalanceType,AG.UserName,ACT.Id

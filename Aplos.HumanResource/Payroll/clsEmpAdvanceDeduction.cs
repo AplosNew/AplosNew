@@ -148,22 +148,23 @@ namespace Library.HumanResource.Payroll
                 {
                     if (item.IsSelected == true)
                     {
-                         if (item.EmployeeAdvanceDetailId !=null)
+                         if (item.AdvanceReqScheduleId !=null)
                         {
-                            dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "' and EmployeeAdvanceDetailId='" + item.EmployeeAdvanceDetailId + "'";
+                            dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "' and AdvanceReqScheduleId='" + item.AdvanceReqScheduleId + "'";
 
                         }
-                        //else if (item.EmployeeSalaryAdvanceId != null && item.AdvanceId == null) {
+                        //else if (item.EmployeeSalaryAdvanceId != null && item.AdvanceId == null)
+                        //{
 
                         //    dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "'  and EmployeeSalaryAdvanceId='" + item.EmployeeSalaryAdvanceId + "' ";
                         //}
-                        
-                        //else
+
+                        //else if (item.AdvanceId!=null)
                         //{
                         //    dsChild.Tables[0].DefaultView.RowFilter = "YearNo='" + Year + "' and EmployeeId='" + item.EmployeeId + "' and MonthNo='" + Month + "' and AdvanceId='" + item.AdvanceId + "'";
 
                         //}
-                        if (dsChild.Tables[0].DefaultView.Count == 1)
+                        if (dsChild.Tables[0].DefaultView.Count == 1 )
                         {
                             DataRow dr = dsChild.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
@@ -179,7 +180,7 @@ namespace Library.HumanResource.Payroll
                             dr["UpdatedFromIP"] = identity.IPAddress;
                             dr.EndEdit();
                         }
-                        else
+                        else 
                         {
                             count++;
                             string pk = "EAD" + BPId + "_" + count;
@@ -519,7 +520,7 @@ namespace Library.HumanResource.Payroll
                 OTSBD.clsStaticInfo _info = new OTSBD.clsStaticInfo();
                 _info.SaveDataSets(dsMWESAMst, dsMWESAChd, dsChild);
 
-               // objEmpExtAmt.SaveDataSets(dsMWESAMst, dsMWESAChd, dsChild);
+                //objEmpExtAmt.SaveDataSets(dsMWESAMst, dsMWESAChd, dsChild);
 
             }
             catch (Exception ex)

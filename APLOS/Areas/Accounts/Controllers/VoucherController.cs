@@ -2045,8 +2045,6 @@ namespace Aplos.Areas.Accounts.Controllers
                 {
                     for (int n = 0; n < dtMainBody.Rows.Count; n++)
                     {
-                        if (clsStaticInfo.dbl(dtMainBody.Rows[n]["OBDRcumulative"].ToString()) + clsStaticInfo.dbl(dtMainBody.Rows[n]["OBCRcumulative"].ToString()) + clsStaticInfo.dbl(dtMainBody.Rows[n]["DRcumulative"].ToString()) + clsStaticInfo.dbl(dtMainBody.Rows[n]["CRcumulative"].ToString()) + clsStaticInfo.dbl(dtMainBody.Rows[n]["CBDRcumulative"].ToString()) + clsStaticInfo.dbl(dtMainBody.Rows[n]["CBCRcumulative"].ToString()) != 0)
-                        {
                             row++;
                             var AccountCodeId = dtMainBody.Rows[n]["GLGeneralInfoCode"].ToString();
                             var _Balancetype = dtMainBody.Rows[n]["Balancetype"].ToString();
@@ -2121,7 +2119,6 @@ namespace Aplos.Areas.Accounts.Controllers
                                 }
                             }
                             mainColIndex = 1;
-                        }
                     }
                 }
 
@@ -2753,8 +2750,13 @@ namespace Aplos.Areas.Accounts.Controllers
 											LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
 											LEFT JOIN [HKP].Party AS P ON P.Id=VD.PartyId
 											LEFT JOIN [HKP].PartyPlant AS PP ON PP.Id=VD.PartyPlantId
-                                            WHERE v.PostingDate <= '" + toDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"'
-                                            AND  v.IsPark=0
+                                            WHERE v.PostingDate <= '" + toDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"' AND  v.IsPark=0
+                                            AND VDC.VoucherDetailId NOT IN ( SELECT VD.Id FROM  TRN.VoucherDetail AS VD  
+																INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+																LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+																LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+																LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+																WHERE ACT.Id IN('Revenue','Expense') AND V.FiscalYearId in(select FiscalYearId from [SCS].[FiscalYearClose] ))
                                               GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName, 
 											GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId, A.UserName, BUD.UserName, v.PostingDate, A.Id
 											 ) ttd 
@@ -2782,8 +2784,13 @@ namespace Aplos.Areas.Accounts.Controllers
                                             LEFT JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
 											LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
                                             LEFT JOIN [HKP].[Budget] AS BUD ON BM.BudgetId=BUD.Id
-                                            where v.PostingDate <= '" + toDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"'
-                                            and  v.IsPark=0
+                                            where v.PostingDate <= '" + toDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"' and  v.IsPark=0
+                                            AND VDC.VoucherDetailId NOT IN ( SELECT VD.Id FROM  TRN.VoucherDetail AS VD  
+																INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+																LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+																LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+																LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+																WHERE ACT.Id IN('Revenue','Expense') AND V.FiscalYearId in(select FiscalYearId from [SCS].[FiscalYearClose] ))
                                             GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,VD.GLGeneralInfoId,GL.UserName, GL.AccountCode, ACT.BalanceType,ACT.Id,VD.BudgetMasterId,BUD.UserName,v.PostingDate) ttd 
                                             WHERE ISNULL(DRcumulative,0.00) <> 0.00 OR ISNULL(CRcumulative,0) <> 0.00";
 
@@ -2822,8 +2829,13 @@ namespace Aplos.Areas.Accounts.Controllers
 											LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
 											LEFT JOIN [HKP].Party AS P ON P.Id=VD.PartyId
 											--LEFT JOIN [HKP].PartyPlant AS PP ON PP.Id=VD.PartyPlantId
-                                            WHERE v.PostingDate <= '" + toDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"'
-                                            AND  v.IsPark=0 "+ tempSql + @"
+                                            WHERE v.PostingDate <= '" + toDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"' AND  v.IsPark=0 "+ tempSql + @"
+                                            AND VDC.VoucherDetailId NOT IN ( SELECT VD.Id FROM  TRN.VoucherDetail AS VD  
+																INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+																LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+																LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+																LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+																WHERE ACT.Id IN('Revenue','Expense') AND V.FiscalYearId in(select FiscalYearId from [SCS].[FiscalYearClose] ))
                                             GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName, 
 											GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId, A.UserName, BUD.UserName, v.PostingDate, A.Id, BA.AccountTitle, CM.UserName
 											,VD.BankMasterId, VD.CashMasterId, P.UserName, VD.PartyId ) ttd --, PP.UserName, VD.PartyPlantId
@@ -2850,8 +2862,13 @@ namespace Aplos.Areas.Accounts.Controllers
                                             LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
                                             LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
                                             LEFT JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
-                                            where v.PostingDate <= '" + toDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"'
-                                            and  v.IsPark=0
+                                            where v.PostingDate <= '" + toDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"' and  v.IsPark=0
+                                            AND VDC.VoucherDetailId NOT IN ( SELECT VD.Id FROM  TRN.VoucherDetail AS VD  
+																INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+																LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+																LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+																LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+																WHERE ACT.Id IN('Revenue','Expense') AND V.FiscalYearId in(select FiscalYearId from [SCS].[FiscalYearClose] ))
                                             group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,VD.GLGeneralInfoId,GL.UserName, GL.AccountCode, ACT.BalanceType,ACT.Id,v.PostingDate) ttd 
                                             WHERE ISNULL(DRcumulative,0.00) <> 0.00 OR ISNULL(CRcumulative,0) <> 0.00";
 

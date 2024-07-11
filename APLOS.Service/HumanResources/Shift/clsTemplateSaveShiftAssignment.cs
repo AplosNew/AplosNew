@@ -52,7 +52,7 @@ namespace Library.Service.HumanResources.Shift
                 //    drLocal["ReligionID"] = ReligionID;
                 //}
                 drLocal["EmpSystemID"] = ep.SystemId;
-                if (ep.IsRoster == string.Empty || ep.IsRoster=="NO")
+                if (ep.IsRoster == string.Empty || ep.IsRoster=="NO"|| ep.IsRoster==null)
                 {
                     drLocal["IsRoster"] = false;
                     drLocal["IsFix"] = true;

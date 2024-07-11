@@ -30,7 +30,12 @@
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <input id="typeList" e-watermarktext="Type" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-multiselectmode="visualmode" e-datasource="EmployeeCodeTypeList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+                                @*<input id="typeList" e-watermarktext="Type" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-multiselectmode="visualmode" e-datasource="EmployeeCodeTypeList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />*@
+                                <div class="form-group">
+                                    <div class="col-sm-12">
+                                        <input id="typeList" />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-12">
@@ -58,12 +63,17 @@
                                     </div>
                                 </div>
                             </div>
-
-
-
-
                         </div>
-
+                        <div class="col-md-12">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-sm-6 " style="font-weight:normal;">With Designation<sup></sup></label>
+                                    <div class="col-sm-6">
+                                        <input type="checkbox" ej-checkbox class="nodetext" e-value="withDesignation" e-checked="withDesignation" e-model="withDesignation" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         @*<div class="col-xs-12 col-sm-6 col-md-6">
                                 <div class="col-xs-3 col-sm-3 col-md-3"></div>
                                 <div class="col-xs-3 col-sm-3 col-md-3">

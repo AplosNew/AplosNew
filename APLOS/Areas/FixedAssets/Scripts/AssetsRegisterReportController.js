@@ -111,7 +111,11 @@ function AssetsRegisterReportController(commonMessage, $scope, $rootScope, $filt
     $scope.TotalFARegisterSummaryAmount = [{
         title: "Total", summaryColumns: [
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AssetAmount", dataMember: "AssetAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AdditionAssetAmount", dataMember: "AdditionAssetAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalAmount", dataMember: "TotalAmount", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "DepreciationAmount", dataMember: "DepreciationAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AdditionDepreciationAmount", dataMember: "AdditionDepreciationAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalDepreciation", dataMember: "TotalDepreciation", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "NetAmount", dataMember: "NetAmount", format: "{0:N2}" }
         ],
         showCaptionSummary: true

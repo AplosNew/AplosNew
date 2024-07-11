@@ -828,7 +828,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									+round(isnull(TAxInfo6.BooksTaxAmount,0),2)
 									+round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)
 									+round(isnull(ServiceData.BooksCurrencyTaxAmount,0),2)-isnull(IV.SetOff,0)
-									,SA.Id InvoiceId,SA.InvoiceNo ,FORMAT(SA.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate,SA.DocRefNo,SA.SourceType SalesType,FORMAT(SA.InvoiceDate, 'dd-MMM-yyyy') DocDate
+									,SA.Id InvoiceId,SA.InvoiceNo ,REPLACE(CONVERT(CHAR(11), SA.InvoiceDate, 106),' ','-') InvoiceDate,SA.DocRefNo,SA.SourceType SalesType,REPLACE(CONVERT(CHAR(11), SA.InvoiceDate, 106),' ','-') DocDate
 									, ProductionOrder=STUFF((select distinct ','+CPO.PONumber
 		                                         from trn.SalesMaterial SMX									 
 												 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
@@ -845,7 +845,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 												 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId                                     
 									                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 									,CU.Code InvoiceCurrency,SA.ToCurrencyRate InvoiceCurrencyRate,PT.PaymentMode,PT.UserName PaymentTerm,'' PaymentDays,SA.MatureDate,DATEDIFF(DAY, GETDATE(),SA.MatureDate) DueDays
-									,V.VoucherNo,V.Id VoucherId,FORMAT(V.PostingDate, 'dd-MMM-yyyy') PostingDate,V.PostedDate,V.IsPark,'' OrderType,SA.AddedBy PreparedBy,SA.AddedDate EntryDate,ET.UserName Entity
+									,V.VoucherNo,V.Id VoucherId,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') PostingDate,V.PostedDate,V.IsPark,'' OrderType,SA.AddedBy PreparedBy,SA.AddedDate EntryDate,ET.UserName Entity
 
 									,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,SA.PartyType
 									,CN.UserName Country,EI.EmployeeName ResponsiblePerson
@@ -956,12 +956,12 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									,TCSBC=round(isnull(TAxInfo6.BooksTaxAmount,0),2) 
 
 								,0 SetOff,0 Balance
-								,II.Id InvoiceId,II.Id InvoiceNo ,II.SalesDate InvoiceDate,II.DocRefNo,'InventorySales' SalesType,II.DocDate
+								,II.Id InvoiceId,II.Id InvoiceNo ,REPLACE(CONVERT(CHAR(11), II.SalesDate, 106),' ','-') InvoiceDate,II.DocRefNo,'InventorySales' SalesType,REPLACE(CONVERT(CHAR(11), II.DocDate, 106),' ','-') DocDate
 									,'' ProductionOrder
 									,'' MasterOrder
 									,'' SalesOrder
 ,CU.Code InvoiceCurrency,II.ToCurrencyRate InvoiceCurrencyRate,PT.PaymentMode,PT.UserName PaymentTerm,'' PaymentDays,II.MatureDate,DATEDIFF(DAY, GETDATE(),II.MatureDate) DueDays
-,V.VoucherNo,V.Id VoucherId,FORMAT(V.PostingDate, 'dd-MMM-yyyy') PostingDate,V.PostedDate,V.IsPark,'' OrderType,II.AddedBy PreparedBy,II.AddedDate EntryDate,E.UserName Entity
+,V.VoucherNo,V.Id VoucherId,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') PostingDate,V.PostedDate,V.IsPark,'' OrderType,II.AddedBy PreparedBy,II.AddedDate EntryDate,E.UserName Entity
 
 								 ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,'' PartyType
 								,CN.UserName Country,EI.EmployeeName ResponsiblePerson
@@ -1355,7 +1355,7 @@ declare @plantId varchar(10)= '"+ PlantId + @"'--Sangrur
 									,IGSTBC=round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)
 									,TCSBC=round(isnull(TAxInfo6.BooksTaxAmount,0),2) 
 									,SMD.Id InvoiceRowId
-									,SA.Id InvoiceId,SA.InvoiceNo ,FORMAT(SA.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate,SA.DocRefNo,SA.SourceType SalesType,FORMAT(SA.InvoiceDate, 'dd-MMM-yyyy') DocDate
+									,SA.Id InvoiceId,SA.InvoiceNo ,REPLACE(CONVERT(CHAR(11), SA.InvoiceDate, 106),' ','-') InvoiceDate,SA.DocRefNo,SA.SourceType SalesType,REPLACE(CONVERT(CHAR(11), SA.InvoiceDate, 106),' ','-') DocDate
 									, ProductionOrder=STUFF((select distinct ','+CPO.PONumber
 		                                         from trn.SalesMaterial SMX									 
 												 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
@@ -1371,8 +1371,8 @@ declare @plantId varchar(10)= '"+ PlantId + @"'--Sangrur
 		                                         from trn.SalesMaterial SMX									 
 												 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId                                     
 									                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-									,CU.Code InvoiceCurrency,SA.ToCurrencyRate InvoiceCurrencyRate,PT.PaymentMode,PT.UserName PaymentTerm,'' PaymentDays,SA.MatureDate,DATEDIFF(DAY, GETDATE(),SA.MatureDate) DueDays
-									,V.VoucherNo,V.Id VoucherId,FORMAT(V.PostingDate, 'dd-MMM-yyyy') PostingDate,V.PostedDate,V.IsPark,'' OrderType
+									,CU.Code InvoiceCurrency,SA.ToCurrencyRate InvoiceCurrencyRate,PT.PaymentMode,PT.UserName PaymentTerm,'' PaymentDays,REPLACE(CONVERT(CHAR(11), SA.MatureDate, 106),' ','-') MatureDate,DATEDIFF(DAY, GETDATE(),SA.MatureDate) DueDays
+									,V.VoucherNo,V.Id VoucherId,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') PostingDate,V.PostedDate,V.IsPark,'' OrderType
 									,'' CustomerArticle,ART.StandardName Article,PM.Code ProductCode,PM.UserName ProductGroup,MGM.UserName AS MaterialGroup,MT.UserName MaterialType
 									,MM.UserName Material,MC.UserName MaterialCategory,MSC.UserName MaterialSubCategory,HS.Code HSNCode
 									,TUoM.UserName UOM,SMD.TransactionQty,SMD.TransactionRate,SMD.TransactionAmount,'' Remark,'' DrControlId,'' CrControlId

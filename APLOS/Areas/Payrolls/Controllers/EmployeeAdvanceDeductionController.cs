@@ -86,7 +86,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             try
             {
-                string CmdText = @"select IsSelected = case when ead.EmployeeId is null then Convert(bit, 'False') ELSE Convert(bit, 'True') END,ars.YearNo,ars.MonthNo,EMAD.EmpSystemId EmployeeId,e.EmployeeCode,e.EmployeeName,
+                string CmdText = @"select IsSelected = case when ead.EmployeeId is null then Convert(bit, 'False') ELSE Convert(bit, 'True') END,ead.Id,ars.YearNo,ars.MonthNo,EMAD.EmpSystemId EmployeeId,e.EmployeeCode,e.EmployeeName,
                                     EMAD.AdvanceAmount SanctionedAmount,'' AdvanceId,ars.Id AdvanceReqScheduleId,ead.EmployeeSalaryAdvanceId
                                     ,isnull(Recovered.RecoveredAmount,0) RecoveredAmount, EMAD.AdvanceAmount -isnull(Recovered.RecoveredAmount,0) Balance,
                                     ars.InstallmentAmount CurrentInstallment ,ars.PrincipalAmount,ars.ProfitAmount InterestAmount,v.VoucherNo,ars.EmployeeAdvanceDetailId
@@ -104,8 +104,8 @@ namespace Aplos.Areas.Payrolls.Controllers
 													
                                     WHERE ars.YearNo='" + Year + "' and ars.MonthNo='" + Month + @"' and EMAD.EmpSystemId<>'' and esa.PlantId='" + plantId + @"'
 									UNION ALL
-                                    select IsSelected = case when ead.EmployeeId is null then Convert(bit, 'False') ELSE Convert(bit, 'True') END,ars.YearNo,ars.MonthNo,esa.EmployeeId,e.EmployeeCode,e.EmployeeName,
-                                    esa.Amount SanctionedAmount,a.Id AdvanceId,ars.Id AdvanceReqScheduleId,ead.EmployeeSalaryAdvanceId
+                                    select IsSelected = case when ead.EmployeeId is null then Convert(bit, 'False') ELSE Convert(bit, 'True') END,ead.Id,ars.YearNo,ars.MonthNo,esa.EmployeeId,e.EmployeeCode,e.EmployeeName,
+                                    esa.Amount SanctionedAmount,a.Id AdvanceId,ars.Id AdvanceReqScheduleId,ars.EmployeeSalaryAdvanceId
                                     ,isnull(Recovered.RecoveredAmount,0) RecoveredAmount, esa.Amount-isnull(Recovered.RecoveredAmount,0) Balance,
                                     ars.InstallmentAmount CurrentInstallment ,ars.PrincipalAmount,ars.ProfitAmount InterestAmount,v.VoucherNo,'' EmployeeAdvanceDetailId
                                     from trn.EmployeeSalaryAdvance esa
@@ -113,7 +113,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                     left join  trn.Advance a  on esa.VoucherId=a.VoucherId
                                     join dbo.AdvanceReqSchedule ars on ars.EmployeeSalaryAdvanceId=esa.Id
                                     left join EmployeeInformation e on e.SystemId=esa.EmployeeId
-                                    left join [TRN].[EmployeeAdvanceDeduction] ead on ead.EmployeeId = esa.EmployeeId AND esa.Id=ead.EmployeeSalaryAdvanceId AND ead.YearNo='" + Year + "' and ead.MonthNo='" + Month + @"'
+                                    left join [TRN].[EmployeeAdvanceDeduction] ead on esa.Id=ead.EmployeeSalaryAdvanceId AND ead.YearNo='" + Year + "' and ead.MonthNo='" + Month + @"'
                                     left join (select ead.EmployeeSalaryAdvanceId,SUM(ars.InstallmentAmount) RecoveredAmount 
 									from trn.EmployeeSalaryAdvance esa 
 													left join dbo.AdvanceReqSchedule ars ON ars.EmployeeSalaryAdvanceId=esa.Id

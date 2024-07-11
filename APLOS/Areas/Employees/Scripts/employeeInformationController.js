@@ -170,7 +170,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
         ResidenceGroupId: null,
         ExcludeOT: false,
         IsOutSider: false,
-        EmpCodeType: null
+        EmpCodeType: null,
+        CasteId:null
     };
     $scope.employeeNew = Object.assign({}, $scope.model);
     $scope.employeeInformation = Object.assign({}, $scope.model);
@@ -251,6 +252,30 @@ function employeeInformationController(addressService, fileReader, cboService, c
         });
     }
 
+    $scope.EmpAddInfoLabel = null;
+    $scope.EmpAddInfoLabelId = null;
+    function GetCasteCboList() {
+        $http({
+            method: 'GET',
+            url: 'Employees/Caste/GetCbo'
+        }).then(function (response) {
+            $scope.EmpAddInfoLabel = response.data[0].Text;
+            $scope.EmpAddInfoLabelId = response.data[0].Value;
+            GetCasteDetailCboList();
+        });
+    }
+    GetCasteCboList();
+
+    $scope.CasteDetailCboList = [];
+    function GetCasteDetailCboList() {
+        $http({
+            method: 'GET',
+            url: 'Employees/Caste/GetChildCbo?masterId=' + $scope.EmpAddInfoLabelId
+        }).then(function (response) {
+            $scope.CasteDetailCboList = response.data;
+        });
+    }
+    
 
     function GetEmpCodeGenSetting() {
         $http({
@@ -1918,6 +1943,9 @@ function employeeInformationController(addressService, fileReader, cboService, c
             IFSCCode: null,
             MICRCode: null
         }
+        $scope.EmpAddInfoLabel = null;
+        $scope.EmpAddInfoLabelId = null;
+        GetCasteCboList();
     }
 
     $scope.Save = function () {

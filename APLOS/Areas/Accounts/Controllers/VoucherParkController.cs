@@ -173,20 +173,23 @@ namespace Aplos.Areas.Accounts.Controllers
                 if (sourceType == SourceType.Loan.ToString()|| sourceType == SourceType.Investment.ToString() || sourceType == SourceType.AutoLoan.ToString())
                 {
                     ConnectionManager.DAL.ConManager objCon1;
+                    objCon1 = new ConnectionManager.DAL.ConManager("1");
                     DataSet dsMaster1 = null;
-                    DataSet dsLoanInterest = null;
+                    
                     string setOffsql = @"SELECT VoucherNo from trn.FinancingDetailWriteOff FDW JOIN trn.FinancingWriteOff FW on FW.Id=FDW.FinancingWriteOffId 
                     LEFT JOIN    trn.Voucher v on v.Id = FW.VoucherId WHERE FDW.FinancingId in (select Id from [TRN].[Financing] where VoucherId = '" + voucherId + @"')";
-                    string loanInterestsql = @"SELECT VoucherNo,FST.SourceType from TRN.FinancingSubsequentTransaction FST INNER JOIN    
-                    trn.Voucher v on v.Id = FST.VoucherId WHERE FST.SourceType NOT IN('Loan','AutoLoan','Investment') AND FST.FinancingId in (select Id from [TRN].[Financing] where VoucherId = '" + voucherId + @"')";
-                    objCon1 = new ConnectionManager.DAL.ConManager("1");
+                   
                     objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
-                    objCon1.OpenDataSetThroughAdapter(loanInterestsql, out dsLoanInterest, false, "1");
+                   
 
                     if (dsMaster1.Tables[0].Rows.Count > 0)
                     {
                         throw new CustomException("Voucher Park Mode not allowed, SetOf Voucher No '" + dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
                     }
+                    DataSet dsLoanInterest = null;
+                    string loanInterestsql = @"SELECT VoucherNo,FST.SourceType from TRN.FinancingSubsequentTransaction FST INNER JOIN    
+                    trn.Voucher v on v.Id = FST.VoucherId WHERE FST.SourceType NOT IN('Loan','AutoLoan','Investment') AND FST.FinancingId in (select Id from [TRN].[Financing] where VoucherId = '" + voucherId + @"')";
+                    objCon1.OpenDataSetThroughAdapter(loanInterestsql, out dsLoanInterest, false, "1");
                     if (dsLoanInterest.Tables[0].Rows.Count > 0)
                     {
                         throw new CustomException("Voucher Park Mode not allowed, " + dsLoanInterest.Tables[0].Rows[0]["SourceType"].ToString() + "  Voucher No: '" + dsLoanInterest.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");

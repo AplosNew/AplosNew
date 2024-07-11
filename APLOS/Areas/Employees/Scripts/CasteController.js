@@ -1,33 +1,22 @@
 ﻿'use strict';
-SalesPurchaseTransactionTypeController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function SalesPurchaseTransactionTypeController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Sales';
+CasteController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function CasteController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+    $rootScope.title = 'Employee Add Info';
     $scope.Action = 'Save';
     $scope.ModelList = [];
-    $scope.path = 'Productions/SalesPurchaseTransactionType/';
+    $scope.path = 'Employees/Caste/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
-    $scope.getSeqUrl2 = $scope.path + 'GetAutoSequence2';
     $scope.saveUrl = $scope.path + 'create';
-    $scope.savePurchaseUrl = $scope.path + 'CreatePurchase';
     $scope.deleteUrl = $scope.path + 'delete/';
-    baseService.init($scope.getListUrl);
+
+    $scope.getListUrl = $scope.path + 'GetChildList';
+    $scope.getChildSeqUrl = $scope.path + '';
+    $scope.saveChildUrl = $scope.path + 'CreateChild';
+    $scope.deleteUrl = $scope.path + 'DeleteChild/';
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
 
-    $scope.tab = 1;
-    $scope.setTab = function (newTab) {
-        $scope.tab = newTab;
-    };
-
-    $scope.isSet = function (tabNum) {
-        return $scope.tab === tabNum;
-    };
-
-    $scope.transactionTypesList = [];
-    cboService.getEnumCbo('Enum/GetTransactionTypeEnumCbo', function (result) {
-        $scope.transactionTypesList = result;
-    });
 
     $scope.getData = function () {
         $http({
@@ -45,23 +34,14 @@ function SalesPurchaseTransactionTypeController(cboService, commonMessage, $scop
 
     $scope.ModelTemp = {
         Id: null,
-        Sequence: 1,
+        Sequence: 0,
         Code: null,
         ShortName: null,
         StandardName: null,
         UserName: null,
-        TransactionType: null,
-        SalesPurchaseType: 'Sales',
         Description: null,
         Remarks: null,
-        Active: true,
-        AddedBy: null,
-        AddedDate: null,
-        AddedFromIP: null,
-        UpdatedBy: null,
-        UpdatedDate: null,
-        UpdatedFromIP: null
-
+        Active: true
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -83,7 +63,6 @@ function SalesPurchaseTransactionTypeController(cboService, commonMessage, $scop
     };
 
     $scope.Save = function () {
-        $scope.ModelNew.SalesPurchaseType = 'Sales';
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
             $http({
@@ -141,68 +120,57 @@ function SalesPurchaseTransactionTypeController(cboService, commonMessage, $scop
         $scope.ModelNew.Sequence = seq;
     }
 
-    $scope.PurchaseType = 'Purchase';
-    $scope.PurchaseList = [];
-    $scope.GetPurchaseList = function () {
+    $scope.GetDetailData = function (data) {
+        $scope.ModelNew = Object.assign({}, data);
+        $scope.getChildData();
+        $scope.CGetSequence();
+        angular.element(document.querySelector('#DetailPopUp')).modal('show');
+    }
+    $scope.ModelChildList = [];
+    $scope.getChildData = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "GetPurchaseList",
-            data: { column: $scope.searchBy, value: $scope.search },
+            url: $scope.path + "GetChildList",
+            data: { column: $scope.searchBy, value: $scope.search, masterId: $scope.ModelNew.Id },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.PurchaseList = response.data;
-            ClearFields(response.data.Sequence);
-            $scope.GetSequence2();
+            $scope.ModelChildList = response.data;
         });
     }
-    $scope.GetPurchaseList();
 
-    $scope.ModelTemp2 = {
+    $scope.CModelTemp = {
         Id: null,
-        Sequence: 1,
+        Sequence: 0,
         Code: null,
         ShortName: null,
         StandardName: null,
         UserName: null,
-        TransactionType: null,
-        SalesPurchaseType: 'Purchase',
         Description: null,
         Remarks: null,
-        Active: true,
-        AddedBy: null,
-        AddedDate: null,
-        AddedFromIP: null,
-        UpdatedBy: null,
-        UpdatedDate: null,
-        UpdatedFromIP: null
-
+        Active: true
     };
-    $scope.PurchaseModel = Object.assign({}, $scope.ModelTemp2);
+    $scope.CModelNew = Object.assign({}, $scope.CModelTemp);
 
-    $scope.GetSequence2 = function () {
-        cboService.getSequence($scope.getSeqUrl2, function (data) {
-            $scope.PurchaseModel.Sequence = data;
+    $scope.CGetSequence = function () {
+        cboService.getSequence($scope.path + 'getchildautosequence?masterId=' + $scope.ModelNew.Id, function (data) {
+            $scope.CModelTemp.Sequence = data;
+            $scope.CModelNew.Sequence = data;
         });
     };
-    $scope.GetSequence2();
 
-    $scope.Get2 = function (args) {
+    $scope.GetChild = function (args) {
 
-        $scope.PurchaseModel = Object.assign({}, args.data);
-        $scope.Action = 'Update';
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
+        $scope.CModelNew = Object.assign({}, args.data);
+       
     };
 
-    $scope.Save2 = function () {
-        $scope.PurchaseModel.SalesPurchaseType= 'Purchase';
+    $scope.SaveChild = function () {
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.PurchaseModelForm.$valid) {
+        if ($scope.CModelNewForm.$valid) {
             $http({
                 method: 'POST',
-                url: $scope.savePurchaseUrl,
-                data: { 'data': $scope.PurchaseModel },
+                url: $scope.saveChildUrl,
+                data: { 'data': $scope.CModelNew, 'masterId': $scope.ModelNew.Id },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -210,8 +178,8 @@ function SalesPurchaseTransactionTypeController(cboService, commonMessage, $scop
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields2(response.data.Sequence);
-                    $scope.GetPurchaseList();
+                    CClearFields(response.data.Sequence);
+                    $scope.getChildData();
 
                 }
             }), function errorCallBack(response) {
@@ -221,19 +189,11 @@ function SalesPurchaseTransactionTypeController(cboService, commonMessage, $scop
         }
     };
 
-    $scope.removeRow = function () {
-        if (baseService.isUndefinedOrNull($scope.PurchaseModel.Id))
-            $scope.message_confirmation = 'Are you sure want to delete this data....';
-        else
-            $scope.message_confirmation = 'Are you sure want to delete [ ' + $scope.PurchaseModel.UserName + ' ]';
-        angular.element(document.querySelector('#confirmgenericPopUp')).modal('show');
-    };
-
-    $scope.Delete2 = function () {
-        if (!baseService.isUndefinedOrNull($scope.PurchaseModel.Id)) {
+    $scope.DeleteChilld = function () {
+        if (!baseService.isUndefinedOrNull($scope.CModelNew.Id)) {
             $http({
                 method: 'POST',
-                url: $scope.deleteUrl + $scope.PurchaseModel.Id,
+                url: $scope.deleteChildUrl + $scope.CModelNew.Id,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -241,8 +201,8 @@ function SalesPurchaseTransactionTypeController(cboService, commonMessage, $scop
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields2(response.data.Sequence);
-                    $scope.GetPurchaseList();
+                    CClearFields(response.data.Sequence);
+                    $scope.getChildData();
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -251,15 +211,15 @@ function SalesPurchaseTransactionTypeController(cboService, commonMessage, $scop
         }
     };
 
-    $scope.Clear2 = function () {
-        ClearFields2($scope.GetSequence2());
+    $scope.CClear = function () {
+        CClearFields($scope.CGetSequence());
         return true;
     };
 
-    function ClearFields2(seq) {
+    function CClearFields(seq) {
         $scope.Action = 'Save';
-        $scope.PurchaseModel = Object.assign({}, $scope.ModelTemp);
-        $scope.PurchaseModel.Sequence = seq;
+        $scope.CModelNew = Object.assign({}, $scope.CModelTemp);
+        $scope.CModelNew.Sequence = seq;
     }
 
 }

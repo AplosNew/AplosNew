@@ -19,6 +19,12 @@ namespace Aplos.Controllers
     public class EnumController : BaseController
     {
         [HttpGet, Authorize]
+        public JsonResult GetTransactionTypeEnumCbo()
+        {
+            return Json(new SelectList(EnumService.GetEnumCbo<TransactionTypeEnum>(), "Value", "Text"), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetCboConsumtionBooking()
         {
             return Json(EnumService.GetEnumCbo<ConsumtionBooking>(), JsonRequestBehavior.AllowGet);

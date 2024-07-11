@@ -283,7 +283,7 @@ namespace Library.Accounting.Accounts
                                     , C.Code AS CurrencyCode, ID.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, ID.BudgetMasterId, B.Code AS BudgetCode, V.ExchangeType, 0 ExchangeAmount
                                     , B.UserName AS BudgetName, ID.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, Replace(CONVERT(VARCHAR(11), I.DocDate, 106), ' ', '-') AS DocDate, Replace(CONVERT(VARCHAR(11)
                                     , I.PostingDate, 106), ' ', '-') AS PostingDate, I.DocRefNo, I.Narration, ISNULL(ID.NetAmount,0) AS Receivable, (ISNULL(ID.WrittenOffAmount,0)) AS Received
-                                    , PP.UserName AS PartyPlantName
+                                    , PP.UserName AS PartyPlantName,SalesNo=case when S.Id<>'' then S.Id when ivs.Id<>'' then ivs.Id else I.DocRefNo end
                                     , (ISNULL(ID.NetAmount,0)- (ISNULL(ID.WrittenOffAmount,0))) AS Balance, CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, 0 ToCurrencyRate
                                     , CC.CompanyCurrencyConversion, GC.CompanyGroupCurrencyId, GC.CompanyGroupFromCurrencyId, GC.CompanyGroupCurrencyRate, GC.CompanyGroupCurrencyConversion, HC.HardCurrencyId, HC.HardFromCurrencyId
                                      , HC.HardCurrencyRate, HC.HardCurrencyConversion, V.TransactionRefNo, I.SalesOrderNo,ISNULL(SM.TrnQty,0) TrnQty
@@ -295,6 +295,7 @@ namespace Library.Accounting.Accounts
                                     LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=ID.Id
                                     LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                                     LEFT JOIN [TRN].[Sales] AS S ON S.VoucherId=V.Id
+                                    LEFT JOIN [TRN].[InventorySales] AS IVS ON IVS.VoucherId=V.Id
 									LEFT JOIN (SELECT SalesId,SUM(TransactionQty) TrnQty FROM TRN.SalesMaterial group By SalesId) SM ON SM.SalesId=S.Id
                                     LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=ID.GLGeneralInfoId
                                     LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=ID.BudgetMasterId
