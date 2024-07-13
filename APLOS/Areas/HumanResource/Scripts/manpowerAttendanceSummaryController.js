@@ -22,6 +22,7 @@ function manpowerAttendanceSummaryController(commonMessage, $scope, $rootScope, 
     $scope.isCompletedMonth = null;
     $scope.salaryProcessId = null;
     $scope.withLine = false;
+    $scope.withDesignation = false;
 
     $scope.unitId = null;
     $scope.departmentId = null;
@@ -168,7 +169,7 @@ function manpowerAttendanceSummaryController(commonMessage, $scope, $rootScope, 
 
 
 
-    $scope.GetmanpowerAttendanceSummaryrReport = function () {
+    $scope.GetmanpowerAttendanceSummaryrReport1 = function () {
         try {
 
             var DropDownListObj = $("#CWPlant").data("ejDropDownList");
@@ -178,12 +179,76 @@ function manpowerAttendanceSummaryController(commonMessage, $scope, $rootScope, 
             var typeList = DropDownListObj.getSelectedValue();
 
             //string divisionId, string unitId, string sectionId, string subSectionId, string departmentId, string payGroupId
-            $scope.parameters = 'workDate=' + $scope.attdnDate + '&withLine=' + $scope.withLine + '&PlantId=' + PlantId + '&typeList=' + typeList + '&WithoutTBS=' + $scope.WithoutTBS + '&WithoutLA=' + $scope.WithoutLA;
+            $scope.parameters = 'workDate=' + $scope.attdnDate + '&withLine=' + $scope.withLine + '&withDesignation=' + $scope.withDesignation + '&PlantId=' + PlantId + '&typeList=' + typeList + '&WithoutTBS=' + $scope.WithoutTBS + '&WithoutLA=' + $scope.WithoutLA;
             location.href = 'humanresource/ManpowerAttendanceSummary/GetmanpowerAttendanceSummaryrReportOld?' + $scope.parameters;
         } catch (e) {
             ShowResult(e, 'failure');
         }
     };//GetDailyAttendanceSummary
+
+    $scope.DataList = [];
+    $scope.GetmanpowerAttendanceSummaryData = function () {
+        var DropDownListObj = $("#CWPlant").data("ejDropDownList");
+        var PlantId = DropDownListObj.getSelectedValue();
+
+        var DropDownListObj = $("#typeList").data("ejDropDownList");
+        var typeList = DropDownListObj.getSelectedValue();
+
+        //string divisionId, string unitId, string sectionId, string subSectionId, string departmentId, string payGroupId
+        $scope.parameters = 'workDate=' + $scope.attdnDate + '&withLine=' + $scope.withLine + '&withDesignation=' + $scope.withDesignation + '&PlantId=' + PlantId + '&typeList=' + typeList + '&WithoutTBS=' + $scope.WithoutTBS + '&WithoutLA=' + $scope.WithoutLA;
+
+        $http({
+            method: 'POST',
+            url: 'humanresource/ManpowerAttendanceSummary/GetDailyManpowerAttendanceSummaryData?' + $scope.parameters,
+        }).then(function successCallback(response) {
+            $scope.DataList = response.data;
+        });
+    }
+
+
+
+
+
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
+    $scope.GetmanpowerAttendanceSummaryrReport = function () {
+        try {
+          
+            var dataList = [];
+            var g = $("#GridMAD").data("ejGrid");
+            dataList = g.getFilteredRecords();
+
+            if (dataList.length == 0) {
+                dataList = $scope.DataList;
+            }
+
+            if (dataList.length == 0) {
+                throw "First click on View button.";
+            }
+
+
+            $scope.fileName = "ManpowerAttendanceSummaryReport.xlsx";
+            $http({
+                method: 'POST',
+                url: 'humanresource/ManpowerAttendanceSummary/GetSummaryManpowerAttendanceExcelReport',
+                data: { 'workDate': $scope.attdnDate, 'withLine' : $scope.withLine , 'withDesignation' : $scope.withDesignation, 'data': dataList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+
     $scope.XGetmanpowerAttendanceSummaryrReport = function () {
         try {
             $scope.parameters = 'workDate=' + $scope.attdnDate;

@@ -335,7 +335,7 @@ namespace Library.Service.Employees
                 dblist.Height = entity.Height;
                 dblist.Weight = entity.Weight;
                 dblist.IdentificationMark = entity.IdentificationMark;
-
+                dblist.CasteId = entity.CasteId;
                 dblist.CivilStatusID = entity.CivilStatusID;
                 dblist.MarriagedayCelebrationDate = entity.MarriagedayCelebrationDate;
                 dblist.SpouseName = entity.SpouseName;
@@ -508,7 +508,7 @@ namespace Library.Service.Employees
                 dblist.IsEntryComplete = entity.IsEntryComplete;
                 dblist.ResidenceGroupId = entity.ResidenceGroupId;
                 dblist.TransportGroupId = entity.TransportGroupId;
-                dblist.CasteId = entity.CasteId;
+                
                 if (!string.IsNullOrEmpty(entity.OperationMasterID))
                 {
                     dblist.OperationMasterID = entity.OperationMasterID;

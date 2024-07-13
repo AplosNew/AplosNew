@@ -12814,6 +12814,76 @@ where SystemId = '" + EmpSysId + "'";
             }
         }
         #endregion Daily Inverification
+
+        #region PaySlip
+        public void GetEmployeeBankDetail(out List<Default2> DataList, string EmpSysId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select 'Emp. Category' Name , x.UserName as Value  from  EmployeeInformation EMP
+LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
+left join mst.DesignationMasterLegalDesignation dmld on dmld.LegalDesignationId = GDSG.Id
+left join mst.DesignationMaster dm on dm.Id = dmld.DesignationMasterId
+left join hkp.EmployeeCategory x on x.Id=dm.EmployeeCategoryId
+where EMP.SystemId = '" + EmpSysId + @"'
+
+union all 
+select 'Aadhar NO.' Name , NationalID as Value from EmployeeInformation
+where SystemId = '" + EmpSysId + @"'
+
+union all
+select 'Bank Name' Name , Bk.StandardName Value from EmployeeBankInfo EBI
+left join HKP.Bank  BK on BK.Id	= EBi.BankSystemID
+left join HKP.BankBranch BB on BB.Id = EBI.BankBranchId
+where EBI.EmpSystemID = '" + EmpSysId + @"'
+
+union all
+select 'Bank Branch' Name , BB.StandardName Value from EmployeeBankInfo EBI
+left join HKP.Bank  BK on BK.Id	= EBi.BankSystemID
+left join HKP.BankBranch BB on BB.Id = EBI.BankBranchId
+where EBI.EmpSystemID = '" + EmpSysId + @"'
+
+Union all
+select 'Account NO.' Name , BankAccNo Value from EmployeeBankInfo EBI
+where EBI.EmpSystemID = '" + EmpSysId + @"'
+
+union all
+select 'UAN NO.' Name , DocNumber Value  from EmployeeDocument 
+where EmpSystemID = '" + EmpSysId + @"' and ComplianceDocumentId = '32'
+
+union all
+select 'ESIC NO.' Name , DocNumber Value  from EmployeeDocument 
+where EmpSystemID = '" + EmpSysId + @"' and ComplianceDocumentId = '31'
+";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        #endregion PaySlip
     }
 
 

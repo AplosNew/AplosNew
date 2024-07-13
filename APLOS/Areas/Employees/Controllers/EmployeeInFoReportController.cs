@@ -105,7 +105,7 @@ namespace Aplos.Areas.Employees.Controllers
             int ROW = 6;
             int endCol = 1;
             int COL = 1;
-
+            int startRow = 0;
             #region DataSet
             objRpt = new clsReport();
             oRU = new ReportUtility();
@@ -220,6 +220,7 @@ namespace Aplos.Areas.Employees.Controllers
                 int cEmployeeCurrentStatus = 0;
                 int cBloodGroup = 0;
                 int cReligion = 0;
+                int cCaste = 0;
                 int ColAttendanceGroup = 0;
                 int ColGS = 0;
                 int ColSFT = 0;
@@ -257,13 +258,14 @@ namespace Aplos.Areas.Employees.Controllers
                 //int cCTC = 0;
                 int cREN = 0;
                 int cREC = 0;
+                
                 #endregion variable
 
                 int endXlsCol = 0;
-
                 xlsRow++;
                 xlsCol = 1;
                 #region Column Header
+                
 
                 oRU.SetHeaderText(ref sheet1, xlsRow - 1, xlsCol, "Employee info", ExcelHAlign.HAlignCenter);
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SystemID"); cSystemID = xlsCol; xlsCol++;
@@ -294,6 +296,7 @@ namespace Aplos.Areas.Employees.Controllers
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Contractor Name", 15); cContractor = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Gender", 7); cGN = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Religion", 8); cReligion = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Caste", 8); cCaste = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Blood Group", 11); cBloodGroup = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PhoneNo"); cPhone = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Picture", 7); cPic = xlsCol; xlsCol++;
@@ -395,7 +398,7 @@ namespace Aplos.Areas.Employees.Controllers
                 xlsCol--;
                 endXlsCol = xlsCol;
                 xlsRow++;
-
+                startRow = xlsRow;
                 #endregion
 
                 for (int i = 0; i < dsEmpInfo.Tables[0].Rows.Count; i++)
@@ -426,6 +429,7 @@ namespace Aplos.Areas.Employees.Controllers
                     oRU.SetText(ref sheet1, xlsRow, cGN, dsEmpInfo.Tables[0].Rows[i]["GenderID"].ToString());
                     oRU.SetText(ref sheet1, xlsRow, cContractor, dsEmpInfo.Tables[0].Rows[i]["ContractorName"].ToString());
                     oRU.SetText(ref sheet1, xlsRow, cReligion, dsEmpInfo.Tables[0].Rows[i]["Religion"].ToString());
+                    oRU.SetText(ref sheet1, xlsRow, cCaste, dsEmpInfo.Tables[0].Rows[i]["Caste"].ToString());
                     oRU.SetText(ref sheet1, xlsRow, cBloodGroup, dsEmpInfo.Tables[0].Rows[i]["BloodGroup"].ToString());
                     oRU.SetText(ref sheet1, xlsRow, cPhone, dsEmpInfo.Tables[0].Rows[i]["CellPhnNo"].ToString());
                     oRU.SetText(ref sheet1, xlsRow, cPic, dsEmpInfo.Tables[0].Rows[i]["Picture"].ToString());
@@ -595,7 +599,7 @@ namespace Aplos.Areas.Employees.Controllers
 
                     xlsRow++;
                 }
-
+                sheet1.AutoFilters.FilterRange = sheet1.Range[startRow - 1, 1, xlsRow, endXlsCol];
                 string CmpName = string.Empty;
                 string CompanyImage = string.Empty;
                 string FactoryName = string.Empty;
@@ -715,7 +719,7 @@ namespace Aplos.Areas.Employees.Controllers
 
             }
 
-            var startRow = 0;
+            //var startRow = 0;
             var endRow = 0;
             int RowIndex = ROW;
             startRow = ROW;
@@ -828,7 +832,7 @@ namespace Aplos.Areas.Employees.Controllers
 							left join WeekOffHeader WOH on WOH.Id = WO.WOHeaderId
 								where wo.EmpSystemID = e.SystemId
 								order by effectivedate desc)
-					   end WeekOff,  EB.IFSCCode
+					   end WeekOff,  EB.IFSCCode,EADD.UserName Caste
                             FROM EmployeeInformation e
 							LEFT JOIN MST.ManpowerBudget mpb ON mpb.Id = e.BudgetCode
                             LEFT JOIN ORG.Company C ON C.Id = E.CompanyId
@@ -840,6 +844,7 @@ namespace Aplos.Areas.Employees.Controllers
                             LEFT JOIN HKP.BloodGroup BG ON BG.Id = E.BloodGroupID
                             LEFT OUTER JOIN ORG.Department edept ON edept.id = e.DepartmentId
                             LEFT JOIN EmployeeBankInfo EB ON EB.EmpSystemID = E.SystemId
+							AND EB.RowID=(Select top(1) RowID from EmployeeBankInfo Where EmpSystemID=EB.EmpSystemID AND  IsApproved=1 Order BY DateAdded DESC)
                             LEFT JOIN HKP.Bank B ON B.Id = EB.BankSystemID
                             LEFT JOIN SCS.Country PC ON PC.Id = E.ParmCountryID
                             LEFT JOIN SCS.[State] PST ON PST.Id = E.ParmStateId
@@ -884,7 +889,7 @@ namespace Aplos.Areas.Employees.Controllers
 							 LEFT JOIN [dbo].[EmployeeAttendanceGroup] eag ON eag.EmployeeId = e.SystemId
 							 AND eag.Id=(SELECT TOP 1 ID FROM [dbo].[EmployeeAttendanceGroup] EAGM WHERE EAGM.EmployeeId=e.SystemId)
                             LEFT JOIN [dbo].[AttendanceGroup] ag ON ag.Id = eag.AttendanceGroupId
-
+                            LEFT JOIN [HKP].[EmployeeAddInfoDetail] EADD ON EADD.Id = e.CasteId
 							  LEFT JOIN MST.PayrollGroupMaster PGM ON PGM.EmployeeId = E.SystemId
 							  AND PGM.Id=(SELECT TOP 1 ID FROM MST.PayrollGroupMaster EPGM WHERE EPGM.EmployeeId=e.SystemId)
                               LEFT JOIN HKP.PayrollGroup PG ON PG.ID = PGM.PayrollGroupId

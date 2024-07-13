@@ -10849,7 +10849,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 							(select count(WorkDate) 
 							from attdnprocessdata
 							LEFT join DayType d on d.DayType=DayStatus
-							where PlantId='"+plantId+@"' and
+							where PlantId='"+plantId+ @"' and
 							workdate between
 							EI.EmployeeCurrentStatusEffectiveDate and getdate()
 							and DayStatus IN 
@@ -10859,8 +10859,9 @@ namespace Library.HumanResource.NewAttendanceProcess
 
 
                         FROM EmployeeInformation EI    
-                        left join (select * from AttdnProcessData where WorkDate
-                        between '" + FromDate + @"' and '" + ToDate + @"') AP ON AP.EmpSystemID = EI.SystemId";
+LEFT JOIN AttdnProcessData  AP ON AP.EmpSystemID = EI.SystemId 
+						AND AP.RowId= (select top(1)RowId from AttdnProcessData where WorkDate
+                        between '" + FromDate + @"' and '" + ToDate + @"' AND EmpSystemID = AP.EmpSystemID Order By WorkDate DESC)";
 
                 strSql += tableName();
                 strSql += @"

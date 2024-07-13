@@ -20,6 +20,7 @@ using Library.Service.Currencies;
 using Library.Service.Employees;
 using Library.Service.Enums;
 using Library.Service.Helpers;
+using Library.Service.Invoices;
 using Library.Service.Logs;
 using Library.Service.Systems;
 using Library.Service.Taxations;
@@ -54,6 +55,7 @@ namespace Aplos.Areas.Accounts.Controllers
         private readonly ICompanyTaxYearService _companyTaxYearService;
         private readonly AccountVoucherReportService _accountVoucherReportService;
         private readonly IRepositoryAsync<EmployeeSalaryAdvance> _employeeSalaryAdvanceRepository;
+        private readonly IInvoiceService _invoiceService;
 
         public VoucherController(
                IPKGeneratorService pkGeneratorService
@@ -68,7 +70,8 @@ namespace Aplos.Areas.Accounts.Controllers
              , ICompanyTaxYearService companyTaxYearService
              , ICompanyFiscalYearService companyFiscalYearService
              , IRepositoryAsync<EmployeeSalaryAdvance> employeeSalaryAdvanceRepository
-             , AccountVoucherReportService accountVoucherReportService)
+             , AccountVoucherReportService accountVoucherReportService
+             , IInvoiceService invoiceService)
         {
             _unitOfWork = unitOfWork;
             _sqlRepository = sqlRepository;
@@ -83,6 +86,7 @@ namespace Aplos.Areas.Accounts.Controllers
             _companyFiscalYearService = companyFiscalYearService;
             _employeeSalaryAdvanceRepository = employeeSalaryAdvanceRepository;
             _accountVoucherReportService = accountVoucherReportService;
+            _invoiceService = invoiceService;
         }
 
         #region Journal
@@ -164,9 +168,9 @@ namespace Aplos.Areas.Accounts.Controllers
 
        
         [HttpPost]
-        public ActionResult DeleteJV( string voucherId)
+        public ActionResult DeleteJV( string voucherId, string deletedRemarks)
         {
-            _voucharService.DeleteJV(voucherId);
+            _invoiceService.DeleteJV(voucherId, deletedRemarks);
             return Json(new { Message = AplosMessage.Deleted });
         }
 
