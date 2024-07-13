@@ -84,11 +84,43 @@ namespace Aplos.Areas.Accounts.Controllers
 
                 if (sourceType== SourceType.JournalVoucher.ToString())
                 {
+                    ConnectionManager.DAL.ConManager objCon1;
+                    DataSet dsMaster1 = null;
+                    string setOffsql = @"SELECT V.VoucherNo	
+								from	[TRN].[CapitalizationMasterDetail] CD
+								INNER JOIN trn.VoucherDetail VD ON VD.Id=CD.VoucherDetailId
+								INNER JOIN trn.CapitalizationMaster CM ON CM.Id=CD.CapitalizationMasterId
+								INNER JOIN trn.Voucher V ON V.Id=CM.VoucherId
+								WHERE VD.VoucherId= '" + voucherId + @"')";
+                    objCon1 = new ConnectionManager.DAL.ConManager("1");
+                    objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
+
+                    if (dsMaster1.Tables[0].Rows.Count > 0)
+                    {
+                        throw new CustomException("Voucher Park Mode not allowed,  Voucher No '" + dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
+                    }
+
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
                 }
                 if (sourceType == SourceType.BankJournal.ToString() || sourceType == SourceType.CashJournal.ToString())
                 {
+                    ConnectionManager.DAL.ConManager objCon1;
+                    DataSet dsMaster1 = null;
+                    string setOffsql = @"SELECT V.VoucherNo	
+								from	[TRN].[CapitalizationMasterDetail] CD
+								INNER JOIN trn.VoucherDetail VD ON VD.Id=CD.VoucherDetailId
+								INNER JOIN trn.CapitalizationMaster CM ON CM.Id=CD.CapitalizationMasterId
+								INNER JOIN trn.Voucher V ON V.Id=CM.VoucherId
+								WHERE VD.VoucherId= '" + voucherId + @"')";
+                    objCon1 = new ConnectionManager.DAL.ConManager("1");
+                    objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
+
+                    if (dsMaster1.Tables[0].Rows.Count > 0)
+                    {
+                        throw new CustomException("Voucher Park Mode not allowed,  Voucher No '" + dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
+                    }
+
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     var bankJournalSql = @"UPDATE [TRN].BankJournal SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
@@ -122,6 +154,22 @@ namespace Aplos.Areas.Accounts.Controllers
                     {
                         throw new CustomException("Voucher Park Mode not allowed, Payment Voucher No '"+ dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
                     }
+
+                    DataSet dsMaster2 = null;
+                    string setOffsq2 = @"SELECT V.VoucherNo	
+								from	[TRN].[CapitalizationMasterDetail] CD
+								INNER JOIN trn.VoucherDetail VD ON VD.Id=CD.VoucherDetailId
+								INNER JOIN trn.CapitalizationMaster CM ON CM.Id=CD.CapitalizationMasterId
+								INNER JOIN trn.Voucher V ON V.Id=CM.VoucherId
+								WHERE VD.VoucherId= '" + voucherId + @"')";
+                    objCon1 = new ConnectionManager.DAL.ConManager("1");
+                    objCon1.OpenDataSetThroughAdapter(setOffsq2, out dsMaster2, false, "1");
+
+                    if (dsMaster2.Tables[0].Rows.Count > 0)
+                    {
+                        throw new CustomException("Voucher Park Mode not allowed,  Voucher No '" + dsMaster2.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
+                    }
+
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     var InvoiceSql = @"UPDATE [TRN].Invoice SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
@@ -254,6 +302,22 @@ namespace Aplos.Areas.Accounts.Controllers
                     {
                         throw new CustomException("Voucher Park Mode not allowed, Payment Voucher No '" + dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
                     }
+
+                    DataSet dsMaster2 = null;
+                    string setOffsq2 = @"SELECT V.VoucherNo	
+								from	[TRN].[CapitalizationMasterDetail] CD
+								INNER JOIN trn.VoucherDetail VD ON VD.Id=CD.VoucherDetailId
+								INNER JOIN trn.CapitalizationMaster CM ON CM.Id=CD.CapitalizationMasterId
+								INNER JOIN trn.Voucher V ON V.Id=CM.VoucherId
+								WHERE VD.VoucherId= '" + voucherId + @"')";
+                    objCon1 = new ConnectionManager.DAL.ConManager("1");
+                    objCon1.OpenDataSetThroughAdapter(setOffsq2, out dsMaster2, false, "1");
+
+                    if (dsMaster2.Tables[0].Rows.Count > 0)
+                    {
+                        throw new CustomException("Voucher Park Mode not allowed,  Voucher No '" + dsMaster2.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
+                    }
+
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     var bankJournalSql = @"UPDATE [TRN].EmployeePayable SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
@@ -293,6 +357,22 @@ namespace Aplos.Areas.Accounts.Controllers
                 }
                 if (sourceType == SourceType.ServicePayable.ToString())
                 {
+                    ConnectionManager.DAL.ConManager objCon1;
+                    DataSet dsMaster1 = null;
+                    string setOffsql = @"SELECT V.VoucherNo	
+								from	[TRN].[CapitalizationMasterDetail] CD
+								INNER JOIN trn.VoucherDetail VD ON VD.Id=CD.VoucherDetailId
+								INNER JOIN trn.CapitalizationMaster CM ON CM.Id=CD.CapitalizationMasterId
+								INNER JOIN trn.Voucher V ON V.Id=CM.VoucherId
+								WHERE VD.VoucherId= '" + voucherId + @"')";
+                    objCon1 = new ConnectionManager.DAL.ConManager("1");
+                    objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
+
+                    if (dsMaster1.Tables[0].Rows.Count > 0)
+                    {
+                        throw new CustomException("Voucher Park Mode not allowed,  Voucher No '" + dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
+                    }
+
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
                 }
@@ -373,6 +453,22 @@ namespace Aplos.Areas.Accounts.Controllers
                 }
                 if (sourceType == SourceType.IssueJournal.ToString())
                 {
+                    ConnectionManager.DAL.ConManager objCon1;
+                    DataSet dsMaster1 = null;
+                    string setOffsql = @"SELECT V.VoucherNo	
+								from	[TRN].[CapitalizationMasterDetail] CD
+								INNER JOIN trn.VoucherDetail VD ON VD.Id=CD.VoucherDetailId
+								INNER JOIN trn.CapitalizationMaster CM ON CM.Id=CD.CapitalizationMasterId
+								INNER JOIN trn.Voucher V ON V.Id=CM.VoucherId
+								WHERE VD.VoucherId= '" + voucherId + @"')";
+                    objCon1 = new ConnectionManager.DAL.ConManager("1");
+                    objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
+
+                    if (dsMaster1.Tables[0].Rows.Count > 0)
+                    {
+                        throw new CustomException("Voucher Park Mode not allowed,  Voucher No '" + dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
+                    }
+
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
                 }
