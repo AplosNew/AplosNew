@@ -128,8 +128,21 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         Incoterms:null,
         IncotermsValue: 0,
         AdditionalFrieghtValue: 0,
-        AdditionalFrieght:null
+        AdditionalFrieght: null,
+        TrancastionTypeId: null
     };
+
+
+    $scope.TrancastionTypeCboList = [];
+    function GetTrancastionTypeCboList() {
+        $http({
+            method: 'GET',
+            url: 'Productions/SalesPurchaseTransactionType/GetSalesTypeCbo'
+        }).then(function (response) {
+            $scope.TrancastionTypeCboList = response.data;
+        });
+    }
+    GetTrancastionTypeCboList();
 
     $scope.AdditionalFreightList = [
         { Value: "PercentageOfValue", Text: "Percentage Of Value" },
@@ -705,7 +718,12 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
             IsAdditionalInfoApplicable: true,
             IsIncentiveApplicable: false,
             InvoiceStatus: 'Active',
-            PaymentToReceiveBankId: null
+            PaymentToReceiveBankId: null,
+            Incoterms: null,
+            IncotermsValue: 0,
+            AdditionalFrieghtValue: 0,
+            AdditionalFrieght: null,
+            TrancastionTypeId: null
         };
 
         $scope.materialMaster = {

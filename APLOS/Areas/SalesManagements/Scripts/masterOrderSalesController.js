@@ -61,6 +61,17 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
         }
     ];
 
+    $scope.TrancastionTypeCboList = [];
+    function GetTrancastionTypeCboList() {
+        $http({
+            method: 'GET',
+            url: 'Productions/SalesPurchaseTransactionType/GetSalesTypeCbo'
+        }).then(function (response) {
+            $scope.TrancastionTypeCboList = response.data;
+        });
+    }
+    GetTrancastionTypeCboList();
+
     $scope.getcompanyState = function (addressMasterId) {
         $http.get('Addresses/AddressMaster/GetCompanyState?addressMasterId=' + addressMasterId)
             .then(function (response) {
@@ -154,7 +165,8 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
         Incoterms: null,
         IncotermsValue: 0,
         AdditionalFrieghtValue: 0,
-        AdditionalFrieght: null
+        AdditionalFrieght: null,
+        TrancastionTypeId:null
     };
     $scope.salesVM.TaxOptionAddiTax = 'Yes';
 
@@ -888,7 +900,12 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
             IsAdditionalInfoApplicable: true,
             IsIncentiveApplicable: false,
             InvoiceStatus: 'Active',
-            PaymentToReceiveBankId: null
+            PaymentToReceiveBankId: null,
+            Incoterms: null,
+            IncotermsValue: 0,
+            AdditionalFrieghtValue: 0,
+            AdditionalFrieght: null,
+            TrancastionTypeId: null
         };
 
         $scope.materialMaster = {
