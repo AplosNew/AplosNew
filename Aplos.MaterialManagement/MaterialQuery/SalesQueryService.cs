@@ -1496,12 +1496,12 @@ declare @plantId varchar(10)= '"+ PlantId + @"'--Sangrur
 									,IGSTBC= round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2) 
 									,TCSBC=round(isnull(TAxInfo6.BooksTaxAmount,0),2) 
 								,IID.Id InvoiceRowId
-								,II.Id InvoiceId,II.Id InvoiceNo ,II.SalesDate InvoiceDate,II.DocRefNo,'InventorySales' SalesType,II.DocDate
+								,II.Id InvoiceId,II.Id InvoiceNo ,REPLACE(CONVERT(CHAR(11), II.SalesDate, 106),' ','-') InvoiceDate,II.DocRefNo,'InventorySales' SalesType,II.DocDate
 									,'' ProductionOrder
 									,'' MasterOrder
 									,'' SalesOrder
-								,CU.Code InvoiceCurrency,II.ToCurrencyRate InvoiceCurrencyRate,PT.PaymentMode,PT.UserName PaymentTerm,'' PaymentDays,II.MatureDate,DATEDIFF(DAY, GETDATE(),II.MatureDate) DueDays
-								,V.VoucherNo,V.Id VoucherId,FORMAT(V.PostingDate, 'dd-MMM-yyyy') PostingDate,V.PostedDate,V.IsPark,'' OrderType
+								,CU.Code InvoiceCurrency,II.ToCurrencyRate InvoiceCurrencyRate,PT.PaymentMode,PT.UserName PaymentTerm,'' PaymentDays,REPLACE(CONVERT(CHAR(11), II.MatureDate, 106),' ','-') MatureDate,DATEDIFF(DAY, GETDATE(),II.MatureDate) DueDays
+								,V.VoucherNo,V.Id VoucherId,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') PostingDate,V.PostedDate,V.IsPark,'' OrderType
 								,'' CustomerArticle,ART.StandardName Article,PM.Code ProductCode,PM.UserName ProductGroup,MGM.UserName AS MaterialGroup,MT.UserName MaterialType
 								,MM.UserName Material,MC.UserName MaterialCategory,MSC.UserName MaterialSubCategory,HS.Code HSNCode
 								,TUoM.UserName UOM,IID.TransactionQty,IID.SalesRate TransactionRate,IID.BooksCurrencyTransactionAmount TransactionAmount,'' Remark,'' DrControlId,'' CrControlId
