@@ -181,6 +181,7 @@ namespace Library.Service.SalesManagements
                     IsAdditionalInfoApplicable = voucherVM.IsAdditionalInfoApplicable,
                     InvoiceStatus = voucherVM.InvoiceStatus,
                     PaymentToReceiveBankId = voucherVM.PaymentToReceiveBankId,
+                    TrancastionTypeId = voucherVM.TrancastionTypeId,
                     SourceType = "Sales",
                     ModelState = ModelState.Added,
                     Id = "S" + _pkGeneratorService.GetAutoNumber(nameof(Sales), PKGeneratorEnum.Yearly, null, DateTime.Now)
@@ -398,6 +399,7 @@ namespace Library.Service.SalesManagements
                 sales.BaseNoOfDays = voucherVM.BaseNoOfDays;
                 sales.MatureDate = voucherVM.MatureDate;
                 sales.Narration = voucherVM.Narration;
+                sales.TrancastionTypeId = voucherVM.TrancastionTypeId;
                 sales.ModelState = ModelState.Modified;
                 AuditService.UpdatedLog(sales);
                 _salesRepository.Update(sales);
@@ -1661,6 +1663,7 @@ namespace Library.Service.SalesManagements
                     ComercialInvoiceNo = voucherVM.ComercialInvoiceNo,
                     IsAdditionalInfoApplicable = voucherVM.IsAdditionalInfoApplicable,
                     PaymentToReceiveBankId = voucherVM.PaymentToReceiveBankId,
+                    TrancastionTypeId = voucherVM.TrancastionTypeId,
                     SourceType = "MasterOrderSales",
                     Id = "MS" + _pkGeneratorService.GetAutoNumber(nameof(Sales), PKGeneratorEnum.Yearly, null, DateTime.Now),
                 };
@@ -1930,7 +1933,7 @@ namespace Library.Service.SalesManagements
                 sales.UpdatedDate = voucherVM.UpdatedDate;
                 sales.UpdatedFromIP = voucherVM.UpdatedFromIP;
                 sales.SourceType = "MasterOrderSales";
-
+                sales.TrancastionTypeId = voucherVM.TrancastionTypeId;
                 sales.ModelState = ModelState.Modified;
 
                 sales.DocRefNo = sales.Id;
@@ -3116,6 +3119,7 @@ namespace Library.Service.SalesManagements
                     AdditionalFrieghtValue = voucherVM.AdditionalFrieghtValue,
                     Incoterms = voucherVM.Incoterms,
                     IncotermsValue = voucherVM.IncotermsValue,
+                    TrancastionTypeId = voucherVM.TrancastionTypeId,
                     SourceType = "Packing",
                     Id = "MS" + _pkGeneratorService.GetAutoNumber(nameof(Sales), PKGeneratorEnum.Yearly, null, DateTime.Now),
                 };
@@ -3497,7 +3501,7 @@ namespace Library.Service.SalesManagements
                     UpdatedDate = voucherVM.UpdatedDate,
                     UpdatedFromIP = voucherVM.UpdatedFromIP,
                     SourceType = "Packing",
-
+                    TrancastionTypeId = voucherVM.TrancastionTypeId,
                     ModelState = ModelState.Modified,
                     Id = voucherVM.Id
                 };
