@@ -272,7 +272,9 @@ function SalesProcessController(cboService, commonMessage, $scope, $rootScope, b
             }
     };
     $scope.SalesTypeList = [];
+    $scope.salesProcessTypeList = [];
     $scope.getSalesTypeData = function () {
+        var ob = { Id: null, UserName : null };
         $http({
             method: 'POST',
             url: $scope.path + "GetSalesTypelist",
@@ -280,10 +282,17 @@ function SalesProcessController(cboService, commonMessage, $scope, $rootScope, b
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.SalesTypeList = response.data;
+            for (var i = 0; i < $scope.SalesTypeList.length; i++) {
+                ob.UserName = $scope.SalesTypeList[i].UserName;
+                ob.Id = $scope.SalesTypeList[i].Id;
+                $scope.salesProcessTypeList.push(ob);
+                ob = { Id: null, UserName: null };
+            }
             $scope.GetSalesTypeSequence();
         });
     }
     $scope.getSalesTypeData();
+
     $scope.ModelTem = {
         Id: null,
         Sequence: 0,
@@ -360,7 +369,7 @@ function SalesProcessController(cboService, commonMessage, $scope, $rootScope, b
         }
     };
 
-    $scope.ClearalesType = function () {
+    $scope.ClearSalesType = function () {
         ClearSalesTypeFields($scope.GetSalesTypeSequence());
         return true;
     };
@@ -372,6 +381,27 @@ function SalesProcessController(cboService, commonMessage, $scope, $rootScope, b
     }
 
 
+    $scope.showSPPopUp = function (obj) {
+        try {
+            $scope.getData();
+            angular.element(document.querySelector('#SPPopUp')).modal('show');
 
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.SetDPTData = function (obj) {
+        $scope.rowdata.DepartmentId = obj.data.Id;
+        $scope.rowdata.Department = obj.data.UserName;
+        var gridObj = $("#GridSalPT").data("ejGrid");
+        gridObj.refreshContent();
+        gridObj.refreshTemplate();
+        angular.element(document.querySelector('#SPPopUp')).modal('hide');
+    };
+    $scope.closeDPTPopup = function (obj) {
+        angular.element(document.querySelector('#SPPopUp')).modal('hide');
+    };
 
 }

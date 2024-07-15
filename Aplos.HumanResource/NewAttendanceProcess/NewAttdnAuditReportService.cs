@@ -447,6 +447,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var iEmployeeCode = 0;
                 var iDesignation = 0;
                 var iDOJ = 0;
+                var iDOS = 0;
                 var iInTime = 0;
                 var iEmployeeName = 0;
                 var iTelephoneNo = 0;
@@ -8173,6 +8174,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet28.Range[xlsRow, iDOJ].ColumnWidth = 18;
 
                     xlsCol += 1;
+                    iDOS = xlsCol;
+                    sheet28.Range[xlsRow, iDOS].Text = "DOS";
+                    sheet28.Range[xlsRow, iDOS].ColumnWidth = 18;
+
+                    xlsCol += 1;
                     iRawPunch = xlsCol;
                     sheet28.Range[xlsRow, iRawPunch].Text = "PunchTime";
                     sheet28.Range[xlsRow, iRawPunch].ColumnWidth = 18;
@@ -8213,6 +8219,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             sheet28.Range[xlsRow, iEntity].Text = dtSeparatedEmpWithPunches.Rows[i]["Entity"].ToString();
 
                             sheet28.Range[xlsRow, iDOJ].Text = dtSeparatedEmpWithPunches.Rows[i]["DOJ"].ToString();
+                            sheet28.Range[xlsRow, iDOS].Text = dtSeparatedEmpWithPunches.Rows[i]["DOS"].ToString();
 
                             sheet28.Range[xlsRow, iRawPunch].Text = dtSeparatedEmpWithPunches.Rows[i]["PunchTime"].ToString();
 
@@ -10471,6 +10478,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             , FORMAT(E.DOJ, 'dd-MMM-yyyy') DOJ
                             , EC.UserName as EmpCategory
                             , L.UserName Line,FORMAT(a.PTime,'dd-MMM-yyyy hh:mm:ss tt') as PunchTime
+                            ,FORMAT(E.DOS,'dd-MMM-yyyy')DOS
 						from employeeinformation e
 						left join AttdnRawData a on a.LogDownLoadNum=e.systemId  
 						LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
