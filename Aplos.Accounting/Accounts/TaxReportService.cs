@@ -12774,7 +12774,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                 SELECT SourceType= case when V.SourceType='VendorInvoice' then 'Inbound Invoice'
 						                when V.SourceType='VendorPayment' then 'Vendor Payment'
 						                when V.SourceType='CreditNoteSetOff' then 'Credit Note SetOff'
-						                when V.SourceType='InventoryPayable' then 'Purchase' else '' end
+						                when V.SourceType='InventoryPayable' then 'Purchase' else V.SourceType end
                 ,IWD.VoucherNo InvoiceVoucherNo,IWD.InventoryReceiveId
 				,IWD.PostingDate InvoicePostingDate,iwd.DocRefNo InvoieDocRefNo,format( IWD.DocDate, 'dd-MMM-yyyy') InvoiceDocDate
 				,V.VoucherNo,Format(V.PostingDate,'dd-MMM-yyyy') PostingDate,V.DocRefNo,format( V.DocDate, 'dd-MMM-yyyy')DocDate, P.UserName PartyName,P.TINNO GSTIN 
