@@ -12782,7 +12782,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 				                   when v.SourceType='VendorInvoice' then 'GL'
 				                   when v.SourceType='VendorPayment' then 'GL'
 				                   when v.SourceType='CreditNoteSetOff' then 'GL'
-				                   else '' end
+				                   else 'GL' end
 				 ,Particular=case when v.SourceType='InventoryPayable' then TXC.UserName 
 								  WHEN v.SourceType='VendorInvoice' THEN A.UserName
                                   WHEN v.SourceType='VendorPayment' THEN A.UserName
