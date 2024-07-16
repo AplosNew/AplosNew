@@ -3000,6 +3000,12 @@ namespace Library.Service.SalaryDisbursement
             try
             {
                 _unitOfWork.BeginTransaction();
+                var voucher = _voucherService.FindVoucher(voucherId);
+                if (voucher.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.CheckingFiscalYearClose(voucher);
                 flag = true;
                 var direct = new System.Text.StringBuilder();
                 var directsql = "";
@@ -3025,10 +3031,6 @@ namespace Library.Service.SalaryDisbursement
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
-                var voucher = _voucherService.FindVoucher(voucherId);
-                if (voucher.IsPark == false)
-                    throw new CustomException("Delete is not allow after post ! ");
-
 
                 var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
                 var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
@@ -3231,6 +3233,12 @@ namespace Library.Service.SalaryDisbursement
             try
             {
                 _unitOfWork.BeginTransaction();
+                var voucher = _voucherService.FindVoucher(voucherId);
+                if (voucher.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.CheckingFiscalYearClose(voucher);
                 flag = true;
                 var direct = new System.Text.StringBuilder();
                 var directsql = "";
@@ -3258,10 +3266,6 @@ namespace Library.Service.SalaryDisbursement
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
-                var voucher = _voucherService.FindVoucher(voucherId);
-                if (voucher.IsPark == false)
-                    throw new CustomException("Delete is not allow after post ! ");
-
 
                 var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
                 var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
@@ -3330,6 +3334,9 @@ namespace Library.Service.SalaryDisbursement
                 var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
+
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.CheckingFiscalYearClose(voucher);
 
 
                 var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
@@ -3409,6 +3416,12 @@ namespace Library.Service.SalaryDisbursement
             try
             {
                 _unitOfWork.BeginTransaction();
+                var voucher = _voucherService.FindVoucher(voucherId);
+                if (voucher.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.CheckingFiscalYearClose(voucher);
                 ConnectionManager.DAL.ConManager objCon1;
                 DataSet dsMaster2 = null;
                 string setOffsql2 = @"SELECT VoucherNo from trn.AdvanceWriteOffDetail iwd JOIN trn.AdvanceWriteOff iw on iw.Id=iwd.AdvanceWriteOffId LEFT JOIN trn.Voucher v on v.Id = iw.VoucherId
@@ -3449,10 +3462,6 @@ namespace Library.Service.SalaryDisbursement
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
-                var voucher = _voucherService.FindVoucher(voucherId);
-                if (voucher.IsPark == false)
-                    throw new CustomException("Delete is not allow after post ! ");
-
 
                 var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
                 var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
@@ -3535,6 +3544,12 @@ namespace Library.Service.SalaryDisbursement
             try
             {
                 _unitOfWork.BeginTransaction();
+                var voucher = _voucherService.FindVoucher(voucherId);
+                if (voucher.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.CheckingFiscalYearClose(voucher);
                 flag = true;
                 var direct = new System.Text.StringBuilder();
                 var directsql = "";
@@ -3600,10 +3615,6 @@ namespace Library.Service.SalaryDisbursement
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
-                var voucher = _voucherService.FindVoucher(voucherId);
-                if (voucher.IsPark == false)
-                    throw new CustomException("Delete is not allow after post ! ");
-
 
                 var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
                 var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
