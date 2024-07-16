@@ -381,8 +381,9 @@ function SalesProcessController(cboService, commonMessage, $scope, $rootScope, b
     }
 
 
-    $scope.showSPPopUp = function (obj) {
+    $scope.GetDependentProcessInfo = function (obj) {
         try {
+            $scope.rowdata = obj.data;
             $scope.getData();
             angular.element(document.querySelector('#SPPopUp')).modal('show');
 
@@ -392,15 +393,15 @@ function SalesProcessController(cboService, commonMessage, $scope, $rootScope, b
         }
     };
 
-    $scope.SetDPTData = function (obj) {
-        $scope.rowdata.DepartmentId = obj.data.Id;
-        $scope.rowdata.Department = obj.data.UserName;
+    $scope.SetSPData = function (obj) {
+        $scope.rowdata.DependentProcessId = obj.data.Id;
+        $scope.rowdata.DependentProcess = obj.data.SalesProcess;
         var gridObj = $("#GridSalPT").data("ejGrid");
         gridObj.refreshContent();
         gridObj.refreshTemplate();
         angular.element(document.querySelector('#SPPopUp')).modal('hide');
     };
-    $scope.closeDPTPopup = function (obj) {
+    $scope.closeSPPopup = function (obj) {
         angular.element(document.querySelector('#SPPopUp')).modal('hide');
     };
 

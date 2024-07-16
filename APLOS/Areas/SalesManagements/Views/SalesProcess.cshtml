@@ -193,7 +193,7 @@
                     <div e-column e-template="#SalesType" e-field="SalesTypeId" e-headertext="Sales Type" e-width="4"></div>
                     <div e-column e-field="Sequence" e-headertext="Sales Sequence" e-width="2"></div>
                     <div e-column e-field="SalesProcess" e-headertext="SalesProcess" e-width="4"></div>
-                    <div e-column e-template="#DependandProcess" e-field="DependandProcess" e-headertext="Dependand Process" e-width="5"></div>
+                    <div e-column e-template="#DependentProcess" e-field="DependentProcess" e-headertext="Dependent Process" e-width="5"></div>
                     <div e-column e-template="#PaymentMode" e-field="PaymentMode" e-headertext="Payment Mode" e-width="4"></div>
                     <div e-column e-template="#StandardDaysfromInvoice" e-field="StandardDaysfromInvoice" e-headertext="StandardDaysfromInvoice" e-width="5"></div>
                     <div e-column e-template="#StandardDaysFromPreviousProcess" e-field="StandardDaysFromPreviousProcess" e-headertext="StandardDaysFromPreviousProcess" e-width="5"></div>
@@ -225,12 +225,12 @@
             </script>
             <script type="text/template" id="StandardDaysfromInvoice">
                 <div class="col-sm-12">
-                    <input tabindex="1" type="text" name="Responsible Prerson" ng-model="data.StandardDaysfromInvoice" class="form-control">
+                    <input tabindex="1" type="text" name="StandardDaysfromInvoice" ng-model="data.StandardDaysfromInvoice" class="form-control">
                 </div>
             </script>
             <script type="text/template" id="StandardDaysFromPreviousProcess">
                 <div class="col-sm-12">
-                    <input tabindex="1" type="text" name="Responsible Prerson" ng-model="data.StandardDaysFromPreviousProcess" class="form-control">
+                    <input tabindex="1" type="text" name="StandardDaysFromPreviousProcess" ng-model="data.StandardDaysFromPreviousProcess" class="form-control">
                 </div>
             </script>
             <script type="text/template" id="BankApplicable">
@@ -257,11 +257,11 @@
                     </span>
                 </div>
             </script>
-            <script type="text/template" id="DependandProcess">
+            <script type="text/template" id="DependentProcess">
                 <div class="input-group">
-                    <input tabindex="1" type="text" name="DependandProcess" ng-model="data.DependandProcess" class="form-control" readonly>
+                    <input tabindex="1" type="text" name="DependentProcess" ng-model="data.DependentProcess" class="form-control" readonly>
                     <span class="input-group-btn">
-                        <button ng-click="$parent.GetDependandProcessInfo(this);" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="$parent.GetDependentProcessInfo(this);" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
                 </div>
             </script>
@@ -393,7 +393,7 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-xs-12 col-sm-12 col-sm-12">
-                        <div id="GridSP" ej-grid e-datasource="ModelList" e-recorddoubleclick="SetSP" 
+                        <div id="GridSP" ej-grid e-datasource="ModelList" e-recorddoubleclick="SetSPData" 
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                             <div e-columns>
