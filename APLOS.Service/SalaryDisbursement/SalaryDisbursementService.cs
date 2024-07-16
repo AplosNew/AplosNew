@@ -3080,6 +3080,24 @@ namespace Library.Service.SalaryDisbursement
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
 
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.CheckingFiscalYearClose(voucher);
+
+                ConnectionManager.DAL.ConManager objCon1;
+                DataSet dsMaster1 = null;
+                string setOffsql = @"SELECT V.VoucherNo
+								from	 [dbo].[SalaryLock] SL
+								INNER JOIN trn.Voucher V ON V.Id=SL.DisbursementVoucherId
+								WHERE SL.PayableVoucherId= '" + voucherId + @"'
+                                GROUP BY V.VoucherNo ";
+                objCon1 = new ConnectionManager.DAL.ConManager("1");
+                objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
+
+                if (dsMaster1.Tables[0].Rows.Count > 0)
+                {
+                    throw new CustomException("Voucher delete not allowed,  Voucher No '" + dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
+                }
+
                 var direct = new System.Text.StringBuilder();
 
                 var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();

@@ -5327,12 +5327,14 @@ Where BM.AccountType='HouseBank'";
 		}
 		public IEnumerable<object> GetSalesProcessTransactionList()
         {
-            string sql = @"SELECT SPM.Id SalesProcessId,SPM.SalesProcess,SPM.Sequence,T.Id,T.SalesTypeId,T.PaymentModeId,T.StandardDaysFromInvoice,T.StandardDaysFromPreviousProcess,T.IsBankApplicable
-,T.BankMasterId,T.DepartmentId,T.ResponsiblePersonId,T.PaymentProcess,T.Remark,EI.EmployeeName ResponsiblePerson,DP.UserName Department,BM.AccountNumber,B.UserName BankName FROM HKP.SalesProcessMaster SPM
-OUTER APPLY (Select T.Id,T.SalesTypeId,T.PaymentModeId,T.StandardDaysFromInvoice,T.StandardDaysFromPreviousProcess,T.IsBankApplicable
+            string sql = @"SELECT SPM.Id SalesProcessId,SPM.SalesProcess,SPM.Sequence,T.Id,T.SalesTypeId,T.DependentProcessId,T.PaymentModeId,T.StandardDaysFromInvoice,T.StandardDaysFromPreviousProcess,T.IsBankApplicable
+,T.BankMasterId,T.DepartmentId,T.ResponsiblePersonId,T.PaymentProcess,T.Remark,EI.EmployeeName ResponsiblePerson,DP.UserName Department,BM.AccountNumber,B.UserName BankName,DPM.SalesProcess DependentProcess
+FROM HKP.SalesProcessMaster SPM
+OUTER APPLY (Select T.Id,T.SalesTypeId,T.DependentProcessId,T.PaymentModeId,T.StandardDaysFromInvoice,T.StandardDaysFromPreviousProcess,T.IsBankApplicable
 ,T.BankMasterId,T.DepartmentId,T.ResponsiblePersonId,T.PaymentProcess,T.Remark
 from TRN.SalesProcessTransaction T Where SalesProcessId=SPM.Id
 ) T
+LEFT JOIN HKP.SalesProcessMaster  DPM ON DPM.Id=T.DependentProcessId
 LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=T.ResponsiblePersonId
 LEFT JOIN ORG.Department DP ON DP.Id= T.DepartmentId
 LEFT JOIN [MST].BankMaster BM ON BM.Id= T.BankMasterId

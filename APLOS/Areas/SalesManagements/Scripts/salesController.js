@@ -147,7 +147,8 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
         Incoterms: null,
         IncotermsValue: 0,
         AdditionalFrieghtValue: 0,
-        AdditionalFrieght: null
+        AdditionalFrieght: null,
+        TrancastionTypeId: null
     };
     $scope.salesVM.TaxOptionAddiTax = 'Yes';
     $scope.materialMaster = {
@@ -442,6 +443,17 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
         }
     };
 
+    $scope.TrancastionTypeCboList = [];
+    function GetTrancastionTypeCboList() {
+        $http({
+            method: 'GET',
+            url: 'Productions/SalesPurchaseTransactionType/GetSalesTypeCbo'
+        }).then(function (response) {
+            $scope.TrancastionTypeCboList = response.data;
+        });
+    }
+    GetTrancastionTypeCboList();
+
     $scope.Save = function () {
         try {
             if (baseService.isUndefinedOrNull($scope.salesVM.InvoicingPartyPlantId)) {
@@ -632,7 +644,12 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
             IsAdditionalInfoApplicable: true,
             IsIncentiveApplicable: false,
             InvoiceStatus: 'Active',
-            PaymentToReceiveBankId: null
+            PaymentToReceiveBankId: null,
+            Incoterms: null,
+            IncotermsValue: 0,
+            AdditionalFrieghtValue: 0,
+            AdditionalFrieght: null,
+            TrancastionTypeId: null
         };
 
         $scope.materialMaster = {

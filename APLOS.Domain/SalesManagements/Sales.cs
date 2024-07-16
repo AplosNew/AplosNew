@@ -41,6 +41,8 @@ namespace Library.Model.SalesManagements
         public decimal IncotermsValue { get; set; }
        
         public string CancelStatus { get; set; }
+        public string TrancastionTypeId { get; set; }
+
         #endregion Scalar Properties
 
         #region Audit Properties

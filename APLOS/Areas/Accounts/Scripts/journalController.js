@@ -338,6 +338,7 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
 
     $scope.Clear = function () {
         $scope.Action = "Save";
+        $scope.saveBtnDisable = false;
         $scope.voucher.Active = true;
         $scope.voucher.Amount = 0;
         $scope.voucher.DocRefNo = null;
@@ -361,9 +362,11 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
 
         return false;
     };
+    $scope.saveBtnDisable = false;
     $scope.Save = function () {
         $scope.$broadcast("show-errors-check-validity");
         if ($scope.form0.$valid && !$scope.validation()) {
+            $scope.saveBtnDisable = true;
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",
@@ -375,9 +378,11 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
                     dataType: "JSON"
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
+                        $scope.saveBtnDisable = false;
                         ShowResult(response.data.Message, "failure");
                     }
                     else {
+                        $scope.saveBtnDisable = false;
                         ShowResult(response.data.Message, "success");
                         $scope.getData();
                         $scope.Clear();
@@ -398,9 +403,11 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
                     dataType: "JSON"
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
+                        $scope.saveBtnDisable = false;
                         ShowResult(response.data.Message, "failure");
                     }
                     else {
+                        $scope.saveBtnDisable = false;
                         ShowResult(response.data.Message, "success");
                         $scope.getData();
                         $scope.Clear();
