@@ -91,7 +91,7 @@ namespace Aplos.Areas.Accounts.Controllers
 								INNER JOIN trn.VoucherDetail VD ON VD.Id=CD.VoucherDetailId
 								INNER JOIN trn.CapitalizationMaster CM ON CM.Id=CD.CapitalizationMasterId
 								INNER JOIN trn.Voucher V ON V.Id=CM.VoucherId
-								WHERE VD.VoucherId= '" + voucherId + @"')";
+								WHERE VD.VoucherId= '" + voucherId + @"' ";
                     objCon1 = new ConnectionManager.DAL.ConManager("1");
                     objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
 
@@ -112,7 +112,7 @@ namespace Aplos.Areas.Accounts.Controllers
 								INNER JOIN trn.VoucherDetail VD ON VD.Id=CD.VoucherDetailId
 								INNER JOIN trn.CapitalizationMaster CM ON CM.Id=CD.CapitalizationMasterId
 								INNER JOIN trn.Voucher V ON V.Id=CM.VoucherId
-								WHERE VD.VoucherId= '" + voucherId + @"')";
+								WHERE VD.VoucherId= '" + voucherId + @"' ";
                     objCon1 = new ConnectionManager.DAL.ConManager("1");
                     objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
 
@@ -161,7 +161,7 @@ namespace Aplos.Areas.Accounts.Controllers
 								INNER JOIN trn.VoucherDetail VD ON VD.Id=CD.VoucherDetailId
 								INNER JOIN trn.CapitalizationMaster CM ON CM.Id=CD.CapitalizationMasterId
 								INNER JOIN trn.Voucher V ON V.Id=CM.VoucherId
-								WHERE VD.VoucherId= '" + voucherId + @"')";
+								WHERE VD.VoucherId= '" + voucherId + @"' ";
                     objCon1 = new ConnectionManager.DAL.ConManager("1");
                     objCon1.OpenDataSetThroughAdapter(setOffsq2, out dsMaster2, false, "1");
 
@@ -309,7 +309,7 @@ namespace Aplos.Areas.Accounts.Controllers
 								INNER JOIN trn.VoucherDetail VD ON VD.Id=CD.VoucherDetailId
 								INNER JOIN trn.CapitalizationMaster CM ON CM.Id=CD.CapitalizationMasterId
 								INNER JOIN trn.Voucher V ON V.Id=CM.VoucherId
-								WHERE VD.VoucherId= '" + voucherId + @"')";
+								WHERE VD.VoucherId= '" + voucherId + @"' ";
                     objCon1 = new ConnectionManager.DAL.ConManager("1");
                     objCon1.OpenDataSetThroughAdapter(setOffsq2, out dsMaster2, false, "1");
 
@@ -341,6 +341,20 @@ namespace Aplos.Areas.Accounts.Controllers
                 }
                 if (sourceType == SourceType.SalaryPayable.ToString() || sourceType == SourceType.SalaryDisbursement.ToString() || sourceType == SourceType.BonusDisbursement.ToString() || sourceType == SourceType.PFESICDisbursement.ToString() )
                 {
+                    ConnectionManager.DAL.ConManager objCon1;
+                    DataSet dsMaster1 = null;
+                    string setOffsql = @"SELECT V.VoucherNo
+								from	 [dbo].[SalaryLock] SL
+								INNER JOIN trn.Voucher V ON V.Id=SL.DisbursementVoucherId
+								WHERE SL.PayableVoucherId= '" + voucherId + @"'
+                                GROUP BY V.VoucherNo ";
+                    objCon1 = new ConnectionManager.DAL.ConManager("1");
+                    objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
+
+                    if (dsMaster1.Tables[0].Rows.Count > 0)
+                    {
+                        throw new CustomException("Voucher Park Mode not allowed,  Voucher No '" + dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
+                    }
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
                 }
@@ -364,7 +378,7 @@ namespace Aplos.Areas.Accounts.Controllers
 								INNER JOIN trn.VoucherDetail VD ON VD.Id=CD.VoucherDetailId
 								INNER JOIN trn.CapitalizationMaster CM ON CM.Id=CD.CapitalizationMasterId
 								INNER JOIN trn.Voucher V ON V.Id=CM.VoucherId
-								WHERE VD.VoucherId= '" + voucherId + @"')";
+								WHERE VD.VoucherId= '" + voucherId + @"' ";
                     objCon1 = new ConnectionManager.DAL.ConManager("1");
                     objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
 
@@ -460,7 +474,7 @@ namespace Aplos.Areas.Accounts.Controllers
 								INNER JOIN trn.VoucherDetail VD ON VD.Id=CD.VoucherDetailId
 								INNER JOIN trn.CapitalizationMaster CM ON CM.Id=CD.CapitalizationMasterId
 								INNER JOIN trn.Voucher V ON V.Id=CM.VoucherId
-								WHERE VD.VoucherId= '" + voucherId + @"')";
+								WHERE VD.VoucherId= '" + voucherId + @"' ";
                     objCon1 = new ConnectionManager.DAL.ConManager("1");
                     objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
 
