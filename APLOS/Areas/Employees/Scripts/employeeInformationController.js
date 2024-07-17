@@ -259,9 +259,11 @@ function employeeInformationController(addressService, fileReader, cboService, c
             method: 'GET',
             url: 'Employees/Caste/GetCbo'
         }).then(function (response) {
-            $scope.EmpAddInfoLabel = response.data[0].Text;
-            $scope.EmpAddInfoLabelId = response.data[0].Value;
-            GetCasteDetailCboList();
+            if (baseService.arrayLength(response.data) > 0) {
+                $scope.EmpAddInfoLabel = response.data[0].Text;
+                $scope.EmpAddInfoLabelId = response.data[0].Value;
+                GetCasteDetailCboList();
+            }
         });
     }
     GetCasteCboList();
@@ -597,7 +599,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $scope.employeeNew.PositionID = data.PositionId;
             $scope.employeeNew.IsDirect = data.IsDirect;
             $scope.employeeNew.FixSystemID = data.ShiftDefinationId;
-           
+
 
         } catch (e) {
             ShowResult(e, 'failure');
