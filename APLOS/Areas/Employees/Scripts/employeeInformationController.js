@@ -171,7 +171,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         ExcludeOT: false,
         IsOutSider: false,
         EmpCodeType: null,
-        CasteId:null
+        CasteId: null
     };
     $scope.employeeNew = Object.assign({}, $scope.model);
     $scope.employeeInformation = Object.assign({}, $scope.model);
@@ -223,7 +223,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
                         angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('show');
                     }
                 })
-
+                $scope.LoadPlantJobLocation();
             }
             else {
                 throw "Select Employee Code Type.";
@@ -275,7 +275,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $scope.CasteDetailCboList = response.data;
         });
     }
-    
+
 
     function GetEmpCodeGenSetting() {
         $http({
@@ -338,7 +338,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
     }
 
     $scope.CloseBankPopUp = function () {
-            angular.element(document.querySelector('#EmpBankPopUp')).modal('hide');
+        angular.element(document.querySelector('#EmpBankPopUp')).modal('hide');
     }
 
     $scope.BankInfolist = [];
@@ -581,7 +581,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         try {
             $scope.employeeNew.BudgetCode = data.Id;
             $scope.employeeNew.Code = data.Code;
-
+            $scope.GetOnRollByBudget(data.Id);
             $scope.employeeNew.DesignationSystemID = data.DesignationId;
             $scope.employeeNew.Designation = data.Designation;
             $scope.employeeNew.PositionName = data.PositionName;
@@ -596,7 +596,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $scope.employeeNew.EmploymentType = data.EmploymentType;
             $scope.employeeNew.PositionID = data.PositionId;
             $scope.employeeNew.IsDirect = data.IsDirect;
-            $scope.GetOnRollByBudget(data.Id);
+            $scope.employeeNew.FixSystemID = data.ShiftDefinationId;
+           
 
         } catch (e) {
             ShowResult(e, 'failure');
@@ -628,11 +629,15 @@ function employeeInformationController(addressService, fileReader, cboService, c
         try {
             $http.get('employees/EmployeeInformation/GetOnRollByBudget?budgetId=' + budgetId)
                 .then(function (response) {
-                    if (response.data[0].TotalNumber < response.data[0].OnRollManPwr || response.data[0].TotalNumber == response.data[0].OnRollManPwr) {
-                        ShowResult("On Roll Manpower is exceeding Budgeted Manpower.", 'failure', 'popUpId');;
-                    }
-                    else {
-                        angular.element(document.querySelector('#popUpId')).modal('hide');
+                    if (baseService.arrayLength(response.data) > 0) {
+                        if (response.data[0].TotalNumber < response.data[0].OnRollManPwr || response.data[0].TotalNumber == response.data[0].OnRollManPwr) {
+                            ShowResult("On Roll Manpower is exceeding Budgeted Manpower.", 'failure', 'popUpId');
+                        }
+                        else {
+                            angular.element(document.querySelector('#popUpId')).modal('hide');
+                        }
+                    } else {
+                        ShowResult("On Roll Manpower is not defined in Budgeted Manpower.", 'failure', 'popUpId');
                     }
                 });
         } catch (e) {
@@ -802,6 +807,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $http.get('employees/EmployeeInformation/GetJobLocationCbo?flag=' + $scope.Flag)
             .then(function (response) {
                 $scope.JobLocationList = response.data;
+                $scope.employeeNew.JobLocationID = response.data[0].SystemID;
             });
 
         $scope.Flag = "Load Less";
@@ -815,6 +821,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $http.get('employees/EmployeeInformation/GetJobLocationCbo?flag=' + $scope.Flag)
             .then(function (response) {
                 $scope.JobLocationList = response.data;
+                $scope.employeeNew.JobLocationID = response.data[0].SystemID;
+                $scope.GetShiftCbo();
             });
         $scope.Flag = "Load All";
     };
