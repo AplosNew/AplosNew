@@ -4917,7 +4917,7 @@ namespace Library.HumanResource.Report.Payroll
 													   WHERE EmpSlr.IsLocked = 1  and 1=1
 														and EmpBasic.PlantId = '" + plantId + @"' 
                                                 " + getMonthYearBonus(fromDate, toDate, "EmpSlr.YearNo", "EmpSlr.MonthNo") + @"
-													AND EmpSlr.HeadCategory In( 'Basic','Other Bonus','RetainedBonus','Monthly Bonus Retain') --AND EmpSystemId = '2010025' 
+													AND EmpSlr.HeadCategory In( 'Basic','Other Bonus','RetainedBonus','Monthly Bonus Retain','Annual Bonus Retain') --AND EmpSystemId = '2010025' 
                                                     ORDER BY EmpSystemId,YearNo,MonthNo";
             DataTable dt = _sqlRepository.GetDataTable(strSql);
 
