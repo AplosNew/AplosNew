@@ -1095,6 +1095,7 @@ namespace Library.Service.SalesManagements
                     IsSplit = voucherVM.IsSplit,
                     PartyId = voucherVM.PartyId,
                     PartyPlantId = voucherVM.PartyPlantId,
+                    DeliveryPartyPlantId = voucherVM.DeliveryPartyPlantId,
                     PartyType = PartyType.Customer.ToString(),
                     EmployeeId = voucherVM.EmployeeId,
                     PaymentTermId = voucherVM.PaymentTermId,

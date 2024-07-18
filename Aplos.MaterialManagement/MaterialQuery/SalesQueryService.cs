@@ -922,14 +922,14 @@ namespace Aplos.MaterialManagement.MaterialQuery
 												WHERE B.Code='AIT' --and A.SalesServiceId IS NULL		
 												Group by A.salesMaterialId
 									) TAxInfo5 ON TAxInfo5.salesMaterialId=SMD.Id 
-									LEFT JOIN (SELECT SA.PartyId
+									LEFT JOIN (SELECT SA.PartyId,SA.Id
 									,SUM(A.BooksCurrencyTaxAmount) BooksTaxAmount,SUM(TaxAmount) TaxAmount
 												FROM trn.SalesAdditionalTax A
 												LEFT JOIN TRN.Sales SA ON SA.Id=A.SalesId
 												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 		
 												WHERE B.Code='TCS'  
-												Group BY SA.PartyId				
-									) TAxInfo6 ON TAxInfo6.PartyId=SA.PartyId
+												Group BY SA.PartyId	,SA.Id			
+									) TAxInfo6 ON TAxInfo6.PartyId=SA.PartyId and TAxInfo6.Id=sa.Id
 									LEFT JOIN(Select ISS.SalesId, Sum(ISS.Amount) ServiceAmount,Sum(ISS.TaxAmount) ServiceTax,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount,sum(BooksCurrencyTaxAmount) BooksCurrencyTaxAmount
 											from trn.SalesService AS ISS
 											LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
@@ -1100,12 +1100,14 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									LEFT JOIN [ORG].[Company] AS CO ON CO.Id=SA.CompanyId
 									LEFT JOIN [SCS].[Currency] AS C ON C.Id=CO.BaseCurrencyId
 									LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=P.ResponsiblePersonId
-									LEFT JOIN (SELECT PartyId,PartyPlantId,sum(WrittenOffAmount) SetOff,SourceType 
-													from [TRN].Invoice where  PartyType='Customer' and SourceType='SalesInvoice'
+									LEFT JOIN (SELECT PartyId,PartyPlantId ,DeliverypartyplantId=case when isnull(deliverypartyplantId,'')<>'' then deliverypartyplantId else partyplantId end
+										,sum(WrittenOffAmount) SetOff,SourceType 
+											FROM  [TRN].Invoice 
+													where  PartyType='Customer' and SourceType='SalesInvoice' 
 													and CONVERT(Date,DocDate) 
 													between '" + FromDate + @"' AND '" + ToDate + @"'
-													GROUP BY PartyId,SourceType,PartyPlantId
-													) IV ON  IV.PartyId=SA.PartyId and iv.PartyPlantId=sa.InvoicingPartyPlantId
+													GROUP BY PartyId,SourceType,PartyPlantId,DeliveryPartyPlantId
+													) IV ON  IV.PartyId=SA.PartyId and iv.PartyPlantId=sa.InvoicingPartyPlantId  and iv.DeliverypartyplantId=sa.DeliveryPartyPlantId
 									LEFT JOIN (SELECT A.salesMaterialId, sum(A.Amount) TaxAmount ,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
 												FROM [TRN].[SalesTax] A
 												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
@@ -1158,8 +1160,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 												LEFT JOIN TRN.Sales SA ON SA.Id=A.SalesId
 												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 		
 												WHERE B.Code='TCS'  
-												Group BY SA.PartyId				
-									) TAxInfo6 ON TAxInfo6.PartyId=SA.PartyId
+												Group BY SA.PartyId		
+									) TAxInfo6 ON TAxInfo6.PartyId=SA.PartyId 
 									LEFT JOIN(Select ISS.SalesId, Sum(ISS.Amount) ServiceAmount,Sum(ISS.TaxAmount) ServiceTax,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount,sum(BooksCurrencyTaxAmount) BooksCurrencyTaxAmount
 											from trn.SalesService AS ISS
 											LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
