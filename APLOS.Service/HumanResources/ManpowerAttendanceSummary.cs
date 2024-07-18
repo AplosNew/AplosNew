@@ -1559,7 +1559,7 @@ namespace Library.Service.HumanResources
                 sheet[ROW, COL].Text = "Absent"; sheet[ROW, COL].ColumnWidth = 8; int colAbsent = COL; COL++;
                 sheet[ROW, COL].Text = "Late"; sheet[ROW, COL].ColumnWidth = 8; int colLate = COL; COL++;
                 sheet[ROW, COL].Text = "Leave"; sheet[ROW, COL].ColumnWidth = 8; int colLeave = COL; COL++;
-                //sheet[ROW, COL].Text = "Others"; sheet[ROW, COL].ColumnWidth = 8; int colOthers = COL; COL++;
+                sheet[ROW, COL].Text = "Others"; sheet[ROW, COL].ColumnWidth = 8; int colOthers = COL; COL++;
                 sheet[ROW, COL].Text = "Remarks"; sheet[ROW, COL].ColumnWidth = 8; int colRemarks = COL;
 
                 #endregion columns
@@ -1599,7 +1599,7 @@ namespace Library.Service.HumanResources
                     sheet[ROW, colAbsent].Number = Library.Service.Extension.clsStaticInfo.dbl(dtManPBSummary.Rows[i]["Absent"].ToString());
                     sheet[ROW, colLate].Number = Library.Service.Extension.clsStaticInfo.dbl(dtManPBSummary.Rows[i]["Late"].ToString());
                     sheet[ROW, colLeave].Number = Library.Service.Extension.clsStaticInfo.dbl(dtManPBSummary.Rows[i]["Leave"].ToString());
-                    //sheet[ROW, colOthers].Number = Library.Service.Extension.clsStaticInfo.dbl(dtManPBSummary.Rows[i]["Others"].ToString());
+                    sheet[ROW, colOthers].Number = Library.Service.Extension.clsStaticInfo.dbl(dtManPBSummary.Rows[i]["Others"].ToString());
                     sheet[ROW, colRemarks].Text = null;
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -1690,12 +1690,12 @@ namespace Library.Service.HumanResources
                 pivotTable.Fields[colAbsent - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colLate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colLeave - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colOthers - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colOthers - 1].Axis = PivotAxisTypes.Row;
 
                 for (int i = 0; i < pivotTable.Fields.Count; i++)
                 {
                     if (i == colEC - 1 || i == colDPT - 1 || i == colSection - 1 || i == colSS - 1 || i == colLine - 1 || i == colDesignation - 1 || i == colBudgeted - 1 || i == colPresent - 1
-                        || i == colAbsent - 1 || i == colLate - 1 || i == colLeave - 1 || i == colBC - 1 || i == colSN - 1)
+                        || i == colAbsent - 1 || i == colLate - 1 || i == colLeave - 1 || i == colBC - 1 || i == colSN - 1 || i == colOthers - 1)
 
                         pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
                 }
