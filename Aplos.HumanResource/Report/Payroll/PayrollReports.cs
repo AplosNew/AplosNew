@@ -4809,7 +4809,7 @@ namespace Library.HumanResource.Report.Payroll
 
 
 
-            string strSql = @"SELECT  EmpSlr.PlantID, EmpSlr.FromDate, EmpSlr.ToDate,
+            string strSql = @"SeLECT * FROM (SELECT  EmpSlr.PlantID, EmpSlr.FromDate, EmpSlr.ToDate,
 								 EmpSlr.MonthNo, EmpSlr.YearNo
                                 , EmpSlr.SalaryHead,EmpSlr.HeadCategory,EmpSlr.SalaryHeadID, EmpSlr.EntryCurrencyID, EmpSlr.DisbusmentCurrencyID
 								, EmpSlr.EmpInfoSystemID --TotalEmployee
@@ -4917,8 +4917,12 @@ namespace Library.HumanResource.Report.Payroll
 													   WHERE EmpSlr.IsLocked = 1  and 1=1
 														and EmpBasic.PlantId = '" + plantId + @"' 
                                                 " + getMonthYearBonus(fromDate, toDate, "EmpSlr.YearNo", "EmpSlr.MonthNo") + @"
-													AND EmpSlr.HeadCategory In( 'Basic','Other Bonus','RetainedBonus','Monthly Bonus Retain') --AND EmpSystemId = '2010025' 
-                                                    ORDER BY EmpSystemId,YearNo,MonthNo";
+													AND EmpSlr.HeadCategory In( 'Basic','Other Bonus','RetainedBonus','Monthly Bonus Retain','Annual Bonus Retain') --AND EmpSystemId = '2010025' 
+                                                    -- ORDER BY EmpSystemId,YearNo,MonthNo
+													)A
+
+													Where A.HeadCategory In('Annual Bonus Retain')
+													ORDER BY A.EmpSystemId,A.YearNo,A.MonthNo";
             DataTable dt = _sqlRepository.GetDataTable(strSql);
 
             Dictionary<string, List<DataRow>> dicBonus = new Dictionary<string, List<DataRow>>();

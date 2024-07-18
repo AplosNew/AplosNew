@@ -1576,7 +1576,7 @@ Where HeadCategory='Net Payable' ";
                         and sl.BonusDisbursementVoucherId='" + voucherId + @"'
                          and spc.DisbusmentAmount!=0  
                         and spd.PlantId='" + identity.PlantId + @"' 
-						and ISNULL(SH.HeadCategory, '')  in ('Monthly Bonus Retain') ";
+						and ISNULL(SH.HeadCategory, '')  in ('Monthly Bonus Retain','Annual Bonus Retain') ";
             data = _sqlRepository.GetDataTable(sql);
         }
         public void BonusDisbursementSummaryQry(string fromDate, string toDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity, string paymentMode, out DataTable data)
@@ -1677,7 +1677,7 @@ Where HeadCategory='Net Payable' ";
                                     INNER JOIN (select SPC.DisbusmentAmount NetPayment,SPC.EmpInfoSystemID,spm.YearNo,spm.MonthNo from SalaryProcChild SPC
                                                 left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
                                                 JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID 
-                                                Where HeadCategory IN('Monthly Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
+                                                Where HeadCategory IN('Monthly Bonus Retain','Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
 									            AND CONCAT(spm.YearNo,RIGHT('00'+Isnull(Cast(spm.MonthNo AS VARCHAR(max)), ''),2)) 
 									            BETWEEN  CONCAT(YEAR('" + fromDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + fromDate + @"') AS VARCHAR(max)), ''),2))
 									            AND CONCAT(YEAR('" + toDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + toDate + @"') AS VARCHAR(max)), ''),2)) )SPCD ON SPCD.EmpInfoSystemID=s.EmpSystemId AND SPCD.YearNo=SPM.YearNo AND SPCD.MonthNo=SPM.MonthNo
@@ -1816,7 +1816,7 @@ Where HeadCategory='Net Payable' ";
                                     INNER JOIN (select SPC.DisbusmentAmount NetPayment,SPC.EmpInfoSystemID,spm.YearNo,spm.MonthNo from SalaryProcChild SPC
                                                 left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
                                                 JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID 
-                                                Where HeadCategory IN('Monthly Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
+                                                Where HeadCategory IN('Monthly Bonus Retain','Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
 									            AND CONCAT(spm.YearNo,RIGHT('00'+Isnull(Cast(spm.MonthNo AS VARCHAR(max)), ''),2)) 
 									            BETWEEN  CONCAT(YEAR('" + fromDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + fromDate + @"') AS VARCHAR(max)), ''),2))
 									            AND CONCAT(YEAR('" + toDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + toDate + @"') AS VARCHAR(max)), ''),2)) )SPCD ON SPCD.EmpInfoSystemID=s.EmpSystemId AND SPCD.YearNo=SPM.YearNo AND SPCD.MonthNo=SPM.MonthNo
@@ -3291,7 +3291,7 @@ Where HeadCategory='Net Payable' ";
                                     INNER JOIN (select SPC.DisbusmentAmount NetPayment,SPC.EmpInfoSystemID,spm.YearNo,spm.MonthNo from SalaryProcChild SPC
                                                 left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
                                                 JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID 
-                                                Where HeadCategory IN('Monthly Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
+                                                Where HeadCategory IN('Monthly Bonus Retain','Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
 									            AND CONCAT(spm.YearNo,RIGHT('00'+Isnull(Cast(spm.MonthNo AS VARCHAR(max)), ''),2)) 
 									            BETWEEN  CONCAT(YEAR('" + fromDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + fromDate + @"') AS VARCHAR(max)), ''),2))
 									            AND CONCAT(YEAR('" + toDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + toDate + @"') AS VARCHAR(max)), ''),2)) )SPCD ON SPCD.EmpInfoSystemID=s.EmpSystemId AND SPCD.YearNo=SPM.YearNo AND SPCD.MonthNo=SPM.MonthNo
@@ -3685,7 +3685,7 @@ select [isSelect] = Convert(bit, 'False'),[isToBeSelect] = Convert(bit, 'False')
                             left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
                             left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
 						    left join dbo.SalaryHead sh on sh.SalaryHeadID = spc.SalaryHeadID
-						    WHERE sl.BonusDisbursementAdviceId=DA.Id and ISNULL(SH.HeadCategory, '')  in ('Monthly Bonus Retain') and spc.DisbusmentAmount != 0)DisbursementAmount
+						    WHERE sl.BonusDisbursementAdviceId=DA.Id and ISNULL(SH.HeadCategory, '')  in ('Monthly Bonus Retain','Annual Bonus Retain') and spc.DisbusmentAmount != 0)DisbursementAmount
                         FROM [dbo].[BonusDisbursementAdvice] DA WHERE DA.Status<>'Close'  ";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 

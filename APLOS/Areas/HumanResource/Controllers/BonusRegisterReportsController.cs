@@ -351,7 +351,11 @@ namespace Aplos.Areas.HumanResource.Controllers
                                                 earningBonusAmount += clsStaticInfo.dbl(BonusList[BNS]["DisbusmentAmount"].ToString());
                                                 totalEarningBonusAmountYearly += Convert.ToDouble(earningBonusAmount);
                                             }
-
+                                            if (BonusList[BNS]["HeadCategory"].ToString().ToUpper() == "Annual Bonus Retain".ToUpper())
+                                            {
+                                                earningBonusAmount += clsStaticInfo.dbl(BonusList[BNS]["DisbusmentAmount"].ToString());
+                                                totalEarningBonusAmountYearly += Convert.ToDouble(earningBonusAmount);
+                                            }
                                             isDecimal = bplib.clsWebLib.GetBoolData(BonusList[BNS]["IntegerInDisb"].ToString());
                                             decimalNo = clsStaticInfo.dbl(BonusList[BNS]["DecimalNo"].ToString());
                                             

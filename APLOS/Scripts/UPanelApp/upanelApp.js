@@ -1186,6 +1186,7 @@ upanelApp.controller("WorkcenterWiseDetentionController", WorkcenterWiseDetentio
 upanelApp.controller("TaskCloserMasterController", TaskCloserMasterController)
 upanelApp.controller("WebBasedPackingController", WebBasedPackingController)
 upanelApp.controller("GoodWorkController", GoodWorkController)
+upanelApp.controller("GoodWorkDateChangeController", GoodWorkDateChangeController)
 upanelApp.controller("salaryProcessedReportComController", salaryProcessedReportComController)
 upanelApp.controller("VehicleMovementMasterController", VehicleMovementMasterController)
 /*upanelApp.controller("VehicleMovementRequisitionController", VehicleMovementRequisitionController)*/
