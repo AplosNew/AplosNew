@@ -5468,7 +5468,7 @@ namespace Library.Service.HumanResources
                             					--**
                             					SELECT DISTINCT EmpSystemID
                             					FROM AttdnProcessData
-                            					WHERE CONVERT(DATE, WorkDate) = CONVERT(DATE, '09-Jul-2024')
+                            					WHERE CONVERT(DATE, WorkDate) = CONVERT(DATE, '" + WorkDate + @"')
                             					)
                             			ORDER BY ROW_NUMBER() OVER (
                             					PARTITION BY EmpSystemID ORDER BY EffectiveDate DESC
