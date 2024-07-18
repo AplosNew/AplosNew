@@ -1542,23 +1542,24 @@ namespace Library.Service.HumanResources
                 sheet[ROW, COL].Text = "Emp Category"; sheet[ROW, COL].ColumnWidth = 10; int colEC = COL; COL++;
                 sheet[ROW, COL].Text = "Department"; sheet[ROW, COL].ColumnWidth = 16; int colDPT = COL; COL++;
                 sheet[ROW, COL].Text = "Section"; sheet[ROW, COL].ColumnWidth = 16; int colSection = COL; COL++;
-                sheet[ROW, COL].Text = "Sub Section"; sheet[ROW, COL].ColumnWidth = 16; int colSS= COL; COL++;
+                sheet[ROW, COL].Text = "Sub Section"; sheet[ROW, COL].ColumnWidth = 16; int colSS = COL; COL++;
                 if (withLine)
                 {
-                    sheet[ROW, COL].Text = "Line"; sheet[ROW, COL].ColumnWidth = 8; colLine = COL; COL++; 
+                    sheet[ROW, COL].Text = "Line"; sheet[ROW, COL].ColumnWidth = 8; colLine = COL; COL++;
                 }
                 if (withDesignation)
                 {
-                    sheet[ROW, COL].Text = "Designation"; sheet[ROW, COL].ColumnWidth = 22;  colDesignation = COL; COL++; 
+                    sheet[ROW, COL].Text = "Designation"; sheet[ROW, COL].ColumnWidth = 22; colDesignation = COL; COL++;
                 }
-                sheet[ROW, COL].Text = "Budget Code"; sheet[ROW, COL].ColumnWidth = 16; int colBC= COL; COL++;
+                sheet[ROW, COL].Text = "Shift Name"; sheet[ROW, COL].ColumnWidth = 16; int colSN = COL; COL++;
+                sheet[ROW, COL].Text = "Budget Code"; sheet[ROW, COL].ColumnWidth = 16; int colBC = COL; COL++;
                 sheet[ROW, COL].Text = "Budgeted"; sheet[ROW, COL].ColumnWidth = 8; int colBudgeted = COL; COL++;
                 sheet[ROW, COL].Text = "OnRoll"; sheet[ROW, COL].ColumnWidth = 8; int colOnRoll = COL; COL++;
                 sheet[ROW, COL].Text = "Present"; sheet[ROW, COL].ColumnWidth = 8; int colPresent = COL; COL++;
                 sheet[ROW, COL].Text = "Absent"; sheet[ROW, COL].ColumnWidth = 8; int colAbsent = COL; COL++;
                 sheet[ROW, COL].Text = "Late"; sheet[ROW, COL].ColumnWidth = 8; int colLate = COL; COL++;
                 sheet[ROW, COL].Text = "Leave"; sheet[ROW, COL].ColumnWidth = 8; int colLeave = COL; COL++;
-                sheet[ROW, COL].Text = "Others"; sheet[ROW, COL].ColumnWidth = 8; int colOthers = COL; COL++;
+                //sheet[ROW, COL].Text = "Others"; sheet[ROW, COL].ColumnWidth = 8; int colOthers = COL; COL++;
                 sheet[ROW, COL].Text = "Remarks"; sheet[ROW, COL].ColumnWidth = 8; int colRemarks = COL;
 
                 #endregion columns
@@ -1583,12 +1584,13 @@ namespace Library.Service.HumanResources
                     sheet[ROW, colSS].Text = dtManPBSummary.Rows[i]["SubSectionName"].ToString();
                     if (withDesignation)
                     {
-                        sheet[ROW, colDesignation].Text = dtManPBSummary.Rows[i]["DesignationName"].ToString(); 
+                        sheet[ROW, colDesignation].Text = dtManPBSummary.Rows[i]["DesignationName"].ToString();
                     }
                     if (withLine)
                     {
-                        sheet[ROW, colLine].Text = dtManPBSummary.Rows[i]["LineName"].ToString(); 
+                        sheet[ROW, colLine].Text = dtManPBSummary.Rows[i]["LineName"].ToString();
                     }
+                    sheet[ROW, colSN].Text = dtManPBSummary.Rows[i]["ShiftName"].ToString();
                     sheet[ROW, colBC].Text = dtManPBSummary.Rows[i]["BudgetCode"].ToString();
 
                     sheet[ROW, colBudgeted].Number = Library.Service.Extension.clsStaticInfo.dbl(dtManPBSummary.Rows[i]["Budgeted"].ToString());
@@ -1597,7 +1599,7 @@ namespace Library.Service.HumanResources
                     sheet[ROW, colAbsent].Number = Library.Service.Extension.clsStaticInfo.dbl(dtManPBSummary.Rows[i]["Absent"].ToString());
                     sheet[ROW, colLate].Number = Library.Service.Extension.clsStaticInfo.dbl(dtManPBSummary.Rows[i]["Late"].ToString());
                     sheet[ROW, colLeave].Number = Library.Service.Extension.clsStaticInfo.dbl(dtManPBSummary.Rows[i]["Leave"].ToString());
-                    sheet[ROW, colOthers].Number = Library.Service.Extension.clsStaticInfo.dbl(dtManPBSummary.Rows[i]["Others"].ToString());
+                    //sheet[ROW, colOthers].Number = Library.Service.Extension.clsStaticInfo.dbl(dtManPBSummary.Rows[i]["Others"].ToString());
                     sheet[ROW, colRemarks].Text = null;
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -1661,15 +1663,16 @@ namespace Library.Service.HumanResources
                 pivotTable.Fields[colSS - 1].Axis = PivotAxisTypes.Row;
                 if (withLine)
                 {
-                    pivotTable.Fields[colLine - 1].Axis = PivotAxisTypes.Row; 
+                    pivotTable.Fields[colLine - 1].Axis = PivotAxisTypes.Row;
                 }
                 if (withDesignation)
                 {
-                    pivotTable.Fields[colDesignation - 1].Axis = PivotAxisTypes.Row; 
+                    pivotTable.Fields[colDesignation - 1].Axis = PivotAxisTypes.Row;
                 }
 
                 //pivotTable.Fields[colActualDate - 1].Axis = PivotAxisTypes.Column;
 
+                pivotTable.Fields[colSN - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colBC - 1].Axis = PivotAxisTypes.Row;
                 IPivotField field = pivotTable.Fields[colOnRoll - 1];
                 field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
@@ -1687,12 +1690,13 @@ namespace Library.Service.HumanResources
                 pivotTable.Fields[colAbsent - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colLate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colLeave - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colOthers - 1].Axis = PivotAxisTypes.Row;
+                //pivotTable.Fields[colOthers - 1].Axis = PivotAxisTypes.Row;
 
                 for (int i = 0; i < pivotTable.Fields.Count; i++)
                 {
                     if (i == colEC - 1 || i == colDPT - 1 || i == colSection - 1 || i == colSS - 1 || i == colLine - 1 || i == colDesignation - 1 || i == colBudgeted - 1 || i == colPresent - 1
-                        || i == colAbsent - 1 || i == colLate - 1 || i == colLeave - 1 || i == colOthers  - 1 || i == colBC - 1)
+                        || i == colAbsent - 1 || i == colLate - 1 || i == colLeave - 1 || i == colBC - 1 || i == colSN - 1)
+
                         pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
                 }
 
@@ -5227,7 +5231,7 @@ namespace Library.Service.HumanResources
                             	,ISNULL(SUM(SUM_Absent), 0) Absent
                             	,ISNULL(SUM(SUM_Late), 0) Late
                             	,ISNULL(SUM(Others), 0) Others
-                                ,Code BudgetCode
+                                ,Code BudgetCode,ShiftName
                             FROM (
                             	SELECT m.DesignationName
                             		,M.EmpCategory
@@ -5240,7 +5244,7 @@ namespace Library.Service.HumanResources
                             		,EmpAttdn.SUM_Leave
                             		,EmpAttdn.SUM_Late
                             		,EmpInfo.TotalManpower
-                            		,ISNULL(ShiftNotAssigned.TotalEmployee, 0) + ISNULL(AttdnNotProcessedToday.TotalEmployee, 0) + ISNULL(EmpAttdn.SUM_Off, 0) Others,M.Code
+                            		,ISNULL(ShiftNotAssigned.TotalEmployee, 0) + ISNULL(AttdnNotProcessedToday.TotalEmployee, 0) + ISNULL(EmpAttdn.SUM_Off, 0) Others,M.Code,M.ShiftName
                             	FROM
                             		--------------------1 budgetCode from [MST].[ManpowerBudget]--------------------------------------
                             		(
@@ -5260,13 +5264,13 @@ namespace Library.Service.HumanResources
                             			,ISNULL(Line.Id, '') LineId
                             			,Line.Sequence LineSequence
                             			,Section.UserName SectionName
-                            			,EC.UserName EmpCategory,Department.UserName Department
+                            			,EC.UserName EmpCategory,Department.UserName Department,SD.UserName ShiftName
                             		FROM [MST].[ManpowerBudget] MB
                             		LEFT OUTER JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
                             		LEFT OUTER JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id
                             		LEFT OUTER JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
                             		LEFT OUTER JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
-                            		
+                            		LEFT OUTER JOIN dbo.ShiftDefination SD ON SD.SystemID=MB.ShiftDefinationId
                             		LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
                             		LEFT JOIN [ORG].[Department] ON Department.Id = Po.DepartmentId
                             		LEFT JOIN [ORG].[Section] ON Section.Id = Po.SectionId
@@ -5574,10 +5578,10 @@ namespace Library.Service.HumanResources
                             GROUP BY DesignationName,Code
                             	,EDE.EmpCategory,EDE.Department,EDE.SectionName
                             	,SubSectionName
-                            	" + selectLine + @"
+                            	" + selectLine + @",ShiftName
                             ORDER BY EDE.EmpCategory,EDE.Department,EDE.SectionName
                             	,SubSectionName " + selectLine + @"
-                            	,DesignationName,Code";
+                            	,DesignationName,Code,ShiftName";
 
                 return _sqlRepository.GetDataCollection(strSql);
             }
@@ -5592,7 +5596,7 @@ namespace Library.Service.HumanResources
 
         }//End Function
 
-       
+
         public DataTable GetDailyAttendanceSummarySqlNew(string WorkDate, bool withLine, string companyGroupId, string companyId, string plantId)
         {
             string strSql = string.Empty;

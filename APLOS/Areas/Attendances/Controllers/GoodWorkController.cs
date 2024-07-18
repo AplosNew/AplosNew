@@ -54,6 +54,10 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             return View();
         }
+        public ActionResult DateChange()
+        {
+            return View();
+        }
         public ActionResult PCAAC()
         {
             return View();

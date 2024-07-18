@@ -438,6 +438,10 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/GoodWork/Aplos',
             controller: 'GoodWorkController'
         })
+        .when('/gw-datechaange', {
+            templateUrl: 'Attendances/GoodWork/DateChange',
+            controller: 'GoodWorkDateChangeController'
+        })
         .when('/payable-creation-employee-advance', {
             templateUrl: 'Attendances/GoodWork/PCAAC',
             controller: 'PayableCreationAndWorkerAdvanceController'
