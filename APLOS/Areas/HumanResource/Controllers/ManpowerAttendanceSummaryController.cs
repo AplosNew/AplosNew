@@ -39,7 +39,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #region -- Pages
 
-       
+
         public ActionResult Aplos()
         {
             return View();
@@ -54,7 +54,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             return View();
         }
-       
+
         public ActionResult CustomAttdnSummary()
         {
             return View();
@@ -87,7 +87,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             #endregion
             if (!withLine)
             {
-                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcel(identity.CompanyGroupId, identity.CompanyId,workDate, withLine,true, PlantIds, typeLists, WithoutTBS, WithoutLA);
+                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcel(identity.CompanyGroupId, identity.CompanyId, workDate, withLine, true, PlantIds, typeLists, WithoutTBS, WithoutLA);
 
                 workbook.Version = ExcelVersion.Excel97to2003;
                 //workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
@@ -96,7 +96,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             else
             {
                 var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcelWithLine(identity.CompanyGroupId, identity.CompanyId, PlantIds, workDate, withLine, typeLists, WithoutTBS, WithoutLA);
-               
+
                 workbook.Version = ExcelVersion.Excel97to2003;
                 return RenderReportAsPdf(workbook, fileName);
             }
@@ -105,7 +105,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetmanpowerAttendanceSummaryrReportOld(string workDate, bool withLine, bool withDesignation, string PlantId,string typeList,bool WithoutTBS,bool WithoutLA)
+        public ActionResult GetmanpowerAttendanceSummaryrReportOld(string workDate, bool withLine, bool withDesignation, string PlantId, string typeList, bool WithoutTBS, bool WithoutLA)
         {
             string typeLists = string.Empty;
             string PlantIds = string.Empty;
@@ -131,7 +131,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             #endregion
             if (!withLine)
             {
-                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcelNew(identity.CompanyGroupId, identity.CompanyId, workDate, withLine,withDesignation, PlantIds, typeLists, WithoutTBS,WithoutLA);
+                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcelNew(identity.CompanyGroupId, identity.CompanyId, workDate, withLine, withDesignation, PlantIds, typeLists, WithoutTBS, WithoutLA);
                 workbook.Version = ExcelVersion.Excel97to2003;
                 workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
 
@@ -146,6 +146,79 @@ namespace Aplos.Areas.HumanResource.Controllers
             return null;
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetDailyManpowerAttendanceSummaryData(string workDate, bool withLine, bool withDesignation, string PlantId, string typeList, bool WithoutTBS, bool WithoutLA)
+        {
+            string typeLists = string.Empty;
+            string PlantIds = string.Empty;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (!string.IsNullOrEmpty(typeList))
+            {
+                typeLists = "'" + typeList.Replace(",", "','") + "'";
+            }
+            else
+            {
+                throw new Exception("Please Select the Employee Code Type");
+            }
+            if (!string.IsNullOrEmpty(PlantId))
+            {
+                PlantIds = "'" + PlantId.Replace(",", "','") + "'";
+            }
+            else
+            {
+                throw new Exception("Please Select Plant");
+            }
+
+            return Json(_manpowerAttendanceSummary.GetDailyManpowerAttendanceSummaryData(identity.CompanyGroupId, identity.CompanyId, workDate, withLine, withDesignation, PlantIds, typeLists, WithoutTBS, WithoutLA), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpPost, Authorize]
+        //public ActionResult GetSummaryManpowerAttendanceExcelReport(string workDate, bool withLine, bool withDesignation, string PlantId, string typeList, bool WithoutTBS, bool WithoutLA, List<Dictionary<string, object>> data)
+        public ActionResult GetSummaryManpowerAttendanceExcelReport(string workDate, bool withLine, bool withDesignation, List<Dictionary<string, object>> data)
+        {
+            
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                
+                DataTable dt = new DataTable("DD");
+                foreach (string item in data[0].Keys)
+                {
+                    if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        continue;
+
+                    dt.Columns.Add(item);
+                }
+
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    foreach (string item in data[i].Keys)
+                    {
+                        if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                            continue;
+
+                        dr[item] = data[i][item];
+                    }
+
+                    dt.Rows.Add(dr);
+                }
+
+
+
+
+                string fileName = "";
+                fileName = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcelNew1(identity.CompanyGroupId, identity.CompanyId, workDate, withLine, withDesignation, dt);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
 
         [HttpGet, Authorize]
         public ActionResult GetmanpowerAttendanceSummaryrViewReport(string workDate, bool withLine)
@@ -155,7 +228,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             var fileName = "ManpowerSummary";
             if (!withLine)
             {
-               // var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcel(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
+                // var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcel(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
                 var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcelNew(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
                 workbook.Version = ExcelVersion.Excel97to2003;
                 //workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
@@ -172,13 +245,13 @@ namespace Aplos.Areas.HumanResource.Controllers
             //return null;
         }
 
-        [HttpGet,Authorize]
+        [HttpGet, Authorize]
         public ActionResult GetmanpowerAttendanceSummaryrReport(string workDate, bool withLine)
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var fileName = "ManpowerSummary" + DateTime.Now.ToString("yyMMdd") + ".xls";
-            if(!withLine)
+            if (!withLine)
             {
                 var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcelNew(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
                 workbook.Version = ExcelVersion.Excel97to2003;
@@ -201,12 +274,12 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var fileName = "ManpowerAttdnSummary" + DateTime.Now.ToString("yyMMdd") + ".xls";
-         
-                var workbook = _manpowerAttendanceSummary.GetCustomizedAttendanceSummaryReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate);
-                workbook.Version = ExcelVersion.Excel97to2003;
-                workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);          
-                
-                //workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
+
+            var workbook = _manpowerAttendanceSummary.GetCustomizedAttendanceSummaryReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate);
+            workbook.Version = ExcelVersion.Excel97to2003;
+            workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
+
+            //workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
 
             return null;
         }

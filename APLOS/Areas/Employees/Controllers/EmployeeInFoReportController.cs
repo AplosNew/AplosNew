@@ -844,6 +844,7 @@ namespace Aplos.Areas.Employees.Controllers
                             LEFT JOIN HKP.BloodGroup BG ON BG.Id = E.BloodGroupID
                             LEFT OUTER JOIN ORG.Department edept ON edept.id = e.DepartmentId
                             LEFT JOIN EmployeeBankInfo EB ON EB.EmpSystemID = E.SystemId
+							AND EB.RowID=(Select top(1) RowID from EmployeeBankInfo Where EmpSystemID=EB.EmpSystemID AND  IsApproved=1 Order BY DateAdded DESC)
                             LEFT JOIN HKP.Bank B ON B.Id = EB.BankSystemID
                             LEFT JOIN SCS.Country PC ON PC.Id = E.ParmCountryID
                             LEFT JOIN SCS.[State] PST ON PST.Id = E.ParmStateId

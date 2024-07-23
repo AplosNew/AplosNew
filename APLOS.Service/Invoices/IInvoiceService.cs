@@ -55,6 +55,7 @@ namespace Library.Service.Invoices
 
         InvoiceDetail FindInvoiceDetail(string invoiceDetailId);
         void DeleteInvoice(string invoiceId, string voucherId, string deletedRemarks);
+        void DeleteJV(string voucherId, string deletedRemarks);
         void DeleteIncentiveReceivableInvoice(string invoiceId, string voucherId);
         Invoice FindInvoice(string Id);
         void DeleteInvoice(string id);

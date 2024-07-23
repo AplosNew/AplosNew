@@ -1304,7 +1304,7 @@ namespace Library.Service.HumanResources
                 ExcelEngine excelEngine = null;
                 IApplication application = null;
                 IWorkbook workbook = null;
-                IWorksheet sheet1 = null;
+                IWorksheet sheet = null;
                 DataView dvDaily = null;
                 DataSet dsCmp = null;
                 //clsReport objRpt = null;
@@ -1319,9 +1319,10 @@ namespace Library.Service.HumanResources
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
 
-                workbook = application.Workbooks.Create(1);
-                sheet1 = workbook.Worksheets[0];
-                sheet1.IsGridLinesVisible = true;
+                workbook = application.Workbooks.Create(2);
+                workbook.Worksheets[1].Name = "Data";
+                sheet = workbook.Worksheets[1];
+                sheet.IsGridLinesVisible = true;
 
 
                 string CmpName;
@@ -1335,28 +1336,28 @@ namespace Library.Service.HumanResources
                 int cfdLeave = 0; int cfdLate = 0; int cfdOthers = 0; var cfdRemarks = 0; int cDivision = 0; int cEmpCategory = 0; int cSection = 0; int cDepartment = 0; int cLine = 0;
                 #endregion
                 #region ColumnHeaders
-                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Division", ExcelHAlign.HAlignCenter); cDivision = xlsCol; xlsCol++;
-                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Unit", ExcelHAlign.HAlignCenter); cUnit = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Emp Category", ExcelHAlign.HAlignCenter); cEmpCategory = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Department", ExcelHAlign.HAlignCenter); cDepartment = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Section", ExcelHAlign.HAlignCenter); cSection = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sub Section", ExcelHAlign.HAlignCenter); cSubSection = xlsCol; xlsCol++;
+                //oRU.SetHeaderText(ref sheet, xlsRow, xlsCol, "Division", ExcelHAlign.HAlignCenter); cDivision = xlsCol; xlsCol++;
+                //oRU.SetHeaderText(ref sheet, xlsRow, xlsCol, "Unit", ExcelHAlign.HAlignCenter); cUnit = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet, xlsRow, xlsCol, "Emp Category", ExcelHAlign.HAlignCenter); cEmpCategory = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet, xlsRow, xlsCol, "Department", ExcelHAlign.HAlignCenter); cDepartment = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet, xlsRow, xlsCol, "Section", ExcelHAlign.HAlignCenter); cSection = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet, xlsRow, xlsCol, "Sub Section", ExcelHAlign.HAlignCenter); cSubSection = xlsCol; xlsCol++;
                 if (withDesignation)
                 {
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", ExcelHAlign.HAlignCenter); cAttendancGroup = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet, xlsRow, xlsCol, "Designation", ExcelHAlign.HAlignCenter); cAttendancGroup = xlsCol; xlsCol++;
                 }
                 if (withLine)
                 {
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Line", ExcelHAlign.HAlignCenter); cLine = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet, xlsRow, xlsCol, "Line", ExcelHAlign.HAlignCenter); cLine = xlsCol; xlsCol++;
                 }
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Budgeted", 8, ExcelHAlign.HAlignCenter); cBudgetedManPower = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OnRoll", 8, ExcelHAlign.HAlignCenter); cOnRollManpower = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Present", 8, ExcelHAlign.HAlignCenter); cFdPresent = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Absent", 8, ExcelHAlign.HAlignCenter); cfdAbsent = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Late", 8, ExcelHAlign.HAlignCenter); cfdLate = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Leave", 8, ExcelHAlign.HAlignCenter); cfdLeave = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Others", 8, ExcelHAlign.HAlignCenter); cfdOthers = xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarkes", 10, ExcelHAlign.HAlignCenter); cfdRemarks = xlsCol;
+                oRU.SetHeaderText(ref sheet, xlsRow, xlsCol, "Budgeted", 8, ExcelHAlign.HAlignCenter); cBudgetedManPower = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet, xlsRow, xlsCol, "OnRoll", 8, ExcelHAlign.HAlignCenter); cOnRollManpower = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet, xlsRow, xlsCol, "Present", 8, ExcelHAlign.HAlignCenter); cFdPresent = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet, xlsRow, xlsCol, "Absent", 8, ExcelHAlign.HAlignCenter); cfdAbsent = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet, xlsRow, xlsCol, "Late", 8, ExcelHAlign.HAlignCenter); cfdLate = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet, xlsRow, xlsCol, "Leave", 8, ExcelHAlign.HAlignCenter); cfdLeave = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet, xlsRow, xlsCol, "Others", 8, ExcelHAlign.HAlignCenter); cfdOthers = xlsCol++;
+                oRU.SetHeaderText(ref sheet, xlsRow, xlsCol, "Remarkes", 10, ExcelHAlign.HAlignCenter); cfdRemarks = xlsCol;
 
                 var orgCollist = xlsCol;
                 xlsRow++;
@@ -1367,50 +1368,56 @@ namespace Library.Service.HumanResources
 
                 if (dtManPBSummary.Rows.Count > 0)
                 {
-                    
+
                     DataRow dr = dtManPBSummary.NewRow();
                     dtManPBSummary.Rows.Add(dr);
                     for (int i = 0; i < dtManPBSummary.Rows.Count; i++)
                     {
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cEmpCategory,dtManPBSummary.Rows[i]["EmpCategory"].ToString());
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cDepartment, dtManPBSummary.Rows[i]["Department"].ToString());
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cSection, dtManPBSummary.Rows[i]["SectionName"].ToString());
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cSubSection, dtManPBSummary.Rows[i]["SubSectionName"].ToString());
+                        oRU.SetTextBorder(ref sheet, xlsRow, cEmpCategory, dtManPBSummary.Rows[i]["EmpCategory"].ToString());
+                        oRU.SetTextBorder(ref sheet, xlsRow, cDepartment, dtManPBSummary.Rows[i]["Department"].ToString());
+                        oRU.SetTextBorder(ref sheet, xlsRow, cSection, dtManPBSummary.Rows[i]["SectionName"].ToString());
+                        oRU.SetTextBorder(ref sheet, xlsRow, cSubSection, dtManPBSummary.Rows[i]["SubSectionName"].ToString());
                         if (withDesignation)
                         {
-                            oRU.SetTextBorder(ref sheet1, xlsRow, cAttendancGroup, dtManPBSummary.Rows[i]["DesignationName"].ToString());// 
+                            oRU.SetTextBorder(ref sheet, xlsRow, cAttendancGroup, dtManPBSummary.Rows[i]["DesignationName"].ToString());// 
                         }
                         if (withLine)
                         {
-                            oRU.SetTextBorder(ref sheet1, xlsRow, cLine, dtManPBSummary.Rows[i]["LineName"].ToString());//
+                            oRU.SetTextBorder(ref sheet, xlsRow, cLine, dtManPBSummary.Rows[i]["LineName"].ToString());//
                         }
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cOnRollManpower, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["TotalManpower"].ToString()));
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cBudgetedManPower, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["ProposedManpowerBudget"].ToString()));
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cFdPresent, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_PRESENT"].ToString()));//LegalDesignation
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdAbsent, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_Absent"].ToString()));//
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdLate, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_Late"].ToString()));//
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdLeave, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_Leave"].ToString()));//
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdOthers, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_Others"].ToString()));//
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdRemarks, "");//
+                        oRU.SetTextBorder(ref sheet, xlsRow, cOnRollManpower, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["TotalManpower"].ToString()));
+                        oRU.SetTextBorder(ref sheet, xlsRow, cBudgetedManPower, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["ProposedManpowerBudget"].ToString()));
+                        oRU.SetTextBorder(ref sheet, xlsRow, cFdPresent, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_PRESENT"].ToString()));//LegalDesignation
+                        oRU.SetTextBorder(ref sheet, xlsRow, cfdAbsent, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_Absent"].ToString()));//
+                        oRU.SetTextBorder(ref sheet, xlsRow, cfdLate, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_Late"].ToString()));//
+                        oRU.SetTextBorder(ref sheet, xlsRow, cfdLeave, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_Leave"].ToString()));//
+                        oRU.SetTextBorder(ref sheet, xlsRow, cfdOthers, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_Others"].ToString()));//
+                        oRU.SetTextBorder(ref sheet, xlsRow, cfdRemarks, "");//
+
+                        sheet.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                        sheet.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                        sheet.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Size = 8f;
                         xlsRow++;
+
                     }
-                    sheet1.AutoFilters.FilterRange = sheet1.Range[startRow - 1, 1, xlsRow, endXlsCol];
-                    xlsRow += 1;
+                    //sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, xlsRow, endXlsCol];
+                    IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, xlsRow, endXlsCol]);
+                    table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
 
                     #region UsedRange Alignment
-                    sheet1.UsedRange.WrapText = true;
-                    sheet1.UsedRange.CellStyle.Font.Size = 8;
-                    sheet1.Range["A1"].CellStyle.Font.Size = 14;
-                    sheet1.Range["A2"].CellStyle.Font.Size = 10;
-                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    sheet.UsedRange.WrapText = true;
+                    sheet.UsedRange.CellStyle.Font.Size = 8;
+                    sheet.Range["A1"].CellStyle.Font.Size = 14;
+                    sheet.Range["A2"].CellStyle.Font.Size = 10;
+                    sheet.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
                     #endregion UsedRange Alignment
 
 
                     #region Freeze Panes
-                    sheet1.IsDisplayZeros = false;
-                    //sheet1.UsedRange["A8"].FreezePanes();
-                    sheet1.FirstVisibleColumn = 1;
-                    sheet1.FirstVisibleRow = 6;
+                    sheet.IsDisplayZeros = false;
+                    //sheet.UsedRange["A8"].FreezePanes();
+                    sheet.FirstVisibleColumn = 1;
+                    sheet.FirstVisibleRow = 6;
 
                     #endregion
 
@@ -1439,14 +1446,14 @@ namespace Library.Service.HumanResources
                     {
                         FactoryName = "";
                     }
-                    sheet1.Range[xlsRow, 1].Text = FactoryName;
-                    sheet1.Range[xlsRow, 1].CellStyle.Font.Size = 20;
-                    sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
-                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-                    sheet1.Range[xlsRow, 1, xlsRow, Convert.ToInt32(endXlsCol)].Merge();
-                    sheet1.Range[xlsRow, 1].RowHeight = 30;
+                    sheet.Range[xlsRow, 1].Text = FactoryName;
+                    sheet.Range[xlsRow, 1].CellStyle.Font.Size = 20;
+                    sheet.Range[xlsRow, 1].CellStyle.Font.Bold = true;
+                    sheet.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                    sheet.Range[xlsRow, 1, xlsRow, Convert.ToInt32(endXlsCol)].Merge();
+                    sheet.Range[xlsRow, 1].RowHeight = 30;
 
                     #region Plant Address
 
@@ -1459,39 +1466,42 @@ namespace Library.Service.HumanResources
                     {
                         FactoryAddress = "";
                     }
-                    //sheet1.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1].Text = FactoryAddress;
-                    //sheet1.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1, xlsRow, endXlsCol].Merge();
-                    //sheet1.Range[xlsRow, 1].CellStyle.Font.Size = 18;
+                    //sheet.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1].Text = FactoryAddress;
+                    //sheet.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1, xlsRow, endXlsCol].Merge();
+                    //sheet.Range[xlsRow, 1].CellStyle.Font.Size = 18;
 
-                    //sheet1.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    //sheet1.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //sheet1.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-                    //sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
+                    //sheet.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    //sheet.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    //sheet.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                    //sheet.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
                     #endregion
                     xlsRow += 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "Manpower Attendance Summary on " + Convert.ToDateTime(workDate).ToString("dd-MMM-yyyy");
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
-                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 15;
-                    sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
-                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 24;
+                    sheet.Range[xlsRow, xlsCol].Text = "Manpower Attendance Summary on " + Convert.ToDateTime(workDate).ToString("dd-MMM-yyyy");
+                    sheet.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                    sheet.Range[xlsRow, xlsCol].CellStyle.Font.Size = 15;
+                    sheet.Range[xlsRow, 1].CellStyle.Font.Bold = true;
+                    sheet.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                    sheet.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 24;
 
 
                     //#endregion *****************Report Header*****************
                     #region Freeze Panes
-                    sheet1.UsedRange["A6"].FreezePanes();
-                    sheet1.FirstVisibleColumn = 1;
-                    sheet1.FirstVisibleRow = 5;
+                    sheet.UsedRange["A6"].FreezePanes();
+                    sheet.FirstVisibleColumn = 1;
+                    sheet.FirstVisibleRow = 5;
                     #endregion
 
                     #region UsedRange Alignment
-                    sheet1.UsedRange.WrapText = true;
-                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    sheet.UsedRange.WrapText = true;
+                    sheet.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
                     #endregion UsedRange Alignment
 
-                    oRU.PageSetup(ref sheet1, 5, ExcelPageOrientation.Portrait);
+                    oRU.PageSetup(ref sheet, 5, ExcelPageOrientation.Portrait);
+
+
+
                 }
 
 
@@ -1501,6 +1511,224 @@ namespace Library.Service.HumanResources
             catch (Exception ex)
             {
 
+                throw ex;
+            }
+        }
+
+        public string GetSummaryManpowerAttendanceExcelNew1(string companyGroupId, string companyId, string workDate, bool withLine, bool withDesignation, DataTable dtManPBSummary)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(2);
+                workbook.Worksheets[1].Name = "Data";
+                sheet = workbook.Worksheets[1];
+
+                //DataTable dtManPBSummary = GetDailyManpowerAttendanceSummarySql(workDate, withLine, companyGroupId, companyId, PlantIds, typeLists, WithoutTBS, WithoutLA);
+
+                int ROW = 6; int COL = 1;
+                int colDesignation = 0;
+                int colLine = 0;
+                #region columns
+                sheet[ROW, COL].Text = "Emp Category"; sheet[ROW, COL].ColumnWidth = 10; int colEC = COL; COL++;
+                sheet[ROW, COL].Text = "Department"; sheet[ROW, COL].ColumnWidth = 16; int colDPT = COL; COL++;
+                sheet[ROW, COL].Text = "Section"; sheet[ROW, COL].ColumnWidth = 16; int colSection = COL; COL++;
+                sheet[ROW, COL].Text = "Sub Section"; sheet[ROW, COL].ColumnWidth = 16; int colSS = COL; COL++;
+                if (withLine)
+                {
+                    sheet[ROW, COL].Text = "Line"; sheet[ROW, COL].ColumnWidth = 8; colLine = COL; COL++;
+                }
+                if (withDesignation)
+                {
+                    sheet[ROW, COL].Text = "Designation"; sheet[ROW, COL].ColumnWidth = 22; colDesignation = COL; COL++;
+                }
+                sheet[ROW, COL].Text = "Shift Name"; sheet[ROW, COL].ColumnWidth = 16; int colSN = COL; COL++;
+                sheet[ROW, COL].Text = "Budget Code"; sheet[ROW, COL].ColumnWidth = 16; int colBC = COL; COL++;
+                sheet[ROW, COL].Text = "Budgeted"; sheet[ROW, COL].ColumnWidth = 8; int colBudgeted = COL; COL++;
+                sheet[ROW, COL].Text = "OnRoll"; sheet[ROW, COL].ColumnWidth = 8; int colOnRoll = COL; COL++;
+                sheet[ROW, COL].Text = "Present"; sheet[ROW, COL].ColumnWidth = 8; int colPresent = COL; COL++;
+                sheet[ROW, COL].Text = "Absent"; sheet[ROW, COL].ColumnWidth = 8; int colAbsent = COL; COL++;
+                sheet[ROW, COL].Text = "Late"; sheet[ROW, COL].ColumnWidth = 8; int colLate = COL; COL++;
+                sheet[ROW, COL].Text = "Leave"; sheet[ROW, COL].ColumnWidth = 8; int colLeave = COL; COL++;
+                sheet[ROW, COL].Text = "Others"; sheet[ROW, COL].ColumnWidth = 8; int colOthers = COL; COL++;
+                sheet[ROW, COL].Text = "Remarks"; sheet[ROW, COL].ColumnWidth = 8; int colRemarks = COL;
+
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+
+                for (int i = 0; i < dtManPBSummary.Rows.Count; i++)
+                {
+                    sheet[ROW, colEC].Text = dtManPBSummary.Rows[i]["EmpCategory"].ToString();
+                    sheet[ROW, colDPT].Text = dtManPBSummary.Rows[i]["Department"].ToString();
+                    sheet[ROW, colSection].Text = dtManPBSummary.Rows[i]["SectionName"].ToString();
+                    sheet[ROW, colSS].Text = dtManPBSummary.Rows[i]["SubSectionName"].ToString();
+                    if (withDesignation)
+                    {
+                        sheet[ROW, colDesignation].Text = dtManPBSummary.Rows[i]["DesignationName"].ToString();
+                    }
+                    if (withLine)
+                    {
+                        sheet[ROW, colLine].Text = dtManPBSummary.Rows[i]["LineName"].ToString();
+                    }
+                    sheet[ROW, colSN].Text = dtManPBSummary.Rows[i]["ShiftName"].ToString();
+                    sheet[ROW, colBC].Text = dtManPBSummary.Rows[i]["BudgetCode"].ToString();
+
+                    sheet[ROW, colBudgeted].Number = Library.Service.Extension.clsStaticInfo.dbl(dtManPBSummary.Rows[i]["Budgeted"].ToString());
+                    sheet[ROW, colOnRoll].Number = Library.Service.Extension.clsStaticInfo.dbl(dtManPBSummary.Rows[i]["OnRoll"].ToString());
+                    sheet[ROW, colPresent].Number = Library.Service.Extension.clsStaticInfo.dbl(dtManPBSummary.Rows[i]["Present"].ToString());
+                    sheet[ROW, colAbsent].Number = Library.Service.Extension.clsStaticInfo.dbl(dtManPBSummary.Rows[i]["Absent"].ToString());
+                    sheet[ROW, colLate].Number = Library.Service.Extension.clsStaticInfo.dbl(dtManPBSummary.Rows[i]["Late"].ToString());
+                    sheet[ROW, colLeave].Number = Library.Service.Extension.clsStaticInfo.dbl(dtManPBSummary.Rows[i]["Leave"].ToString());
+                    sheet[ROW, colOthers].Number = Library.Service.Extension.clsStaticInfo.dbl(dtManPBSummary.Rows[i]["Others"].ToString());
+                    sheet[ROW, colRemarks].Text = null;
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+                IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
+                table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Manpower Attendance Summary on " + Convert.ToDateTime(workDate).ToString("dd-MMM-yyyy"), identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+
+
+                #region Pivot
+
+                string fPath = fPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + "ManpowerAttendanceSummaryReport" + identity.UserId + ".xlsx";
+
+                workbook.SaveAs(fPath);
+                workbook = application.Workbooks.Open(fPath);
+                try { System.IO.File.Delete(fPath); } catch (Exception) { }
+
+                workbook.Worksheets[0].Name = "EmpCategory Wise";
+
+                IWorksheet pivotSheet = workbook.Worksheets[0];
+                IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
+                IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
+
+                pivotTable.Fields[colEC - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colDPT - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colSection - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colSS - 1].Axis = PivotAxisTypes.Row;
+                if (withLine)
+                {
+                    pivotTable.Fields[colLine - 1].Axis = PivotAxisTypes.Row;
+                }
+                if (withDesignation)
+                {
+                    pivotTable.Fields[colDesignation - 1].Axis = PivotAxisTypes.Row;
+                }
+
+                //pivotTable.Fields[colActualDate - 1].Axis = PivotAxisTypes.Column;
+
+                pivotTable.Fields[colSN - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colBC - 1].Axis = PivotAxisTypes.Row;
+                IPivotField field = pivotTable.Fields[colOnRoll - 1];
+                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+                pivotTable.DataFields.Add(field, "OnRoll", PivotSubtotalTypes.Sum);
+                //pivotTable.DataFields.Add(field, "Budgeted", PivotSubtotalTypes.Sum);
+                //pivotTable.DataFields.Add(field, "Present", PivotSubtotalTypes.Sum);
+                //pivotTable.DataFields.Add(field, "Absent", PivotSubtotalTypes.Sum);
+                //pivotTable.DataFields.Add(field, "Late", PivotSubtotalTypes.Sum);
+                //pivotTable.DataFields.Add(field, "Leave", PivotSubtotalTypes.Sum);
+                //pivotTable.DataFields.Add(field, "Others", PivotSubtotalTypes.Sum);
+
+                pivotTable.Fields[colBudgeted - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colPresent - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colAbsent - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colLate - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colLeave - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colOthers - 1].Axis = PivotAxisTypes.Row;
+
+                for (int i = 0; i < pivotTable.Fields.Count; i++)
+                {
+                    if (i == colEC - 1 || i == colDPT - 1 || i == colSection - 1 || i == colSS - 1 || i == colLine - 1 || i == colDesignation - 1 || i == colBudgeted - 1 || i == colPresent - 1
+                        || i == colAbsent - 1 || i == colLate - 1 || i == colLeave - 1 || i == colBC - 1 || i == colSN - 1 || i == colOthers - 1)
+
+                        pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                }
+
+                pivotTable.ShowRowGrand = false;
+                pivotTable.ShowDrillIndicators = false;
+                pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
+                pivotTable.Options.NullString = "";
+                pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
+
+                sheet = workbook.Worksheets[0];
+                reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Manpower Attendance Summary on " + Convert.ToDateTime(workDate).ToString("dd-MMM-yyyy"), identity.CompanyId, identity.CompanyName, "");
+
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+                workbook.Worksheets[0].UsedRange["A7"].FreezePanes();
+
+
+                #endregion Buyer Summary
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ManpowerAttendanceSummaryReport" + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
                 throw ex;
             }
         }
@@ -1554,7 +1782,7 @@ namespace Library.Service.HumanResources
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sub Section", ExcelHAlign.HAlignCenter); cSubSection = xlsCol; xlsCol++;
                 if (withDesignation)
                 {
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", ExcelHAlign.HAlignCenter); cAttendancGroup = xlsCol; xlsCol++; 
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", ExcelHAlign.HAlignCenter); cAttendancGroup = xlsCol; xlsCol++;
                 }
                 if (withLine)
                 {
@@ -4937,6 +5165,425 @@ namespace Library.Service.HumanResources
                             	,DesignationName";
 
                 return _sqlRepository.GetDataTable(strSql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+
+        }//End Function
+
+        public IEnumerable<object> GetDailyManpowerAttendanceSummaryData(string companyGroupId, string companyId, string WorkDate, bool withLine, bool withDesignation, string plantId, string typeList, bool WithoutTBS, bool WithoutLA)
+        {
+            string strSql = string.Empty;
+
+            try
+            {
+                string includeTBS = "";
+                string includeTBS1 = "";
+                string includeLa = "";
+                string includeLa1 = "";
+                string wc = string.Empty;
+                string selectLine = "";
+                string MselectLine = "";
+
+                string joiningLineEmp = "";
+                string joiningLineEmpAttdn = "";
+                string joiningLineBudget = "";
+                string joiningAttdnNotProcessed = "";
+                string joiningLineShiftNotAssigned = "";
+
+
+                if (withLine == true)
+                {
+                    selectLine = ",LineName";
+                    MselectLine = ",M.LineName";
+
+                    joiningLineEmp = "AND EmpInfo.LineId = M.LineId";
+                    joiningLineEmpAttdn = "AND EmpAttdn.LineId = M.LineId";
+                    joiningLineBudget = "and B.LineId = M.LineId";
+                    joiningAttdnNotProcessed = " and AttdnNotProcessedToday.LineId = M.LineId";
+                    joiningLineShiftNotAssigned = " and ShiftNotAssigned.LineId = M.LineId";
+
+                }
+                if (WithoutTBS)
+                {
+                    includeTBS = " And  ISNULL(Em.EmployeeCurrentStatus,'') <>  'LONG ABSENTEEISM'";
+                    includeTBS1 = " And  ISNULL(E.EmployeeCurrentStatus,'') <>  'LONG ABSENTEEISM'";
+                }
+                if (WithoutLA)
+                {
+                    includeLa = " And  ISNULL(Em.EmployeeCurrentStatus,'') <>  'TBS'";
+                    includeLa1 = " And  ISNULL(E.EmployeeCurrentStatus,'') <>  'TBS'";
+                }
+                strSql = @"SELECT 
+                            	EDE.EmpCategory,EDE.Department,EDE.SectionName
+                            	,SubSectionName
+                            	,DesignationName" + selectLine + @" 
+                            	,ISNULL(SUM(TotalNumber), 0) Budgeted
+                            	,ISNULL(SUM(TotalManpower), 0) OnRoll
+                            	,ISNULL(SUM(SUM_PRESENT), 0) Present
+                            	,ISNULL(SUM(SUM_Leave), 0) Leave
+                            	,ISNULL(SUM(SUM_Absent), 0) Absent
+                            	,ISNULL(SUM(SUM_Late), 0) Late
+                            	,ISNULL(SUM(Others), 0) Others
+                                ,Code BudgetCode,ShiftName
+                            FROM (
+                            	SELECT m.DesignationName
+                            		,M.EmpCategory
+                            		,M.SectionName
+                            		,M.SubSectionName
+                            		,M.Department,M.LineName 
+                            		,TotalNumber
+                            		,EmpAttdn.SUM_PRESENT
+                            		,EmpAttdn.SUM_Absent
+                            		,EmpAttdn.SUM_Leave
+                            		,EmpAttdn.SUM_Late
+                            		,EmpInfo.TotalManpower
+                            		,ISNULL(ShiftNotAssigned.TotalEmployee, 0) + ISNULL(AttdnNotProcessedToday.TotalEmployee, 0) + ISNULL(EmpAttdn.SUM_Off, 0) Others,M.Code,M.ShiftName
+                            	FROM
+                            		--------------------1 budgetCode from [MST].[ManpowerBudget]--------------------------------------
+                            		(
+                            		SELECT MB.Code
+                            			,MB.Id
+                            			,Cg.Id AS CgId
+                            			,Cg.UserName AS GroupName
+                            			,c.Id AS CompanyId
+                            			,c.UserName AS CName
+                            			,SubSection.UserName SubSectionName
+                            			,SubSection.Id SubSectionId
+                            			,Designation.UserName DesignationName--,Designation.Id
+                            			,Designation.Id DesignationId
+                            			,SubSection.Sequence SubSectionSequence
+                            			,Designation.Sequence DesignationSequence
+                            			,Line.UserName LineName
+                            			,ISNULL(Line.Id, '') LineId
+                            			,Line.Sequence LineSequence
+                            			,Section.UserName SectionName
+                            			,EC.UserName EmpCategory,Department.UserName Department,SD.UserName ShiftName
+                            		FROM [MST].[ManpowerBudget] MB
+                            		LEFT OUTER JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
+                            		LEFT OUTER JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id
+                            		LEFT OUTER JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
+                            		LEFT OUTER JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
+                            		LEFT OUTER JOIN dbo.ShiftDefination SD ON SD.SystemID=MB.ShiftDefinationId
+                            		LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
+                            		LEFT JOIN [ORG].[Department] ON Department.Id = Po.DepartmentId
+                            		LEFT JOIN [ORG].[Section] ON Section.Id = Po.SectionId
+                            		LEFT JOIN [ORG].[Subsection] ON Subsection.Id = Po.SubsectionId
+                            		LEFT JOIN [HKP].Designation Designation ON Designation.Id = PO.DesignationId
+									left join [MST].[DesignationMaster] dm on dm.DesignationId=po.DesignationId
+                            		left join HKP.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
+                            		WHERE Cg.Id = '" + companyGroupId + @"'
+                            			AND C.Id = '" + companyId + @"'
+                            			AND E.PlantId IN (" + plantId + @")
+                            			AND MB.Active = 1
+                            		) M
+                            	-----------------------2. EmployeeInformation from [dbo].[EmployeeInformation]--------------------------------
+                            	LEFT OUTER JOIN (
+                            		SELECT COUNT(em.SystemId) TotalManpower
+                            			,Em.BudgetCode
+                            			,SubSection.UserName SubSectionName
+                            			,SubSection.Id SubSectionId
+                            			,Designation.UserName DesignationName
+                            			,Designation.Id DesignationId
+                            			,SubSection.Sequence SubSectionSequence
+                            			,Designation.Sequence DesignationSequence
+                            			,Line.UserName LineName
+                            			,ISNULL(Line.Id, '') LineId
+                            		FROM [dbo].[EmployeeInformation] EM
+                            		LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB ON MB.Id = em.BudgetCode
+                            		LEFT OUTER JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = em.GroupId
+                            		LEFT OUTER JOIN [ORG].[Company] AS C ON C.Id = em.CompanyId
+                            		LEFT OUTER JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
+                            		LEFT OUTER JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
+                            		LEFT JOIN [ORG].[Plant] ON Plant.Id = E.PlantId
+                            		LEFT JOIN [ORG].[Department] ON Department.Id = Po.DepartmentId
+                            		LEFT JOIN [ORG].[Section] ON Section.Id = Po.SectionId
+                            		LEFT JOIN [ORG].[Subsection] ON Subsection.Id = Po.SubsectionId
+                            		LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
+                            		LEFT JOIN [HKP].Designation Designation ON Designation.Id = PO.DesignationId
+                            		LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = EM.GivenDesignationId
+                            		LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+                                    LEFT JOIN  EmployeeCodeType ect ON  ect.Id = EM.EmployeeCodeTypeId
+                            		WHERE (
+                            				EM.DOJ <= '" + WorkDate + @"'
+                            				AND (
+                            					EM.DOS IS NULL
+                            					OR EM.DOS >= '" + WorkDate + @"'
+                            					)
+                            				)
+                            			AND EM.GroupID = '" + companyGroupId + @"'
+                            			AND EM.CompanyId = '" + companyId + @"'
+                            			AND Plant.Id IN (" + plantId + @")
+                            			AND MB.Active = 1 AND Ect.Id IN (" + typeList + @") " + includeTBS + @" " + includeLa + @"
+                            		GROUP BY Em.BudgetCode
+                            			,SubSection.UserName
+                            			,SubSection.Id
+                            			,Designation.UserName
+                            			,Designation.Id
+                            			,SubSection.Sequence
+                            			,Designation.Sequence
+                            			,Line.UserName
+                            			,Line.Id
+                            		) EmpInfo ON m.Id = EmpInfo.BudgetCode
+                            		AND EmpInfo.DesignationId = m.DesignationId
+                            		 " + joiningLineEmp + @"
+                            	LEFT OUTER JOIN (
+                            		SELECT E.BudgetCode
+                            			,SubSection.UserName SubSectionName
+                            			,SubSection.Id SubSectionId
+                            			,Designation.UserName DesignationName
+                            			,Designation.Id DesignationId
+
+                            			,SubSection.Sequence SubSectionSequence
+                            			,Designation.Sequence DesignationSequence
+                            			,Line.UserName LineName
+                            			,ISNULL(Line.Id, '') LineId
+                            			,COUNT(E.SystemId) TotalManpower
+                            			,SUM(CASE 
+                            					WHEN dt.Category IN ('Present')
+                            						THEN 1
+                            					ELSE 0
+                            					END) SUM_PRESENT
+                            			,SUM(CASE 
+                            					WHEN dt.Category = 'Late'
+                            						THEN 1
+                            					ELSE 0
+                            					END) SUM_Late
+                            			,SUM(CASE 
+                            					WHEN dt.Category = 'Absent'
+                            						THEN 1
+                            					ELSE 0
+                            					END) SUM_Absent
+                            			,SUM(CASE 
+                            					WHEN dt.Category IN ('Leave')
+                            						THEN 1
+                            					ELSE 0
+                            					END) SUM_Leave
+                            			,SUM(CASE 
+                            					WHEN dt.Category IN (
+                            							'Holiday'
+                            							,'Weekend'
+                            							)
+                            						THEN 1
+                            					ELSE 0
+                            					END) SUM_Off
+                            		FROM EmployeeInformation e
+                            		LEFT JOIN MST.ManpowerBudget MB ON MB.Id = E.BudgetCode
+                            		LEFT JOIN AttdnProcessData apd ON e.SystemId = apd.EmpSystemID
+                            			AND APD.WorkDate = '" + WorkDate + @"'
+                            		LEFT OUTER JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
+                            		LEFT OUTER JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
+                            		LEFT JOIN [ORG].[SubSection] SubSection ON SubSection.Id = PO.SubSectionId
+                            		LEFT JOIN [HKP].[Designation] Designation ON Designation.Id = PO.DesignationId
+                            		LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
+                            		JOIN DayType Dt ON Dt.DayType = apd.DayStatus
+                                    LEFT JOIN  EmployeeCodeType ect ON  ect.Id = E.EmployeeCodeTypeId
+                            		WHERE E.GroupID = '" + companyGroupId + @"'
+                            			AND E.CompanyId = '" + companyId + @"'
+                            			AND E.PlantId IN (" + plantId + @")
+                            			AND MB.Active = 1 AND Ect.Id IN (" + typeList + @") " + includeTBS1 + @" " + includeLa1 + @"
+                            		GROUP BY SubSection.UserName
+                            			,SubSection.Id
+                            			,Designation.UserName
+                            			,Designation.Id
+                            			,SubSection.Sequence
+                            			,Designation.Sequence
+                            			,E.BudgetCode
+                            			,Line.UserName
+                            			,Line.Id
+                            		) EmpAttdn ON m.Id = EmpAttdn.BudgetCode
+                            		AND EmpAttdn.SubSectionId = M.SubSectionId
+                            		" + joiningLineEmpAttdn + @"
+                            	-------------------------3. Manpower Budget Detail from [MST].[ManpowerBudgetDetail]--------------------------------------------------------
+                            	LEFT OUTER JOIN (
+                            		SELECT MBD.TotalNumber
+                            			,MBD.ManpowerBudgetId
+                            			,SubSection.UserName SubSectionName
+                            			,SubSection.Id SubSectionId
+                            			,Designation.UserName DesignationName
+                            			,Designation.Id DesignationId
+                            			,SubSection.Sequence SubSectionSequence
+                            			,Designation.Sequence DesignationSequence
+                            			,Line.UserName LineName
+                            			,ISNULL(Line.Id, '') LineId
+                            		FROM (
+                            			SELECT TOP 1
+                            			WITH TIES TotalNumber
+                            				,ManpowerBudgetId
+                            				,EffectiveDate
+                            			FROM [MST].[ManpowerBudgetDetail]
+                            			WHERE CONVERT(DATE, EffectiveDate) <= CONVERT(DATE, '" + WorkDate + @"')
+                            			ORDER BY ROW_NUMBER() OVER (
+                            					PARTITION BY ManpowerBudgetId ORDER BY EffectiveDate DESC
+                            					)
+                            			) MBD
+                            		LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB ON Mb.Id = MBD.ManpowerBudgetId
+                            		LEFT OUTER JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
+                            		LEFT OUTER JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id
+                            			AND mb.CompanyId = c.Id
+                            		LEFT OUTER JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
+                            		LEFT OUTER JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
+                            		LEFT JOIN [ORG].[Plant] ON Plant.Id = E.PlantId
+                            		
+                            		LEFT JOIN [ORG].[SubSection] SubSection ON SubSection.Id = PO.SubSectionId
+                            		LEFT JOIN [HKP].[Designation] Designation ON Designation.Id = PO.DesignationId
+                            		
+                            		LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
+                            		WHERE Cg.Id = '" + companyGroupId + @"'
+                            			AND C.Id = '" + companyId + @"'
+                            			AND Plant.Id IN (" + plantId + @")
+                            			AND MB.Active = 1
+                            			AND TotalNumber > 0
+                            		) B ON M.id = b.ManpowerBudgetId
+                            		AND B.DesignationId = M.DesignationId
+                            		AND B.SubSectionId = M.SubSectionId " + joiningLineBudget + @"
+                            	LEFT JOIN (
+                            		SELECT count(E.SystemID) TotalEmployee
+                            			,E.BudgetCode
+                            			,SubSection.UserName SubSectionName
+                            			,SubSection.Id SubSectionId
+                            			,Designation.UserName DesignationName
+                            			,Designation.Id DesignationId
+                            			,SubSection.Sequence SubSectionSequence
+                            			,Designation.Sequence DesignationSequence
+                            			,Line.UserName LineName
+                            			,ISNULL(Line.Id, '') LineId
+                            		FROM ORG.CompanyGroup CG
+                            		LEFT OUTER JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
+                            		INNER JOIN EmployeeInformation E ON E.GroupID = CG.Id
+                            			AND c.Id = E.CompanyId
+                            		INNER JOIN (
+                            			--*
+                            			SELECT TOP 1
+                            			WITH TIES *
+                            			FROM EmployeeShiftAssign
+                            			WHERE EffectiveDate <= '" + WorkDate + @"'
+                            				AND EmpSystemID NOT IN (
+                            					--**
+                            					SELECT DISTINCT EmpSystemID
+                            					FROM AttdnProcessData
+                            					WHERE CONVERT(DATE, WorkDate) = CONVERT(DATE, '" + WorkDate + @"')
+                            					)
+                            			ORDER BY ROW_NUMBER() OVER (
+                            					PARTITION BY EmpSystemID ORDER BY EffectiveDate DESC
+                            					)
+                            			) -- *
+                            			ESA ON E.SystemId = ESA.EmpSystemID
+                            		LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
+                            		LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
+                            		LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+                            		LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB ON MB.Id = E.BudgetCode
+                            		LEFT OUTER JOIN ORG.Entity AS ENT ON ENT.Id = MB.EntityId
+                            		LEFT OUTER JOIN ORG.Position AS POS ON POS.Id = MB.PositionId
+                            		LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
+                            		LEFT JOIN [ORG].[Plant] ON Plant.Id = ENT.PlantId
+                            		LEFT JOIN [ORG].[Department] ON Department.Id = POS.DepartmentId
+                            		LEFT JOIN [ORG].[Section] ON Section.Id = POS.SectionId
+                            		LEFT JOIN [ORG].[SubSection] ON SubSection.Id = POS.SubSectionId
+                            		LEFT JOIN [HKP].[Designation] Designation ON Designation.Id = POS.DesignationId
+                                    LEFT JOIN  EmployeeCodeType ect ON  ect.Id = E.EmployeeCodeTypeId
+                            		WHERE Cg.Id = '" + companyGroupId + @"'
+                            			AND C.Id = '" + companyId + @"'
+                            			AND E.PlantId IN (" + plantId + @")
+                            			AND MB.Active = 1
+                            			AND (
+                            				E.DOJ <= '" + WorkDate + @"'
+                            				AND (
+                            					E.DOS IS NULL
+                            					OR E.DOS >= '" + WorkDate + @"'
+                            					)
+                            				) AND Ect.Id IN (" + typeList + @") " + includeTBS1 + @" " + includeLa1 + @"
+                            		GROUP BY SubSection.UserName
+                            			,SubSection.Id
+                            			,Designation.UserName
+                            			,Designation.Id
+                            			,SubSection.Sequence
+                            			,Designation.Sequence
+                            			,E.BudgetCode
+                            			,Line.UserName
+                            			,Line.Id
+                            		) AttdnNotProcessedToday ON AttdnNotProcessedToday.BudgetCode = M.Id
+                            		AND AttdnNotProcessedToday.DesignationId = M.DesignationId
+                            		AND AttdnNotProcessedToday.SubSectionId = M.SubSectionId
+                            		 and AttdnNotProcessedToday.LineId = M.LineId
+                            	LEFT JOIN (
+                            		SELECT COUNT(E.SystemId) TotalEmployee
+                            			,E.BudgetCode
+                            			,SubSection.UserName SubSectionName
+                            			,SubSection.Id SubSectionId
+                            			,Designation.UserName DesignationName
+                            			,Designation.Id DesignationId
+                            			,SubSection.Sequence SubSectionSequence
+                            			,Designation.Sequence DesignationSequence
+                            			,Line.UserName LineName
+                            			,ISNULL(Line.Id, '') LineId
+                            		FROM ORG.CompanyGroup CG
+                            		LEFT OUTER JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
+                            		LEFT OUTER JOIN (
+                            			--*
+                            			SELECT *
+                            			FROM EmployeeInformation
+                            			WHERE SystemId NOT IN (
+                            					--**
+                            					SELECT DISTINCT EmpSystemID
+                            					FROM EmployeeShiftAssign
+                            					) --**
+                            			) --*
+                            			E ON e.GroupID = CG.Id
+                            			AND c.Id = E.CompanyId
+                            		LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
+                            		LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
+                            		LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+                            		LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB ON MB.Id = E.BudgetCode
+                            		LEFT OUTER JOIN ORG.Entity AS ENT ON ENT.Id = MB.EntityId
+                            		LEFT OUTER JOIN ORG.Position AS POS ON POS.Id = MB.PositionId
+                            		LEFT JOIN [ORG].[Plant] ON Plant.Id = ENT.PlantId
+                            		LEFT JOIN [ORG].[Department] ON Department.Id = POS.DepartmentId
+                            		LEFT JOIN [ORG].[Section] ON Section.Id = POS.SectionId
+                            		LEFT JOIN [ORG].[SubSection] ON SubSection.Id = POS.SubSectionId
+                            		LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
+                            		LEFT JOIN [HKP].[Designation] ON Designation.Id = POS.DesignationId
+                                    LEFT JOIN  EmployeeCodeType ect ON  ect.Id = E.EmployeeCodeTypeId
+                            		WHERE Cg.Id = '" + companyGroupId + @"'
+                            			AND C.Id = '" + companyId + @"'
+                            			AND E.PlantId IN (" + plantId + @")
+                            			AND MB.Active = 1
+                            			AND (
+                            				E.DOJ <= '" + WorkDate + @"'
+                            				AND (
+                            					E.DOS IS NULL
+                            					OR E.DOS >= '" + WorkDate + @"'
+                            					)
+                            				) AND Ect.Id IN (" + typeList + @") " + includeTBS1 + @" " + includeLa1 + @"
+                            		GROUP BY SubSection.UserName
+                            			,SubSection.Id
+                            			,Designation.UserName
+                            			,Designation.Id
+                            			,SubSection.Sequence
+                            			,Designation.Sequence
+                            			,E.BudgetCode
+                            			,Line.UserName
+                            			,Line.Id
+                            		) ShiftNotAssigned ON ShiftNotAssigned.BudgetCode = M.Id
+                            		AND ShiftNotAssigned.DesignationId = M.DesignationId
+                            		AND ShiftNotAssigned.SubSectionId = M.SubSectionId
+                            		" + joiningLineShiftNotAssigned + @"
+                            	) EDE
+                            GROUP BY DesignationName,Code
+                            	,EDE.EmpCategory,EDE.Department,EDE.SectionName
+                            	,SubSectionName
+                            	" + selectLine + @",ShiftName
+                            ORDER BY EDE.EmpCategory,EDE.Department,EDE.SectionName
+                            	,SubSectionName " + selectLine + @"
+                            	,DesignationName,Code,ShiftName";
+
+                return _sqlRepository.GetDataCollection(strSql);
             }
             catch (Exception ex)
             {

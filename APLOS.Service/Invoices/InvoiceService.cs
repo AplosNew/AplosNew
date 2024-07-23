@@ -4527,6 +4527,7 @@ namespace Library.Service.Invoices
                     throw new CustomException("Delete is not allow after post ! ");
 
                 AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.CheckingFiscalYearClose(voucher);
                 _accountsCommonService.InsertVoucherLogDeleted(voucherId,voucher.VoucherNo,"","",invoiceId,"","","","", "","","", "", deletedRemarks);
 
                 var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
@@ -4624,6 +4625,66 @@ namespace Library.Service.Invoices
                     _unitOfWork.Rollback();
             }
         }
+
+        public void DeleteJV(string voucherId, string deletedRemarks)
+        {
+            var flag = false;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var voucher = _voucherService.FindVoucher(voucherId);
+                if (voucher.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.CheckingFiscalYearClose(voucher);
+                _accountsCommonService.InsertVoucherLogDeleted(voucherId, voucher.VoucherNo, "", "", "", "", "", "", "", "", "", "", "", deletedRemarks);
+
+                var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
+
+                foreach (var item in voucherdetailcurrnecy)
+                {
+                    _voucherService.DeleteVoucherDetailCurrency(item.Id);
+                }
+
+                foreach (var item in voucherdetail)
+                {
+                    var gltransaction = _voucherService.QueryGLTransactionDetail(item.Id).Select().ToList();
+                    if (gltransaction.Count > 0)
+                    {
+                        foreach (var item1 in gltransaction)
+                        {
+                            _voucherService.DeleteGLTransactionDetail(item1.Id);
+
+                        }
+                    }
+                    _voucherService.DeleteVoucherDetail(item.Id);
+                }
+
+                _voucherService.DeleteVoucher(voucher.Id);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
         public void DeleteIncentiveReceivableInvoice(string invoiceId, string voucherId)
         {
             var flag = false;
@@ -4635,6 +4696,9 @@ namespace Library.Service.Invoices
                 var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
+
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.CheckingFiscalYearClose(voucher);
 
                 var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
                 var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
@@ -5070,6 +5134,9 @@ namespace Library.Service.Invoices
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
 
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.CheckingFiscalYearClose(voucher);
+
                 var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
                 var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
                 var invoice = base.Find(invoiceId);
@@ -5151,6 +5218,7 @@ namespace Library.Service.Invoices
                         throw new CustomException("Delete is not allow after post ! ");
 
                     AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                    _accountsCommonService.CheckingFiscalYearClose(voucher);
                     _accountsCommonService.InsertVoucherLogDeleted(voucherId, voucher.VoucherNo, "", "", invoiceId, "", "", "", "", "", "", "", "", deletedRemarks);
 
                     var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
@@ -5239,6 +5307,9 @@ namespace Library.Service.Invoices
                     if (voucher.IsPark == false)
                         throw new CustomException("Delete is not allow after post ! ");
 
+                    AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                    _accountsCommonService.CheckingFiscalYearClose(voucher);
+
                     var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
                     var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
 
@@ -5301,6 +5372,9 @@ namespace Library.Service.Invoices
                 var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
+
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.CheckingFiscalYearClose(voucher);
 
                 var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
                 var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
@@ -5412,6 +5486,9 @@ namespace Library.Service.Invoices
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
 
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.CheckingFiscalYearClose(voucher);
+
                 var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
                 var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
 
@@ -5494,6 +5571,9 @@ namespace Library.Service.Invoices
                     var voucher2 = _voucherService.FindVoucher(InventoryVoucherId);
                     if (voucher2.IsPark == false)
                         throw new CustomException("Delete is not allow after post!. Please Bring Back to park mode Voucher No" + voucher2.VoucherNo);
+
+                    AccountCommonExtensionService _accountsCommonService2 = new AccountCommonExtensionService();
+                    _accountsCommonService2.CheckingFiscalYearClose(voucher2);
 
                     var voucherdetail2 = _voucherService.QueryVoucherDetail(InventoryVoucherId).Select().ToList();
                     var voucherdetailcurrnecy2 = _voucherService.QueryVoucherDetailCurrency(InventoryVoucherId).Select().ToList();

@@ -338,6 +338,7 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
 
     $scope.Clear = function () {
         $scope.Action = "Save";
+        $scope.saveBtnDisable = false;
         $scope.voucher.Active = true;
         $scope.voucher.Amount = 0;
         $scope.voucher.DocRefNo = null;
@@ -361,9 +362,11 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
 
         return false;
     };
+    $scope.saveBtnDisable = false;
     $scope.Save = function () {
         $scope.$broadcast("show-errors-check-validity");
         if ($scope.form0.$valid && !$scope.validation()) {
+            $scope.saveBtnDisable = true;
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",
@@ -375,9 +378,11 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
                     dataType: "JSON"
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
+                        $scope.saveBtnDisable = false;
                         ShowResult(response.data.Message, "failure");
                     }
                     else {
+                        $scope.saveBtnDisable = false;
                         ShowResult(response.data.Message, "success");
                         $scope.getData();
                         $scope.Clear();
@@ -398,9 +403,11 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
                     dataType: "JSON"
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
+                        $scope.saveBtnDisable = false;
                         ShowResult(response.data.Message, "failure");
                     }
                     else {
+                        $scope.saveBtnDisable = false;
                         ShowResult(response.data.Message, "success");
                         $scope.getData();
                         $scope.Clear();
@@ -469,12 +476,17 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
     };
 
 
-    $scope.delete = function ( voucherId) {
+    $scope.delete = function (voucherId, deletedRemarks) {
+        if (baseService.isUndefinedOrNull(deletedRemarks)) {
+            ShowResult("Please insert deleted remarks!", "failure");
+            return true;
+        }
         $http({
             method: "POST",
             url: $scope.deleteUrl,
             data: {
                 "voucherId": voucherId
+                , "deletedRemarks": deletedRemarks
             },
             dataType: "JSON"
         }).then(function successCallback(response) {
@@ -482,6 +494,8 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
                 ShowResult(response.data.Message, "failure");
             }
             else {
+                $scope.deletedRemarks = "";
+                $scope.closeconfirmDeletePopUp_Remarks();
                 ShowResult(response.data.Message, "success");
                 $scope.getData();
                 $scope.Clear();
@@ -492,11 +506,16 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
         });
         return true;
     };
-
+    $scope.deletedRemarks = "";
     $scope.confirmDelete = function (voucherId) {
         $scope.voucherId = voucherId;
         $scope.message_delete_confirmation = "Are you sure to Delete?";
-        angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
+        /*angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");*/
+        angular.element(document.querySelector("#confirmDeletePopUp_Remarks")).modal("show");
+    };
+
+    $scope.closeconfirmDeletePopUp_Remarks = function () {
+        angular.element(document.querySelector("#confirmDeletePopUp_Remarks")).modal("hide");
     };
 
     $scope.ShowJournalPopUp = function (id, data) {

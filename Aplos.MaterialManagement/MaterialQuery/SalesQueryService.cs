@@ -922,14 +922,14 @@ namespace Aplos.MaterialManagement.MaterialQuery
 												WHERE B.Code='AIT' --and A.SalesServiceId IS NULL		
 												Group by A.salesMaterialId
 									) TAxInfo5 ON TAxInfo5.salesMaterialId=SMD.Id 
-									LEFT JOIN (SELECT SA.PartyId
+									LEFT JOIN (SELECT SA.PartyId,SA.Id
 									,SUM(A.BooksCurrencyTaxAmount) BooksTaxAmount,SUM(TaxAmount) TaxAmount
 												FROM trn.SalesAdditionalTax A
 												LEFT JOIN TRN.Sales SA ON SA.Id=A.SalesId
 												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 		
 												WHERE B.Code='TCS'  
-												Group BY SA.PartyId				
-									) TAxInfo6 ON TAxInfo6.PartyId=SA.PartyId
+												Group BY SA.PartyId	,SA.Id			
+									) TAxInfo6 ON TAxInfo6.PartyId=SA.PartyId and TAxInfo6.Id=sa.Id
 									LEFT JOIN(Select ISS.SalesId, Sum(ISS.Amount) ServiceAmount,Sum(ISS.TaxAmount) ServiceTax,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount,sum(BooksCurrencyTaxAmount) BooksCurrencyTaxAmount
 											from trn.SalesService AS ISS
 											LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
@@ -1100,12 +1100,14 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									LEFT JOIN [ORG].[Company] AS CO ON CO.Id=SA.CompanyId
 									LEFT JOIN [SCS].[Currency] AS C ON C.Id=CO.BaseCurrencyId
 									LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=P.ResponsiblePersonId
-									LEFT JOIN (SELECT PartyId,PartyPlantId,sum(WrittenOffAmount) SetOff,SourceType 
-													from [TRN].Invoice where  PartyType='Customer' and SourceType='SalesInvoice'
+									LEFT JOIN (SELECT PartyId,PartyPlantId ,DeliverypartyplantId=case when isnull(deliverypartyplantId,'')<>'' then deliverypartyplantId else partyplantId end
+										,sum(WrittenOffAmount) SetOff,SourceType 
+											FROM  [TRN].Invoice 
+													where  PartyType='Customer' and SourceType='SalesInvoice' 
 													and CONVERT(Date,DocDate) 
 													between '" + FromDate + @"' AND '" + ToDate + @"'
-													GROUP BY PartyId,SourceType,PartyPlantId
-													) IV ON  IV.PartyId=SA.PartyId and iv.PartyPlantId=sa.InvoicingPartyPlantId
+													GROUP BY PartyId,SourceType,PartyPlantId,DeliveryPartyPlantId
+													) IV ON  IV.PartyId=SA.PartyId and iv.PartyPlantId=sa.InvoicingPartyPlantId  and iv.DeliverypartyplantId=sa.DeliveryPartyPlantId
 									LEFT JOIN (SELECT A.salesMaterialId, sum(A.Amount) TaxAmount ,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
 												FROM [TRN].[SalesTax] A
 												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
@@ -1158,8 +1160,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 												LEFT JOIN TRN.Sales SA ON SA.Id=A.SalesId
 												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 		
 												WHERE B.Code='TCS'  
-												Group BY SA.PartyId				
-									) TAxInfo6 ON TAxInfo6.PartyId=SA.PartyId
+												Group BY SA.PartyId		
+									) TAxInfo6 ON TAxInfo6.PartyId=SA.PartyId 
 									LEFT JOIN(Select ISS.SalesId, Sum(ISS.Amount) ServiceAmount,Sum(ISS.TaxAmount) ServiceTax,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount,sum(BooksCurrencyTaxAmount) BooksCurrencyTaxAmount
 											from trn.SalesService AS ISS
 											LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
@@ -1496,12 +1498,12 @@ declare @plantId varchar(10)= '"+ PlantId + @"'--Sangrur
 									,IGSTBC= round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2) 
 									,TCSBC=round(isnull(TAxInfo6.BooksTaxAmount,0),2) 
 								,IID.Id InvoiceRowId
-								,II.Id InvoiceId,II.Id InvoiceNo ,II.SalesDate InvoiceDate,II.DocRefNo,'InventorySales' SalesType,II.DocDate
+								,II.Id InvoiceId,II.Id InvoiceNo ,REPLACE(CONVERT(CHAR(11), II.SalesDate, 106),' ','-') InvoiceDate,II.DocRefNo,'InventorySales' SalesType,II.DocDate
 									,'' ProductionOrder
 									,'' MasterOrder
 									,'' SalesOrder
-								,CU.Code InvoiceCurrency,II.ToCurrencyRate InvoiceCurrencyRate,PT.PaymentMode,PT.UserName PaymentTerm,'' PaymentDays,II.MatureDate,DATEDIFF(DAY, GETDATE(),II.MatureDate) DueDays
-								,V.VoucherNo,V.Id VoucherId,FORMAT(V.PostingDate, 'dd-MMM-yyyy') PostingDate,V.PostedDate,V.IsPark,'' OrderType
+								,CU.Code InvoiceCurrency,II.ToCurrencyRate InvoiceCurrencyRate,PT.PaymentMode,PT.UserName PaymentTerm,'' PaymentDays,REPLACE(CONVERT(CHAR(11), II.MatureDate, 106),' ','-') MatureDate,DATEDIFF(DAY, GETDATE(),II.MatureDate) DueDays
+								,V.VoucherNo,V.Id VoucherId,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') PostingDate,V.PostedDate,V.IsPark,'' OrderType
 								,'' CustomerArticle,ART.StandardName Article,PM.Code ProductCode,PM.UserName ProductGroup,MGM.UserName AS MaterialGroup,MT.UserName MaterialType
 								,MM.UserName Material,MC.UserName MaterialCategory,MSC.UserName MaterialSubCategory,HS.Code HSNCode
 								,TUoM.UserName UOM,IID.TransactionQty,IID.SalesRate TransactionRate,IID.BooksCurrencyTransactionAmount TransactionAmount,'' Remark,'' DrControlId,'' CrControlId

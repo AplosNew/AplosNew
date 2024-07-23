@@ -1694,7 +1694,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         sheet1.Range[_row, StartRange, _row, EndRange].Merge();
                         StartRange = EndRange + 1;
                         EndRange = StartRange + 1;
-                        sheet1.Range[_row, StartRange, _row, EndRange].Text = "Inventory Transfer";
+                        sheet1.Range[_row, StartRange, _row, EndRange].Text = "Capitalized";
                         sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Size = 10;
                         sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Bold = true;
                         sheet1.Range[_row, StartRange, _row, EndRange].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -2242,7 +2242,7 @@ namespace Library.MaterialManagement.InventoryManagements
                     sheet1headreColIndex++;
 
 
-                    sheet1.Range[_rowL, sheet1headreColIndex].Text = "Inventory Transfer Amount";
+                    sheet1.Range[_rowL, sheet1headreColIndex].Text = "Capitalized Amount";
                     sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
                     sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2628,12 +2628,12 @@ namespace Library.MaterialManagement.InventoryManagements
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapForThePeriodAmount"].ToString())); col++;
 
 
-                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferQtyForThePeriod"].ToString())); col++;
-                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferForThePeriodAmount"].ToString())); col++;
 
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventorySalesReturnQtyForThePeriod"].ToString())); col++;
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventorySalesReturnForThePeriodAmount"].ToString())); col++;
 
+                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferQtyForThePeriod"].ToString())); col++;
+                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferForThePeriodAmount"].ToString())); col++;
 
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Closing"].ToString())); col++;
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ClosingAmount"].ToString())); col++;
@@ -2892,8 +2892,8 @@ namespace Library.MaterialManagement.InventoryManagements
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapQtyForThePeriod"].ToString())); col++;
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapForThePeriodAmount"].ToString())); col++;
 
-                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapQtyForThePeriod"].ToString())); col++;
-                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapForThePeriodAmount"].ToString())); col++;
+                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferQtyForThePeriod"].ToString())); col++;
+                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferForThePeriodAmount"].ToString())); col++;
 
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Closing"].ToString())); col++;
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ClosingAmount"].ToString())); col++;
@@ -2943,11 +2943,9 @@ namespace Library.MaterialManagement.InventoryManagements
                                 //report.SetText(ref sheet1, _rowL, 11, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["AdjustmentForThePeriodAmount"].ToString()));
                                 report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventorySalesQtyForThePeriod"].ToString())); col++;
                                 report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapQtyForThePeriod"].ToString())); col++;
+                                report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferQtyForThePeriod"].ToString())); col++;
 
-
-                                report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapQtyForThePeriod"].ToString())); col++;
-
-                                report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Closing"].ToString())); col++;
+                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Closing"].ToString())); col++;
                             }
                             else
                             {
@@ -2974,10 +2972,13 @@ namespace Library.MaterialManagement.InventoryManagements
                                 //report.SetText(ref sheet1, _rowL, 11, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["AdjustmentForThePeriodAmount"].ToString()));
                                 report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventorySalesQtyForThePeriod"].ToString())); col++;
                                 report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapQtyForThePeriod"].ToString())); col++;
+                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferQtyForThePeriod"].ToString())); col++;
 
-                                report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapQtyForThePeriod"].ToString())); col++;
 
-                                report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Closing"].ToString())); col++;
+
+
+
+                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Closing"].ToString())); col++;
 
                             }
                         }
@@ -3029,7 +3030,7 @@ namespace Library.MaterialManagement.InventoryManagements
                                 report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapQtyForThePeriod"].ToString()));
 
 
-                                report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapQtyForThePeriod"].ToString()));
+                                report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferQtyForThePeriod"].ToString()));
 
                                 report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Closing"].ToString()));
                             }
@@ -3059,7 +3060,7 @@ namespace Library.MaterialManagement.InventoryManagements
                                 report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventorySalesQtyForThePeriod"].ToString()));col++;
                                 report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapQtyForThePeriod"].ToString())); col++;
 
-                                report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapQtyForThePeriod"].ToString())); col++;
+                                report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferQtyForThePeriod"].ToString())); col++;
 
                                 report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Closing"].ToString())); col++;
 
@@ -4005,7 +4006,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         StartRange = EndRange + 1;
                         EndRange = StartRange + 1;
 
-                        sheet1.Range[_row, StartRange, _row, EndRange].Text = "Inventory Transfer";
+                        sheet1.Range[_row, StartRange, _row, EndRange].Text = "Capitalized";
                         sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Size = 10;
                         sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Bold = true;
                         sheet1.Range[_row, StartRange, _row, EndRange].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -4590,7 +4591,7 @@ namespace Library.MaterialManagement.InventoryManagements
                     sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
                     sheet1headreColIndex++;
 
-                    sheet1.Range[_rowL, sheet1headreColIndex].Text = "Inventory Transfer Amount";
+                    sheet1.Range[_rowL, sheet1headreColIndex].Text = "Capitalized Amount";
                     sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
                     sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -4846,7 +4847,7 @@ namespace Library.MaterialManagement.InventoryManagements
                     sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
                     sheet1headreColIndex++;
 
-                    sheet1.Range[_rowL, sheet1headreColIndex].Text = "Inventory Transfer Qty";
+                    sheet1.Range[_rowL, sheet1headreColIndex].Text = "Capitalized Qty";
                     sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 22;
                     sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -5070,7 +5071,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         sheet1.Range[_row, StartRange, _row, EndRange].Merge();
                         StartRange = EndRange + 1;
                         EndRange = StartRange + 1;
-                        sheet1.Range[_row, StartRange, _row, EndRange].Text = "Inventory Transfer";
+                        sheet1.Range[_row, StartRange, _row, EndRange].Text = "Capitalized";
                         sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Size = 10;
                         sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Bold = true;
                         sheet1.Range[_row, StartRange, _row, EndRange].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -5625,7 +5626,7 @@ namespace Library.MaterialManagement.InventoryManagements
                     sheet1headreColIndex++;
 
 
-                    sheet1.Range[_rowL, sheet1headreColIndex].Text = "Inventory Transfer Amount";
+                    sheet1.Range[_rowL, sheet1headreColIndex].Text = "Capitalized Amount";
                     sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
                     sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -5885,7 +5886,7 @@ namespace Library.MaterialManagement.InventoryManagements
                     sheet1headreColIndex++;
 
 
-                    sheet1.Range[_rowL, sheet1headreColIndex].Text = "Inventory Transfer Qty";
+                    sheet1.Range[_rowL, sheet1headreColIndex].Text = "Capitalized Qty";
                     sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 22;
                     sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -6001,11 +6002,11 @@ namespace Library.MaterialManagement.InventoryManagements
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapForThePeriodAmount"].ToString())); col++;
 
 
+                            //report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventorySalesReturnQtyForThePeriod"].ToString())); col++;
+                            //report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventorySalesReturnForThePeriodAmount"].ToString())); col++;
+
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferQtyForThePeriod"].ToString())); col++;
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferForThePeriodAmount"].ToString())); col++;
-
-                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventorySalesReturnQtyForThePeriod"].ToString())); col++;
-                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventorySalesReturnForThePeriodAmount"].ToString())); col++;
 
 
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Closing"].ToString())); col++;
@@ -6229,7 +6230,7 @@ namespace Library.MaterialManagement.InventoryManagements
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventorySalesForThePeriodAmount"].ToString())); col++;
 
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapQtyForThePeriod"].ToString())); col++;
-                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapForThePeriodAmount"].ToString())); col++;
+                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferQtyForThePeriod"].ToString())); col++;
 
 
 
@@ -6265,8 +6266,8 @@ namespace Library.MaterialManagement.InventoryManagements
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapQtyForThePeriod"].ToString())); col++;
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapForThePeriodAmount"].ToString())); col++;
 
-                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapQtyForThePeriod"].ToString())); col++;
-                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapForThePeriodAmount"].ToString())); col++;
+                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferQtyForThePeriod"].ToString())); col++;
+                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferForThePeriodAmount"].ToString())); col++;
 
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Closing"].ToString())); col++;
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ClosingAmount"].ToString())); col++;
@@ -6318,7 +6319,7 @@ namespace Library.MaterialManagement.InventoryManagements
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapQtyForThePeriod"].ToString())); col++;
 
 
-                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapQtyForThePeriod"].ToString())); col++;
+                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferForThePeriod"].ToString())); col++;
 
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Closing"].ToString())); col++;
                         }
@@ -6348,7 +6349,7 @@ namespace Library.MaterialManagement.InventoryManagements
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventorySalesQtyForThePeriod"].ToString())); col++;
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapQtyForThePeriod"].ToString())); col++;
 
-                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapQtyForThePeriod"].ToString())); col++;
+                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferForThePeriod"].ToString())); col++;
 
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Closing"].ToString())); col++;
 
@@ -6402,7 +6403,7 @@ namespace Library.MaterialManagement.InventoryManagements
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapQtyForThePeriod"].ToString()));
 
 
-                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapQtyForThePeriod"].ToString()));
+                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferForThePeriod"].ToString()));
 
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Closing"].ToString()));
                         }
@@ -6432,7 +6433,7 @@ namespace Library.MaterialManagement.InventoryManagements
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventorySalesQtyForThePeriod"].ToString())); col++;
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapQtyForThePeriod"].ToString())); col++;
 
-                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapQtyForThePeriod"].ToString())); col++;
+                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferForThePeriod"].ToString())); col++;
 
                             report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Closing"].ToString())); col++;
 

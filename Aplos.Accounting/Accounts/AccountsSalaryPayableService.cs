@@ -72,7 +72,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
 						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join mst.DesignationMaster DM on DM.DesignationId=ei.GivenDesignationId
-						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id
+						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id AND DMC.PlantId=ei.PlantId
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
@@ -92,7 +92,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
 						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join mst.DesignationMaster DM on DM.DesignationId=ei.GivenDesignationId
-						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id
+						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id AND DMC.PlantId=ei.PlantId
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
@@ -112,7 +112,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
 						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join mst.DesignationMaster DM on DM.DesignationId=ei.GivenDesignationId
-						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id
+						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id AND DMC.PlantId=ei.PlantId
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
@@ -132,7 +132,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
 						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join mst.DesignationMaster DM on DM.DesignationId=ei.GivenDesignationId
-						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id
+						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id AND DMC.PlantId=ei.PlantId
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
@@ -196,7 +196,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
 						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join mst.DesignationMaster DM on DM.DesignationId=ei.GivenDesignationId
-						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id
+						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id AND DMC.PlantId=ei.PlantId
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
@@ -268,7 +268,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
 						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join mst.DesignationMaster DM on DM.DesignationId=ei.GivenDesignationId
-						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id
+						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id AND DMC.PlantId=ei.PlantId
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
@@ -302,7 +302,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
 						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join mst.DesignationMaster DM on DM.DesignationId=ei.GivenDesignationId
-						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id
+						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id AND DMC.PlantId=ei.PlantId
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
@@ -378,7 +378,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
 						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join mst.DesignationMaster DM on DM.DesignationId=ei.GivenDesignationId
-						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id
+						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id AND DMC.PlantId=ei.PlantId
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
@@ -398,7 +398,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
 						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join mst.DesignationMaster DM on DM.DesignationId=ei.GivenDesignationId
-						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id
+						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id AND DMC.PlantId=ei.PlantId
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
@@ -418,7 +418,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
 						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join mst.DesignationMaster DM on DM.DesignationId=ei.GivenDesignationId
-						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id
+						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id AND DMC.PlantId=ei.PlantId
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
@@ -439,7 +439,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
 						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join mst.DesignationMaster DM on DM.DesignationId=ei.GivenDesignationId
-						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id
+						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id AND DMC.PlantId=ei.PlantId
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
@@ -503,7 +503,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
 						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join mst.DesignationMaster DM on DM.DesignationId=ei.GivenDesignationId
-						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id
+						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id AND DMC.PlantId=ei.PlantId
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
@@ -577,7 +577,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
 						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join mst.DesignationMaster DM on DM.DesignationId=ei.GivenDesignationId
-						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id
+						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id AND DMC.PlantId=ei.PlantId
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
@@ -610,7 +610,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
 						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join mst.DesignationMaster DM on DM.DesignationId=ei.GivenDesignationId
-						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id
+						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id AND DMC.PlantId=ei.PlantId
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
@@ -691,7 +691,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
 						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join mst.DesignationMaster DM on DM.DesignationId=ei.GivenDesignationId
-						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id
+						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id AND DMC.PlantId=ei.PlantId
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
@@ -775,7 +775,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
 						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join mst.DesignationMaster DM on DM.DesignationId=ei.GivenDesignationId
-						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id
+						left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.id AND DMC.PlantId=ei.PlantId
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID

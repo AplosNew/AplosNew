@@ -163,6 +163,17 @@ function inventoryReceiveController(accountService, addressService, $window, fac
         };
         $scope.getData();
     };
+
+    $scope.TrancastionTypeCboList = [];
+    function GetTrancastionTypeCboList() {
+        $http({
+            method: 'GET',
+            url: 'Productions/SalesPurchaseTransactionType/GetPurchaseTypeCbo'
+        }).then(function (response) {
+            $scope.TrancastionTypeCboList = response.data;
+        });
+    }
+    GetTrancastionTypeCboList();
     //$scope.getDataListForEmpGRN(); // Command by shakawat Hossain 8-20-2020
 
     //#region Start -Rejion---GetListGRN---GRN-without-PO UI
