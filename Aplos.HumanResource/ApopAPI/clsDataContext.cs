@@ -3691,7 +3691,10 @@ left join EmployeeInformation EI on EI.SystemId=QC.ProductionInchargeId
 left join TRN.ProductionOrder PO on PO.Id=QC.ProductionOrderId
 left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
 where QCD.Status not in ('Close','Complete') and PS.UserName in ('Running','To Close') and 
-QCD.GradeId in (select Id from MST.QualityGradeDetails where ActionApplicable=1)   and ResponsiblePersonId = '" + UserId + @"'";
+QCD.GradeId in (select Id from MST.QualityGradeDetails where ActionApplicable=1)   and ResponsiblePersonId = '" + UserId + @"'
+
+union all 
+select 'InvoiceRemarks' , Count(Id) Value from TRN.InvoiceRemarks where CloseStatus <> 1 and  ActionToBeTakenId = '" + UserId + @"' ";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
