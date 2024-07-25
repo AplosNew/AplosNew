@@ -164,11 +164,25 @@ function salaryRuleController(commonMessage, $scope, $rootScope, baseService, $r
     };
     $scope.getSavedData();
 
+    $scope.salaryHeadCboList = [];
     $scope.getSH = function () {
-        cboService.getSHCbo($scope.salaryRuleNew.CurrencyRuleSystemID, function (result) {
-            $scope.salaryHeadList = result;
-           // console.log($scope.salaryHeadList);
-        });
+        //cboService.getSHCbo($scope.salaryRuleNew.CurrencyRuleSystemID, function (result) {
+        //    $scope.salaryHeadList = result;
+        //   // console.log($scope.salaryHeadList);
+        //});
+        $scope.salaryHeadCboList = [];
+
+        $http.get("payrolls/salaryRule/GetSalaryHeadCbo?currencyRuleSystemID=" + $scope.salaryRuleNew.CurrencyRuleSystemID)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.salaryHeadCboList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+
     }
 
     $scope.Get = function (obj) {
@@ -1673,10 +1687,10 @@ function salaryRuleController(commonMessage, $scope, $rootScope, baseService, $r
     $scope.AddEditSalaryRow = function () {
         try {
             $scope.salaryRuleGeneral.SalaryHead = $("#SH option:selected").text();
-            //var hasGL = $.grep($scope.salaryHeadList, function (item) { return item.Value === $scope.salaryRuleGeneral.SalaryHeadID; })[0];
-            //if (hasGL == false) {
-            //    throw "GL is not defined with this SalaryHead: " + $scope.salaryRuleGeneral.SalaryHead + "";
-            //}
+            var hasGL = $.grep($scope.salaryHeadCboList, function (item) { return item.Value === $scope.salaryRuleGeneral.SalaryHeadID; })[0];
+            if (hasGL.HasGL == false) {
+                throw "GL is not defined with this SalaryHead: " + $scope.salaryRuleGeneral.SalaryHead + "";
+            }
             ValidationRuleGeneral();
 
             CheckDuplicate($scope.salaryRuleGeneral);
@@ -1685,7 +1699,6 @@ function salaryRuleController(commonMessage, $scope, $rootScope, baseService, $r
 
             $scope.salaryRuleGeneral.FormulaDes = $scope.salaryRuleGeneral.FormulaDescription;
             $scope.salaryRuleGeneral.FormulaDesID = $scope.salaryRuleGeneral.FormulaIDDescription;
-            
 
             $scope.salaryRuleGeneral.HasMaxLimit = $scope.salaryRuleGeneral.HasMaxLimit;
             $scope.salaryRuleGeneral.FixedMaxLimit = $scope.salaryRuleGeneral.FixedMaxLimit;
@@ -1697,7 +1710,6 @@ function salaryRuleController(commonMessage, $scope, $rootScope, baseService, $r
             $scope.salaryRuleGeneral.MinLimitValue = $scope.salaryRuleGeneral.MinLimitValue;
             $scope.salaryRuleGeneral.PercentageMinLimit = $scope.salaryRuleGeneral.PercentageMinLimit;
             $scope.salaryRuleGeneral.PercentageMinLimitSalaryHeadId = $scope.salaryRuleGeneral.PercentageMinLimitSalaryHeadId;
-
 
             if ($scope.salaryRuleGeneral.IsNA === true) {
                 $scope.salaryRuleGeneral.IsNA = true;
@@ -1789,9 +1801,6 @@ function salaryRuleController(commonMessage, $scope, $rootScope, baseService, $r
             $scope.salaryRuleGeneral.Operator = null;
             $scope.salaryRuleGeneral.Precedence = null;
             $scope.salaryRuleGeneral.Value = null;
-          
-
-
 
             $scope.FormulaArray = [];
             $scope.FormulaIdArray = [];
