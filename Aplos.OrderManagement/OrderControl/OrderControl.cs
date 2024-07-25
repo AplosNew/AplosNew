@@ -617,7 +617,7 @@ namespace Library.OrderManagement.OrderControl
                             , isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id)
                             ,ISNULL(POD.ProductionOrderId,'') ProductionOrderId,SO.Reason,SO.Description,SO.CM,SO.SalesOrderYear,SO.WeekNo
                             ,SO.ProductionBookedQty,SO.ProductionBookingLevel,SO.SalesExpense,C.Code As Currency,MMA.StandardName Article,MOI.BuyerReferenceNo,SO.CM,SO.ApprovedStatus,SO.CheckByStatus,SO.CheckByDate,SO.ApproveBy,SO.ApproveByDate
-							
+							,SO.Qty-(isnull(OtherDispatchQty.ScanQty,0) + isnull(sm.DispatchQty,0)) as BalanceToDispatch
                     FROM [TRN].[SalesOrder] AS SO
                     JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
                     LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=MOI.ArticleId
@@ -627,6 +627,18 @@ namespace Library.OrderManagement.OrderControl
                     LEFT JOIN dbo.EmployeeInformation AS EMP ON EMP.SystemId = SO.ResponsiblePersonId
                     LEFT JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
                     LEFT JOIN [MST].[Destination] D ON D.Id=SO.DestinationId
+					 left join
+                            (
+                            Select SalesOrderId , SUM(isnull(sm.TransactionQty , 0)) as DispatchQty
+                            from trn.SalesMaterial sm
+                            group by SalesOrderId
+                            ) as sm on sm.SalesOrderId = so.Id
+					left join (select PLI.SOId, sum(isc.NetWeight) ScanQty
+                from itemscanchild isc
+                left join trn.POLotReference PLR on PLR.Id = isc.PackingId
+                left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
+                    where isc.IsDespatch = 0
+                    group by PLI.SOId) OtherDispatchQty on OtherDispatchQty.SOId = SO.Id
                     WHERE  MOI.MasterOrderId='" + MasterOrderId + @"' ORDER BY SO.DeliveryDate";
             return _sqlRepository.GetDataCollection(sql);
         }
