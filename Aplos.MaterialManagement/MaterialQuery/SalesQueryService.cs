@@ -1154,14 +1154,15 @@ namespace Aplos.MaterialManagement.MaterialQuery
 												WHERE B.Code='AIT' --and A.SalesServiceId IS NULL		
 												Group by A.salesMaterialId
 									) TAxInfo5 ON TAxInfo5.salesMaterialId=SMD.Id 
-									LEFT JOIN (SELECT SA.PartyId
+									LEFT JOIN (SELECT SA.PartyId,SA.InvoicingPartyPlantId,SA.DeliveryPartyPlantId
 									,SUM(A.BooksCurrencyTaxAmount) BooksTaxAmount,SUM(TaxAmount) TaxAmount
 												FROM trn.SalesAdditionalTax A
 												LEFT JOIN TRN.Sales SA ON SA.Id=A.SalesId
 												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 		
 												WHERE B.Code='TCS'  
-												Group BY SA.PartyId		
-									) TAxInfo6 ON TAxInfo6.PartyId=SA.PartyId 
+												Group BY SA.PartyId,SA.InvoicingPartyPlantId,SA.DeliveryPartyPlantId		
+									) TAxInfo6 ON TAxInfo6.PartyId=SA.PartyId and TAxInfo6.InvoicingPartyPlantId=SA.InvoicingPartyPlantId 
+									AND TAxInfo6.DeliveryPartyPlantId=SA.DeliveryPartyPlantId
 									LEFT JOIN(Select ISS.SalesId, Sum(ISS.Amount) ServiceAmount,Sum(ISS.TaxAmount) ServiceTax,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount,sum(BooksCurrencyTaxAmount) BooksCurrencyTaxAmount
 											from trn.SalesService AS ISS
 											LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
