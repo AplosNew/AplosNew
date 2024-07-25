@@ -1278,7 +1278,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									,IGSTBC=0
 									,TCSBC=0
 								,0 SetOff,0 Balance
-								 ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,'' PartyType
+								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,'' PartyType
 								,CN.UserName Country,E.EmployeeName ResponsiblePerson
                                         FROM [TRN].[AdjustmentNoteDetail] AS IVD
 										LEFT JOIN [TRN].[AdjustmentNote] AS IV ON IVD.AdjustmentNoteId=IV.Id
@@ -1469,14 +1469,15 @@ declare @plantId varchar(10)= '"+ PlantId + @"'--Sangrur
 												WHERE B.Code='AIT' --and A.SalesServiceId IS NULL		
 												Group by A.salesMaterialId
 									) TAxInfo5 ON TAxInfo5.salesMaterialId=SMD.Id 
-									LEFT JOIN (SELECT SA.PartyId
-									,SUM(A.BooksCurrencyTaxAmount) BooksTaxAmount,SUM(TaxAmount) TaxAmount
+									LEFT JOIN (SELECT SA.PartyId,SA.Id
+									,A.BooksCurrencyTaxAmount/count(sm.SalesId) BooksTaxAmount,A.TaxAmount/count(sm.SalesId) TaxAmount
 												FROM trn.SalesAdditionalTax A
 												LEFT JOIN TRN.Sales SA ON SA.Id=A.SalesId
+												left join trn.SalesMaterial sm on sm.SalesId=sa.Id
 												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 		
 												WHERE B.Code='TCS'  
-												Group BY SA.PartyId				
-									) TAxInfo6 ON TAxInfo6.PartyId=SA.PartyId
+												Group BY SA.PartyId,SA.Id,A.BooksCurrencyTaxAmount,A.TaxAmount				
+									) TAxInfo6 ON TAxInfo6.PartyId=SA.PartyId and TAxInfo6.Id=SA.Id
 									LEFT JOIN(Select ISS.SalesId, Sum(ISS.Amount) ServiceAmount,Sum(ISS.TaxAmount) ServiceTax,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount,sum(BooksCurrencyTaxAmount) BooksCurrencyTaxAmount
 											from trn.SalesService AS ISS
 											LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
