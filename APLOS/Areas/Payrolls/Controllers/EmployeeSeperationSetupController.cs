@@ -463,13 +463,15 @@ namespace Aplos.Areas.Payrolls.Controllers
         public ActionResult GetProcessParameterList(string masterId)
         {
 
-            string sql = @"SELECT N.*,AG.UserName AS DrAccountGroupName,CAG.UserName AS CrAccountGroupName FROM [dbo].[EmployeeSeperationItem] N
+            string sql = @"SELECT N.*,AG.UserName AS DrAccountGroupName,CAG.UserName AS CrAccountGroupName, DrA.UserName DrActivityName, CrA.UserName CrActivityName  FROM [dbo].[EmployeeSeperationItem] N
 LEFT JOIN [MST].[BudgetMasterActivity] Dr ON Dr.Id=N.DrBudgetMasterActivityId
 LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=Dr.BudgetMasterId
+LEFT JOIN [HKP].[Activity] DrA ON DrA.Id=Dr.ActivityId
 									LEFT JOIN  [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=BM.GLGeneralInfoId
                                     LEFT JOIN [HKP].[GLCompanyInfo] AS GLCI ON GLCI.GLGeneralInfoId=GLGI.Id
                                     LEFT JOIN [HKP].[AccountGroup] AS AG ON AG.Id=GLGI.AccountGroupId
                                     LEFT JOIN [MST].[BudgetMasterActivity] Cr ON Cr.Id=N.CrBudgetMasterActivityId
+									LEFT JOIN [HKP].[Activity] CrA ON CrA.Id=Cr.ActivityId
                                     LEFT JOIN [MST].[BudgetMaster] AS CBM ON CBM.Id=Cr.BudgetMasterId
 									LEFT JOIN  [HKP].[GLGeneralInfo] AS CGLGI ON CGLGI.Id=CBM.GLGeneralInfoId
                                     LEFT JOIN [HKP].[GLCompanyInfo] AS CGLCI ON CGLCI.GLGeneralInfoId=CGLGI.Id

@@ -924,12 +924,14 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
 
     $scope.SelectDr = function (args) {
         $scope.ModelProcessPara.DrAccountGroupName = args.data.AccountGroupName;
+        $scope.ModelProcessPara.DrActivityName = args.data.ActivityName;
         $scope.ModelProcessPara.DrBudgetMasterActivityId = args.data.BudgetMasterActivityId;
         var eDialog = $("#DrGLPoUp").data("ejDialog");
         eDialog.close();
     }
 
     $scope.SelectCr = function (args) {
+        $scope.ModelProcessPara.CrActivityName = args.data.ActivityName;
         $scope.ModelProcessPara.CrAccountGroupName = args.data.AccountGroupName;
         $scope.ModelProcessPara.CrBudgetMasterActivityId = args.data.BudgetMasterActivityId;
         var eDialog = $("#CrGLPoUp").data("ejDialog");

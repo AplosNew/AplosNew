@@ -167,6 +167,7 @@ function salaryRuleController(commonMessage, $scope, $rootScope, baseService, $r
     $scope.getSH = function () {
         cboService.getSHCbo($scope.salaryRuleNew.CurrencyRuleSystemID, function (result) {
             $scope.salaryHeadList = result;
+           // console.log($scope.salaryHeadList);
         });
     }
 
@@ -1671,7 +1672,11 @@ function salaryRuleController(commonMessage, $scope, $rootScope, baseService, $r
 
     $scope.AddEditSalaryRow = function () {
         try {
-
+            $scope.salaryRuleGeneral.SalaryHead = $("#SH option:selected").text();
+            //var hasGL = $.grep($scope.salaryHeadList, function (item) { return item.Value === $scope.salaryRuleGeneral.SalaryHeadID; })[0];
+            //if (hasGL == false) {
+            //    throw "GL is not defined with this SalaryHead: " + $scope.salaryRuleGeneral.SalaryHead + "";
+            //}
             ValidationRuleGeneral();
 
             CheckDuplicate($scope.salaryRuleGeneral);
@@ -1680,7 +1685,7 @@ function salaryRuleController(commonMessage, $scope, $rootScope, baseService, $r
 
             $scope.salaryRuleGeneral.FormulaDes = $scope.salaryRuleGeneral.FormulaDescription;
             $scope.salaryRuleGeneral.FormulaDesID = $scope.salaryRuleGeneral.FormulaIDDescription;
-            $scope.salaryRuleGeneral.SalaryHead = $("#SH option:selected").text();
+            
 
             $scope.salaryRuleGeneral.HasMaxLimit = $scope.salaryRuleGeneral.HasMaxLimit;
             $scope.salaryRuleGeneral.FixedMaxLimit = $scope.salaryRuleGeneral.FixedMaxLimit;

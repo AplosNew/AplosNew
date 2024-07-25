@@ -245,7 +245,9 @@ namespace Aplos.Areas.Employees.Controllers
         [HttpGet, Authorize]
         public JsonResult GetSalaryHeadCbo()
         {
-            var sql = @"SELECT SalaryHeadID, SalaryHead FROM SalaryHead ORDER BY SalaryHead";
+            var sql = @"SELECT DISTINCT H.SalaryHeadID, H.SalaryHead,HasGL=CASE WHEN G.Id IS NOT NULL THEN 1 ELSE 0 END FROM SalaryHead H
+LEFT JOIN MST.SalaryHeadGL G ON G.SalaryHeadID=H.SalaryHeadID
+ORDER BY H.SalaryHead";
             return Json(_sqlRepository.GetCombo(sql, "SalaryHeadID", "SalaryHead"), JsonRequestBehavior.AllowGet);
         }
         #endregion
