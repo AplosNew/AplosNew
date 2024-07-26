@@ -1997,7 +1997,7 @@ WHERE E.EmployeeStatus='Active' AND A.ActionStatus='FullAndFinalApproveBy'";
 			 WHEN OL.UserName='ResignDate' THEN FORMAT(R.ResignationDate,'dd-MMM-yyyy')
 			 WHEN OL.UserName='SeparationDate' THEN FORMAT(E.DOS,'dd-MMM-yyyy')
 			 WHEN OL.UserName='EarnLeave' THEN CAST(CEILING(LV.Balance) AS varchar(100))
-			 WHEN OL.SalaryHeadID<>'' THEN CAST(cast(SID.DefineAmount AS decimal(18,2)) AS varchar(100))
+			 WHEN OL.SalaryHeadID<>'' THEN CAST(cast(SID.DefineAmount AS decimal(18,0)) AS varchar(100))
 			 WHEN OL.UserName='NoticePeriod' THEN CAST(LV.NoticePeriod AS varchar(100))
 
 WHEN OL.UserName='AdvanceSalary' THEN CAST((
@@ -2007,7 +2007,7 @@ FROM TRN.EmployeeSubsequentTransaction AS AD
 LEFT JOIN TRN.Voucher V ON V.Id=AD.VoucherId
 WHERE    AD.EmployeeId<>''  AND AD.JournalType='Salary' AND V.IsPark=0
 AND AD.SourceType in ('EmployeeAdvance', 'InterTransaction') AND AD.EmployeeId='" + empId + @"'
-GROUP BY AD.EmployeeId) AS decimal(18,2))) AS varchar(100))
+GROUP BY AD.EmployeeId) AS decimal(18,0))) AS varchar(100))
 			
 WHEN OL.UserName='AdvanceLoan' THEN CAST((
 			 cast((SELECT SUM(AD.Amount)-ISNULL(SUM(AWD.Amount),0) Balance
@@ -2015,7 +2015,7 @@ FROM TRN.Advance AS AD
 LEFT JOIN (select AdvanceId,Sum(Amount) Amount from TRN.AdvanceWriteOffDetail group by AdvanceId) AWD ON AWD.AdvanceId=AD.Id
 WHERE    AD.EmployeeId<>'' AND AD.IsPark=0 AND AD.IsWrittenOff=0
 AND AD.SourceType in ('EmployeeAdvance') AND AD.EmployeeId='" + empId + @"' and AD.JournalType='General'
-GROUP BY AD.EmployeeId) AS decimal(18,2))) AS varchar(100))
+GROUP BY AD.EmployeeId) AS decimal(18,0))) AS varchar(100))
 	
 WHEN OL.UserName='ExpensesPayable' THEN CAST((
 			 cast((SELECT SUM(AD.Amount)-isnull(SUM(epw.WrittenOffAmount),0) AS Balance
@@ -2023,11 +2023,11 @@ FROM trn.EmployeePayable AS AD
 left join (select EmployeePayableId,Amount WrittenOffAmount from  trn.EmployeePayableWriteOffDetail) epw on epw.EmployeePayableId=ad.Id
 WHERE    AD.EmployeeId<>'' AND AD.IsPark=0 AND AD.IsWrittenOff=0
 AND AD.SourceType in ('EmployeePayable') AND AD.EmployeeId='" + empId + @"'
-GROUP BY AD.EmployeeId) AS decimal(18,2))) AS varchar(100))
+GROUP BY AD.EmployeeId) AS decimal(18,0))) AS varchar(100))
 	
 
 WHEN OL.UserName='UnPaidSalary' THEN CAST((
-			 SELECT cast(SUM(spc.DisbusmentAmount)AS decimal(18,2))DisbusmentAmount FROM SalaryProcChild AS spc
+			 SELECT cast(SUM(spc.DisbusmentAmount)AS decimal(18,0))DisbusmentAmount FROM SalaryProcChild AS spc
 LEFT JOIN SalaryProcMaster AS spm ON spm.SystemID = spc.SlrProcMstSystemID 
 LEFT JOIN SalaryHead AS sh ON sh.SalaryHeadID = spc.SalaryHeadID
 LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
@@ -2036,7 +2036,7 @@ WHERE  spc.EmpInfoSystemID= '" + empId + @"' AND PayableVoucherId<>'' AND sl.Dis
 
 			 WHEN OL.UserName='Bonus' THEN CAST((
 			 Select SUM(BonusAmount)BonusAmount from(
-select cast(SUM(spc.DisbusmentAmount)AS decimal(18,2))BonusAmount  from SalaryProcChild SPC
+select cast(SUM(spc.DisbusmentAmount)AS decimal(18,0))BonusAmount  from SalaryProcChild SPC
 left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
 JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID
 Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.YearNo AND sl.MonthNo=SPM.MonthNo
@@ -2047,7 +2047,7 @@ AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND ISNULL(sl.IsBonusDi
 AND sl.BonusDisbursementVoucherId IS NULL 
 AND SPC.EmpInfoSystemID='" + empId + @"'
 UNION
-select cast(SUM(spc.DisbusmentAmount)AS decimal(18,2))BonusAmount  from SalaryProcChild SPC
+select cast(SUM(spc.DisbusmentAmount)AS decimal(18,0))BonusAmount  from SalaryProcChild SPC
 left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
 JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID
 Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.YearNo AND sl.MonthNo=SPM.MonthNo
