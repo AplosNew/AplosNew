@@ -1470,7 +1470,7 @@ declare @plantId varchar(10)= '"+ PlantId + @"'--Sangrur
 												Group by A.salesMaterialId
 									) TAxInfo5 ON TAxInfo5.salesMaterialId=SMD.Id 
 									LEFT JOIN (SELECT SA.PartyId,SA.Id
-									,A.BooksCurrencyTaxAmount/count(sm.SalesId) BooksTaxAmount,A.TaxAmount/count(sm.SalesId) TaxAmount
+									,A.BooksCurrencyTaxAmount/count(isnull(sm.SalesId,1)) BooksTaxAmount,A.TaxAmount/count(isnull(sm.SalesId,1)) TaxAmount
 												FROM trn.SalesAdditionalTax A
 												LEFT JOIN TRN.Sales SA ON SA.Id=A.SalesId
 												left join trn.SalesMaterial sm on sm.SalesId=sa.Id
