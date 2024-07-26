@@ -1964,7 +1964,7 @@ namespace Library.Service.SalaryDisbursement
         public List<Dictionary<string, object>> GetAdvanceSalaryData(string goodWorkPaymentAdviseDetailIds)
         {
             var cmdText = @"SELECT AD.Id, AD.EmployeeSalaryAdvanceId, AD.EmployeeTransactionTypeId,AD.EmployeeId,AD.JournalType,Vd.ActivityId, AD.Amount-ISNULL((select SUM(Amount)WrittenOffAmount 
-                            from TRN.EmployeeSubsequentTransaction where SourceType='EmployeeAdvanceWriteOff' AND  EmployeeId=AD.EmployeeId AND JournalType='Salary'),0) AS Amount
+                            from TRN.EmployeeSubsequentTransaction where SourceType in('EmployeeAdvanceWriteOff','SalaryPayable') AND  EmployeeId=AD.EmployeeId AND JournalType='Salary'),0) AS Amount
                             FROM TRN.EmployeeSubsequentTransaction AS AD
                             LEFT JOIN TRN.Voucher V ON V.Id=AD.VoucherId
                             LEFT JOIN TRN.VoucherDetail Vd ON Vd.Id=AD.VoucherDetailId
