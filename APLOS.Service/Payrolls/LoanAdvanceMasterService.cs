@@ -178,9 +178,8 @@ namespace Library.Service.Payrolls
         {
             try
             {
-                var sql = @"SELECT DISTINCT SH.SalaryHeadID , SH.SalaryHead,HasGL=CASE WHEN G.Id IS NOT NULL THEN 1 ELSE 0 END FROM SalaryHead SH
+                var sql = @"SELECT DISTINCT SH.SalaryHeadID , SH.SalaryHead FROM SalaryHead SH
                             INNER JOIN CurrencyRuleChild CRC ON SH.SalaryHeadID = CRC.SalaryHeadID
-							LEFT JOIN(Select * from MST.SalaryHeadGL Where (DrDirectGLId IS NOT NULL OR CrDirectGLId IS NOT NULL OR DrInDirectGLId IS NOT NULL OR CrInDirectGLId IS NOT NULL)) G ON G.SalaryHeadID=SH.SalaryHeadID
                             AND CRC.MstSystemID = '" + currencyRuleSystemID + "' ORDER BY SH.SalaryHead";
                 return _sqlRepository.GetCombo(sql, "SalaryHeadID", "SalaryHead");
             }
