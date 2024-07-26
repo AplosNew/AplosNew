@@ -924,13 +924,13 @@ function RequisitionController(accountService, addressService, $window, cboServi
 		manualValidation('div_country', false);
 		$scope.closeMaterialMasterbyTypePopUp();
 	};
-	//$scope.uom = function () {
-	//	//debugger
-	//	cboService.getUoMCbo(function (response) {
-	//		$scope.uoMList = response;
-	//	});
-	//}
-	//$scope.uom();
+	$scope.uom = function () {
+		//debugger
+		cboService.getUoMCbo(function (response) {
+			$scope.uoMList = response;
+		});
+	}
+	$scope.uom();
 	$scope.setInputeMaterialArticleData = function (ob) {
 		try {
 			$scope.detailModel.ArticleId = ob.data.Id;
