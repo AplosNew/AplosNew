@@ -198,6 +198,12 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
         });
         parseFloat($scope.LcModel.LoanAmount).toFixed(2);
     }
+    $scope.checkLoanAmountByBalanceAmount = function (data) {
+        if (data.Amount > data.Balance ) {
+            data.Amount = data.Balance;
+            ShowResult("Loan Amount can't be greater than Balance Amount!!", 'failure');
+        }
+    }
 
     $scope.copyLCNo = function () {
         for (var i = 0; i < $scope.selectedInvoiceList.length; i++) {
