@@ -31,7 +31,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
             $scope.AutoLoanNew.ToDate = $filter('dateFiltering')(Date.now());
         }
         else {
-            $scope.fromDateTitle = "As On Date";
+            $scope.fromDateTitle = "As On Mature Date";
             $scope.toDateShow = false;
             $scope.AutoLoanNew.FromDate = $filter('dateFiltering')(Date.now());
             $scope.AutoLoanNew.ToDate = $filter('dateFiltering')(Date.now())
@@ -88,6 +88,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
 
     $scope.getSavedData = function (index) {
         $scope.lcIndex = index;
+        $scope.getpurchaseLCListData();
         angular.element(document.querySelector("#PurchaseLCPopUp")).modal("show");
     }
 
@@ -185,7 +186,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
                 $scope.LcModel.LoanAmount += parseFloat(data.Balance);
             }
         });
-        parseFloat($scope.LcModel.LoanAmount).toFixed(2);
+        $scope.LcModel.LoanAmount = Math.round(($scope.LcModel.LoanAmount) * 100 + Number.EPSILON) / 100 ;
     }
 
     
@@ -196,7 +197,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
                 $scope.selectedInvoiceList.push(data);
             }
         });
-        parseFloat($scope.LcModel.LoanAmount).toFixed(2);
+        $scope.LcModel.LoanAmount = Math.round(($scope.LcModel.LoanAmount) * 100 + Number.EPSILON) / 100;
     }
     $scope.checkLoanAmountByBalanceAmount = function (data) {
         if (data.Amount > data.Balance ) {
@@ -231,6 +232,8 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
     };
     $scope.removeSelectedInvoiceRow = function (index, data) {
         $scope.selectedInvoiceList.splice(index, 1);
+
+        $scope.LcModel.LoanAmount = Math.round(($filter("sumByKey")($filter("filter")($scope.selectedInvoiceList), "Balance")) * 100 + Number.EPSILON) / 100;
     };
     //#endregion
     $scope.UntagInvoiceWithLC = function () {
