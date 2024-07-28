@@ -12,7 +12,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
     //#region Page Loading ...
 
     $scope.AutoLoanAvailableDataList = [];
-    $scope.fromDateTitle = "As On Date";
+    $scope.fromDateTitle = "As On Mature Date";
     $scope.toDateShow = false;
     var date = new Date(), y = date.getFullYear(), m = date.getMonth();
     var firstDay = new Date(y, m, 1);
