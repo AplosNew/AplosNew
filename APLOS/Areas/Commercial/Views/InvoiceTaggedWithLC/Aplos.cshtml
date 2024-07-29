@@ -6,7 +6,7 @@
                 <div class="col-sm-12 radio">
                     <label>
                         <input type="radio" name="source2" ng-model="AutoLoanNew.DateRange" value=false ng-change="viewChange()">
-                        <span class="cr" tabindex="1"><i class="cr-icon"></i></span>As On Date
+                        <span class="cr" tabindex="1"><i class="cr-icon"></i></span>As On Mature Date
                     </label>
                     <label>
                         <input type="radio" name="source2" ng-model="AutoLoanNew.DateRange" value=true ng-change="viewChange()">
@@ -115,7 +115,7 @@
                                 <td>{{x.Balance}}</td>
                                 <td>
                                     <div class="show-message">
-                                        <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.Amount">
+                                        <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.Amount" ng-change="checkLoanAmountByBalanceAmount(x)">
                                     </div>
                                 </td>
                                 <td>
