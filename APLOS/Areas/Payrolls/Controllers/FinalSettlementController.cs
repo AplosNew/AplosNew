@@ -2720,26 +2720,16 @@ ORDER BY OL.Sequence";
 				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
 
                 Union All
-				SELECT  'Bank/Cash' AS OtherName, 'Cr' AS TrnType
+				SELECT  'NetPayable-Bank/Cash' AS OtherName, 'Cr' AS TrnType
                 , 0 DrAmount 
-                ,  ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='LeaveEncashment' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0)  
-				 + ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='ExpensesPayable' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0)
-				 + ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='NetPay' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0)
-                 + ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='Bonus' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0)
-				 - ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='ShortNoticePeriodDeduction' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0)
-                 - ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='AdvanceLoan' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0)
-				 - ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='AdvanceSalary' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0) CrAmount 
-                ,  ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='LeaveEncashment' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0)  
-				 + ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='ExpensesPayable' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0)
-				 + ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='NetPay' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0)
-                 + ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='Bonus' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0)
-                 - ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='ShortNoticePeriodDeduction' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0)
-				 - ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='AdvanceLoan' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0)
-				 - ISNULL((SELECT CAST(Value AS decimal(18,2)) FROM EmployeeFullAndFinalSettlementItem WHERE UserName='AdvanceSalary' AND FinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId in (" + empSystemIds + @")),0) Amount
+                , ABS(CAST(EI.Value AS decimal(18,2)))  CrAmount 
+                , ABS(CAST(EI.Value AS decimal(18,2))) Amount
                 ,'" + voucherVM.GLGeneralInfoId + @"' GLGeneralInfoId ,'" + voucherVM.BudgetMasterId + @"' BudgetMasterId,'" + voucherVM.ActivityId + @"' ActivityId
-                , '" + voucherVM.GLGeneralInfoName + @"' GLName , '" + voucherVM.BudgetName + @"' BudgetName,'" + voucherVM.ActivityName + @"' ActivityName 
-				FROM EmployeeFullAndFinalSettlementMaster  E
-				WHERE  E.Id='" + disbursementAdviceId + @"'
+                , '" + voucherVM.GLGeneralInfoName + @"' GLName , '" + voucherVM.BudgetName + @"' BudgetName,'" + voucherVM.ActivityName + @"' ActivityName  
+				FROM EmployeeFullAndFinalSettlement  E
+				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='NetPayable'
+				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
+
                 )X
                 GROUP BY
 
