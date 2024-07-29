@@ -1162,7 +1162,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									LEFT JOIN [ORG].[Company] AS CO ON CO.Id=SA.CompanyId
 									LEFT JOIN [SCS].[Currency] AS C ON C.Id=CO.BaseCurrencyId
 									LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=P.ResponsiblePersonId
-									LEFT JOIN (SELECT PartyId,PartyPlantId ,DeliverypartyplantId=case when isnull(deliverypartyplantId,'')<>'' then deliverypartyplantId else partyplantId end
+									LEFT JOIN (SELECT PartyId,PartyPlantId ,DeliverypartyplantId
 										,sum(WrittenOffAmount) SetOff,SourceType 
 											FROM  [TRN].Invoice 
 													where  PartyType='Customer' and SourceType='SalesInvoice' 
