@@ -707,6 +707,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
             //if (baseService.isUndefinedOrNull($scope.productNew.DeliveryPartyPlantId)) return ShowResult('Delivery by is required', 'failure');
             $scope.modelValidation('div_docNo', 'productNew', 'DocRefNo');
             $scope.modelValidation('div_docDate', 'productNew', 'DocDate');
+            $scope.modelValidation('div_TT', 'productNew', 'Trancastion Type');
             $scope.modelValidation('div_entryNo', 'productNew', 'GateEntryNo');
             $scope.modelValidation('div_entryDate', 'productNew', 'EntryDate', 'Gate Entry Date');
             if ($scope.Action === 'Update')
