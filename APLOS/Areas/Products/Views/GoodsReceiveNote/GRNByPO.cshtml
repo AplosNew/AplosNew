@@ -65,11 +65,11 @@
 
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-6">
-                        <div class="form-group" id="div_currency">
+                        <div class="form-group" id="div_TT" show-errors>
                             <label class="col-sm-4 control-label">Trancastion Type<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
-                                    <select class="form-control" id="Trancastion Type" ng-model="productNew.TrancastionTypeId" ng-options="item.Value as item.Text for item in TrancastionTypeCboList" tabindex="8">
+                                    <select class="form-control" name="Trancastion Type" ng-model="productNew.TrancastionTypeId" ng-options="item.Value as item.Text for item in TrancastionTypeCboList" tabindex="8"required>
                                         <option value=""></option>
                                     </select>
                                 </div>
