@@ -2720,7 +2720,7 @@ ORDER BY OL.Sequence";
 				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
 
                 Union All
-				SELECT  'NetPayable-Bank/Cash' AS OtherName, 'Cr' AS TrnType
+				SELECT  'Bank/Cash' AS OtherName, 'Cr' AS TrnType
                 , 0 DrAmount 
                 , ABS(CAST(EI.Value AS decimal(18,2)))  CrAmount 
                 , ABS(CAST(EI.Value AS decimal(18,2))) Amount
