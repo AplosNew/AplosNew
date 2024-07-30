@@ -1329,8 +1329,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								
 								UNION ALL
 								SELECT    P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo,PAG.UserName PartyAccountGroup,C.Code BookCurrency
-								,InvoiceValueBC=ISNULL(IVD.Amount *CC.CompanyCurrencyRate,0)
-									,BasicValueBC=ISNULL(IVD.Amount *CC.CompanyCurrencyRate,0) 
+								,InvoiceValueBC=SUM(ISNULL(IVD.Amount *CC.CompanyCurrencyRate,0))
+									,BasicValueBC=SUM(ISNULL(IVD.Amount *CC.CompanyCurrencyRate,0))
 									,TotalTaxServiceAndChargesBC=0
 									,TotalTaxBC=0
 									,ServiceChargesBC=0
@@ -1372,14 +1372,14 @@ namespace Aplos.MaterialManagement.MaterialQuery
 										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
 										FROM [TRN].[VoucherDetailCurrency] AS VDC
 										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='"+ CompanyId + @"'
+										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + CompanyId + @"'
 									) AS CC ON CC.VoucherDetailId=VD.Id
 									
                                         WHERE IV.Archive=0   AND IV.PartyType='Customer' 
 										AND IV.SourceType in ('DebitNote','CustomerReceipt')
 										AND ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)>0
                                         AND IV.PlantId='" + PlantId + @"' AND  convert(Date,IV.PostingDate)  between '" + FromDate + @"' AND '" + ToDate + @"'
-";
+										GROUP BY P.Id, p.Code, PPI.UserName,PPD.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName,P.TINNO,CN.UserName,C.Code,E.EmployeeName";
 
                 if (isreport)
                 {
