@@ -592,8 +592,8 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                             else {
                                 manualValidation('div_grnDate', false);
                                 manualValidation('div_entryDate', false);
-                                $scope.modelValidation('div_TT', 'productNew', 'Trancastion Type');
                                 manualValidation('div_rate', false);
+                                $scope.modelValidation('div_TT', 'productNew', 'TrancastionTypeId');
                                 $scope.modelValidation('div_docNo', 'productNew', 'DocRefNo');
                                 $scope.modelValidation('div_docDate', 'productNew', 'DocDate');
                                 $scope.productNew.BaseCurrencyId = $scope.baseCurrencyId;

@@ -6,48 +6,66 @@ function MachineMasterTransactionReportController(cboService, commonMessage, $sc
     $scope.path = 'IE/MachineMasterTransactionReport/';
     $scope.downloadgriddataUrlPath = 'IE/MachineMasterTransactionReport/DownloadUsingFullPath';
     baseService.init($scope.getListUrl);
-
+    $scope.FromDate = null;
+    $scope.ToDate = null;
     //The Filters 
     $scope.filters = [];
     $scope.MachineMasterTransactionloadfilters = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'getFilters',
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.filters = response.data;
-            var columnList = [
-                { field: 'From', width: 20, headerText: "From", type: "string" },
-                { field: 'To', width: 20, headerText: "To", type: "string" },
-                { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
-                { field: 'Process', width: 20, headerText: "Process", type: "string" },
-                { field: 'Department', width: 20, headerText: "Department", type: "string" },
-                { field: 'DetentionType', width: 20, headerText: "Detention Type", type: "string" },
-                { field: 'Shift', width: 20, headerText: "Shift", type: "string" },
-                { field: 'ResponsiblePerson', width: 20, headerText: "ResponsiblePerson", type: "string" },
-                { field: 'DetentionCategory', width: 20, headerText: "Detention Category", type: "string" },
-                { field: 'DetentionSubCategory', width: 20, headerText: "Detention Sub Category", type: "string" },
-                { field: 'Avoidable', width: 20, headerText: "Avoidable/Unavoidable", type: "string" },
-                { field: 'Criticality', width: 20, headerText: "Criticality", type: "string" },
+        try {
+            if (baseService.isUndefinedOrNull($scope.FromDate)) {
+                throw "Select From Date.";
+            }
+            if (baseService.isUndefinedOrNull($scope.ToDate)) {
+                throw "Select To Date.";
+            }
+            if (new Date($scope.FromDate) > new Date($scope.ToDate)) {
+                throw "From date must be below or equal to To Date";
+            }
+            if (new Date($scope.ToDate) < new Date($scope.FromDate)) {
+                throw "To date must be above or equal to From Date.";
+            }
 
-            ];
-            $("#filters").ejGrid({
-                dataSource: $scope.filters,
-                minWidth: 450, minHeight: 400,
-                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
-                filterSettings: { filterType: "excel" },
-                columns: columnList
+            $http({
+                method: 'GET',
+                url: $scope.path + 'getFilters?fromDate=' + $scope.FromDate + '&toDate=' + $scope.ToDate,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.filters = response.data;
+                var columnList = [
+                    { field: 'From', width: 20, headerText: "From", type: "string" },
+                    { field: 'To', width: 20, headerText: "To", type: "string" },
+                    { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
+                    { field: 'Process', width: 20, headerText: "Process", type: "string" },
+                    { field: 'Department', width: 20, headerText: "Department", type: "string" },
+                    { field: 'DetentionType', width: 20, headerText: "Detention Type", type: "string" },
+                    { field: 'Shift', width: 20, headerText: "Shift", type: "string" },
+                    { field: 'ResponsiblePerson', width: 20, headerText: "ResponsiblePerson", type: "string" },
+                    { field: 'DetentionCategory', width: 20, headerText: "Detention Category", type: "string" },
+                    { field: 'DetentionSubCategory', width: 20, headerText: "Detention Sub Category", type: "string" },
+                    { field: 'Avoidable', width: 20, headerText: "Avoidable/Unavoidable", type: "string" },
+                    { field: 'Criticality', width: 20, headerText: "Criticality", type: "string" },
+
+                ];
+                $("#filters").ejGrid({
+                    dataSource: $scope.filters,
+                    minWidth: 450, minHeight: 400,
+                    allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
+                    filterSettings: { filterType: "excel" },
+                    columns: columnList
+                });
+
+                var gridObj = $("#filters").data("ejGrid");
+                gridObj.refreshContent(true);
+                gridObj.refreshTemplate();
+                $("#filters").children('.e-pager.e-js.e-pager').hide();
+                $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
+                $("#filters").children('.e-gridcontent').hide();
             });
-
-            var gridObj = $("#filters").data("ejGrid");
-            gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
-            $("#filters").children('.e-pager.e-js.e-pager').hide();
-            $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
-            $("#filters").children('.e-gridcontent').hide();
-        });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
-    $scope.MachineMasterTransactionloadfilters();
+   // $scope.MachineMasterTransactionloadfilters();
 
     $scope.parameters = [];
     $scope.filterComplete = function () {

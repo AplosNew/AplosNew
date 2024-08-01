@@ -5346,7 +5346,7 @@ namespace Library.Service.HumanResources
                             			,ISNULL(Line.Id, '') LineId
                             			,COUNT(E.SystemId) TotalManpower
                             			,SUM(CASE 
-                            					WHEN dt.Category IN ('Present')
+                            					WHEN dt.Category IN ('Present','Half Day')
                             						THEN 1
                             					ELSE 0
                             					END) SUM_PRESENT

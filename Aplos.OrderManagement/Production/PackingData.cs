@@ -504,13 +504,14 @@ namespace Library.OrderManagement.Production
                         ,case when pack.ProducedQty > PO.Qty then 0 else (isnull(PO.Qty,0)-isnull(pack.ProducedQty,0)) end as BalanceQty ,sc.LotNo 
                         ,isnull(plann.PlanQty,0) as PlannedQty , isnull(StockQty.StockQty,0)  as StockQty , isnull(desp.Despatch,0) as Despatch , isnull(bb.BookQty,0) as BookedQty,
                         (Case when bb.BookQty >plann.PlanQty then (isnull(StockQty.StockQty,0) - isnull(bb.BookQty,0)) else (isnull(StockQty.StockQty,0)  - isnull(plann.PlanQty,0)) end) as Available
+                        ,StockQty.Bags
                        --, PO.Qty POQty, PS.StandardName POStatus , PORemainingQty = SUM(SC.NetWeight) - PO.Qty
                         from
                         dbo.ItemScanChild sc
                         left join trn.POLotReference pol  on pol.Id = sc.PackingId
 
                         left join(
-                        Select isc.ProductCode , isc.POId , isc.LotNo , sum(isc.NetWeight) as StockQty from
+                        Select isc.ProductCode , isc.POId , isc.LotNo , sum(isc.NetWeight) as StockQty , Count(RefNo) Bags from
                         dbo.ItemScanChild isc 
                         left join dbo.ItemScan isch on isch.Id = isc.MasterId
                         left join trn.POLotReference pol on pol.Id = isc.PackingId
@@ -594,7 +595,7 @@ inner Join (select QMP.QMID IssueId,QMP.Id ParameterId,1 as PlanSet,PR.UserName 
 					   )G ON G.PONo=sc.POId AND G.LotNumber=sc.LotNo
 
                         where sc.ProductCode = '" + productCode + @"' and StockQty.StockQty <> 0
-                        group by G.QualityStatus,G.CommentDetails,G.Grade,sc.ProductCode , sc.POId, sc.LotNo ,StockQty.StockQty,desp.Despatch,bb.BookQty,plann.PlanQty,PS.StandardName,PO.Qty,pack.ProducedQty";
+                        group by G.QualityStatus,G.CommentDetails,G.Grade,sc.ProductCode , sc.POId, sc.LotNo ,StockQty.StockQty,desp.Despatch,bb.BookQty,plann.PlanQty,PS.StandardName,PO.Qty,pack.ProducedQty,StockQty.Bags";
 
                 DataTable dt = _sqlRepository.GetDataTable(str);
 
@@ -984,9 +985,9 @@ order by pk.Date  DESC";
         {
             try
             {
-                var str = @"Select pol.Id,pol.PackingLineItemId,pol.ProductCode,pol.PONo,pol.LotNo,pol.PlanQty,pol.Status,pol.Remarks, isnull(bk.booked,0) as BookQty from trn.POLotReference pol 
+                var str = @"Select pol.Id,pol.PackingLineItemId,pol.ProductCode,pol.PONo,pol.LotNo,pol.PlanQty,pol.Status,pol.Remarks, isnull(bk.booked,0) as BookQty , isnull(bk.Begs,0) as Begs from trn.POLotReference pol 
 							left join
-							(Select sum(NetWeight) as booked , PackingId from dbo.ItemScanChild where Booked = 1 and SalesReturnId is null
+							(Select sum(NetWeight) as booked ,count(RefNo) Begs , PackingId from dbo.ItemScanChild where Booked = 1 and SalesReturnId is null
 							group by PackingId) as bk on bk.PackingId = pol.Id
                             where PackingLineItemId = '" + PackingLineItemId + @"'";
                 return _sqlRepository.GetDataCollection(str);
