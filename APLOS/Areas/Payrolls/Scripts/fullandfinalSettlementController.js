@@ -200,6 +200,7 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
                         ob.DOJ = $scope.EmployeeInformationList[i].DOJ;
                         ob.DOS = $scope.EmployeeInformationList[i].DOS;
                         ob.LegalDesignation = $scope.EmployeeInformationList[i].LegalDesignation;
+                        ob.DesignationGroup = $scope.EmployeeInformationList[i].DesignationGroup;
                         ob.Department = $scope.EmployeeInformationList[i].Department;
                         ob.EntityName = $scope.EmployeeInformationList[i].EntityName;
                         ob.State = true;

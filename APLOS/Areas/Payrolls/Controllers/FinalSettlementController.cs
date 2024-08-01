@@ -233,6 +233,7 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
                          , FORMAT(EI.DOS,'dd-MMM-yyyy') DOS
 						 ,ResignationDate=FORMAT((SELECT TOP 1 ResignationDate FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=EI.SystemId ORDER BY MR.UpdatedDate DESC),'dd-MMM-yyyy')
                          , DG.UserName LegalDesignation
+                         , EDG.UserName DesignationGroup
                          , DP.UserName Department
                          , PMB.Code,PR.UserName PositionName
                          , E.UserName EntityName
@@ -249,7 +250,7 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
                          LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id                       
                          LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
                          LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
-
+                         LEFT JOIN HKP.DesignationGroup EDG ON  EDG.Id=EI.DesignationGroupId
                               WHERE EI.SystemId IN (SELECT EmployeeId FROM TRN.Resignation WHERE ApprovalStatus='Approved' ) 
 							  AND EI.SystemId NOT IN (SELECT EmpSystemId FROM EmployeeFullAndFinalSettlement) AND
                                     EI.PlantId='" + identity.PlantId + @"' and isnull(DOSDate,'')<>'' 
@@ -1822,11 +1823,12 @@ Where ISNULL(M.IsApproved,0)=0 AND M.ApproveById='" + identity.EmployeeId + "'";
         [HttpGet, Authorize]
         public ActionResult GetEmployeeFNFDataByMaster(string masterId)
         {
-            string sql = @"select E.*,EI.EmployeeCode,EI.EmployeeName,FORMAT(EI.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EI.DOS,'dd-MMM-yyyy')DOS,LD.UserName LegalDesignation,D.UserName Department
+            string sql = @"select E.*,EI.EmployeeCode,EI.EmployeeName,FORMAT(EI.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EI.DOS,'dd-MMM-yyyy')DOS,LD.UserName LegalDesignation,D.UserName Department, EDG.UserName DesignationGroup
 from EmployeeFullAndFinalSettlement  E
 LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=E.EmpSystemId
 LEFT JOIN HKP.LegalDesignation LD ON LD.Id=EI.LegalDesignationId
 LEFT JOIN ORG.Department D ON D.Id=EI.DepartmentId
+LEFT JOIN HKP.DesignationGroup EDG ON  EDG.Id=EI.DesignationGroupId
 where FinalSettlementId='" + masterId + "'";
             var data = _sqlRepository.GetDataCollection(sql);
 
