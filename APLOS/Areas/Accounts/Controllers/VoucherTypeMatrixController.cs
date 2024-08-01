@@ -164,7 +164,7 @@ namespace Aplos.Areas.Accounts.Controllers
         public JsonResult GetCboVoucherTypePostInvoiceList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_voucherTypeMatrixService.GetCboVoucherTypeList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.PostInvoice), JsonRequestBehavior.AllowGet);
+            return Json(_voucherTypeMatrixService.GetCboVoucherTypeList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.VendorInvoice), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]

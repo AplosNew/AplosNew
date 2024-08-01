@@ -1124,7 +1124,14 @@ namespace Aplos.MaterialManagement.MaterialQuery
 		{
 			try
 			{
-				var str = @"SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo	,PAG.UserName PartyAccountGroup,C.Code BookCurrency
+				var str = @"SELECT x.PartyId, x.PartyName,x.BillTo,x.ShipTo,x.PartyTaxNo,	x.PartyAccountGroup,x.BookCurrency
+									,sum(x.InvoiceValueBC) InvoiceValueBC ,sum(x.BasicValueBC) BasicValueBC ,sum(x.TotalTaxBC) TotalTaxBC
+									,sum(x.ServiceChargesBC) ServiceChargesBC ,sum(x.ServiceChargeTaxBC) ServiceChargeTaxBC
+									,sum(x.CGSTBC) CGSTBC ,sum(x.SGSTBC) SGSTBC ,sum(x.IGSTBC) IGSTBC ,sum(x.TCSBC) TCSBC
+									,sum(x.SetOffAmount) SetOffAmount ,sum(x.Balance) Balance
+									,x.PartyGroup,x.PartyCategory,x.PartySubCategory,x.PartyType ,x.Country,x.ResponsiblePerson 
+FROM (
+SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo	,PAG.UserName PartyAccountGroup,C.Code BookCurrency
 									,InvoiceValueBC=Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0))+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(ServiceData.BooksCurrencyTaxAmount,0),2))
 									,BasicValueBC=Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0)) 
 									,TotalTaxServiceAndChargesBC=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(ServiceData.BooksCurrencyTaxAmount,0),2))
@@ -1225,11 +1232,15 @@ namespace Aplos.MaterialManagement.MaterialQuery
 												Group BY SA.PartyId,SA.InvoicingPartyPlantId,SA.DeliveryPartyPlantId		
 									) TAxInfo6 ON TAxInfo6.PartyId=SA.PartyId and TAxInfo6.InvoicingPartyPlantId=SA.InvoicingPartyPlantId 
 									AND TAxInfo6.DeliveryPartyPlantId=SA.DeliveryPartyPlantId
-									LEFT JOIN(Select ISS.SalesId, Sum(ISS.Amount) ServiceAmount,Sum(ISS.TaxAmount) ServiceTax,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount,sum(BooksCurrencyTaxAmount) BooksCurrencyTaxAmount
+									LEFT JOIN(Select ISS.SalesId, ISS.Amount/count(isnull(ssm.Id,1)) ServiceAmount
+									,ISS.TaxAmount/count(isnull(ssm.Id,1)) ServiceTax
+									,ISS.BooksCurrencyTransactionAmount/count(isnull(ssm.Id,1)) BooksCurrencyTransactionAmount
+									,ISS.BooksCurrencyTaxAmount/count(isnull(ssm.Id,1)) BooksCurrencyTaxAmount
 											from trn.SalesService AS ISS
 											LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 											left jOIN [TRN].[Sales] AS IR ON IR.Id=ISs.SalesId
-											group by ISS.SalesId
+											left join trn.salesmaterial ssm on ssm.salesId=ir.id
+											group by ISS.SalesId,ISS.Amount,ISS.TaxAmount,ISS.BooksCurrencyTransactionAmount,ISS.BooksCurrencyTaxAmount
 											)ServiceData on ServiceData.SalesId=SA.Id
 									WHERE SA.PlantId='" + PlantId + @"' AND convert(Date,SA.InvoiceDate) between '" + FromDate + @"' AND '" + ToDate + @"'
 									Group By P.Id,iv.setOff, p.Code	 ,PPI.UserName,PPD.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,SA.PartyType,PAG.UserName ,TAxInfo6.TaxAmount,TAxInfo6.BooksTaxAmount,P.TINNO,CN.UserName ,C.Code,EI.EmployeeName
@@ -1340,7 +1351,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									,IGSTBC=0
 									,TCSBC=0
 								,0 SetOff,0 Balance
-								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,'' PartyType
+								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,'Customer' PartyType
 								,CN.UserName Country,E.EmployeeName ResponsiblePerson
                                         FROM [TRN].[AdjustmentNoteDetail] AS IVD
 										LEFT JOIN [TRN].[AdjustmentNote] AS IV ON IVD.AdjustmentNoteId=IV.Id
@@ -1379,7 +1390,10 @@ namespace Aplos.MaterialManagement.MaterialQuery
 										AND IV.SourceType in ('DebitNote','CustomerReceipt')
 										AND ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)>0
                                         AND IV.PlantId='" + PlantId + @"' AND  convert(Date,IV.PostingDate)  between '" + FromDate + @"' AND '" + ToDate + @"'
-										GROUP BY P.Id, p.Code, PPI.UserName,PPD.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName,P.TINNO,CN.UserName,C.Code,E.EmployeeName";
+										GROUP BY P.Id, p.Code, PPI.UserName,PPD.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName,P.TINNO,CN.UserName,C.Code,E.EmployeeName
+										) x
+										GROUP BY  x.PartyId, x.PartyName,x.BillTo,x.ShipTo,x.PartyTaxNo,x.PartyAccountGroup,x.BookCurrency
+										,x.PartyGroup,x.PartyCategory,x.PartySubCategory,x.PartyType ,x.Country,x.ResponsiblePerson ";
 
                 if (isreport)
                 {
@@ -1540,12 +1554,15 @@ declare @plantId varchar(10)= '"+ PlantId + @"'--Sangrur
 												WHERE B.Code='TCS'  
 												Group BY SA.PartyId,SA.Id,A.BooksCurrencyTaxAmount,A.TaxAmount				
 									) TAxInfo6 ON TAxInfo6.PartyId=SA.PartyId and TAxInfo6.Id=SA.Id
-									LEFT JOIN(Select ISS.SalesId, Sum(ISS.Amount) ServiceAmount,Sum(ISS.TaxAmount) ServiceTax,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount,sum(BooksCurrencyTaxAmount) BooksCurrencyTaxAmount
+									LEFT JOIN(Select ISS.SalesId, ISS.Amount/count(isnull(ssm.Id,1)) ServiceAmount
+											,ISS.TaxAmount/count(isnull(ssm.Id,1)) ServiceTax ,ISS.BooksCurrencyTransactionAmount/count(isnull(ssm.Id,1)) BooksCurrencyTransactionAmount
+											,ISS.BooksCurrencyTaxAmount/count(isnull(ssm.Id,1)) BooksCurrencyTaxAmount
 											from trn.SalesService AS ISS
 											LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 											left jOIN [TRN].[Sales] AS IR ON IR.Id=ISs.SalesId
-											group by ISS.SalesId
-											)ServiceData on ServiceData.SalesId=SA.Id
+											left join trn.salesmaterial ssm on ssm.salesId=ir.id
+											group by ISS.SalesId,ISS.Amount,ISS.TaxAmount,ISS.BooksCurrencyTransactionAmount,ISS.BooksCurrencyTaxAmount
+									)ServiceData on ServiceData.SalesId=SA.Id
 									WHERE SA.PlantId=" + PlantId + @" AND convert(Date,SA.InvoiceDate) BETWEEN  '" + FromDate + "' AND '" + ToDate + @"'
 
 

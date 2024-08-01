@@ -72,6 +72,7 @@ function MaterialMasterController(fileReader, commonMessage, $scope, $rootScope,
         , IssueByUoM: false
         , MaterialMasterTypeId: null
         , IsReplacement:false
+        , IsAlternativeQty:false
     };
     $scope.materialMasterNew = angular.copy($scope.materialMaster);
     $scope.searchMaterialMasterList = [
