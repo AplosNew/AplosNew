@@ -3675,7 +3675,8 @@ namespace Aplos.MaterialManagement
 						,CU.Code CurrencyName
 						,ROUND(Isnull(IRD.MaterialTranAmount,0),2) MaterialTranAmount
 						,ROUND(Isnull(IRD.TotalMaterialTranAmount,0),2) TotalMaterialTranAmount
-						,ROUND(Isnull(IRD.TotalMaterialBooksCurrencyAmount,0),2) TotalMaterialBaseAmount
+						,ROUND(Isnull(IRD.TotalMaterialBooksCurrencyAmount,0),2)+round(isnull(TAxInfo.TaxAmount,0),2)
+							+round(isnull(TAxInfo2.TaxAmount,0),2)+round(isnull(TAxInfo1.TaxAmount,0),2) TotalMaterialBaseAmount
 						,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
 						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
 						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
@@ -3949,7 +3950,7 @@ namespace Aplos.MaterialManagement
 						,'' CurrencyName
 						,ISs.Amount MaterialTranAmount
 						,0 TotalMaterialTranAmount
-                       ,0 TotalMaterialBaseAmount
+                       ,0+round(isnull(TAxInfo.TaxAmount,0),2)+round(isnull(TAxInfo2.TaxAmount,0),2)+round(isnull(TAxInfo1.TaxAmount,0),2) TotalMaterialBaseAmount
 							,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
 							,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
 							,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage

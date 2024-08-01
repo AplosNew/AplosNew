@@ -1044,7 +1044,69 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								WHERE II.PlantId='" + identity.PlantId+ "' and II.CustomerId<>'' AND convert(Date,II.SalesDate)  " + temp + @"
 								GROUP BY P.Id, p.Code, PPI.UserName,PPD.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName,TAxInfo6.TaxAmount,TAxInfo6.BooksTaxAmount,P.TINNO,CN.UserName,C.Code,EI.EmployeeName
 								,II.Id  ,II.SalesDate,II.DocRefNo ,II.DocDate,CU.Code,II.ToCurrencyRate ,PT.PaymentMode,PT.UserName ,II.MatureDate
-								,V.VoucherNo,V.Id ,V.PostingDate,V.PostedDate,V.IsPark,II.AddedBy ,II.AddedDate ,E.UserName ,SCr.BooksCurrencyTransactionAmount,SCr.BooksCurrencyTaxAmount";
+								,V.VoucherNo,V.Id ,V.PostingDate,V.PostedDate,V.IsPark,II.AddedBy ,II.AddedDate ,E.UserName ,SCr.BooksCurrencyTransactionAmount,SCr.BooksCurrencyTaxAmount
+								
+								UNION ALL
+								SELECT    P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo,PAG.UserName PartyAccountGroup,C.Code BookCurrency
+								,InvoiceValueBC=ISNULL(IVD.Amount *CC.CompanyCurrencyRate,0)
+									,BasicValueBC=ISNULL(IVD.Amount *CC.CompanyCurrencyRate,0) 
+									,TotalTaxServiceAndChargesBC=0
+									,TotalTaxBC=0
+									,ServiceChargesBC=0
+									,ServiceChargeTaxBC=0
+									,CGSTBC=0	
+									,SGSTBC=0
+									,IGSTBC=0
+									,TCSBC=0
+								,0 SetOff,0 Balance
+								,IV.Id InvoiceId,IV.docrefno InvoiceNo ,REPLACE(CONVERT(CHAR(11), IV.DocDate, 106),' ','-') InvoiceDate,IV.DocRefNo,IV.SourceType SalesType,REPLACE(CONVERT(CHAR(11), IV.DocDate, 106),' ','-') DocDate
+									,'' ProductionOrder
+									,'' MasterOrder
+									,'' SalesOrder
+									,CU.Code InvoiceCurrency,1  InvoiceCurrencyRate,'' PaymentMode,'' PaymentTerm,'' PaymentDays,'' MatureDate,'' DueDays
+									,V.VoucherNo,V.Id VoucherId,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') PostingDate,V.PostedDate,V.IsPark,'' OrderType,IV.AddedBy PreparedBy,IV.AddedDate EntryDate,'' Entity
+
+								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,'' PartyType
+								,CN.UserName Country,E.EmployeeName ResponsiblePerson
+                                        FROM [TRN].[AdjustmentNoteDetail] AS IVD
+										LEFT JOIN [TRN].[AdjustmentNote] AS IV ON IVD.AdjustmentNoteId=IV.Id
+										left JOIN [SCS].[Currency] AS CU ON IV.CurrencyId=CU.Id
+										LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
+										left Join MST.AddressMaster AM On AM.id=P.AddressMasterId
+										left Join SCS.Country  CN On CN.id=AM.CountryId
+										LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'  AND CP.PlantId=IV.PlantId
+										LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
+										LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=IV.PartyPlantId
+										LEFT JOIN [HKP].[PartyPlant] AS PPD ON PPD.Id=IV.PartyPlantId
+                                        LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                                        LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                                        LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
+                                        LEFT JOIN dbo.EmployeeInformation AS E ON E.SystemID=P.ResponsiblePersonId
+										LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
+										LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=IVD.Id
+										LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+										LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+										LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
+										--LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
+										LEFT JOIN (select SUM(ISNULL(VDCW.CrAmount,0))AdjustmentNoteWriteOffBooksAmount,AdjustmentNoteId from [TRN].[InvoiceWriteOffDetail] IWD
+												INNER JOIN [TRN].[InvoiceWriteOff] IW ON IW.Id=IWD.InvoiceWriteOffId
+												INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.InvoiceWriteOffDetailId=IWD.Id
+												INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+												where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null
+												GROUP BY  IWD.AdjustmentNoteId )W ON W.AdjustmentNoteId=IVD.AdjustmentNoteId
+										LEFT JOIN (
+										SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+										FROM [TRN].[VoucherDetailCurrency] AS VDC
+										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='C20201'
+									) AS CC ON CC.VoucherDetailId=VD.Id
+									
+                                        WHERE IV.Archive=0   AND IV.PartyType='Customer' 
+										AND IV.SourceType in ('DebitNote','CustomerReceipt')
+										AND ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)>0
+                                        AND IV.PlantId='" + identity.PlantId + "' AND  convert(Date,IV.PostingDate)  " + temp + @"
+										";
 				
 				return _sqlRepository.GetDataTable(sql);
 
@@ -1100,7 +1162,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									LEFT JOIN [ORG].[Company] AS CO ON CO.Id=SA.CompanyId
 									LEFT JOIN [SCS].[Currency] AS C ON C.Id=CO.BaseCurrencyId
 									LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=P.ResponsiblePersonId
-									LEFT JOIN (SELECT PartyId,PartyPlantId ,DeliverypartyplantId=case when isnull(deliverypartyplantId,'')<>'' then deliverypartyplantId else partyplantId end
+									LEFT JOIN (SELECT PartyId,PartyPlantId ,DeliverypartyplantId
 										,sum(WrittenOffAmount) SetOff,SourceType 
 											FROM  [TRN].Invoice 
 													where  PartyType='Customer' and SourceType='SalesInvoice' 
@@ -1267,8 +1329,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								
 								UNION ALL
 								SELECT    P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo,PAG.UserName PartyAccountGroup,C.Code BookCurrency
-								,InvoiceValueBC=ISNULL(IVD.Amount *CC.CompanyCurrencyRate,0)
-									,BasicValueBC=ISNULL(IVD.Amount *CC.CompanyCurrencyRate,0) 
+								,InvoiceValueBC=SUM(ISNULL(IVD.Amount *CC.CompanyCurrencyRate,0))
+									,BasicValueBC=SUM(ISNULL(IVD.Amount *CC.CompanyCurrencyRate,0))
 									,TotalTaxServiceAndChargesBC=0
 									,TotalTaxBC=0
 									,ServiceChargesBC=0
@@ -1310,14 +1372,14 @@ namespace Aplos.MaterialManagement.MaterialQuery
 										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
 										FROM [TRN].[VoucherDetailCurrency] AS VDC
 										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='"+ CompanyId + @"'
+										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + CompanyId + @"'
 									) AS CC ON CC.VoucherDetailId=VD.Id
 									
                                         WHERE IV.Archive=0   AND IV.PartyType='Customer' 
 										AND IV.SourceType in ('DebitNote','CustomerReceipt')
 										AND ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)>0
                                         AND IV.PlantId='" + PlantId + @"' AND  convert(Date,IV.PostingDate)  between '" + FromDate + @"' AND '" + ToDate + @"'
-";
+										GROUP BY P.Id, p.Code, PPI.UserName,PPD.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName,P.TINNO,CN.UserName,C.Code,E.EmployeeName";
 
                 if (isreport)
                 {
@@ -1603,7 +1665,72 @@ declare @plantId varchar(10)= '"+ PlantId + @"'--Sangrur
 											GROUP BY A.InventorySalesId
 								) TAxInfo6 ON TAxInfo6.InventorySalesId=II.Id
 								WHERE II.PlantId='" + PlantId + @"' and II.CustomerId<>'' AND convert(Date,II.SalesDate)  BETWEEN   '" + FromDate + "' AND '" + ToDate + @"'
-						";
+								UNION ALL				
+								SELECT    P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo,PAG.UserName PartyAccountGroup,C.Code BookCurrency
+								,InvoiceValueBC=ISNULL(IVD.Amount *CC.CompanyCurrencyRate,0)
+									,BasicValueBC=ISNULL(IVD.Amount *CC.CompanyCurrencyRate,0) 
+									,TotalTaxServiceAndChargesBC=0
+									,TotalTaxBC=0
+									,ServiceChargesBC=0
+									,ServiceChargeTaxBC=0
+									,CGSTBC=0	
+									,SGSTBC=0
+									,IGSTBC=0
+									,TCSBC=0
+								
+								,IVD.Id InvoiceRowId,IV.Id InvoiceId,IV.docrefno InvoiceNo ,REPLACE(CONVERT(CHAR(11), IV.DocDate, 106),' ','-') InvoiceDate,IV.DocRefNo,IV.SourceType SalesType,REPLACE(CONVERT(CHAR(11), IV.DocDate, 106),' ','-') DocDate
+									,'' ProductionOrder
+									,'' MasterOrder
+									,'' SalesOrder
+									,CU.Code InvoiceCurrency,CC.CompanyCurrencyRate  InvoiceCurrencyRate,'' PaymentMode,'' PaymentTerm,'' PaymentDays,'' MatureDate,'' DueDays
+									,V.VoucherNo,V.Id VoucherId,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') PostingDate,V.PostedDate,V.IsPark,'' OrderType
+									,'' CustomerArticle,'' Article,'' ProductCode,'' ProductGroup,'' MaterialGroup,'' MaterialType
+								,'' Material,'' MaterialCategory,'' MaterialSubCategory,'' HSNCode
+								,'' UOM,0 TransactionQty,CC.CompanyCurrencyRate TransactionRate,ISNULL(IVD.Amount *CC.CompanyCurrencyRate,0) TransactionAmount,'' Remark,'' DrControlId,'' CrControlId
+									,IV.AddedBy PreparedBy,IV.AddedDate EntryDate,'' Entity
+
+								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,'' PartyType
+								,CN.UserName Country,E.EmployeeName ResponsiblePerson
+                                        FROM [TRN].[AdjustmentNoteDetail] AS IVD
+										LEFT JOIN [TRN].[AdjustmentNote] AS IV ON IVD.AdjustmentNoteId=IV.Id
+										left JOIN [SCS].[Currency] AS CU ON IV.CurrencyId=CU.Id
+										LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
+										left Join MST.AddressMaster AM On AM.id=P.AddressMasterId
+										left Join SCS.Country  CN On CN.id=AM.CountryId
+										LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'  AND CP.PlantId=IV.PlantId
+										LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
+										LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=IV.PartyPlantId
+										LEFT JOIN [HKP].[PartyPlant] AS PPD ON PPD.Id=IV.PartyPlantId
+                                        LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                                        LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                                        LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
+                                        LEFT JOIN dbo.EmployeeInformation AS E ON E.SystemID=P.ResponsiblePersonId
+										LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
+										LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=IVD.Id
+										LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+										LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+										LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
+										--LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
+										LEFT JOIN (select SUM(ISNULL(VDCW.CrAmount,0))AdjustmentNoteWriteOffBooksAmount,AdjustmentNoteId from [TRN].[InvoiceWriteOffDetail] IWD
+												INNER JOIN [TRN].[InvoiceWriteOff] IW ON IW.Id=IWD.InvoiceWriteOffId
+												INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.InvoiceWriteOffDetailId=IWD.Id
+												INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+												where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null
+												GROUP BY  IWD.AdjustmentNoteId )W ON W.AdjustmentNoteId=IVD.AdjustmentNoteId
+										LEFT JOIN (
+										SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+										FROM [TRN].[VoucherDetailCurrency] AS VDC
+										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='C20201'
+									) AS CC ON CC.VoucherDetailId=VD.Id
+									
+                                        WHERE IV.Archive=0   AND IV.PartyType='Customer' 
+										AND IV.SourceType in ('DebitNote','CustomerReceipt')
+										AND ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)>0
+                                        AND IV.PlantId='" + PlantId + @"'
+										AND convert(Date,IV.PostingDate)  BETWEEN   '" + FromDate + "' AND '" + ToDate + @"'
+";
 
 				return _sqlRepository.GetDataTable(str);
 			}

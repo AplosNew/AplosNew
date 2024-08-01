@@ -8122,9 +8122,9 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
             textBodyPart.BodyItems.Add(wTaxTable);
             document.Replace(replaceString, textBodyPart, true, true);
 
-            double total = clsStdLib.dbl(materialTax.Compute("SUM(BooksCurrencyTransactionAmount)", "").ToString())
-                 + clsStdLib.dbl(materialTax.Compute("SUM(TaxON)", "").ToString());
-
+            //double total = clsStdLib.dbl(materialTax.Compute("SUM(BooksCurrencyTransactionAmount)", "").ToString())
+            //     + clsStdLib.dbl(materialTax.Compute("SUM(TaxON)", "").ToString());
+            double total = clsStdLib.dbl(materialTax.Compute("SUM(TotalAmount)", "").ToString());
             return total;
         }
 

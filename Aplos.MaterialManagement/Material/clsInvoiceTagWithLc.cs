@@ -65,9 +65,10 @@ namespace Library.MaterialManagement.Material
 									,IVD.Amount AS Receivable
 									,V.ExchangeType
 									,0 ExchangeAmount
-									,IVD.WrittenOffAmount+ISNULL(ITLC.TaggedAmount,0) AS Received
-									,IVD.NetAmount - (ISNULL(IVD.WrittenOffAmount,0)+ISNULL(ITLC.TaggedAmount,0)) AS Balance
-									,IVD.Amount - IVD.WrittenOffAmount AS Amount
+									--,IVD.WrittenOffAmount+ISNULL(ITLC.TaggedAmount,0) AS Received
+									,ISNULL(IWD.WrittenOffAmount,0)+ISNULL(ITLC.TaggedAmount,0) AS Received
+									,IVD.NetAmount - (ISNULL(IWD.WrittenOffAmount,0)+ISNULL(ITLC.TaggedAmount,0)) AS Balance
+									,IVD.Amount - (ISNULL(IWD.WrittenOffAmount,0)+ISNULL(ITLC.TaggedAmount,0)) AS Amount
 									,IV.PartyPlantId
 									,PP.UserName AS PartyPlantName
 									,CC.CompanyCurrencyId
@@ -142,6 +143,7 @@ namespace Library.MaterialManagement.Material
 												,TYPE
 											).value('.', 'VARCHAR(MAX)'), 1, 1, ''), NULL PurchaseLcId, NULL LoanNo,NULL LCDate,NULL OpeningBank,NULL OpeningBankMasterId
 								FROM [TRN].[InvoiceDetail] AS IVD
+								LEFT JOIN (SELECT SUM(Amount)WrittenOffAmount,InvoiceDetailId FROM trn.InvoiceWriteOffDetail   GROUP BY InvoiceDetailId) AS IWD ON IWD.InvoiceDetailId=IVD.Id
 								LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId = IV.Id
 								LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id = IV.PartyPlantId
 								LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId = IVD.Id
@@ -242,9 +244,9 @@ namespace Library.MaterialManagement.Material
 									,IVD.NetAmount AS Receivable
 									,V.ExchangeType
 									,0 ExchangeAmount
-									,IVD.WrittenOffAmount+ISNULL(ITLC.TaggedAmount,0) AS Received
-									,IVD.NetAmount - (ISNULL(IVD.WrittenOffAmount,0)+ISNULL(ITLC.TaggedAmount,0)) AS Balance
-									,IVD.NetAmount - IVD.WrittenOffAmount AS Amount
+									,ISNULL(IWD.WrittenOffAmount,0) +ISNULL(ITLC.TaggedAmount,0) AS Received
+									,IVD.NetAmount - (ISNULL(IWD.WrittenOffAmount,0)+ISNULL(ITLC.TaggedAmount,0)) AS Balance
+									,IVD.NetAmount - (ISNULL(IWD.WrittenOffAmount,0)+ISNULL(ITLC.TaggedAmount,0))  AS Amount
 									, IV.PartyPlantId
 									,PP.UserName AS PartyPlantName
 									,CC.CompanyCurrencyId
@@ -275,6 +277,7 @@ namespace Library.MaterialManagement.Material
 									, NULL Customer
 									,NULL MasterLCNo, NULL PurchaseLcId, NULL LoanNo,NULL LCDate,NULL OpeningBank,NULL OpeningBankMasterId
 								FROM[TRN].[InvoiceDetail] AS IVD
+								LEFT JOIN (SELECT SUM(Amount)WrittenOffAmount,InvoiceDetailId FROM trn.InvoiceWriteOffDetail   GROUP BY InvoiceDetailId) AS IWD ON IWD.InvoiceDetailId=IVD.Id
 								LEFT JOIN[TRN].[Invoice] AS IV ON IVD.InvoiceId = IV.Id
 								LEFT JOIN[HKP].[PartyPlant] AS PP ON PP.Id = IV.PartyPlantId
 								LEFT JOIN[TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId = IVD.Id

@@ -550,6 +550,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                     if ($scope.Action === 'Update') {
                         $scope.modelValidation('div_grnNo', 'productNew', 'Id');
                         $scope.modelValidation('div_grnDate', 'productNew', 'GRNDate');
+                        $scope.modelValidation('div_TT', 'productNew', 'Trancastion Type');
                         $scope.manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');
                         if (baseService.isUndefinedOrNull($scope.productNew.DocRefNo)) {
                             ShowResult("Enter Doc Ref No", 'failure');
@@ -592,6 +593,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                                 manualValidation('div_grnDate', false);
                                 manualValidation('div_entryDate', false);
                                 manualValidation('div_rate', false);
+                                $scope.modelValidation('div_TT', 'productNew', 'TrancastionTypeId');
                                 $scope.modelValidation('div_docNo', 'productNew', 'DocRefNo');
                                 $scope.modelValidation('div_docDate', 'productNew', 'DocDate');
                                 $scope.productNew.BaseCurrencyId = $scope.baseCurrencyId;

@@ -49,7 +49,7 @@ namespace Aplos.Areas.IE.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult getFilters()
+        public ActionResult getFilters(string fromDate, string toDate)
         {
             try
             {
@@ -65,7 +65,8 @@ namespace Aplos.Areas.IE.Controllers
 											left join ShiftDefination SD on SD.SystemID=MMT.ShiftId
 											left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
 											left join DetentionMaster DMM on DMM.Id=MMT.DetentionId
-                                            left join [HKP].[DetentionType] DT on DT.Id = DM.DetentionTypeId";
+                                            left join [HKP].[DetentionType] DT on DT.Id = DM.DetentionTypeId
+                                            Where MMT.FromTime between '"+fromDate+@"' and '"+toDate+ @"' and MMT.ToTime between'" + fromDate + @"' and '" + toDate + @"'";
                 
                 var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
