@@ -1232,16 +1232,14 @@ SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserNam
 												Group BY SA.PartyId,SA.InvoicingPartyPlantId,SA.DeliveryPartyPlantId		
 									) TAxInfo6 ON TAxInfo6.PartyId=SA.PartyId and TAxInfo6.InvoicingPartyPlantId=SA.InvoicingPartyPlantId 
 									AND TAxInfo6.DeliveryPartyPlantId=SA.DeliveryPartyPlantId
-									LEFT JOIN(Select ISS.SalesId, ISS.Amount/count(isnull(ssm.Id,1)) ServiceAmount
-									,ISS.TaxAmount/count(isnull(ssm.Id,1)) ServiceTax
-									,ISS.BooksCurrencyTransactionAmount/count(isnull(ssm.Id,1)) BooksCurrencyTransactionAmount
-									,ISS.BooksCurrencyTaxAmount/count(isnull(ssm.Id,1)) BooksCurrencyTaxAmount
+									LEFT JOIN(Select ISS.SalesId,ir.PartyId,ir.InvoicingPartyPlantId,ir.deliveryPartyPlantId--, ISS.Amount ServiceAmount
+									,ISS.TaxAmount ServiceTax ,ISS.BooksCurrencyTransactionAmount BooksCurrencyTransactionAmount
+									,ISS.BooksCurrencyTaxAmount BooksCurrencyTaxAmount
 											from trn.SalesService AS ISS
-											LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 											left jOIN [TRN].[Sales] AS IR ON IR.Id=ISs.SalesId
-											left join trn.salesmaterial ssm on ssm.salesId=ir.id
-											group by ISS.SalesId,ISS.Amount,ISS.TaxAmount,ISS.BooksCurrencyTransactionAmount,ISS.BooksCurrencyTaxAmount
-											)ServiceData on ServiceData.SalesId=SA.Id
+											)ServiceData on ServiceData.SalesId=SA.Id and ServiceData.PartyId=SA.PartyId 
+											and ServiceData.InvoicingPartyPlantId=SA.InvoicingPartyPlantId 
+											and ServiceData.DeliveryPartyPlantId=SA.DeliveryPartyPlantId 
 									WHERE SA.PlantId='" + PlantId + @"' AND convert(Date,SA.InvoiceDate) between '" + FromDate + @"' AND '" + ToDate + @"'
 									Group By P.Id,iv.setOff, p.Code	 ,PPI.UserName,PPD.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,SA.PartyType,PAG.UserName ,TAxInfo6.TaxAmount,TAxInfo6.BooksTaxAmount,P.TINNO,CN.UserName ,C.Code,EI.EmployeeName
 								UNION ALL

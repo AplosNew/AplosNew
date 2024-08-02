@@ -230,6 +230,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         , TaxOptionServiceModify: 'Yes'
         , TaxOptionService1: 'Yes'
         , msgForAllocationNeed: null
+        , AlternativeQty: 0
     };
     $scope.advanceTax = {
         TaxCodeId: null,

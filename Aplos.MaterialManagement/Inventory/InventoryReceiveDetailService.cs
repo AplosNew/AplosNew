@@ -638,6 +638,7 @@ namespace Library.MaterialManagement.Inventory
                                     IssueReturnQty = 0,
                                     InventorySalesQty = 0,
                                     InventoryScrapQty = 0,
+                                    AlternativeQty = itemDetail.AlternativeQty,
                                     MaterialMasterOpeningBalanceDetailId = null,
                                     LotNumber = itemDetail.LotNumber,
                                     LotNo = itemDetail.LotNumber,
@@ -1148,8 +1149,8 @@ namespace Library.MaterialManagement.Inventory
                                     IsAsset = itemDetail.IsAsset,
                                     GrossAmount = Math.Round(Convert.ToDecimal(itemDetail.TrnAmount), 2) + Math.Round(Convert.ToDecimal(itemDetail.DiscountAmount), 2),
                                     DiscountAmount = Math.Round(Convert.ToDecimal(itemDetail.DiscountAmount), 2),
-                                    QualityStatus = itemDetail.QualityStatus
-
+                                    QualityStatus = itemDetail.QualityStatus,
+                                    AlternativeQty = itemDetail.AlternativeQty
 
                                 };
                                 try
@@ -1526,8 +1527,8 @@ namespace Library.MaterialManagement.Inventory
                                 IsAsset = itemDetail.IsAsset,
                                 GrossAmount = Math.Round(Convert.ToDecimal(itemDetail.TrnAmount), 2) + Math.Round(Convert.ToDecimal(itemDetail.DiscountAmount), 2),
                                 DiscountAmount = Math.Round(Convert.ToDecimal(itemDetail.DiscountAmount), 2),
-                                QualityStatus = itemDetail.QualityStatus
-
+                                QualityStatus = itemDetail.QualityStatus,
+                                AlternativeQty = itemDetail.AlternativeQty
 
                             };
                             try
@@ -3728,6 +3729,7 @@ namespace Library.MaterialManagement.Inventory
                             ShortageQty = itemDetail.ShortageQty,
                             RejectionQty = itemDetail.RejectionQty,
                             ApprovedQty = itemDetail.ApprovedQty,
+                            AlternativeQty = itemDetail.AlternativeQty,
                             ShortageRatePercent = 100,
                             RejectRatePercent = 50,
                             GRNQty = itemDetail.TransactionQty,
