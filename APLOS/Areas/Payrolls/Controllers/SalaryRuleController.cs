@@ -49,10 +49,10 @@ namespace Aplos.Areas.Payrolls.Controllers
             try
             {
                 var sql = @"SELECT DISTINCT A.SalaryHeadID Value, A.SalaryHead Text,A.HasGL FROM (
-SELECT DISTINCT SH.SalaryHeadID , SH.SalaryHead,HasGL=CASE WHEN G.Id IS NOT NULL THEN 1 ELSE 0 END FROM SalaryHead SH
+SELECT DISTINCT SH.SalaryHeadID , SH.SalaryHead,HasGL=CASE WHEN G.Id IS NOT NULL THEN 1 WHEN SH.TransactionType='NotApplicable' THEN 1 ELSE 0 END FROM SalaryHead SH
                             INNER JOIN CurrencyRuleChild CRC ON SH.SalaryHeadID = CRC.SalaryHeadID
 							LEFT JOIN(Select * from MST.SalaryHeadGL Where (DrDirectGLId IS NOT NULL OR CrDirectGLId IS NOT NULL OR DrInDirectGLId IS NOT NULL OR CrInDirectGLId IS NOT NULL)) G ON G.SalaryHeadID=SH.SalaryHeadID   
-                            Where CRC.MstSystemID = '"+ currencyRuleSystemID + @"')A";
+                            Where CRC.MstSystemID = '" + currencyRuleSystemID + @"')A";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)

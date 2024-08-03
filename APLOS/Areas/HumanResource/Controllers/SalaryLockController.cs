@@ -497,7 +497,7 @@ Where C.EmpInfoSystemID IN (" + EmpIdLoop + @") AND PO.DirectManpowerCost=0 AND 
                 ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
-                objCon.ExecuteNonQueryWrapper(@"Update dbo.SalaryLock set SalaryView=1 Where  YearNo="+Year+" AND MonthNo="+ Month + "", true, "1");
+                objCon.ExecuteNonQueryWrapper(@"Update dbo.SalaryProcMaster set SalaryView=1 Where  YearNo=" + Year+" AND MonthNo="+ Month + "", true, "1");
 
                 objCon.CommitTransaction();
                 return Json(new { Message = AplosMessage.Updated });

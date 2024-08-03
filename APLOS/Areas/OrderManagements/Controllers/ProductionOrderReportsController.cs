@@ -5314,6 +5314,8 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                 pivotTable.Fields[colSOAddedDate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colSOCategory - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colSOStatus - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colSOQty - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colPlannedQty - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colProductionOrderId - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colDeliveryMonth - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colMainRawMaterialInhouseDate - 1].Axis = PivotAxisTypes.Row;
@@ -5324,14 +5326,15 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
 
 
 
-                IPivotField field = pivotTable.Fields[colSOQty - 1];
-                field.NumberFormat = clsStaticInfo.NumberFormat();
-                pivotTable.DataFields.Add(field, "SO Qty", PivotSubtotalTypes.Sum);
+                //IPivotField field = pivotTable.Fields[colSOQty - 1];
+                //field.NumberFormat = clsStaticInfo.NumberFormat();
+                //pivotTable.DataFields.Add(field, "SO Qty", PivotSubtotalTypes.Sum);
 
-                field = pivotTable.Fields[colPlannedQty - 1];
-                field.NumberFormat = clsStaticInfo.NumberFormat();
-                pivotTable.DataFields.Add(field, "SO Planned Qty", PivotSubtotalTypes.Sum);
+                //field = pivotTable.Fields[colPlannedQty - 1];
+                //field.NumberFormat = clsStaticInfo.NumberFormat();
+                //pivotTable.DataFields.Add(field, "SO Planned Qty", PivotSubtotalTypes.Sum);
 
+                IPivotField field = pivotTable.Fields[colFOB - 1];
 
                 field = pivotTable.Fields[colFOB - 1];
                 field.NumberFormat = clsStaticInfo.NumberFormat(2);
@@ -5394,17 +5397,19 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                 pivotTable.Fields[colProduct - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colSOCategory - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colSOStatus - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colSOQty - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colPlannedQty - 1].Axis = PivotAxisTypes.Row;
 
                 pivotTable.Fields[colDeliveryMonth - 1].Axis = PivotAxisTypes.Column;
 
 
-                field = pivotTable.Fields[colSOQty - 1];
-                field.NumberFormat = clsStaticInfo.NumberFormat();
-                pivotTable.DataFields.Add(field, "SO Qty", PivotSubtotalTypes.Sum);
+                //field = pivotTable.Fields[colSOQty - 1];
+                //field.NumberFormat = clsStaticInfo.NumberFormat();
+                //pivotTable.DataFields.Add(field, "SO Qty", PivotSubtotalTypes.Sum);
 
-                field = pivotTable.Fields[colPlannedQty - 1];
-                field.NumberFormat = clsStaticInfo.NumberFormat();
-                pivotTable.DataFields.Add(field, "SO Planned Qty", PivotSubtotalTypes.Sum);
+                //field = pivotTable.Fields[colPlannedQty - 1];
+                //field.NumberFormat = clsStaticInfo.NumberFormat();
+                //pivotTable.DataFields.Add(field, "SO Planned Qty", PivotSubtotalTypes.Sum);
 
 
                 field = pivotTable.Fields[colOrderAmount - 1];
@@ -6025,7 +6030,8 @@ group by pbt.productionOrderId,pbtm.MaxNoOfWS, pbt.Id ) Btn on Btn.ProductionOrd
                             mm.Id AS MaterialRowId,pod.ProductionOrderId,CASE WHEN isnull(sed.ID,0)<>0 THEN 'YES' ELSE 'NO' END AS isProductionScheduled,
                             so.DeliveryDate,so.CommitmentDate,so.Qty AS SOQty,SO.Reason, cp.PONumber,format(cp.PODate,'dd-MMM-yyyy') AS PODate,ps.UserName AS ProductionStatus
                             ,CEILING((isnull(SO.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0)))) AS PlannedQty
-                            ,(CEILING((isnull(SO.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0))))*PPS.Qty) ProcessPlanQty
+                            --,(CEILING((isnull(SO.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0))))*PPS.Qty) ProcessPlanQty
+                            ,PPS.Qty ProcessPlanQty
                             ,FORMAT(SO.AddedDate,'dd-MMM-yyyy') AS SOAddedDate,FORMAT(SO.MainRawMaterialInhouseDate,'dd-MMM-yyyy') AS MainRawMaterialInhouseDate ,FORMAT(SO.OtherRawMaterialInhouseDate,'dd-MMM-yyyy') AS OtherRawMaterialInhouseDate
                             
 ,CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.Rate ELSE  so.Rate * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END AS FOB,

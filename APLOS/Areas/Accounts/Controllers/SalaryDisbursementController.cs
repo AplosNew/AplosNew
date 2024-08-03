@@ -1765,7 +1765,7 @@ Where HeadCategory='Net Payable' ";
 
             wcEmpStatus += ")";
 
-            string sql = @"SELECT EmpSystemId,EmployeeId,EmployeeCode,EmployeeName,EmployeeCategory,DOJ,DOS,CurrentMonthEmployeeStatus
+            string sql = @"SELECT EmpSystemId,EmployeeId,EmployeeCode,EmployeeName,EmployeeCategory,DOJ,DOS--,CurrentMonthEmployeeStatus
                            ,EmployeeStatus,PaymentMode,SUM(NetPayment)Amount
                            FROM (  SELECT   dISTINCT     
                                      isnull(e.SystemId,'') EmpSystemId
@@ -1849,12 +1849,13 @@ Where HeadCategory='Net Payable' ";
                                     LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
                                     LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.BonusDisbursementVoucherId 
                                     LEFT JOIN [dbo].[BonusDisbursementAdvice]  DA ON DA.Id=sl.BonusDisbursementAdviceId 
-                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' AND ISNULL(e.PaymentMode,'')='" + paymentMode + "' AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND ISNULL(sl.IsBonusDisbursed,0) = 0 AND sl.PastDisbursed IS NULL " + wcPayrollGroup + @" 
+                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' AND ISNULL(e.PaymentMode,'')='" + paymentMode + "' AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND ISNULL(sl.IsBonusDisbursed,0) = 0 " + wcPayrollGroup + @" 
                                     AND CONCAT(sl.YearNo,RIGHT('00'+Isnull(Cast(SL.MonthNo AS VARCHAR(max)), ''),2)) 
 									BETWEEN  CONCAT(YEAR('" + fromDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + fromDate + @"') AS VARCHAR(max)), ''),2))
 									AND CONCAT(YEAR('" + toDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + toDate + @"') AS VARCHAR(max)), ''),2))
                                     ) DD " + wcEmpStatus + @" GROUP BY EmpSystemId,EmployeeId,EmployeeCode,EmployeeName,EmployeeCategory
-									,DOJ,DOS,CurrentMonthEmployeeStatus,EmployeeStatus,PaymentMode";
+									,DOJ,DOS--,CurrentMonthEmployeeStatus
+,EmployeeStatus,PaymentMode";
             data = _sqlRepository.GetDataTable(sql);
         }
 
@@ -2886,10 +2887,10 @@ Where HeadCategory='Net Payable' ";
                 int ColDOS = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "CurrentMonthEmployeeStatus";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColCurrentMonthEmployeeStatus = COL;
-                COL++;
+                //sheet[ROW, COL].Text = "CurrentMonthEmployeeStatus";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //int ColCurrentMonthEmployeeStatus = COL;
+                //COL++;
 
                 sheet[ROW, COL].Text = "EmployeeStatus";
                 sheet[ROW, COL].ColumnWidth = 16;
@@ -2948,7 +2949,7 @@ Where HeadCategory='Net Payable' ";
                     //sheet[ROW, ColSS].Text = data.Rows[i]["SubSection"].ToString();
                     sheet[ROW, ColDOJ].DateTime = Convert.ToDateTime(data.Rows[i]["DOJ"].ToString());
                     sheet[ROW, ColDOS].Text = data.Rows[i]["DOS"].ToString();
-                    sheet[ROW, ColCurrentMonthEmployeeStatus].Text = data.Rows[i]["CurrentMonthEmployeeStatus"].ToString();
+                    //sheet[ROW, ColCurrentMonthEmployeeStatus].Text = data.Rows[i]["CurrentMonthEmployeeStatus"].ToString();
                     sheet[ROW, ColEmployeeStatus].Text = data.Rows[i]["EmployeeStatus"].ToString();
                     sheet[ROW, ColPM].Text = data.Rows[i]["PaymentMode"].ToString();
                     //sheet[ROW, ColBank].Text = data.Rows[i]["BankName"].ToString();
@@ -3467,7 +3468,7 @@ Where HeadCategory='Net Payable' ";
                                     LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
                                     LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.BonusDisbursementVoucherId left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Monthly Bonus' and vd.SalaryHeadId=SPCD.SalaryHeadID and vd.CrAmount>0 
                                     LEFT JOIN [dbo].[BonusDisbursementAdvice]  DA ON DA.Id=sl.BonusDisbursementAdviceId 
-                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' AND ISNULL(e.PaymentMode,'')='" + paymentMode + "' AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND ISNULL(sl.IsBonusDisbursed,0) = 0  AND sl.PastDisbursed IS NULL " + wcPayrollGroup + @" 
+                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' AND ISNULL(e.PaymentMode,'')='" + paymentMode + "' AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND ISNULL(sl.IsBonusDisbursed,0) = 0 " + wcPayrollGroup + @" 
                                     AND CONCAT(sl.YearNo,RIGHT('00'+Isnull(Cast(SL.MonthNo AS VARCHAR(max)), ''),2)) 
 									BETWEEN  CONCAT(YEAR('" + fromDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + fromDate + @"') AS VARCHAR(max)), ''),2))
 									AND CONCAT(YEAR('" + toDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + toDate + @"') AS VARCHAR(max)), ''),2))
