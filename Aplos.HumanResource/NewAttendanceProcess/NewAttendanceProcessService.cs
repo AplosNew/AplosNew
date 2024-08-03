@@ -206,11 +206,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             }
                             else
                             {
-                                if(EmpId== "2002498")
-                                {
-                                    //
-                                }
-
+                                
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
 
