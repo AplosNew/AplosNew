@@ -27,6 +27,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
         {
             ProcessLock _lock = new ProcessLock(UserId, ProcessLockId.AttendanceProcess, "", 60);
             _lock.LockProcess();
+            string EmpId = "";
             try
             {
 
@@ -49,10 +50,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where WorkDate='" + WkDate + "'and PlantID='" + PlantValue + "'", out DataSet dsRef, false, false, "", "1");
-
+                        
                         for (int i = 0; i < UnProcessed.Tables[0].Rows.Count; i++)
                         {
-                            string EmpId = UnProcessed.Tables[0].Rows[i][@"SystemId"].ToString();
+                             EmpId = UnProcessed.Tables[0].Rows[i][@"SystemId"].ToString();
                             string PlantId = UnProcessed.Tables[0].Rows[i][@"PlantId"].ToString();
                             string RowId = UnProcessed.Tables[0].Rows[i][@"RowId"].ToString();
                             string ManualShift = clsWebLib.RetValidLen(UnProcessed.Tables[0].Rows[i][@"ManualShift"]).ToString();
@@ -205,7 +206,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             }
                             else
                             {
-
+                                
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
 
@@ -359,7 +360,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         for (int i = 0; i < RamadanShift.Tables[0].Rows.Count; i++)
                         {
-                            string EmpId = RamadanShift.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                             EmpId = RamadanShift.Tables[0].Rows[i][@"EmpSystemID"].ToString();
                             var ShiftDurn = clsWebLib.RetValidLen(RamadanShift.Tables[0].Rows[i][@"ShiftDuration"]).ToString();
                             var ShiftIn = clsWebLib.RetValidLen(RamadanShift.Tables[0].Rows[i][@"InTime"]).ToString();
                             var ShiftOut = clsWebLib.RetValidLen(RamadanShift.Tables[0].Rows[i][@"OutTime"]).ToString();
@@ -575,7 +576,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         for (int i = 0; i < IndividualWeekOff.Tables[0].Rows.Count; i++)
                         {
-                            string EmpId = IndividualWeekOff.Tables[0].Rows[i][@"SystemId"].ToString();
+                             EmpId = IndividualWeekOff.Tables[0].Rows[i][@"SystemId"].ToString();
                             string DayType = clsWebLib.RetValidLen(IndividualWeekOff.Tables[0].Rows[i][@"DayType"]).ToString();
 
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
@@ -620,7 +621,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string Plant = OriginalDateComp.Tables[0].Rows[i][@"PlantId"].ToString();
                             string ForEntirePlant = clsWebLib.GetBoolData(OriginalDateComp.Tables[0].Rows[i][@"ForEntirePlant"]).ToString();
                             DayCode = clsWebLib.RetValidLen(OriginalDateComp.Tables[0].Rows[i][@"DayCode"]).ToString();
-                            string EmpId = clsWebLib.RetValidLen(OriginalDateComp.Tables[0].Rows[i][@"EmpSystemId"]).ToString();
+                             EmpId = clsWebLib.RetValidLen(OriginalDateComp.Tables[0].Rows[i][@"EmpSystemId"]).ToString();
 
                             if (ForEntirePlant == "True")
                             {
@@ -691,7 +692,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         for (int i = 0; i < OTElgbEmp.Tables[0].Rows.Count; i++)
                         {
-                            string EmpId = OTElgbEmp.Tables[0].Rows[i][@"EmpId"].ToString();
+                             EmpId = OTElgbEmp.Tables[0].Rows[i][@"EmpId"].ToString();
                             string IsOTEntitled = OTElgbEmp.Tables[0].Rows[i][@"IsOTEntitled"].ToString();
 
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
@@ -727,7 +728,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         for (int i = 0; i < OnDuty.Tables[0].Rows.Count; i++)
                         {
-                            string EmpId = OnDuty.Tables[0].Rows[i][@"EmpSystemId"].ToString();
+                             EmpId = OnDuty.Tables[0].Rows[i][@"EmpSystemId"].ToString();
 
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
@@ -763,7 +764,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         for (int i = 0; i < OnRest.Tables[0].Rows.Count; i++)
                         {
-                            string EmpId = OnRest.Tables[0].Rows[i][@"EmpSystemId"].ToString();
+                             EmpId = OnRest.Tables[0].Rows[i][@"EmpSystemId"].ToString();
                             string RestId = clsWebLib.RetValidLen(OnRest.Tables[0].Rows[i][@"RestId"]).ToString();
 
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
@@ -847,7 +848,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         for (int i = 0; i < HeaderPolicy.Tables[0].Rows.Count; i++)
                         {
-                            string EmpId = clsWebLib.RetValidLen(HeaderPolicy.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                             EmpId = clsWebLib.RetValidLen(HeaderPolicy.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
                             string HeaderId = clsWebLib.RetValidLen(HeaderPolicy.Tables[0].Rows[i][@"HeaderId"]).ToString();
                             string LeavePolicyId = clsWebLib.RetValidLen(HeaderPolicy.Tables[0].Rows[i][@"LeavePolicyMasterId"]).ToString();
 
@@ -898,7 +899,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             for (int i = 0; i < TBS_LA_Data.Tables[0].Rows.Count; i++)
                             {
-                                string EmpId = clsWebLib.RetValidLen(TBS_LA_Data.Tables[0].Rows[i][@"SystemId"]).ToString();
+                                 EmpId = clsWebLib.RetValidLen(TBS_LA_Data.Tables[0].Rows[i][@"SystemId"]).ToString();
                                 string IsLa = clsWebLib.GetBoolData(TBS_LA_Data.Tables[0].Rows[i][@"IsLA"]).ToString();
                                 string IsTBS = clsWebLib.GetBoolData(TBS_LA_Data.Tables[0].Rows[i][@"IsTBS"]).ToString();
 
@@ -974,6 +975,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             }
             catch (Exception ex)
             {
+                EmpId.ToString();
                 _lock.UnlockProcess();
                 throw ex;
             }

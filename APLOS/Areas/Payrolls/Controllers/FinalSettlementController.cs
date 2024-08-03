@@ -2045,8 +2045,7 @@ Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.
 LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
 left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Monthly Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 
 Where HeadCategory IN('Monthly Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
-AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND ISNULL(sl.IsBonusDisbursed,0) = 1  
-AND sl.BonusDisbursementVoucherId IS NULL 
+AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL 
 AND SPC.EmpInfoSystemID='" + empId + @"'
 UNION
 select cast(SUM(spc.DisbusmentAmount)AS decimal(18,0))BonusAmount  from SalaryProcChild SPC
@@ -2056,8 +2055,7 @@ Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.
 LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
 left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 
 Where HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
-AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND ISNULL(sl.IsBonusDisbursed,0) = 1  
-AND sl.BonusDisbursementVoucherId IS NULL 
+AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL 
 AND SPC.EmpInfoSystemID='" + empId + @"')A
 			 ) AS varchar(100))
            
@@ -2150,10 +2148,11 @@ ORDER BY OL.Sequence";
                 DataSet dsMaster, dsID, dsEmpID = null;
                 DataSet dsEmpMaster = null;
                 DataSet dsEmpSL = null;
+                DataSet dsEmpBN = null;
                 DataSet dsSalaryData = null;
                 DataSet dsProcSalaryData = null;
                 DataSet dsFNFEmpMaster = null;
-                string esql, elocksql = "";
+                string esql, elocksql, elockBNsql = "";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 if (identity.EmployeeId==data["ApproveById"].ToString())
                 {
@@ -2249,6 +2248,29 @@ ORDER BY OL.Sequence";
                     }
                 }
 
+
+                elockBNsql = @"Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL";
+                con.OpenDataSetThroughAdapter(elockBNsql, out dsEmpBN, false, "1");
+
+
+                for (int i = 0; i < dsEmpBN.Tables[0].Rows.Count; i++)
+                {
+                    DataView empsldv = new DataView(dsEmpBN.Tables[0]);
+                    empsldv.RowFilter = "EmpSystemId='" + dsEmpBN.Tables[0].Rows[i]["EmpSystemId"] + "' AND Id='" + dsEmpBN.Tables[0].Rows[i]["Id"] + "'";
+
+                    if (empsldv.Count > 0)
+                    {
+                        DataRow drsl = empsldv[0].Row;
+
+                        drsl.BeginEdit();
+                        drsl["EmployeeFinalSettlementId"] = _Id;
+                        drsl["UpdatedBy"] = identity.Name;
+                        drsl["UpdatedDate"] = DateTime.Now.ToString();
+                        drsl["UpdatedFromIP"] = identity.IPAddress;
+                        drsl.EndEdit();
+
+                    }
+                }
 
                 foreach (var item in datalist)
                 {
@@ -2383,7 +2405,7 @@ ORDER BY OL.Sequence";
 
                 #endregion data update 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsEmpMaster, dsFNFEmpMaster, dsEmpSL);
+                _info.SaveDataSets(dsMaster, dsEmpMaster, dsFNFEmpMaster, dsEmpSL, dsEmpBN);
 
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
 
