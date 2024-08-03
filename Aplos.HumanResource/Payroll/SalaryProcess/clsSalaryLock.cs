@@ -173,6 +173,7 @@ namespace Library.HumanResource.Payroll.SalaryProcess
 									, Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag
                                     --,SPC.SalaryID as SalaryStructureId
                                     ,DMC.SalaryRuleMasterId
+                                    ,SalaryView= CASE WHEN ISNULL(SPM.SalaryView,0)=1 THEN 'Yes' ELSE 'No' END
                                     FROM EmployeeInformation e
 
                                     LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
