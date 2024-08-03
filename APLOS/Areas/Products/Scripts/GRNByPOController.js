@@ -462,6 +462,10 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                 ShowResult("Please check in PORowId " + $scope.inventoryMaterialListPO[i].InventoryReceiveDetailId, 'failure');
                 return true;
             }
+            if ($scope.inventoryMaterialListPO[i].IsAlternativeQty == true && ($scope.inventoryMaterialListPO[i].AlternativeQty == 0 || $scope.inventoryMaterialListPO[i].AlternativeQty == 'NaN')) {
+                ShowResult("Please input AlternativeQty", 'failure');
+                return true;
+            }
             if ($scope.inventoryMaterialListPO[i].check == true) {
                 $scope.inventoryMaterialListPO[i].MaterialStorageId = $scope.productNew.MaterialStorageId;
                 if (baseService.isUndefinedOrNull($scope.inventoryMaterialListPO[i].QualityStatus)) {

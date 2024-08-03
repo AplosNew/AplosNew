@@ -6243,7 +6243,7 @@ namespace Aplos.MaterialManagement
                            --,MRD.MaterialDetail
                            ,null AS [check] ,IRD.Description MaterialDetail,'null' PurchaseDocAcceptanceDetailId,0 POClosStatus,C.UserName CountryName
                         ,C.Id CountryId ,MM.IsAsset,IRD.TotalTaxAmount,0 GrossAmount,0 DiscountAmount,'Approved' QualityStatus
-						,IRD.TransactionUoMId POUoMId,IRD.Tolerance,IRD.RefferenceNo,ART.MinimumValue,ART.MaximumValue
+						,IRD.TransactionUoMId POUoMId,IRD.Tolerance,IRD.RefferenceNo,ART.MinimumValue,ART.MaximumValue,MM.IsAlternativeQty,0 AlternativeQty
                          FROM TRN.PurchaseOrderDetail AS IRD
                         LEFT JOIN(SELECT gd.PODetailsId,isnull(sum(gd.TransactionQty),0) GRNRcvQty,isnull(sum(gd.PurchaseReturnQty),0) PurchaseReturnQty FROM  TRN.InventoryReceiveDetail gd 
 								JOIN trn.InventoryReceive ir on ir.Id=gd.InventoryReceiveId 
@@ -6311,7 +6311,7 @@ namespace Aplos.MaterialManagement
 						   ,0 RejectionQty
                            --,MRD.MaterialDetail
                            ,null AS [check] ,IRD.Description MaterialDetail,'null' PurchaseDocAcceptanceDetailId,0 POClosStatus,C.UserName CountryName,C.Id CountryId ,MM.IsAsset,IRD.TotalTaxAmount,0 GrossAmount,0 DiscountAmount,'' QualityStatus
-							,IRD.TransactionUoMId POUoMId,IRD.Tolerance,IRD.RefferenceNo,ART.MinimumValue,ART.MaximumValue
+							,IRD.TransactionUoMId POUoMId,IRD.Tolerance,IRD.RefferenceNo,ART.MinimumValue,ART.MaximumValue,MM.IsAlternativeQty,0 AlternativeQty
 					    
                          FROM TRN.PurchaseOrderDetail AS IRD
                         LEFT JOIN(SELECT gd.PODetailsId,isnull(sum(gd.TransactionQty),0) GRNRcvQty,isnull(sum(gd.PurchaseReturnQty),0) PurchaseReturnQty FROM  TRN.InventoryReceiveDetail gd 
@@ -6400,7 +6400,8 @@ namespace Aplos.MaterialManagement
 						   ,0 RejectionQty
                            --,MRD.MaterialDetail
                            ,null AS [check] ,IRD.Description MaterialDetail
-                           ,IsNonCreditable= CASE WHEN PDA.IsNonCreditable=1 then 1 Else 0 END ,MM.IsAsset ,CU.Id CurrencyId,IRD.BaseUOMId POUoMId,ART.MinimumValue,ART.MaximumValue
+                           ,IsNonCreditable= CASE WHEN PDA.IsNonCreditable=1 then 1 Else 0 END ,MM.IsAsset ,CU.Id CurrencyId
+                        ,IRD.BaseUOMId POUoMId,ART.MinimumValue,ART.MaximumValue,MM.IsAlternativeQty,0 AlternativeQty
                         FROM TRN.PurchaseDocAcceptanceDetail AS PDAD						
                         left JOIN MST.MaterialMaster AS MM ON PDAD.MaterialMasterId=MM.Id
                         LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
