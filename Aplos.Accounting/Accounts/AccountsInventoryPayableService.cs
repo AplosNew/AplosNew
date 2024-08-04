@@ -2535,15 +2535,16 @@ UNION
 
         public GridModel GetPurchaseReturnPostedData(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
         {
-            parameters.CmdText = @"SELECT V.VoucherNo, A.Id, A.Id AS AdjustmentNoteId, A.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, A.PartyPlantId, PP.UserName AS PartyPlantName, A.VoucherId, A.PostingDate, A.DocDate
-                                , A.DocRefNo, A.CurrencyId, C.Code AS CurrencyCode, A.Amount, A.IsPark,PR.Id PurchaseReturnNo
-                                FROM [TRN].[AdjustmentNote] AS A
-                                LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
-                                LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=A.PartyPlantId
-                                LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
-                                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
-								LEFT JOIN TRN.PurchaseReturn PR ON PR.VoucherId=A.VoucherId
-                                WHERE A.Archive=0 AND V.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + "' AND A.SourceType='" + sourceType + "'";
+            parameters.CmdText = @"SELECT V.VoucherNo, A.Id, A.Id AS AdjustmentNoteId, PR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, PR.InvoicingPartyPlantId PartyPlantId, PP.UserName AS PartyPlantName, V.Id VoucherId, V.PostingDate, V.DocDate
+                                , V.DocRefNo, V.CurrencyId, C.Code AS CurrencyCode, VD.Amount, V.IsPark,PR.Id PurchaseReturnNo
+                                FROM  [TRN].[Voucher] AS V
+								LEFT JOIN TRN.PurchaseReturn PR ON PR.VoucherId=V.Id
+                                LEFT JOIN [HKP].[Party] AS P ON P.Id=PR.PartyId
+                                LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=PR.InvoicingPartyPlantId
+                                LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
+								LEFT JOIN (select SUM(DrAmount)Amount,VoucherId from trn.VoucherDetail where DrAmount>0 GROUP BY VoucherId) VD ON VD.VoucherId=V.Id
+                                LEFT JOIN [TRN].[AdjustmentNote] AS A ON V.Id=A.VoucherId
+                                WHERE V.Archive=0 AND V.CompanyGroupId='" + companyGroupId + "'AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + "' AND V.SourceType='" + sourceType + "'";
             return _sqlRepository.GetGridData(parameters);
         }
         public IEnumerable<object> GetPurchaseReturnPostableData(string plantId)
@@ -2732,7 +2733,7 @@ UNION
 						, T.ActivityId, T.ActivityCode, T.ActivityName
 						, T.Dr
 						
-						, T.Cr, T.Amount, T.IsAsset,T.InventoryReceiveDetailId
+						, T.Cr, T.Amount, T.IsAsset,T.InventoryReceiveDetailId,NULL InvoiceId,NULL InvoiceDetailId
 					FROM (
 						SELECT  'Material' AS OtherName, 'Cr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId,MM.FixedAssetMasterId
 
@@ -2771,40 +2772,41 @@ UNION
 						, T.ActivityId, T.ActivityCode, T.ActivityName
 						, T.Dr
 						
-						, T.Cr, T.Amount, T.IsAsset,T.InventoryReceiveDetailId
+						, T.Cr, T.Amount, T.IsAsset,T.InventoryReceiveDetailId,T.InvoiceId,T.InvoiceDetailId
 					FROM (
 						SELECT  'Return' AS OtherName, 'Dr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId,NULL FixedAssetMasterId
 
-							,  MGGL.DebitNoteGLId  GLGeneralInfoId
-							, GL.AccountCode  GLGeneralInfoCode 
+							,VD.GLGeneralInfoId
+							,GL.AccountCode  GLGeneralInfoCode 
 							,GL.UserName GLGeneralInfoName
-							,MGGL.DebitNoteBudgetMasterId BudgetMasterId 
+							,VD.BudgetMasterId 
 							,B.Code BudgetCode 
 							,B.UserName BudgetName 
-							,MGGL.DebitNoteActivityId ActivityId
+							,VD.ActivityId
 							,A.Code ActivityCode 
 							,A.UserName ActivityName 
 							
 							, SUM(PRD.TotalMaterialTranAmount) AS Dr, NULL Cr
 							, SUM(PRD.TotalMaterialTranAmount ) AS Amount
-                            ,MM.IsAsset , NULL InventoryReceiveDetailId
+                            ,MM.IsAsset , NULL InventoryReceiveDetailId,IVD.InvoiceId,VD.InvoiceDetailId
 						FROM TRN.PurchaseReturnDetail PRD
-						--JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.Id=PRD.InventoryReceiveDetailId
+						JOIN [TRN].[InventoryReceive] AS IR ON IR.Id=PRD.InventoryReceiveId
 						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON PRD.InventoryMaterialId=IM.Id
 						LEFT JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
-						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
-								AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
-						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON MGGL.DebitNoteGLId=GL.Id
-						LEFT JOIN[MST].[BudgetMaster] AS BM ON MGGL.DebitNoteBudgetMasterId= BM.Id
+						LEFT JOIN (SELECT VoucherId, GLGeneralInfoId,	BudgetMasterId,	ActivityId,InvoiceDetailId FROM trn.VoucherDetail 
+											WHERE InvoiceDetailId IS NOT NULL GROUP BY VoucherId, GLGeneralInfoId,	BudgetMasterId,	ActivityId,InvoiceDetailId) AS VD ON VD.VoucherId=IR.VoucherId
+						LEFT JOIN [TRN].[InvoiceDetail] AS IVD ON IVD.Id=VD.InvoiceDetailId
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON VD.GLGeneralInfoId=GL.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON VD.BudgetMasterId= BM.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
-						LEFT JOIN [HKP].[Activity] AS A ON MGGL.DebitNoteActivityId= A.Id
+						LEFT JOIN [HKP].[Activity] AS A ON VD.ActivityId= A.Id
 						WHERE PRD.PurchaseReturnId=@receiveId
-						GROUP BY MM.MaterialGroupMasterId, MGGL.DebitNoteGLId, GL.AccountCode, GL.UserName, MGGL.DebitNoteBudgetMasterId, B.Code, B.UserName
-						, MGGL.DebitNoteActivityId, A.Code, A.UserName
-					    ,MM.IsAsset,MM.FixedAssetMasterId 
+						GROUP BY MM.MaterialGroupMasterId, VD.GLGeneralInfoId, GL.AccountCode, GL.UserName, VD.BudgetMasterId, B.Code, B.UserName
+						,VD.ActivityId, A.Code, A.UserName
+					    ,MM.IsAsset,MM.FixedAssetMasterId ,IVD.InvoiceId,VD.InvoiceDetailId
                     ) AS T
 					GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId
-                    , T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId,T.IsAsset, T.InventoryReceiveDetailId
+                    , T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId,T.IsAsset, T.InventoryReceiveDetailId,T.InvoiceId,T.InvoiceDetailId
 					
                     ORDER BY T.TrnType DESC";
                     return _sqlRepository.GetDataCollection(sql);
@@ -2818,7 +2820,7 @@ UNION
 						, T.ActivityId, T.ActivityCode, T.ActivityName
 						, T.Dr
 						
-						, T.Cr, T.Amount, T.IsAsset,T.InventoryReceiveDetailId
+						, T.Cr, T.Amount, T.IsAsset,T.InventoryReceiveDetailId,NULL InvoiceId,NULL InvoiceDetailId
 					FROM (
 						SELECT  'Material' AS OtherName, 'Cr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId,MM.FixedAssetMasterId
 
@@ -2857,7 +2859,7 @@ UNION
 						, R.ActivityId, R.ActivityCode,R.ActivityName
 						, R.Dr
 						
-						, R.Cr, R.Amount, R.IsAsset,R.InventoryReceiveDetailId 
+						, R.Cr, R.Amount, R.IsAsset,R.InventoryReceiveDetailId,R.InvoiceId,R.InvoiceDetailId
 					
 					FROM (
 					SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
@@ -2866,38 +2868,45 @@ UNION
 						, T.ActivityId, T.ActivityCode, T.ActivityName
 						, T.Dr+ISNULL(TCS.TCSAmount,0) Dr
 						
-						, T.Cr, T.Amount+ISNULL(TCS.TCSAmount,0) Amount, T.IsAsset,T.InventoryReceiveDetailId,T.PurchaseReturnId
+						, T.Cr, T.Amount+ISNULL(TCS.TCSAmount,0) Amount, T.IsAsset,T.InventoryReceiveDetailId,T.PurchaseReturnId,T.InvoiceId,T.InvoiceDetailId
 					FROM (
 						SELECT  'Return' AS OtherName, 'Dr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId,NULL FixedAssetMasterId
 
-							,  MGGL.DebitNoteGLId  GLGeneralInfoId
-							, GL.AccountCode  GLGeneralInfoCode 
+							,VD.GLGeneralInfoId
+							,GL.AccountCode  GLGeneralInfoCode 
 							,GL.UserName GLGeneralInfoName
-							,MGGL.DebitNoteBudgetMasterId BudgetMasterId 
+							,VD.BudgetMasterId 
 							,B.Code BudgetCode 
 							,B.UserName BudgetName 
-							,MGGL.DebitNoteActivityId ActivityId
+							,VD.ActivityId
 							,A.Code ActivityCode 
 							,A.UserName ActivityName 
 							
 							, SUM(PRD.TotalMaterialTranAmount+ISNULL(PRD.TotalTaxAmount,0)+ISNULL(PRD.ChargesTaxTranAmount,0)) AS Dr, NULL Cr
 							, SUM(PRD.TotalMaterialTranAmount+ISNULL(PRD.TotalTaxAmount,0)+ISNULL(PRD.ChargesTaxTranAmount,0) ) AS Amount
-                            ,MM.IsAsset , NULL InventoryReceiveDetailId,PRD.PurchaseReturnId
+                            ,MM.IsAsset , NULL InventoryReceiveDetailId,PRD.PurchaseReturnId,IVD.InvoiceId,VD.InvoiceDetailId
 						FROM TRN.PurchaseReturnDetail PRD
-						--JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.Id=PRD.InventoryReceiveDetailId
+						JOIN [TRN].[InventoryReceive] AS IR ON IR.Id=PRD.InventoryReceiveId
 						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON PRD.InventoryMaterialId=IM.Id
 						LEFT JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
-						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
-								AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
-						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON MGGL.DebitNoteGLId=GL.Id
-						LEFT JOIN[MST].[BudgetMaster] AS BM ON MGGL.DebitNoteBudgetMasterId= BM.Id
+						LEFT JOIN (SELECT VoucherId, GLGeneralInfoId,	BudgetMasterId,	ActivityId,InvoiceDetailId FROM trn.VoucherDetail 
+											WHERE InvoiceDetailId IS NOT NULL GROUP BY VoucherId, GLGeneralInfoId,	BudgetMasterId,	ActivityId,InvoiceDetailId) AS VD ON VD.VoucherId=IR.VoucherId
+						LEFT JOIN [TRN].[InvoiceDetail] AS IVD ON IVD.Id=VD.InvoiceDetailId
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON VD.GLGeneralInfoId=GL.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON VD.BudgetMasterId= BM.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
-						LEFT JOIN [HKP].[Activity] AS A ON MGGL.DebitNoteActivityId= A.Id
+						LEFT JOIN [HKP].[Activity] AS A ON VD.ActivityId= A.Id
+						--LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
+						--		AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
+						--LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON MGGL.DebitNoteGLId=GL.Id
+						--LEFT JOIN[MST].[BudgetMaster] AS BM ON MGGL.DebitNoteBudgetMasterId= BM.Id
+						--LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						--LEFT JOIN [HKP].[Activity] AS A ON MGGL.DebitNoteActivityId= A.Id
 						
 						WHERE PRD.PurchaseReturnId=@receiveId
-						GROUP BY MM.MaterialGroupMasterId, MGGL.DebitNoteGLId, GL.AccountCode, GL.UserName, MGGL.DebitNoteBudgetMasterId, B.Code, B.UserName
-						, MGGL.DebitNoteActivityId, A.Code, A.UserName
-					    ,MM.IsAsset,MM.FixedAssetMasterId ,PRD.PurchaseReturnId
+						GROUP BY MM.MaterialGroupMasterId, VD.GLGeneralInfoId, GL.AccountCode, GL.UserName, VD.BudgetMasterId, B.Code, B.UserName
+						, VD.ActivityId, A.Code, A.UserName
+					    ,MM.IsAsset,MM.FixedAssetMasterId ,PRD.PurchaseReturnId,IVD.InvoiceId,VD.InvoiceDetailId
                     ) AS T
 
 					LEFT OUTER JOIN (
@@ -2908,11 +2917,11 @@ UNION
 						) AS TCS on TCS.PurchaseReturnId=T.PurchaseReturnId
 
 					GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId
-                    , T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount,TCS.TCSAmount,T.PurchaseReturnId, T.OtherName, T.TrnType,T.TaxCategoryId,T.IsAsset, T.InventoryReceiveDetailId
+                    , T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount,TCS.TCSAmount,T.PurchaseReturnId, T.OtherName, T.TrnType,T.TaxCategoryId,T.IsAsset, T.InventoryReceiveDetailId,T.InvoiceId,T.InvoiceDetailId
 					)
 					R 
 					GROUP BY R.MaterialGroupMasterId, R.GLGeneralInfoId, R.GLGeneralInfoCode, R.GLGeneralInfoName, R.BudgetMasterId, R.BudgetCode, R.BudgetName, R.ActivityId
-                    , R.ActivityCode, R.ActivityName, R.Dr, R.Cr, R.Amount, R.OtherName, R.TrnType,R.TaxCategoryId,R.IsAsset, R.InventoryReceiveDetailId
+                    , R.ActivityCode, R.ActivityName, R.Dr, R.Cr, R.Amount, R.OtherName, R.TrnType,R.TaxCategoryId,R.IsAsset, R.InventoryReceiveDetailId ,R.InvoiceId,R.InvoiceDetailId
 					UNION
 					SELECT 'Tax' AS OtherName, 'Cr' AS TrnType, NULL MaterialGroupMasterId, IRT.TaxCategoryId
 						, ITD.GLGeneralInfoId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
@@ -2921,7 +2930,7 @@ UNION
 						,  NULL Dr
 						, SUM(IRT.TaxAmount) AS  Cr
 						, SUM(IRT.TaxAmount) AS Amount
-                        ,0 IsAsset, NULL InventoryReceiveDetailId
+                        ,0 IsAsset, NULL InventoryReceiveDetailId,NULL InvoiceId,NULL InvoiceDetailId
 					FROM [TRN].[PurchaseReturnTax] AS IRT
 					LEFT JOIN [TRN].[PurchaseReturnDetail] AS IRD ON IRT.PurchaseReturnDetailId=IRD.Id
                     LEFT JOIN [TRN].[PurchaseReturn] AS PR ON IRD.PurchaseReturnId=PR.Id
@@ -2942,7 +2951,7 @@ UNION
 						,  NULL Dr
 						, SUM(IRT.TaxAmount) AS  Cr
 						, SUM(IRT.TaxAmount) AS Amount
-                        ,0 IsAsset, NULL InventoryReceiveDetailId
+                        ,0 IsAsset, NULL InventoryReceiveDetailId,NULL InvoiceId,NULL InvoiceDetailId
 					FROM [TRN].[PurchaseReturnTax] AS IRT
 					LEFT JOIN [TRN].[PurchaseReturnService] AS IRD ON IRT.PurchaseReturnServiceId=IRD.Id
                     LEFT JOIN [TRN].[PurchaseReturn] AS PR ON IRD.PurchaseReturnId=PR.Id
@@ -2986,7 +2995,7 @@ UNION
 						, NULL Dr
 						,  SUM(IRT.TaxAmount) AS Cr
 						, SUM(IRT.TaxAmount) AS Amount
-                        ,0 IsAsset, NULL InventoryReceiveDetailId
+                        ,0 IsAsset, NULL InventoryReceiveDetailId,NULL InvoiceId,NULL InvoiceDetailId
 					FROM [TRN].[PurchaseReturnAdditionalTax] AS IRT
 					
 					LEFT JOIN [TRN].[PurchaseReturn] AS PR ON IRT.PurchaseReturnId=PR.Id
@@ -3172,7 +3181,7 @@ UNION
 						, T.ActivityId, T.ActivityCode, T.ActivityName
 						, T.Dr
 						
-						, T.Cr, T.Amount, T.IsAsset,T.InventoryReceiveDetailId
+						, T.Cr, T.Amount, T.IsAsset,T.InventoryReceiveDetailId,NULL InvoiceId,NULL InvoiceDetailId
 					FROM (
 						SELECT  'Material' AS OtherName, 'Cr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId,MM.FixedAssetMasterId
 
@@ -3211,7 +3220,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 						, R.ActivityId, R.ActivityCode,R.ActivityName
 						, R.Dr
 						
-						, R.Cr, R.Amount, R.IsAsset,R.InventoryReceiveDetailId 
+						, R.Cr, R.Amount, R.IsAsset,R.InventoryReceiveDetailId,R.InvoiceId,R.InvoiceDetailId
 					
 					FROM (
 					SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
@@ -3220,37 +3229,38 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 						, T.ActivityId, T.ActivityCode, T.ActivityName
 						, T.Dr+ISNULL(TCS.TCSAmount,0) Dr
 						
-						, T.Cr, T.Amount+ISNULL(TCS.TCSAmount,0) Amount, T.IsAsset,T.InventoryReceiveDetailId
+						, T.Cr, T.Amount+ISNULL(TCS.TCSAmount,0) Amount, T.IsAsset,T.InventoryReceiveDetailId,T.PurchaseReturnId,T.InvoiceId,T.InvoiceDetailId
 					FROM (
 						SELECT  'Return' AS OtherName, 'Dr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId,NULL FixedAssetMasterId
 
-							,  MGGL.DebitNoteGLId  GLGeneralInfoId
-							, GL.AccountCode  GLGeneralInfoCode 
+							,VD.GLGeneralInfoId
+							,GL.AccountCode  GLGeneralInfoCode 
 							,GL.UserName GLGeneralInfoName
-							,MGGL.DebitNoteBudgetMasterId BudgetMasterId 
+							,VD.BudgetMasterId
 							,B.Code BudgetCode 
 							,B.UserName BudgetName 
-							,MGGL.DebitNoteActivityId ActivityId
+							,VD.ActivityId
 							,A.Code ActivityCode 
 							,A.UserName ActivityName 
 							
 							, SUM(PRD.TotalMaterialTranAmount) AS Dr, NULL Cr
 							, SUM(PRD.TotalMaterialTranAmount ) AS Amount
-                            ,MM.IsAsset , NULL InventoryReceiveDetailId,PRD.PurchaseReturnId
+                            ,MM.IsAsset , NULL InventoryReceiveDetailId,PRD.PurchaseReturnId,IVD.InvoiceId,VD.InvoiceDetailId
 						FROM TRN.PurchaseReturnDetail PRD
-						--JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.Id=PRD.InventoryReceiveDetailId
+						JOIN [TRN].[InventoryReceive] AS IR ON IR.Id=PRD.InventoryReceiveId
 						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON PRD.InventoryMaterialId=IM.Id
 						LEFT JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
-						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
-								AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
-						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON MGGL.DebitNoteGLId=GL.Id
-						LEFT JOIN[MST].[BudgetMaster] AS BM ON MGGL.DebitNoteBudgetMasterId= BM.Id
+						LEFT JOIN (SELECT VoucherId, GLGeneralInfoId,	BudgetMasterId,	ActivityId,InvoiceDetailId FROM trn.VoucherDetail 
+											WHERE InvoiceDetailId IS NOT NULL GROUP BY VoucherId, GLGeneralInfoId,	BudgetMasterId,	ActivityId,InvoiceDetailId) AS VD ON VD.VoucherId=IR.VoucherId
+						LEFT JOIN [TRN].[InvoiceDetail] AS IVD ON IVD.Id=VD.InvoiceDetailId
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON VD.GLGeneralInfoId=GL.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON VD.BudgetMasterId= BM.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
-						LEFT JOIN [HKP].[Activity] AS A ON MGGL.DebitNoteActivityId= A.Id
+						LEFT JOIN [HKP].[Activity] AS A ON VD.ActivityId= A.Id
 						WHERE PRD.PurchaseReturnId=@receiveId
-						GROUP BY MM.MaterialGroupMasterId, MGGL.DebitNoteGLId, GL.AccountCode, GL.UserName, MGGL.DebitNoteBudgetMasterId, B.Code, B.UserName
-						, MGGL.DebitNoteActivityId, A.Code, A.UserName
-					    ,MM.IsAsset,MM.FixedAssetMasterId,PRD.PurchaseReturnId 
+						GROUP BY MM.MaterialGroupMasterId, VD.GLGeneralInfoId, GL.AccountCode, GL.UserName, VD.BudgetMasterId, B.Code, B.UserName
+						,VD.ActivityId, A.Code, A.UserName
+					    ,MM.IsAsset,MM.FixedAssetMasterId,PRD.PurchaseReturnId,IVD.InvoiceId,VD.InvoiceDetailId
                     ) AS T
 					LEFT OUTER JOIN (
 						SELECT INS.PurchaseReturnId, sum(INS.TaxAmount) AS TCSAmount
@@ -3260,11 +3270,11 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 						) AS TCS on TCS.PurchaseReturnId=T.PurchaseReturnId
 
 					GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId
-                    , T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount,TCS.TCSAmount,T.PurchaseReturnId, T.OtherName, T.TrnType,T.TaxCategoryId,T.IsAsset, T.InventoryReceiveDetailId
+                    , T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount,TCS.TCSAmount,T.PurchaseReturnId, T.OtherName, T.TrnType,T.TaxCategoryId,T.IsAsset, T.InventoryReceiveDetailId,T.PurchaseReturnId,T.InvoiceId,T.InvoiceDetailId
 					)
 					R 
 					GROUP BY R.MaterialGroupMasterId, R.GLGeneralInfoId, R.GLGeneralInfoCode, R.GLGeneralInfoName, R.BudgetMasterId, R.BudgetCode, R.BudgetName, R.ActivityId
-                    , R.ActivityCode, R.ActivityName, R.Dr, R.Cr, R.Amount, R.OtherName, R.TrnType,R.TaxCategoryId,R.IsAsset, R.InventoryReceiveDetailId
+                    , R.ActivityCode, R.ActivityName, R.Dr, R.Cr, R.Amount, R.OtherName, R.TrnType,R.TaxCategoryId,R.IsAsset, R.InventoryReceiveDetailId,R.InvoiceId,R.InvoiceDetailId
 					UNION
 					SELECT 'Tax' AS OtherName, 'Cr' AS TrnType, NULL MaterialGroupMasterId, IRT.TaxCategoryId
 						, ITD.GLGeneralInfoId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
@@ -3273,7 +3283,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 						,  NULL Dr
 						, SUM(IRT.TaxAmount) AS  Cr
 						, SUM(IRT.TaxAmount) AS Amount
-                        ,0 IsAsset, NULL InventoryReceiveDetailId
+                        ,0 IsAsset, NULL InventoryReceiveDetailId,NULL InvoiceId,NULL InvoiceDetailId
 					FROM [TRN].[PurchaseReturnTax] AS IRT
 					LEFT JOIN [TRN].[PurchaseReturnDetail] AS IRD ON IRT.PurchaseReturnDetailId=IRD.Id
                     LEFT JOIN [TRN].[PurchaseReturn] AS PR ON IRD.PurchaseReturnId=PR.Id
@@ -3295,7 +3305,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 						,  SUM(IRT.TaxAmount) AS Dr
 						, NULL Cr
 						, SUM(IRT.TaxAmount) AS Amount
-                        ,0 IsAsset, NULL InventoryReceiveDetailId
+                        ,0 IsAsset, NULL InventoryReceiveDetailId,NULL InvoiceId,NULL InvoiceDetailId
 					FROM [TRN].[PurchaseReturnTax] AS IRT
 					LEFT JOIN [TRN].[PurchaseReturnDetail] AS IRD ON IRT.PurchaseReturnDetailId=IRD.Id
                     LEFT JOIN [TRN].[PurchaseReturn] AS PR ON IRD.PurchaseReturnId=PR.Id
@@ -3316,7 +3326,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 						, NULL Dr
 						,  SUM(IRT.TaxAmount) AS Cr
 						, SUM(IRT.TaxAmount) AS Amount
-                        ,0 IsAsset, NULL InventoryReceiveDetailId
+                        ,0 IsAsset, NULL InventoryReceiveDetailId,NULL InvoiceId,NULL InvoiceDetailId
 					FROM [TRN].[PurchaseReturnAdditionalTax] AS IRT
 					
 					LEFT JOIN [TRN].[PurchaseReturn] AS PR ON IRT.PurchaseReturnId=PR.Id
