@@ -508,29 +508,45 @@ namespace Library.Service.Banks
         //    return workbook;
         //}
 
-        public IWorkbook GetCashJVReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId, SourceType sourceType)        {            var reportUtility = new ReportUtility();            var excelEngine = new ExcelEngine();            var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);            workbook.Version = ExcelVersion.Excel2016;            var sheet = workbook.Worksheets[0];            sheet.Name = "Cash Journal";
+        public IWorkbook GetCashJVReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId, SourceType sourceType)
+        {
+            var reportUtility = new ReportUtility();
+            var excelEngine = new ExcelEngine();
+            var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);
+            workbook.Version = ExcelVersion.Excel2016;
+            var sheet = workbook.Worksheets[0];
+            sheet.Name = "Cash Journal";
 
             // var header = GetAdvanceJournalHeader(companyGroupId, companyId, plantId, voucherId, SourceType.AdvanceJournalVoucher);
             //var header = _bankJournalService.GetBankJournalHeader(companyGroupId, companyId, plantId, voucherId, SourceType.BankJournal);
             BankExtensionService bankExtensionService = new BankExtensionService();
 
-            var header = bankExtensionService.GetCashJournalHeader(companyGroupId, companyId, plantId, voucherId, SourceType.CashJournal);            reportFileName = Convert.ToDateTime(header["PostingDate"]).ToString("yyMMdd") + " " + header["VoucherNo"];
+            var header = bankExtensionService.GetCashJournalHeader(companyGroupId, companyId, plantId, voucherId, SourceType.CashJournal);
+
+            reportFileName = Convert.ToDateTime(header["PostingDate"]).ToString("yyMMdd") + " " + header["VoucherNo"];
 
             //  var dsLocal = _voucherService.GetAdvanceJournalData(companyGroupId, companyId, plantId, voucherId);
-            var dsLocal = bankExtensionService.GetCashJournalDetail(companyGroupId, companyId, plantId, voucherId, SourceType.CashJournal);            var transcationCurrency = header["CurrencyId"].ToString();            _companyParallelCurrencyService.GetParallelCurrency(companyId, out string companyCurrencyId, out string companyCurrencyCode);
+            var dsLocal = bankExtensionService.GetCashJournalDetail(companyGroupId, companyId, plantId, voucherId, SourceType.CashJournal);
+
+            var transcationCurrency = header["CurrencyId"].ToString();
+            _companyParallelCurrencyService.GetParallelCurrency(companyId, out string companyCurrencyId, out string companyCurrencyCode);
 
             var row = 5;
-            var colLast = 1;            int xlsCol = 1;
+            var colLast = 1;
+            int xlsCol = 1;
 
             int colBaseCurrencyDebit = 0;
             int colBaseCurrencyCredit = 0;
             int colTranCurrencyDebit = 0;
             int colTranCurrencyCredit = 0;
-            int colVoucherNo = xlsCol;
+
+            int colVoucherNo = xlsCol;
             reportUtility.SetMasterHeaderText(ref sheet, row, colVoucherNo, "Voucher No");
             sheet[row, colVoucherNo].ColumnWidth = 18;
-            sheet.Range[row, colVoucherNo].VerticalAlignment = ExcelVAlign.VAlignTop;            xlsCol++;
-            int colVoucherNoValue = xlsCol;            reportUtility.SetText(ref sheet, row, colVoucherNoValue, header["VoucherNo"].ToString());
+            sheet.Range[row, colVoucherNo].VerticalAlignment = ExcelVAlign.VAlignTop;
+            xlsCol++;
+            int colVoucherNoValue = xlsCol;
+            reportUtility.SetText(ref sheet, row, colVoucherNoValue, header["VoucherNo"].ToString());
             sheet[row, colVoucherNoValue].ColumnWidth = 12;
             sheet.Range[row, colVoucherNoValue].VerticalAlignment = ExcelVAlign.VAlignTop;
 
@@ -546,10 +562,27 @@ namespace Library.Service.Banks
             xlsCol++;//6
             int colVoucherDate = xlsCol;
             reportUtility.SetMasterHeaderText(ref sheet, row, colVoucherDate, "Voucher Date");
-            sheet.Range[row, colVoucherDate].VerticalAlignment = ExcelVAlign.VAlignTop;            xlsCol++;//7
-            int colVoucherDateValue = xlsCol;            reportUtility.SetText(ref sheet, row, colVoucherDateValue, header["VoucherDate"].ToString());            sheet.Range[row, colVoucherDateValue].VerticalAlignment = ExcelVAlign.VAlignTop;            row++;            int colPostingDate = colVoucherNo;            reportUtility.SetMasterHeaderText(ref sheet, row, colPostingDate, "Posting Date");
-            sheet.Range[row, colPostingDate].VerticalAlignment = ExcelVAlign.VAlignTop;            int colPostingDateValue = colVoucherNoValue;            reportUtility.SetText(ref sheet, row, colPostingDateValue, header["PostingDate"].ToString());            sheet.Range[row, colPostingDateValue].VerticalAlignment = ExcelVAlign.VAlignTop;            int colDocDate = colVoucherDate;            reportUtility.SetMasterHeaderText(ref sheet, row, colDocDate, "DocDate");
-            sheet.Range[row, colDocDate].VerticalAlignment = ExcelVAlign.VAlignTop;            int colDocDateValue = colVoucherDateValue;            reportUtility.SetText(ref sheet, row, colDocDateValue, header["DocDate"].ToString());            sheet.Range[row, colDocDateValue].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[row, colVoucherDate].VerticalAlignment = ExcelVAlign.VAlignTop;
+            xlsCol++;//7
+            int colVoucherDateValue = xlsCol;
+            reportUtility.SetText(ref sheet, row, colVoucherDateValue, header["VoucherDate"].ToString());
+            sheet.Range[row, colVoucherDateValue].VerticalAlignment = ExcelVAlign.VAlignTop;
+            row++;
+
+            int colPostingDate = colVoucherNo;
+            reportUtility.SetMasterHeaderText(ref sheet, row, colPostingDate, "Posting Date");
+            sheet.Range[row, colPostingDate].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+            int colPostingDateValue = colVoucherNoValue;
+            reportUtility.SetText(ref sheet, row, colPostingDateValue, header["PostingDate"].ToString());
+            sheet.Range[row, colPostingDateValue].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+            int colDocDate = colVoucherDate;
+            reportUtility.SetMasterHeaderText(ref sheet, row, colDocDate, "DocDate");
+            sheet.Range[row, colDocDate].VerticalAlignment = ExcelVAlign.VAlignTop;
+            int colDocDateValue = colVoucherDateValue;
+            reportUtility.SetText(ref sheet, row, colDocDateValue, header["DocDate"].ToString());
+            sheet.Range[row, colDocDateValue].VerticalAlignment = ExcelVAlign.VAlignTop;
             row++;
 
 
@@ -578,13 +611,19 @@ namespace Library.Service.Banks
             reportUtility.SetText(ref sheet, row, colNarationValue, header["Narration"].ToString());
             sheet[reportUtility.GetColumnNameForXls(colVoucherNoValue) + row + ":" + reportUtility.GetColumnNameForXls(colParticulars) + row].Merge();
 
-            sheet.Range[row, colNaration].VerticalAlignment = ExcelVAlign.VAlignTop;            sheet.Range[row, colNarationValue].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[row, colNaration].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[row, colNarationValue].VerticalAlignment = ExcelVAlign.VAlignTop;
 
 
 
             int colDocRef = colVoucherDate;
             reportUtility.SetMasterHeaderText(ref sheet, row, colDocRef, "Doc Ref");
-            sheet.Range[row, colDocRef].VerticalAlignment = ExcelVAlign.VAlignTop;            int colDocRefValue = colVoucherDateValue;            reportUtility.SetText(ref sheet, row, colDocRefValue, header["DocRefNo"].ToString());            sheet.Range[row, colDocRefValue].VerticalAlignment = ExcelVAlign.VAlignTop;            row++;
+            sheet.Range[row, colDocRef].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+            int colDocRefValue = colVoucherDateValue;
+            reportUtility.SetText(ref sheet, row, colDocRefValue, header["DocRefNo"].ToString());
+            sheet.Range[row, colDocRefValue].VerticalAlignment = ExcelVAlign.VAlignTop;
+            row++;
 
             //int colNaration = colVoucherNo;
             //reportUtility.SetMasterHeaderText(ref sheet, row, colNaration, "Narration");
@@ -592,12 +631,16 @@ namespace Library.Service.Banks
             //reportUtility.SetText(ref sheet, row, colNarationValue, header["Narration"].ToString());
             //sheet[reportUtility.GetColumnNameForXls(colVoucherNoValue) + row + ":" + reportUtility.GetColumnNameForXls(colParticulars) + row].Merge();
 
-            //sheet.Range[row, colNaration].VerticalAlignment = ExcelVAlign.VAlignTop;            //sheet.Range[row, colNarationValue].VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[row, colNaration].VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[row, colNarationValue].VerticalAlignment = ExcelVAlign.VAlignTop;
 
 
             int colStatus = colVoucherDate;
-            reportUtility.SetMasterHeaderText(ref sheet, row, colStatus, "Status");            int colStatusValue = colVoucherDateValue;            reportUtility.SetText(ref sheet, row, colStatusValue, header["Status"].ToString());
-            sheet.Range[row, colStatus].VerticalAlignment = ExcelVAlign.VAlignTop;            sheet.Range[row, colStatusValue].VerticalAlignment = ExcelVAlign.VAlignTop;
+            reportUtility.SetMasterHeaderText(ref sheet, row, colStatus, "Status");
+            int colStatusValue = colVoucherDateValue;
+            reportUtility.SetText(ref sheet, row, colStatusValue, header["Status"].ToString());
+            sheet.Range[row, colStatus].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[row, colStatusValue].VerticalAlignment = ExcelVAlign.VAlignTop;
             row++;  //10
 
             colTranCurrencyDebit = colVoucherDate; //col6
@@ -608,7 +651,19 @@ namespace Library.Service.Banks
             colBaseCurrencyCredit = xlsCol;
 
             colLast = companyCurrencyId == transcationCurrency ? colTranCurrencyCredit : colBaseCurrencyCredit;
-            if (companyCurrencyId == transcationCurrency)            {                reportUtility.SetHeaderText(ref sheet, row, colTranCurrencyDebit, companyCurrencyCode, ExcelHAlign.HAlignCenter);                sheet[row, colTranCurrencyDebit, row, colTranCurrencyCredit].Merge();            }            else            {                reportUtility.SetHeaderText(ref sheet, row, colTranCurrencyDebit, header["CurrencyCode"].ToString(), ExcelHAlign.HAlignCenter);                sheet[row, colTranCurrencyDebit, row, colTranCurrencyCredit].Merge();                reportUtility.SetHeaderText(ref sheet, row, colBaseCurrencyDebit, companyCurrencyCode, ExcelHAlign.HAlignCenter);                sheet[row, colBaseCurrencyDebit, row, colBaseCurrencyCredit].Merge();            }
+            if (companyCurrencyId == transcationCurrency)
+            {
+                reportUtility.SetHeaderText(ref sheet, row, colTranCurrencyDebit, companyCurrencyCode, ExcelHAlign.HAlignCenter);
+                sheet[row, colTranCurrencyDebit, row, colTranCurrencyCredit].Merge();
+            }
+            else
+            {
+                reportUtility.SetHeaderText(ref sheet, row, colTranCurrencyDebit, header["CurrencyCode"].ToString(), ExcelHAlign.HAlignCenter);
+                sheet[row, colTranCurrencyDebit, row, colTranCurrencyCredit].Merge();
+
+                reportUtility.SetHeaderText(ref sheet, row, colBaseCurrencyDebit, companyCurrencyCode, ExcelHAlign.HAlignCenter);
+                sheet[row, colBaseCurrencyDebit, row, colBaseCurrencyCredit].Merge();
+            }
             //sheet[row, 6].RowHeight = 15;
 
             sheet.Range[row, colTranCurrencyDebit, row, colLast].BorderAround(ExcelLineStyle.Hair);
@@ -617,7 +672,8 @@ namespace Library.Service.Banks
 
 
             int colGl = colVoucherNo;
-            reportUtility.SetHeaderText(ref sheet, row, colGl, "GL");            sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
+            reportUtility.SetHeaderText(ref sheet, row, colGl, "GL");
+            sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
 
 
             //reportUtility.SetHeaderText(ref sheet, row, colParticulars, "Particulars");
@@ -625,20 +681,27 @@ namespace Library.Service.Banks
             //sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(2) + row].Merge();
 
 
-            if (companyCurrencyId != transcationCurrency)            {                reportUtility.SetHeaderText(ref sheet, row, colTranCurrencyDebit, "Debit", 13, ExcelHAlign.HAlignRight); //colinrDebit = xlsCol; xlsCol++;
+            if (companyCurrencyId != transcationCurrency)
+            {
+                reportUtility.SetHeaderText(ref sheet, row, colTranCurrencyDebit, "Debit", 13, ExcelHAlign.HAlignRight); //colinrDebit = xlsCol; xlsCol++;
                 reportUtility.SetHeaderText(ref sheet, row, colTranCurrencyCredit, "Credit", 13, ExcelHAlign.HAlignRight); //colinrCredit = xlsCol; xlsCol++;
 
                 reportUtility.SetHeaderText(ref sheet, row, colBaseCurrencyDebit, "Debit", 13, ExcelHAlign.HAlignRight); //colusdDebit = xlsCol; xlsCol++;
                 reportUtility.SetHeaderText(ref sheet, row, colBaseCurrencyCredit, "Credit", 13, ExcelHAlign.HAlignRight); //colusdCradit = xlsCol;
                 colLast = colBaseCurrencyCredit;
 
-                sheet.Range[row, colGl, row, colLast].BorderAround(ExcelLineStyle.Hair);                sheet.Range[row, colGl, row, colLast].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[row, colGl, row, colLast].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[row, colGl, row, colLast].BorderInside(ExcelLineStyle.Hair);
                 //sheet.Range[row, colGl, row, colLast].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-            }            else            {
-                reportUtility.SetHeaderText(ref sheet, row, colTranCurrencyDebit, "Debit", 13, ExcelHAlign.HAlignRight);                reportUtility.SetHeaderText(ref sheet, row, colTranCurrencyCredit, "Credit", 13, ExcelHAlign.HAlignRight);
+            }
+            else
+            {
+                reportUtility.SetHeaderText(ref sheet, row, colTranCurrencyDebit, "Debit", 13, ExcelHAlign.HAlignRight);
+                reportUtility.SetHeaderText(ref sheet, row, colTranCurrencyCredit, "Credit", 13, ExcelHAlign.HAlignRight);
                 colLast = colTranCurrencyCredit;
 
-                sheet.Range[row, colGl, row, colLast].BorderAround(ExcelLineStyle.Hair);                sheet.Range[row, colGl, row, colLast].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[row, colGl, row, colLast].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[row, colGl, row, colLast].BorderInside(ExcelLineStyle.Hair);
                 //sheet.Range[row, 4, row, colLast].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
             }
             //sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(4) + row].Merge();
@@ -810,7 +873,8 @@ namespace Library.Service.Banks
                 reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
             }
 
-            return workbook;        }
+            return workbook;
+        }
 
 
 

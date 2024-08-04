@@ -32,6 +32,7 @@ namespace Library.Model.Inventory
         public string MaterialMasterOpeningBalanceDetailId { get; set; }
 
         public decimal? InventoryScrapQty { get; set; }
+        public decimal? AlternativeQty { get; set; }
         public string LotNumber { get; set; }
         public string Diameter { get; set; }
         public string Type { get; set; }

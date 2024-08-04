@@ -72,6 +72,7 @@ function MaterialMasterController(fileReader, commonMessage, $scope, $rootScope,
         , IssueByUoM: false
         , MaterialMasterTypeId: null
         , IsReplacement:false
+        , IsAlternativeQty:false
     };
     $scope.materialMasterNew = angular.copy($scope.materialMaster);
     $scope.searchMaterialMasterList = [
@@ -783,7 +784,7 @@ function MaterialMasterController(fileReader, commonMessage, $scope, $rootScope,
             if ($scope.materialMasterAlternativeUOMs > -1) {
                 $scope.baseUOMDisable = true;
             }
-            if ($scope.materialMasterAlternativeUOMNew.BaseUOMFactor > 0) {
+           // if ($scope.materialMasterAlternativeUOMNew.BaseUOMFactor > 0) {
                 angular.copy($scope.materialMasterAlternativeUOMNew, $scope.materialMasterAlternativeUOM);
                 // isAvailable true == add new
                 if (!isAvailable) {
@@ -811,8 +812,8 @@ function MaterialMasterController(fileReader, commonMessage, $scope, $rootScope,
                     $scope.AltUomAction = 'Add Alternative UOM';
                     $scope.index = -1;
                 }
-            } else
-                throw 'Please insert base uom factor';
+            //} //else
+                //throw 'Please insert base uom factor';
         } catch (err) {
             ShowResult(err, 'failure');
         }

@@ -1090,7 +1090,7 @@ namespace Library.Service.Materials
                                         , FAMT.FixedAssetMasterId AS AssetMasterId, FAM.UserName AS AssetMasterName, FAM.AssetType
                                         , IsRevenue=CASE WHEN (MM.IsInventory=1 OR MM.IsExpenseOut=1) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END
                                         , MM.BudgetMasterId, B.UserName AS AssetBudgetCode, MM.MaterialCategoryId, MM.MaterialSubCategoryId
-                                        , MM.Image,MM.ActivityId, ACT.UserName AS ActivityName, MM.SkillId,MM.MaterialMasterTypeId, MMT.UserName MaterialMasterType,MM.IsRegular,MM.IssueByUoM,MM.IsReplacement
+                                        , MM.Image,MM.ActivityId, ACT.UserName AS ActivityName, MM.SkillId,MM.MaterialMasterTypeId, MMT.UserName MaterialMasterType,MM.IsRegular,MM.IssueByUoM,MM.IsReplacement,MM.IsAlternativeQty
                                    FROM [MST].[MaterialMaster] AS MM
                                    LEFT OUTER JOIN [MST].[MaterialGroupMaster] AS MGP ON MM.MaterialGroupMasterId = MGP.Id
                                    LEFT OUTER JOIN [HKP].[MaterialType] AS MT ON MGP.MaterialTypeId = MT.Id

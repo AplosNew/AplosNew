@@ -230,6 +230,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         , TaxOptionServiceModify: 'Yes'
         , TaxOptionService1: 'Yes'
         , msgForAllocationNeed: null
+        , AlternativeQty: 0
     };
     $scope.advanceTax = {
         TaxCodeId: null,
@@ -459,6 +460,10 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
             if ($scope.inventoryMaterialListPO[i].TransactionQty > 0 && $scope.inventoryMaterialListPO[i].check == null) {
                 ShowResult("Please check in PORowId " + $scope.inventoryMaterialListPO[i].InventoryReceiveDetailId, 'failure');
+                return true;
+            }
+            if ($scope.inventoryMaterialListPO[i].IsAlternativeQty == true && ($scope.inventoryMaterialListPO[i].AlternativeQty == 0 || $scope.inventoryMaterialListPO[i].AlternativeQty == 'NaN')) {
+                ShowResult("Please input AlternativeQty", 'failure');
                 return true;
             }
             if ($scope.inventoryMaterialListPO[i].check == true) {

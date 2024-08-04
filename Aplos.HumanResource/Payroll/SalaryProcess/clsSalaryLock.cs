@@ -136,7 +136,7 @@ namespace Library.HumanResource.Payroll.SalaryProcess
                                     ,DeG.UserName Designation,EC.UserName EmployeeCategory
                                     ,e.GivenDesignationId,PMB.AccountsGroupId,E.BudgetCode BudgetId
                                   ,IsLock = case when sl.IsLocked = 1 then 'Locked' else 'Unlocked' end
-                                    ,SalaryView= CASE WHEN ISNULL(sl.SalaryView,0)=0 THEN 'Yes' ELSE 'No' END
+                                    
                                   ,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end
 
 	                                  ,(PMB.EntityId) EntityId
@@ -173,6 +173,7 @@ namespace Library.HumanResource.Payroll.SalaryProcess
 									, Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag
                                     --,SPC.SalaryID as SalaryStructureId
                                     ,DMC.SalaryRuleMasterId
+                                    ,SalaryView= CASE WHEN ISNULL(SPM.SalaryView,0)=1 THEN 'Yes' ELSE 'No' END
                                     FROM EmployeeInformation e
 
                                     LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id

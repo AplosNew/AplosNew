@@ -116,6 +116,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         , TaxOptionServiceModify: 'Yes'
         , TaxOptionService1: 'Yes'
         , msgForAllocationNeed: null
+        , AlternativeQty: 0
     };
     $scope.productNew = Object.assign({}, $scope.product);
 

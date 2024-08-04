@@ -4929,7 +4929,7 @@ order by IR.GRNDate desc";
 							LEFT JOIN TRN.Voucher V ON V.Id=PGI.VoucherId
 							LEFT JOIN (SELECT PostGRNInvoiceId,SUM(TransactionAmount) Amount 
 									FROM dbo.PostGRNInvoiceDetail GROUP BY PostGRNInvoiceId) PGD ON PGD.PostGRNInvoiceId=PGI.Id
-							WHERE  V.Archive=0
+							--WHERE  V.Archive=0
 							) AS TEMP WHERE " + strkey + "";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -5128,7 +5128,7 @@ order by IR.GRNDate desc";
 							,SUM(ISNULL(PGD.TransactionAmount,0)) Dr
 							,0 Cr
 							,SUM(ISNULL(PGD.TransactionAmount,0)) Amount
-							,SUM(ISNULL(PGD.BooksAmount,0)) BaseDrAmount
+							,SUM(ISNULL(PGD.TransactionAmount,0)) BaseDrAmount
 							,0 BaseCrAmount
 						FROM dbo.PostGRNInvoiceDetail PGD 
 						LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.Id=PGD.InventoryReceiveDetailId
@@ -5157,7 +5157,7 @@ order by IR.GRNDate desc";
 							,SUM(ISNULL(PGD.TransactionAmount,0)) Cr
 							,SUM(ISNULL(PGD.TransactionAmount,0)) Amount
 							,0 BaseDrAmount
-							,SUM(ISNULL(PGD.BooksAmount,0)) BaseCrAmount
+							,SUM(ISNULL(PGD.TransactionAmount,0)) BaseCrAmount
 						FROM dbo.PostGRNInvoiceDetail PGD 
 						LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.Id=PGD.InventoryReceiveDetailId
 						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id

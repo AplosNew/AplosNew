@@ -231,12 +231,13 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
     $scope.IsPaymentTermHide = true;
 
     $scope.controlInvoicePaymentTerm = function () {
-        if (!baseService.isUndefinedOrNull($scope.PurchaseLCId)) {
-            $scope.IsInvoiceDisable = true;
-            $scope.modelNew.IsInvoice = false;
-            $scope.IsPaymentTermHide = true;
-        }
-        else if ($scope.modelNew.PaymentMode=='LC') {
+        //if (!baseService.isUndefinedOrNull($scope.PurchaseLCId)) {
+        //    $scope.IsInvoiceDisable = true;
+        //    $scope.modelNew.IsInvoice = false;
+        //    $scope.IsPaymentTermHide = true;
+        //}
+        //else
+            if ($scope.modelNew.PaymentMode == 'LC') {
             $scope.IsInvoiceDisable = true;
             $scope.modelNew.IsInvoice = false;
             $scope.IsPaymentTermHide = true;

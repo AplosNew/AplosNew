@@ -451,6 +451,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
         , TaxOptionServiceModify: 'Yes'
         , TaxOptionAddiTax: 'Yes'
         , IsTradingPO: false
+        , AlternativeQty: 0
 
 
     };

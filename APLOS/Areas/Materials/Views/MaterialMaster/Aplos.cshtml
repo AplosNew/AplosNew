@@ -262,8 +262,8 @@
                             </div>
                         </div>
                     </div>
-                    
-                   
+
+
                     <div class="form-group">
                         <label class="col-sm-5 control-label">Order Level</label>
                         <div class="col-sm-6">
@@ -273,6 +273,17 @@
                                     <option value="">--Select--</option>
                                     <option ng-repeat="option in EnumList" value="{{option.Value}}">{{option.Text}}</option>
                                 </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-5 control-label">Is Alternative Qty</label>
+                        <div class="col-sm-7">
+                            <div class="checkbox-site">
+                                <label class="control-label">
+                                    <input type="checkbox" ng-model="materialMasterNew.IsAlternativeQty">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -356,12 +367,14 @@
                             </div>
                             <div class="col-sm-3">
                                 <input type="text" name="Base uom" ng-model="baseUOM" class="form-control" readonly>
+
                             </div>
                         </div>
                     </div>
                     <div class="col-xs-12 col-sm-2 col-md-2" style="padding-left: 0px;">
                         <button ng-click="addRow();createNewUomList();" class="btn single-small-btn" tabindex="3"><i class=""></i> {{AltUomAction}}</button>
                     </div>
+                    <label>Enter standard qty/ enter qty at the time of GRN & Issue.</label>
                 </div>
                 <div class="col-xs-12 col-sm-12 col-md-12">
                     <div class="table-responsive modal-table" ng-show="altUOMtbl">
