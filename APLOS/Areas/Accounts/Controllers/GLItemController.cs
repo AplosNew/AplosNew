@@ -222,6 +222,7 @@ namespace Aplos.Areas.Accounts.Controllers
         [Authorize, HttpGet]
         public ActionResult GetExpenseTypeGLBudgetActivityList(GridParameter parameters)
         {
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_glGeneralInfoService.GetGLBudgetActivityList(parameters, identity.CompanyGroupId, identity.CompanyId, AccountTypeEnum.Expense), JsonRequestBehavior.AllowGet);
         }
