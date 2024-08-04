@@ -999,17 +999,17 @@ namespace Library.Accounting.Accounts
             ,AddedBy=CASE WHEN U.FullName<>'' THEN U.FullName ELSE V.AddedBy END
             ,PostedBy=CASE WHEN U.FullName<>'' THEN U.FullName ELSE V.PostedBy END
             , UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
-            , P.UserName AS Party, PP.UserName AS VendorPlant, BJ.CurrencyId, C.Code AS CurrencyCode
+            , P.UserName AS Party, PP.UserName AS VendorPlant, V.CurrencyId, C.Code AS CurrencyCode
 	        ,FY.FiscalYearName
-            FROM [TRN].[AdjustmentNote] AS BJ
-            LEFT JOIN [TRN].[Voucher] AS V ON V.Id=BJ.VoucherId
-            LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
-            LEFT JOIN [HKP].[Party] AS P ON P.Id=BJ.PartyId
-            LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=BJ.PartyPlantId
+           FROM  [TRN].[Voucher] AS V
+			LEFT JOIN TRN.PurchaseReturn PR ON PR.VoucherId=V.Id
+            LEFT JOIN [HKP].[Party] AS P ON P.Id=PR.PartyId
+            LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=PR.InvoicingPartyPlantId
             LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
+            LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
             LEFT JOIN SEC.[User] U ON U.UserId=V.AddedBy
 	        LEFT JOIN [SCS].[FiscalYear] AS FY ON FY.Id=V.FiscalYearId
-            WHERE BJ.Archive=0 AND BJ.CompanyGroupId='" + companyGroupId + "' AND BJ.CompanyId='" + companyId + "' AND BJ.PlantId='" + plantId + "'  AND BJ.VoucherId='" + voucherId + "' AND BJ.SourceType='" + sourceType + "'" +
+            WHERE V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + "'  AND V.Id='" + voucherId + "' AND V.SourceType='" + sourceType + "'" +
             "";
             return _sqlRepository.GetData(cmdText);
         }
