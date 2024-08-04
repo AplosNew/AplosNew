@@ -2301,11 +2301,14 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            string sql = @"select ei.EmployeeCode,ei.EmployeeName ByWhom,gwp.Id,FORMAT(gwp.FromDate,'dd-MMM-yyy') FromDate,FORMAT(gwp.ToDate,'dd-MMM-yyy')ToDate
+            string sql = @"SELECT * FROM 
+                        (select ei.EmployeeCode,ei.EmployeeName ByWhom,gwp.Id,FORMAT(gwp.FromDate,'dd-MMM-yyy') FromDate,FORMAT(gwp.ToDate,'dd-MMM-yyy')ToDate
 						,gwp.UserRef,FORMAT(gwp.PaymentDate,'dd-MMM-yyy') PaymentDate,gwp.Remarks,gwp.PaymentSource
+                        ,ISNULL((select COUNT(Id)PendingApprove from [dbo].[GoodWorkPaymentAdvisedetail] where PaymentAdviseId=gwp.Id AND ISNULL(IsCheck,0)=0),0)PendingApprove
 						from GoodWorkPaymentAdvise gwp 
 						left join EmployeeInformation ei on ei.SystemId=gwp.ByWhomId
-                        where gwp.ApprovedStatus is null AND gwp.ApprovedById='" + identity.EmployeeId + "' ";
+                        where gwp.ApprovedById='" + identity.EmployeeId + @"' )T
+						WHERE T.PendingApprove>0 ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
