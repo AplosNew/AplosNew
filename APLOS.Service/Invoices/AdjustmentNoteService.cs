@@ -1903,7 +1903,8 @@ namespace Library.Service.Invoices
 										WHERE CPC.ParallelCurrencyType='CompanyGroupCurrency' AND CPC.CompanyId='" + companyId + @"'
 									) AS GC ON GC.VoucherDetailId=VD.Id
                                     WHERE I.Archive=0 AND I.IsWrittenOff=0 AND ID.IsWrittenOff=0 AND I.IsPark=0 AND I.SourceType in ('"+ SourceType.DebitNote + @"','"+SourceType.InventoryReturnPayable+ @"')
-                                    AND I.PartyType='" + partyType + "' AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "' AND I.PlantId='"+ plantId + "' AND I.PartyId='"+ partyId + @"'";
+                                    AND I.PartyType='" + partyType + "' AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "' AND I.PlantId='"+ plantId + "' AND I.PartyId='"+ partyId + @"'
+                                    AND convert(Date,V.AddedDate) <= '04-Aug-2024' ";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
