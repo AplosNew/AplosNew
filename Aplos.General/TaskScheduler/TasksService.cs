@@ -559,7 +559,7 @@ namespace Library.General.TaskScheduler
             {
                 var sqlLogin = @"SELECT ei.SystemId AS Id,ei.EmployeeCode,ei.EmployeeName,convert(bit,0) as IsConnected,isnull(ei.EmpType,'') AS EmpType
                                 FROM EmployeeInformation AS ei
-                                WHERE systemid='" + EmpId + @"' order by employeename";
+                                WHERE ei.EmployeeStatus = 'Active' and systemid='" + EmpId + @"' order by employeename";
 
                 var _loginUser = _sqlRepository.GetDataCollection(sqlLogin);
                 if (_loginUser[0]["EmpType"].ToString().ToUpper() == "GUEST")
@@ -713,7 +713,7 @@ namespace Library.General.TaskScheduler
                     left join hkp.TaskSubCategory sb on sb.Id=tak.TaskSubCategoryId
                     left join dbo.EmployeeInformation ei on ei.SystemId =au.ResponsiblePersonId
 
-                    where tak.Id='" + MasterId + "' and au.AuthorizationType='AssignTo'";
+                    where ei.EmployeeStatus = 'Active' and tak.Id='" + MasterId + "' and au.AuthorizationType='AssignTo'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -758,7 +758,7 @@ namespace Library.General.TaskScheduler
             dbo.TaskManagerMaster tak left join dbo.TaskAudit au 
             on au.TaskManagerMasterId=tak.Id
             left join dbo.EmployeeInformation ei on ei.SystemId =au.ResponsiblePersonId
-            where tak.Id='" + MasterId + "' and au.AuthorizationType='ApproveBy'";
+            where ei.EmployeeStatus = 'Active' and tak.Id='" + MasterId + "' and au.AuthorizationType='ApproveBy'";
 
                 return _sqlRepository.GetDataCollection(sql, null);
 
@@ -800,7 +800,7 @@ namespace Library.General.TaskScheduler
                 au.AddedBy as CreatedBy,isDone,au.TakenForNotification,isRead,isReadComment from 
                 dbo.TaskManagerMaster tak left join dbo.TaskAudit au on au.TaskManagerMasterId=tak.Id
                 left join dbo.EmployeeInformation ei on ei.SystemId =au.ResponsiblePersonId
-                where tak.Id='" + MasterId + "' and au.AuthorizationType='CreatedBy'";
+                where ei.EmployeeStatus = 'Active' and tak.Id='" + MasterId + "' and au.AuthorizationType='CreatedBy'";
 
                 return _sqlRepository.GetDataCollection(sql, null);
 
@@ -816,7 +816,7 @@ namespace Library.General.TaskScheduler
         {
             try
             {
-                var sql = @"select emp.EmployeeName as EmpName,emp.SystemId as EmployeeId,emp.EmployeeCode from dbo.EmployeeInformation emp where isnull(SystemId,'')='" + EmpId + "'";
+                var sql = @"select emp.EmployeeName as EmpName,emp.SystemId as EmployeeId,emp.EmployeeCode from dbo.EmployeeInformation emp where emp.EmployeeStatus = 'Active' and isnull(SystemId,'')='" + EmpId + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -1537,7 +1537,7 @@ namespace Library.General.TaskScheduler
                     emp.EmpType,d.StandardName as Designation
                                 from dbo.EmployeeInformation emp left join hkp.LegalDesignation d
                     on d.Id=emp.LegalDesignationId left join org.Department dx on dx.Id=emp.DepartmentId
-                                where emp.SystemId = '" + Name + "'";
+                                where emp.EmployeeStatus = 'Active' and emp.SystemId = '" + Name + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
 
 
