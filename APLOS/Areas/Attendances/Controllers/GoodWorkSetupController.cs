@@ -569,7 +569,43 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
 								OUTER APPLY (Select * from dbo.ExceptionGoodWorkEmployee Where GoodWorkSetUpId='" + gwsId + @"' AND  EmployeeId=E.SystemId)BE 
                                 WHERE E.EmployeeStatus='Active' AND E.EmpType<>'Guest' 
 								 AND E.BudgetCode IN (SELECT BudgetId FROM dbo.GoodWorkBudgetSetup Where GoodWorkSetUpId='" + gwsId + @"')
-								order by EmployeeCodeNumeric";
+								--order by EmployeeCodeNumeric
+UNION
+SELECT BE.Id,CAST (CASE WHEN BE.EmployeeId IS NULL THEN 1 ELSE 0 END AS bit) BEFlag,E.SystemId EmployeeId						    	
+							    	,E.EmployeeName
+							    	,PMB.Code BudgetCode
+							    	,PR.UserName PositionName
+							    	,EN.UserName EntityName
+							    	,D.UserName Designation
+							    	,GD.UserName GivenDesignation
+                                    ,LD.UserName LegalDesignation
+							    	,DEPT.UserName AS Department
+							    	,DV.UserName AS Division
+									,SC.UserName AS Section
+                                    ,E.EmployeeCode
+                                    ,E.DOJ
+                                    ,P.UserName Plant
+									,SS.UserName SubSection
+                                    ,E.EmployeeCodeNumeric
+                                    ,C.UserName Company
+                                    ,EC.UserName EmployeeCategory
+							    FROM  dbo.ExceptionGoodWorkEmployee  BE
+								LEFT JOIN EmployeeInformation E ON E.SystemId=BE.EmployeeId
+							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
+							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
+							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
+							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
+                                LEFT JOIN HKP.LegalDesignation LD ON E.LegalDesignationId = LD.Id
+                                LEFT JOIN MST.DesignationMaster DM on DM.DesignationId=E.GivenDesignationId
+						        LEFT JOIN HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
+                                LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
+								LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+                                LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
+								 Where GoodWorkSetUpId='" + gwsId + @"'";
                 return Json(_sqlRepository.GetDataCollection(CmdText, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
