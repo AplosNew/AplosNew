@@ -248,7 +248,7 @@ LEFT JOIN hkp.Designation DSG on DSG.id = POS.DesignationId
 left join mst.DesignationMaster DM on DM.DesignationId = POS.DesignationId
 left join HKP.EmployeeCategory EC on EC.Id = Dm.EmployeeCategoryId
 left join org.Line LL on LL.Id	= MB.LineId
-                                where EmployeeCode='" + Code + "' and apd.WorkDate = convert(date, getdate())";
+                                where emp.EmployeeStatus = 'Active' and EmployeeCode='" + Code + "' and apd.WorkDate = convert(date, getdate())";
 
                        return _sqlRepository.GetDataCollection(Sql, null);
             }
@@ -707,7 +707,7 @@ left join org.Line LL on LL.Id	= MB.LineId
                 left join Org.SubSection s on s.Id=emp.SubSectionId
                 left join org.section ss on ss.Id=emp.SectionId			    
 			    left join dbo.ShiftDefination sh on sh.SystemID=p.ShiftSystemID
-				where ROBudgetCode='" + BudgetId+@"' and ISNULL(p.DayStatus,'')!='' and
+				where emp.EmployeeStatus = 'Active' and ROBudgetCode='" + BudgetId+@"' and ISNULL(p.DayStatus,'')!='' and
 				p.WorkDate between '"+FromDate+@"' and '"+ToDate+@"'
                 order by emp.SystemId,WorkDate";
                 return _sqlRepository.GetDataCollection(sql, null);
@@ -727,7 +727,7 @@ left join org.Line LL on LL.Id	= MB.LineId
                 join mst.DesignationMasterLegalDesignation dd on dd.LegalDesignationId =d.Id
                  join scs.DesignationMasterConfiguration dm on dm.DesignationMasterId=dd.DesignationMasterId
                 and dm.PlantId=emp.PlantId
-                where emp.GroupID='" + GpId + "'and dm.IsOTEntitled='1' and emp.CompanyId='" + CompId + "' and " +
+                where emp.EmployeeStatus = 'Active' and emp.GroupID='" + GpId + "'and dm.IsOTEntitled='1' and emp.CompanyId='" + CompId + "' and " +
                 "emp.PlantId='" + PlantId + "' and emp.DOJ<='" + Date + "' and (emp.dos is null or emp.dos>='" + Date + "')";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -757,7 +757,7 @@ left join org.Line LL on LL.Id	= MB.LineId
                 left join Org.SubSection s on s.Id=emp.SubSectionId
                 left join org.section ss on ss.Id=emp.SectionId			    
 			    left join dbo.ShiftDefination sh on sh.SystemID=p.ShiftSystemID
-				where PRBudgetCode='" + BudgetId+ @"' and ISNULL(p.DayStatus,'')!='' and
+				where emp.EmployeeStatus = 'Active' and PRBudgetCode='" + BudgetId+ @"' and ISNULL(p.DayStatus,'')!='' and
 				p.WorkDate between '"+FromDate+"' and '"+ToDate+"' order by emp.SystemId,WorkDate";
 
                 return _sqlRepository.GetDataCollection(sql, null);
@@ -774,7 +774,7 @@ left join org.Line LL on LL.Id	= MB.LineId
             {
                 var Sql = @"select Id as BudgetId,Code as BudgetCode from mst.ManpowerBudget mb
                 left join EmployeeInformation emp on 
-                emp.BudgetCode=mb.Id where emp.SystemId='" + EmpId + "'";
+                emp.BudgetCode=mb.Id where emp.EmployeeStatus = 'Active' and emp.SystemId='" + EmpId + "'";
                 return _sqlRepository.GetDataCollection(Sql, null);
             }
             catch (Exception ex)
@@ -862,7 +862,7 @@ left join org.Line LL on LL.Id	= MB.LineId
                 join org.SubSection ss on ss.Id=p.SubSectionId
                 join scs.DesignationMasterConfiguration dm on dm.DesignationMasterId=dd.DesignationMasterId
                 and dm.PlantId=emp.PlantId
-                where emp.GroupID='"+GpId+"'and dm.IsOTEntitled='1' and emp.CompanyId='"+CompId+"' and" +
+                where emp.EmployeeStatus = 'Active' and emp.GroupID='" + GpId+"'and dm.IsOTEntitled='1' and emp.CompanyId='"+CompId+"' and" +
                 " emp.PlantId='"+PlantId+"' and dp.Id='"+DepId+"' and s.Id='"+SId+"' and ss.Id='"+SsId+"'" +
                 " and emp.DOJ<='"+Date+"' and (emp.dos is null or emp.dos>='"+Date+"')";
                 
@@ -881,7 +881,7 @@ left join org.Line LL on LL.Id	= MB.LineId
                 var sql = @"select DayStatus,t.Category from AttdnProcessData s 
                 left join EmployeeInformation emp on emp.SystemId=s.EmpSystemID
                  left join DayType t on t.DayType=s.DayStatus
-                 where emp.SystemId='"+EmpId+"' and s.WorkDate='"+Date+"'";
+                 where emp.EmployeeStatus = 'Active' and emp.SystemId='" + EmpId+"' and s.WorkDate='"+Date+"'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -903,7 +903,7 @@ left join org.Line LL on LL.Id	= MB.LineId
 				left join DayType t on t.DayType=p.DayStatus
 				left join dbo.EmployeeInformation e on e.SystemId=p.EmpSystemID
 				left join OTPerMinutePolicy ot on ot.PlantId=e.PlantId
-                where WorkDate='"+Date+"' and EmpSystemID='"+EmpId+@"'
+                where e.EmployeeStatus = 'Active' and WorkDate='" + Date+"' and EmpSystemID='"+EmpId+@"'
 				and ot.OverstayOrEarlyOut=p.OverStay";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -957,7 +957,7 @@ left join org.Line LL on LL.Id	= MB.LineId
                 join org.SubSection ss on ss.Id=p.SubSectionId
                 join scs.DesignationMasterConfiguration dm on dm.DesignationMasterId=dd.DesignationMasterId
                 and dm.PlantId=emp.PlantId
-                where emp.SystemId='" + EmpId+"'";
+                where emp.EmployeeStatus = 'Active' and emp.SystemId='" + EmpId+"'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -1028,8 +1028,9 @@ left join org.Line LL on LL.Id	= MB.LineId
         {
             try
             {
-                var sql = @"select EmpSystemId,YearNo,MonthNo,IsLocked,SalaryStructureId from dbo.SalaryLock k 
-                where k.empsystemId='"+EmpId+ "'and IsLocked=1 and k.MonthNo='" + Month+"' and YearNo='"+Year+"'";
+                var sql = @"select * from SalaryProcMaster SPM
+left join SalaryProcChild SPC on SPC.SlrProcMstSystemID = SPM.SystemID
+where SPC.EmpInfoSystemID = '" + EmpId+ "' and SPM.MonthNo = '" + Month+ "' and SPM.YearNo = '" + Year+ "' and isnull(SPM.SalaryView,0) = 1";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)

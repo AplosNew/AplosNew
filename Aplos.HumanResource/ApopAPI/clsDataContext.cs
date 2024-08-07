@@ -133,7 +133,7 @@ LEFT OUTER JOIN (SELECT C.EmpInfoSystemID,MIN(spm.YearNo) AS MinYear,MIN(spm.Mon
                    LEFT OUTER JOIN SalaryProcMaster spm ON spm.SystemID=c.SlrProcMstSystemID
                     GROUP BY C.EmpInfoSystemID) AS SAL ON SAL.EmpInfoSystemID=ei.SystemID
 
-WHERE ei.SystemId='" + EmployeeSysId + "'";
+WHERE ei.SystemId='" + EmployeeSysId + "' and EmployeeStatus = 'Active'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -468,7 +468,7 @@ left join SEC.AppRoleMapping ARM on ARM.RoleId = AR.Id
 left join EmployeeInformation EI on EI.SystemId = ARM.EmployeeId
 left join dbo.MobileAppIcon MA on MA.Id = ARD.ModuleId
 left join dbo.MobileAppModule MAM on MAM.Id = MA.ModuleId
-where EmployeeName != 'null'  and EI.SystemId = '" + userid + "' and ARD.IconId = '" + Iconid + "'";
+where EI.EmployeeStatus = 'Active' and EmployeeName != 'null'  and EI.SystemId = '" + userid + "' and ARD.IconId = '" + Iconid + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -637,7 +637,7 @@ where FullName != 'null'  and U.UserId = '" + userid + "' and ARD.ModuleId = '" 
                             --Left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.ResponsiblePersonId = E.SystemId
                             left join dbo.DetentionMaster DM on DM.Id = DR.DetentionMasterId
                             left join hkp.DetentionType DT on DT.Id = DM.DetentionTypeId
-                            where DT.Id = '" + detentiontypeid + "'";
+                            where e.EmployeeStatus = 'Active' and DT.Id = '" + detentiontypeid + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -679,7 +679,7 @@ where FullName != 'null'  and U.UserId = '" + userid + "' and ARD.ModuleId = '" 
             {
                 //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 strSQL = @"select E.CellPhnNo IssueByNo from EmployeeInformation E
-                                where E.SystemId = '" + EmployeeId + "'";
+                                where E.EmployeeStatus = 'Active' and E.SystemId = '" + EmployeeId + "'";
 
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -1300,7 +1300,7 @@ where tm.CurrentStatus <> 'Closed' and ta.AuthorizationType <> 'CreatedBy' and t
             {
 
                 strSQL = @"select tc.Id, tc.TaskManagerMasterId,CreatedById, CommentText , ei.EmployeeName , ei.EmpPicPath from dbo.TaskComments As tc  
-left join dbo.EmployeeInformation As ei on tc.CreatedById = ei.SystemId where tc.TaskManagerMasterId = '" + Id + "'";
+left join dbo.EmployeeInformation As ei on tc.CreatedById = ei.SystemId where ei.EmployeeStatus = 'Active' and tc.TaskManagerMasterId = '" + Id + "'";
 
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -1342,7 +1342,7 @@ left join dbo.EmployeeInformation As ei on tc.CreatedById = ei.SystemId where tc
             {
 
                 strSQL = @"select Id,TaskManagerMasterId,AuthorizationType,ResponsiblePersonId , ei.FirstName As  EmployeeName, ei.EmpPicPath from dbo.TaskAudit as ta
-left join dbo.EmployeeInformation As ei on ta.ResponsiblePersonId = ei.SystemId  where TaskManagerMasterId =  '" + Id + "'";
+left join dbo.EmployeeInformation As ei on ta.ResponsiblePersonId = ei.SystemId  where ei.EmployeeStatus = 'Active' and TaskManagerMasterId =  '" + Id + "'";
 
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -2043,7 +2043,7 @@ left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where tm.Closin
             try
             {
 
-                strSQL = @"select EmployeeCode as Value, EmployeeName As Text  from EmployeeInformation ";
+                strSQL = @"select EmployeeCode as Value, EmployeeName As Text  from EmployeeInformation where EmployeeStatus = 'Active'";
 
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -2680,7 +2680,7 @@ LEFT OUTER JOIN (SELECT C.EmpInfoSystemID,MIN(spm.YearNo) AS MinYear,MIN(spm.Mon
                    LEFT OUTER JOIN SalaryProcMaster spm ON spm.SystemID=c.SlrProcMstSystemID
                     GROUP BY C.EmpInfoSystemID) AS SAL ON SAL.EmpInfoSystemID=ei.SystemID
 
-WHERE ei.EmployeeCode='" + EmployeeCode + "' AND ei.CompanyID='" + CompanyID + "'";
+WHERE ei.EmployeeStatus = 'Active' and ei.EmployeeCode='" + EmployeeCode + "' AND ei.CompanyID='" + CompanyID + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -3009,7 +3009,7 @@ WHERE sim.EmpInfoSystemID='" + EmpInfoSystemID + "' AND sim.EffectiveDate IN (SE
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"SELECT * FROM EmployeeInformation ei WHERE ei.EmployeeCode='"
+                strSQL = @"SELECT * FROM EmployeeInformation ei WHERE ei.EmployeeStatus = 'Active' and ei.EmployeeCode='"
                         + EmployeeCode + "' AND ei.CompanyID='" + CompanyID + "' AND ei.employeeStatus='Active'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -5350,7 +5350,7 @@ left join ShiftDefination sd on sd.systemid = mbgt.shiftdefinationid
 left join ORG.Position POS on POS.Id = MBGT.PositionId
 left join mst.DesignationMaster DM on DM.DesignationId = POS.DesignationId
 left join HKP.EmployeeCategory EC on EC.Id = Dm.EmployeeCategoryId
-where Emp.EmployeeCode = '" + Empcode + "'";
+where emp.EmployeeStatus = 'Active' and  Emp.EmployeeCode = '" + Empcode + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -6273,7 +6273,7 @@ and EmployeeCode = '" + EmpSysId + "' order by AddedDate Desc ";
 
                 List<TempBudgetCode> items = DataToSave.ToList();
 
-                con.OpenDataSetThroughAdapter("select * from dbo.EmployeeInformation where SystemId='" + EmpsysId + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from dbo.EmployeeInformation where EmployeeStatus = 'Active' and  SystemId='" + EmpsysId + "'", out dsMaster, false, "1");
 
                 foreach (TempBudgetCode item in DataToSave)
                 {
@@ -6842,7 +6842,7 @@ where isnull(MP.IsInventoryOut,0) = 0 and mm.ToStorageLocId is not null";
             try
             {
                 strSQL = @"select PR.Id Value ,PR.ResponsiblePersonId SystemId,  EI.EmployeeName Name from TRN.VehiclePurposeResponsiblePerson PR
-left join EmployeeInformation EI on EI.SystemId = PR.ResponsiblePersonId where VehiclePurposeId = '" + PurposeId + "'";
+left join EmployeeInformation EI on EI.SystemId = PR.ResponsiblePersonId where EmployeeStatus = 'Active' and  VehiclePurposeId = '" + PurposeId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -7560,7 +7560,7 @@ and VMR.VehiclePurposeResponsiblePersonId = '" + EmpSystemId + "'";
                 strSQL = @"select  EI.SystemId as Value,EI.EmployeeName as Name from [MST].[ManpowerBudget] MB
                         left join dbo.EmployeeInformation EI On EI.BudgetCode=MB.Id
                         left join [HKP].[IncedentCategory] IC ON IC.InchargeNameBgtCodeId=MB.Id
-                        where IC.Id='" + Id + "'";
+                        where ei.EmployeeStatus = 'Active' and IC.Id='" + Id + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -7596,7 +7596,7 @@ and VMR.VehiclePurposeResponsiblePersonId = '" + EmpSystemId + "'";
             {
                 strSQL = @"select  MB.Id as Value , MB.Code as Name , MB.ROBudgetCode as ROCodes from MST.ManpowerBudget MB
 left join EmployeeInformation EI on EI.BudgetCode = MB.Id
-where EI.SystemId = '" + Id + "'";
+where ei.EmployeeStatus = 'Active' and EI.SystemId = '" + Id + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -8578,7 +8578,8 @@ and QPC.QCId is null";
             try
             {
                 strSQL = @"select distinct EI.SystemId Value,EI.EmployeeName Name from [MST].[QualityActionResponsiblePerson] QAP
-left join dbo.EmployeeInformation EI on QAP.QualityActionResponsiblePersonId = EI.SystemId";
+left join dbo.EmployeeInformation EI on QAP.QualityActionResponsiblePersonId = EI.SystemId
+where ei.EmployeeStatus = 'Active'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -9058,7 +9059,7 @@ LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
             try
             {
                 strSQL = @"select EI.SystemId Value, EI.EmployeeCode Name from sec.[User] US
-left join EmployeeInformation EI on EI.SystemId  = US.EmployeeId where US.UserId = '" + UserId + "'";
+left join EmployeeInformation EI on EI.SystemId  = US.EmployeeId where ei.EmployeeStatus = 'Active' and US.UserId = '" + UserId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -9439,7 +9440,7 @@ where BM.BankCategoryId = '" + categoryId + "' and BM.BankSubCategoryId = '" + s
             {
                 strSQL = @"select EI.EmployeeName Name , EI.SystemId Value from AuthorizationConfig ATC
 left join EmployeeInformation EI on EI.systemid = ATC.Employeeid
-where ActionStatus = 'GatePassApproveBy'";
+where ActionStatus = 'GatePassApproveBy' and ei.EmployeeStatus = 'Active'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -9653,7 +9654,7 @@ LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
 LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
 left join [TRN].[MasterOrder] MO on MO.Id = MOI.MasterOrderId
 left join EmployeeInformation EI on EI.SystemId = MO.ResponsiblePersonId
-where Invoicestatus <> 'Closed' and EI.SystemId is not null";
+where ei.EmployeeStatus = 'Active' and Invoicestatus <> 'Closed' and EI.SystemId is not null";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -9725,7 +9726,7 @@ left join [TRN].[MasterOrder] MO on MO.Id = MOI.MasterOrderId
 left join HKP.CompanyParty CP on CP.PartyId = Pt.Id and CP.PartyType = 'Customer'
 left join HKP.PartyAccountGroup PAG on PAG.Id = CP.PartyAccountGroupId 
 left join EmployeeInformation EI on EI.SystemId = MO.ResponsiblePersonId
-where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
+where ei.EmployeeStatus = 'Active' and Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -9814,7 +9815,7 @@ left join HKP.CompanyParty CP on CP.PartyId = Pt.Id and CP.PartyType = 'Customer
 left join HKP.PartyAccountGroup PAG on PAG.Id = CP.PartyAccountGroupId 
 left join EmployeeInformation EI on EI.SystemId = MO.ResponsiblePersonId
 left join PostSalesInvoice psi on psi.SalesId = ir.Id
-where isnull(Invoicestatus,'') <> 'Closed' and EI.SystemId is not null" + CusAll;
+where ei.EmployeeStatus = 'Active' and isnull(Invoicestatus,'') <> 'Closed' and EI.SystemId is not null" + CusAll;
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -9930,7 +9931,7 @@ left join HKP.CompanyParty CP on CP.PartyId = Pt.Id and CP.PartyType = 'Customer
 left join HKP.PartyAccountGroup PAG on PAG.Id = CP.PartyAccountGroupId 
 left join EmployeeInformation EI on EI.SystemId = MO.ResponsiblePersonId
 left join PostSalesInvoice psi on psi.SalesId = ir.Id
-where Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
+where ei.EmployeeStatus = 'Active' and Invoicestatus <> 'Closed' and EI.SystemId is not null" + CusAll;
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -10869,7 +10870,7 @@ left join MST.QualityManagementMaster QMM on QMM.Id=QC.IssueId
 left join EmployeeInformation EI on EI.SystemId=QC.ProductionInchargeId
 left join TRN.ProductionOrder PO on PO.Id=QC.ProductionOrderId
 left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
-where QCD.Status not in ('Close','Complete') and PS.UserName in ('Running','To Close') and QCD.GradeId in (select Id from MST.QualityGradeDetails where ActionApplicable=1) " + FilterDate + @" " + ResponsiblePerson + @" order by DATEDIFF(Hour,QC.AddedDate,GETDATE()) desc";
+where ei.EmployeeStatus = 'Active' and QCD.Status not in ('Close','Complete') and PS.UserName in ('Running','To Close') and QCD.GradeId in (select Id from MST.QualityGradeDetails where ActionApplicable=1) " + FilterDate + @" " + ResponsiblePerson + @" order by DATEDIFF(Hour,QC.AddedDate,GETDATE()) desc";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -11716,7 +11717,7 @@ where QAT.ParameterId='" + ParameterId + "'";
                 strSQL = @"select CONCAT(Ei.EmployeeCode , '   ' , Ei.EmployeeName) Name , EI.SystemId Value from EmployeeInformation Ei 
                             left join mst.ManpowerBudget MB on MB.Id = Ei.BudgetCode
                             left join org.Position Po on PO.Id = MB.PositionId
-                            where PO.TaskManagementApplicable = 1";
+                            where ei.EmployeeStatus = 'Active' and PO.TaskManagementApplicable = 1";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -11931,7 +11932,7 @@ and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by Em
             {
                 strSQL = @"select Distinct Ei.SystemId Value , CONCAT(Ei.EmployeeCode , '   ' , Ei.EmployeeName) Name from trn.SalesOrder Mo 
                             left join EmployeeInformation Ei on Ei.SystemId = Mo.ResponsiblePersonId
-                            where MO.OrderStatusId not in ('Closed' , 'Cancelled')";
+                            where ei.EmployeeStatus = 'Active' and MO.OrderStatusId not in ('Closed' , 'Cancelled')";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
