@@ -3578,20 +3578,17 @@ namespace Aplos.MaterialManagement
         {
             try
             {
-                var str = @"SELECT   IR.Id GRNNo,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate,
-							IR.GateEntryNo,p.UserName AS PartyName,P.Code PartyCode,isnull(PP.GSTIN,'') GSTINNo
-						   ,ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0),2) MaterialTranAmount
-						   ,ROUND(Isnull(IRD.TotalTaxAmount,0),2)+ROUND(Isnull(IRD.ChargesTaxTranAmount,0),2) TotalTaxAmount
-						   ,ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0)+Isnull(IRD.TotalTaxAmount,0),2)+ROUND(Isnull(IRD.ChargesTaxTranAmount,0),2) TotalMaterialBaseAmount
-						   ,SUM(ROUND(ISNULL(I.WrittenOffAmount*I.CompanyCurrencyRate,0),4)) as Payment
-						   ,( ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0)+Isnull(IRD.TotalTaxAmount,0)+Isnull(IRD.ChargesTaxTranAmount,0),2))-(SUM(ROUND(ISNULL(I.WrittenOffAmount*I.CompanyCurrencyRate,0),4))) as Balance
-						   ,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
-						   ,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
-						   ,IR.DocRefNo,CU.Code CurrencyName,IR.PartyType
-						   ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
-
-							--new add
-							,REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') DocRefDate,'' GrnDocDateDifference,'' GateName,'' InvoicingPartyPlant,'' DeliveryPartyPlant,EI.EmployeeName Employee
+                var str = @"SELECT   IR.PartyId,p.UserName AS PartyName,P.Code PartyCode,isnull(PP.GSTIN,'') TaxID,CU.Code Currency
+                    ,ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0)+Isnull(IRD.TotalTaxAmount,0),2)+ROUND(Isnull(IRD.ChargesTaxTranAmount,0),2) TotalInvoiceAmount
+                    ,ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0),2) BaseAmount
+                    ,ROUND(Isnull(IRD.TotalTaxAmount,0),2)+ROUND(Isnull(IRD.ChargesTaxTranAmount,0),2) TotalTaxAmount
+                    ,SUM(ROUND(ISNULL(I.WrittenOffAmount*I.CompanyCurrencyRate,0),4)) as Payment
+                    ,( ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0)+Isnull(IRD.TotalTaxAmount,0)+Isnull(IRD.ChargesTaxTranAmount,0),2))-(SUM(ROUND(ISNULL(I.WrittenOffAmount*I.CompanyCurrencyRate,0),4))) as Balance
+                    ,IR.Id GRNNo,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate, IR.GateEntryNo
+                    ,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
+                    ,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
+                    ,IR.DocRefNo,IR.PartyType ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
+                    ,REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') DocRefDate,'' GrnDocDateDifference,'' GateName,EI.EmployeeName Employee
 					from [TRN].[InventoryReceive] AS IR
 					left jOIN (select InventoryReceiveId,Sum(TransactionQty)TransactionQty,Sum(MaterialTranAmount)MaterialTranAmount
 						,Sum(TotalMaterialTranAmount)TotalMaterialTranAmount,Sum(TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount
@@ -3616,7 +3613,7 @@ namespace Aplos.MaterialManagement
 					where  IR.PlantId='" + PlantId + @"' AND convert(Date,IR.GRNDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
                     AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
 
-					group by IR.GRNDate,IR.Id,IR.GateEntryNo,p.UserName,P.Code,PP.GSTIN,IRD.TotalMaterialTranAmount,IRD.TotalMaterialBooksCurrencyAmount,IRD.TotalTaxAmount,IRD.ChargesTaxTranAmount
+					group by IR.PartyId,IR.GRNDate,IR.Id,IR.GateEntryNo,p.UserName,P.Code,PP.GSTIN,IRD.TotalMaterialTranAmount,IRD.TotalMaterialBooksCurrencyAmount,IRD.TotalTaxAmount,IRD.ChargesTaxTranAmount
 					,MaterialTranAmount,IR.EmployeeId,IR.EmployeeId,V.VoucherNo,V1.VoucherNo,ep.PostingDate,I.PostingDate,IR.DocRefNo,CU.Code,IR.PartyType,PAG.UserName
 					,PC.UserName,PSC.UserName,PG.UserName,IR.ToCurrencyRate,EI.EmployeeName,IR.DocDate";
 
@@ -4178,6 +4175,11 @@ namespace Aplos.MaterialManagement
                 int ROW = 6; int COL = 1;
                 #region columns
 
+                sheet[ROW, COL].Text = "Party Id";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int ColPartyId = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Party Name";
                 sheet[ROW, COL].ColumnWidth = 14;
                 int ColPartyName = COL;
@@ -4203,20 +4205,22 @@ namespace Aplos.MaterialManagement
                 int ColBaseCurrency = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "Total Invoice Amount";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColTotalBaseAmount = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Base Amount";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColBaseAmount = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Tax Amount";
+                sheet[ROW, COL].Text = "Total Tax Amount";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int ColTaxAmount = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Total Base Amount";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int ColTotalBaseAmount = COL;
-                COL++;
+                
 
                 sheet[ROW, COL].Text = "Payment";
                 sheet[ROW, COL].ColumnWidth = 28;
@@ -4228,30 +4232,8 @@ namespace Aplos.MaterialManagement
                 int ColBalance = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Base Amount";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int colMaterialTranAmount = COL;
-                COL++;
 
-                sheet[ROW, COL].Text = "Total Tax Amount";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int colTotalTaxAmount = COL;
-                COL++;
 
-                sheet[ROW, COL].Text = "Total Base Amount";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int colTotalMaterialBaseAmount = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Payment";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int colPayment = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Balance";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int colBalance = COL;
-                COL++;
 
                 sheet[ROW, COL].Text = "Party Group";
                 sheet[ROW, COL].ColumnWidth = 10;
@@ -4296,14 +4278,15 @@ namespace Aplos.MaterialManagement
 
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
+                    sheet[ROW, ColPartyId].Text = data.Rows[i]["PartyId"].ToString();
                     sheet[ROW, ColPartyName].Text = data.Rows[i]["PartyName"].ToString();
                     sheet[ROW, ColPartyCode].Text = data.Rows[i]["PartyCode"].ToString();
                     sheet[ROW, ColBeneficiary].Text = data.Rows[i]["Beneficiary"].ToString();
                     sheet[ROW, ColTaxID].Text = data.Rows[i]["TaxID"].ToString();
                     sheet[ROW, ColBaseCurrency].Text = data.Rows[i]["Currency"].ToString();
+                    sheet[ROW, ColTotalBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalInvoiceAmount"].ToString());
                     sheet[ROW, ColBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["BaseAmount"].ToString());
-                    sheet[ROW, ColTaxAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TaxAmount"].ToString());
-                    sheet[ROW, ColTotalBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalBaseAmount"].ToString());
+                    sheet[ROW, ColTaxAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalTaxAmount"].ToString());
                     sheet[ROW, ColPayment].Number = clsStaticInfo.dbl(data.Rows[i]["Payment"].ToString());
                     sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(data.Rows[i]["Balance"].ToString());
                     sheet[ROW, colPartyGroup].Text = data.Rows[i]["PartyGroup"].ToString();
@@ -4656,9 +4639,12 @@ namespace Aplos.MaterialManagement
 
                 int ROW = 6; int COL = 1;
                 #region columns
-
+                sheet[ROW, COL].Text = "Party Id";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColPartyId = COL;
+                COL++;
                 sheet[ROW, COL].Text = "Party Name";
-                sheet[ROW, COL].ColumnWidth = 14;
+                sheet[ROW, COL].ColumnWidth = 25;
                 int ColPartyName = COL;
                 COL++;
 
@@ -4667,33 +4653,53 @@ namespace Aplos.MaterialManagement
                 int ColPartyCode = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Invoicing Party Plant";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int ColInvoicingPartyPlant = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Delivery Party Plant";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int ColDeliveryPartyPlant = COL;
-                COL++;
-
+                
                 sheet[ROW, COL].Text = "Tax ID";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int ColTaxID = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Employee";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int ColEmployee = COL;
+                sheet[ROW, COL].Text = "Currency";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColBaseCurrency = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "TotalInvoieAmount";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColTotalMaterialBaseAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Base Amount";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColMaterialTranAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Total Tax Amount";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColTotalTaxAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Payment";
+                sheet[ROW, COL].ColumnWidth = 9;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColPayment = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Balance";
+                sheet[ROW, COL].ColumnWidth = 14;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColBalance = COL;
+                COL++;
+
+                
                 sheet[ROW, COL].Text = "GRN No.";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int ColGRNNo = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "GRN Date";
-                sheet[ROW, COL].ColumnWidth = 28;
+                sheet[ROW, COL].ColumnWidth = 10;
                 int ColGRNEntryDate = COL;
                 COL++;
 
@@ -4732,38 +4738,11 @@ namespace Aplos.MaterialManagement
                 int ColGateName = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Base Currency";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int ColBaseCurrency = COL;
+                sheet[ROW, COL].Text = "Employee";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColEmployee = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Total Tax Amount";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int ColTotalTaxAmount = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Base Amount";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColMaterialTranAmount = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Total Base Amount";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int ColTotalMaterialBaseAmount = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Payment";
-                sheet[ROW, COL].ColumnWidth = 9;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColPayment = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Balance";
-                sheet[ROW, COL].ColumnWidth = 14;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColBalance = COL;
-                COL++;
 
                 sheet[ROW, COL].Text = "Party Group";
                 sheet[ROW, COL].ColumnWidth = 14;
@@ -4811,12 +4790,18 @@ namespace Aplos.MaterialManagement
 
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
+                    sheet[ROW, ColPartyId].Text = data.Rows[i]["PartyId"].ToString();
                     sheet[ROW, ColPartyName].Text = data.Rows[i]["PartyName"].ToString();
-                    sheet[ROW, ColInvoicingPartyPlant].Text = data.Rows[i]["InvoicingPartyPlant"].ToString();
-                    sheet[ROW, ColDeliveryPartyPlant].Text = data.Rows[i]["DeliveryPartyPlant"].ToString();
+                    //sheet[ROW, ColInvoicingPartyPlant].Text = data.Rows[i]["InvoicingPartyPlant"].ToString();
+                    //sheet[ROW, ColDeliveryPartyPlant].Text = data.Rows[i]["DeliveryPartyPlant"].ToString();
                     sheet[ROW, ColPartyCode].Text = data.Rows[i]["PartyCode"].ToString();
-                    sheet[ROW, ColTaxID].Text = data.Rows[i]["GSTINNo"].ToString();
-                    sheet[ROW, ColEmployee].Text = data.Rows[i]["Employee"].ToString();
+                    sheet[ROW, ColTaxID].Text = data.Rows[i]["TaxID"].ToString();
+                    sheet[ROW, ColBaseCurrency].Text = data.Rows[i]["Currency"].ToString();
+                    sheet[ROW, ColTotalMaterialBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalInvoiceAmount"].ToString());
+                    sheet[ROW, ColMaterialTranAmount].Number = clsStaticInfo.dbl(data.Rows[i]["BaseAmount"].ToString());
+                    sheet[ROW, ColTotalTaxAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalTaxAmount"].ToString());
+                    sheet[ROW, ColPayment].Number = clsStaticInfo.dbl(data.Rows[i]["Payment"].ToString());
+                    sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(data.Rows[i]["Balance"].ToString());
                     sheet[ROW, ColGRNNo].Text = data.Rows[i]["GRNNo"].ToString();
                     sheet[ROW, ColGRNEntryDate].Text = data.Rows[i]["GRNEntryDate"].ToString();
                     sheet[ROW, ColVoucherNo].Text = data.Rows[i]["VoucherNo"].ToString();
@@ -4826,12 +4811,7 @@ namespace Aplos.MaterialManagement
                     sheet[ROW, ColGrnDocDateDifference].Text = data.Rows[i]["GrnDocDateDifference"].ToString();
                     sheet[ROW, ColGateEntryNo].Text = data.Rows[i]["GateEntryNo"].ToString();
                     sheet[ROW, ColGateName].Text = data.Rows[i]["GateName"].ToString();
-                    sheet[ROW, ColBaseCurrency].Text = data.Rows[i]["CurrencyName"].ToString();
-                    sheet[ROW, ColMaterialTranAmount].Number = clsStaticInfo.dbl(data.Rows[i]["MaterialTranAmount"].ToString());
-                    sheet[ROW, ColTotalTaxAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalTaxAmount"].ToString());
-                    sheet[ROW, ColTotalMaterialBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalMaterialBaseAmount"].ToString());
-                    sheet[ROW, ColPayment].Number = clsStaticInfo.dbl(data.Rows[i]["Payment"].ToString());
-                    sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(data.Rows[i]["Balance"].ToString());
+                    sheet[ROW, ColEmployee].Text = data.Rows[i]["Employee"].ToString();
                     sheet[ROW, ColPartyGroup].Text = data.Rows[i]["PartyGroup"].ToString();
                     sheet[ROW, ColPartyCategory].Text = data.Rows[i]["PartyCategory"].ToString();
                     sheet[ROW, ColPartySubCategory].Text = data.Rows[i]["PartySubCategory"].ToString();
@@ -5754,10 +5734,9 @@ namespace Aplos.MaterialManagement
         {
             try
             {
-                var str = @"SELECT X.PartyId,ISNULL(X.PartyName,'') PartyName,ISNULL(X.PartyCode,'') PartyCode,X.Beneficiary,X.GSTINNo TaxID
-                            ,SUM(X.TotalMaterialBooksCurrencyAmount) BaseAmount,X.Currency,SUM(X.TotalTaxAmount) TaxAmount
-                            ,TotalBaseAmount=SUM(X.TotalMaterialBooksCurrencyAmount)+SUM(X.TotalTaxAmount)
-                            ,SUM(X.WrittenOffAmount) Payment
+                var str = @"SELECT X.PartyId,ISNULL(X.PartyName,'') PartyName,ISNULL(X.PartyCode,'') PartyCode,X.Beneficiary,X.GSTINNo TaxID,X.Currency  
+                            ,TotalInvoiceAmount=SUM(X.TotalMaterialBooksCurrencyAmount)+SUM(X.TotalTaxAmount)
+                            ,SUM(X.TotalMaterialBooksCurrencyAmount) BaseAmount,SUM(X.TotalTaxAmount) TotalTaxAmount ,SUM(X.WrittenOffAmount) Payment
                             ,Balance=SUM(X.TotalMaterialBooksCurrencyAmount)+SUM(X.TotalTaxAmount)-SUM(X.WrittenOffAmount)
 							,X.PartyGroup,X.PartyCategory,X.PartySubCategory,X.PartyType,X.PartyAccountGroup
                             FROM 
