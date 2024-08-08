@@ -3579,9 +3579,9 @@ namespace Aplos.MaterialManagement
             try
             {
                 var str = @"SELECT   IR.PartyId,p.UserName AS PartyName,P.Code PartyCode,isnull(PP.GSTIN,'') TaxID,CU.Code Currency
-                    ,ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0)+Isnull(IRD.TotalTaxAmount,0),2)+ROUND(Isnull(IRD.ChargesTaxTranAmount,0),2) TotalInvoiceAmount
-                    ,ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0),2) BaseAmount
-                    ,ROUND(Isnull(IRD.TotalTaxAmount,0),2)+ROUND(Isnull(IRD.ChargesTaxTranAmount,0),2) TotalTaxAmount
+                    ,ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0),2)+ROUND(Isnull(IRD.ChargesTaxTranAmount,0),2)+ROUND(Isnull(IRD.TotalTaxAmount,0),2) TotalInvoiceAmount
+                ,ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0),2) BaseAmount
+                ,ROUND(Isnull(IRD.TotalTaxAmount,0),2)+ROUND(Isnull(IRD.ChargesTaxTranAmount,0),2) TotalTaxAmount
                     ,SUM(ROUND(ISNULL(I.WrittenOffAmount*I.CompanyCurrencyRate,0),4)) as Payment
                     ,( ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0)+Isnull(IRD.TotalTaxAmount,0)+Isnull(IRD.ChargesTaxTranAmount,0),2))-(SUM(ROUND(ISNULL(I.WrittenOffAmount*I.CompanyCurrencyRate,0),4))) as Balance
                     ,IR.Id GRNNo,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate, IR.GateEntryNo
@@ -3640,92 +3640,52 @@ namespace Aplos.MaterialManagement
         {
             try
             {
-                var sql = @"select * from (SELECT   ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo  
-							,IR.Id As GRNNo
-						   , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate
-						   ,GRNType=CASE WHEN IR.EmployeeId <> '' Then 'Employee' else 'Vendor' END
-                            ,p.UserName AS PartyName
-							,isnull(PP.GSTIN,'') GSTINNo
-						   ,EI.EmployeeName FirstName	
-						   ,IR.GateEntryNo
-						   ,ISNULL(PWG.UserName,'') GateName
-						   ,IR.DocRefNo
-						   ,   REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-						   ,DATEDIFF(day, IR.DocDate,IR.GRNDate) AS 'GrnInvoiceDateDifference'
-						   ,ISNULL(MT.UserName,'') MaterialType
-						  ,ISNULL(MGM.UserName,'') AS MaterialGroupMasterName
-						  ,MM.UserName MaterialMasterName
-						  ,MC.UserName MaterialCategory
-						, ART.StandardName ArticleName, '' ServiceName
-						, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
-						, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
-						, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
-							, HSNCode=case when TAxInfo.HSCode<>'' then TAxInfo.HSCode
-							when TAxInfo1.HSCode<>'' then TAxInfo1.HSCode
-							when TAxInfo2.HSCode<>'' then TAxInfo2.HSCode
-									else '' end
-						,IRD.TransactionQty
-						,TUoM.UserName AS UOM
-						,IRD.BaseQty,BUoM.UserName BaseUoM
-						,ROUND(Isnull(IRD.MaterialTranRate,0),2) MaterialTranRate
-						,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
-						,CU.Code CurrencyName
-						,ROUND(Isnull(IRD.MaterialTranAmount,0),2) MaterialTranAmount
-						,ROUND(Isnull(IRD.TotalMaterialTranAmount,0),2) TotalMaterialTranAmount
-						,ROUND(Isnull(IRD.TotalMaterialBooksCurrencyAmount,0),2)+round(isnull(TAxInfo.TaxAmount,0),2)
-							+round(isnull(TAxInfo2.TaxAmount,0),2)+round(isnull(TAxInfo1.TaxAmount,0),2) TotalMaterialBaseAmount
-						,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
-						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
-						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
-						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
-						,round(isnull(TAxInfo6.TaxAmount,0),2) MaterialTCS,TAxInfo6.Percentage MaterialTCSTaxPercentage
-                        ,round(isnull(TAxInfo7.TaxAmount,0),2) GRNTCS,TAxInfo7.Percentage GRNTCSTaxPercentage
-						,ROUND(Isnull(IRD.TrnCurrencyBaseRate,0),2) TrnCurrencyBaseRate,ROUND(Isnull(IRD.BooksCurrencyBaseRate,0),2) BooksCurrencyBaseRate
+                var sql = @"select * from (SELECT      IR.PartyId,p.UserName AS PartyName,P.Code PartyCode,isnull(PP.GSTIN,'') TaxID,CU.Code Currency
+							,ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0),2)+ROUND(Isnull(IRD.TotalTaxAmount,0),2) TotalInvoiceAmount
+							,ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0),2) BaseAmount
+							,ROUND(Isnull(IRD.TotalTaxAmount,0),2) TotalTaxAmount
+						,0 ServiceCharge
+						,0 ServiceTax
+						,round(isnull(TAxInfo.TaxAmount,0),2) CGST					
+						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST
+						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST
+						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS
+						,round(isnull(TAxInfo6.TaxAmount,0),2) TCS
+						,IR.Id As GRNNo,IRD.Id As GRNRowId ,IR.GateEntryNo, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate
+						,GRNType=CASE WHEN IR.EmployeeId <> '' Then 'Employee' else 'Vendor' END
+						,EI.EmployeeName ,IR.DocRefNo ,REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+					    ,DATEDIFF(day, IR.DocDate,IR.GRNDate) AS 'GrnInvoiceDateDifference'
+						,ISNULL(MT.UserName,'') MaterialType ,ISNULL(MGM.UserName,'') AS MaterialGroupMasterName
+						,MM.UserName MaterialMasterName ,MC.UserName MaterialCategory , ART.StandardName ArticleName, '' ServiceName
+						, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue , ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
+						, HSNCode=case when TAxInfo.HSCode<>'' then TAxInfo.HSCode
+							when TAxInfo1.HSCode<>'' then TAxInfo1.HSCode when TAxInfo2.HSCode<>'' then TAxInfo2.HSCode else '' end
+						,IRD.TransactionQty ,TUoM.UserName AS UOM ,IRD.BaseQty,BUoM.UserName BaseUoM ,IRD.BaseIssueQty ,IRD.PurchaseReturnQty
+						,IRD.IssueReturnQty ,ROUND(Isnull(IRD.MaterialTranRate,0),2) MaterialTranRate
                         ,IsAsset=CASE WHEN MM.IsAsset=0 then 'No' else 'Yes' END
                         ,GRNAsset=CASE WHEN IRD.IsAsset =0 then 'No' else 'Yes' END 
-						  
-                        ,MS.UserName as StorageLocation--,V.VoucherNo
-						,IRD.ShortageQty
-						,IRD.ShortageRatePercent
-						,IRD.ShortageValue
-						,IRD.RejectionQty
-						,IRD.RejectRatePercent
-						,IRD.RejectValue
-						,IRD.RejectClamPercent
-						,IRD.ApprovedQty
-						   ,IRD.Id As GrnDetailId
-                        ,IR.AddedBy
-                       ,CASE 
-					        	WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null  AND IR.AuthorizedByStatus = 'Approved' Then 'Approved'
+                        ,MS.UserName as StorageLocation 
+						,IRD.ShortageQty ,IRD.ShortageValue ,IRD.RejectionQty ,IRD.RejectValue
+						,IRD.ApprovedQty ,IR.AddedBy
+                       ,CASE  WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null  AND IR.AuthorizedByStatus = 'Approved' Then 'Approved'
 								WHEN IR.CheckedBy is not null And IR.CheckedByStatus = 'ForChecked' AND IR.AuthorizedBy is null And IR.AuthorizedByStatus is null Then 'To be Checked'										
 								WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null  Then 'To be approved'
-							
-
 								WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Hold' Then 'Checking Hold'
 								WHEN IR.CheckedBy is not null AND IR.CheckedByStatus = 'Rejected' Then 'Checking Rejected'
                                 WHEN IR.CheckedBy is not null ANd IR.AuthorizedByStatus = 'Hold' Then 'Approving Hold'
 								WHEN IR.CheckedBy is not null AND IR.AuthorizedByStatus = 'Rejected' Then 'Approving Rejected'	 
 								END GRNCheckStatus
-                        ,EI1.EmployeeName CheckedBY
-						,EI2.EmployeeName AuthorizedBy
+                        ,EI1.EmployeeName CheckedBY ,EI2.EmployeeName AuthorizedBy
 						,Posted=CASE WHEN IR.Status <>'' then 'Yes' else 'No' END						
 						,PostedBy=CASE WHEN IR.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,IR.EmployeeId
 						,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo when IR.VoucherId<>'' Then VN.VoucherNo else V.VoucherNo END
 						,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
-						,IGL.AccountCode GLCode
-						,ISNULL(IGL.UserName,'') AS GL
-						,IBM.RefNo BudgetrefNo
-						,ISNULL(B.UserName,'') AS Budget
-						,IA.Id ActivityId
-						,ISNULL(IA.Code,'') ActivityCode
-						,IA.UserName Activity
-						,IGL1.AccountCode CGLCode
-                        ,IGL1.UserName AS CGL
-						,IBM1.RefNo CBudgetrefNo
-						,B1.UserName AS CBUdget
-						,IA1.Id CActivityId
-						,IA1.Code CActivityCode
-						,IA1.UserName AS CActivity
+						,IGL.AccountCode GLCode ,ISNULL(IGL.UserName,'') AS GL
+						,IBM.RefNo BudgetrefNo ,ISNULL(B.UserName,'') AS Budget
+						,IA.Id ActivityId ,IA.UserName Activity
+						,IGL1.AccountCode CGLCode ,IGL1.UserName AS CGL
+						,IBM1.RefNo CBudgetrefNo ,B1.UserName AS CBUdget
+						,IA1.Id CActivityId   ,IA1.UserName AS CActivity
 						,POId= STUFF((select distinct ','+PG.POId
 			                            FROM TRN.inventoryreceivedetail PG 
                                         LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
@@ -3768,27 +3728,9 @@ namespace Aplos.MaterialManagement
 								LEFT JOIN [TRN].[PurchaseOrder] PO ON PO.Id = IRD.POId
 								left join dbo.[PurchaseLC] PLC On PLC.Id=PO.PurchaseLCId
 								where xPDAMAP.GRNId=ir.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-						,IRD.IssueQty
-						,IRD.BaseIssueQty
-						,IRD.PurchaseReturnQty
-						,IRD.IssueReturnQty
-						,ISNULL(IRD.ReductionByAdjustmentQty,0) ReductionByAdjustmentQty
-						,IRD.InventorySalesQty
-						,IRD.InventoryScrapQty	
-						,IRD.InventoryTransferQty
 						,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup	
 						,RCM= CASE When IR.IsTaxApplicable=0 Then 'No' Else 'Yes' END
-						,IM.MaterialMasterId
-						,IR.IsNonCreditable
-						,TaxAmount=(SELECT SUM(TaxAmount) FROM [TRN].[InventoryReceiveTax] WHERE InventoryReceiveDetailId=IRD.Id)
-						,IRD.ChargesTranAmount ServiceCharge
-						,IRD.ChargesTaxTranAmount ServiceTax
-						,IRD.PODetailsId AS PORowId
-						,IR.PartyId ,P.Code,IR.InvoicingPartyPlantId,PP.UserName InvoicingPartyPlant
-						,IR.DeliveryPartyPlantId,PPD.UserName DeliveryPartyPlant
-						,IRD.LotNo , IRD.QualityStatus , IRD.GrossAmount ,IRD.DiscountAmount 
-						,IRD.[Description]
-						,IR.PartyType
+						,IM.MaterialMasterId ,IR.IsNonCreditable
 					from TRN.InventoryMaterial AS IM
 					JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
 					left join hkp.MaterialCategory MC on MC.Id = MM.MaterialCategoryId
@@ -3839,42 +3781,25 @@ namespace Aplos.MaterialManagement
 			LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
 			left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 			WHERE B.Code='CGST' and A.InventoryServiceId IS NULL
-			--Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
-
-								
 			) TAxInfo	ON TAxInfo.InventoryReceiveDetailId=IRD.Id 
 						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount,hs.Code HSCode FROM [TRN].[InventoryReceiveTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
 									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 									WHERE B.Code='IGST' and A.InventoryServiceId IS NULL
-									--Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
-								
-
 									) TAxInfo1	ON TAxInfo1.InventoryReceiveDetailId=IRD.Id 
-							  		 
 						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount,hs.Code HSCode FROM [TRN].[InventoryReceiveTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
 									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 									WHERE B.Code='SGST' and A.InventoryServiceId IS NULL 
-									--Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
-								
-
 									) TAxInfo2	ON TAxInfo2.InventoryReceiveDetailId=IRD.Id 
-
 						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									WHERE B.Code='TDS' and A.InventoryServiceId IS NULL --Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
-								
+									WHERE B.Code='TDS' and A.InventoryServiceId IS NULL 
 									) TAxInfo3	ON TAxInfo3.InventoryReceiveDetailId=IRD.Id 
-
-
-							
 						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
 									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 									WHERE B.Code='VAT' and A.InventoryServiceId IS NULL --Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
-								
 						) TAxInfo4 ON TAxInfo4.InventoryReceiveDetailId=IRD.Id
-
 						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
 									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 									WHERE B.Code='AIT' and A.InventoryServiceId IS NULL --Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
@@ -3883,25 +3808,18 @@ namespace Aplos.MaterialManagement
 	                    LEFT JOIN (SELECT A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount 
 						           FROM trn.InventoryReceiveAdditionalTax A
 									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
-									WHERE B.Code='TCS' --and A.InventoryServiceId IS NULL --Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
-								
+									WHERE B.Code='TCS'
 						) TAxInfo6 ON TAxInfo6.InventoryReceiveId=IR.Id
 
                         LEFT JOIN (SELECT A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount 
 						           FROM trn.InventoryReceiveAdditionalTax A
 									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
-									WHERE B.Code='TCS' --and A.InventoryServiceId IS NULL --Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
-								
+									WHERE B.Code='TCS'  
 						) TAxInfo7 ON TAxInfo7.InventoryReceiveId=IR.Id
-
-
 						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
 									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
-									WHERE B.Code='Mandi Tax' and A.InventoryServiceId IS NULL --Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
-								
+									WHERE B.Code='Mandi Tax' and A.InventoryServiceId IS NULL  
 						) TAxInfo8 ON TAxInfo8.InventoryReceiveDetailId=IRD.Id
-
-
 						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
 									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 									WHERE B.Code='Nirasrit T' and A.InventoryServiceId IS NULL 
@@ -3913,69 +3831,26 @@ namespace Aplos.MaterialManagement
 						--AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYPO' AND IR.GRNType<>'InventorySalesReturn'
 						AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
 
-							UNION ALL
+						UNION ALL
 
-						SELECT 	ROW_NUMBER() OVER(ORDER BY ISs.Id ASC) AS SLNo                           
-							,IR.Id As GRNNo
-						   ,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate
+						SELECT 	  IR.PartyId,p.UserName AS PartyName,P.Code PartyCode,isnull(PP.GSTIN,'') TaxID,C.Code Currency
+						,ISs.TotalTaxAmount TotalInvoiceAmount,0 BaseAmount,ISs.TotalTaxAmount ,ISs.Amount ServiceCharge,ISs.TotalTaxAmount ServiceTax,0 CGST,0 SGST,0 IGST,0 TDS,0 TCS
+						,IR.Id As GRNNo,NULL GRNRowId ,IR.GateEntryNo ,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate
 						   ,GRNType=CASE WHEN IR.EmployeeId <> '' Then 'Employee' else 'Vendor' END
-                            ,p.UserName AS PartyName
-							,isnull(PP.GSTIN,'') GSTINNo
-						   ,EI.EmployeeName FirstName						   
-						   ,IR.GateEntryNo,ISNULL(PWG.UserName,'') GateName
-						   --,IR.InvoiceNo
-						   --, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
-						   ,IR.DocRefNo,   REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+						   ,EI.EmployeeName ,IR.DocRefNo,   REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
 						   ,DATEDIFF(day, IR.DocDate,IR.GRNDate) AS 'GrnInvoiceDateDifference'
-						  ,'' MaterialType
-						  ,'' MaterialGroupMasterName
-						    ,'' MaterialMasterName
-							,'' MaterialCategory
-						, '' ArticleName, SM.UserName ServiceName
-						, NULL FirstCharacteristicsValue
-						, NULL SecondCharacteristicsValue
-						, NULL ThirdCharacteristicsValue 
-							, HSNCode=case when TAxInfo.HSCode<>'' then TAxInfo.HSCode
-							when TAxInfo1.HSCode<>'' then TAxInfo1.HSCode
-							when TAxInfo2.HSCode<>'' then TAxInfo2.HSCode
-									else '' end --HSNC.Code HSNCode
-						,0 TransactionQty
-						,NULL AS UOM
-						,0 BaseQty,'' BaseUoM
-						,0 MaterialTranRate
-						,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
-						,'' CurrencyName
-						,ISs.Amount MaterialTranAmount
-						,0 TotalMaterialTranAmount
-                       ,0+round(isnull(TAxInfo.TaxAmount,0),2)+round(isnull(TAxInfo2.TaxAmount,0),2)+round(isnull(TAxInfo1.TaxAmount,0),2) TotalMaterialBaseAmount
-							,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
-							,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
-							,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
-							,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
-							,round(isnull(TAxInfo6.TaxAmount,0),2) MaterialTCS,TAxInfo6.Percentage MaterialTCSTaxPercentage					
-							,round(isnull(TAxInfo7.TaxAmount,0),2) GRNTCS,TAxInfo7.Percentage GRNTCSTaxPercentage
-						,0 TrnCurrencyBaseRate
-						,0 BooksCurrencyBaseRate
-                        ,'No' IsAsset
-                        ,'No' GRNAsset
-						 
-                        ,MS.UserName as StorageLocation--,V.VoucherNo
-						,0 ShortageQty
-						,0 ShortageRatePercent
-						,0 ShortageValue
-						,0 RejectionQty
-						,0 RejectRatePercent
-						,0 RejectValue
-						,0 RejectClamPercent
-						,0 ApprovedQty
-						   ,ISs.Id As GrnDetailId
-						 ,IR.AddedBy
-                       ,CASE 
-					        	WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null  AND IR.AuthorizedByStatus = 'Approved' Then 'Approved'
+						  , '' MaterialType  ,'' MaterialGroupMasterName ,'' MaterialMasterName ,'' MaterialCategory
+						  , '' ArticleName, SM.UserName ServiceName , NULL FirstCharacteristicsValue , NULL SecondCharacteristicsValue
+						  , HSNCode=case when TAxInfo.HSCode<>'' then TAxInfo.HSCode
+							when TAxInfo1.HSCode<>'' then TAxInfo1.HSCode when TAxInfo2.HSCode<>'' then TAxInfo2.HSCode else '' end
+						,0 TransactionQty ,NULL AS UOM
+						,0 BaseQty,'' BaseUoM ,0 BaseIssueQty ,0 PurchaseReturnQty ,0 IssueReturnQty
+						,0 MaterialTranRate ,'No' IsAsset ,'No' GRNAsset ,MS.UserName as StorageLocation 
+						,0 ShortageQty ,0 ShortageValue ,0 RejectionQty ,0 RejectValue
+						,0 ApprovedQty ,IR.AddedBy
+                       ,CASE  WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null  AND IR.AuthorizedByStatus = 'Approved' Then 'Approved'
 								WHEN IR.CheckedBy is not null And IR.CheckedByStatus = 'ForChecked' AND IR.AuthorizedBy is null And IR.AuthorizedByStatus is null Then 'To be Checked'										
 								WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null  Then 'To be approved'
-							
-
 								WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Hold' Then 'Checking Hold'
 								WHEN IR.CheckedBy is not null AND IR.CheckedByStatus = 'Rejected' Then 'Checking Rejected'
                                 WHEN IR.CheckedBy is not null ANd IR.AuthorizedByStatus = 'Hold' Then 'Approving Hold'
@@ -3987,62 +3862,28 @@ namespace Aplos.MaterialManagement
 						,PostedBy=CASE WHEN IR.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,IR.EmployeeId
 						,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
 						,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
-						,'' GLCode
-						,'' AS GL
-						,'' BudgetrefNo
-						,'' AS Budget
-						,'' ActivityId
-						,'' ActivityCode
-						,'' Activity
-						,'' CGLCode
-                        ,'' AS CGL
-						,'' CBudgetrefNo
-						,'' AS CBUdget
-						,'' CActivityId
-						,'' CActivityCode
-						,'' AS CActivity
+						,'' GLCode ,'' AS GL ,'' BudgetrefNo ,'' AS Budget
+						,'' ActivityId ,'' Activity ,'' CGLCode
+                        ,'' AS CGL ,'' CBudgetrefNo ,'' AS CBUdget ,'' CActivityId ,'' AS CActivity
 						,POId= STUFF((select distinct ','+PG.POId
 			                            FROM TRN.POGGRNMap PG 
                                         LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
 			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-						,'' RefferenceNo
-					,'' PurchaseLCId
-					,'' ContractId						
-					,'' ContractNo
-					,'' LCANo
-					,'' LCDate
-					,0 IssueQty
-					,0 BaseIssueQty
-					,0 PurchaseReturnQty
-					,0 IssueReturnQty
-					,0 ReductionByAdjustmentQty
-					,0 InventorySalesQty
-					,0 InventoryScrapQty						
-					,0 InventoryTransferQty
+					,'' RefferenceNo ,'' PurchaseLCId ,'' ContractId ,'' ContractNo ,'' LCANo ,'' LCDate
 					,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
-							,RCM= CASE When IR.IsTaxApplicable=0 Then 'No' Else 'Yes' END
-						  ,NULL MaterialMasterId
-						,IsNULL(IR.IsNonCreditable,0) IsNonCreditable
-						, 0 TaxAmount
-						,0 ServiceCharge
-						,0 ServiceTax
-						,NULL AS PORowId
-					,IR.PartyId ,P.Code,IR.InvoicingPartyPlantId,PP.UserName InvoicingPartyPlant
-						,IR.DeliveryPartyPlantId,PPD.UserName DeliveryPartyPlant
-						,Null LotNo , Null QualityStatus , 0 GrossAmount ,0 DiscountAmount
-					,NULL [Description]
-					,IR.PartyType
+					,RCM= CASE When IR.IsTaxApplicable=0 Then 'No' Else 'Yes' END
+					 ,NULL MaterialMasterId ,IsNULL(IR.IsNonCreditable,0) IsNonCreditable
+						
 			from trn.InventoryService AS ISs
 			LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 			left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=ISs.InventoryReceiveId
-			--left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=ISs.InventoryReceiveId
 			LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
+			LEFT JOIN SCS.Currency AS C ON C.Id=IR.CurrencyId
 			LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Vendor' AND cp.PlantId=IR.PlantId
-					LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Vendor'
+			LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Vendor'
 			LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
 			LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
 			LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
-			 
 			LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
 			LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
 			LEFT JOIN EmployeeInformation EI ON EI.SystemId=IR.EmployeeId
@@ -4059,70 +3900,49 @@ namespace Aplos.MaterialManagement
 						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
 						left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 						WHERE B.Code='CGST'  
-						--Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
 						) TAxInfo	ON TAxInfo.InventoryServiceId=ISs.Id AND TAxInfo.InventoryServiceId IS NOT NULL
-
 			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount,HS.Code HSCode 
 			FROM [TRN].[InventoryReceiveTax] A
 						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
 						left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 						WHERE B.Code='IGST' and A.InventoryServiceId IS NOT NULL --Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
-
 						) TAxInfo1	ON TAxInfo1.InventoryServiceId=ISs.Id AND TAxInfo1.InventoryServiceId IS NOT NULL 
-							  		 
 			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount,HS.Code HSCode 
 			FROM [TRN].[InventoryReceiveTax] A
 						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
 						left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 						WHERE B.Code='SGST' and A.InventoryServiceId IS NOT NULL --Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
-								
-
 						) TAxInfo2	ON TAxInfo2.InventoryServiceId=ISs.Id AND TAxInfo2.InventoryServiceId IS NOT NULL
-
 			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
 						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
 						WHERE B.Code='TDS' and A.InventoryServiceId IS NOT NULL --Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
-								
 						) TAxInfo3	ON TAxInfo3.InventoryServiceId=ISs.Id AND TAxInfo3.InventoryServiceId IS NOT NULL
-
-
-							
 			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
 						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 						WHERE B.Code='VAT' and A.InventoryServiceId IS NOT NULL --Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
-								
 			) TAxInfo4 ON TAxInfo4.InventoryServiceId=ISs.Id AND TAxInfo4.InventoryServiceId IS NOT NULL
-
 			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
 						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 						WHERE B.Code='AIT' and A.InventoryServiceId IS NOT NULL --Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
-							
 			) TAxInfo5 ON TAxInfo5.InventoryServiceId=ISs.Id AND TAxInfo5.InventoryServiceId IS NOT NULL
 			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
 						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 						WHERE B.Code='TCS' and A.InventoryServiceId IS NOT NULL --Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
-								
 			) TAxInfo6 ON TAxInfo6.InventoryServiceId=ISs.Id AND TAxInfo6.InventoryServiceId IS NOT NULL
-          
             LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
 						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 						WHERE B.Code='TCS' and A.InventoryServiceId IS NOT NULL  
-								
 			) TAxInfo7 ON TAxInfo7.InventoryServiceId=ISs.Id AND TAxInfo7.InventoryServiceId IS NOT NULL
 			 LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
 						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 						WHERE B.Code='Mandi Tax' and A.InventoryServiceId IS NOT NULL  
-								
 			) TAxInfo8 ON TAxInfo8.InventoryServiceId=ISs.Id AND TAxInfo8.InventoryServiceId IS NOT NULL
 			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
 						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 						WHERE B.Code='Nirasrit T' and A.InventoryServiceId IS NOT NULL 
-								
 			) TAxInfo9 ON TAxInfo9.InventoryServiceId=ISs.Id AND TAxInfo9.InventoryServiceId IS NOT NULL
-	               
 			LEFT JOIN trn.GateEntry  GE ON GE.Id=Ir.GateEntryNo					
 			LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=GE.PlantWiseGateId
-			--Left JOIN [dbo].[Contract] C On C.Id=IR.ContractId
 			where  IR.PlantId='" + plantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'  --and IR.Id='20211740'
 			--AND IRT.InventoryServiceId is not null
 			--AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYPO' AND IR.GRNType<>'InventorySalesReturn'
@@ -4941,7 +4761,12 @@ namespace Aplos.MaterialManagement
                 ROW = 6; int COL = 1;
                 #region columns
 
-                sheet[ROW, COL].Text = "Party";
+                sheet[ROW, COL].Text = "PartyId";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int ColPartyId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PartyName";
                 sheet[ROW, COL].ColumnWidth = 14;
                 int ColPartyName = COL;
                 COL++;
@@ -4951,44 +4776,106 @@ namespace Aplos.MaterialManagement
                 int ColPartyCode = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Invoicing Party Plant";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int ColInvoicingPartyPlant = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Delivery Party Plant";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int ColDeliveryPartyPlant = COL;
-                COL++;
 
                 sheet[ROW, COL].Text = "Tax ID";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColTaxID = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Employee";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int ColEmployee = COL;
+                sheet[ROW, COL].Text = "Currency";
+                sheet[ROW, COL].ColumnWidth = 9;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColBaseCurrency = COL;
                 COL++;
+                sheet[ROW, COL].Text = "Total Invoice Amount";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColTotalMaterialBooksCurrencyAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Base Amount";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColBaseAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Total Tax Amount";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColTotalTaxAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Service Charges";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColTotalServiceCharges = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Service Charges Tax";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColTotalServiceChargesTax = COL;
+                COL++;
+
+
+                sheet[ROW, COL].Text = "CGST";
+                sheet[ROW, COL].ColumnWidth = 9;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColCGST = COL;
+                COL++;
+                 
+                sheet[ROW, COL].Text = "SGST";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColSGST = COL;
+                COL++;
+ 
+
+                sheet[ROW, COL].Text = "IGST";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColIGST = COL;
+                COL++;
+                 
+                sheet[ROW, COL].Text = "TDS";
+                sheet[ROW, COL].ColumnWidth = 9;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColTDS = COL;
+                COL++;
+                 
+
+                sheet[ROW, COL].Text = "TCS";
+                sheet[ROW, COL].ColumnWidth = 9;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColMaterialTCS = COL;
+                COL++;
+                  
 
                 sheet[ROW, COL].Text = "GRN No.";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int ColGRNNo = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "GRN Date";
-                sheet[ROW, COL].ColumnWidth = 28;
+
+                sheet[ROW, COL].Text = "GRN Row ID";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int ColGRNRowID = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Gate Entry No";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColGateEntryNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Gate Entry Date";
+                sheet[ROW, COL].ColumnWidth = 13;
                 int ColGRNEntryDate = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Voucher No.";
-                sheet[ROW, COL].ColumnWidth = 14;
-                int ColVoucherNo = COL;
+                sheet[ROW, COL].Text = "GRNType";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColGRNType = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Posting Date";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int ColPostingDate = COL;
+                
+                sheet[ROW, COL].Text = "Employee";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColEmployee = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Doc Ref No";
@@ -5001,14 +4888,280 @@ namespace Aplos.MaterialManagement
                 int ColDocRefDate = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Gate Entry No";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int ColGateEntryNo = COL;
+                sheet[ROW, COL].Text = "GRNInvoiceDateDiffrence";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int ColGRNInvDateDiff = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Gate Name";
+
+                sheet[ROW, COL].Text = "Material Type";
                 sheet[ROW, COL].ColumnWidth = 10;
-                int ColGateName = COL;
+                int ColMaterialType = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Material Group";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColMaterialGroup = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "MaterialCategory";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColMaterialCategory = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Material";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColMaterial = COL;
+                COL++;
+
+
+                sheet[ROW, COL].Text = "Article";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColArticle = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Service Name";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColServiceName = COL;
+                COL++;
+
+
+                sheet[ROW, COL].Text = "SKU1";
+                sheet[ROW, COL].ColumnWidth = 28;
+                int ColSKU1 = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "SKU2";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int ColSKU2 = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "HSN No";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColHSNNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Transaction Qty";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColTransactionQty = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Trn UoM";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColTrnUoM = COL;
+                COL++;
+
+
+                sheet[ROW, COL].Text = "Base Qty";
+                sheet[ROW, COL].ColumnWidth = 14;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColBaseQty = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Base UoM";
+                sheet[ROW, COL].ColumnWidth = 14;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColBaseUoM = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Base Issue Qty";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColBaseIssueQty = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Purchase Return Qty";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColPurchaseReturnQty = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Issue Return Qty";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColIssueReturnQty = COL;
+                COL++;
+
+
+                sheet[ROW, COL].Text = "MaterialTranRate";
+                sheet[ROW, COL].ColumnWidth = 9;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColTransactionRate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Is Asset";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColMMIsAsset = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "GRN Asset";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColGRNIsAsset = COL;
+                COL++;
+
+
+                sheet[ROW, COL].Text = "Storage Location";
+                sheet[ROW, COL].ColumnWidth = 14;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColStorageLocation = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Shortage Qty";
+                sheet[ROW, COL].ColumnWidth = 9;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColShortageQty = COL;
+                COL++;
+
+
+
+                sheet[ROW, COL].Text = "Shortage Value";
+                sheet[ROW, COL].ColumnWidth = 9;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColShortageValue = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Rejection Qty";
+                sheet[ROW, COL].ColumnWidth = 9;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColRejectionQty = COL;
+                COL++;
+
+
+                sheet[ROW, COL].Text = "Rejection Value";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColRejectionValue = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Approved Qty";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColApprovedQty = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Added By";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int ColAddedBy = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "GRNCheckStatus";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int ColGRNCheckStatus = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Check BY";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int ColCheckBy = COL;
+                COL++;
+
+
+                sheet[ROW, COL].Text = "AuthorizedBy";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int ColAuthorizedBy = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Posted";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColPosted = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PostedBy";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int ColPostedBy = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Voucher No";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int ColVoucherNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Posting Date";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColPostingDate = COL;
+                COL++;
+
+
+
+                sheet[ROW, COL].Text = " GL Code";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColDrGLCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = " GL";
+                sheet[ROW, COL].ColumnWidth = 9;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColDrGL = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = " BudgetRefNo";
+                sheet[ROW, COL].ColumnWidth = 14;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColDrBudgetRefNo = COL;
+                COL++;
+
+
+                sheet[ROW, COL].Text = " Budget";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int ColDrBudget = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Activity";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColDrActivity = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Cr GL Code";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColCrLCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Cr GL";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColCrGL = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Cr Budget Code";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColCrBudgetCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Cr Budget";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColCrBudget = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Cr Activity";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColCrActivity = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PO";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColPOId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Refference No";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColPOREfference = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Contract Id";
+                sheet[ROW, COL].ColumnWidth = 28;
+                int ColContractId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Contract No";
+                sheet[ROW, COL].ColumnWidth = 28;
+                int ColContractNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PurchaseLCId";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColLCRef = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "LCANo";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColLCANo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "LCDate";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColLCDate = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Party Group";
@@ -5042,430 +5195,11 @@ namespace Aplos.MaterialManagement
                 COL++;
 
 
-                sheet[ROW, COL].Text = "GRN Row ID";
-                sheet[ROW, COL].ColumnWidth = 14;
-                int ColGRNRowID = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Material Type";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int ColMaterialType = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Material Group";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int ColMaterialGroup = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "MaterialCategory";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int ColMaterialCategory = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Material";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int ColMaterial = COL;
-                COL++;
-
-
-                sheet[ROW, COL].Text = "Article";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColArticle = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "MMIs Asset";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int ColMMIsAsset = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "GRNIs Asset";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int ColGRNIsAsset = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "SKU1";
-                sheet[ROW, COL].ColumnWidth = 28;
-                int ColSKU1 = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "SKU2";
-                sheet[ROW, COL].ColumnWidth = 14;
-                int ColSKU2 = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "SKU3";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int ColSKU3 = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Description";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int ColDescription = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "HSN No";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int ColHSNNo = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Trn UoM";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int ColTrnUoM = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Transaction Qty";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int ColTransactionQty = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Base UoM";
-                sheet[ROW, COL].ColumnWidth = 14;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColBaseUoM = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Base Qty";
-                sheet[ROW, COL].ColumnWidth = 14;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColBaseQty = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Base Currency";
-                sheet[ROW, COL].ColumnWidth = 9;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColBaseCurrency = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Transaction Rate";
-                sheet[ROW, COL].ColumnWidth = 9;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColTransactionRate = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Gross Amount";
-                sheet[ROW, COL].ColumnWidth = 9;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColGrossAmount = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Discount Amount";
-                sheet[ROW, COL].ColumnWidth = 9;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColDiscountAmount = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Base Amount";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int ColBaseAmount = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Total Base Amount";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int ColTotalBaseAmount = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Total Material Books Currency Amount";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColTotalMaterialBooksCurrencyAmount = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Dr GL Code";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int ColDrGLCode = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Dr GL";
-                sheet[ROW, COL].ColumnWidth = 9;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColDrGL = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Dr Budget Code";
-                sheet[ROW, COL].ColumnWidth = 14;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColDrBudgetCode = COL;
-                COL++;
-
-
-                sheet[ROW, COL].Text = "Dr Budget";
-                sheet[ROW, COL].ColumnWidth = 14;
-                int ColDrBudget = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Dr Activity";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int ColDrActivity = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Cr GL Code";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int ColCrLCode = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Cr GL";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int ColCrGL = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Cr Budget Code";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColCrBudgetCode = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Cr Budget";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int ColCrBudget = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Cr Activity";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int ColCrActivity = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Lot No";
-                sheet[ROW, COL].ColumnWidth = 28;
-                int ColLotNo = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Quality Status";
-                sheet[ROW, COL].ColumnWidth = 14;
-                int ColQualityStatus = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "PO No";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int ColPONo = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Credtible Status";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int ColCredtibleStatus = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Trn Currency Base Rate";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int ColTrnCurrencyBaseRate = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Books Currency Base Rate";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int ColBooksCurrencyBaseRate = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "PO Id";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int ColPOId = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Storage Location";
-                sheet[ROW, COL].ColumnWidth = 14;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColStorageLocation = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Shortage Qty";
-                sheet[ROW, COL].ColumnWidth = 9;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColShortageQty = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Shortage Rate Percent";
-                sheet[ROW, COL].ColumnWidth = 9;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColShortageRatePercent = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Shortage Value";
-                sheet[ROW, COL].ColumnWidth = 9;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColShortageValue = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Rejection Qty";
-                sheet[ROW, COL].ColumnWidth = 9;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColRejectionQty = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Reject Rate Per";
-                sheet[ROW, COL].ColumnWidth = 14;
-                int ColRejectRatePer = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Rejection Value";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int ColRejectionValue = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Rejection Clam";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int ColRejectionClam = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Approved Qty";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int ColApprovedQty = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Posted By";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColPostedBy = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "PO REfference";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int ColPOREfference = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "LC Ref";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int ColLCRef = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Contract No";
-                sheet[ROW, COL].ColumnWidth = 28;
-                int ColContractNo = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Issue Qty";
-                sheet[ROW, COL].ColumnWidth = 14;
-                int ColIssueQty = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Base Issue Qty";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int ColBaseIssueQty = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Purchase Return Qty";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int ColPurchaseReturnQty = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Issue Return Qty";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int ColIssueReturnQty = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Reduction By Adjustment Qty";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int ColReductionByAdjustmentQty = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Inventory Sales Qty";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int ColInventorySalesQty = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Inventory Scrap Qty";
-                sheet[ROW, COL].ColumnWidth = 14;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColInventoryScrapQty = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Inventory Transfer Qty";
-                sheet[ROW, COL].ColumnWidth = 9;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColInventoryTransferQty = COL;
-                COL++;
-
                 sheet[ROW, COL].Text = "RCM";
                 sheet[ROW, COL].ColumnWidth = 9;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColRCM = COL;
                 COL++;
-
-                sheet[ROW, COL].Text = "CGST";
-                sheet[ROW, COL].ColumnWidth = 9;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColCGST = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "CGST Tax (%)";
-                sheet[ROW, COL].ColumnWidth = 9;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColCGSTTaxPercentage = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "SGST";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int ColSGST = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "SGST Tax (%)";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int ColSGSTTaxPercentage = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "IGST";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColIGST = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "IGST Tax (%)";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int ColIGSTTaxPercentage = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "TDS";
-                sheet[ROW, COL].ColumnWidth = 9;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColTDS = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "TDS Tax (%)";
-                sheet[ROW, COL].ColumnWidth = 14;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColTDSTaxPercentage = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Material TCS";
-                sheet[ROW, COL].ColumnWidth = 9;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColMaterialTCS = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Material TCS Tax (%)";
-                sheet[ROW, COL].ColumnWidth = 9;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColMaterialTCSTaxPercentage = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "GRN TCS";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int ColGRNTCS = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "GRN TCS Tax (%)";
-                sheet[ROW, COL].ColumnWidth = 13;
-                int ColGRNTCSTaxPercentage = COL;
-                //COL++;
-
-                //sheet[ROW, COL].Text = "MandiTax";
-                //sheet[ROW, COL].ColumnWidth = 12;
-                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int ColMandiTax = COL;
-                //COL++;
-
-                //sheet[ROW, COL].Text = "MandiTax Tax (%)";
-                //sheet[ROW, COL].ColumnWidth = 9;
-                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int ColMandiTaxTaxPercentage = COL;
-                //COL++;
-
-                //            sheet[ROW, COL].Text = "Nirasrit Tax";
-                //sheet[ROW, COL].ColumnWidth = 14;
-                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int ColNirasritTax = COL;
-                //COL++;
-
-                //sheet[ROW, COL].Text = "NirasritTax Tax (%)";
-                //sheet[ROW, COL].ColumnWidth = 14;
-                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int ColNirasritTaxTaxPercentage = COL;
-
 
                 #endregion columns
                 int endCol = COL;
@@ -5483,54 +5217,67 @@ namespace Aplos.MaterialManagement
 
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
+                    sheet[ROW, ColPartyId].Text = data.Rows[i]["PartyId"].ToString();
                     sheet[ROW, ColPartyName].Text = data.Rows[i]["PartyName"].ToString();
-                    sheet[ROW, ColPartyCode].Text = data.Rows[i]["Code"].ToString();
-                    sheet[ROW, ColInvoicingPartyPlant].Text = data.Rows[i]["InvoicingPartyPlant"].ToString();
-                    sheet[ROW, ColDeliveryPartyPlant].Text = data.Rows[i]["DeliveryPartyPlant"].ToString();
-                    sheet[ROW, ColTaxID].Text = data.Rows[i]["GSTINNo"].ToString();
-                    sheet[ROW, ColEmployee].Text = data.Rows[i]["FirstName"].ToString();
+                    sheet[ROW, ColPartyCode].Text = data.Rows[i]["PartyCode"].ToString();
+                    sheet[ROW, ColTaxID].Text = data.Rows[i]["TaxID"].ToString();
+                    sheet[ROW, ColBaseCurrency].Text = data.Rows[i]["Currency"].ToString();
+                    sheet[ROW, ColTotalMaterialBooksCurrencyAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalInvoiceAmount"].ToString());
+                    sheet[ROW, ColBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["BaseAmount"].ToString());
+                    sheet[ROW, ColTotalTaxAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalTaxAmount"].ToString());
+                    sheet[ROW, ColTotalServiceCharges].Number = clsStaticInfo.dbl(data.Rows[i]["ServiceCharge"].ToString());
+                    sheet[ROW, ColTotalServiceChargesTax].Number = clsStaticInfo.dbl(data.Rows[i]["ServiceTax"].ToString());
+                    sheet[ROW, ColCGST].Number = clsStaticInfo.dbl(data.Rows[i]["CGST"].ToString());
+                    sheet[ROW, ColSGST].Number = clsStaticInfo.dbl(data.Rows[i]["SGST"].ToString());
+                    sheet[ROW, ColIGST].Number = clsStaticInfo.dbl(data.Rows[i]["IGST"].ToString());
+                    sheet[ROW, ColTDS].Number = clsStaticInfo.dbl(data.Rows[i]["TDS"].ToString());
+                    sheet[ROW, ColMaterialTCS].Number = clsStaticInfo.dbl(data.Rows[i]["TCS"].ToString());
                     sheet[ROW, ColGRNNo].Text = data.Rows[i]["GRNNo"].ToString();
+                    sheet[ROW, ColGRNRowID].Text = data.Rows[i]["GRNRowId"].ToString();
+                    sheet[ROW, ColGateEntryNo].Text = data.Rows[i]["GateEntryNo"].ToString();
                     sheet[ROW, ColGRNEntryDate].Text = data.Rows[i]["GRNEntryDate"].ToString();
-                    sheet[ROW, ColVoucherNo].Text = data.Rows[i]["VoucherNo"].ToString();
-                    sheet[ROW, ColPostingDate].Text = data.Rows[i]["PostingDate"].ToString();
+                    sheet[ROW, ColGRNType].Text = data.Rows[i]["GRNType"].ToString();
+                    sheet[ROW, ColEmployee].Text = data.Rows[i]["EmployeeName"].ToString();
                     sheet[ROW, ColDocRefNo].Text = data.Rows[i]["DocRefNo"].ToString();
                     sheet[ROW, ColDocRefDate].Text = data.Rows[i]["DocDate"].ToString();
-                    sheet[ROW, ColGateEntryNo].Text = data.Rows[i]["GateEntryNo"].ToString();
-                    sheet[ROW, ColGateName].Text = data.Rows[i]["GateName"].ToString();
-                    sheet[ROW, ColPartyGroup].Text = data.Rows[i]["PartyGroup"].ToString();
-                    sheet[ROW, ColPartyCategory].Text = data.Rows[i]["PartyCategory"].ToString();
-                    sheet[ROW, ColPartySubCategory].Text = data.Rows[i]["PartySubCategory"].ToString();
-                    sheet[ROW, ColPartyType].Text = data.Rows[i]["PartyType"].ToString();
-                    sheet[ROW, ColPartyAccountGroup].Text = data.Rows[i]["PartyAccountGroup"].ToString();
-
-
-                    sheet[ROW, ColGRNRowID].Text = data.Rows[i]["GrnDetailId"].ToString();
+                    sheet[ROW, ColGRNInvDateDiff].Text = data.Rows[i]["GrnInvoiceDateDifference"].ToString();
                     sheet[ROW, ColMaterialType].Text = data.Rows[i]["MaterialType"].ToString();
                     sheet[ROW, ColMaterialGroup].Text = data.Rows[i]["MaterialGroupMasterName"].ToString();
                     sheet[ROW, ColMaterialCategory].Text = data.Rows[i]["MaterialCategory"].ToString();
                     sheet[ROW, ColMaterial].Text = data.Rows[i]["MaterialMasterName"].ToString();
                     sheet[ROW, ColArticle].Text = data.Rows[i]["ArticleName"].ToString();
-                    sheet[ROW, ColMMIsAsset].Text = data.Rows[i]["IsAsset"].ToString();
-                    sheet[ROW, ColGRNIsAsset].Text = data.Rows[i]["GRNAsset"].ToString();
+                    
                     sheet[ROW, ColSKU1].Text = data.Rows[i]["FirstCharacteristicsValue"].ToString();
                     sheet[ROW, ColSKU2].Text = data.Rows[i]["SecondCharacteristicsValue"].ToString();
-                    sheet[ROW, ColSKU3].Text = data.Rows[i]["ThirdCharacteristicsValue"].ToString();
-                    sheet[ROW, ColDescription].Text = data.Rows[i]["Description"].ToString();
+                    sheet[ROW, ColServiceName].Text = data.Rows[i]["ServiceName"].ToString();
                     sheet[ROW, ColHSNNo].Text = data.Rows[i]["HSNCode"].ToString();
-                    sheet[ROW, ColTrnUoM].Text = data.Rows[i]["UOM"].ToString();
                     sheet[ROW, ColTransactionQty].Number = clsStaticInfo.dbl(data.Rows[i]["TransactionQty"].ToString());
-                    sheet[ROW, ColBaseUoM].Text = data.Rows[i]["BaseUoM"].ToString();
+                    sheet[ROW, ColTrnUoM].Text = data.Rows[i]["UOM"].ToString();
                     sheet[ROW, ColBaseQty].Number = clsStaticInfo.dbl(data.Rows[i]["BaseQty"].ToString());
-                    sheet[ROW, ColBaseCurrency].Text = data.Rows[i]["CurrencyName"].ToString();
-                    sheet[ROW, ColTransactionRate].Number = clsStaticInfo.dbl(data.Rows[i]["MaterialTranRate"].ToString());
-                    sheet[ROW, ColGrossAmount].Number = clsStaticInfo.dbl(data.Rows[i]["GrossAmount"].ToString());
-                    sheet[ROW, ColDiscountAmount].Number = clsStaticInfo.dbl(data.Rows[i]["DiscountAmount"].ToString());
-                    sheet[ROW, ColBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalMaterialTranAmount"].ToString());
-                    sheet[ROW, ColTotalBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["MaterialTranAmount"].ToString());
-                    sheet[ROW, ColTotalMaterialBooksCurrencyAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalMaterialBaseAmount"].ToString());
+                    sheet[ROW, ColBaseUoM].Text = data.Rows[i]["BaseUoM"].ToString();
+                    sheet[ROW, ColBaseIssueQty].Number = clsStaticInfo.dbl(data.Rows[i]["BaseIssueQty"].ToString());
+                    sheet[ROW, ColPurchaseReturnQty].Number = clsStaticInfo.dbl(data.Rows[i]["PurchaseReturnQty"].ToString());
+                    sheet[ROW, ColIssueReturnQty].Number = clsStaticInfo.dbl(data.Rows[i]["IssueReturnQty"].ToString());
+                    sheet[ROW, ColMMIsAsset].Text = data.Rows[i]["IsAsset"].ToString();
+                    sheet[ROW, ColGRNIsAsset].Text = data.Rows[i]["GRNAsset"].ToString();
+                    sheet[ROW, ColStorageLocation].Text = data.Rows[i]["StorageLocation"].ToString();
+                    sheet[ROW, ColShortageQty].Number = clsStaticInfo.dbl(data.Rows[i]["ShortageQty"].ToString());
+                    sheet[ROW, ColShortageValue].Number = clsStaticInfo.dbl(data.Rows[i]["ShortageValue"].ToString());
+                    sheet[ROW, ColRejectionQty].Number = clsStaticInfo.dbl(data.Rows[i]["RejectionQty"].ToString());
+                    sheet[ROW, ColRejectionValue].Number = clsStaticInfo.dbl(data.Rows[i]["RejectValue"].ToString());
+                    sheet[ROW, ColApprovedQty].Number = clsStaticInfo.dbl(data.Rows[i]["ApprovedQty"].ToString());
+                    sheet[ROW, ColAddedBy].Text = data.Rows[i]["AddedBy"].ToString();
+                    sheet[ROW, ColGRNCheckStatus].Text = data.Rows[i]["GRNCheckStatus"].ToString();
+                    sheet[ROW, ColCheckBy].Text = data.Rows[i]["CheckedBY"].ToString();
+                    sheet[ROW, ColAuthorizedBy].Text = data.Rows[i]["AuthorizedBy"].ToString();
+                    sheet[ROW, ColPostedBy].Text = data.Rows[i]["PostedBy"].ToString();
+                    sheet[ROW, ColPosted].Text = data.Rows[i]["Posted"].ToString();
+
+
+                    sheet[ROW, ColVoucherNo].Text = data.Rows[i]["VoucherNo"].ToString();
+                    sheet[ROW, ColPostingDate].Text = data.Rows[i]["PostingDate"].ToString();
                     sheet[ROW, ColDrGLCode].Text = data.Rows[i]["GLCode"].ToString();
                     sheet[ROW, ColDrGL].Text = data.Rows[i]["GL"].ToString();
-                    sheet[ROW, ColDrBudgetCode].Text = data.Rows[i]["BudgetrefNo"].ToString();
                     sheet[ROW, ColDrBudget].Text = data.Rows[i]["Budget"].ToString();
 
 
@@ -5541,56 +5288,21 @@ namespace Aplos.MaterialManagement
                     sheet[ROW, ColCrBudgetCode].Text = data.Rows[i]["CBudgetrefNo"].ToString();
                     sheet[ROW, ColCrBudget].Text = data.Rows[i]["CBUdget"].ToString();
                     sheet[ROW, ColCrActivity].Text = data.Rows[i]["CActivity"].ToString();
-                    sheet[ROW, ColLotNo].Text = data.Rows[i]["LotNo"].ToString();
-                    sheet[ROW, ColQualityStatus].Text = data.Rows[i]["QualityStatus"].ToString();
-                    sheet[ROW, ColPONo].Text = data.Rows[i]["POId"].ToString();
-                    sheet[ROW, ColCredtibleStatus].Text = data.Rows[i]["CredtibleStatus"].ToString();
-
-                    sheet[ROW, ColTrnCurrencyBaseRate].Number = clsStaticInfo.dbl(data.Rows[i]["TrnCurrencyBaseRate"].ToString());
-                    sheet[ROW, ColBooksCurrencyBaseRate].Text = data.Rows[i]["BooksCurrencyBaseRate"].ToString();
                     sheet[ROW, ColPOId].Text = data.Rows[i]["POId"].ToString();
-                    sheet[ROW, ColStorageLocation].Text = data.Rows[i]["StorageLocation"].ToString();
-                    sheet[ROW, ColShortageQty].Number = clsStaticInfo.dbl(data.Rows[i]["ShortageQty"].ToString());
-                    sheet[ROW, ColShortageRatePercent].Number = clsStaticInfo.dbl(data.Rows[i]["ShortageRatePercent"].ToString());
-                    sheet[ROW, ColShortageValue].Number = clsStaticInfo.dbl(data.Rows[i]["ShortageValue"].ToString());
-                    sheet[ROW, ColRejectionQty].Number = clsStaticInfo.dbl(data.Rows[i]["RejectionQty"].ToString());
-                    sheet[ROW, ColRejectRatePer].Number = clsStaticInfo.dbl(data.Rows[i]["RejectRatePercent"].ToString());
-                    sheet[ROW, ColRejectionValue].Number = clsStaticInfo.dbl(data.Rows[i]["RejectValue"].ToString());
-                    sheet[ROW, ColRejectionClam].Number = clsStaticInfo.dbl(data.Rows[i]["RejectClamPercent"].ToString());
-                    sheet[ROW, ColApprovedQty].Number = clsStaticInfo.dbl(data.Rows[i]["ApprovedQty"].ToString());
-                    sheet[ROW, ColPostedBy].Text = data.Rows[i]["PostedBy"].ToString();
+
+
                     sheet[ROW, ColPOREfference].Text = data.Rows[i]["RefferenceNo"].ToString();
                     sheet[ROW, ColLCRef].Text = data.Rows[i]["LCANo"].ToString();
                     sheet[ROW, ColContractNo].Text = data.Rows[i]["ContractNo"].ToString();
 
 
-                    sheet[ROW, ColIssueQty].Number = clsStaticInfo.dbl(data.Rows[i]["IssueQty"].ToString());
-                    sheet[ROW, ColBaseIssueQty].Number = clsStaticInfo.dbl(data.Rows[i]["BaseIssueQty"].ToString());
-                    sheet[ROW, ColPurchaseReturnQty].Number = clsStaticInfo.dbl(data.Rows[i]["PurchaseReturnQty"].ToString());
-                    sheet[ROW, ColIssueReturnQty].Number = clsStaticInfo.dbl(data.Rows[i]["IssueReturnQty"].ToString());
-                    sheet[ROW, ColReductionByAdjustmentQty].Number = clsStaticInfo.dbl(data.Rows[i]["ReductionByAdjustmentQty"].ToString());
-                    sheet[ROW, ColInventorySalesQty].Number = clsStaticInfo.dbl(data.Rows[i]["InventorySalesQty"].ToString());
-                    sheet[ROW, ColInventoryScrapQty].Number = clsStaticInfo.dbl(data.Rows[i]["InventoryScrapQty"].ToString());
-                    sheet[ROW, ColInventoryTransferQty].Number = clsStaticInfo.dbl(data.Rows[i]["InventoryTransferQty"].ToString());
+                    sheet[ROW, ColPartyGroup].Text = data.Rows[i]["PartyGroup"].ToString();
+                    sheet[ROW, ColPartyCategory].Text = data.Rows[i]["PartyCategory"].ToString();
+                    sheet[ROW, ColPartySubCategory].Text = data.Rows[i]["PartySubCategory"].ToString();
+                    sheet[ROW, ColPartyAccountGroup].Text = data.Rows[i]["PartyAccountGroup"].ToString();
 
                     sheet[ROW, ColRCM].Number = clsStaticInfo.dbl(data.Rows[i]["RCM"].ToString());
-                    sheet[ROW, ColCGST].Number = clsStaticInfo.dbl(data.Rows[i]["CGST"].ToString());
-                    sheet[ROW, ColCGSTTaxPercentage].Number = clsStaticInfo.dbl(data.Rows[i]["CGSTTaxPercentage"].ToString());
-                    sheet[ROW, ColSGST].Number = clsStaticInfo.dbl(data.Rows[i]["SGST"].ToString());
-                    sheet[ROW, ColSGSTTaxPercentage].Number = clsStaticInfo.dbl(data.Rows[i]["SGSTTaxPercentage"].ToString());
-                    sheet[ROW, ColIGST].Number = clsStaticInfo.dbl(data.Rows[i]["IGST"].ToString());
-                    sheet[ROW, ColIGSTTaxPercentage].Number = clsStaticInfo.dbl(data.Rows[i]["IGSTTaxPercentage"].ToString());
-                    sheet[ROW, ColTDS].Number = clsStaticInfo.dbl(data.Rows[i]["TDS"].ToString());
-                    sheet[ROW, ColTDSTaxPercentage].Number = clsStaticInfo.dbl(data.Rows[i]["TDSTaxPercentage"].ToString());
-                    sheet[ROW, ColMaterialTCS].Number = clsStaticInfo.dbl(data.Rows[i]["MaterialTCS"].ToString());
-                    sheet[ROW, ColMaterialTCSTaxPercentage].Number = clsStaticInfo.dbl(data.Rows[i]["MaterialTCSTaxPercentage"].ToString());
-                    sheet[ROW, ColGRNTCS].Number = clsStaticInfo.dbl(data.Rows[i]["GRNTCS"].ToString());
-                    sheet[ROW, ColGRNTCSTaxPercentage].Number = clsStaticInfo.dbl(data.Rows[i]["GRNTCSTaxPercentage"].ToString());
-                    //sheet[ROW, ColMandiTax].Number = clsStaticInfo.dbl(data.Rows[i]["MandiTax"].ToString());
-                    //sheet[ROW, ColMandiTaxTaxPercentage].Number = clsStaticInfo.dbl(data.Rows[i]["MandiTaxPercentage"].ToString());
-                    //sheet[ROW, ColNirasritTax].Number = clsStaticInfo.dbl(data.Rows[i]["NirasritTax"].ToString());
-                    //sheet[ROW, ColNirasritTaxTaxPercentage].Number = clsStaticInfo.dbl(data.Rows[i]["NirasritTaxPercentage"].ToString());
-
+                    
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -5611,20 +5323,20 @@ namespace Aplos.MaterialManagement
                 sheet[ROW, ColBaseQty].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColBaseQty) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(ColBaseQty) + (ROW - 1).ToString() + ")";
                 sheet[ROW, ColBaseQty].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                sheet[ROW, ColGrossAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColGrossAmount) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(ColGrossAmount) + (ROW - 1).ToString() + ")";
-                sheet[ROW, ColGrossAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                //sheet[ROW, ColGrossAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColGrossAmount) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(ColGrossAmount) + (ROW - 1).ToString() + ")";
+                //sheet[ROW, ColGrossAmount].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                sheet[ROW, ColDiscountAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColDiscountAmount) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(ColDiscountAmount) + (ROW - 1).ToString() + ")";
-                sheet[ROW, ColDiscountAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                //sheet[ROW, ColDiscountAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColDiscountAmount) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(ColDiscountAmount) + (ROW - 1).ToString() + ")";
+                //sheet[ROW, ColDiscountAmount].NumberFormat = "#,##0.00;(#,##0.00)";
 
                 sheet[ROW, ColBaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColBaseAmount) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(ColBaseAmount) + (ROW - 1).ToString() + ")";
                 sheet[ROW, ColBaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
                 sheet[ROW, ColBaseAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
 
-                sheet[ROW, ColTotalBaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColTotalBaseAmount) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(ColTotalBaseAmount) + (ROW - 1).ToString() + ")";
-                sheet[ROW, ColTotalBaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-                sheet[ROW, ColTotalBaseAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //sheet[ROW, ColTotalBaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColTotalBaseAmount) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(ColTotalBaseAmount) + (ROW - 1).ToString() + ")";
+                //sheet[ROW, ColTotalBaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                //sheet[ROW, ColTotalBaseAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
 
                 sheet[ROW, ColTotalMaterialBooksCurrencyAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColTotalMaterialBooksCurrencyAmount) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(ColTotalMaterialBooksCurrencyAmount) + (ROW - 1).ToString() + ")";
@@ -5647,9 +5359,9 @@ namespace Aplos.MaterialManagement
                 sheet[ROW, ColApprovedQty].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
 
-                sheet[ROW, ColIssueQty].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColIssueQty) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(ColIssueQty) + (ROW - 1).ToString() + ")";
-                sheet[ROW, ColIssueQty].NumberFormat = "#,##0.00;(#,##0.00)";
-                sheet[ROW, ColIssueQty].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //sheet[ROW, ColIssueQty].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColIssueQty) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(ColIssueQty) + (ROW - 1).ToString() + ")";
+                //sheet[ROW, ColIssueQty].NumberFormat = "#,##0.00;(#,##0.00)";
+                //sheet[ROW, ColIssueQty].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 sheet[ROW, ColBaseIssueQty].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColBaseIssueQty) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(ColBaseIssueQty) + (ROW - 1).ToString() + ")";
                 sheet[ROW, ColBaseIssueQty].NumberFormat = "#,##0.00;(#,##0.00)";
@@ -5664,22 +5376,7 @@ namespace Aplos.MaterialManagement
                 sheet[ROW, ColIssueReturnQty].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
 
-                sheet[ROW, ColReductionByAdjustmentQty].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColReductionByAdjustmentQty) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(ColReductionByAdjustmentQty) + (ROW - 1).ToString() + ")";
-                sheet[ROW, ColReductionByAdjustmentQty].NumberFormat = "#,##0.00;(#,##0.00)";
-                sheet[ROW, ColReductionByAdjustmentQty].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                sheet[ROW, ColInventorySalesQty].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColInventorySalesQty) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(ColInventorySalesQty) + (ROW - 1).ToString() + ")";
-                sheet[ROW, ColInventorySalesQty].NumberFormat = "#,##0.00;(#,##0.00)";
-                sheet[ROW, ColInventorySalesQty].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                sheet[ROW, ColInventoryScrapQty].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColInventoryScrapQty) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(ColInventoryScrapQty) + (ROW - 1).ToString() + ")";
-                sheet[ROW, ColInventoryScrapQty].NumberFormat = "#,##0.00;(#,##0.00)";
-                sheet[ROW, ColInventoryScrapQty].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                sheet[ROW, ColInventoryTransferQty].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColInventoryTransferQty) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(ColInventoryTransferQty) + (ROW - 1).ToString() + ")";
-                sheet[ROW, ColInventoryTransferQty].NumberFormat = "#,##0.00;(#,##0.00)";
-                sheet[ROW, ColInventoryTransferQty].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
+                
                 sheet[ROW, ColRCM].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColRCM) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(ColRCM) + (ROW - 1).ToString() + ")";
                 sheet[ROW, ColRCM].NumberFormat = "#,##0.00;(#,##0.00)";
                 sheet[ROW, ColRCM].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -5734,20 +5431,14 @@ namespace Aplos.MaterialManagement
         {
             try
             {
-                var str = @"SELECT X.PartyId,ISNULL(X.PartyName,'') PartyName,ISNULL(X.PartyCode,'') PartyCode,X.Beneficiary,X.GSTINNo TaxID,X.Currency  
-                            ,TotalInvoiceAmount=SUM(X.TotalMaterialBooksCurrencyAmount)+SUM(X.TotalTaxAmount)
-                            ,SUM(X.TotalMaterialBooksCurrencyAmount) BaseAmount,SUM(X.TotalTaxAmount) TotalTaxAmount ,SUM(X.WrittenOffAmount) Payment
-                            ,Balance=SUM(X.TotalMaterialBooksCurrencyAmount)+SUM(X.TotalTaxAmount)-SUM(X.WrittenOffAmount)
-							,X.PartyGroup,X.PartyCategory,X.PartySubCategory,X.PartyType,X.PartyAccountGroup
-                            FROM 
-                            (select  ir.PartyId,PartyName=CASE WHEN ir.PartyId<>'' THEN p.UserName ELSE EI.EmployeeName END
-							,Beneficiary=CASE WHEN IR.PartyId<>'' THEN 'Vendor' ELSE 'Employee' END 
-							,P.Code PartyCode,isnull(PP.GSTIN,'') GSTINNo, SUM(IRD.MaterialTranAmount) MaterialTranAmount
-						                            , SUM(IRD.TotalMaterialTranAmount)TotalMaterialTranAmount,C.Code Currency 
-													,SUM(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate) TotalMaterialBooksCurrencyAmount
-						                            , SUM(IRD.TotalTaxAmount+IRD.ChargesTaxTranAmount*IR.ToCurrencyRate)  TotalTaxAmount
-													,ISNULL(inv.WrittenOffAmount,0) WrittenOffAmount
-													,Balance=SUM(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate)+SUM((IRD.TotalTaxAmount+IRD.ChargesTaxTranAmount)*IR.ToCurrencyRate)-ISNULL(inv.WrittenOffAmount,0)
+                var str = @"  SELECT  ir.PartyId,PartyName=CASE WHEN ir.PartyId<>'' THEN p.UserName ELSE EI.EmployeeName END,P.Code PartyCode
+							,Beneficiary=CASE WHEN IR.PartyId<>'' THEN 'Vendor' ELSE 'Employee' END ,isnull(PP.GSTIN,'') TaxID,C.Code Currency 
+						                            
+													,CONVERT(DECIMAL(15,4),SUM(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate)+SUM(IRD.TotalTaxAmount)+sum(ird.ChargesTaxTranAmount)) TotalInvoiceAmount
+						                            ,CONVERT(DECIMAL(15,4),SUM(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate)) BaseAmount
+													,CONVERT(DECIMAL(15,4),SUM(IRD.TotalTaxAmount+IRD.ChargesTaxTranAmount*IR.ToCurrencyRate))  TotalTaxAmount
+													,CONVERT(DECIMAL(15,4),SUM(ISNULL(inv.WrittenOffAmount,0))) Payment
+													,Balance=CONVERT(DECIMAL(15,4),SUM(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate)+SUM((IRD.TotalTaxAmount+IRD.ChargesTaxTranAmount)*IR.ToCurrencyRate)-SUM(ISNULL(inv.WrittenOffAmount,0)))
 						                            ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,CP.PartyType,PAG.UserName PartyAccountGroup
 						                            FROM [TRN].[InventoryReceiveDetail] IRD 
 						                            JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
@@ -5768,12 +5459,10 @@ namespace Aplos.MaterialManagement
 													LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
 													LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Vendor' AND CP.PlantId=IR.PlantId
 													LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Vendor'
-						                            where   IR.PlantId='" + PlantId + @"' AND convert(Date,IR.GRNDate) BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' 
-                                                AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
+						                            WHERE   IR.PlantId='" + PlantId + @"' AND convert(Date,IR.GRNDate) BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' 
+                                                    AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
 
-						                            GROUP BY  ir.PartyId,inv.WrittenOffAmount,EI.EmployeeName,p.UserName,P.Code,PP.GSTIN,C.Code,PC.UserName,PSC.UserName,PG.UserName,CP.PartyType,PAG.UserName
-                            )X
-                            GROUP BY X.PartyId,X.PartyName,X.Beneficiary,X.PartyCode,X.GSTINNo,X.Currency,X.PartyGroup,X.PartyCategory,X.PartySubCategory,X.PartyType,X.PartyAccountGroup";
+						                            GROUP BY  ir.PartyId,EI.EmployeeName,p.UserName,P.Code,PP.GSTIN,C.Code,PC.UserName,PSC.UserName,PG.UserName,CP.PartyType,PAG.UserName ";
 
                 if (isreport)
                 {
