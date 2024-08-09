@@ -195,6 +195,7 @@
                             <thead>
                                 <tr>
                                     <th>Salary Head</th>
+                                    <th>Accounts Group</th>
                                     <th>GL</th>
                                     <th>Budget</th>
                                     <th>Activity</th>
@@ -205,6 +206,7 @@
                             <tbody>
                                 <tr ng-repeat="x in salaryLockPayableGLData">
                                     <td>{{x.SalaryHead}}</td>
+                                    <td>{{x.AccountsGroup}}</td>
                                     <td>{{x.DirectGLName}}</td>
                                     <td>{{x.DirectBudgetName}}</td>
                                     <td>{{x.DirectActivityName}}</td>
@@ -214,7 +216,7 @@
                             </tbody>
                             <tfoot ng-show="salaryLockPayableGLData.length">
                                 <tr>
-                                    <td colspan="4" class="text-right"><b> Total</b></td>
+                                    <td colspan="5" class="text-right"><b> Total</b></td>
                                     <td class="text-right"><b>{{ salaryLockPayableGLData | sumByKey : 'DrAmount' }}</b></td>
                                     <td class="text-right"><b>{{ salaryLockPayableGLData | sumByKey : 'CrAmount' }}</b></td>
                                 </tr>
@@ -333,6 +335,7 @@
                                 <thead>
                                     <tr>
                                         <th>Salary Head</th>
+                                        <th>Accounts Group</th>
                                         <th>GL</th>
                                         <th>Budget</th>
                                         <th>Activity</th>
@@ -343,6 +346,7 @@
                                 <tbody>
                                     <tr ng-repeat="x in salaryLockInDirectPayableGLData">
                                         <td>{{x.SalaryHead}}</td>
+                                        <td>{{x.AccountsGroup}}</td>
                                         <td>{{x.InDirectGLName}}</td>
                                         <td>{{x.InDirectBudgetName}}</td>
                                         <td>{{x.InDirectActivityName}}</td>
@@ -352,7 +356,7 @@
                                 </tbody>
                                 <tfoot ng-show="salaryLockInDirectPayableGLData.length">
                                     <tr>
-                                        <td colspan="4" class="text-right"><b> Total</b></td>
+                                        <td colspan="5" class="text-right"><b> Total</b></td>
                                         <td class="text-right"><b>{{ salaryLockInDirectPayableGLData | sumByKey : 'DrAmount' }}</b></td>
                                         <td class="text-right"><b>{{ salaryLockInDirectPayableGLData | sumByKey : 'CrAmount' }}</b></td>
                                     </tr>
