@@ -127,6 +127,21 @@ namespace Aplos.Controllers
         }
 
         [HttpPost]
+        public string BusVerificationFuture([FromBody] IEnumerable<PhysicalVerifyModel> DataToSave)
+        {
+            try
+            {
+                string Id = _app.BusVerificationFuture(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+        [HttpPost]
         public string SaveOT([FromBody] List<AttendanceProcessNewProcess> data)
         {
             try
