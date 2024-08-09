@@ -12817,6 +12817,42 @@ where SystemId = '" + EmpSysId + "'";
                 objCon = null;
             }
         }
+
+        public void GetTransportEmployee(out List<Default2> DataList, string EmpSysId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select TG.UserName Value , EmployeeName Name from EmployeeInformation   Ei
+left join TransportGroup TG on TG.Id = TransportGroupId
+where SystemId = '" + EmpSysId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
         #endregion Daily Inverification
 
         #region PaySlip

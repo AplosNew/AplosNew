@@ -445,7 +445,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                         if (item.InOutParam == "In")
                         {
-                            dr["Id"] = "Bus" + _Id;
+                            dr["Id"] =  _Id;
                             dr["EmpSystemID"] = item.EmpSystemId;
                             dr["WorkDate"] = item.WorkDate;
                             dr["InTime"] = DateTime.Now;
@@ -456,7 +456,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         }
                         else
                         {
-                            dr["Id"] = "Bus" + _Id;
+                            dr["Id"] =   _Id;
                             dr["EmpSystemID"] = item.EmpSystemId;
                             dr["WorkDate"] = item.WorkDate;
                             dr["OutTime"] = DateTime.Now;
