@@ -12827,7 +12827,7 @@ where SystemId = '" + EmpSysId + "'";
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select TG.UserName Value , EmployeeName Name from EmployeeInformation   Ei
+                strSQL = @"select isnull(TG.UserName,'Non Transport') Value , EmployeeName Name from EmployeeInformation   Ei
 left join TransportGroup TG on TG.Id = TransportGroupId
 where SystemId = '" + EmpSysId + "'";
                 objCon = new clsConnectionManager();
