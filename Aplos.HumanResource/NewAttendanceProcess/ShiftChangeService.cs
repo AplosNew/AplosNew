@@ -426,7 +426,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 var items = Future.ToList();
 
-                var sqly = @"select * from dbo.PhysicalVerification where WorkDate='" + items[0].WorkDate + " ' and EmpSystemId IN(" + EmpId + ")";
+                var sqly = @"select * from dbo.busverification where WorkDate='" + items[0].WorkDate + " ' and EmpSystemId IN(" + EmpId + ")";
                 con.OpenDataSetThroughAdapter(sqly, out dsMaster, false, "1");
 
 
@@ -445,7 +445,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                         if (item.InOutParam == "In")
                         {
-                            dr["Id"] = "PHY" + _Id;
+                            dr["Id"] = "Bus" + _Id;
                             dr["EmpSystemID"] = item.EmpSystemId;
                             dr["WorkDate"] = item.WorkDate;
                             dr["InTime"] = DateTime.Now;
@@ -456,7 +456,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         }
                         else
                         {
-                            dr["Id"] = "PHY" + _Id;
+                            dr["Id"] = "Bus" + _Id;
                             dr["EmpSystemID"] = item.EmpSystemId;
                             dr["WorkDate"] = item.WorkDate;
                             dr["OutTime"] = DateTime.Now;
