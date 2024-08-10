@@ -2187,7 +2187,7 @@ ORDER BY OL.Sequence";
                 DataSet dsFNFEmpMaster = null;
                 string esql, elocksql, elockBNsql = "";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                if (identity.EmployeeId==data["ApproveById"].ToString())
+                if (identity.EmployeeId == data["ApproveById"].ToString())
                 {
                     throw new Exception("Creation and Approving person can't be same.");
                 }
@@ -2222,7 +2222,6 @@ ORDER BY OL.Sequence";
                 }
                 #endregion data update
                 #region data Detail
-
                 con.OpenDataSetThroughAdapter("select * from EmployeeFullAndFinalSettlement where FinalSettlementId='" + data["Id"] + "'", out dsFNFEmpMaster, false, "1");
                 con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[EmployeeFullAndFinalSettlementItem] where FinalSettlementId='" + data["Id"] + "'", out dsEmpID, false, "1");
                 int empcount = Convert.ToInt32(dsEmpID.Tables[0].Rows[0]["countId"].ToString());
@@ -2255,10 +2254,6 @@ ORDER BY OL.Sequence";
                     }
 
                 }
-
-               // DeleteCurrentData(empIds);
-
-
 
                 esql = "select * from EmployeeFullAndFinalSettlementItem where EmpSystemId IN(" + empIds + ")";
                 con.OpenDataSetThroughAdapter(esql, out dsEmpMaster, false, "1");
@@ -2455,6 +2450,7 @@ ORDER BY OL.Sequence";
 
             }
         }
+
 
         [HttpPost, Authorize]
         public JsonResult UpdateItemData(IEnumerable<OpenHeadModelNew> datalist)
