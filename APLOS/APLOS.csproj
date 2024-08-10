@@ -1979,6 +1979,7 @@
     <Content Include="Areas\Payrolls\Scripts\fullandfinalSettlementApproveController.js" />
     <Content Include="Areas\Payrolls\Scripts\fullandfinalSettlementController.js" />
     <Content Include="Areas\Payrolls\Scripts\FNFReportController.js" />
+    <Content Include="Areas\Payrolls\Scripts\SalaryAdviceController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanEditController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
     <Content Include="Areas\Productions\Scripts\SalesPurchaseTransactionTypeController.js" />
@@ -4993,6 +4994,7 @@
     <Content Include="Areas\Accounts\Views\DebitCreditNoteProcessControl.cshtml" />
     <Content Include="Areas\Employees\Views\Caste\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\GoodWork\DateChange.cshtml" />
+    <Content Include="Areas\Payrolls\Views\PaySlipsNew\SalaryAdvice.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

@@ -1658,6 +1658,12 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetActiveEmployee(out List<Default2> activelists , EmpSysId);
             return activelists;
         }
+        public List<Default2> GetTransportEmployee(string EmpSysId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetTransportEmployee(out List<Default2> activelists, EmpSysId);
+            return activelists;
+        }
         #endregion Daily Inverification
 
         #region Payslip
