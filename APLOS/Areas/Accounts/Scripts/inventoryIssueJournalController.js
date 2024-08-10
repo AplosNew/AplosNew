@@ -64,7 +64,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
         serverPagination: true
     };
 
-    baseService.init($scope.getListUrl, null, null, 'DESC', 'IssueDate', 'IssueDate');
+    baseService.init($scope.getListUrl, null, null, 'DESC', 'IssueDate', 'IssueNo');
     $scope.getData = function (pageno) {
         baseService.pagination(pageno, $scope.parameters)
             .then(function (result) {
