@@ -403,6 +403,10 @@
             templateUrl: 'payrolls/FinalSettlement/Report',
             controller: 'FNFReportController'
         })
+        .when('/salary-advice', {
+            templateUrl: 'payrolls/PaySlipsNew/SalaryAdvice',
+            controller: 'SalaryAdviceController'
+        })
         ;
 
 

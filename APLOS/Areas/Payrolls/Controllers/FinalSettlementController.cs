@@ -2037,17 +2037,17 @@ WHERE  spc.EmpInfoSystemID= '" + empId + @"' AND PayableVoucherId<>'' AND sl.Dis
 			 ) AS varchar(100))
 
 			 WHEN OL.UserName='Bonus' THEN CAST((
-			 Select SUM(BonusAmount)BonusAmount from(
-select cast(SUM(spc.DisbusmentAmount)AS decimal(18,0))BonusAmount  from SalaryProcChild SPC
-left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
-JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID
-Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.YearNo AND sl.MonthNo=SPM.MonthNo
-LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
-left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Monthly Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 
-Where HeadCategory IN('Monthly Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
-AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL 
-AND SPC.EmpInfoSystemID='" + empId + @"'
-UNION
+--			 Select SUM(BonusAmount)BonusAmount from(
+--select cast(SUM(spc.DisbusmentAmount)AS decimal(18,0))BonusAmount  from SalaryProcChild SPC
+--left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
+--JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID
+--Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.YearNo AND sl.MonthNo=SPM.MonthNo
+--LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
+--left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Monthly Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 
+--Where HeadCategory IN('Monthly Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
+--AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL 
+--AND SPC.EmpInfoSystemID='" + empId + @"'
+--UNION
 select cast(SUM(spc.DisbusmentAmount)AS decimal(18,0))BonusAmount  from SalaryProcChild SPC
 left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
 JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID
@@ -2189,6 +2189,7 @@ ORDER BY OL.Sequence";
                 }
                 #endregion data update
                 #region data Detail
+
                 con.OpenDataSetThroughAdapter("select * from EmployeeFullAndFinalSettlement where FinalSettlementId='" + data["Id"] + "'", out dsFNFEmpMaster, false, "1");
                 con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[EmployeeFullAndFinalSettlementItem] where FinalSettlementId='" + data["Id"] + "'", out dsEmpID, false, "1");
                 int empcount = Convert.ToInt32(dsEmpID.Tables[0].Rows[0]["countId"].ToString());
@@ -2221,6 +2222,10 @@ ORDER BY OL.Sequence";
                     }
 
                 }
+
+             
+                string strSQL = "DELETE FROM [dbo].[EmployeeFullAndFinalSettlementItem] WHERE EmpSystemId IN(" + empIds + ")";
+                con.ExecuteNonQueryWrapper(strSQL, true, "1");
 
                 esql = "select * from EmployeeFullAndFinalSettlementItem where EmpSystemId IN(" + empIds + ")";
                 con.OpenDataSetThroughAdapter(esql, out dsEmpMaster, false, "1");
