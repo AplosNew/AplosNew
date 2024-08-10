@@ -2037,7 +2037,7 @@ WHERE  spc.EmpInfoSystemID= '" + empId + @"' AND PayableVoucherId<>'' AND sl.Dis
 			 ) AS varchar(100))
 
 			 WHEN OL.UserName='Bonus' THEN CAST((
---			 Select SUM(BonusAmount)BonusAmount from(
+			 Select SUM(BonusAmount)BonusAmount from(
 --select cast(SUM(spc.DisbusmentAmount)AS decimal(18,0))BonusAmount  from SalaryProcChild SPC
 --left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
 --JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID
@@ -2139,6 +2139,39 @@ ORDER BY OL.Sequence";
             }
         }
 
+        public void DeleteCurrentData(string empIds)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "DELETE FROM [dbo].[EmployeeFullAndFinalSettlementItem] WHERE EmpSystemId IN(" + empIds + ")";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }//End of function
+
         [HttpPost]
         public JsonResult Process(Dictionary<string, object> data, List<Dictionary<string, object>> datalist)
         {
@@ -2223,9 +2256,9 @@ ORDER BY OL.Sequence";
 
                 }
 
-             
-                string strSQL = "DELETE FROM [dbo].[EmployeeFullAndFinalSettlementItem] WHERE EmpSystemId IN(" + empIds + ")";
-                con.ExecuteNonQueryWrapper(strSQL, true, "1");
+               // DeleteCurrentData(empIds);
+
+
 
                 esql = "select * from EmployeeFullAndFinalSettlementItem where EmpSystemId IN(" + empIds + ")";
                 con.OpenDataSetThroughAdapter(esql, out dsEmpMaster, false, "1");
