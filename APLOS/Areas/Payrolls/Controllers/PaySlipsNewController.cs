@@ -49,6 +49,10 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             return View();
         }
+        public ActionResult SalaryAdvice()
+        {
+            return View();
+        }
         #endregion -- Pages
 
         #region -- Operations

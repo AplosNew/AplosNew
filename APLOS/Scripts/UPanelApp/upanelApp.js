@@ -1288,6 +1288,7 @@ upanelApp.controller("FNFReportController", FNFReportController);
 upanelApp.controller("GeneralApprovedApplicationController", GeneralApprovedApplicationController);
 upanelApp.controller("productionOrderType2Controller", productionOrderType2Controller);
 upanelApp.controller("DebitCreditNoteProcessControlController", DebitCreditNoteProcessControlController)
+upanelApp.controller("SalaryAdviceController", SalaryAdviceController)
 
 
 
