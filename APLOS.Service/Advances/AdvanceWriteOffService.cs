@@ -3103,7 +3103,7 @@ namespace Library.Service.Advances
         {
             return _pKGeneratorService.GetAutoNumber("EmployeeSubsequentTransaction", PKGeneratorEnum.Auto, null, DateTime.Now);
         }
-        public string InsertEmployeeAdvanceWriteOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<VoucherDetailViewModel> voucherDetailGLList)
+        public string InsertEmployeeAdvanceWriteOff(VoucherViewModel voucherVM, VoucherDetailViewModel VoucherDetailVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<VoucherDetailViewModel> voucherDetailGLList)
         {
             var flag = false;
             try
@@ -3137,48 +3137,53 @@ namespace Library.Service.Advances
                 var currentVoucherDetailId = 0;
 
                 // Advance
-                var advance = _advanceService.Find(voucherVM.AdvanceId);
-                advance.WrittenOffAmount += advanceWriteOff.Amount;
-                advance.IsWrittenOff = advance.Amount == advance.WrittenOffAmount;
-                advance.UpdatedBy = advanceWriteOff.AddedBy;
-                advance.UpdatedDate = advanceWriteOff.AddedDate;
-                advance.UpdatedFromIP = advanceWriteOff.AddedFromIP;
-                _advanceService.Update(advance);
+                if(voucherVM.AdvanceId != null)
+                { 
+                    var advance = _advanceService.Find(voucherVM.AdvanceId);
+                    advance.WrittenOffAmount += advanceWriteOff.Amount;
+                    advance.IsWrittenOff = advance.Amount == advance.WrittenOffAmount;
+                    advance.UpdatedBy = advanceWriteOff.AddedBy;
+                    advance.UpdatedDate = advanceWriteOff.AddedDate;
+                    advance.UpdatedFromIP = advanceWriteOff.AddedFromIP;
+                    _advanceService.Update(advance);
 
-                var advanceDetail = _advanceService.FindAdvanceDetail(voucherVM.AdvanceDetailId);
-                if (null == advanceDetail)
-                    throw new CustomException("Advance detail not found!");
+                    var advanceDetail = _advanceService.FindAdvanceDetail(voucherVM.AdvanceDetailId);
+                    if (null == advanceDetail)
+                        throw new CustomException("Advance detail not found!");
+                    advanceWriteOff.Amount += voucherVM.Amount;
+                    advanceDetail.WrittenOffAmount += voucherVM.Amount;
+
+                    if (advanceDetail.Amount < advanceDetail.WrittenOffAmount)
+                        throw new CustomException($"{advanceWriteOff.SettlementType} amount cannot exceed the balance advance amount.");
+
+                    advanceDetail.IsWrittenOff = advanceDetail.Amount == advanceDetail.WrittenOffAmount;
+                    advanceDetail.UpdatedBy = advance.AddedBy;
+                    advanceDetail.UpdatedDate = advance.AddedDate;
+                    advanceDetail.UpdatedFromIP = advance.AddedFromIP;
+                    _advanceService.UpdateAdvanceDetail(advanceDetail);
+                }
 
                 currentAdvanceWriteOffDetailId++;
                 var advanceWriteOffDetail = new AdvanceWriteOffDetail
                 {
-                    CompanyId = advanceDetail.CompanyId,
-                    PlantId = advanceDetail.PlantId,
+                    CompanyId = voucherVM.CompanyId,
+                    PlantId = voucherVM.PlantId,
                     AdvanceId = voucherVM.AdvanceId,
                     AdvanceDetailId = voucherVM.AdvanceDetailId,
-                    GLGeneralInfoId = advanceDetail.GLGeneralInfoId,
-                    BudgetMasterId = advanceDetail.BudgetMasterId,
-                    ActivityId = advanceDetail.ActivityId,
+                    GLGeneralInfoId = voucherVM.GLGeneralInfoId,
+                    BudgetMasterId = voucherVM.BudgetMasterId,
+                    ActivityId = voucherVM.ActivityId,
                     CurrencyId = advanceWriteOff.CurrencyId,
-                    PartyType = advanceDetail.PartyType,
-                    PartyId = advanceDetail.PartyId,
-                    PartyPlantId = advanceDetail.PartyPlantId,
+                    PartyType = voucherVM.PartyType,
+                    PartyId = voucherVM.PartyId,
+                    PartyPlantId = voucherVM.PartyPlantId,
                     Amount = voucherVM.Amount,
-                    EmployeeId= voucherVM.EmployeeId
+                    EmployeeId= voucherVM.EmployeeId,
+                    EmployeeAdvanceDetailId = VoucherDetailVM.EmployeeAdvanceDetailId
                 };
                 InsertAdvanceWriteOffDetail(advanceWriteOff, advanceWriteOffDetail, currentAdvanceWriteOffDetailId);
 
-                advanceWriteOff.Amount += voucherVM.Amount;
-                advanceDetail.WrittenOffAmount += voucherVM.Amount;
-
-                if (advanceDetail.Amount < advanceDetail.WrittenOffAmount)
-                    throw new CustomException($"{advanceWriteOff.SettlementType} amount cannot exceed the balance advance amount.");
-
-                advanceDetail.IsWrittenOff = advanceDetail.Amount == advanceDetail.WrittenOffAmount;
-                advanceDetail.UpdatedBy = advance.AddedBy;
-                advanceDetail.UpdatedDate = advance.AddedDate;
-                advanceDetail.UpdatedFromIP = advance.AddedFromIP;
-                _advanceService.UpdateAdvanceDetail(advanceDetail);
+                
 
                 // INSERT INTO VoucherDetail Debit or Credit
                 var voucherDetail = new VoucherDetail
@@ -3355,6 +3360,7 @@ namespace Library.Service.Advances
                             VoucherId = voucher.Id,
                             VoucherDetailId = voucherDetailDr.Id,
                             PaymentSource = voucherVM.PaymentSource,
+                            EmployeeAdvanceDetailId = VoucherDetailVM.EmployeeAdvanceDetailId
                         };
                         AuditService.AddedLog(EmployeeSubsequentAdvance);
                         _employeeSubsequentTransactionRepository.Insert(EmployeeSubsequentAdvance);
@@ -3458,6 +3464,7 @@ namespace Library.Service.Advances
                         VoucherId = voucher.Id,
                         VoucherDetailId = voucherDetailCr.Id,
                         PaymentSource = voucherVM.PaymentSource,
+                        EmployeeAdvanceDetailId = VoucherDetailVM.EmployeeAdvanceDetailId
                     };
                     AuditService.AddedLog(EmployeeSubsequentAdvance);
                     _employeeSubsequentTransactionRepository.Insert(EmployeeSubsequentAdvance);
@@ -3524,6 +3531,7 @@ namespace Library.Service.Advances
                                 VoucherId = voucher.Id,
                                 VoucherDetailId = voucherDetailCr.Id,
                                 PaymentSource = "GL",
+                                EmployeeAdvanceDetailId = VoucherDetailVM.EmployeeAdvanceDetailId
                             };
                             AuditService.AddedLog(EmployeeSubsequentAdvance);
                             _employeeSubsequentTransactionRepository.Insert(EmployeeSubsequentAdvance);
@@ -3536,6 +3544,31 @@ namespace Library.Service.Advances
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                if (VoucherDetailVM.EmployeeAdvanceDetailId != null)
+                {
+                    var direct = new System.Text.StringBuilder();
+                    var directsql = "";
+                    directsql = @"DECLARE @advanceAmount decimal(18,2),@writeOffAmount decimal(18,2),@IsWrittenOff bit=0,@newWrittenOffAmount decimal(18,2)=" + voucherVM.Amount + @",@employeeAdvanceDetailId varchar(50)='" + VoucherDetailVM.EmployeeAdvanceDetailId + @"'
+                                select @advanceAmount =ISNULL(AdvanceAmount,0),@writeOffAmount =ISNULL(WrittenOffAmount,0) from [TRN].[EmployeeAdvanceDetail]  where Id=@employeeAdvanceDetailId
+                                --print @writeOffAmount
+                                --print @newWrittenOffAmount
+                                --print @advanceAmount
+                                IF(@advanceAmount = @writeOffAmount+@newWrittenOffAmount)
+                                BEGIN 
+	                                SET @IsWrittenOff =1
+                                END
+                                --print @IsWrittenOff
+                                update [TRN].[EmployeeAdvanceDetail] set WrittenOffAmount= ISNULL(WrittenOffAmount,0) +  @newWrittenOffAmount, IsWrittenOff=@IsWrittenOff where Id=@employeeAdvanceDetailId ";
+                    direct.Append(directsql);
+                _sqlRepository.ExecuteSqlCommand(direct.ToString());
+                }
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+                
                 return voucher.VoucherNo;
             }
             catch (CustomException)
