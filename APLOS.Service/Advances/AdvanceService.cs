@@ -9466,27 +9466,47 @@ namespace Library.Service.Advances
                     }
                     _employeePayableWriteOffRepository.Delete(employeePayableWriteOff.Id);
                 }
-
+                var direct = new System.Text.StringBuilder();
+                var directsql = "";
                 if (advanceWriteOffDetail != null)
                 {
                     foreach (var item in advanceWriteOffDetail)
                     {
-                        var advance = base.Find(item.AdvanceId);
-                        var advanceDetail = _advanceDetailRepository.Find(item.AdvanceDetailId);
+                        if(item.AdvanceId != null)
+                        {
+                            var advance = base.Find(item.AdvanceId);
+                            var advanceDetail = _advanceDetailRepository.Find(item.AdvanceDetailId);
 
-                        advanceDetail.WrittenOffAmount -= item.Amount;
-                        advance.WrittenOffAmount -= item.Amount;
-                        advanceDetail.IsWrittenOff = advanceDetail.NetAmount == advanceDetail.WrittenOffAmount;
-                        advance.IsWrittenOff = advance.Amount == advance.WrittenOffAmount;
+                            advanceDetail.WrittenOffAmount -= item.Amount;
+                            advance.WrittenOffAmount -= item.Amount;
+                            advanceDetail.IsWrittenOff = advanceDetail.NetAmount == advanceDetail.WrittenOffAmount;
+                            advance.IsWrittenOff = advance.Amount == advance.WrittenOffAmount;
 
-                        _advanceDetailRepository.Update(advanceDetail);
-                        base.Update(advance);
-                        _advanceWriteOffDetailRepository.Delete(item.Id);
+                            _advanceDetailRepository.Update(advanceDetail);
+                            base.Update(advance);
+                        }
+                        if (item.EmployeeAdvanceDetailId != null)
+                        {
+                            directsql = @"DECLARE @newWrittenOffAmount decimal(18,2)=" + item.Amount + @",@employeeAdvanceDetailId varchar(50)='" + item.EmployeeAdvanceDetailId + @"'
+                                          update [TRN].[EmployeeAdvanceDetail] set WrittenOffAmount= ISNULL(WrittenOffAmount,0) -  @newWrittenOffAmount, IsWrittenOff=0 where Id=@employeeAdvanceDetailId ";
+                            direct.Append(directsql);
+                        }
+
+                            _advanceWriteOffDetailRepository.Delete(item.Id);
                     }
                     _advanceWriteOffRepository.Delete(advanceWriteOff.Id);
                 }
 
                 _voucherRepository.Delete(voucher.Id);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                if (directsql != "")
+                {
+                    _sqlRepository.ExecuteSqlCommand(direct.ToString());
+                }
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
