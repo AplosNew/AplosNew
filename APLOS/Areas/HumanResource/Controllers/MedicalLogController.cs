@@ -72,7 +72,12 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                return Json(ml.MedicallogGridView(), JsonRequestBehavior.AllowGet);
+               // ml.MedicallogGridView()
+                //var data = _sqlRepository.GetDataCollection(sql);
+                JsonResult json = Json(ml.MedicallogGridView(), JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+               // return Json(ml.MedicallogGridView(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

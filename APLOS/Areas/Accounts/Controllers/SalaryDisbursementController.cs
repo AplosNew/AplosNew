@@ -1766,7 +1766,7 @@ Where HeadCategory='Net Payable' ";
             wcEmpStatus += ")";
 
             string sql = @"SELECT EmpSystemId,EmployeeId,EmployeeCode,EmployeeName,EmployeeCategory,DOJ,DOS--,CurrentMonthEmployeeStatus
-                           ,EmployeeStatus,PaymentMode,SUM(NetPayment)Amount
+                           ,EmployeeStatus,PaymentMode,SUM(NetPayment)Amount,SUM(TotalPayDay)TotalPayDay
                            FROM (  SELECT   dISTINCT     
                                      isnull(e.SystemId,'') EmpSystemId
 									,ISNULL(e.EmployeeId,'')  EmployeeId 
@@ -1807,7 +1807,7 @@ Where HeadCategory='Net Payable' ";
                                     ,sl.IsBonusDisbursed
                                     ,IsLock = case when sl.IsLocked = 1 then 'Locked' else 'Unlocked' end
                                     ,IsDisburse = case when sl.IsBonusDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end 
-                                    ,SPCD.NetPayment,SPM.SystemID SalaryProcId,SPM.AddedBy,AG.UserName AccountsGroup
+                                    ,SPCD.NetPayment,PD.TotalPayDay ,SPM.SystemID SalaryProcId,SPM.AddedBy,AG.UserName AccountsGroup
                                     ,FORMAT(DA.AddedDate,'dd-MMM-yyyy') DisbursementDate
                                     ,isnull(sl.BonusDisbursementAdviceId,'')BonusDisbursementAdviceId,isnull(DA.Remarks,'')Remarks,s.IFSCCode,s.BankAccNo
                                     from SalaryProcessLogDetail s
@@ -1816,10 +1816,17 @@ Where HeadCategory='Net Payable' ";
                                     INNER JOIN (select SPC.DisbusmentAmount NetPayment,SPC.EmpInfoSystemID,spm.YearNo,spm.MonthNo from SalaryProcChild SPC
                                                 left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
                                                 JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID 
-                                                Where HeadCategory IN('Monthly Bonus Retain','Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
+--                                                Where HeadCategory IN('Monthly Bonus Retain','Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
+                                                Where HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
 									            AND CONCAT(spm.YearNo,RIGHT('00'+Isnull(Cast(spm.MonthNo AS VARCHAR(max)), ''),2)) 
 									            BETWEEN  CONCAT(YEAR('" + fromDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + fromDate + @"') AS VARCHAR(max)), ''),2))
 									            AND CONCAT(YEAR('" + toDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + toDate + @"') AS VARCHAR(max)), ''),2)) )SPCD ON SPCD.EmpInfoSystemID=s.EmpSystemId AND SPCD.YearNo=SPM.YearNo AND SPCD.MonthNo=SPM.MonthNo
+LEFT JOIN(
+									Select  ISNULL(TotalPayDay,0)TotalPayDay,EmpSystemID,YearNo,MonthNo from dbo.SalaryProceAttdnData 
+where CONCAT(YearNo,RIGHT('00'+Isnull(Cast(MonthNo AS VARCHAR(max)), ''),2)) 
+BETWEEN  CONCAT(YEAR('" + fromDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + fromDate + @"') AS VARCHAR(max)), ''),2))
+AND CONCAT(YEAR('" + toDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + toDate + @"') AS VARCHAR(max)), ''),2))
+									)PD ON PD.EmpSystemID=s.EmpSystemId AND PD.YearNo=SPM.YearNo AND PD.MonthNo=SPM.MonthNo
                                     LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=s.DesignationId
                                     LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=s.LegalDesignationId
                                     LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
@@ -2902,10 +2909,10 @@ Where HeadCategory='Net Payable' ";
                 int ColPM = COL;
                 COL++;
 
-                //sheet[ROW, COL].Text = "Bank";
-                //sheet[ROW, COL].ColumnWidth = 16;
-                //int ColBank = COL;
-                //COL++;
+                sheet[ROW, COL].Text = "TotalPayDay";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColTPD = COL;
+                COL++;
 
                 //sheet[ROW, COL].Text = "Bank Account No";
                 //sheet[ROW, COL].ColumnWidth = 16;
@@ -2952,6 +2959,7 @@ Where HeadCategory='Net Payable' ";
                     //sheet[ROW, ColCurrentMonthEmployeeStatus].Text = data.Rows[i]["CurrentMonthEmployeeStatus"].ToString();
                     sheet[ROW, ColEmployeeStatus].Text = data.Rows[i]["EmployeeStatus"].ToString();
                     sheet[ROW, ColPM].Text = data.Rows[i]["PaymentMode"].ToString();
+                    sheet[ROW, ColTPD].Text = data.Rows[i]["TotalPayDay"].ToString();
                     //sheet[ROW, ColBank].Text = data.Rows[i]["BankName"].ToString();
                     //sheet[ROW, ColBAN].Text = data.Rows[i]["BankAccNo"].ToString();
                     //sheet[ROW, ColIFSC].Text = data.Rows[i]["IFSCCode"].ToString();
@@ -3493,7 +3501,7 @@ select [isSelect] = Convert(bit, 'False'),[isToBeSelect] = Convert(bit, 'False')
 								            WHEN SPM.MonthNo=11 THEN 'November'
 								            WHEN SPM.MonthNo=12 THEN 'December'
 								            ELSE '' END MonthName
-									,SPM.YearNo ,sl.IsLocked AS Lock,ISNULL(e.EmployeeCode,'') EmployeeCode ,ISNULL(e.EmployeeName,'') EmployeeName								
+									,SPM.YearNo,PD.TotalPayDay ,sl.IsLocked AS Lock,ISNULL(e.EmployeeCode,'') EmployeeCode ,ISNULL(e.EmployeeName,'') EmployeeName
                                     ,ISNULL(mpb.EntityId,'') EntityId,ISNULL(mpb.PositionId,'') PositionId ,isnull(ISNULL(egdsg.UserName,ld.UserName),'') Designation                                       
 									,ISNULL(Department.UserName,'') Department ,ISNULL(Division.UserName,'') Division ,ISNULL(EmpC.UserName,'') EmployeeCategory
 									,ISNULL(Plant.UserName,'') Plant ,ISNULL(Section.UserName,'') Section ,ISNULL(SubSection.UserName,'') SubSection 
@@ -3529,6 +3537,13 @@ select [isSelect] = Convert(bit, 'False'),[isToBeSelect] = Convert(bit, 'False')
 									AND CONCAT(spm.YearNo,RIGHT('00'+Isnull(Cast(spm.MonthNo AS VARCHAR(max)), ''),2)) 
 									BETWEEN  CONCAT(YEAR('" + fromDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + fromDate + @"') AS VARCHAR(max)), ''),2))
 									AND CONCAT(YEAR('" + toDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + toDate + @"') AS VARCHAR(max)), ''),2)) )SPCD ON SPCD.EmpInfoSystemID=s.EmpSystemId AND SPCD.YearNo=SPM.YearNo AND SPCD.MonthNo=SPM.MonthNo
+LEFT JOIN(
+									Select  ISNULL(TotalPayDay,0)TotalPayDay,EmpSystemID,YearNo,MonthNo from dbo.SalaryProceAttdnData 
+where CONCAT(YearNo,RIGHT('00'+Isnull(Cast(MonthNo AS VARCHAR(max)), ''),2)) 
+BETWEEN  CONCAT(YEAR('" + fromDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + fromDate + @"') AS VARCHAR(max)), ''),2))
+AND CONCAT(YEAR('" + toDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + toDate + @"') AS VARCHAR(max)), ''),2))
+									)PD ON PD.EmpSystemID=s.EmpSystemId AND PD.YearNo=SPM.YearNo AND PD.MonthNo=SPM.MonthNo
+
                                     LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=s.DesignationId
                                     LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=s.LegalDesignationId
                                     LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
