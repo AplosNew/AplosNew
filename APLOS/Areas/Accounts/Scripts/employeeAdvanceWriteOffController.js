@@ -123,6 +123,9 @@ function employeeAdvanceWriteOffController(bankService, cboService, commonMessag
         BankMasterId: null,
         JournalType: null
     };
+    $scope.employeeadvance = {
+        EmployeeAdvanceDetailId: null
+    };
 
     $scope.voucherDetail = {
         Id: null,
@@ -413,6 +416,7 @@ function employeeAdvanceWriteOffController(bankService, cboService, commonMessag
                     url: 'accounts/Advance/InsertEmployeeAdvanceWriteOff',
                     data: {
                         'voucherVM': $scope.advance,
+                        'VoucherDetailVM': $scope.employeeadvance,
                         'voucherDetailList': $scope.voucherDetailList,
                         'voucherDetailGLList': $scope.voucherDetailGLList
                     },
@@ -508,6 +512,7 @@ function employeeAdvanceWriteOffController(bankService, cboService, commonMessag
         $scope.advance.PaymentSource = 'Bank';
         $scope.advancePostingDate = null;
         $scope.advanceDocRefNo = null;
+        $scope.employeeadvance.EmployeeAdvanceDetailId = null;
     }
 
     $scope.employeePayableSearchList = [
@@ -654,6 +659,7 @@ function employeeAdvanceWriteOffController(bankService, cboService, commonMessag
         $scope.advance.BudgetMasterId = data.BudgetMasterId;
         $scope.advance.ActivityId = data.ActivityId;
         $scope.advance.JournalType = data.JournalType;
+        $scope.employeeadvance.EmployeeAdvanceDetailId = data.EmployeeAdvanceDetailId;
         $scope.GetEmployeeTransactionNo($scope.advance.EmployeeId);
         angular.element(document.querySelector("#employeeAdvancePopUp")).modal("hide");
     };

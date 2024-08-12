@@ -85,7 +85,7 @@ namespace Library.Accounting.Accounts
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = column + " like '%" + value + "%'";
-            var CmdText = @"SELECT TEMP.* FROM (SELECT AD.AdvanceId, AD.Id AS AdvanceDetailId, AD.PartyType, AD.CompanyId, AD.PlantId, AM.PartyId, AM.PartyPlantId, PP.UserName AS PartyPlantName, AM.AdvanceNo, AM.VoucherId, VD.Id AS VoucherDetailId, VD.EntityId
+            var CmdText = @"SELECT TEMP.* FROM (SELECT AD.AdvanceId, AD.Id AS AdvanceDetailId,null EmployeeAdvanceId,null EmployeeAdvanceDetailId, AD.PartyType, AD.CompanyId, AD.PlantId, AM.PartyId, AM.PartyPlantId, PP.UserName AS PartyPlantName, AM.AdvanceNo, AM.VoucherId, VD.Id AS VoucherDetailId, VD.EntityId
 								, EN.UserName AS EntityName, AM.CurrencyId, C.Code AS CurrencyCode, AD.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, AM.EmployeeId, EI.EmployeeCode, EI.EmployeeName
 								, AD.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName, AD.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, V.VoucherNo, Replace(CONVERT(VARCHAR(11), AM.DocDate, 106), ' ', '-') AS DocDate
                                 , Replace(CONVERT(VARCHAR(11), AM.PostingDate, 106), ' ', '-') AS PostingDate, AM.DocRefNo, AM.Narration, AD.Amount AS Receivable, AD.WrittenOffAmount+ISNULL(SAVW.SalaryWrittenOffAmount,0) AS Received, 0 DrAmount, 0 CrAmount
@@ -134,7 +134,53 @@ namespace Library.Accounting.Accounts
 								    WHERE CPC.ParallelCurrencyType='HardCurrency' AND CPC.CompanyId='" + companyId + @"'
 							    ) AS HC ON HC.VoucherDetailId=VD.Id
                                 WHERE AM.Archive=0 AND AM.IsPosted=1 AND AM.IsWrittenOff=0 AND AD.IsWrittenOff=0 AND AM.SourceType in ('EmployeeAdvance','InterTransaction','FixedAssetDisposeJournal')
-                                AND AM.CompanyGroupId='" + companyGroupId + "' AND AM.CompanyId='" + companyId + "' AND AM.PlantId='" + plantId + "' AND AM.EmployeeId<>'' ) AS TEMP WHERE " + strkey + @"";
+                                AND AM.CompanyGroupId='" + companyGroupId + @"' AND AM.CompanyId='" + companyId + @"' AND AM.PlantId='" + plantId + @"' AND AM.EmployeeId<>'' 
+                                
+                                UNION ALL
+								SELECT null AdvanceId, null AdvanceDetailId,AD.EmployeeAdvanceId,AD.Id EmployeeAdvanceDetailId, 'Employee' PartyType, AM.CompanyId, AM.PlantId, ''  PartyId, '' PartyPlantId, '' PartyPlantName, V.VoucherNo AdvanceNo, AD.VoucherId, VD.Id AS VoucherDetailId, VD.EntityId
+								, EN.UserName AS EntityName, AM.CurrencyId, C.Code AS CurrencyCode, AD.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, VD.EmployeeId, EI.EmployeeCode, EI.EmployeeName
+								, AD.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName, AD.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, V.VoucherNo, Replace(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate
+                                , Replace(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate, V.DocRefNo, V.Narration, AD.AdvanceAmount AS Receivable, ISNULL(AD.WrittenOffAmount,0) AS Received, 0 DrAmount, 0 CrAmount
+                                , AD.AdvanceAmount-ISNULL(AD.WrittenOffAmount,0)AS Balance, CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, CC.CompanyCurrencyConversion, GC.CompanyGroupCurrencyId
+                                , GC.CompanyGroupFromCurrencyId, GC.CompanyGroupCurrencyRate, GC.CompanyGroupCurrencyConversion, HC.HardCurrencyId, HC.HardFromCurrencyId, HC.HardCurrencyRate, HC.HardCurrencyConversion,'Regular Expense' EmployeeTransactionTypeName
+                                ,EAR.AdvanceType JournalType
+                                FROM [TRN].[EmployeeAdvanceDetail] AS AD
+                                LEFT JOIN [TRN].[EmployeeAdvance] AS AM ON AD.EmployeeAdvanceId=AM.Id
+                                LEFT JOIN [TRN].[EmployeeAdvanceRequisition] AS EAR ON EAR.SystemId=AM.RequisitionId
+                                LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.Id=AD.VoucherDetailId
+                                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                                LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=AD.EmpSystemId
+                                LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=AD.GLGeneralInfoId
+                                LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=AD.BudgetMasterId
+                                LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                LEFT JOIN [HKP].[Activity] AS A ON A.Id=AD.ActivityId
+                                LEFT JOIN [SCS].[Currency] AS C ON C.Id=AM.CurrencyId
+                                LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=AM.EntityId
+								LEFT JOIN (
+								    SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+								    VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.CrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+								    FROM [TRN].[VoucherDetailCurrency] AS VDC
+								    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+								    WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
+							    ) AS CC ON CC.VoucherDetailId=VD.Id
+							    LEFT JOIN (
+							        SELECT VDC.ParallelCurrencyId AS CompanyGroupCurrencyId, VDC.FromCurrencyId AS CompanyGroupFromCurrencyId, VDC.ToCurrencyId,
+								    VDC.ToCurrencyRate AS CompanyGroupCurrencyRate, VDC.ToCurrencyConversion AS CompanyGroupCurrencyConversion, VDC.CrAmount AS CompanyGroupCurrencyAmount, VDC.VoucherDetailId
+								    FROM [TRN].[VoucherDetailCurrency] AS VDC
+								    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+								    WHERE CPC.ParallelCurrencyType='CompanyGroupCurrency' AND CPC.CompanyId='" + companyId + @"'
+							    ) AS GC ON GC.VoucherDetailId=VD.Id
+							    LEFT JOIN (
+								    SELECT VDC.ParallelCurrencyId AS HardCurrencyId, VDC.FromCurrencyId AS HardFromCurrencyId, VDC.ToCurrencyId,
+								    VDC.ToCurrencyRate AS HardCurrencyRate, VDC.ToCurrencyConversion AS HardCurrencyConversion, VDC.CrAmount AS HardCurrencyAmount, VDC.VoucherDetailId
+								    FROM [TRN].[VoucherDetailCurrency] AS VDC
+								    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+								    WHERE CPC.ParallelCurrencyType='HardCurrency' AND CPC.CompanyId='" + companyId + @"'
+							    ) AS HC ON HC.VoucherDetailId=VD.Id
+                                WHERE  AD.IsWrittenOff=0 AND (AD.AdvanceAmount-ISNULL(AD.WrittenOffAmount,0))>0 AND EAR.AdvanceType='General'
+                                AND AM.CompanyGroupId='" + companyGroupId + @"' AND AM.CompanyId='" + companyId + @"' AND AM.PlantId='" + plantId + @"' AND ISNULL(AD.EmpSystemId,'')<>'' 
+
+                                ) AS TEMP WHERE " + strkey + @"";
             return _sqlRepository.GetDataCollection(CmdText);
         }
         public IEnumerable<object> EmployeeAdvanceSalaryQuery(string column, string value, string companyGroupId, string companyId, string plantId, SourceType sourceType)

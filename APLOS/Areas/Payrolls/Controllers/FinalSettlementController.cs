@@ -2037,7 +2037,7 @@ WHERE  spc.EmpInfoSystemID= '" + empId + @"' AND PayableVoucherId<>'' AND sl.Dis
 			 ) AS varchar(100))
 
 			 WHEN OL.UserName='Bonus' THEN CAST((
---			 Select SUM(BonusAmount)BonusAmount from(
+			 Select SUM(BonusAmount)BonusAmount from(
 --select cast(SUM(spc.DisbusmentAmount)AS decimal(18,0))BonusAmount  from SalaryProcChild SPC
 --left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
 --JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID
@@ -2055,7 +2055,7 @@ Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.
 LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
 left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 
 Where HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
-AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL 
+AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL AND ISNULL(sl.IsBonusDisbursed,0)=0 AND sl.BonusDisbursementAdviceId IS NULL
 AND SPC.EmpInfoSystemID='" + empId + @"')A
 			 ) AS varchar(100))
            
@@ -2139,6 +2139,39 @@ ORDER BY OL.Sequence";
             }
         }
 
+        public void DeleteCurrentData(string empIds)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "DELETE FROM [dbo].[EmployeeFullAndFinalSettlementItem] WHERE EmpSystemId IN(" + empIds + ")";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }//End of function
+
         [HttpPost]
         public JsonResult Process(Dictionary<string, object> data, List<Dictionary<string, object>> datalist)
         {
@@ -2154,7 +2187,7 @@ ORDER BY OL.Sequence";
                 DataSet dsFNFEmpMaster = null;
                 string esql, elocksql, elockBNsql = "";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                if (identity.EmployeeId==data["ApproveById"].ToString())
+                if (identity.EmployeeId == data["ApproveById"].ToString())
                 {
                     throw new Exception("Creation and Approving person can't be same.");
                 }
@@ -2189,7 +2222,6 @@ ORDER BY OL.Sequence";
                 }
                 #endregion data update
                 #region data Detail
-
                 con.OpenDataSetThroughAdapter("select * from EmployeeFullAndFinalSettlement where FinalSettlementId='" + data["Id"] + "'", out dsFNFEmpMaster, false, "1");
                 con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[EmployeeFullAndFinalSettlementItem] where FinalSettlementId='" + data["Id"] + "'", out dsEmpID, false, "1");
                 int empcount = Convert.ToInt32(dsEmpID.Tables[0].Rows[0]["countId"].ToString());
@@ -2223,10 +2255,6 @@ ORDER BY OL.Sequence";
 
                 }
 
-             
-                string strSQL = "DELETE FROM [dbo].[EmployeeFullAndFinalSettlementItem] WHERE EmpSystemId IN(" + empIds + ")";
-                con.ExecuteNonQueryWrapper(strSQL, true, "1");
-
                 esql = "select * from EmployeeFullAndFinalSettlementItem where EmpSystemId IN(" + empIds + ")";
                 con.OpenDataSetThroughAdapter(esql, out dsEmpMaster, false, "1");
 
@@ -2254,7 +2282,7 @@ ORDER BY OL.Sequence";
                 }
 
 
-                elockBNsql = @"Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL";
+                elockBNsql = @"Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(IsBonusDisbursed,0)=0 AND BonusDisbursementAdviceId IS NULL";
                 con.OpenDataSetThroughAdapter(elockBNsql, out dsEmpBN, false, "1");
 
 
@@ -2422,6 +2450,7 @@ ORDER BY OL.Sequence";
 
             }
         }
+
 
         [HttpPost, Authorize]
         public JsonResult UpdateItemData(IEnumerable<OpenHeadModelNew> datalist)
