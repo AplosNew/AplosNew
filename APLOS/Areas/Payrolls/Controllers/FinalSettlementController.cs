@@ -98,7 +98,9 @@ LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=s
 WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL AND sh.SalaryHead='Net Pay' AND PastDisbursed IS NULL";
                 var FinalSettlementUndisbursedEarning = _sqlRepository.GetDataCollection(sqlundisbursed);
 
-                return Json(new { SeperationItem, FinalSettlementUndisbursedEarning }, JsonRequestBehavior.AllowGet);
+                var bonusData = _sqlRepository.GetDataCollection(@"select * FROM [dbo].SalaryLock Where EmpSystemId='" + EmpSystemId + @"'  AND  BonusDisbursementAdviceId IS NOT NULL AND BonusDisbursementVoucherId IS NULL");
+
+                return Json(new { SeperationItem, FinalSettlementUndisbursedEarning, bonusData }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -2186,6 +2188,7 @@ ORDER BY OL.Sequence";
                 DataSet dsProcSalaryData = null;
                 DataSet dsFNFEmpMaster = null;
                 string esql, elocksql, elockBNsql = "";
+                var empIds = "' '";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 if (identity.EmployeeId == data["ApproveById"].ToString())
                 {
@@ -2225,7 +2228,7 @@ ORDER BY OL.Sequence";
                 con.OpenDataSetThroughAdapter("select * from EmployeeFullAndFinalSettlement where FinalSettlementId='" + data["Id"] + "'", out dsFNFEmpMaster, false, "1");
                 con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[EmployeeFullAndFinalSettlementItem] where FinalSettlementId='" + data["Id"] + "'", out dsEmpID, false, "1");
                 int empcount = Convert.ToInt32(dsEmpID.Tables[0].Rows[0]["countId"].ToString());
-                var empIds = "' '";
+                
                 foreach (var item in datalist)
                 {
                     empIds += ",'" + item["EmpSystemId"].ToString() + "' ";
@@ -2258,7 +2261,7 @@ ORDER BY OL.Sequence";
                 esql = "select * from EmployeeFullAndFinalSettlementItem where EmpSystemId IN(" + empIds + ")";
                 con.OpenDataSetThroughAdapter(esql, out dsEmpMaster, false, "1");
 
-                elocksql = @"Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND PastDisbursed  IS NULL AND DisbursementVoucherId IS NULL ";
+                elocksql = @"Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND PastDisbursed  IS NULL AND DisbursementVoucherId IS NULL AND ISNULL(IsDisbursed,0)=0";
                 con.OpenDataSetThroughAdapter(elocksql, out dsEmpSL, false, "1");
 
 
@@ -2280,30 +2283,7 @@ ORDER BY OL.Sequence";
 
                     }
                 }
-
-
-                elockBNsql = @"Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(IsBonusDisbursed,0)=0 AND BonusDisbursementAdviceId IS NULL";
-                con.OpenDataSetThroughAdapter(elockBNsql, out dsEmpBN, false, "1");
-
-
-                for (int i = 0; i < dsEmpBN.Tables[0].Rows.Count; i++)
-                {
-                    DataView empsldv = new DataView(dsEmpBN.Tables[0]);
-                    empsldv.RowFilter = "EmpSystemId='" + dsEmpBN.Tables[0].Rows[i]["EmpSystemId"] + "' AND Id='" + dsEmpBN.Tables[0].Rows[i]["Id"] + "'";
-
-                    if (empsldv.Count > 0)
-                    {
-                        DataRow drsl = empsldv[0].Row;
-
-                        drsl.BeginEdit();
-                        drsl["EmployeeFinalSettlementId"] = _Id;
-                        drsl["UpdatedBy"] = identity.Name;
-                        drsl["UpdatedDate"] = DateTime.Now.ToString();
-                        drsl["UpdatedFromIP"] = identity.IPAddress;
-                        drsl.EndEdit();
-
-                    }
-                }
+               
 
                 foreach (var item in datalist)
                 {
@@ -2332,10 +2312,6 @@ ORDER BY OL.Sequence";
                         DataRow drmo = empdv[0].Row;
                         EditRow(drmo, item);
                     }
-
-
-
-
 
                     DataTable dtData = GetDataTable(empId);
                     for (int i = 0; i < dtData.Rows.Count; i++)
@@ -2438,7 +2414,31 @@ ORDER BY OL.Sequence";
 
                 #endregion data update 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsEmpMaster, dsFNFEmpMaster, dsEmpSL, dsEmpBN);
+                _info.SaveDataSets(dsMaster, dsEmpMaster, dsFNFEmpMaster, dsEmpSL);
+
+                elockBNsql = @"Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(IsBonusDisbursed,0)=0 AND BonusDisbursementAdviceId IS NULL";
+                con.OpenDataSetThroughAdapter(elockBNsql, out dsEmpBN, false, "1");
+
+
+                for (int i = 0; i < dsEmpBN.Tables[0].Rows.Count; i++)
+                {
+                    DataView empsldv = new DataView(dsEmpBN.Tables[0]);
+                    empsldv.RowFilter = "EmpSystemId='" + dsEmpBN.Tables[0].Rows[i]["EmpSystemId"] + "' AND Id='" + dsEmpBN.Tables[0].Rows[i]["Id"] + "'";
+
+                    if (empsldv.Count > 0)
+                    {
+                        DataRow drsl = empsldv[0].Row;
+
+                        drsl.BeginEdit();
+                        drsl["EmployeeFinalSettlementId"] = _Id;
+                        drsl["UpdatedBy"] = identity.Name;
+                        drsl["UpdatedDate"] = DateTime.Now.ToString();
+                        drsl["UpdatedFromIP"] = identity.IPAddress;
+                        drsl.EndEdit();
+
+                    }
+                }
+                _info.SaveDataSets(dsEmpBN);
 
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
 

@@ -57,6 +57,58 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #region -- Operations
 
+        [HttpGet, Authorize]
+        public ActionResult GetDisbursementAdviceCbo(string yearNo, string monthNo, string paymentMode)
+        {
+            try
+            {
+                return Json(_payrollReportsService.GetDisbursementAdviceCbo(yearNo, monthNo, paymentMode), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetPaymentModeCbo()
+        {
+            try
+            {
+                return Json(_payrollReportsService.GetPaymentModeCbo(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetMonthNoCbo()
+        {
+            try
+            {
+                return Json(_payrollReportsService.GetMonthNoCbo(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetYearNoCbo()
+        {
+            try
+            {
+                return Json(_payrollReportsService.GetYearNoCbo(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
         [HttpPost, Authorize]
         public ActionResult GetEmployeePaySlip(string month, string year, string salaryProcessId, Dictionary<string, string> parameters, string languageId, bool isActive, bool isSeperated, bool isMaternity, bool IsIncludingZeroHeads, bool singleEmployee, string reportFormat)
         {
