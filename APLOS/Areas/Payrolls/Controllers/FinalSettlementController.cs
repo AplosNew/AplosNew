@@ -242,8 +242,10 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
                         ,SepType=STUFF((select distinct ','+ST.UserName from [HKP].[SeparationType] ST	  
 											    LEFT JOIN [TRN].[Resignation] R ON R.SeparationTypeId=ST.Id
 												AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC)
-							                    where EI.SystemId=R.EmployeeId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							                    where EI.SystemId=R.EmployeeId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),EC.UserName EmployeeCategory
                          FROM dbo.Employeeinformation EI
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
                          LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id							 
                          LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
                          LEFT JOIN ORG.Company COM ON EI.CompanyId=COM.Id
@@ -1825,12 +1827,14 @@ Where ISNULL(M.IsApproved,0)=0 AND M.ApproveById='" + identity.EmployeeId + "'";
         [HttpGet, Authorize]
         public ActionResult GetEmployeeFNFDataByMaster(string masterId)
         {
-            string sql = @"select E.*,EI.EmployeeCode,EI.EmployeeName,FORMAT(EI.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EI.DOS,'dd-MMM-yyyy')DOS,LD.UserName LegalDesignation,D.UserName Department, EDG.UserName DesignationGroup
+            string sql = @"select E.*,EI.EmployeeCode,EI.EmployeeName,FORMAT(EI.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EI.DOS,'dd-MMM-yyyy')DOS,LD.UserName LegalDesignation,D.UserName Department, EDG.UserName DesignationGroup,EC.UserName EmployeeCategory
 from EmployeeFullAndFinalSettlement  E
 LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=E.EmpSystemId
 LEFT JOIN HKP.LegalDesignation LD ON LD.Id=EI.LegalDesignationId
 LEFT JOIN ORG.Department D ON D.Id=EI.DepartmentId
 LEFT JOIN HKP.DesignationGroup EDG ON  EDG.Id=EI.DesignationGroupId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 where FinalSettlementId='" + masterId + "'";
             var data = _sqlRepository.GetDataCollection(sql);
 
@@ -2050,7 +2054,7 @@ WHERE  spc.EmpInfoSystemID= '" + empId + @"' AND PayableVoucherId<>'' AND sl.Dis
 --AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL 
 --AND SPC.EmpInfoSystemID='" + empId + @"'
 --UNION
-select cast(SUM(spc.DisbusmentAmount)AS decimal(18,0))BonusAmount  from SalaryProcChild SPC
+select BonusAmount= CASE WHEN EC.UserName='Staff' THEN cast(SUM(spc.DisbusmentAmount)AS decimal(18,0)) ELSE 0 END   from SalaryProcChild SPC
 left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
 JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID
 Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.YearNo AND sl.MonthNo=SPM.MonthNo
@@ -2070,6 +2074,8 @@ ElSE CAST(A.Value as varchar(100)) END,0)
 ,OL.EntryState
 FROM EmployeeSeperationItem AS OL
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId='" + empId + @"'
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=E.GivenDesignationId
+LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TRN].[Resignation] R ON R.EmployeeId=E.SystemId
 AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC)
 LEFT JOIN(
