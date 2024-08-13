@@ -340,7 +340,6 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
     }
 
     // #endregion
-    $scope.bonusMessage = null;
     $scope.EmpSysId = null;
     $scope.FormulaList = [];
     $scope.FinalSettlementUndisbursedEarningList = [];
@@ -356,9 +355,7 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
             } else {
                 $scope.FormulaList = response.data.SeperationItem;
                 $scope.FinalSettlementUndisbursedEarningList = response.data.FinalSettlementUndisbursedEarning;
-                if (response.data.bonusData.length>0) {
-                    $scope.bonusMessage = "Bonus Disbursement AdviceId is created for this Employee.";
-                }
+                
                 angular.element(document.querySelector('#FormulaInfo')).modal('show');
             }
         });

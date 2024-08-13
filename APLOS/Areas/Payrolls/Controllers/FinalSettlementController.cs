@@ -98,9 +98,8 @@ LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=s
 WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL AND sh.SalaryHead='Net Pay' AND PastDisbursed IS NULL";
                 var FinalSettlementUndisbursedEarning = _sqlRepository.GetDataCollection(sqlundisbursed);
 
-                var bonusData = _sqlRepository.GetDataCollection(@"select * FROM [dbo].SalaryLock Where EmpSystemId='" + EmpSystemId + @"'  AND  BonusDisbursementAdviceId IS NOT NULL AND BonusDisbursementVoucherId IS NULL");
 
-                return Json(new { SeperationItem, FinalSettlementUndisbursedEarning, bonusData }, JsonRequestBehavior.AllowGet);
+                return Json(new { SeperationItem, FinalSettlementUndisbursedEarning }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -2061,7 +2060,7 @@ Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.
 LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
 left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 
 Where HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
-AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL AND ISNULL(sl.IsBonusDisbursed,0)=0 AND sl.BonusDisbursementAdviceId IS NULL
+AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL
 AND SPC.EmpInfoSystemID='" + empId + @"')A
 			 ) AS varchar(100))
            
@@ -2267,7 +2266,7 @@ ORDER BY OL.Sequence";
                 esql = "select * from EmployeeFullAndFinalSettlementItem where EmpSystemId IN(" + empIds + ")";
                 con.OpenDataSetThroughAdapter(esql, out dsEmpMaster, false, "1");
 
-                elocksql = @"Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND PastDisbursed  IS NULL AND DisbursementVoucherId IS NULL AND ISNULL(IsDisbursed,0)=0";
+                elocksql = @"Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND PastDisbursed  IS NULL AND DisbursementVoucherId IS NULL";
                 con.OpenDataSetThroughAdapter(elocksql, out dsEmpSL, false, "1");
 
 
@@ -2422,7 +2421,7 @@ ORDER BY OL.Sequence";
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster, dsEmpMaster, dsFNFEmpMaster, dsEmpSL);
 
-                elockBNsql = @"Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(IsBonusDisbursed,0)=0 AND BonusDisbursementAdviceId IS NULL";
+                elockBNsql = @"Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL";
                 con.OpenDataSetThroughAdapter(elockBNsql, out dsEmpBN, false, "1");
 
 
