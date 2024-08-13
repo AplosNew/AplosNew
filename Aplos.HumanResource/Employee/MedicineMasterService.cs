@@ -1372,7 +1372,7 @@ where MRC.MedicineReceiptId = '" + masterId + @"'
         {
             try
             {
-                var SQL = @"select ML.Id, FORMAT(ML.Date, 'dd-MMM-yyyy')[Date], 
+                var SQL = @"select Top 5000 ML.Id, FORMAT(ML.Date, 'dd-MMM-yyyy')[Date], 
 EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks,  ML.NoOfVisits, FORMAT(ML.Time, 'hh:mm tt')Time,
 STUFF((select ', ' + MC.UserName
 from TRN.EmployeeSickness ES
@@ -1398,7 +1398,7 @@ from TRN.MedicalLog ML
 left join EmployeeInformation EMP ON EMP.SystemId = ML.EmployeeSystemId
 --INNER JOIN TRN.EmployeeSicknessMedicines x on x.MedicalLogId = ML.Id
 GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, ML.NoOfVisits, ML.Time
-order by  ml.Date 
+order by  ml.Date  desc
 ";
 
                 return _sqlRepository.GetDataCollection(SQL);

@@ -12,9 +12,9 @@ function trialBalanceReportController($scope, $rootScope, $filter, baseService, 
         IsDetailLevel: false,
         OrganizationType: "Plant",
         ReportFormat: 'Pdf',
-        //FromDate: $filter('dateFiltering')(Date.now()),
         FromDate: $filter('dateFiltering')(Date.now()),
         ToDate: $filter('dateFiltering')(Date.now())
+        
     };
     $scope.reportDateWise = {
         IsUpToLevel: 'GL',
@@ -166,6 +166,40 @@ function trialBalanceReportController($scope, $rootScope, $filter, baseService, 
             }
         }
     };
+
+    $scope.GLGeneralInfoId = '';
+    $scope.Active = true;
+    $scope.PartyType = 'Customer';
+    $scope.ReportSize = 'ShortSize';
+    $scope.getPartyLedgerReport = function () {
+        if (baseService.isUndefinedOrNull($scope.PartyId)) {
+            ShowResult("Party is required.", 'failure');
+        }
+        else if (baseService.isUndefinedOrNull($scope.report.FromDate)) {
+            manualValidation('div_WDFromDate', true, "From Date is required.");
+        }
+        else if (baseService.isUndefinedOrNull($scope.report.ToDate)) {
+            manualValidation('div_WDToDate', true, "To Date is required.");
+        }
+        else if (new Date($scope.report.FromDate) > new Date($scope.report.ToDate)) {
+            manualValidation('div_WDFromDate', true, "From date must be below or equal to To Date");
+        }
+        else if (new Date($scope.report.ToDate) < new Date($scope.report.FromDate)) {
+            manualValidation('div_WDToDate', true, "To date must be above or equal to From Date.");
+        }
+
+        else {
+                var url = 'Parties/PartyReport/GetPartyLedgerReport?reportFormat=' + $scope.report.ReportFormat + '&partyType=' + $scope.PartyType + '&partyId=' + $scope.PartyId + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&active=' + $scope.Active;
+                if (!baseService.isUndefinedOrNull($scope.PartyPlantId)) {
+                    url += '&partyPlantId=' + $scope.PartyPlantId;
+                }
+                if (!baseService.isUndefinedOrNull($scope.GLGeneralInfoId)) {
+                    url += '&glId=' + $scope.GLGeneralInfoId;
+                }
+               
+                $window.open(url, '_blank');
+        }
+    };
     $scope.partyList = [];
     $scope.partyPlantList = [];
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
@@ -222,9 +256,10 @@ function trialBalanceReportController($scope, $rootScope, $filter, baseService, 
 
     $scope.closePartyPopUp = function (x) {
         var party = x.data;
-            $scope.PartyId = party.Id;
-            $scope.PartyName = party.UserName;
-            $scope.getPartyPlantList(party.Id);
+        $scope.PartyId = party.Id;
+        $scope.PartyType = party.PartyType;
+        $scope.PartyName = party.UserName;
+        $scope.getPartyPlantList(party.Id);
         $scope.hidePartyPopUp();
     };
     $scope.getPartyPlantList = function (partyId) {
