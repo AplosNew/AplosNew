@@ -2050,7 +2050,7 @@ WHERE  spc.EmpInfoSystemID= '" + empId + @"' AND PayableVoucherId<>'' AND sl.Dis
 --AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL 
 --AND SPC.EmpInfoSystemID='" + empId + @"'
 --UNION
-select cast(SUM(spc.DisbusmentAmount)AS decimal(18,0))BonusAmount  from SalaryProcChild SPC
+select BonusAmount= CASE WHEN EC.UserName='Staff' THEN cast(SUM(spc.DisbusmentAmount)AS decimal(18,0)) ELSE 0 END   from SalaryProcChild SPC
 left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
 JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID
 Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.YearNo AND sl.MonthNo=SPM.MonthNo
@@ -2070,6 +2070,8 @@ ElSE CAST(A.Value as varchar(100)) END,0)
 ,OL.EntryState
 FROM EmployeeSeperationItem AS OL
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId='" + empId + @"'
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=E.GivenDesignationId
+LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TRN].[Resignation] R ON R.EmployeeId=E.SystemId
 AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC)
 LEFT JOIN(
