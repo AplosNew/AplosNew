@@ -684,7 +684,8 @@ namespace Library.Accounting.Accounts
 	                         , IR.BaseCurrencyId, BCU.Code AS BaseCurrency, IR.CurrencyId, TCU.Code AS  TranscationCurrency, IR.ToCurrencyRate
 	                         , FiscalYearName=CASE WHEN IR.EmployeeId<>'' THEN FYEP.FiscalYearName ELSE FY.FiscalYearName END
 	                         , PeriodNo=CASE WHEN IR.EmployeeId<>'' THEN FYPEP.PeriodNo ELSE FYP.PeriodNo END
-							 , IR.AddedBy, IR.UpdatedBy, IR.Id GRNNo,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate,IRD.POId,IR.NoteforAccounts Narration
+							 , IR.AddedBy, IR.UpdatedBy, IR.Id GRNNo,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate
+                        ,IRD.POId,IR.NoteforAccounts Narration,ET.UserName EntityName
                         FROM [TRN].[InventoryReceive] AS IR
 						LEFT JOIN (SELECT DISTINCT InventoryReceiveId,POId FROM TRN.InventoryReceiveDetail ) IRD ON IRD.InventoryReceiveId=IR.Id
 						LEFT JOIN [TRN].[Invoice] AS IV ON IV.InventoryReceiveId=IR.Id
@@ -697,6 +698,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
 						LEFT JOIN TRN.EmployeePayable EP ON EP.InventoryReceiveId=IR.Id
 						LEFT JOIN [TRN].[Voucher] AS VEP ON EP.VoucherId=VEP.Id
+						LEFT JOIN [ORG].[Entity] AS ET ON ET.Id=IV.EntityId
 						LEFT JOIN [SCS].[FiscalYear] AS FYEP ON VEP.FiscalYearId=FYEP.Id
 						LEFT  JOIN [SCS].[FiscalYearPeriod] AS FYPEP ON VEP.FiscalYearPeriodId=FYPEP.Id
                         WHERE IR.Id='" + inventoryReceiveId + "'";
@@ -813,7 +815,7 @@ namespace Library.Accounting.Accounts
 
             var shet2EndxlsCol = 1;
 
-            #region Right header
+            #region Left header
 
             var _row = 5;
 
@@ -836,7 +838,7 @@ namespace Library.Accounting.Accounts
             reportUtility.SetText(ref sheet, _row, 2, receiveList["PostingDate"].ToString());
             sheet.Range[_row, 2, _row, 3].Merge();
             _row++;
-
+            
             if (!string.IsNullOrEmpty(employeeId) && employeeId != "null")
             {
                 reportUtility.SetMasterHeaderText(ref sheet, _row, 1, "Employee");
@@ -848,10 +850,10 @@ namespace Library.Accounting.Accounts
             reportUtility.SetText(ref sheet, _row, 2, receiveList["Vendor"].ToString());
             sheet.Range[_row, 2, _row, 3].Merge();
             _row++;
-
+            _row++;
             #endregion
 
-            #region Left Header
+            #region Right Header
 
             var _rowL = _row;
             var row = _row + 1;
@@ -874,6 +876,11 @@ namespace Library.Accounting.Accounts
 
             reportUtility.SetMasterHeaderText(ref sheet, _rowR, 4, "FiscalYear");
             reportUtility.SetText(ref sheet, _rowR, 5, receiveList["FiscalYearName"].ToString() + "(" + receiveList["PeriodNo"].ToString() + ")");
+            sheet.Range[_rowR, 5, _rowR, 8].Merge();
+            _rowR++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, _rowR, 4, "Entity");
+            reportUtility.SetText(ref sheet, _rowR, 5, receiveList["EntityName"].ToString());
             sheet.Range[_rowR, 5, _rowR, 8].Merge();
             _rowR++;
 

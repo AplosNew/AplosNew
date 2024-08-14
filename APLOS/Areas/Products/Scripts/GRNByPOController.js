@@ -325,29 +325,29 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
     }
 
 
-    $scope.Get = function (index) {
+    //$scope.Get = function (index) {
 
-        $scope.index = index;
-        $scope.product = $scope.products[$scope.index];
-        $scope.productNew = Object.assign({}, $scope.product);
-        // $scope.productNew.GRNDate = data.GRNDate;
-        getPartyPlantList();
-        getInventoryMaterialList($scope.productNew.Id);
-        getServiceChargeList($scope.productNew.Id);
-       
-        $scope.productId = $scope.productNew.Id;
-        //$scope.getToCurrencyRate();
-        if (!baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
-            var paymentTerm = $.grep($scope.paymentTermList, function (item) { return item.Value === $scope.productNew.PaymentTermId; })[0];
-            if (paymentTerm.BaseLineDate !== null)
-                if (paymentTerm.BaseLineDate === 'documentdate')
-                    $scope.IsBaseOnDueDateEnable = true;
-                else
-                    $scope.IsBaseOnDueDateEnable = false;
-        }
-        $scope.Action = 'Save';
-        if (!$rootScope.isCollapsed) $rootScope.toggle();
-    };
+    //    $scope.index = index;
+    //    $scope.product = $scope.products[$scope.index];
+    //    $scope.productNew = Object.assign({}, $scope.product);
+    //    // $scope.productNew.GRNDate = data.GRNDate;
+    //    getPartyPlantList();
+    //    getInventoryMaterialList($scope.productNew.Id);
+    //    getServiceChargeList($scope.productNew.Id);
+    //    getServiceOtherVendorChargeList($scope.productNew.Id)
+    //    $scope.productId = $scope.productNew.Id;
+    //    //$scope.getToCurrencyRate();
+    //    if (!baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
+    //        var paymentTerm = $.grep($scope.paymentTermList, function (item) { return item.Value === $scope.productNew.PaymentTermId; })[0];
+    //        if (paymentTerm.BaseLineDate !== null)
+    //            if (paymentTerm.BaseLineDate === 'documentdate')
+    //                $scope.IsBaseOnDueDateEnable = true;
+    //            else
+    //                $scope.IsBaseOnDueDateEnable = false;
+    //    }
+    //    $scope.Action = 'Save';
+    //    if (!$rootScope.isCollapsed) $rootScope.toggle();
+    //};
     $scope.ReqAllocation = function (podetail) {
         $scope.RowLength = $filter("filter")($scope.requisitionListByPo, { 'PODetailId': podetail.PODetailsID });
 
@@ -2989,6 +2989,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         getPartyPlantList();
         getInventoryMaterialList($scope.productNew.Id);
         getServiceChargeList($scope.productNew.Id);
+        getServiceOtherVendorChargeList($scope.productNew.Id);
         $scope.productId = $scope.productNew.Id;
         if (!baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
             var paymentTerm = $.grep($scope.paymentTermList, function (item) { return item.Value === $scope.productNew.PaymentTermId; })[0];
@@ -3037,6 +3038,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         getPartyPlantList();
         getInventoryMaterialList(Id);
         getServiceChargeList(Id);
+        getServiceOtherVendorChargeList(Id);
         $scope.GetAdvanceTaxInfo(Id);
         $scope.productNew.TaxOptionAddiTax = 'Yes';
         $scope.TotalSumAfterTCS();
@@ -4649,5 +4651,182 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
             ShowResult(response.data.Message, 'failure');
         }
     };
+
+
+    $scope.showOtherPartyPopUpNew = function () {
+
+        if ($scope.partyType === 'Vendor') {
+            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew?partyType=' + $scope.partyType;
+        }
+        $http({
+            method: 'POST',
+            url: $scope.partyUrl,
+            data: { column: $scope.searchByParty, value: $scope.searchParty },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.partyList = response.data;
+        });
+        angular.element(document.querySelector('#partyOtherPopUp')).modal('show');
+    };
+    $scope.closeOtherPartyPopUp = function (x) {
+        //if ($scope.partyIndex !== -1) {
+
+        var party = x.data;// $scope.partyList[$scope.partyIndex];
+        $scope.productNew.OtherPartyCode = party.Code;
+        $scope.productNew.OtherPartyName = party.UserName;
+        $scope.productNew.OtherPartyId = party.Id;
+
+        //$scope.productNew.TaxApplicable = party.TaxApplicable;
+        //$scope.productNew.IsTaxApplicableChangeable = party.IsTaxApplicableChangeable;
+        getOtherPartyPlantList();
+        //}
+        $scope.hideOtherPartyPopUp();
+    };
+    function getOtherPartyPlantList() {
+        $scope.plantList = [];
+        $http.get('Parties/party/GetPartyPlantCbo?partyId=' + $scope.productNew.OtherPartyId).then(function (response) {
+            angular.forEach(response.data, function (item) {
+                $scope.plantList.push(item);
+                if (item.IsDefault) {
+                    $scope.productNew.OtherInvoicingPartyPlantId = item.Value;
+                    $scope.productNew.OtherDeliveryPartyPlantId = item.Value;
+                    $scope.productNew.OtherInvoicingByAddress = item.Address1;
+                    $scope.productNew.OtherDeliveryByAddress = item.Address1;
+                    $scope.productNew.OtherInvoicingState = item.StateName;
+                    $scope.productNew.OtherInvoicingGSTIN = item.GSTIN;
+                    $scope.productNew.OtherDeliveryState = item.StateName;
+                    $scope.productNew.OtherDeliveryGSTIN = item.GSTIN;
+                }
+            });
+        });
+    }
+
+    $scope.hideOtherPartyPopUp = function () {
+        angular.element(document.querySelector('#partyOtherPopUp')).modal('hide');
+    };
+
+    $scope.OtherinvoicingPartyPopUp = function () {
+        angular.element(document.querySelector('#OtherinvoicingPartyPopUp')).modal('show');
+    };
+    $scope.closeOtherInvoicingPartyPopUp = function () {
+        angular.element(document.querySelector('#OtherinvoicingPartyPopUp')).modal('hide');
+    };
+
+    $scope.otherserviceCboList = [];
+    $scope.OtherserviceChargePopUp = function () {
+        $scope.productNew.TaxOptionService = 'Yes';
+        if (baseService.arrayLength($scope.inventoryMaterialList) === 0)
+            return ShowResult('Without material charges not aplicable.');
+        $scope.taxCategoryList = null;
+        $scope.OtherserviceModel = {
+            Id: null
+            , ServiceMasterId: null
+            , InventoryReceiveId: $scope.productNew.Id
+            , CurrencyName: angular.element("#currency :selected").text()
+            , CurrencyId: $scope.productNew.CurrencyId
+            , BaseCurrencyId: $scope.baseCurrencyId
+            , DocDate: $scope.productNew.DocDate
+            , TransactionAmount: 0
+            , BaseAmount: 0
+            , TotalTaxAmount: 0
+            , ToCurrencyRate: $scope.productNew.ToCurrencyRate
+            , IsNonCreditable: $scope.productNew.IsNonCreditable
+        };
+        $scope.getOtherService();
+        angular.element(document.querySelector('#otherserviceChargePopUp')).modal('show');
+    };
+    $scope.getOtherService = function () {
+        $http.get('Setups/CompanyServiceMaster/GetCboList')
+            .then(function (response) {
+                $scope.otherserviceCboList = response.data;
+            });
+    }
+
+
+    $scope.closeOtherServiceChargePopUp = function () {
+        $scope.OtherserviceModel = {};
+        $scope.receiveTaxList = [];
+        angular.element(document.querySelector('#otherserviceChargePopUp')).modal('hide');
+    };
+
+    $scope.changeOtherService = function () {
+        if (baseService.isUndefinedOrNull($scope.OtherserviceModel.ServiceMasterId))
+            return getTaxCategoryList(hsnCodeId);//$scope.taxCategoryList = [];
+        var hsnCodeId = $.grep($scope.otherserviceCboList, function (item) { return item.Value === $scope.OtherserviceModel.ServiceMasterId; })[0].HSNCodeId;
+        var HSNCode = $.grep($scope.otherserviceCboList, function (item) { return item.Value === $scope.OtherserviceModel.ServiceMasterId; })[0].HSNCode;
+        getTaxCategoryList(hsnCodeId, HSNCode);
+    };
+
+    $scope.calculateotherSvcTaxCategory = function () {
+        $scope.OtherserviceModel.TotalTaxAmount = 0;
+        for (var i = 0; i < baseService.arrayLength($scope.taxCategoryList); i++) {
+            $scope.taxCategoryList[i].TaxAmount = ((parseFloat($scope.taxCategoryList[i].Percentage) * $scope.OtherserviceModel.TransactionAmount) / 100).toFixed($rootScope.currencyPrecision);
+            $scope.OtherserviceModel.TotalTaxAmount = (parseFloat($scope.OtherserviceModel.TotalTaxAmount) + parseFloat($scope.taxCategoryList[i].TaxAmount)).toFixed($rootScope.currencyPrecision);
+        }
+        if (isNaN($scope.serviceModel.TotalTaxAmount)) $scope.OtherserviceModel.TotalTaxAmount = 0;
+    };
+    $scope.OthersreviceSaveUrl = 'Products/InventoryReceive/OtherVendorServiceChargesCreate';
+
+    $scope.showOtherVendorChargesAlart = function () {
+        $scope.message = 'Are you sure want to Save Other Vendor Charges? Other vendor Charges amount will not allocate For New Material Item';
+        angular.element(document.querySelector('#OtherVendorChargePopUp')).modal('show');
+    };
+
+    $scope.OtherserviceSave = function () {
+        try {
+            $scope.manualValidationAddRemove('div_svcOther', 'OtherserviceModel', 'ServiceMasterId');
+            $scope.manualValidationAddRemove('div_svcRateOther', 'OtherserviceModel', 'TransactionAmount', 'Amount');
+            $scope.OtherserviceModel.OtherPartyId = $scope.productNew.OtherPartyId;
+            $scope.OtherserviceModel.OtherPartyPlantId = $scope.productNew.OtherInvoicingPartyPlantId;
+
+            $http({
+                method: 'POST',
+                url: $scope.OthersreviceSaveUrl,
+                data: {
+                    entity: $scope.OtherserviceModel
+                    , taxCategoryList: $scope.taxCategoryList
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure', 'otherserviceChargePopUp');
+                else {
+                    ShowResult(response.data.Message, 'success', 'otherserviceChargePopUp');
+                    $scope.serviceModel = {
+                        Id: null
+                        , ServiceMasterId: null
+                        , InventoryReceiveId: $scope.productNew.Id
+                        , CurrencyName: angular.element("#currency :selected").text()
+                        , CurrencyId: $scope.productNew.CurrencyId
+                        , BaseCurrencyId: $scope.baseCurrencyId
+                        , DocDate: $scope.productNew.DocDate
+                        , TransactionAmount: 0
+                        , BaseAmount: 0
+                        , TotalTaxAmount: 0
+                        , ToCurrencyRate: $scope.productNew.ToCurrencyRate
+                        , IsNonCreditable: $scope.productNew.IsNonCreditable
+                    };
+                    $scope.taxCategoryList = [];
+                    getServiceChargeList($scope.productNew.Id);
+                    getInventoryMaterialList($scope.productNew.Id);
+                    getServiceOtherVendorChargeList($scope.productNew.Id);
+                    $scope.getDataList();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure', 'otherserviceChargePopUp');
+            };
+        } catch (e) {
+            //ShowResult(e, 'fail', 'detailPopUp');
+        }
+    };
+
+    function getServiceOtherVendorChargeList(inveReveiveId) {
+        $http.get('Products/InventoryReceive/GetServiceOtherVendorChargeList?receiveId=' + inveReveiveId)
+            .then(function (response) {
+                $scope.otherserviceList = [];
+                $scope.otherserviceList = response.data;
+            });
+    }
+
 
 }

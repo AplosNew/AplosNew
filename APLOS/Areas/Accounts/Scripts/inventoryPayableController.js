@@ -377,7 +377,7 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
 
     $scope.OtherVendorChargesPayableList = [];
     function getOtherVendorChargesList(inveReveiveId, otherVendorId) {
-        $http.get('Products/InventoryReceive/GetOtherVendorChargesPayable?inveReveiveId=' + inveReveiveId + '&otherPartyId=' + OtherPartyId )
+        $http.get('Products/InventoryReceive/GetOtherVendorChargesPayable?inveReveiveId=' + inveReveiveId + '&otherPartyId=' + otherVendorId )
             .then(function (response) {
                 $scope.OtherVendorChargesPayableList = [];
                 $scope.OtherVendorChargesPayableList = response.data;
