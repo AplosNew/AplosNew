@@ -1295,6 +1295,16 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         });
     }
 
+    function getTaxCategoryOtherVendorList(hsnCodeId) {
+        $scope.taxCategoryList = [];
+        $http({
+            method: 'GET'
+            , url: $scope.path + 'GetTaxCategoryOtherVendorList?receiveId=' + $scope.productNew.Id + '&hsnCodeId=' + hsnCodeId + '&OtherPartyPlantId=' + $scope.productNew.OtherInvoicingPartyPlantId
+        }).then(function (response) {
+            $scope.taxCategoryList = response.data;
+        });
+    }
+
     $scope.calculateTaxCategory = function () {
         $scope.detailModel.TotalTaxAmount = 0;
         var tQty = baseService.isUndefinedOrNull($scope.detailModel.TransactionQty) ? 0 : parseFloat($scope.detailModel.TransactionQty);
@@ -4675,6 +4685,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         $scope.productNew.OtherPartyCode = party.Code;
         $scope.productNew.OtherPartyName = party.UserName;
         $scope.productNew.OtherPartyId = party.Id;
+        $scope.productNew.OtherPartyPlantId = party.PartyPlantId;
 
         //$scope.productNew.TaxApplicable = party.TaxApplicable;
         //$scope.productNew.IsTaxApplicableChangeable = party.IsTaxApplicableChangeable;
@@ -4754,7 +4765,8 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
             return getTaxCategoryList(hsnCodeId);//$scope.taxCategoryList = [];
         var hsnCodeId = $.grep($scope.otherserviceCboList, function (item) { return item.Value === $scope.OtherserviceModel.ServiceMasterId; })[0].HSNCodeId;
         var HSNCode = $.grep($scope.otherserviceCboList, function (item) { return item.Value === $scope.OtherserviceModel.ServiceMasterId; })[0].HSNCode;
-        getTaxCategoryList(hsnCodeId, HSNCode);
+        /*getTaxCategoryList(hsnCodeId, HSNCode);*/
+        getTaxCategoryOtherVendorList(hsnCodeId, HSNCode);
     };
 
     $scope.calculateotherSvcTaxCategory = function () {

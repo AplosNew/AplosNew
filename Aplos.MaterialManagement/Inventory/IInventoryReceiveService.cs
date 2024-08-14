@@ -27,6 +27,7 @@ namespace Library.MaterialManagement.Inventory
 		IEnumerable<object> GetListForInvShortagePayable(string plantId);
         IEnumerable<object> GetListForInvRejectPayable(string plantId);
         IEnumerable<object> GetTaxCategoryList(string companyGroupId, string receiveId, string plantId, string hsnCodeId, string GRNDate);
+        IEnumerable<object> GetTaxCategoryOtherVendorList(string companyGroupId, string receiveId, string plantId, string hsnCodeId, string GRNDate, string OtherPartyPlantId);
         IEnumerable<object> GetTaxCategoryListForSales(string companyGroupId, string receiveId, string plantId, string hsnCodeId); 
 
         IEnumerable<object> GetReceiveTaxList(string receiveDetailId);
