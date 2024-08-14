@@ -1167,6 +1167,13 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [Authorize, HttpGet]
+        public JsonResult GetTaxCategoryOtherVendorList(string receiveId, string hsnCodeId, string GRNDate,string OtherPartyPlantId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetTaxCategoryOtherVendorList(identity.CompanyGroupId, receiveId, identity.PlantId, hsnCodeId, GRNDate, OtherPartyPlantId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetReceiveTaxList(string receiveDetailId)
         {
             return Json(_inventoryReveiveService.GetReceiveTaxList(receiveDetailId), JsonRequestBehavior.AllowGet);
