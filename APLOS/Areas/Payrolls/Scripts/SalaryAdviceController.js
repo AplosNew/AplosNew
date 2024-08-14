@@ -95,16 +95,11 @@ function SalaryAdviceController(commonMessage, $scope, $rootScope, baseService, 
         $scope.YearNoList = response.data;
     });
 
-    $scope.EmpCatList = [];
-    $scope.getEmpCategory = function () {
-        $http({
-            method: 'GET',
-            url: 'Leave/AnnualLeaveProcess/GetEmpCategory'
-        }).then(function success(response) {
-            $scope.EmpCatList = response.data;
-        })
-    }
-    $scope.getEmpCategory();
+   
+    $scope.EmpCatList = [
+        { Value: "1", Text: "Parked" },
+        { Value: "0", Text: "Posted" }
+    ];
 
 
     $scope.disbursementAdviceList = [];
@@ -126,7 +121,7 @@ function SalaryAdviceController(commonMessage, $scope, $rootScope, baseService, 
 
               $scope.ReportFormat = 'Excel';
            // $scope.ReportFormat = 'Pdf';
-            var url = 'Payrolls/PaySlipsNew/GetSalaryAdviseReportPdf?reportFormat=' + $scope.ReportFormat + '&empcat=' + $scope.EmployeeCategory + '&adviceId=' + $scope.DisbursmentId + '&yearNo=' + $scope.year + '&monthNo=' + $scope.month + '&monthName=' + $scope.monthName;
+            var url = 'Payrolls/PaySlipsNew/GetSalaryAdviseReportPdf?reportFormat=' + $scope.ReportFormat + '&empcat=' + $scope.EmployeeCategory + '&adviceId=' + $scope.DisbursmentId + '&yearNo=' + $scope.year + '&monthNo=' + $scope.month + '&monthName=' + $scope.monthName + '&status=' + $scope.EmpCat;
             $rootScope.report(url);
 
         } catch (e) {

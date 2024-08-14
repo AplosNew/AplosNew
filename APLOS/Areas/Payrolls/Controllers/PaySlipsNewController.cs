@@ -203,13 +203,13 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult GetSalaryAdviseReportPdf(ReportFormat reportFormat, string empcat, string adviceId, string yearNo, string monthNo, string monthName)
+        public ActionResult GetSalaryAdviseReportPdf(ReportFormat reportFormat, string empcat, string adviceId, string yearNo, string monthNo, string monthName,string status)
         {
             try
             {
                 string fileName = "";
 
-                IWorkbook workbook = GetSalaryAdviseWorkbook("Data", empcat, adviceId, yearNo, monthNo, monthName);
+                IWorkbook workbook = GetSalaryAdviseWorkbook("Data", empcat, adviceId, yearNo, monthNo, monthName, status);
                 var reportFileName = DateTime.Now.ToString("yyMMdd") + "BankAdvice";
                 // return RenderReportAsPdf(workbook, reportFileName);
                 switch (reportFormat)
@@ -253,7 +253,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         }
 
-        public IWorkbook GetSalaryAdviseWorkbook(string SheetName, string empcat, string adviceId, string yearNo, string monthNo,string monthName)
+        public IWorkbook GetSalaryAdviseWorkbook(string SheetName, string empcat, string adviceId, string yearNo, string monthNo,string monthName,string status)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ExcelEngine excelEngine = null;
@@ -285,7 +285,8 @@ WHERE  sh.SalaryHead='Net Pay'
 LEFT JOIN EmployeeBankInfo EB ON EB.EmpSystemID = EI.SystemId
 AND EB.RowID=(Select top(1) RowID from EmployeeBankInfo Where EmpSystemID=EB.EmpSystemID AND  IsApproved=1 Order BY DateAdded DESC)
  LEFT JOIN HKP.Bank B ON B.Id = EB.BankSystemID
-Where SL.DisbursementAdviceId='" + adviceId + "' AND sl.YearNo='"+yearNo+@"' AND sl.MonthNo='"+monthNo+@"'";
+ LEFT JOIN TRN.Voucher V oN V.Id=SL.DisbursementVoucherId
+Where SL.DisbursementAdviceId='" + adviceId + "' AND sl.YearNo='"+yearNo+@"' AND sl.MonthNo='"+monthNo+ @"' AND V.IsPark="+status+"";
                 dtOrder = _sqlRepository.GetDataTable(sql);
 
 
@@ -299,8 +300,8 @@ Where SL.DisbursementAdviceId='" + adviceId + "' AND sl.YearNo='"+yearNo+@"' AND
                 sheet.Range[ROW, COL].Text = "Bank Advice";
                 sheet.Range[ROW, 1, ROW, 7].Merge();
                 ROW++;
-                sheet.Range[ROW, COL].Text = "Category :";
-                sheet.Range[ROW, 2].Text =   empcat ;
+                sheet.Range[ROW, COL].Text = "Status :";
+                sheet.Range[ROW, 2].Text = empcat;//status=="1"?"Parked" :"Posted";
                 sheet.Range[ROW, 3].Text = "Disbursment Id :"+ adviceId;
                 sheet.Range[ROW, 5].Text = "Disbursment Date :"+ dtOrder.Rows[0]["DisbursmentDate"].ToString();
 
