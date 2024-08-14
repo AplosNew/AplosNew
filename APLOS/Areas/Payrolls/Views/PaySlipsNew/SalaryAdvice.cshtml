@@ -1,302 +1,82 @@
 ﻿<h3 class="site-heading"><span class="glyphicon glyphicon-file"></span>{{FormTitle}}</h3>
 <div class="row">
     <div class="col-xs-12">
-        <div class="col-xs-6">
+        <div class="col-xs-4">
             <div class="form-group">
-                <label class="col-sm-2 control-label">Payment Mode</label>
-                <div class="col-sm-4">
+                <label class="col-sm-4 control-label">Year</label>
+                <div class="col-sm-8">
+                    <input id="ddlYearList" e-watermarktext="Year" ej-dropdownlist e-datasource="YearNoList" e-enablefiltersearch="true" e-value="year" e-databound="SelectDefaultValue" e-fields-value="Text" e-fields-text="Text" e-width="100%" />
+                </div>
+            </div>
+            
+        </div>
+        <div class="col-xs-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Month</label>
+                <div class="col-sm-8">
+                    @*<input id="ddlMonthList" e-watermarktext="Month" ej-dropdownlist e-datasource="monthList" e-enablefiltersearch="true" e-value="month" e-fields-value="Value" e-fields-text="Text" e-width="100%" />*@
                     <div class="select-style">
-                        <select id="PaymentModeId" class="form-control" name="Payment Mode" ng-model="voucher.PaymentMode" tabindex="5">
+                        <select id="Month" class="form-control" name="Month" ng-model="month" tabindex="5">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in monthList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        <div class="col-xs-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Disbursment Type</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select id="PaymentModeId" class="form-control" name="Payment Mode" ng-model="PaymentMode" tabindex="5" ng-change="GetDisbursementAdviceCbo();">
                             <option value="">--Select--</option>
                             <option ng-repeat="option in paymentModeList" value="{{option.Value}}">{{option.Text}}</option>
                         </select>
                     </div>
                 </div>
             </div>
-
-            <div class="form-group">
-                <label class="col-sm-4 control-label" style="margin-top:10px;">Employee Category<sup>*</sup></label>
-                <div class="col-sm-8 show-message" style="margin-top:10px;">
-                    <div class="select-style">
-                        <input id="EmpCategoryDropdown" ej-dropdownlist e-multiselectmode="visualmode"
-                               e-datasource="EmpCatList" e-fields-value="Value"
-                               e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
-                    </div>
-                </div>
-            </div>
         </div>
-
-
-        <div class="col-xs-2 col-sm-2 col-md-2 text-left">
-
-            <input id="ddlYearList" e-watermarktext="Year" ej-dropdownlist e-datasource="yearList" e-enablefiltersearch="true" e-value="year" e-databound="SelectDefaultValue" e-fields-value="Text" e-fields-text="Text" e-width="100%" />
-
-        </div>
-        <div class="col-xs-2 col-sm-2 col-md-2">
-
-            <input id="ddlMonthList" e-watermarktext="Month" ej-dropdownlist e-datasource="monthList" e-enablefiltersearch="true" e-value="month" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
-
-        </div>
-
-
-        <div class="col-xs-7 col-sm-7 col-md-7">
-            <div class="col-md-12">
-                <div class="col-xs-3 col-sm-3 col-md-3">
-
-
-                </div>
-                <div class="col-xs-3 col-sm-3 col-md-3">
-
-                    <div class="form-group">
-                        <label class="col-sm-6 " style="font-weight:normal;">Regular<sup></sup></label>
-                        <div class="col-sm-6">
-                            <input type="checkbox" ej-checkbox class="nodetext" e-value="isActive" e-checked="isActive" e-model="isActive" />
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-xs-3 col-sm-3 col-md-3">
-                    <div class="form-group">
-                        <label class="col-sm-8" style="font-weight:normal;">Seperated<sup></sup></label>
-                        <div class="col-sm-4">
-                            <input type="checkbox" ej-checkbox class="nodetext" e-value="isSeperated" e-checked="isSeperated" e-model="isSeperated" />
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-3 col-sm-3 col-md-3">
-                    <div class="form-group">
-                        <label class="col-sm-8" style="font-weight:normal;">Going Maternity<sup></sup></label>
-                        <div class="col-sm-2">
-                            <input type="checkbox" ej-checkbox class="nodetext" e-value="isMaternity" e-checked="isMaternity" e-model="isMaternity" />
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-        <div class="col-xs- col-sm-1 col-md-1">
-            <div class="form-group">
-                <div class="common-btn">
-                    <button ng-click="GetEmployeeInformation();" class="btn"> <i class="glyphicon glyphicon-download"></i>Go</button>
-                </div>
-            </div>
-        </div>
-
-
     </div>
-
-    <div class="col-xs-12" ng-show="empGrid">
-        <div class="col-md-12 col-md-2 col-md-2">
-            <div class="common-btn">
-                <ul class="common-btn list-inline text-left">
-                    <li><button ng-click="showEmployeeFilterScreen()" class="btn" tabindex="10"><i class="glyphicon glyphicon-filter"></i></button></li>
-                    <li><button ng-click="clearManualFilter()" class="btn" tabindex="10"><i class="glyphicon glyphicon-refresh"></i></button></li>
-
-                </ul>
-            </div>
-        </div>
-        <div class="col-md-12 col-md-2 col-md-2">
+    <div class="col-xs-12">
+        <div class="col-xs-4">
             <div class="form-group">
-                <label class="col-sm-9 " style="font-weight:normal;">Single Page<sup></sup></label>
-                <div class="col-sm-3">
-                    <input type="checkbox" ej-checkbox class="nodetext" e-value="singleEmployeePrint" e-checked="singleEmployeePrint" />
-                </div>
-            </div>
-        </div>
-        <div class="col-md-12 col-md-3 col-md-3">
-            <div class="form-group">
-                <label class="col-sm-10 control-label">Incl. Zero Heads</label>
-                <div class="col-sm-2">
-                    <div class="checkbox-site">
-                        <label>
-                            <input type="checkbox" name="IncludingZeroHeads" ng-model="IncludingZeroHeads">
-                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-12 col-md-3 col-md-3">
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Language<sup></sup></label>
+                <label class="col-sm-4 control-label">Employee Category</label>
                 <div class="col-sm-8">
                     <div class="select-style">
-                        <select id="languageId" class="form-control" ng-model="languageId" name="languageId" required tabindex="3">
+                        <select id="EmployeeCategory" class="form-control" name="Employee Category" ng-model="EmpCat" tabindex="5">
                             <option value="">--Select--</option>
-                            <option ng-repeat="option in localLanguageList" value="{{option.Value}}">{{option.Text}}</option>
+                            <option ng-repeat="option in EmpCatList" value="{{option.Value}}">{{option.Text}}</option>
                         </select>
                     </div>
                 </div>
-
             </div>
         </div>
-        <div class="col-md-12 col-md-2 col-md-2 text-right">
-            <div class="common-btn text-right">
-                <button ng-click="GetPaySlip();" class="btn"> <i class="glyphicon glyphicon-file"></i>Download</button>
-            </div>
-
-        </div>
-        <div class="col-xs-12">
+        <div class="col-xs-4">
             <div class="form-group">
-                <label class="col-sm-3 control-label">Format</label>
-                <div class="col-sm-9 radio">
-                    <label>
-                        <label>
-                            <input type="radio" name="source" ng-model="ReportFormat" value="@Library.Model.Enums.ReportFormat.Pdf.ToString()">
-                            <span class="cr" tabindex="1"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Pdf.ToString()
-                        </label>
-                        <label>
-                            <input type="radio" name="source" ng-model="ReportFormat" value="@Library.Model.Enums.ReportFormat.Excel.ToString()">
-                            <span class="cr" tabindex="2"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Excel.ToString()
-                        </label>
+                <label class="col-sm-4 control-label">Disbursment Id</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select id="DisbursmentId" class="form-control" name="DisbursmentId" ng-model="DisbursmentId" tabindex="5">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in disbursementAdviceList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
-
-
-        <div class="row">
-            <div class="col-md-12">
-                <div id="empInfoGrid" ej-grid e-datasource="EmployeeListTemp" e-recorddoubleclick="Get" e-allowscrolling="true" e-pageSettings-pageSize="20"
-                     e-actioncomplete="actionCompleteSelected" e-templaterefresh="refreshTemplateemployee"
-                     e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
-                     e-allowselection="true" e-filtersettings-filterType="excel" style="margin-left:1%">
-
-                    <div e-columns>
-                        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="Division" e-headertext="Division" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="Line" e-headertext="Line" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="PayRollGroup" e-headertext="PayRoll Gruop" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="JobLocation" e-headertext="Job Location" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="PaymentMode" e-headertext="Payment Mode" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="BankName" e-headertext="Bank Name" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="DOS" e-headertext="DOS" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="SalaryProcFlag" e-headertext="EmployeeStatus" e-allowediting="false" e-width="80"></div>
-                    </div>
-                </div>
-
-
+        <div class="col-xs-4">
+            <div class="common-btn" style="padding-right: 15px;">
+                <ul class="list-inline text-right">
+                    <li><button ng-click="PrintData();"  class="btn"><i class="glyphicon glyphicon--send" tabindex="9"></i> Download</button></li>
+                </ul>
             </div>
         </div>
     </div>
+    
 </div>
-<div class="modal fade site-modal in" id="empfilterPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header"> Select Employees<button type="button" class="close" data-dismiss="modal">&times;</button></div>
 
-            <div class="col-xs-12 col-sm-12 col-sm-12">
-                <div class="content-container-fluid">
-
-                    <div id="GridemployeepopUp" ng-init="chkinit()" ej-grid e-datasource="EmployeeList" @*e-actioncomplete="actionCompleteSelected"*@
-                         @*e-templaterefresh="refreshTemplateemployee"*@
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                         e-allowselection="true" e-filtersettings-filterType="excel">
-                        <div e-columns>
-                            <div e-column e-headertext="" @*e-headertemplateid="#headerTemplate"*@ e-template="#checkboxTemplatePopUp" e-textalign="center" e-width="20"></div>
-                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="Division" e-headertext="Division" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="Unit" e-headertext="Unit" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="Line" e-headertext="Line" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="PayRollGroup" e-headertext="PayRoll Gruop" e-allowediting="false" e-width="120"></div>
-                            <div e-column e-field="JobLocation" e-headertext="Job Location" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="PaymentMode" e-headertext="Payment Mode" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="BankName" e-headertext="Bank Name" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="SalaryProcess" e-headertext="Salary Process" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="DOS" e-headertext="DOS" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="SalaryProcFlag" e-headertext="EmployeeStatus" e-allowediting="false" e-width="80"></div>
-                        </div>
-                    </div>
-
-
-                </div>
-
-                <script type="text/template" id="checkboxTemplate">
-                    <input type="checkbox" ej-checkbox class="nodetext" e-value="data.isToBeSelect" e-checked="data.isToBeSelect" />
-                </script>
-                <script type="text/x-jsrender" id="headerTemplate">
-                    <input type="checkbox" id="headchk" />
-                </script>
-            </div>
-            <ul class="common-btn list-inline text-right" style="padding: 20px;">
-                <li><button ng-click="saveemployeedata();" class="btn" tabindex="10"><i class="glyphicon glyphicon-info-sign right"></i> Submit</button></li>
-                <li><button ng-click="Back();" class="btn" tabindex="10"><i class="glyphicon glyphicon-info-sign right"></i> Back</button></li>
-            </ul>
-
-        </div>
-    </div>
-</div>
-<div class="modal fade site-modal in" id="empfilterPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header"> Select Employees<button type="button" class="close" data-dismiss="modal">&times;</button></div>
-
-            <div class="col-xs-12 col-sm-12 col-sm-12">
-                <div class="content-container-fluid">
-
-                    <div id="Gridemployee" ng-init="chkinit()" ej-grid e-datasource="EmployeeList" @*e-actioncomplete="actionCompleteSelected"*@
-                         @*e-templaterefresh="refreshTemplateemployee"*@
-                         e-allowfiltering="false" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                         e-allowselection="true" e-filtersettings-filterType="excel">
-                        <div e-columns>
-                            <div e-column e-headertext="" @*e-headertemplateid="#headerTemplate"*@ e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>
-                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="Division" e-headertext="Division" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="Unit" e-headertext="Unit" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="Line" e-headertext="Line" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="PayRollGroup" e-headertext="PayRoll Gruop" e-allowediting="false" e-width="120"></div>
-                            <div e-column e-field="JobLocation" e-headertext="Job Location" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="PaymentMode" e-headertext="Payment Mode" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="BankName" e-headertext="Bank Name" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="SalaryProcess" e-headertext="Salary Process" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="DOS" e-headertext="DOS" e-allowediting="false" e-width="80"></div>
-                            <div e-column e-field="SalaryProcFlag" e-headertext="EmployeeStatus" e-allowediting="false" e-width="80"></div>
-                        </div>
-                    </div>
-
-
-                </div>
-
-                <script type="text/template" id="checkboxTemplate">
-                    <input type="checkbox" ej-checkbox class="nodetext" e-value="data.isToBeSelect" e-checked="data.isToBeSelect" />
-                </script>
-                <script type="text/template" id="checkboxTemplatePopUp">
-                    <input type="checkbox" ej-checkbox class="nodetext" e-value="data.isToBeSelect" e-checked="data.isToBeSelect" />
-                </script>
-                
-
-                <script type="text/x-jsrender" id="headerTemplate">
-                    <input type="checkbox" id="headchk" />
-                </script>
-            </div>
-            <ul class="common-btn list-inline text-right" style="padding: 20px;">
-                <li><button ng-click="saveemployeedata();" class="btn" tabindex="10"><i class="glyphicon glyphicon-info-sign right"></i> Submit</button></li>
-                <li><button ng-click="Back();" class="btn" tabindex="10"><i class="glyphicon glyphicon-info-sign right"></i> Back</button></li>
-            </ul>
-
-        </div>
-    </div>
-</div>
 
 
 <div class="loader" data-loader>

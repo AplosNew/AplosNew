@@ -6,28 +6,15 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
     $scope.index = -1;
     $scope.SeparationTypes = [];
     $scope.path = 'Payrolls/FinalSettlement/';
-    $scope.getSTListUrl = $scope.path + 'GetSeparationTypelist';
-    $scope.getSTSCUrl = $scope.path + 'SeparationTypeSelectedChange';
     $scope.getEmployeeListUrl = $scope.path + 'GetEmployeelist';
-    $scope.saveUrl = $scope.path + 'SaveFinalSettlement';
-    $scope.getFSListUrl = $scope.path + 'GetEmployeeFinalSettlementlist';
-    $scope.getDataForEditUrl = $scope.path + 'GetDataForEdit';
-    $scope.getETListUrl = $scope.path + 'GetEmploymentTypelist';
-    $scope.getListUrl = $scope.path + 'GetSeparationTypelist';
-    $scope.updateUrl = $scope.path + 'edit';
-    $scope.deleteUrl = $scope.path + 'delete/';
-
-
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
     };
-
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
-
 
     $scope.FinalSettlementList = [];
     $scope.LoadAllFinalSettlementList = function () {
@@ -97,7 +84,6 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
             ShowResult(e, "failure");
         }
     };
-
 
     $scope.SelectEmpDetail = function (args) {
         $scope.FinalSettlementModel = Object.assign({}, args.data);
@@ -203,6 +189,7 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
                         ob.DesignationGroup = $scope.EmployeeInformationList[i].DesignationGroup;
                         ob.Department = $scope.EmployeeInformationList[i].Department;
                         ob.EntityName = $scope.EmployeeInformationList[i].EntityName;
+                        ob.EmployeeCategory = $scope.EmployeeInformationList[i].EmployeeCategory;
                         ob.State = true;
                         $scope.SelectedEmployeeList.push(ob);
                         ob = {};
@@ -214,7 +201,6 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
             ShowResult(e, 'failure');
         }
     }
-
 
     $scope.message_confirmation = null;
     $scope.RemoveEmployee = function (obj) {
@@ -294,8 +280,6 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
         gridObj.refreshContent();
     };
 
-
-
     $scope.Process = function () {
         try {
             $scope.SelectedEmpList = [];
@@ -355,9 +339,7 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
         }
     }
 
-
     // #endregion
-
     $scope.EmpSysId = null;
     $scope.FormulaList = [];
     $scope.FinalSettlementUndisbursedEarningList = [];
@@ -373,6 +355,7 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
             } else {
                 $scope.FormulaList = response.data.SeperationItem;
                 $scope.FinalSettlementUndisbursedEarningList = response.data.FinalSettlementUndisbursedEarning;
+                
                 angular.element(document.querySelector('#FormulaInfo')).modal('show');
             }
         });
@@ -393,7 +376,6 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
         });
     }
 
-
     $scope.CloseFormulaPopUp = function () {
         angular.element(document.querySelector('#FormulaInfo')).modal('hide');
     }
@@ -413,7 +395,6 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
         }
     }
 
-
     $scope.PrintData = function (data) {
         try {
             $scope.fileName = "EmpSepItemReport.xls";
@@ -428,6 +409,5 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
             ShowResult(e, 'failure');
         }
     };
-
 
 };

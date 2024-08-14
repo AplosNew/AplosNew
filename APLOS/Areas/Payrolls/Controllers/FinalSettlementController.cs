@@ -98,6 +98,7 @@ LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=s
 WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL AND sh.SalaryHead='Net Pay' AND PastDisbursed IS NULL";
                 var FinalSettlementUndisbursedEarning = _sqlRepository.GetDataCollection(sqlundisbursed);
 
+
                 return Json(new { SeperationItem, FinalSettlementUndisbursedEarning }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -240,8 +241,10 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
                         ,SepType=STUFF((select distinct ','+ST.UserName from [HKP].[SeparationType] ST	  
 											    LEFT JOIN [TRN].[Resignation] R ON R.SeparationTypeId=ST.Id
 												AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC)
-							                    where EI.SystemId=R.EmployeeId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							                    where EI.SystemId=R.EmployeeId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),EC.UserName EmployeeCategory
                          FROM dbo.Employeeinformation EI
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
                          LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id							 
                          LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
                          LEFT JOIN ORG.Company COM ON EI.CompanyId=COM.Id
@@ -1823,12 +1826,14 @@ Where ISNULL(M.IsApproved,0)=0 AND M.ApproveById='" + identity.EmployeeId + "'";
         [HttpGet, Authorize]
         public ActionResult GetEmployeeFNFDataByMaster(string masterId)
         {
-            string sql = @"select E.*,EI.EmployeeCode,EI.EmployeeName,FORMAT(EI.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EI.DOS,'dd-MMM-yyyy')DOS,LD.UserName LegalDesignation,D.UserName Department, EDG.UserName DesignationGroup
+            string sql = @"select E.*,EI.EmployeeCode,EI.EmployeeName,FORMAT(EI.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EI.DOS,'dd-MMM-yyyy')DOS,LD.UserName LegalDesignation,D.UserName Department, EDG.UserName DesignationGroup,EC.UserName EmployeeCategory
 from EmployeeFullAndFinalSettlement  E
 LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=E.EmpSystemId
 LEFT JOIN HKP.LegalDesignation LD ON LD.Id=EI.LegalDesignationId
 LEFT JOIN ORG.Department D ON D.Id=EI.DepartmentId
 LEFT JOIN HKP.DesignationGroup EDG ON  EDG.Id=EI.DesignationGroupId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 where FinalSettlementId='" + masterId + "'";
             var data = _sqlRepository.GetDataCollection(sql);
 
@@ -2048,14 +2053,14 @@ WHERE  spc.EmpInfoSystemID= '" + empId + @"' AND PayableVoucherId<>'' AND sl.Dis
 --AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL 
 --AND SPC.EmpInfoSystemID='" + empId + @"'
 --UNION
-select cast(SUM(spc.DisbusmentAmount)AS decimal(18,0))BonusAmount  from SalaryProcChild SPC
+select BonusAmount= CASE WHEN EC.UserName='Staff' THEN cast(SUM(spc.DisbusmentAmount)AS decimal(18,0)) ELSE 0 END   from SalaryProcChild SPC
 left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
 JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID
 Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.YearNo AND sl.MonthNo=SPM.MonthNo
 LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
 left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 
 Where HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
-AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL AND ISNULL(sl.IsBonusDisbursed,0)=0 AND sl.BonusDisbursementAdviceId IS NULL
+AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL
 AND SPC.EmpInfoSystemID='" + empId + @"')A
 			 ) AS varchar(100))
            
@@ -2068,6 +2073,8 @@ ElSE CAST(A.Value as varchar(100)) END,0)
 ,OL.EntryState
 FROM EmployeeSeperationItem AS OL
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId='" + empId + @"'
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=E.GivenDesignationId
+LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TRN].[Resignation] R ON R.EmployeeId=E.SystemId
 AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC)
 LEFT JOIN(
@@ -2186,6 +2193,7 @@ ORDER BY OL.Sequence";
                 DataSet dsProcSalaryData = null;
                 DataSet dsFNFEmpMaster = null;
                 string esql, elocksql, elockBNsql = "";
+                var empIds = "' '";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 if (identity.EmployeeId == data["ApproveById"].ToString())
                 {
@@ -2225,7 +2233,7 @@ ORDER BY OL.Sequence";
                 con.OpenDataSetThroughAdapter("select * from EmployeeFullAndFinalSettlement where FinalSettlementId='" + data["Id"] + "'", out dsFNFEmpMaster, false, "1");
                 con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[EmployeeFullAndFinalSettlementItem] where FinalSettlementId='" + data["Id"] + "'", out dsEmpID, false, "1");
                 int empcount = Convert.ToInt32(dsEmpID.Tables[0].Rows[0]["countId"].ToString());
-                var empIds = "' '";
+                
                 foreach (var item in datalist)
                 {
                     empIds += ",'" + item["EmpSystemId"].ToString() + "' ";
@@ -2258,7 +2266,7 @@ ORDER BY OL.Sequence";
                 esql = "select * from EmployeeFullAndFinalSettlementItem where EmpSystemId IN(" + empIds + ")";
                 con.OpenDataSetThroughAdapter(esql, out dsEmpMaster, false, "1");
 
-                elocksql = @"Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND PastDisbursed  IS NULL AND DisbursementVoucherId IS NULL ";
+                elocksql = @"Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND PastDisbursed  IS NULL AND DisbursementVoucherId IS NULL";
                 con.OpenDataSetThroughAdapter(elocksql, out dsEmpSL, false, "1");
 
 
@@ -2280,30 +2288,7 @@ ORDER BY OL.Sequence";
 
                     }
                 }
-
-
-                elockBNsql = @"Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(IsBonusDisbursed,0)=0 AND BonusDisbursementAdviceId IS NULL";
-                con.OpenDataSetThroughAdapter(elockBNsql, out dsEmpBN, false, "1");
-
-
-                for (int i = 0; i < dsEmpBN.Tables[0].Rows.Count; i++)
-                {
-                    DataView empsldv = new DataView(dsEmpBN.Tables[0]);
-                    empsldv.RowFilter = "EmpSystemId='" + dsEmpBN.Tables[0].Rows[i]["EmpSystemId"] + "' AND Id='" + dsEmpBN.Tables[0].Rows[i]["Id"] + "'";
-
-                    if (empsldv.Count > 0)
-                    {
-                        DataRow drsl = empsldv[0].Row;
-
-                        drsl.BeginEdit();
-                        drsl["EmployeeFinalSettlementId"] = _Id;
-                        drsl["UpdatedBy"] = identity.Name;
-                        drsl["UpdatedDate"] = DateTime.Now.ToString();
-                        drsl["UpdatedFromIP"] = identity.IPAddress;
-                        drsl.EndEdit();
-
-                    }
-                }
+               
 
                 foreach (var item in datalist)
                 {
@@ -2332,10 +2317,6 @@ ORDER BY OL.Sequence";
                         DataRow drmo = empdv[0].Row;
                         EditRow(drmo, item);
                     }
-
-
-
-
 
                     DataTable dtData = GetDataTable(empId);
                     for (int i = 0; i < dtData.Rows.Count; i++)
@@ -2438,7 +2419,31 @@ ORDER BY OL.Sequence";
 
                 #endregion data update 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsEmpMaster, dsFNFEmpMaster, dsEmpSL, dsEmpBN);
+                _info.SaveDataSets(dsMaster, dsEmpMaster, dsFNFEmpMaster, dsEmpSL);
+
+                elockBNsql = @"Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL";
+                con.OpenDataSetThroughAdapter(elockBNsql, out dsEmpBN, false, "1");
+
+
+                for (int i = 0; i < dsEmpBN.Tables[0].Rows.Count; i++)
+                {
+                    DataView empsldv = new DataView(dsEmpBN.Tables[0]);
+                    empsldv.RowFilter = "EmpSystemId='" + dsEmpBN.Tables[0].Rows[i]["EmpSystemId"] + "' AND Id='" + dsEmpBN.Tables[0].Rows[i]["Id"] + "'";
+
+                    if (empsldv.Count > 0)
+                    {
+                        DataRow drsl = empsldv[0].Row;
+
+                        drsl.BeginEdit();
+                        drsl["EmployeeFinalSettlementId"] = _Id;
+                        drsl["UpdatedBy"] = identity.Name;
+                        drsl["UpdatedDate"] = DateTime.Now.ToString();
+                        drsl["UpdatedFromIP"] = identity.IPAddress;
+                        drsl.EndEdit();
+
+                    }
+                }
+                _info.SaveDataSets(dsEmpBN);
 
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
 
