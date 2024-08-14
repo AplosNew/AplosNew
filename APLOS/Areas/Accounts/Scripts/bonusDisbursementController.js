@@ -324,6 +324,7 @@ function bonusDisbursementController(commonMessage, $scope, $rootScope, baseServ
         for (let i = 0; i < dataListUnDisbursed.length; i++) {
             obj.YearNo = dataListUnDisbursed[i].YearNo;
             obj.MonthName = dataListUnDisbursed[i].MonthName;
+            obj.TotalPayDay = dataListUnDisbursed[i].TotalPayDay;
             obj.Id = dataListUnDisbursed[i].Id;
             obj.SalaryProcId = dataListUnDisbursed[i].SalaryProcId;
             obj.EmployeeCode = dataListUnDisbursed[i].EmployeeCode;

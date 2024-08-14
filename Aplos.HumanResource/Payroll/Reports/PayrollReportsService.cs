@@ -23607,6 +23607,60 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
 
         #endregion Accounting Integration With Third party
 
+        public IEnumerable<object> GetPaymentModeCbo()
+        {
+            try
+            {
+                var str = @"select DISTINCT PaymentMode Value,PaymentMode Text FROM [dbo].[DisbursementAdvice]";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+        }
+        public IEnumerable<object> GetMonthNoCbo()
+        {
+            try
+            {
+                var str = @"select DISTINCT MonthNo Value,MonthNo Text FROM [dbo].[DisbursementAdvice]";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+        }
+
+        public IEnumerable<object> GetDisbursementAdviceCbo(string yearNo,string monthNo, string paymentMode)
+        {
+            try
+            {
+                var str = @"select Id Value, (Id+'-'+ISNULL(Remarks,'')) Text FROM [dbo].[DisbursementAdvice] Where YearNo='" + yearNo+"' AND MonthNo='"+monthNo+"' AND PaymentMode='"+ paymentMode + "'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+        }
+
+        public IEnumerable<object> GetYearNoCbo()
+        {
+            try
+            {
+                var str = @"select DISTINCT YearNo Value,YearNo Text FROM [dbo].[DisbursementAdvice]";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+        }
 
     }
 

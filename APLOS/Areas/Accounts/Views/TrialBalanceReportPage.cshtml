@@ -103,6 +103,11 @@
                         </div>
                     </div>
                 </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button ng-click="getPartyLedgerReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Details Download</button></li>
+                    </ul>
+                </div>
             </fieldset>
         </div>
         <div class="col-xs-12 col-sm-4 col-md-4" ng-show="masterList.length">
@@ -161,6 +166,7 @@
             </div>
         </div>
     </div>
+</div>
 
     @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
 
