@@ -124,8 +124,8 @@ function SalaryAdviceController(commonMessage, $scope, $rootScope, baseService, 
             $scope.EmployeeCategory = $("#EmployeeCategory option:selected").text();
             $scope.monthName = $("#Month option:selected").text();
 
-            //  $scope.ReportFormat = 'Excel';
-            $scope.ReportFormat = 'Pdf';
+              $scope.ReportFormat = 'Excel';
+           // $scope.ReportFormat = 'Pdf';
             var url = 'Payrolls/PaySlipsNew/GetSalaryAdviseReportPdf?reportFormat=' + $scope.ReportFormat + '&empcat=' + $scope.EmployeeCategory + '&adviceId=' + $scope.DisbursmentId + '&yearNo=' + $scope.year + '&monthNo=' + $scope.month + '&monthName=' + $scope.monthName;
             $rootScope.report(url);
 

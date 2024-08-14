@@ -270,21 +270,22 @@ namespace Aplos.Areas.Payrolls.Controllers
                 sheet = workbook.Worksheets[0];
                 DataTable dtOrder = null;
 
-                string sql = @"Select EI.EmployeeCode,EI.EmployeeName,NP.NetPay, EB.BankAccNo, B.UserName BankName,EB.IFSCCode,FORMAT(SL.AddedDate,'dd-MMM-yyyy') DisbursmentDate,SL.UpdatedBy 
+                string sql = @"Select EI.EmployeeCode,EI.EmployeeName,NP.NetPay, EB.BankAccNo, B.UserName BankName,EB.IFSCCode 
 from dbo.SalaryLock SL
 LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=SL.EmpSystemId 
 LEFT JOIN(
- SELECT cast(SUM(spc.DisbusmentAmount)AS decimal(18,0))NetPay,spc.EmpInfoSystemID FROM SalaryProcChild AS spc
+  SELECT cast(spc.DisbusmentAmount AS decimal(18,0))NetPay,spc.EmpInfoSystemID,sl.YearNo,sl.MonthNo FROM SalaryProcChild AS spc
 LEFT JOIN SalaryProcMaster AS spm ON spm.SystemID = spc.SlrProcMstSystemID 
 LEFT JOIN SalaryHead AS sh ON sh.SalaryHeadID = spc.SalaryHeadID
-LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo='" + yearNo + @"' AND sl.MonthNo='" + monthNo + @"'
-WHERE  sh.SalaryHead='Net Pay'
-Group By spc.EmpInfoSystemID
+LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID 
+WHERE  sh.SalaryHead='Net Pay' 
+   AND isnull(SPC.SlrProcMstSystemID,'') IN(Select SystemId from SalaryProcMaster Where YearNo='" + yearNo + @"' AND MonthNo='" + monthNo + @"')
+   AND sl.YearNo='" + yearNo + @"' AND sl.MonthNo='" + monthNo + @"'
 )NP ON NP.EmpInfoSystemID=SL.EmpSystemId
 LEFT JOIN EmployeeBankInfo EB ON EB.EmpSystemID = EI.SystemId
 AND EB.RowID=(Select top(1) RowID from EmployeeBankInfo Where EmpSystemID=EB.EmpSystemID AND  IsApproved=1 Order BY DateAdded DESC)
  LEFT JOIN HKP.Bank B ON B.Id = EB.BankSystemID
-Where DisbursementAdviceId='" + adviceId + "'";
+Where SL.DisbursementAdviceId='" + adviceId + "' AND sl.YearNo='"+yearNo+@"' AND sl.MonthNo='"+monthNo+@"'";
                 dtOrder = _sqlRepository.GetDataTable(sql);
 
 
