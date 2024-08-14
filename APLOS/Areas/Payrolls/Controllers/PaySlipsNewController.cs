@@ -270,7 +270,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 sheet = workbook.Worksheets[0];
                 DataTable dtOrder = null;
 
-                string sql = @"Select EI.EmployeeCode,EI.EmployeeName,NP.NetPay, EB.BankAccNo, B.UserName BankName,EB.IFSCCode 
+                string sql = @"Select EI.EmployeeCode,EI.EmployeeName,NP.NetPay, EB.BankAccNo, B.UserName BankName,EB.IFSCCode,FORMAT(SL.AddedDate,'dd-MMM-yyyy') DisbursmentDate,SL.UpdatedBy 
 from dbo.SalaryLock SL
 LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=SL.EmpSystemId 
 LEFT JOIN(
