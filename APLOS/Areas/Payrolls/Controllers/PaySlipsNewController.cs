@@ -61,7 +61,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         #region -- Operations
 
         [HttpGet, Authorize]
-        public ActionResult GetDisbursementAdviceCbo(string yearNo, string monthNo, string paymentMode)
+        public ActionResult GetDisbursementAdviceCbo(string yearNo, string monthNo, string paymentMode,string ReportType)
         {
             try
             {
@@ -203,13 +203,13 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult GetSalaryAdviseReportPdf(ReportFormat reportFormat, string empcat, string adviceId, string yearNo, string monthNo, string monthName,string status)
+        public ActionResult GetSalaryAdviseReportPdf(ReportFormat reportFormat, string empcat, string adviceId, string yearNo, string monthNo, string monthName,string status, string ReportType)
         {
             try
             {
                 string fileName = "";
 
-                IWorkbook workbook = GetSalaryAdviseWorkbook("Data", empcat, adviceId, yearNo, monthNo, monthName, status);
+                IWorkbook workbook = GetSalaryAdviseWorkbook("Data", empcat, adviceId, yearNo, monthNo, monthName, status, ReportType);
                 var reportFileName = DateTime.Now.ToString("yyMMdd") + "BankAdvice";
                 // return RenderReportAsPdf(workbook, reportFileName);
                 switch (reportFormat)
@@ -253,7 +253,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         }
 
-        public IWorkbook GetSalaryAdviseWorkbook(string SheetName, string empcat, string adviceId, string yearNo, string monthNo,string monthName,string status)
+        public IWorkbook GetSalaryAdviseWorkbook(string SheetName, string empcat, string adviceId, string yearNo, string monthNo,string monthName,string status, string ReportType)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ExcelEngine excelEngine = null;
@@ -269,8 +269,10 @@ namespace Aplos.Areas.Payrolls.Controllers
                 workbook.Worksheets[0].Name = "Data";
                 sheet = workbook.Worksheets[0];
                 DataTable dtOrder = null;
-
-                string sql = @"Select EI.EmployeeCode,EI.EmployeeName,NP.NetPay, EB.BankAccNo, B.UserName BankName,EB.IFSCCode,FORMAT(SL.AddedDate,'dd-MMM-yyyy') DisbursmentDate,SL.UpdatedBy 
+                string sql = "";
+                if (ReportType== "Salary")
+                {
+                    sql = @"Select EI.EmployeeCode,EI.EmployeeName,NP.NetPay, EB.BankAccNo, B.UserName BankName,EB.IFSCCode,FORMAT(SL.AddedDate,'dd-MMM-yyyy') DisbursmentDate,SL.UpdatedBy 
 from dbo.SalaryLock SL
 LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=SL.EmpSystemId 
 LEFT JOIN(
@@ -286,7 +288,34 @@ LEFT JOIN EmployeeBankInfo EB ON EB.EmpSystemID = EI.SystemId
 AND EB.RowID=(Select top(1) RowID from EmployeeBankInfo Where EmpSystemID=EB.EmpSystemID AND  IsApproved=1 Order BY DateAdded DESC)
  LEFT JOIN HKP.Bank B ON B.Id = EB.BankSystemID
  LEFT JOIN TRN.Voucher V oN V.Id=SL.DisbursementVoucherId
-Where SL.DisbursementAdviceId='" + adviceId + "' AND sl.YearNo='"+yearNo+@"' AND sl.MonthNo='"+monthNo+ @"' AND V.IsPark="+status+"";
+Where SL.DisbursementAdviceId='" + adviceId + "' AND sl.YearNo='" + yearNo + @"' AND sl.MonthNo='" + monthNo + @"' AND V.IsPark=" + status + ""; 
+                }
+                if (ReportType == "Bonus")
+                {
+                    sql = @"Select EI.EmployeeCode,EI.EmployeeName,NP.NetPay, EB.BankAccNo, B.UserName BankName,EB.IFSCCode 
+from dbo.SalaryLock SL
+LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId = SL.EmpSystemId
+LEFT JOIN(
+  SELECT cast(spc.DisbusmentAmount AS decimal(18,0))NetPay,spc.EmpInfoSystemID,sl.YearNo,sl.MonthNo FROM SalaryProcChild AS spc
+LEFT JOIN SalaryProcMaster AS spm ON spm.SystemID = spc.SlrProcMstSystemID
+LEFT JOIN SalaryHead AS sh ON sh.SalaryHeadID = spc.SalaryHeadID
+LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId = spc.EmpInfoSystemID
+WHERE sh.SalaryHead = 'Net Pay'
+   AND isnull(SPC.SlrProcMstSystemID,'') IN(Select SystemId from SalaryProcMaster Where YearNo = 2024 AND MonthNo = 5)
+   AND sl.YearNo = 2024 AND sl.MonthNo = 5
+)NP ON NP.EmpInfoSystemID = SL.EmpSystemId
+LEFT JOIN EmployeeBankInfo EB ON EB.EmpSystemID = EI.SystemId
+AND EB.RowID = (Select top(1) RowID from EmployeeBankInfo Where EmpSystemID = EB.EmpSystemID AND IsApproved = 1 Order BY DateAdded DESC)
+ LEFT JOIN HKP.Bank B ON B.Id = EB.BankSystemID
+ LEFT JOIN TRN.Voucher V oN V.Id = SL.DisbursementVoucherId
+Where SL.BonusDisbursementAdviceId = '" + adviceId + "' AND sl.YearNo='" + yearNo + @"' AND sl.MonthNo='" + monthNo + @"' AND V.IsPark=" + status + "";
+                }
+                else
+                {
+                    ///
+                }
+
+
                 dtOrder = _sqlRepository.GetDataTable(sql);
 
 
@@ -378,7 +407,7 @@ Where SL.DisbursementAdviceId='" + adviceId + "' AND sl.YearNo='"+yearNo+@"' AND
                 sheet["A" + startRow.ToString()].FreezePanes();
 
 
-                reportUtility.CompanyHeader(ref sheet, 3, "Salary Disbursed Report - "+monthName+" "+yearNo+"", identity.CompanyId);
+                reportUtility.CompanyHeader(ref sheet, 3, ""+ ReportType+ " Disbursed Report - "+monthName+" "+yearNo+"", identity.CompanyId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;

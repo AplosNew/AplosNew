@@ -24,7 +24,7 @@ function SalaryAdviceController(commonMessage, $scope, $rootScope, baseService, 
     $scope.PaymentMode = null;
     $scope.EmpCat = null;
     $scope.DisbursmentId = null;
-
+    $scope.ReportType = 'Salary';
 
 
     $scope.paymentModeList = [];
@@ -106,7 +106,7 @@ function SalaryAdviceController(commonMessage, $scope, $rootScope, baseService, 
     $scope.GetDisbursementAdviceCbo = function () {
         $http({
             method: 'GET',
-            url: 'Payrolls/PaySlipsNew/GetDisbursementAdviceCbo?yearNo=' + $scope.year + '&monthNo=' + $scope.month + '&paymentMode=' + $scope.PaymentMode
+            url: 'Payrolls/PaySlipsNew/GetDisbursementAdviceCbo?yearNo=' + $scope.year + '&monthNo=' + $scope.month + '&paymentMode=' + $scope.PaymentMode + '&ReportType=' + $scope.ReportType
         }).then(function success(response) {
             $scope.disbursementAdviceList = response.data;
         })
@@ -114,6 +114,9 @@ function SalaryAdviceController(commonMessage, $scope, $rootScope, baseService, 
 
     $scope.PrintData = function () {
         try {
+            if (baseService.isUndefinedOrNull($scope.ReportType)) {
+                throw "Please select Report Type.";
+            }
             $scope.fileName = "BankAdvice.xls";
 
             $scope.EmployeeCategory = $("#EmployeeCategory option:selected").text();
@@ -121,7 +124,7 @@ function SalaryAdviceController(commonMessage, $scope, $rootScope, baseService, 
 
               $scope.ReportFormat = 'Excel';
            // $scope.ReportFormat = 'Pdf';
-            var url = 'Payrolls/PaySlipsNew/GetSalaryAdviseReportPdf?reportFormat=' + $scope.ReportFormat + '&empcat=' + $scope.EmployeeCategory + '&adviceId=' + $scope.DisbursmentId + '&yearNo=' + $scope.year + '&monthNo=' + $scope.month + '&monthName=' + $scope.monthName + '&status=' + $scope.EmpCat;
+            var url = 'Payrolls/PaySlipsNew/GetSalaryAdviseReportPdf?reportFormat=' + $scope.ReportFormat + '&empcat=' + $scope.EmployeeCategory + '&adviceId=' + $scope.DisbursmentId + '&yearNo=' + $scope.year + '&monthNo=' + $scope.month + '&monthName=' + $scope.monthName + '&status=' + $scope.EmpCat + '&ReportType=' + $scope.ReportType;
             $rootScope.report(url);
 
         } catch (e) {

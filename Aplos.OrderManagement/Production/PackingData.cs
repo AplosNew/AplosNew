@@ -1272,7 +1272,7 @@ Select ISNULL(SUM(sc.NetWeight),0) Qty, ISNULL(SUM(PlanQty),0) PlanQty,PackingLi
             try
             {
 
-                var str = @"SELECT MMA.StandardName Article, MMA.StandardName ATS, POLR.netWeight,PLA.AttributeValue Shade, POLR.GWeight,POLR.RefNo,POLR.Cones,POLR.LotNo
+                var str = @"SELECT distinct POLR.RefNo, MMA.StandardName Article, MMA.StandardName ATS, POLR.netWeight,PLA.AttributeValue Shade, POLR.GWeight,POLR.Cones,POLR.LotNo
 ,SP.SalesId InvoiceNo,FORMAT(S.InvoiceDate,'dd-MMM-yyyy') InvoiceDate,pc.UserName as ConsigneeBilltoName 
 FROM [TRN].[SalesOrder] AS SO
 JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
