@@ -65,7 +65,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             try
             {
-                return Json(_payrollReportsService.GetDisbursementAdviceCbo(yearNo, monthNo, paymentMode), JsonRequestBehavior.AllowGet);
+                return Json(_payrollReportsService.GetDisbursementAdviceCbo(yearNo, monthNo, paymentMode, ReportType), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
