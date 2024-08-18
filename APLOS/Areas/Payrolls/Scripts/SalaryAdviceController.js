@@ -1,7 +1,7 @@
 ﻿'use strict';
 SalaryAdviceController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'toaster', 'cboService', '$window'];
 function SalaryAdviceController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, toaster, cboService, $window) {
-    $scope.FormTitle ="Salary Disbursment Report"
+    $scope.FormTitle = "Salary Disbursment Report"
     $scope.path = 'humanresource/payrollReports/';
     $scope.exportgriddataUrl = 'GridReports/ExcelExport';
     $scope.downloadgriddataUrl = 'GridReports/Download';
@@ -20,6 +20,8 @@ function SalaryAdviceController(commonMessage, $scope, $rootScope, baseService, 
 
     $scope.PaymentMode = null;
     $scope.year = null;
+    $scope.FromDate = null;
+    $scope.ToDate = null;
     $scope.month = null;
     $scope.PaymentMode = null;
     $scope.EmpCat = null;
@@ -95,7 +97,7 @@ function SalaryAdviceController(commonMessage, $scope, $rootScope, baseService, 
         $scope.YearNoList = response.data;
     });
 
-   
+
     $scope.EmpCatList = [
         { Value: "1", Text: "Parked" },
         { Value: "0", Text: "Posted" }
@@ -104,12 +106,21 @@ function SalaryAdviceController(commonMessage, $scope, $rootScope, baseService, 
 
     $scope.disbursementAdviceList = [];
     $scope.GetDisbursementAdviceCbo = function () {
-        $http({
-            method: 'GET',
-            url: 'Payrolls/PaySlipsNew/GetDisbursementAdviceCbo?yearNo=' + $scope.year + '&monthNo=' + $scope.month + '&paymentMode=' + $scope.PaymentMode + '&ReportType=' + $scope.ReportType
-        }).then(function success(response) {
-            $scope.disbursementAdviceList = response.data;
-        })
+        if ($scope.ReportType == "Salary" || $scope.ReportType == "Bonus") {
+            $http({
+                method: 'GET',
+                url: 'Payrolls/PaySlipsNew/GetDisbursementAdviceCbo?yearNo=' + $scope.year + '&monthNo=' + $scope.month + '&paymentMode=' + $scope.PaymentMode + '&ReportType=' + $scope.ReportType
+            }).then(function success(response) {
+                $scope.disbursementAdviceList = response.data;
+            })
+        } else {
+            $http({
+                method: 'GET',
+                url: 'Payrolls/PaySlipsNew/GetGEOTDisbursementAdviceCbo?FromDate=' + $scope.FromDate + '&ToDate=' + $scope.ToDate + '&paymentMode=' + $scope.PaymentMode + '&ReportType=' + $scope.ReportType
+            }).then(function success(response) {
+                $scope.disbursementAdviceList = response.data;
+            })
+        }
     }
 
     $scope.PrintData = function () {
@@ -117,14 +128,51 @@ function SalaryAdviceController(commonMessage, $scope, $rootScope, baseService, 
             if (baseService.isUndefinedOrNull($scope.ReportType)) {
                 throw "Please select Report Type.";
             }
+            if ($scope.ReportType == "Salary" || $scope.ReportType == "Bonus") {
+                if (baseService.isUndefinedOrNull($scope.year)) {
+                    throw "Please select Year.";
+                }
+            }
+            if ($scope.ReportType == "Salary" || $scope.ReportType == "Bonus") {
+                if (baseService.isUndefinedOrNull($scope.month)) {
+                    throw "Please select Month.";
+                }
+            }
+
+            if ($scope.ReportType == "GoodWork" || $scope.ReportType == "ExtraOT") {
+                if (baseService.isUndefinedOrNull($scope.FromDate)) {
+                    throw "Please select FromDate.";
+                }
+            }
+            if ($scope.ReportType == "GoodWork" || $scope.ReportType == "ExtraOT") {
+                if (baseService.isUndefinedOrNull($scope.ToDate)) {
+                    throw "Please select ToDate.";
+                }
+            }
+
+            if (baseService.isUndefinedOrNull($scope.PaymentMode)) {
+                throw "Please select Disbursment Type.";
+            }
+            if (baseService.isUndefinedOrNull($scope.EmpCat)) {
+                throw "Please select Status.";
+            }
+            if (baseService.isUndefinedOrNull($scope.DisbursmentId)) {
+                throw "Please select Disbursment Id.";
+            }
+
             $scope.fileName = "BankAdvice.xls";
 
             $scope.EmployeeCategory = $("#EmployeeCategory option:selected").text();
             $scope.monthName = $("#Month option:selected").text();
 
-              $scope.ReportFormat = 'Excel';
-           // $scope.ReportFormat = 'Pdf';
-            var url = 'Payrolls/PaySlipsNew/GetSalaryAdviseReportPdf?reportFormat=' + $scope.ReportFormat + '&empcat=' + $scope.EmployeeCategory + '&adviceId=' + $scope.DisbursmentId + '&yearNo=' + $scope.year + '&monthNo=' + $scope.month + '&monthName=' + $scope.monthName + '&status=' + $scope.EmpCat + '&ReportType=' + $scope.ReportType;
+            $scope.ReportFormat = 'Excel';
+            // $scope.ReportFormat = 'Pdf';
+            var url = null;
+            if ($scope.ReportType == "Salary" || $scope.ReportType == "Bonus") {
+                url = 'Payrolls/PaySlipsNew/GetSalaryAdviseReportPdf?reportFormat=' + $scope.ReportFormat + '&empcat=' + $scope.EmployeeCategory + '&adviceId=' + $scope.DisbursmentId + '&yearNo=' + $scope.year + '&monthNo=' + $scope.month + '&monthName=' + $scope.monthName + '&status=' + $scope.EmpCat + '&ReportType=' + $scope.ReportType;
+            } else {
+                url = 'Payrolls/PaySlipsNew/GetGWOTAdviseReportPdf?reportFormat=' + $scope.ReportFormat + '&empcat=' + $scope.EmployeeCategory + '&adviceId=' + $scope.DisbursmentId + '&status=' + $scope.EmpCat + '&ReportType=' + $scope.ReportType + '&FromDate=' + $scope.FromDate + '&ToDate=' + $scope.ToDate;
+            }
             $rootScope.report(url);
 
         } catch (e) {
