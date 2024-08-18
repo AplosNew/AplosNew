@@ -23634,11 +23634,28 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
             }
         }
 
-        public IEnumerable<object> GetDisbursementAdviceCbo(string yearNo,string monthNo, string paymentMode)
+        public IEnumerable<object> GetDisbursementAdviceCbo(string yearNo,string monthNo, string paymentMode,string ReportType)
         {
             try
             {
-                var str = @"select Id Value, (Id+'-'+ISNULL(Remarks,'')) Text FROM [dbo].[DisbursementAdvice] Where YearNo='" + yearNo+"' AND MonthNo='"+monthNo+"' AND PaymentMode='"+ paymentMode + "'";
+                var str = "";
+
+                if (ReportType== "Salary")
+                {
+                    str = @"select DISTINCT D.Id Value, (D.Id+'-'+ISNULL(D.Remarks,'')) Text FROM 
+[dbo].[DisbursementAdvice]  D
+LEFT JOIN dbo.SalaryLock SL ON SL.DisbursementAdviceId=D.Id
+Where D.YearNo='"+yearNo+@"' AND D.MonthNo='"+monthNo+@"' AND D.PaymentMode='"+ paymentMode + @"'
+AND SL.DisbursementAdviceId IS NOT NULL"; 
+                }
+                else if (ReportType == "Bonus")
+                {
+                    str = @"select DISTINCT D.Id Value, (D.Id+'-'+ISNULL(D.Remarks,'')) Text FROM 
+[dbo].[DisbursementAdvice]  D
+LEFT JOIN dbo.SalaryLock SL ON SL.BonusDisbursementAdviceId=D.Id
+Where D.YearNo='" + yearNo + @"' AND D.MonthNo='" + monthNo + @"' AND D.PaymentMode='" + paymentMode + @"'
+AND SL.BonusDisbursementAdviceId IS NOT NULL";
+                }
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)

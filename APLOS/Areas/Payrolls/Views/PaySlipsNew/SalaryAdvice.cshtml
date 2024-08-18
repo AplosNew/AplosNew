@@ -1,6 +1,52 @@
 ﻿<h3 class="site-heading"><span class="glyphicon glyphicon-file"></span>{{FormTitle}}</h3>
 <div class="row">
     <div class="col-xs-12">
+        <div class="col-sm-2">
+            <div class="form-group">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="IsProrataMonthlyColu" ng-model="ReportType" value="Salary">
+                        <span class="cr"><i class="cr-icon"></i></span>Salary
+                    </label>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-2">
+            <div class="form-group">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="IsProrataMonthlyColu" ng-model="ReportType" value="Bonus">
+                        <span class="cr"><i class="cr-icon"></i></span>Bonus
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-2">
+            <div class="form-group">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="IsProrataMonthlyColu" ng-model="ReportType" value="GoodWork">
+                        <span class="cr"><i class="cr-icon"></i></span>Good Work
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <div class="form-group">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="IsProrataMonthlyColu" ng-model="ReportType" value="ExtraOT">
+                        <span class="cr"><i class="cr-icon"></i></span>Extra OT
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    <div class="col-xs-12">
         <div class="col-xs-4">
             <div class="form-group">
                 <label class="col-sm-4 control-label">Year</label>
@@ -8,16 +54,22 @@
                     <input id="ddlYearList" e-watermarktext="Year" ej-dropdownlist e-datasource="YearNoList" e-enablefiltersearch="true" e-value="year" e-databound="SelectDefaultValue" e-fields-value="Text" e-fields-text="Text" e-width="100%" />
                 </div>
             </div>
-            
+
         </div>
         <div class="col-xs-4">
             <div class="form-group">
                 <label class="col-sm-4 control-label">Month</label>
                 <div class="col-sm-8">
-                    <input id="ddlMonthList" e-watermarktext="Month" ej-dropdownlist e-datasource="monthList" e-enablefiltersearch="true" e-value="month" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                    @*<input id="ddlMonthList" e-watermarktext="Month" ej-dropdownlist e-datasource="monthList" e-enablefiltersearch="true" e-value="month" e-fields-value="Value" e-fields-text="Text" e-width="100%" />*@
+                    <div class="select-style">
+                        <select id="Month" class="form-control" name="Month" ng-model="month" tabindex="5">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in monthList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
                 </div>
             </div>
-            
+
         </div>
         <div class="col-xs-4">
             <div class="form-group">
@@ -36,7 +88,7 @@
     <div class="col-xs-12">
         <div class="col-xs-4">
             <div class="form-group">
-                <label class="col-sm-4 control-label">Employee Category</label>
+                <label class="col-sm-4 control-label">Status</label>
                 <div class="col-sm-8">
                     <div class="select-style">
                         <select id="EmployeeCategory" class="form-control" name="Employee Category" ng-model="EmpCat" tabindex="5">
@@ -60,15 +112,15 @@
                 </div>
             </div>
         </div>
-        <div class="col-xs-4">
-            <div class="common-btn" style="padding-right: 15px;">
+        <div class="col-xs-2">
+            <div class="common-btn" style="padding-right: 15px; margin-top: 10px;">
                 <ul class="list-inline text-right">
-                    <li><button ng-click="GetReportData();"  class="btn"><i class="glyphicon glyphicon--send" tabindex="9"></i> Download</button></li>
+                    <li><button ng-click="PrintData();" class="btn"><i class="glyphicon glyphicon-download" tabindex="9"></i> Download</button></li>
                 </ul>
             </div>
         </div>
     </div>
-    
+
 </div>
 
 

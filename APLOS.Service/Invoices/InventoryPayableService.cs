@@ -260,7 +260,6 @@ namespace Library.Service.Invoices
                     invoice.BaseOnDueDate = voucherVM.BaseOnDueDate;
                     invoice.RevisedDueDate = voucherVM.MatureDate;
                     invoice.ActualDueDate = voucherVM.MatureDate;
-
                     _invoiceService.InsertInvoice(invoice);
 
 
@@ -275,6 +274,7 @@ namespace Library.Service.Invoices
                         FiscalYearPeriodId = invoice.FiscalYearPeriodId,
                         TaxYearId = invoice.TaxYearId,
                         TaxYearPeriodId = invoice.TaxYearPeriodId,
+                        EntityId = voucherVM.EntityId,
                         AddedBy = invoice.AddedBy,
                         AddedDate = invoice.AddedDate,
                         AddedFromIP = invoice.AddedFromIP,
@@ -289,7 +289,7 @@ namespace Library.Service.Invoices
                         VoucherTypeId = voucherVM.VoucherTypeId,
                     };
                     voucher.TransactionRefNo = DateTime.Now.Year.ToString().Substring(2) + voucher.Id;
-                    voucher.PostedBy = invoice.AddedBy;
+                    voucher.PostedBy = receiveData.AddedBy;
                     voucher.PostedFromIP = invoice.AddedFromIP;
                     voucher.PostedDate = invoice.AddedDate;
                     _voucherService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix);
@@ -309,13 +309,11 @@ namespace Library.Service.Invoices
                         Id = "I" + _pkGeneratorService.GetAutoNumber(nameof(GRNAcceptanceMap), PKGeneratorEnum.Yearly, null, DateTime.Now),
                         GRNId = receiveData.Id,
                         PurchaseDocumentAcceptanceId = null,
-                        //PurchaseDocumentAcceptanceDetailId = null,
                         Qty = 0,
                         InvoiceId = invoice.Id
                     };
                     AuditService.AddedLog(grnAccMap);
                     _gRNAcceptanceMapRepository.Insert(grnAccMap);
-                    //accountCommonExtensionService.InsertGRNAcceptanceMap(grnAccMap, out DataSet _adgrnAccMapset);
 
 
                     // Set to Invoice
