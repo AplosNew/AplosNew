@@ -481,7 +481,7 @@ namespace Library.Service.Expenses
         {
             try
             {
-                parameters.CmdText = @"SELECT DISTINCT EB.Id, EB.EmployeeId,EB.PartyId, EI.EmployeeCode, EI.EmployeeName , EB.PartyPlantId, P.UserName AS PartyName,EBD.Amount,EB.BeneficiaryType,
+                parameters.CmdText = @"SELECT DISTINCT EB.Id, EB.EmployeeId,EB.PartyId,EB.FileName, EI.EmployeeCode, EI.EmployeeName , EB.PartyPlantId, P.UserName AS PartyName,EBD.Amount,EB.BeneficiaryType,
 					                EIH.EmployeeCode AS ApproverCode, EIH.EmployeeName AS ApprovedBy, EB.CurrencyId, C.Code AS CurrencyName, EB.InvoiceNumber, EB.InvoiceDate, EB.ApprovalStatus, EB.Remarks
                                     ,EIR.EmployeeCode +'-'+EIR.EmployeeName CheckedBy
                                     FROM [TRN].[ExpenseBooking] AS EB
