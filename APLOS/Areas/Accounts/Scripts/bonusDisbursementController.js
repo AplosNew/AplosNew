@@ -224,6 +224,46 @@ function bonusDisbursementController(commonMessage, $scope, $rootScope, baseServ
         }
     };
 
+    $scope.BonusUnDisbursement = function () {
+        try {
+            var EmployeeListBonusUndisbursedNew = [];
+            for (var i = 0; i < $scope.EmployeeListTemp.length; i++) {
+                if ($scope.EmployeeListTemp[i].CheckBoxSelect) {
+                    EmployeeListBonusUndisbursedNew.push($scope.EmployeeListTemp[i]);
+                }
+            }
+
+            if (EmployeeListBonusUndisbursedNew.length == 0) {
+                throw "Please Select Employee.";
+            }
+
+            $scope.$broadcast('show-errors-check-validity');
+            $scope.saveBtnDisable = true;
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SaveBonusUnDisbursed',
+                data: { 'EmployeeList': EmployeeListBonusUndisbursedNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    $scope.saveBtnDisable = false;
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetEmployeeInformation();
+                    $scope.saveBtnDisable = false;
+                    
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
    
     // #region TAB CHANGE
     $scope.tab = 1;

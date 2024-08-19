@@ -73,16 +73,7 @@
                                          e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                                          e-allowselection="false" e-filtersettings-filterType="excel">
                                         <div e-columns>
-                                            @*<div e-column e-field="Id" e-headertext="Id" e-width="20"></div>
-                                                <div e-column e-field="TabType" e-headertext="Type" e-width="20"></div>
-                                                <div e-column e-field="ValueAddedDate" e-headertext="Date" e-width="30"></div>
-                                                <div e-column e-field="VACTime" e-headertext="Time" e-width="30"></div>
-                                                <div e-column e-field="Entity" e-headertext="Entity" e-width="30"></div>
-                                                <div e-column e-field="PartyName" e-headertext="Party" e-width="40"></div>
-                                                <div e-column e-field="VAProcessStartDate" e-headertext="Process Start Date" e-width="30"></div>
-                                                <div e-column e-field="VAProcessEndDate" e-headertext="Process End Date" e-width="30"></div>
-                                                <div e-column e-field="VAContractClosingDate" e-headertext="Contract Closing Date" e-width="30"></div>*@
-
+                                           
                                             <div e-column e-headertext="Actions" e-width="100">
                                                 <ul class="list-inline text-center">
                                                     <li>
@@ -172,18 +163,6 @@
                                             </div>
                                         </div>
 
-                                        @*<div class="form-group" show-errors>
-                                                <label class="col-sm-4 control-label">Issue/ Return<sup>*</sup></label>
-                                                <div class="col-sm-8 show-message">
-                                                    <div class="select-style">
-                                                        <select class="form-control" ng-model="Issue.IssueReturn" name="Issue/ Return" required tabindex="5">
-                                                            <option value="">--Select--</option>
-                                                            <option value="Issue">Issue</option>
-                                                            <option value="Return">Return</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>*@
 
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Remarks</label>
@@ -194,6 +173,18 @@
 
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Issue Category<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="Issue.IssueCategory" name="Issue Type" required tabindex="5">
+                                                        <option value="">--Select--</option>
+                                                        <option value="Inventory">Inventory</option>
+                                                        <option value="Process">Process</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div class="form-group" show-errors>
                                             <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
                                             <div class="col-sm-8 show-message">
@@ -226,16 +217,16 @@
 
 
                                         @*<div class="form-group" show-errors>
-                                                <label class="col-sm-4 control-label">Location<sup>*</sup></label>
-                                                <div class="col-sm-8 show-message">
-                                                    <div class="select-style">
-                                                        <select class="form-control" ng-model="Issue.JobWorkLocationId" name="Customer" required
-                                                                ng-options="item.Value as item.Text for item in JobWorkLocationList" tabindex="3">
-                                                            <option value="">--Select--</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>*@
+            <label class="col-sm-4 control-label">Location<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="Issue.JobWorkLocationId" name="Customer" required
+                            ng-options="item.Value as item.Text for item in JobWorkLocationList" tabindex="3">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>*@
 
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Reference No</label>
@@ -2373,7 +2364,7 @@
 <div class="modal fade site-modal in" id="stockPopUpValAdded" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content" style="overflow:scroll">
-            <div class="modal-header" style="width:1960px;"> Material Stock<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-header"> Material Stock<button type="button" class="close" data-dismiss="modal">x</button></div>
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-md-12">
                     <table class="table table-striped" style="font-size: 12px;white-space: nowrap; ">
