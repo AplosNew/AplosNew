@@ -74,11 +74,11 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetGEOTDisbursementAdviceCbo(string FromDate, string ToDate, string paymentMode, string ReportType)
+        public ActionResult GetGEOTDisbursementAdviceCbo(string FromDate, string ToDate, string paymentMode, string ReportType, string status)
         {
             try
             {
-                return Json(_payrollReportsService.GetGEOTDisbursementAdviceCbo(FromDate, ToDate, paymentMode, ReportType), JsonRequestBehavior.AllowGet);
+                return Json(_payrollReportsService.GetGEOTDisbursementAdviceCbo(FromDate, ToDate, paymentMode, ReportType, status), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -378,7 +378,7 @@ Where SL.BonusDisbursementAdviceId = '" + adviceId + "' AND sl.YearNo=" + yearNo
                     sheet[ROW, colSL].Number = Library.Service.Extension.clsStaticInfo.dbl(cnt.ToString());
                     sheet[ROW, colEC].Text = dtOrder.Rows[i]["EmployeeCode"].ToString();
                     sheet[ROW, colEN].Text = dtOrder.Rows[i]["EmployeeName"].ToString();
-                    sheet[ROW, colNP].Text = dtOrder.Rows[i]["NetPay"].ToString();
+                    sheet[ROW, colNP].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["NetPay"].ToString());
                     sheet[ROW, colBN].Text = dtOrder.Rows[i]["BankName"].ToString();
                     sheet[ROW, colAC].Text = dtOrder.Rows[i]["BankAccNo"].ToString();
                     sheet[ROW, colIFSC].Text = dtOrder.Rows[i]["IFSCCode"].ToString();
@@ -570,7 +570,7 @@ Where PaymentAdviseId='" + adviceId + "'";
                     sheet[ROW, colSL].Number = Library.Service.Extension.clsStaticInfo.dbl(cnt.ToString());
                     sheet[ROW, colEC].Text = dtOrder.Rows[i]["EmployeeCode"].ToString();
                     sheet[ROW, colEN].Text = dtOrder.Rows[i]["EmployeeName"].ToString();
-                    sheet[ROW, colNP].Text = dtOrder.Rows[i]["NetPay"].ToString();
+                    sheet[ROW, colNP].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["NetPay"].ToString());
                     sheet[ROW, colBN].Text = dtOrder.Rows[i]["BankName"].ToString();
                     sheet[ROW, colAC].Text = dtOrder.Rows[i]["BankAccNo"].ToString();
                     sheet[ROW, colIFSC].Text = dtOrder.Rows[i]["IFSCCode"].ToString();

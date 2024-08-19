@@ -23671,7 +23671,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
             }
         }
 
-        public IEnumerable<object> GetGEOTDisbursementAdviceCbo(string FromDate, string ToDate, string paymentMode, string ReportType)
+        public IEnumerable<object> GetGEOTDisbursementAdviceCbo(string FromDate, string ToDate, string paymentMode, string ReportType, string status)
         {
             try
             {
@@ -23679,11 +23679,37 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
 
                 if (ReportType == "GoodWork")
                 {
-                    str = @"Select Id Value, (Id+'-'+ISNULL(UserRef,'')) Text from GoodWorkPaymentAdvise Where PaymentSource='GoodWork' AND FromDate between '" + FromDate + "' AND  '" + ToDate + "' AND ToDate between '" + FromDate + "' AND  '" + ToDate + "'";
+                    if (status == "2")
+                    {
+                        str = @"Select DISTINCT A.Id Value, (A.Id+'-'+ISNULL(A.UserRef,'')) Text from dbo.GoodWorkPaymentAdvise A
+LEFT JOIN dbo.GoodWorkPaymentAdviseDetail D ON A.Id=D.PaymentAdviseId
+LEFT JOIN TRN.Voucher V oN V.Id=D.DisbursementVoucherId
+Where A.PaymentSource='GoodWork' AND A.FromDate between '" + FromDate+ @"' AND  '" + ToDate + @"' AND A.ToDate between '"+FromDate+ @"' AND  '" + ToDate + @"' AND D.DisbursementVoucherId IS NULL";
+                    }
+                    else
+                    {
+                        str = @"Select DISTINCT A.Id Value, (A.Id+'-'+ISNULL(A.UserRef,'')) Text from dbo.GoodWorkPaymentAdvise A
+LEFT JOIN dbo.GoodWorkPaymentAdviseDetail D ON A.Id=D.PaymentAdviseId
+LEFT JOIN TRN.Voucher V oN V.Id=D.DisbursementVoucherId
+Where A.PaymentSource='GoodWork' AND A.FromDate between '" + FromDate+ @"' AND  '" + ToDate + @"' AND A.ToDate between '"+FromDate+ @"' AND  '" + ToDate + @"' AND V.IsPark="+status+"";
+                    }
                 }
                 else
                 {
-                    str = @"Select Id Value, (Id+'-'+ISNULL(UserRef,'')) Text from GoodWorkPaymentAdvise Where PaymentSource='Attendance' AND FromDate between '" + FromDate + "' AND  '" + ToDate + "' AND ToDate between '" + FromDate + "' AND  '" + ToDate + "'";
+                    if (status == "2")
+                    {
+                        str = @"Select DISTINCT A.Id Value, (A.Id+'-'+ISNULL(A.UserRef,'')) Text from dbo.GoodWorkPaymentAdvise A
+LEFT JOIN dbo.GoodWorkPaymentAdviseDetail D ON A.Id=D.PaymentAdviseId
+LEFT JOIN TRN.Voucher V oN V.Id=D.DisbursementVoucherId
+Where A.PaymentSource='Attendance' AND A.FromDate between '" + FromDate+ @"' AND  '" + ToDate + @"' AND A.ToDate between '"+FromDate+ @"' AND  '" + ToDate + @"' AND D.DisbursementVoucherId IS NULL";
+                    }
+                    else
+                    {
+                        str = @"Select DISTINCT A.Id Value, (A.Id+'-'+ISNULL(A.UserRef,'')) Text from dbo.GoodWorkPaymentAdvise A
+LEFT JOIN dbo.GoodWorkPaymentAdviseDetail D ON A.Id=D.PaymentAdviseId
+LEFT JOIN TRN.Voucher V oN V.Id=D.DisbursementVoucherId
+Where A.PaymentSource='Attendance' AND A.FromDate between '" + FromDate+ @"' AND  '" + ToDate + @"' AND A.ToDate between '"+FromDate+ @"' AND  '" + ToDate + @"' AND V.IsPark=" + status + "";
+                    }
                 }
                 return _sqlRepository.GetDataCollection(str);
             }
