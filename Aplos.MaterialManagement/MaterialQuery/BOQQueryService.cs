@@ -262,8 +262,17 @@ namespace Aplos.MaterialManagement.MaterialQuery
         {
             try
             {
-                var sql = @" SELECT DISTINCT Convert(bit, 'False') IsActives,POD.InventoryReceiveId POId,P.UserName CustomerName,C.ContractNo,mo.Id MasterOrderId
-                            ,boq.SalesOrderId,PO.CurrencyId,CU.Code CurrencyCode,moi.BuyerReferenceNo StyleNo,moi.OwnReferenceNo
+                var sql = @" SELECT distinct Convert(bit, 'False') IsActives,POD.InventoryReceiveId POId,P.UserName CustomerName,C.ContractNo,mo.Id MasterOrderId
+                            ,boq.SalesOrderId
+							,PO.CurrencyId,CU.Code CurrencyCode
+							,StyleNo=STUFF((select distinct ','+xmoi.BuyerReferenceNo from
+							TRN.MasterOrderItem xmoi 
+									LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
+									LEFT JOIN TRN.MasterOrder mo on mo.Id=moi.MasterOrderId
+									LEFT JOIN TRN.POBOQMAP pomap on pomap.BOQDetailId=boq.Id
+									LEFT JOIN TRN.PurchaseOrderDetail xPOD ON xPOD.Id=pomap.PODetailId
+								where xPOD.Id=POD.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								,moi.OwnReferenceNo
 							FROM BOQ  boq 
 							LEFT JOIN MST.MaterialMaster mm on mm.Id=boq.MaterialMasterId
 							LEFT JOIN MST.MaterialMasterArticle mma on mma.Id=boq.ArticleId
