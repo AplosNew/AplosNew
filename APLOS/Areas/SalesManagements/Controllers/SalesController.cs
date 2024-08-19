@@ -33,6 +33,8 @@ using Library.Model.Invoices;
 using Library.Model.Vouchers;
 using Library.Service.Helpers;
 using Library.Model.Accounts;
+using Library.Service.Invoices;
+using Library.Data.UnitOfWorks;
 //using OTSBD;
 
 namespace Aplos.Areas.SalesManagements.Controllers
@@ -46,6 +48,9 @@ namespace Aplos.Areas.SalesManagements.Controllers
         private readonly ISqlRepository _sqlRepository;
         private readonly CompanyParallelCurrencyService _companyParallelCurrencyService;
         private readonly IPlantService _plantService;
+        private readonly IInvoiceService _invoiceService;
+        private readonly IInvoiceWriteOffService _invoiceWriteOffService;
+        private readonly IUnitOfWork _unitOfWork;
 
         clsSales clsSales = new clsSales();
         //This is Shakawat
@@ -55,7 +60,9 @@ namespace Aplos.Areas.SalesManagements.Controllers
             , ISqlRepository sqlRepository
             , CompanyParallelCurrencyService companyParallelCurrencyService
             , IPlantService plantService
-
+            , IInvoiceService invoiceService
+            , IInvoiceWriteOffService invoiceWriteOffService
+            , IUnitOfWork unitOfWork
             )
         {
             _salesService = salesService;
@@ -65,6 +72,9 @@ namespace Aplos.Areas.SalesManagements.Controllers
             _sqlRepository = sqlRepository;
             _companyParallelCurrencyService = companyParallelCurrencyService;
             _plantService = plantService;
+            _invoiceService = invoiceService;
+            _invoiceWriteOffService = invoiceWriteOffService;
+            _unitOfWork = unitOfWork;
         }
 
         #region Sales
@@ -927,9 +937,10 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
         public string PostSalesReturn(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, List<Dictionary<string, object>> salesReturnDetailList, IEnumerable<InvoiceTaxViewModel> additionalTaxList)
         {
+            var flag = false;
             try
             {
-                var flag = false;
+                flag = true;
                 AccountsCommonService _accountsCommonService = new AccountsCommonService(_sqlRepository);
                 AccountCommonExtensionService _accountsCommonExtensionService = new AccountCommonExtensionService();
 
@@ -937,8 +948,13 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
                 DataSet _ajNDetailData = null;
+                DataSet _invoiceWriteOffData = null;
+                DataSet _invoiceWriteOffDetailData = null;
+                DataSet _invoiceData = null;
+                DataSet _invoiceDetailData = null;
                 DataSet _invTaxDetailData = null;
-                DataSet _invTaxDetailCrData = null; DataSet _adTaxDetailCrData = null;
+                DataSet _invTaxDetailCrData = null; 
+                DataSet _adTaxDetailCrData = null;
                 DataSet _drvDetailData = null;
                 DataSet _drvDetailCurrencyData = null;
                 DataSet _crvDetailData = null;
@@ -947,13 +963,13 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 DataSet _iTaxDrdataset = null;
                 DataSet _iTaxCrdataset = null; DataSet _aTaxCrdataset = null;
                 DataSet dsitemscanChild;
+                
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                //_unitOfWork.BeginTransaction();
-                flag = true;
                 voucherVM.PartyType = PartyType.Vendor.ToString();
                 voucherVM.NoteType = NoteType.CustomerCreditNote.ToString();
                 voucherVM.Amount = voucherDetailVMList.Where(r => r.OtherName == "Return").Sum(r => r.Amount);
                 voucherVM.DocRefNo = "PR" + voucherVM.DocRefNo;
+                voucherVM.VoucherDate = DateTime.Now;
                 var voucher = new Voucher
                 {
                     CompanyGroupId = voucherVM.CompanyGroupId,
@@ -1066,6 +1082,113 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             IsWrittenOff = false
                         };
                         _accountsCommonService.InsertAdjustmentNoteDetail(adjustmentNote, adjustmentNoteDetail, 1, ref _ajNDetailData);
+
+                        var invoiceWriteOff = new InvoiceWriteOff
+                        {
+                            CompanyGroupId = voucherVM.CompanyGroupId,
+                            CompanyId = voucherVM.CompanyId,
+                            PlantId = voucherVM.PlantId,
+                            VoucherId = voucher.Id,
+                            FiscalYearId = voucherVM.FiscalYearId,
+                            FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
+                            TaxYearId = voucherVM.TaxYearId,
+                            TaxYearPeriodId = voucherVM.TaxYearPeriodId,
+                            VoucherTypeId = voucherVM.VoucherTypeId,
+                            CurrencyId = voucherVM.CurrencyId,
+                            SourceType = voucherVM.SourceType,
+                            PartyType = voucherVM.PartyType,
+                            PartyId = voucherVM.PartyId,
+                            PartyPlantId = voucherVM.PartyPlantId,
+                            Amount = voucherVM.Amount,
+                            VoucherDate = voucherVM.VoucherDate,
+                            PostingDate = voucherVM.PostingDate,
+                            DocDate = voucherVM.DocDate,
+                            DocRefNo = voucherVM.DocRefNo,
+                            Narration = voucherVM.Narration,
+                            AddedBy = voucherVM.AddedBy,
+                            AddedDate = voucherVM.AddedDate,
+                            AddedFromIP = voucherVM.AddedFromIP,
+                            IsPark = voucherVM.IsPark,
+                            Archive = false,
+                            BankMasterId = voucherVM.BankMasterId,
+                            CashMasterId = voucherVM.CashMasterId,
+                            EmployeeId = voucherVM.EmployeeId,
+                            PaymentSource = voucherVM.PaymentSource,
+                            RoundingType = voucherVM.RoundingType,
+                            RoundingAmount = voucherVM.RoundingAmount,
+                            InvoiceWriteOffGroupNo = voucherVM.InvoiceWriteOffGroupNo
+                        };
+
+                        _accountsCommonService.InsertInvoiceWriteOff(invoiceWriteOff, out _invoiceWriteOffData);
+
+                        var invoiceWriteOffDetail = new InvoiceWriteOffDetail
+                        {
+                            GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                            BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                            ActivityId = voucherDetailVM.ActivityId,
+                            CurrencyId = voucherVM.CurrencyId,
+                            InvoiceWriteOffId = invoiceWriteOff.Id,
+                            InvoiceId = voucherDetailVM.InvoiceId,
+                            InvoiceDetailId = voucherDetailVM.InvoiceDetailId,
+                            CompanyId = voucherVM.CompanyId,
+                            PlantId = voucherVM.PlantId,
+                            PartyId = voucherVM.PartyId,
+                            PartyPlantId = voucherVM.PartyPlantId,
+                            PartyType = voucherVM.PartyType,
+                            Amount = voucherDetailVM.Amount,
+                            AddedBy = invoiceWriteOff.AddedBy,
+                            AddedDate = invoiceWriteOff.AddedDate,
+                            AddedFromIP = invoiceWriteOff.AddedFromIP,
+                            Archive = invoiceWriteOff.Archive,
+                            DocDate = voucherVM.DocDate,
+                            DocRefNo = voucherVM.DocRefNo,
+                            Narration = voucherVM.Narration
+                        };
+                        _accountsCommonService.InsertInvoiceWriteOffDetail(invoiceWriteOffDetail, 1, out _invoiceWriteOffDetailData);
+
+                        string invoicesql = "SELECT * FROM TRN.Invoice WHERE Id='" + voucherDetailVM.InvoiceId + "'";
+                        string invoiceDetailsql = "SELECT * FROM TRN.InvoiceDetail WHERE Id='" + voucherDetailVM.InvoiceDetailId + "'";
+                        objCon.OpenDataSetThroughAdapter(invoicesql, out _invoiceData, false, "1");
+                        objCon.OpenDataSetThroughAdapter(invoiceDetailsql, out _invoiceDetailData, false, "1");
+
+                        DataView dvivd = new DataView(_invoiceDetailData.Tables[0]);
+                        dvivd.RowFilter = "Id='" + voucherDetailVM.InvoiceDetailId + "'";
+
+
+                        if (dvivd.Count > 0)
+                        {
+                            DataRow drmo = dvivd[0].Row;
+                            if (Convert.ToDecimal(drmo["NetAmount"].ToString()) < Convert.ToDecimal(drmo["WrittenOffAmount"].ToString()) + voucherDetailVM.Amount)
+                            {
+                                throw new CustomException("Received amount can not cross balance amount.!!");
+                            }
+                            drmo.BeginEdit();
+                            drmo["WrittenOffAmount"] = Convert.ToDecimal(drmo["WrittenOffAmount"].ToString()) + voucherDetailVM.Amount;
+                            drmo["IsWrittenOff"] = Convert.ToDecimal(drmo["NetAmount"].ToString()) == Convert.ToDecimal(drmo["WrittenOffAmount"].ToString()) + voucherDetailVM.Amount;
+                            drmo["UpdatedBy"] = voucher.AddedBy;
+                            drmo["UpdatedFromIP"] = voucher.AddedFromIP;
+                            drmo["UpdatedDate"] = DateTime.Now.ToString();
+                            drmo.EndEdit();
+
+                        }
+
+                        DataView dviv = new DataView(_invoiceData.Tables[0]);
+                        dviv.RowFilter = "Id='" + voucherDetailVM.InvoiceId + "'";
+
+
+                        if (dviv.Count > 0)
+                        {
+                            DataRow drmo = dviv[0].Row;
+                            drmo.BeginEdit();
+                            drmo["WrittenOffAmount"] = Convert.ToDecimal(drmo["WrittenOffAmount"].ToString()) + voucherDetailVM.Amount;
+                            drmo["IsWrittenOff"] = Convert.ToDecimal(drmo["Amount"].ToString()) == Convert.ToDecimal(drmo["WrittenOffAmount"].ToString()) + voucherDetailVM.Amount;
+                            drmo["UpdatedBy"] = voucher.AddedBy;
+                            drmo["UpdatedFromIP"] = voucher.AddedFromIP;
+                            drmo["UpdatedDate"] = DateTime.Now.ToString();
+                            drmo.EndEdit();
+
+                        }
+
                         var voucherDetail = new VoucherDetail
                         {
                             GLGeneralInfoId = adjustmentNoteDetail.GLGeneralInfoId,
@@ -1077,7 +1200,8 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             PartyPlantId = adjustmentNote.PartyPlantId,
                             TrnNature = TransactionNature.CreditNote.ToString(),
                             AdjustmentNoteDetailId = adjustmentNoteDetail.Id,
-                            CrAmount = voucherVM.Amount
+                            CrAmount = voucherVM.Amount,
+                            InvoiceWriteOffDetailId = invoiceWriteOffDetail.Id
                         };
                         totalAmountCr += voucherDetail.CrAmount;
                         currentVoucherDetailId++;
@@ -1319,7 +1443,8 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 if (totalAmountDr != totalAmountCr)
                     throw new CustomException("Dr and Cr amount is not equal.");
                 clsStaticInfo objApp = new clsStaticInfo();
-                objApp.SaveDataSets(_vdataset, _ANdataset, _ajNDetailData, _crvDetailData, _crvDetailCurrencyData, _iTaxDrdataset, _invTaxDetailData, _drvDetailData, _drvDetailCurrencyData, _iTaxCrdataset, _invTaxDetailCrData, _salesReturnData, dsitemscanChild, _aTaxCrdataset, _adTaxDetailCrData);
+                objApp.SaveDataSets(_vdataset, _ANdataset, _ajNDetailData, _invoiceWriteOffData, _invoiceWriteOffDetailData, _invoiceData, _invoiceDetailData, _crvDetailData, _crvDetailCurrencyData, _iTaxDrdataset, _invTaxDetailData, _drvDetailData, _drvDetailCurrencyData, _iTaxCrdataset, _invTaxDetailCrData, _salesReturnData, dsitemscanChild, _aTaxCrdataset, _adTaxDetailCrData);
+                
                 return voucher.VoucherNo;
             }
             catch (CustomException)
@@ -1330,6 +1455,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             {
                 throw new CustomException(ex.Message, ex);
             }
+            
         }
 
         [HttpGet, Authorize]

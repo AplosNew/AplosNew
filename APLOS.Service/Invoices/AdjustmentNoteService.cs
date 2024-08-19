@@ -1993,7 +1993,47 @@ namespace Library.Service.Invoices
 										WHERE CPC.ParallelCurrencyType='CompanyGroupCurrency' AND CPC.CompanyId='" + companyId + @"'
 									) AS GC ON GC.VoucherDetailId=VD.Id
                                     WHERE I.Archive=0 AND V.Archive=0 AND I.IsWrittenOff=0 AND ID.IsWrittenOff=0 AND I.IsPark=0  AND I.SourceType in ('" + SourceType.CreditNote + "','"+ SourceType.VendorPayment + @"') AND V.IsPark=0
-                                    AND I.PartyType='" + partyType + "' AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + "' AND I.PartyId='" + partyId + @"'";
+                                    AND I.PartyType='" + partyType + "' AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + "' AND I.PartyId='" + partyId + @"'
+                                    AND VD.VoucherId NOT IN(select ISNULL(VoucherId,'') from [TRN].[SalesReturn])
+
+                                    UNION ALL
+                                    SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS AdjustmentNoteId, ID.Id AS AdjustmentNoteDetailId, I.VoucherId, V.VoucherNo, VD.EntityId, EN.UserName AS EntityName,   I.PartyId, VD.Id AS VoucherDetailId, I.CurrencyId
+                                    , C.Code AS CurrencyCode, ID.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, ID.BudgetMasterId, B.Code AS BudgetCode, V.ExchangeType, 0 ExchangeAmount
+                                    , B.UserName AS BudgetName, ID.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, Replace(CONVERT(VARCHAR(11), I.DocDate, 106), ' ', '-') AS DocDate, Replace(CONVERT(VARCHAR(11)
+                                    , I.PostingDate, 106), ' ', '-') AS PostingDate, I.DocRefNo, I.Narration, ISNULL(ID.Amount,0) AS Receivable, (ISNULL(ID.WrittenOffAmount,0)) AS Received
+                                    , PP.UserName AS PartyPlantName
+                                    , (ISNULL(ID.Amount,0)- (ISNULL(ID.WrittenOffAmount,0))) AS Balance, CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, 0 ToCurrencyRate
+                                    , CC.CompanyCurrencyConversion, GC.CompanyGroupCurrencyId, GC.CompanyGroupFromCurrencyId, GC.CompanyGroupCurrencyRate, GC.CompanyGroupCurrencyConversion
+                                    ,V.TransactionRefNo
+                                    FROM [TRN].[AdjustmentNoteDetail] AS ID
+                                    LEFT JOIN [TRN].[AdjustmentNote] AS I ON I.Id=ID.AdjustmentNoteId
+									LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=I.PartyPlantId
+                                    LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=ID.Id
+                                    LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                                    LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=ID.GLGeneralInfoId
+                                    LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=ID.BudgetMasterId
+                                    LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                    LEFT JOIN [HKP].[Activity] AS A ON A.Id=ID.ActivityId
+                                    LEFT JOIN [SCS].[Currency] AS C ON C.Id=I.CurrencyId
+                                    LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=I.EntityId
+										LEFT JOIN (
+										SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+										FROM [TRN].[VoucherDetailCurrency] AS VDC
+										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
+									) AS CC ON CC.VoucherDetailId=VD.Id
+									LEFT JOIN (
+									SELECT VDC.ParallelCurrencyId AS CompanyGroupCurrencyId, VDC.FromCurrencyId AS CompanyGroupFromCurrencyId, VDC.ToCurrencyId,0 ToCurrencyRate,
+										VDC.ToCurrencyRate AS CompanyGroupCurrencyRate, VDC.ToCurrencyConversion AS CompanyGroupCurrencyConversion, VDC.DrAmount AS CompanyGroupCurrencyAmount, VDC.VoucherDetailId
+										FROM [TRN].[VoucherDetailCurrency] AS VDC
+										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+										WHERE CPC.ParallelCurrencyType='CompanyGroupCurrency' AND CPC.CompanyId='" + companyId + @"'
+									) AS GC ON GC.VoucherDetailId=VD.Id
+                                    WHERE I.Archive=0 AND V.Archive=0 AND I.IsWrittenOff=0 AND ID.IsWrittenOff=0 AND I.IsPark=0  AND I.SourceType in ('" + SourceType.CreditNote + @"') AND V.IsPark=0
+                                    AND I.PartyType='" + partyType + "' AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + "' AND I.PartyId='" + partyId + @"' 
+                                    AND VD.VoucherId IN(select ISNULL(VoucherId,'') from [TRN].[SalesReturn]) 
+                                    AND convert(Date,V.AddedDate) <= '18-Aug-2024' ";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)

@@ -240,4 +240,11 @@ function expenseBookingApprovalController(cboService, commonMessage, $scope, $ro
             ShowResult(e, 'failure');
         }
     }
+
+    $scope.DocDownload = function (data) {
+        $scope.dwonloadUrl = null;
+        var str = data.FileName;
+        var extention = str.substr(str.indexOf('.'));
+        $scope.dwonloadUrl = virtualPath.ExpensesDocument + '/' + data.Id + extention;
+    };
 }
