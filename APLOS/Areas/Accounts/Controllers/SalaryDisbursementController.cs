@@ -3168,6 +3168,55 @@ AND CONCAT(YEAR('" + toDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + toDate + @"
         }
 
         #endregion Save SalaryUnDisbursed 
+
+        #region Save BonusUnDisbursed 
+        [HttpPost]
+        public ActionResult SaveBonusUnDisbursed(List<SalaryLock> EmployeeList)
+        {
+            try
+            {
+                SaveBonusUnDisbursedLock(EmployeeList);
+                return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        public void SaveBonusUnDisbursedLock(List<SalaryLock> EmployeeList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            try
+            {
+                string IdLoop = "";
+                foreach (var item in EmployeeList)
+                {
+                    if (IdLoop == "")
+                    {
+                        IdLoop = "'" + item.Id + "'"; ;
+                    }
+                    else
+                    {
+                        IdLoop += ",'" + item.Id + "'";
+
+                    }
+                }
+
+                var vendorAdWr = new System.Text.StringBuilder();
+                var vendorAdWrsql = "";
+                vendorAdWrsql = @"update [dbo].[SalaryLock] set IsBonusDisbursed=0, BonusDisbursementAdviceId=null, UpdatedBy='" + identity.Name + "', UpdatedDate='" + DateTime.Now + "', UpdatedFromIP='" + identity.IPAddress + "' where Id IN (" + IdLoop + @") ";
+                vendorAdWr.Append(vendorAdWrsql);
+                _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion Save SalaryUnDisbursed 
         public class SalaryLock : BaseModel
         {
             #region Scalar Properties            
