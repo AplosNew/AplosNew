@@ -99,6 +99,7 @@ function SalaryAdviceController(commonMessage, $scope, $rootScope, baseService, 
 
 
     $scope.EmpCatList = [
+        { Value: "2", Text: "Pending" },
         { Value: "1", Text: "Parked" },
         { Value: "0", Text: "Posted" }
     ];
@@ -106,20 +107,31 @@ function SalaryAdviceController(commonMessage, $scope, $rootScope, baseService, 
 
     $scope.disbursementAdviceList = [];
     $scope.GetDisbursementAdviceCbo = function () {
-        if ($scope.ReportType == "Salary" || $scope.ReportType == "Bonus") {
-            $http({
-                method: 'GET',
-                url: 'Payrolls/PaySlipsNew/GetDisbursementAdviceCbo?yearNo=' + $scope.year + '&monthNo=' + $scope.month + '&paymentMode=' + $scope.PaymentMode + '&ReportType=' + $scope.ReportType
-            }).then(function success(response) {
-                $scope.disbursementAdviceList = response.data;
-            })
-        } else {
-            $http({
-                method: 'GET',
-                url: 'Payrolls/PaySlipsNew/GetGEOTDisbursementAdviceCbo?FromDate=' + $scope.FromDate + '&ToDate=' + $scope.ToDate + '&paymentMode=' + $scope.PaymentMode + '&ReportType=' + $scope.ReportType
-            }).then(function success(response) {
-                $scope.disbursementAdviceList = response.data;
-            })
+        try {
+            if ($scope.ReportType == "Salary" || $scope.ReportType == "Bonus") {
+                $http({
+                    method: 'GET',
+                    url: 'Payrolls/PaySlipsNew/GetDisbursementAdviceCbo?yearNo=' + $scope.year + '&monthNo=' + $scope.month + '&paymentMode=' + $scope.PaymentMode + '&ReportType=' + $scope.ReportType + '&status=' + $scope.EmpCat
+                }).then(function success(response) {
+                    $scope.disbursementAdviceList = response.data;
+                })
+            } else {
+                if (baseService.isUndefinedOrNull($scope.FromDate)) {
+                    throw "Select From Date.";
+                }
+                if (baseService.isUndefinedOrNull($scope.ToDate)) {
+                    throw "Select To Date.";
+                }
+
+                $http({
+                    method: 'GET',
+                    url: 'Payrolls/PaySlipsNew/GetGEOTDisbursementAdviceCbo?FromDate=' + $scope.FromDate + '&ToDate=' + $scope.ToDate + '&paymentMode=' + $scope.PaymentMode + '&ReportType=' + $scope.ReportType
+                }).then(function success(response) {
+                    $scope.disbursementAdviceList = response.data;
+                })
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
     }
 

@@ -65,7 +65,6 @@
             <div class="form-group" ng-show="ReportType=='Salary'||ReportType=='Bonus'">
                 <label class="col-sm-4 control-label">Month</label>
                 <div class="col-sm-8">
-                    @*<input id="ddlMonthList" e-watermarktext="Month" ej-dropdownlist e-datasource="monthList" e-enablefiltersearch="true" e-value="month" e-fields-value="Value" e-fields-text="Text" e-width="100%" />*@
                     <div class="select-style">
                         <select id="Month" class="form-control" name="Month" ng-model="month" tabindex="5">
                             <option value="">--Select--</option>
@@ -101,7 +100,7 @@
                 <label class="col-sm-4 control-label">Status</label>
                 <div class="col-sm-8">
                     <div class="select-style">
-                        <select id="EmployeeCategory" class="form-control" name="Employee Category" ng-model="EmpCat" tabindex="5">
+                        <select id="EmployeeCategory" class="form-control" name="Employee Category" ng-model="EmpCat" tabindex="5" ng-change="GetDisbursementAdviceCbo();">
                             <option value="">--Select--</option>
                             <option ng-repeat="option in EmpCatList" value="{{option.Value}}">{{option.Text}}</option>
                         </select>

@@ -61,11 +61,11 @@ namespace Aplos.Areas.Payrolls.Controllers
         #region -- Operations
 
         [HttpGet, Authorize]
-        public ActionResult GetDisbursementAdviceCbo(string yearNo, string monthNo, string paymentMode, string ReportType)
+        public ActionResult GetDisbursementAdviceCbo(string yearNo, string monthNo, string paymentMode, string ReportType, string status)
         {
             try
             {
-                return Json(_payrollReportsService.GetDisbursementAdviceCbo(yearNo, monthNo, paymentMode, ReportType), JsonRequestBehavior.AllowGet);
+                return Json(_payrollReportsService.GetDisbursementAdviceCbo(yearNo, monthNo, paymentMode, ReportType, status), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -301,7 +301,7 @@ LEFT JOIN EmployeeBankInfo EB ON EB.EmpSystemID = EI.SystemId
 AND EB.RowID=(Select top(1) RowID from EmployeeBankInfo Where EmpSystemID=EB.EmpSystemID AND  IsApproved=1 Order BY DateAdded DESC)
  LEFT JOIN HKP.Bank B ON B.Id = EB.BankSystemID
  LEFT JOIN TRN.Voucher V oN V.Id=SL.DisbursementVoucherId
-Where SL.DisbursementAdviceId='" + adviceId + "' AND sl.YearNo='" + yearNo + @"' AND sl.MonthNo='" + monthNo + @"' AND V.IsPark=" + status + "";
+Where SL.DisbursementAdviceId='" + adviceId + "' AND sl.YearNo='" + yearNo + @"' AND sl.MonthNo='" + monthNo + @"'";
                 }
                 else
                 {
@@ -320,7 +320,7 @@ LEFT JOIN EmployeeBankInfo EB ON EB.EmpSystemID = EI.SystemId
 AND EB.RowID = (Select top(1) RowID from EmployeeBankInfo Where EmpSystemID = EB.EmpSystemID AND IsApproved = 1 Order BY DateAdded DESC)
  LEFT JOIN HKP.Bank B ON B.Id = EB.BankSystemID
  LEFT JOIN TRN.Voucher V oN V.Id = SL.DisbursementVoucherId
-Where SL.BonusDisbursementAdviceId = '" + adviceId + "' AND sl.YearNo=" + yearNo + @" AND sl.MonthNo=" + monthNo + @" AND V.IsPark=" + status + "";
+Where SL.BonusDisbursementAdviceId = '" + adviceId + "' AND sl.YearNo=" + yearNo + @" AND sl.MonthNo=" + monthNo + @"";
                 }
 
 

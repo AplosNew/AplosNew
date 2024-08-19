@@ -23634,7 +23634,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
             }
         }
 
-        public IEnumerable<object> GetDisbursementAdviceCbo(string yearNo, string monthNo, string paymentMode, string ReportType)
+        public IEnumerable<object> GetDisbursementAdviceCbo(string yearNo, string monthNo, string paymentMode, string ReportType, string status)
         {
             try
             {
@@ -23642,15 +23642,25 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
 
                 if (ReportType == "Salary")
                 {
-                    str = @"SELECT DISTINCT D.Id Value, (D.Id+'-'+ISNULL(D.Remarks,'')) Text from  dbo.SalaryLock SL 
-LEFT JOIN [dbo].[DisbursementAdvice]  D oN D.Id=SL.DisbursementAdviceId
-Where  sl.YearNo=" + yearNo + " AND sl.MonthNo=" + monthNo + " AND DisbursementAdviceId<>'' AND D.PaymentMode='" + paymentMode + "'";
+                    if (status == "2")
+                    {
+                        str = @"SELECT DISTINCT D.Id Value, (D.Id+'-'+ISNULL(D.Remarks,'')) Text FROM  [dbo].[DisbursementAdvice]  D 
+                        Where  D.YearNo=" + yearNo + " AND D.MonthNo=" + monthNo + " AND D.PaymentMode='" + paymentMode + "' AND [Status]='Active'";
+                    }
+                    else
+                    {
+                        str = @"SELECT DISTINCT D.Id Value, (D.Id+'-'+ISNULL(D.Remarks,'')) Text FROM  dbo.SalaryLock SL 
+                                LEFT JOIN [dbo].[DisbursementAdvice]  D oN D.Id=SL.DisbursementAdviceId
+                                LEFT JOIN TRN.Voucher V oN V.Id=SL.DisbursementVoucherId
+                                Where sl.YearNo=" + yearNo + " AND sl.MonthNo=" + monthNo + " AND DisbursementAdviceId<>'' AND D.PaymentMode='" + paymentMode + "' AND V.IsPark=" + status + "";
+                    }
                 }
                 else
                 {
-                    str = @"SELECT DISTINCT D.Id Value, (D.Id+'-'+ISNULL(D.Remarks,'')) Text from  dbo.SalaryLock SL 
-LEFT JOIN [dbo].[DisbursementAdvice]  D oN D.Id=SL.BonusDisbursementAdviceId
-Where  sl.YearNo=" + yearNo + " AND sl.MonthNo=" + monthNo + " AND BonusDisbursementAdviceId<>'' AND D.PaymentMode='" + paymentMode + "'";
+                    str = @"SELECT DISTINCT D.Id Value, (D.Id+'-'+ISNULL(D.Remarks,'')) Text FROM  dbo.SalaryLock SL 
+                        LEFT JOIN [dbo].[DisbursementAdvice]  D oN D.Id=SL.BonusDisbursementAdviceId
+                        LEFT JOIN TRN.Voucher V oN V.Id=SL.BonusDisbursementVoucherId
+                        Where  sl.YearNo=" + yearNo + " AND sl.MonthNo=" + monthNo + " AND BonusDisbursementAdviceId<>'' AND D.PaymentMode='" + paymentMode + "' AND V.IsPark=" + status + "";
                 }
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -23673,7 +23683,7 @@ Where  sl.YearNo=" + yearNo + " AND sl.MonthNo=" + monthNo + " AND BonusDisburse
                 }
                 else
                 {
-                    str = @"Select Id Value, (Id+'-'+ISNULL(UserRef,'')) Text from GoodWorkPaymentAdvise Where PaymentSource='Attendance' AND FromDate between '" + FromDate + "' AND  '"+ ToDate + "' AND ToDate between '" + FromDate + "' AND  '" + ToDate + "'";
+                    str = @"Select Id Value, (Id+'-'+ISNULL(UserRef,'')) Text from GoodWorkPaymentAdvise Where PaymentSource='Attendance' AND FromDate between '" + FromDate + "' AND  '" + ToDate + "' AND ToDate between '" + FromDate + "' AND  '" + ToDate + "'";
                 }
                 return _sqlRepository.GetDataCollection(str);
             }
