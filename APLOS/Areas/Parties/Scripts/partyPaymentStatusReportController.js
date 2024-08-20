@@ -207,7 +207,7 @@ function partyPaymentStatusReportController(commonMessage, $scope, $rootScope, b
             manualValidation('div_ToDate', true, "To date must be above or equal to From Date.");
         }
         else {
-            var url = 'Parties/PartyReport/GetShortPartyPaymentStatusReport?reportFormat=' + $scope.report.ReportFormat + '&partyType=' + $scope.report.PartyType + '&partyId=' + $scope.report.PartyId + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&active=' + $scope.report.Active;
+            var url = 'Parties/PartyReport/GetShortPartyPaymentStatusReport?reportFormat=' + $scope.report.ReportFormat + '&partyType=' + $scope.report.PartyType + '&partyId=' + $scope.report.PartyId + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&active=' + $scope.report.Active + '&partyName=' + $scope.customerNameCode;
             if (!baseService.isUndefinedOrNull($scope.report.PartyPlantId)) {
                 url += '&partyPlantId=' + $scope.report.PartyPlantId;
             }
