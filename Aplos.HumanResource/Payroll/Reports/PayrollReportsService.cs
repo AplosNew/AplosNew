@@ -23634,7 +23634,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
             }
         }
 
-        public IEnumerable<object> GetDisbursementAdviceCbo(string yearNo, string monthNo, string paymentMode, string ReportType)
+        public IEnumerable<object> GetDisbursementAdviceCbo(string yearNo, string monthNo, string paymentMode, string ReportType, string status)
         {
             try
             {
@@ -23642,15 +23642,25 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
 
                 if (ReportType == "Salary")
                 {
-                    str = @"SELECT DISTINCT D.Id Value, (D.Id+'-'+ISNULL(D.Remarks,'')) Text from  dbo.SalaryLock SL 
-LEFT JOIN [dbo].[DisbursementAdvice]  D oN D.Id=SL.DisbursementAdviceId
-Where  sl.YearNo=" + yearNo + " AND sl.MonthNo=" + monthNo + " AND DisbursementAdviceId<>'' AND D.PaymentMode='" + paymentMode + "'";
+                    if (status == "2")
+                    {
+                        str = @"SELECT DISTINCT D.Id Value, (D.Id+'-'+ISNULL(D.Remarks,'')) Text FROM  [dbo].[DisbursementAdvice]  D 
+                        Where  D.YearNo=" + yearNo + " AND D.MonthNo=" + monthNo + " AND D.PaymentMode='" + paymentMode + "' AND [Status]='Active'";
+                    }
+                    else
+                    {
+                        str = @"SELECT DISTINCT D.Id Value, (D.Id+'-'+ISNULL(D.Remarks,'')) Text FROM  dbo.SalaryLock SL 
+                                LEFT JOIN [dbo].[DisbursementAdvice]  D oN D.Id=SL.DisbursementAdviceId
+                                LEFT JOIN TRN.Voucher V oN V.Id=SL.DisbursementVoucherId
+                                Where sl.YearNo=" + yearNo + " AND sl.MonthNo=" + monthNo + " AND DisbursementAdviceId<>'' AND D.PaymentMode='" + paymentMode + "' AND V.IsPark=" + status + "";
+                    }
                 }
                 else
                 {
-                    str = @"SELECT DISTINCT D.Id Value, (D.Id+'-'+ISNULL(D.Remarks,'')) Text from  dbo.SalaryLock SL 
-LEFT JOIN [dbo].[DisbursementAdvice]  D oN D.Id=SL.BonusDisbursementAdviceId
-Where  sl.YearNo=" + yearNo + " AND sl.MonthNo=" + monthNo + " AND BonusDisbursementAdviceId<>'' AND D.PaymentMode='" + paymentMode + "'";
+                    str = @"SELECT DISTINCT D.Id Value, (D.Id+'-'+ISNULL(D.Remarks,'')) Text FROM  dbo.SalaryLock SL 
+                        LEFT JOIN [dbo].[DisbursementAdvice]  D oN D.Id=SL.BonusDisbursementAdviceId
+                        LEFT JOIN TRN.Voucher V oN V.Id=SL.BonusDisbursementVoucherId
+                        Where  sl.YearNo=" + yearNo + " AND sl.MonthNo=" + monthNo + " AND BonusDisbursementAdviceId<>'' AND D.PaymentMode='" + paymentMode + "' AND V.IsPark=" + status + "";
                 }
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -23661,7 +23671,7 @@ Where  sl.YearNo=" + yearNo + " AND sl.MonthNo=" + monthNo + " AND BonusDisburse
             }
         }
 
-        public IEnumerable<object> GetGEOTDisbursementAdviceCbo(string FromDate, string ToDate, string paymentMode, string ReportType)
+        public IEnumerable<object> GetGEOTDisbursementAdviceCbo(string FromDate, string ToDate, string paymentMode, string ReportType, string status)
         {
             try
             {
@@ -23669,11 +23679,37 @@ Where  sl.YearNo=" + yearNo + " AND sl.MonthNo=" + monthNo + " AND BonusDisburse
 
                 if (ReportType == "GoodWork")
                 {
-                    str = @"Select Id Value, (Id+'-'+ISNULL(UserRef,'')) Text from GoodWorkPaymentAdvise Where PaymentSource='GoodWork' AND FromDate between '" + FromDate + "' AND  '" + ToDate + "' AND ToDate between '" + FromDate + "' AND  '" + ToDate + "'";
+                    if (status == "2")
+                    {
+                        str = @"Select DISTINCT A.Id Value, (A.Id+'-'+ISNULL(A.UserRef,'')) Text from dbo.GoodWorkPaymentAdvise A
+LEFT JOIN dbo.GoodWorkPaymentAdviseDetail D ON A.Id=D.PaymentAdviseId
+LEFT JOIN TRN.Voucher V oN V.Id=D.DisbursementVoucherId
+Where A.PaymentSource='GoodWork' AND A.FromDate between '" + FromDate+ @"' AND  '" + ToDate + @"' AND A.ToDate between '"+FromDate+ @"' AND  '" + ToDate + @"' AND D.DisbursementVoucherId IS NULL";
+                    }
+                    else
+                    {
+                        str = @"Select DISTINCT A.Id Value, (A.Id+'-'+ISNULL(A.UserRef,'')) Text from dbo.GoodWorkPaymentAdvise A
+LEFT JOIN dbo.GoodWorkPaymentAdviseDetail D ON A.Id=D.PaymentAdviseId
+LEFT JOIN TRN.Voucher V oN V.Id=D.DisbursementVoucherId
+Where A.PaymentSource='GoodWork' AND A.FromDate between '" + FromDate+ @"' AND  '" + ToDate + @"' AND A.ToDate between '"+FromDate+ @"' AND  '" + ToDate + @"' AND V.IsPark="+status+"";
+                    }
                 }
                 else
                 {
-                    str = @"Select Id Value, (Id+'-'+ISNULL(UserRef,'')) Text from GoodWorkPaymentAdvise Where PaymentSource='Attendance' AND FromDate between '" + FromDate + "' AND  '"+ ToDate + "' AND ToDate between '" + FromDate + "' AND  '" + ToDate + "'";
+                    if (status == "2")
+                    {
+                        str = @"Select DISTINCT A.Id Value, (A.Id+'-'+ISNULL(A.UserRef,'')) Text from dbo.GoodWorkPaymentAdvise A
+LEFT JOIN dbo.GoodWorkPaymentAdviseDetail D ON A.Id=D.PaymentAdviseId
+LEFT JOIN TRN.Voucher V oN V.Id=D.DisbursementVoucherId
+Where A.PaymentSource='Attendance' AND A.FromDate between '" + FromDate+ @"' AND  '" + ToDate + @"' AND A.ToDate between '"+FromDate+ @"' AND  '" + ToDate + @"' AND D.DisbursementVoucherId IS NULL";
+                    }
+                    else
+                    {
+                        str = @"Select DISTINCT A.Id Value, (A.Id+'-'+ISNULL(A.UserRef,'')) Text from dbo.GoodWorkPaymentAdvise A
+LEFT JOIN dbo.GoodWorkPaymentAdviseDetail D ON A.Id=D.PaymentAdviseId
+LEFT JOIN TRN.Voucher V oN V.Id=D.DisbursementVoucherId
+Where A.PaymentSource='Attendance' AND A.FromDate between '" + FromDate+ @"' AND  '" + ToDate + @"' AND A.ToDate between '"+FromDate+ @"' AND  '" + ToDate + @"' AND V.IsPark=" + status + "";
+                    }
                 }
                 return _sqlRepository.GetDataCollection(str);
             }

@@ -9,6 +9,7 @@
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);" href="" aria-controls="doc" role="tab" data-toggle="tab">To Assign List</a></li>
                 <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);" href="" aria-controls="doc" role="tab" data-toggle="tab">To Unassign List</a></li>
                 <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);" href="" aria-controls="doc" role="tab" data-toggle="tab">Transport Status Detail</a></li>
+                <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5);" href="" aria-controls="doc" role="tab" data-toggle="tab">Bus Verification</a></li>
             </ul>
         </div>
 
@@ -176,7 +177,15 @@
                     </div>
                 </div>
             </div>
-
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+                <div class="row">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li> <button data-toggle="modal" ng-click="GetBusVerificationReport();" class="btn" tabindex="10"><i class="glyphicon glyphicon-cloud-download"></i>Download</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="clearfix"></div>
     </div>
