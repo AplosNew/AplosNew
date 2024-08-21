@@ -221,5 +221,20 @@ function RouteEmployeeReportController(cboService, commonMessage, $scope, $rootS
 
     };
 
+    $scope.GetBusVerificationReport = function () {
+        try {
+            
+            $scope.fileName = "BusVerification.xls";
+
+
+            $scope.ReportFormat = 'Excel';
+            // $scope.ReportFormat = 'Pdf';
+            var url = 'Employees/RouteEmployee/GetBusVerificationReport?reportFormat=' + $scope.ReportFormat;
+            $rootScope.report(url);
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
   
 }

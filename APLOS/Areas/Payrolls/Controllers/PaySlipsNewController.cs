@@ -6,6 +6,7 @@ using Library.Data.Sql;
 using Library.HumanResource.Payroll;
 using Library.Model.Enums;
 using Library.Model.HumanResources;
+using Library.Security.Core;
 using Library.Service.Employees;
 using Library.Service.Helpers;
 using Library.Service.HumanResources;
@@ -61,11 +62,11 @@ namespace Aplos.Areas.Payrolls.Controllers
         #region -- Operations
 
         [HttpGet, Authorize]
-        public ActionResult GetDisbursementAdviceCbo(string yearNo, string monthNo, string paymentMode, string ReportType)
+        public ActionResult GetDisbursementAdviceCbo(string yearNo, string monthNo, string paymentMode, string ReportType, string status)
         {
             try
             {
-                return Json(_payrollReportsService.GetDisbursementAdviceCbo(yearNo, monthNo, paymentMode, ReportType), JsonRequestBehavior.AllowGet);
+                return Json(_payrollReportsService.GetDisbursementAdviceCbo(yearNo, monthNo, paymentMode, ReportType, status), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -74,11 +75,11 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetGEOTDisbursementAdviceCbo(string FromDate, string ToDate, string paymentMode, string ReportType)
+        public ActionResult GetGEOTDisbursementAdviceCbo(string FromDate, string ToDate, string paymentMode, string ReportType, string status)
         {
             try
             {
-                return Json(_payrollReportsService.GetGEOTDisbursementAdviceCbo(FromDate, ToDate, paymentMode, ReportType), JsonRequestBehavior.AllowGet);
+                return Json(_payrollReportsService.GetGEOTDisbursementAdviceCbo(FromDate, ToDate, paymentMode, ReportType, status), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -216,13 +217,13 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult GetSalaryAdviseReportPdf(ReportFormat reportFormat, string empcat, string adviceId, string yearNo, string monthNo, string monthName, string status, string ReportType)
+        public ActionResult GetSalaryAdviseReportPdf(ReportFormat reportFormat, string empcat, string adviceId, string yearNo, string monthNo, string monthName, string status, string ReportType, string paymentMode)
         {
             try
             {
                 string fileName = "";
 
-                IWorkbook workbook = GetSalaryAdviseWorkbook("Data", empcat, adviceId, yearNo, monthNo, monthName, status, ReportType);
+                IWorkbook workbook = GetSalaryAdviseWorkbook("Data", empcat, adviceId, yearNo, monthNo, monthName, status, ReportType, paymentMode);
                 var reportFileName = DateTime.Now.ToString("yyMMdd") + "BankAdvice";
                 // return RenderReportAsPdf(workbook, reportFileName);
                 switch (reportFormat)
@@ -266,7 +267,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         }
 
-        public IWorkbook GetSalaryAdviseWorkbook(string SheetName, string empcat, string adviceId, string yearNo, string monthNo, string monthName, string status, string ReportType)
+        public IWorkbook GetSalaryAdviseWorkbook(string SheetName, string empcat, string adviceId, string yearNo, string monthNo, string monthName, string status, string ReportType, string paymentMode)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ExcelEngine excelEngine = null;
@@ -301,7 +302,7 @@ LEFT JOIN EmployeeBankInfo EB ON EB.EmpSystemID = EI.SystemId
 AND EB.RowID=(Select top(1) RowID from EmployeeBankInfo Where EmpSystemID=EB.EmpSystemID AND  IsApproved=1 Order BY DateAdded DESC)
  LEFT JOIN HKP.Bank B ON B.Id = EB.BankSystemID
  LEFT JOIN TRN.Voucher V oN V.Id=SL.DisbursementVoucherId
-Where SL.DisbursementAdviceId='" + adviceId + "' AND sl.YearNo='" + yearNo + @"' AND sl.MonthNo='" + monthNo + @"' AND V.IsPark=" + status + "";
+Where SL.DisbursementAdviceId='" + adviceId + "' AND sl.YearNo='" + yearNo + @"' AND sl.MonthNo='" + monthNo + @"'";
                 }
                 else
                 {
@@ -320,7 +321,7 @@ LEFT JOIN EmployeeBankInfo EB ON EB.EmpSystemID = EI.SystemId
 AND EB.RowID = (Select top(1) RowID from EmployeeBankInfo Where EmpSystemID = EB.EmpSystemID AND IsApproved = 1 Order BY DateAdded DESC)
  LEFT JOIN HKP.Bank B ON B.Id = EB.BankSystemID
  LEFT JOIN TRN.Voucher V oN V.Id = SL.DisbursementVoucherId
-Where SL.BonusDisbursementAdviceId = '" + adviceId + "' AND sl.YearNo=" + yearNo + @" AND sl.MonthNo=" + monthNo + @" AND V.IsPark=" + status + "";
+Where SL.BonusDisbursementAdviceId = '" + adviceId + "' AND sl.YearNo=" + yearNo + @" AND sl.MonthNo=" + monthNo + @"";
                 }
 
 
@@ -333,9 +334,27 @@ Where SL.BonusDisbursementAdviceId = '" + adviceId + "' AND sl.YearNo=" + yearNo
                 }
                 ReportUtility reportUtility = new ReportUtility();
 
-                int ROW = 4; int COL = 1;
-                sheet.Range[ROW, COL].Text = "Bank Advice";
-                sheet.Range[ROW, 1, ROW, 7].Merge();
+                int ROW = 0; int COL = 1;
+
+                if (paymentMode == "Bank")
+                {
+                    ROW = 5; COL = 1;
+                    sheet.Range[ROW, COL].Text = "Bank Advice";
+                    sheet.Range[ROW, 1, ROW, 7].Merge();
+                    sheet.Range[ROW, 1, ROW, 7].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet.Range[ROW, 1, ROW, 7].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet.Range[ROW, 1, ROW, 7].CellStyle.Font.Bold = true;
+                }
+                else
+                {
+                    ROW = 5; COL = 1;
+                    sheet.Range[ROW, COL].Text = "Bank Advice";
+                    sheet.Range[ROW, 1, ROW, 5].Merge();
+                    sheet.Range[ROW, 1, ROW, 5].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet.Range[ROW, 1, ROW, 5].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet.Range[ROW, 1, ROW, 5].CellStyle.Font.Bold = true;
+                }
+                ROW++;
                 ROW++;
                 sheet.Range[ROW, COL].Text = "Status :";
                 sheet.Range[ROW, 2].Text = empcat;//status=="1"?"Parked" :"Posted";
@@ -345,18 +364,25 @@ Where SL.BonusDisbursementAdviceId = '" + adviceId + "' AND sl.YearNo=" + yearNo
                 ROW++;
                 ROW++;
                 #region ColumnsHeader
-
+                int colIFSC = 0; int colAC = 0; int colBN = 0;
                 sheet[ROW, COL].Text = "SNo"; sheet[ROW, COL].ColumnWidth = 10.50; int colSL = COL; COL++;
                 sheet[ROW, COL].Text = "Employee Code"; sheet[ROW, COL].ColumnWidth = 16.50; int colEC = COL; COL++;
                 sheet[ROW, COL].Text = "Employee Name"; sheet[ROW, COL].ColumnWidth = 20.50; int colEN = COL; COL++;
                 sheet[ROW, COL].Text = "Net Payable"; sheet[ROW, COL].ColumnWidth = 13.50; int colNP = COL; COL++;
-                sheet[ROW, COL].Text = "Bank"; sheet[ROW, COL].ColumnWidth = 28; int colBN = COL; COL++;
-                sheet[ROW, COL].Text = "A/C No"; sheet[ROW, COL].ColumnWidth = 13.50; int colAC = COL; COL++;
-                sheet[ROW, COL].Text = "IFSC"; sheet[ROW, COL].ColumnWidth = 12; int colIFSC = COL; COL++;
-                sheet[ROW, COL].Text = "Emp Signature"; sheet[ROW, COL].ColumnWidth = 36;
+                if (paymentMode == "Bank")
+                {
+                    sheet[ROW, COL].Text = "Bank"; sheet[ROW, COL].ColumnWidth = 28; colBN = COL; COL++;
+                    sheet[ROW, COL].Text = "A/C No"; sheet[ROW, COL].ColumnWidth = 13.50; colAC = COL; COL++;
+                    sheet[ROW, COL].Text = "IFSC"; sheet[ROW, COL].ColumnWidth = 12; colIFSC = COL;
+                }
+                if (paymentMode == "Cash")
+                {
+                    sheet[ROW, COL].Text = "Emp Signature"; sheet[ROW, COL].ColumnWidth = 36; 
+                }
 
 
                 int endCol = COL;
+                sheet.UsedRange.HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.White;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.Black;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
@@ -371,57 +397,92 @@ Where SL.BonusDisbursementAdviceId = '" + adviceId + "' AND sl.YearNo=" + yearNo
                 int cnt = 0;
                 #region DataPlot
                 double NetPayable = 0;
-                for (int i = 0; i < dtOrder.Rows.Count; i++)
+                if (paymentMode == "Bank")
                 {
+                    for (int i = 0; i < dtOrder.Rows.Count; i++)
+                    {
 
-                    cnt++;
-                    sheet[ROW, colSL].Number = Library.Service.Extension.clsStaticInfo.dbl(cnt.ToString());
-                    sheet[ROW, colEC].Text = dtOrder.Rows[i]["EmployeeCode"].ToString();
-                    sheet[ROW, colEN].Text = dtOrder.Rows[i]["EmployeeName"].ToString();
-                    sheet[ROW, colNP].Text = dtOrder.Rows[i]["NetPay"].ToString();
-                    sheet[ROW, colBN].Text = dtOrder.Rows[i]["BankName"].ToString();
-                    sheet[ROW, colAC].Text = dtOrder.Rows[i]["BankAccNo"].ToString();
-                    sheet[ROW, colIFSC].Text = dtOrder.Rows[i]["IFSCCode"].ToString();
+                        cnt++;
+                        sheet[ROW, colSL].Number = Library.Service.Extension.clsStaticInfo.dbl(cnt.ToString());
+                        sheet[ROW, colEC].Text = dtOrder.Rows[i]["EmployeeCode"].ToString();
+                        sheet[ROW, colEN].Text = dtOrder.Rows[i]["EmployeeName"].ToString();
+                        sheet[ROW, colNP].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["NetPay"].ToString());
 
-                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
-                    ROW++;
+                        sheet[ROW, colBN].Text = dtOrder.Rows[i]["BankName"].ToString();
+                        sheet[ROW, colAC].Text = dtOrder.Rows[i]["BankAccNo"].ToString();
+                        sheet[ROW, colIFSC].Text = dtOrder.Rows[i]["IFSCCode"].ToString();
+
+
+                        sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                        sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                        ROW++;
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < dtOrder.Rows.Count; i++)
+                    {
+
+                        cnt++;
+                        sheet[ROW, colSL].Number = Library.Service.Extension.clsStaticInfo.dbl(cnt.ToString());
+                        sheet[ROW, colSL].RowHeight = 28;
+                        sheet[ROW, colEC].Text = dtOrder.Rows[i]["EmployeeCode"].ToString();
+                        sheet[ROW, colEN].Text = dtOrder.Rows[i]["EmployeeName"].ToString();
+                        sheet[ROW, colNP].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["NetPay"].ToString());
+
+                        sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                        sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                        ROW++;
+                    }
                 }
                 #endregion
                 int edCRow = ROW;
+                sheet.Range[edCRow, 1].Text = "Total";
+                double TotalSPT = OTSBD.clsStaticInfo.dbl(dtOrder.Compute("SUM(NetPay)", null));
+                sheet.Range[edCRow, 4].Number = TotalSPT;
+                sheet.Range[edCRow, 1, edCRow, 4].CellStyle.Font.Bold = true;
 
                 edCRow++;
                 edCRow++;
                 edCRow++;
+                edCRow++;
+                edCRow++;
 
 
-                sheet.Range[edCRow - 1, 2].Text = dtOrder.Rows[0]["UpdatedBy"].ToString();
-                sheet.Range[edCRow, 2].Text = "Prepared By";
+                sheet.Range[edCRow - 1, 2].Text = "Prepared By";
+                sheet.Range[edCRow, 2].Text = dtOrder.Rows[0]["UpdatedBy"].ToString();
 
-                sheet.Range[edCRow - 1, 4].Text = "";
-                sheet.Range[edCRow, 4].Text = "Checked By";
-
-                sheet.Range[edCRow - 1, 6].Text = "";
-                sheet.Range[edCRow, 6].Text = "Approved By";
-
+                if (paymentMode == "Bank")
+                {
+                    sheet.Range[edCRow - 1, 6].Text = "";
+                    sheet.Range[edCRow, 6].Text = "Authorized By"; 
+                }
+                else
+                {
+                    sheet.Range[edCRow - 1, 5].Text = "";
+                    sheet.Range[edCRow, 5].Text = "Authorized By";
+                }
                 edCRow++;
 
                 #region ReportHeader
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                sheet.UsedRange.HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                 sheet["A" + startRow.ToString()].FreezePanes();
 
-
-                reportUtility.CompanyHeader(ref sheet, 3, "" + ReportType + " Disbursed Report - " + monthName + " " + yearNo + "", identity.CompanyId);
-                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                if (paymentMode == "Bank")
+                {
+                    reportUtility.CompanyPlantHeader(ref sheet, 7, "" + ReportType + " Disbursed Report - " + monthName + " " + yearNo + "", identity.CompanyId, identity.PlantName, null); 
+                }
+                else
+                {
+                    reportUtility.CompanyPlantHeader(ref sheet, 5, "" + ReportType + " Disbursed Report - " + monthName + " " + yearNo + "", identity.CompanyId, identity.PlantName, null);
+                }
                 sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                 sheet.UsedRange.WrapText = true;
-                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet.IsGridLinesVisible = false;
 
                 sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
@@ -439,13 +500,13 @@ Where SL.BonusDisbursementAdviceId = '" + adviceId + "' AND sl.YearNo=" + yearNo
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetGWOTAdviseReportPdf(ReportFormat reportFormat, string empcat, string adviceId, string status, string ReportType, string FromDate, string ToDate)
+        public ActionResult GetGWOTAdviseReportPdf(ReportFormat reportFormat, string empcat, string adviceId, string status, string ReportType, string FromDate, string ToDate, string paymentMode)
         {
             try
             {
                 string fileName = "";
 
-                IWorkbook workbook = GetGWOTAdviseWorkbook("Data", empcat, adviceId, status, ReportType, FromDate,ToDate);
+                IWorkbook workbook = GetGWOTAdviseWorkbook("Data", empcat, adviceId, status, ReportType, FromDate, ToDate, paymentMode);
                 var reportFileName = DateTime.Now.ToString("yyMMdd") + "BankAdvice";
                 // return RenderReportAsPdf(workbook, reportFileName);
                 switch (reportFormat)
@@ -489,7 +550,7 @@ Where SL.BonusDisbursementAdviceId = '" + adviceId + "' AND sl.YearNo=" + yearNo
 
         }
 
-        public IWorkbook GetGWOTAdviseWorkbook(string SheetName, string empcat, string adviceId, string status, string ReportType, string FromDate, string ToDate)
+        public IWorkbook GetGWOTAdviseWorkbook(string SheetName, string empcat, string adviceId, string status, string ReportType, string FromDate, string ToDate, string paymentMode)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ExcelEngine excelEngine = null;
@@ -525,9 +586,27 @@ Where PaymentAdviseId='" + adviceId + "'";
                 }
                 ReportUtility reportUtility = new ReportUtility();
 
-                int ROW = 4; int COL = 1;
-                sheet.Range[ROW, COL].Text = "Bank Advice";
-                sheet.Range[ROW, 1, ROW, 7].Merge();
+                int ROW = 0; int COL = 1;
+
+                if (paymentMode == "Bank")
+                {
+                    ROW = 5; COL = 1;
+                    sheet.Range[ROW, COL].Text = "Bank Advice";
+                    sheet.Range[ROW, 1, ROW, 7].Merge();
+                    sheet.Range[ROW, 1, ROW, 7].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet.Range[ROW, 1, ROW, 7].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet.Range[ROW, 1, ROW, 7].CellStyle.Font.Bold = true;
+                }
+                else
+                {
+                    ROW = 5; COL = 1;
+                    sheet.Range[ROW, COL].Text = "Bank Advice";
+                    sheet.Range[ROW, 1, ROW, 5].Merge();
+                    sheet.Range[ROW, 1, ROW, 5].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet.Range[ROW, 1, ROW, 5].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet.Range[ROW, 1, ROW, 5].CellStyle.Font.Bold = true;
+                }
+                ROW++;
                 ROW++;
                 sheet.Range[ROW, COL].Text = "Status :";
                 sheet.Range[ROW, 2].Text = empcat;//status=="1"?"Parked" :"Posted";
@@ -537,18 +616,26 @@ Where PaymentAdviseId='" + adviceId + "'";
                 ROW++;
                 ROW++;
                 #region ColumnsHeader
-
+                int colBN = 0; int colAC = 0; int colIFSC = 0;
                 sheet[ROW, COL].Text = "SNo"; sheet[ROW, COL].ColumnWidth = 10.50; int colSL = COL; COL++;
                 sheet[ROW, COL].Text = "Employee Code"; sheet[ROW, COL].ColumnWidth = 16.50; int colEC = COL; COL++;
                 sheet[ROW, COL].Text = "Employee Name"; sheet[ROW, COL].ColumnWidth = 20.50; int colEN = COL; COL++;
                 sheet[ROW, COL].Text = "Net Payable"; sheet[ROW, COL].ColumnWidth = 13.50; int colNP = COL; COL++;
-                sheet[ROW, COL].Text = "Bank"; sheet[ROW, COL].ColumnWidth = 28; int colBN = COL; COL++;
-                sheet[ROW, COL].Text = "A/C No"; sheet[ROW, COL].ColumnWidth = 13.50; int colAC = COL; COL++;
-                sheet[ROW, COL].Text = "IFSC"; sheet[ROW, COL].ColumnWidth = 12; int colIFSC = COL; COL++;
-                sheet[ROW, COL].Text = "Emp Signature"; sheet[ROW, COL].ColumnWidth = 36;
+                if (paymentMode == "Bank")
+                {
+                    sheet[ROW, COL].Text = "Bank"; sheet[ROW, COL].ColumnWidth = 28; colBN = COL; COL++;
+                    sheet[ROW, COL].Text = "A/C No"; sheet[ROW, COL].ColumnWidth = 13.50; colAC = COL; COL++;
+                    sheet[ROW, COL].Text = "IFSC"; sheet[ROW, COL].ColumnWidth = 12; colIFSC = COL; COL++;
+                }
+                if (paymentMode == "Cash")
+                {
+                    sheet[ROW, COL].Text = "Emp Signature"; sheet[ROW, COL].ColumnWidth = 36; 
+                }
 
 
                 int endCol = COL;
+
+                sheet.Range[ROW, 1, ROW, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.White;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.Black;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
@@ -563,54 +650,93 @@ Where PaymentAdviseId='" + adviceId + "'";
                 int cnt = 0;
                 #region DataPlot
                 double NetPayable = 0;
-                for (int i = 0; i < dtOrder.Rows.Count; i++)
+                if (paymentMode == "Bank")
                 {
+                    for (int i = 0; i < dtOrder.Rows.Count; i++)
+                    {
 
-                    cnt++;
-                    sheet[ROW, colSL].Number = Library.Service.Extension.clsStaticInfo.dbl(cnt.ToString());
-                    sheet[ROW, colEC].Text = dtOrder.Rows[i]["EmployeeCode"].ToString();
-                    sheet[ROW, colEN].Text = dtOrder.Rows[i]["EmployeeName"].ToString();
-                    sheet[ROW, colNP].Text = dtOrder.Rows[i]["NetPay"].ToString();
-                    sheet[ROW, colBN].Text = dtOrder.Rows[i]["BankName"].ToString();
-                    sheet[ROW, colAC].Text = dtOrder.Rows[i]["BankAccNo"].ToString();
-                    sheet[ROW, colIFSC].Text = dtOrder.Rows[i]["IFSCCode"].ToString();
+                        cnt++;
+                        sheet[ROW, colSL].Number = Library.Service.Extension.clsStaticInfo.dbl(cnt.ToString());
+                        sheet[ROW, colEC].Text = dtOrder.Rows[i]["EmployeeCode"].ToString();
+                        sheet[ROW, colEN].Text = dtOrder.Rows[i]["EmployeeName"].ToString();
+                        sheet[ROW, colNP].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["NetPay"].ToString());
+                       
+                       
+                            sheet[ROW, colBN].Text = dtOrder.Rows[i]["BankName"].ToString();
+                            sheet[ROW, colAC].Text = dtOrder.Rows[i]["BankAccNo"].ToString();
+                            sheet[ROW, colIFSC].Text = dtOrder.Rows[i]["IFSCCode"].ToString();
+                       
 
-                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
-                    ROW++;
+                        sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                        sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                        ROW++;
+                    } 
+                }
+                else
+                {
+                    for (int i = 0; i < dtOrder.Rows.Count; i++)
+                    {
+
+                        cnt++;
+                        sheet[ROW, colSL].Number = Library.Service.Extension.clsStaticInfo.dbl(cnt.ToString());
+                        sheet[ROW, colSL].RowHeight = 28;
+                       sheet[ROW, colEC].Text = dtOrder.Rows[i]["EmployeeCode"].ToString();
+                        sheet[ROW, colEN].Text = dtOrder.Rows[i]["EmployeeName"].ToString();
+                        sheet[ROW, colNP].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["NetPay"].ToString());
+
+                        sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                        sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                        ROW++;
+                    }
                 }
                 #endregion
                 int edCRow = ROW;
+                sheet.Range[edCRow, 1].Text = "Total";
+                double TotalSPT =OTSBD.clsStaticInfo.dbl(dtOrder.Compute("SUM(NetPay)", null));
+                sheet.Range[edCRow, 4].Number = TotalSPT;
+                sheet.Range[edCRow, 1, edCRow, 4].CellStyle.Font.Bold = true;
 
                 edCRow++;
                 edCRow++;
                 edCRow++;
+                edCRow++;
+                edCRow++;
 
 
-                sheet.Range[edCRow - 1, 2].Text = dtOrder.Rows[0]["UpdatedBy"].ToString();
-                sheet.Range[edCRow, 2].Text = "Prepared By";
+                sheet.Range[edCRow - 1, 2].Text = "Prepared By";
+                sheet.Range[edCRow, 2].Text = dtOrder.Rows[0]["UpdatedBy"].ToString();
 
-                sheet.Range[edCRow - 1, 4].Text = "";
-                sheet.Range[edCRow, 4].Text = "Checked By";
-
-                sheet.Range[edCRow - 1, 6].Text = "";
-                sheet.Range[edCRow, 6].Text = "Approved By";
+                if (paymentMode == "Bank")
+                {
+                    sheet.Range[edCRow - 1, 6].Text = "";
+                    sheet.Range[edCRow, 6].Text = "Authorized By";
+                }
+                else
+                {
+                    sheet.Range[edCRow - 1, 5].Text = "";
+                    sheet.Range[edCRow, 5].Text = "Authorized By";
+                }
 
                 edCRow++;
 
                 #region ReportHeader
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                sheet.UsedRange.HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                 sheet["A" + startRow.ToString()].FreezePanes();
 
+                if (paymentMode == "Bank")
+                {
+                    reportUtility.CompanyPlantHeader(ref sheet, 7, "" + ReportType + " Disbursed Report - " + FromDate + " - " + ToDate + "", identity.CompanyId, identity.PlantName, null);
+                }
+                else
+                {
+                    reportUtility.CompanyPlantHeader(ref sheet, 5, "" + ReportType + " Disbursed Report - " + FromDate + " - " + ToDate + "", identity.CompanyId, identity.PlantName, null);
+                }
 
-                reportUtility.CompanyHeader(ref sheet, 3, "" + ReportType + " Disbursed Report - " + FromDate + " - " + ToDate + "", identity.CompanyId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;

@@ -5489,7 +5489,7 @@ union
             return _sqlRepository.GetDataTable(cmdText);
         }
 
-        public IWorkbook GetShortPartyPaymentStatusLedgerReport(string companyGroupId, string companyId, string plantId, string plantName, PartyType partyType, string partyId, string partyPlantId, string fromDate, string toDate, string glId, bool active, string gSTINId)
+        public IWorkbook GetShortPartyPaymentStatusLedgerReport(string companyGroupId, string companyId, string plantId, string plantName, PartyType partyType, string partyId, string partyPlantId, string fromDate, string toDate, string glId, bool active, string gSTINId, string partyName)
         {
             try
             {
