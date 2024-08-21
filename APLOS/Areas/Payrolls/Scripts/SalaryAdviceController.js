@@ -209,9 +209,9 @@ function SalaryAdviceController(commonMessage, $scope, $rootScope, baseService, 
             // $scope.ReportFormat = 'Pdf';
             var url = null;
             if ($scope.ReportType == "Salary" || $scope.ReportType == "Bonus") {
-                url = 'Payrolls/PaySlipsNew/GetSalaryAdviseReportPdf?reportFormat=' + $scope.ReportFormat + '&empcat=' + $scope.EmployeeCategory + '&adviceId=' + $scope.DisbursmentId + '&yearNo=' + $scope.year + '&monthNo=' + $scope.month + '&monthName=' + $scope.monthName + '&status=' + $scope.EmpCat + '&ReportType=' + $scope.ReportType;
+                url = 'Payrolls/PaySlipsNew/GetSalaryAdviseReportPdf?reportFormat=' + $scope.ReportFormat + '&empcat=' + $scope.EmployeeCategory + '&adviceId=' + $scope.DisbursmentId + '&yearNo=' + $scope.year + '&monthNo=' + $scope.month + '&monthName=' + $scope.monthName + '&status=' + $scope.EmpCat + '&ReportType=' + $scope.ReportType + '&paymentMode=' + $scope.PaymentMode;
             } else {
-                url = 'Payrolls/PaySlipsNew/GetGWOTAdviseReportPdf?reportFormat=' + $scope.ReportFormat + '&empcat=' + $scope.EmployeeCategory + '&adviceId=' + $scope.DisbursmentId + '&status=' + $scope.EmpCat + '&ReportType=' + $scope.ReportType + '&FromDate=' + $scope.FromDate + '&ToDate=' + $scope.ToDate;
+                url = 'Payrolls/PaySlipsNew/GetGWOTAdviseReportPdf?reportFormat=' + $scope.ReportFormat + '&empcat=' + $scope.EmployeeCategory + '&adviceId=' + $scope.DisbursmentId + '&status=' + $scope.EmpCat + '&ReportType=' + $scope.ReportType + '&FromDate=' + $scope.FromDate + '&ToDate=' + $scope.ToDate + '&paymentMode=' + $scope.PaymentMode;
             }
             $rootScope.report(url);
 
