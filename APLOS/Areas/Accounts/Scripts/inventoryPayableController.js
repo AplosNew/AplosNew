@@ -205,7 +205,6 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
             //}
         });
     }
-   
 
     $scope.approvedGRNList = [];
     $scope.getPopUpData = function () {
