@@ -2657,7 +2657,7 @@ ORDER BY OL.Sequence";
 				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
 
                 Union All
-				SELECT  'Bonus' AS OtherName, 'Dr' AS TrnType
+				SELECT TOP 1 A.* FROM (SELECT  'Bonus' AS OtherName, 'Dr' AS TrnType
                 , CAST(EI.Value AS decimal(18,2)) DrAmount 
                 , 0 CrAmount 
                 , CAST(EI.Value AS decimal(18,2)) Amount
@@ -2672,7 +2672,7 @@ ORDER BY OL.Sequence";
 				LEFT JOIN[MST].[BudgetMaster] AS BM ON vd.BudgetMasterId= BM.Id
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON vd.ActivityId= A.Id
-				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
+				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @") )A
 
                 Union All
 				SELECT  'LeaveEncashment' AS OtherName, 'Dr' AS TrnType

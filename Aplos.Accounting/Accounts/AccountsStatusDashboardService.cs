@@ -146,8 +146,9 @@ namespace Library.Accounting.Accounts
                 ,isnull( IWD.TaxAmount*IV.CompanyCurrencyRate,0)as TaxAmount
                 FROM [TRN].[Invoice] AS IV 
                  JOIN (select IDE.InvoiceId,VD.PartyId
-				 ,SUM(VDC.CrAmount) InvoiceBooksAmount ,SUM(ISNULL(IwV.SetOffBooksAmount,0)) SetOffBooksAmount
+				 ,SUM(VDC.CrAmount) + SUM(AID.AdditionalAmount)  InvoiceBooksAmount ,SUM(ISNULL(IwV.SetOffBooksAmount,0)) SetOffBooksAmount
 						FROM  [TRN].[InvoiceDetail] IDE
+                        LEFT JOIN (SELECT SUM(Amount)AdditionalAmount,InvoiceDetailId FROM trn.AdditionalInvoiceDetail   GROUP BY InvoiceDetailId) AS AID ON AID.InvoiceDetailId=IDE.Id
 						LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
 						LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
 						LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
@@ -252,9 +253,10 @@ namespace Library.Accounting.Accounts
                 ,isnull( DIWD.DiscountAmount*IV.CompanyCurrencyRate,0)as BooksDiscountAmount
                 ,isnull( IWD.TaxAmount*IV.CompanyCurrencyRate,0)as TaxAmount
                 FROM [TRN].[Invoice] AS IV 
-                 JOIN (select IDE.InvoiceId,VD.PartyId,SUM(VDC.CrAmount) InvoiceBooksAmount ,SUM(ISNULL(IwV.SetOffBooksAmount,0)) SetOffBooksAmount
+                 JOIN (select IDE.InvoiceId,VD.PartyId,SUM(VDC.CrAmount) + SUM(AID.AdditionalAmount) InvoiceBooksAmount ,SUM(ISNULL(IwV.SetOffBooksAmount,0)) SetOffBooksAmount
                 ,SUM(isnull(IDE.WrittenOffAmount,0))ActualWrittenOffAmount
 						FROM  [TRN].[InvoiceDetail] IDE
+                        LEFT JOIN (SELECT SUM(Amount)AdditionalAmount,InvoiceDetailId FROM trn.AdditionalInvoiceDetail   GROUP BY InvoiceDetailId) AS AID ON AID.InvoiceDetailId=IDE.Id
 						LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
 						LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
 						LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
@@ -22338,8 +22340,9 @@ group by Id) O60 ON O60.Id=IV.Id
 				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IV.WrittenOffAmount*IV.CompanyCurrencyRate,0) AS ActualPayable
 				,0 CustomerAdvance,0 CustomerCreditNote,0 Receivable,0 ActualReceivable ,0 RemainingPOPayable
 				 FROM [TRN].[Invoice] AS IV 
-                 JOIN (select IDE.InvoiceId,VD.PartyId,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
+                 JOIN (select IDE.InvoiceId,VD.PartyId,SUM(VDC.CrAmount) + SUM(AID.AdditionalAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
 						FROM  [TRN].[InvoiceDetail] IDE
+                        LEFT JOIN (SELECT SUM(Amount)AdditionalAmount,InvoiceDetailId FROM trn.AdditionalInvoiceDetail   GROUP BY InvoiceDetailId) AS AID ON AID.InvoiceDetailId=IDE.Id
 						LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
 						LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
 						LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
