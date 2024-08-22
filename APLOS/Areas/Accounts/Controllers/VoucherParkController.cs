@@ -439,7 +439,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     rdBuilder.Append(invoiceSql);
                     rdBuilder.Append(salesSql);
                 }
-                if (sourceType == SourceType.LoanInterestPayable.ToString() || sourceType == SourceType.LoanInterestPayableReverse.ToString() || sourceType == "OtherExpensesPayable")
+                if (sourceType == SourceType.LoanInterestPayable.ToString() || sourceType == SourceType.LoanInterestPayableReverse.ToString() || sourceType == "OtherExpensesPayable" || sourceType == "LoanTax")
                 {
                     ConnectionManager.DAL.ConManager objCon1;
                     DataSet dsMaster1 = null;

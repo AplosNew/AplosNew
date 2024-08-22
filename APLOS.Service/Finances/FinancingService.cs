@@ -4,6 +4,7 @@ using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
 using Library.Model.Enums;
 using Library.Model.Finances;
+using Library.Model.Invoices;
 using Library.Model.Systems;
 using Library.Model.Vouchers;
 using Library.Service.Core;
@@ -35,6 +36,8 @@ namespace Library.Service.Finances
         private readonly IVoucherService _voucherService;
         private readonly IRepositoryAsync<FinancingSubsequentTransaction> _loanInterestPayableRepository;
         private readonly IRepositoryAsync<FinancingMasterOrder> _financingMasterOrderRepository;
+        private readonly IRepositoryAsync<InvoiceWriteOff> _invoiceWriteOffRepository;
+        private readonly IRepositoryAsync<InvoiceWriteOffDetail> _invoiceWriteOffDetailRepository;
 
         public FinancingService(
               IRepositoryAsync<Financing> financingRepository
@@ -49,6 +52,8 @@ namespace Library.Service.Finances
             , IRepositoryAsync<Voucher> voucherRepository
             , IRepositoryAsync<FinancingSubsequentTransaction> loanInterestPayableRepository
             , IRepositoryAsync<FinancingMasterOrder> financingMasterOrderRepository
+            , IRepositoryAsync<InvoiceWriteOff> invoiceWriteOffRepository
+            , IRepositoryAsync<InvoiceWriteOffDetail> invoiceWriteOffDetailRepository
             )
         {
             _sqlRepository = sqlRepository;
@@ -63,6 +68,8 @@ namespace Library.Service.Finances
             _voucherRepository = voucherRepository;
             _loanInterestPayableRepository = loanInterestPayableRepository;
             _financingMasterOrderRepository = financingMasterOrderRepository;
+            _invoiceWriteOffRepository = invoiceWriteOffRepository;
+            _invoiceWriteOffDetailRepository = invoiceWriteOffDetailRepository;
         }
 
         #endregion Constructor
@@ -380,7 +387,8 @@ namespace Library.Service.Finances
                 var voucher = _voucherRepository.Find(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
-
+                var invoiceWriteOff = _invoiceWriteOffRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                
                 var vendorAdWr = new System.Text.StringBuilder();
                 var vendorAdWrsql = "";
 
@@ -394,12 +402,19 @@ namespace Library.Service.Finances
                 vendorAdWr.Append(vendorAdWrsql);
                 vendorAdWrsql = @"delete trn.VoucherDetail where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.AutoLoan.ToString() + "' AND Id = '" + voucherId + "')";
                 vendorAdWr.Append(vendorAdWrsql);
-
-                vendorAdWrsql = @"update TRN.InvoiceDetail set WrittenOffAmount=0,IsWrittenOff=0 where InvoiceId in(select InvoiceId from TRN.InvoiceWriteOffDetail where InvoiceWriteOffId in (select Id from TRN.InvoiceWriteOff where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.AutoLoan.ToString() + "' AND Id = '" + voucherId + "')))";
-                vendorAdWr.Append(vendorAdWrsql);
-                vendorAdWrsql = @"update TRN.Invoice set WrittenOffAmount=0,IsWrittenOff=0 where Id in(select InvoiceId from TRN.InvoiceWriteOffDetail where InvoiceWriteOffId in (select Id from TRN.InvoiceWriteOff where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.AutoLoan.ToString() + "' AND Id = '" + voucherId + "')))";
-                vendorAdWr.Append(vendorAdWrsql);
-                vendorAdWrsql = @"delete from TRN.InvoiceWriteOffDetail where InvoiceWriteOffId in (select Id from TRN.InvoiceWriteOff where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.AutoLoan.ToString() + "' AND Id = '" + voucherId + "'))";
+                foreach (var item in invoiceWriteOff)
+                {
+                    var invoiceWriteOffDetail = _invoiceWriteOffDetailRepository.Query(r => r.InvoiceWriteOffId == item.Id).Select().ToList();
+                    foreach (var itemW in invoiceWriteOffDetail)
+                    {
+                        vendorAdWrsql = @"
+                                  update TRN.InvoiceDetail set WrittenOffAmount=WrittenOffAmount - " + itemW.Amount + @",IsWrittenOff=0 where InvoiceId  = '" + itemW.InvoiceId + @"'
+                                  update TRN.Invoice set WrittenOffAmount=WrittenOffAmount - " + itemW.Amount + @",IsWrittenOff=0 where Id  = '" + itemW.InvoiceId + @"' ";
+                        vendorAdWr.Append(vendorAdWrsql);
+                    }
+                }
+                
+                vendorAdWrsql = @"delete from TRN.InvoiceWriteOffDetail where InvoiceWriteOffId in (select Id from TRN.InvoiceWriteOff where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.AutoLoan.ToString() + "' AND Id = '" + voucherId + @"'))";
                 vendorAdWr.Append(vendorAdWrsql);
                 vendorAdWrsql = @"delete from TRN.InvoiceWriteOff where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.AutoLoan.ToString() + "' AND Id = '" + voucherId + "')";
                 vendorAdWr.Append(vendorAdWrsql);

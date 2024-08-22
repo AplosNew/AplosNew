@@ -257,7 +257,7 @@ namespace Aplos.Areas.Parties.Controllers
 
         #region Party payment status report
         [HttpGet, Authorize]
-        public ActionResult GetPartyPaymentStatusReport(ReportFormat reportFormat, PartyType partyType, string partyId, string partyPlantId, string gSTINId, string fromDate, string toDate, string glId, bool active)
+        public ActionResult GetPartyPaymentStatusReport(ReportFormat reportFormat, PartyType partyType, string partyId, string partyPlantId, string gSTINId, string fromDate, string toDate, string glId, bool active, string partyName)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             //var workbook = "";  
@@ -267,14 +267,14 @@ namespace Aplos.Areas.Parties.Controllers
                 if (reportFormat == ReportFormat.Pdf)
                 {
                     var workbook = _partyReportService.GetPartyPaymentStatusReportGL(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
-                    var reportFileName = DateTime.Now.ToString("yyMMdd") + " Party Payment Status Report";
+                    var reportFileName = partyName + '-' + DateTime.Now.ToString("yyMMdd") + " Party Payment Status Report";
 
                     return RenderReportAsPdf(workbook, reportFileName);
                 }
                 else
                 {
                     var workbook = _partyReportService.GetPartyPaymentStatusReportGroupByGLXls(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
-                    var reportFileName = DateTime.Now.ToString("yyMMdd") + " Party Payment Status Report";
+                    var reportFileName = partyName + '-' + DateTime.Now.ToString("yyMMdd") + " Party Payment Status Report";
 
                     return RenderReportAsExcel(workbook, reportFileName);
 
@@ -285,7 +285,7 @@ namespace Aplos.Areas.Parties.Controllers
                 if (reportFormat == ReportFormat.Pdf)
                 {
                     var workbook = _partyReportService.GetPartyPaymentStatusLedgerReport3(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
-                    var reportFileName = DateTime.Now.ToString("yyMMdd") + " Party Payment Status Report";
+                    var reportFileName = partyName + '-' + DateTime.Now.ToString("yyMMdd") + " Party Payment Status Report";
 
 
                     return RenderReportAsPdf(workbook, reportFileName);
@@ -293,7 +293,7 @@ namespace Aplos.Areas.Parties.Controllers
                 else
                 {
                     var workbook = _partyReportService.GetPartyPaymentStatusLedgerReportXls(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
-                    var reportFileName = DateTime.Now.ToString("yyMMdd") + " Party Payment Status Report";
+                    var reportFileName = partyName + '-' + DateTime.Now.ToString("yyMMdd") + " Party Payment Status Report";
 
                     return RenderReportAsExcel(workbook, reportFileName);
                 }

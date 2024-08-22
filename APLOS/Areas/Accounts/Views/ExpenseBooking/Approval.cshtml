@@ -49,8 +49,8 @@
                 <td>{{x.ApprovalStatus}}</td>
                 <td class="text-right">
                     <ul class="list-inline action-list">
-                        <li><a href="{{bootPoint}}expense-booking-approved/{{x.Id}}" class="btn btn-action">View & Post</a></li>
                         <li ng-show="x.FileName"><a class="btn btn-action" ng-click="DocDownload(x)" title="Attach File Download" href="{{dwonloadUrl}}" target="_blank"><i class="fa fa-download"></i></a></li>
+                        <li><a href="{{bootPoint}}expense-booking-approved/{{x.Id}}" class="btn btn-action">View & Post</a></li>
                     </ul>
                 </td>
             </tr>

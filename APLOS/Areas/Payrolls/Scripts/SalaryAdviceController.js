@@ -95,8 +95,10 @@ function SalaryAdviceController(commonMessage, $scope, $rootScope, baseService, 
         url: 'Payrolls/PaySlipsNew/GetYearNoCbo'
     }).then(function successCallback(response) {
         $scope.YearNoList = response.data;
+        $scope.year = new Date().getFullYear().toString();
     });
 
+    $scope.month = new Date().getMonth().toString();
 
     $scope.EmpCatList = [
         { Value: "2", Text: "Pending" },
@@ -209,9 +211,9 @@ function SalaryAdviceController(commonMessage, $scope, $rootScope, baseService, 
             // $scope.ReportFormat = 'Pdf';
             var url = null;
             if ($scope.ReportType == "Salary" || $scope.ReportType == "Bonus") {
-                url = 'Payrolls/PaySlipsNew/GetSalaryAdviseReportPdf?reportFormat=' + $scope.ReportFormat + '&empcat=' + $scope.EmployeeCategory + '&adviceId=' + $scope.DisbursmentId + '&yearNo=' + $scope.year + '&monthNo=' + $scope.month + '&monthName=' + $scope.monthName + '&status=' + $scope.EmpCat + '&ReportType=' + $scope.ReportType;
+                url = 'Payrolls/PaySlipsNew/GetSalaryAdviseReportPdf?reportFormat=' + $scope.ReportFormat + '&empcat=' + $scope.EmployeeCategory + '&adviceId=' + $scope.DisbursmentId + '&yearNo=' + $scope.year + '&monthNo=' + $scope.month + '&monthName=' + $scope.monthName + '&status=' + $scope.EmpCat + '&ReportType=' + $scope.ReportType + '&paymentMode=' + $scope.PaymentMode;
             } else {
-                url = 'Payrolls/PaySlipsNew/GetGWOTAdviseReportPdf?reportFormat=' + $scope.ReportFormat + '&empcat=' + $scope.EmployeeCategory + '&adviceId=' + $scope.DisbursmentId + '&status=' + $scope.EmpCat + '&ReportType=' + $scope.ReportType + '&FromDate=' + $scope.FromDate + '&ToDate=' + $scope.ToDate;
+                url = 'Payrolls/PaySlipsNew/GetGWOTAdviseReportPdf?reportFormat=' + $scope.ReportFormat + '&empcat=' + $scope.EmployeeCategory + '&adviceId=' + $scope.DisbursmentId + '&status=' + $scope.EmpCat + '&ReportType=' + $scope.ReportType + '&FromDate=' + $scope.FromDate + '&ToDate=' + $scope.ToDate + '&paymentMode=' + $scope.PaymentMode;
             }
             $rootScope.report(url);
 
