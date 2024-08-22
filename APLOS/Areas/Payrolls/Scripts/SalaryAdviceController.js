@@ -95,8 +95,10 @@ function SalaryAdviceController(commonMessage, $scope, $rootScope, baseService, 
         url: 'Payrolls/PaySlipsNew/GetYearNoCbo'
     }).then(function successCallback(response) {
         $scope.YearNoList = response.data;
+        $scope.year = new Date().getFullYear().toString();
     });
 
+    $scope.month = new Date().getMonth().toString();
 
     $scope.EmpCatList = [
         { Value: "2", Text: "Pending" },
