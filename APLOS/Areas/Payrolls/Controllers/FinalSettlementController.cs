@@ -2025,12 +2025,11 @@ AND AD.SourceType in ('EmployeeAdvance') AND AD.EmployeeId='" + empId + @"' and 
 GROUP BY AD.EmployeeId) AS decimal(18,0))) AS varchar(100))
 	
 WHEN OL.UserName='ExpensesPayable' THEN CAST((
-			 cast((SELECT SUM(AD.Amount)-isnull(SUM(epw.WrittenOffAmount),0) AS Balance
+			 cast((SELECT ISNULL(SUM(AD.NetAmount)-SUM(AD.WrittenOffAmount),0) AS Balance
 FROM trn.EmployeePayable AS AD
-left join (select EmployeePayableId,Amount WrittenOffAmount from  trn.EmployeePayableWriteOffDetail) epw on epw.EmployeePayableId=ad.Id
-WHERE    AD.EmployeeId<>'' AND AD.IsPark=0 AND AD.IsWrittenOff=0
-AND AD.SourceType in ('EmployeePayable') AND AD.EmployeeId='" + empId + @"'
-GROUP BY AD.EmployeeId) AS decimal(18,0))) AS varchar(100))
+ WHERE AD.Archive=0 AND AD.IsPark=0 AND AD.IsWrittenOff=0 AND AD.IsWrittenOff=0
+ AND AD.SourceType IN ('EmployeePayable')
+ AND AD.EmployeeId='" + empId + @"' AND (AD.NetAmount-AD.WrittenOffAmount)>0) AS decimal(18,0))) AS varchar(100))
 	
 
 WHEN OL.UserName='UnPaidSalary' THEN CAST((
@@ -2058,7 +2057,7 @@ left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
 JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID
 Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.YearNo AND sl.MonthNo=SPM.MonthNo
 LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
-left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 
+left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 AND VD.AccountsGroupId=SL.AccountsGroupId 
 Where HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
 AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL AND ISNULL(sl.IsBonusDisbursed,0) = 0 AND ISNULL(sl.PastBonusDisbursed,0) = 0  
 AND SPC.EmpInfoSystemID='" + empId + @"')A
