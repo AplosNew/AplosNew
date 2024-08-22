@@ -1146,7 +1146,7 @@ namespace Library.Accounting.Accounts
                 parameters.CmdText = @" SELECT IVD.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, IVD.BudgetMasterId, B.UserName AS BudgetName, IVD.ActivityId, EN.UserName AS EntityName, A.UserName AS ActivityName,
                                         V.VoucherNo, Replace(CONVERT(VARCHAR(11), IV.DocDate, 106), ' ', '-') DocDate ,Replace(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') PostingDate, IV.DocRefNo, IV.Narration, IV.Id AS InvoiceId,VD.EntityId,VD.PlantId, IVD.Id AS InvoiceDetailId, IV.VoucherId,
                                         VD.Id AS VoucherDetailId, IV.CurrencyId, C.Code AS CurrencyCode, IV.PartyId, IVD.Amount AS Receivable,V.ExchangeType, 0 ExchangeAmount,
-                                        IVD.WrittenOffAmount AS Received,IVD.AdditionalAmount ,ITWLC.LCTaggedAmount,((IVD.Amount+IVD.AdditionalAmount)-IVD.WrittenOffAmount-ITWLC.LCTaggedAmount) AS Balance, IV.PartyPlantId, PP.UserName AS PartyPlantName,
+                                        ISNULL(IWD.WrittenOffAmount,0) + ISNULL(ITWLC.LCTaggedAmount,0)  AS Received,IVD.AdditionalAmount ,ISNULL(ITWLC.LCTaggedAmount,0) LCTaggedAmount,((IVD.Amount+ISNULL(IVD.AdditionalAmount,0))- ISNULL(IWD.WrittenOffAmount,0) - ISNULL(ITWLC.LCTaggedAmount,0) ) AS Balance, IV.PartyPlantId, PP.UserName AS PartyPlantName,
 										CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, CC.CompanyCurrencyConversion,
 										GC.CompanyGroupCurrencyId, GC.CompanyGroupFromCurrencyId, GC.CompanyGroupCurrencyRate, GC.CompanyGroupCurrencyConversion,
 										HC.HardCurrencyId, HC.HardFromCurrencyId, HC.HardCurrencyRate, HC.HardCurrencyConversion
@@ -1186,6 +1186,7 @@ namespace Library.Accounting.Accounts
 										LEFT JOIN TRN.Voucher XV ON XV.Id=XPDA.VoucherId
 										where XV.Id=V.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),IV.FileName
                                         FROM [TRN].[InvoiceDetail] AS IVD
+                                        LEFT JOIN (SELECT SUM(Amount)WrittenOffAmount,InvoiceDetailId FROM trn.InvoiceWriteOffDetail   GROUP BY InvoiceDetailId) AS IWD ON IWD.InvoiceDetailId=IVD.Id
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
 									    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
                                         LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
@@ -1228,7 +1229,7 @@ namespace Library.Accounting.Accounts
                                     SELECT IVD.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, IVD.BudgetMasterId, B.UserName AS BudgetName, IVD.ActivityId, EN.UserName AS EntityName, A.UserName AS ActivityName,
                                         V.VoucherNo, Replace(CONVERT(VARCHAR(11), IV.DocDate, 106), ' ', '-') DocDate ,Replace(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') PostingDate, IV.DocRefNo, IV.Narration, IV.Id AS InvoiceId,VD.EntityId,VD.PlantId, IVD.Id AS InvoiceDetailId, IV.VoucherId,
                                         VD.Id AS VoucherDetailId, IV.CurrencyId, C.Code AS CurrencyCode, IV.PartyId, IVD.NetAmount AS Receivable,V.ExchangeType, 0 ExchangeAmount,
-                                        IVD.WrittenOffAmount AS Received,IVD.AdditionalAmount,ISNULL(ITWLC.LCTaggedAmount,0) LCTaggedAmount, ((IVD.NetAmount+IVD.AdditionalAmount)-IVD.WrittenOffAmount-ISNULL(ITWLC.LCTaggedAmount,0)) AS Balance, IV.PartyPlantId, PP.UserName AS PartyPlantName,
+                                        ISNULL(IWD.WrittenOffAmount,0) + ISNULL(ITWLC.LCTaggedAmount,0) AS Received,IVD.AdditionalAmount,ISNULL(ITWLC.LCTaggedAmount,0) LCTaggedAmount, ((IVD.NetAmount+ISNULL(IVD.AdditionalAmount,0))-ISNULL(IWD.WrittenOffAmount,0)-ISNULL(ITWLC.LCTaggedAmount,0)) AS Balance, IV.PartyPlantId, PP.UserName AS PartyPlantName,
 										CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, CC.CompanyCurrencyConversion,
 										GC.CompanyGroupCurrencyId, GC.CompanyGroupFromCurrencyId, GC.CompanyGroupCurrencyRate, GC.CompanyGroupCurrencyConversion,
 										HC.HardCurrencyId, HC.HardFromCurrencyId, HC.HardCurrencyRate, HC.HardCurrencyConversion
@@ -1241,6 +1242,7 @@ namespace Library.Accounting.Accounts
                                         ,NULL AcceptanceNo ,NULL LCRef,NULL ContractNo,NULL Customer, NULL MasterLCNo,IV.FileName
 
                                         FROM [TRN].[InvoiceDetail] AS IVD
+                                        LEFT JOIN (SELECT SUM(Amount)WrittenOffAmount,InvoiceDetailId FROM trn.InvoiceWriteOffDetail   GROUP BY InvoiceDetailId) AS IWD ON IWD.InvoiceDetailId=IVD.Id
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
 									    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
                                         LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
