@@ -485,13 +485,13 @@ Where SL.BonusDisbursementAdviceId = '" + adviceId + "' AND sl.YearNo=" + yearNo
 
                 if (paymentMode == "Bank")
                 {
-                    sheet.Range[edCRow - 1, 6].Text = "";
-                    sheet.Range[edCRow, 6].Text = "Authorized By";
+                    sheet.Range[edCRow, 6].Text = "";
+                    sheet.Range[edCRow-1, 6].Text = "Authorized By";
                 }
                 else
                 {
-                    sheet.Range[edCRow - 1, 5].Text = "";
-                    sheet.Range[edCRow, 5].Text = "Authorized By";
+                    sheet.Range[edCRow, 5].Text = "";
+                    sheet.Range[edCRow-1, 5].Text = "Authorized By";
                 }
                 edCRow++;
 
@@ -765,13 +765,13 @@ Where PaymentAdviseId='" + adviceId + "'";
 
                 if (paymentMode == "Bank")
                 {
-                    sheet.Range[edCRow - 1, 6].Text = "";
-                    sheet.Range[edCRow, 6].Text = "Authorized By";
+                    sheet.Range[edCRow, 6].Text = "";
+                    sheet.Range[edCRow - 1, 6].Text = "Authorized By";
                 }
                 else
                 {
-                    sheet.Range[edCRow - 1, 5].Text = "";
-                    sheet.Range[edCRow, 5].Text = "Authorized By";
+                    sheet.Range[edCRow, 5].Text = "";
+                    sheet.Range[edCRow - 1, 5].Text = "Authorized By";
                 }
 
                 edCRow++;
