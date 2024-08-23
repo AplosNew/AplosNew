@@ -41,7 +41,7 @@ function GoodWorkDateChangeController(cboService, commonMessage, $scope, $rootSc
 
     function DateFunc() {
     $('.datepicker').datepicker({
-        startDate: '-31d',
+        startDate: '-60d',
         endDate: '1d',
         datesDisabled: $scope.DisabledDates,
         format: 'dd-M-yyyy',
