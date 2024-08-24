@@ -145,6 +145,36 @@ namespace Aplos.HumanResource
             }
         }
 
+        public IEnumerable<object> GetBusVerificationData(string fromDate, string toDate)
+        {
+            try
+            {
+               string sql = @"SELECT ROW_NUMBER() OVER(ORDER BY BV.EmpSystemID) SrNo, BV.EmpSystemID,EI.EmployeeCode,FORMAT(BV.WorkDate,'dd-MMM-yyyy')WorkDate,ISNULL(format(BV.InTime,'dd-MMM-yyyy hh:mm tt'),'') as InTime
+,ISNULL(format(BV.OutTime,'dd-MMM-yyyy hh:mm tt'),'') OutTime,BV.AddedBy,FORMAT(BV.AddedDate,'dd-MMM-yyyy')AddedDate,BV.UpdatedBy,FORMAT(BV.UpdatedDate,'dd-MMM-yyyy')UpdatedDate
+,ST.UserName Stoppage,TD.TransportUserName Transport,R.StandardName [Route],S.UserName Section,SS.UserName SubSection,DEPT.UserName Department
+FROM dbo.BusVerification BV
+LEFT JOIN dbo.EmployeeTransportAllocation ETA ON ETA.EmployeeSystemId=EmpSystemId
+LEFT JOIN HKP.Stoppage ST on ST.Id=ETA.StoppageId
+LEFT JOIN RouteSchedule RS on RS.Id = ETA.TripId
+LEFT JOIN MST.Route R on R.Id = RS.RouteId
+LEFT JOIN TransportDetail TD on TD.Id = RS.TransportId
+LEFT JOIN EmployeeInformation EI on EI.SystemId = ETA.EmployeeSystemId
+LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
+LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+LEFT JOIN ORG.Department DEPT ON EI.DepartmentId=DEPT.Id
+Where ETA.AssignStatus=1 AND BV.WorkDate between '" + fromDate + "' AND '"+toDate+"'";
+
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
+
+
         public void SaveEmployeeTransportAllocation(List<Dictionary<string, object>> EmployeeList)
         {
 

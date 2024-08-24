@@ -3045,7 +3045,7 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                 //objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrderType2SubprocessSet where ProductionOrderId='" + masterid + "'", true, "1");
                 objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrderType2ProcessSet where ProductionOrderId='" + masterid + "'", true, "1");
                 //objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrderType2ProcessCriteria where ProductionOrderId='" + masterid + "'", true, "1");
-                objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrdervWorkCenter where ProductionOrderId='" + masterid + "'", true, "1");
+                objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrderType2WorkCenter where ProductionOrderId='" + masterid + "'", true, "1");
                 objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrderType2Detail where ProductionOrderId='" + masterid + "'", true, "1");
 
                 //objCon.ExecuteNonQueryWrapper(@"delete from [TRN].[ProductionBulletinTemplateDetail] 
