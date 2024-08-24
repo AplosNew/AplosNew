@@ -9,16 +9,16 @@
                             <div class="row">
                                 <div class="col-xs-12 col-sm-3 col-md-3">
                                     <div class="select-style">
-                                        <select ng-model="searchByParty">
-                                            <option ng-repeat="option in searchByPartyList" value="{{option.value}}">{{option.name}}</option>
+                                        <select ng-model="searchByOtherParty">
+                                            <option ng-repeat="option in searchByOtherPartyList" value="{{option.value}}">{{option.name}}</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchParty" ng-enter="showPartyOtherPopUpNew()">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchOtherParty" ng-enter="showOtherPartyPopUpNew()">
                                 </div>
                                 <div class="col-xs-12 col-sm-2 col-md-2">
-                                    <button type="button" ng-click="showPartyOtherPopUpNew()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    <button type="button" ng-click="showOtherPartyPopUpNew()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                                 </div>
                             </div>
                         </div>
@@ -27,7 +27,7 @@
                 <div class="col-md-12">
                     <div class="content-container-fluid">
                         @*style="color:black;overflow:scroll"*@
-                        <div style="color:black;" id="partyPopUpGrid" ej-grid e-datasource="partyList" e-recorddoubleclick="closeOtherPartyPopUp"
+                        <div style="color:black;" id="partyPopUpGrid" ej-grid e-datasource="otherpartyList" e-recorddoubleclick="closeOtherPartyPopUp"
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                              e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
                             <div e-columns>

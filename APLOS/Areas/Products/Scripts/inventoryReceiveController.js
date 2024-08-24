@@ -3999,21 +3999,21 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 
     };
     //#endregion
-    //$scope.searchByParty = "UserName"; $scope.searchParty = "";
-    //$scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
-
+    $scope.searchByOtherParty = "UserName"; $scope.searchOtherParty = "";
+    $scope.searchByOtherPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
+    $scope.otherpartyList = [];
     $scope.showOtherPartyPopUpNew = function () {
 
         if ($scope.partyType === 'Vendor') {
-            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew?partyType=' + $scope.partyType;
+            $scope.OtherPartyUrl = 'Parties/party/GetCompanyPartyDataListNew?partyType=' + $scope.partyType;
         }
         $http({
             method: 'POST',
-            url: $scope.partyUrl,
-            data: { column: $scope.searchByParty, value: $scope.searchParty },
+            url: $scope.OtherPartyUrl,
+            data: { column: $scope.searchByOtherParty, value: $scope.searchOtherParty },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.partyList = response.data;
+            $scope.otherpartyList = response.data;
         });
         angular.element(document.querySelector('#partyOtherPopUp')).modal('show');
     };
@@ -4032,10 +4032,10 @@ function inventoryReceiveController(accountService, addressService, $window, fac
         $scope.hideOtherPartyPopUp();
     };
     function getOtherPartyPlantList() {
-        $scope.plantList = [];
+        $scope.OtherPlantList = [];
         $http.get('Parties/party/GetPartyPlantCbo?partyId=' + $scope.productNew.OtherPartyId).then(function (response) {
             angular.forEach(response.data, function (item) {
-                $scope.plantList.push(item);
+                $scope.OtherPlantList.push(item);
                 if (item.IsDefault) {
                     $scope.productNew.OtherInvoicingPartyPlantId = item.Value;
                     $scope.productNew.OtherDeliveryPartyPlantId = item.Value;
