@@ -19,7 +19,7 @@ function RouteEmployeeReportController(cboService, commonMessage, $scope, $rootS
         return $scope.tab === tabNum;
     };
 
-    $scope.tab2 ;
+    $scope.tab2;
     $scope.setTab2 = function (newTab) {
         $scope.tab2 = newTab;
     };
@@ -221,20 +221,107 @@ function RouteEmployeeReportController(cboService, commonMessage, $scope, $rootS
 
     };
 
-    $scope.GetBusVerificationReport = function () {
+    $scope.BusVerificationList = [];
+    $scope.GetBusVerificationData = function () {
         try {
-            
-            $scope.fileName = "BusVerification.xls";
+            if (baseService.isUndefinedOrNull($scope.FromDate)) {
+                throw "From Date is required.";
+            }
+            else if (baseService.isUndefinedOrNull($scope.ToDate)) {
+                throw "To Date is required.";
+            }
+            else if (new Date($scope.FromDate) > new Date($scope.ToDate)) {
+                throw "From date must be below or equal to To Date";
+            }
+            else if (new Date($scope.ToDate) < new Date($scope.FromDate)) {
+                throw "To date must be above or equal to From Date.";
+            }
 
-
-            $scope.ReportFormat = 'Excel';
-            // $scope.ReportFormat = 'Pdf';
-            var url = 'Employees/RouteEmployee/GetBusVerificationReport?reportFormat=' + $scope.ReportFormat;
-            $rootScope.report(url);
+            $http({
+                method: "Get",
+                url: $scope.path + 'GetBusVerificationData?FromDate=' + $scope.FromDate + '&ToDate=' + $scope.ToDate,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.BusVerificationList = response.data;
+            })
 
         } catch (e) {
             ShowResult(e, 'failure');
         }
+    }
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+    $scope.GetBusVerificationReport = function () {
+        try {
+            if ($scope.BusVerificationList.length == 0) {
+                throw "No data found.";
+            }
+            $scope.fileName = "BusVerification.xlsx";
+
+            var dataList = [];
+            var g = $("#GridBV").data("ejGrid");
+            dataList = g.getFilteredRecords();
+
+            if (dataList.length == 0) {
+                dataList = $scope.BusVerificationList;
+            }
+         
+
+            //$http({
+            //    method: 'POST',
+            //    url: $scope.exportgriddataUrl,
+            //    data: {
+            //        'reportFileName': $scope.fileName,
+            //        'data': dataList
+            //    },
+            //    dataType: 'JSON'
+            //}).then(function successCallback(response) {
+            //    if (response.data.Error === true) {
+            //        ShowResult(response.data.Message, 'failure');
+            //    }
+            //    else {
+            //        $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            //    }
+            //}, function errorCallback(response) {
+            //    ShowResult(response.data.Message, 'failure');
+            //});
+
+          
+
+            $http({
+                method: 'POST',
+                url: "Employees/RouteEmployee/GetBusVerificationReport",
+                data: { 'data': dataList, 'reportFileName': $scope.fileName },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
     };
-  
+
+
+    //$scope.GetBusVerificationReport = function () {
+    //    try {
+    //        $scope.fileName = "BusVerification.xls";
+
+    //        $scope.ReportFormat = 'Excel';
+    //        // $scope.ReportFormat = 'Pdf';
+    //        var url = 'Employees/RouteEmployee/GetBusVerificationReport?reportFormat=' + $scope.ReportFormat;
+    //        $rootScope.report(url);
+
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+    //};
+
 }
