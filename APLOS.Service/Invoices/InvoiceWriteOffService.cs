@@ -589,7 +589,7 @@ namespace Library.Service.Invoices
                         if (invoiceDetail.NetAmount < invoiceDetail.WrittenOffAmount)
                             throw new CustomException("Received amount can not cross balance amount.");
 
-                        invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount == invoiceDetail.WrittenOffAmount;
+                        invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount + invoiceDetail.AdditionalAmount == invoiceDetail.WrittenOffAmount;
                         invoiceDetail.UpdatedBy = invoiceWriteOff.AddedBy;
                         invoiceDetail.UpdatedDate = invoiceWriteOff.AddedDate;
                         invoiceDetail.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
@@ -598,7 +598,7 @@ namespace Library.Service.Invoices
                         // TODO: have a gap here if invoice split
                         var invoice = inviceDbList.First(r => r.Id == invoiceDetail.InvoiceId);
                         invoice.WrittenOffAmount += voucherDetailVM.Amount;
-                        invoice.IsWrittenOff = invoice.Amount == invoice.WrittenOffAmount;
+                        invoice.IsWrittenOff = invoice.Amount + invoice.AdditionalAmount == invoice.WrittenOffAmount;
                         invoice.UpdatedBy = invoiceWriteOff.AddedBy;
                         invoice.UpdatedDate = invoiceWriteOff.AddedDate;
                         invoice.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
@@ -1842,7 +1842,7 @@ namespace Library.Service.Invoices
                     if (invoiceDetail.NetAmount < invoiceDetail.WrittenOffAmount)
                         throw new CustomException("Received amount can not cross balance amount.");
 
-                    invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount == invoiceDetail.WrittenOffAmount;
+                    invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount + invoiceDetail.AdditionalAmount == invoiceDetail.WrittenOffAmount;
                     invoiceDetail.UpdatedBy = invoiceWriteOff.AddedBy;
                     invoiceDetail.UpdatedDate = invoiceWriteOff.AddedDate;
                     invoiceDetail.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
@@ -1851,7 +1851,7 @@ namespace Library.Service.Invoices
                     // TODO: have a gap here if invoice split
                     var invoice = inviceDbList.First(r => r.Id == invoiceDetail.InvoiceId);
                     invoice.WrittenOffAmount += voucherDetailVM.Amount;
-                    invoice.IsWrittenOff = invoice.Amount == invoice.WrittenOffAmount;
+                    invoice.IsWrittenOff = invoice.Amount + invoice.AdditionalAmount == invoice.WrittenOffAmount;
                     invoice.UpdatedBy = invoiceWriteOff.AddedBy;
                     invoice.UpdatedDate = invoiceWriteOff.AddedDate;
                     invoice.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
@@ -2294,7 +2294,7 @@ namespace Library.Service.Invoices
                             if (invoiceDetail.NetAmount < invoiceDetail.WrittenOffAmount)
                                 throw new CustomException("Received amount can not cross balance amount.");
 
-                            invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount == invoiceDetail.WrittenOffAmount;
+                            invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount + invoiceDetail.AdditionalAmount == invoiceDetail.WrittenOffAmount;
                             invoiceDetail.UpdatedBy = invoiceWriteOff.AddedBy;
                             invoiceDetail.UpdatedDate = invoiceWriteOff.AddedDate;
                             invoiceDetail.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
@@ -2303,7 +2303,7 @@ namespace Library.Service.Invoices
                             // TODO: have a gap here if invoice split
                             var invoice = inviceDbList.First(r => r.Id == invoiceDetail.InvoiceId);
                             invoice.WrittenOffAmount += multiplePaymentDetail.Amount;
-                            invoice.IsWrittenOff = invoice.Amount == invoice.WrittenOffAmount;
+                            invoice.IsWrittenOff = invoice.Amount + invoice.AdditionalAmount == invoice.WrittenOffAmount;
                             invoice.UpdatedBy = invoiceWriteOff.AddedBy;
                             invoice.UpdatedDate = invoiceWriteOff.AddedDate;
                             invoice.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
@@ -2942,7 +2942,7 @@ namespace Library.Service.Invoices
                     if (invoiceDetail.NetAmount < invoiceDetail.WrittenOffAmount)
                         throw new CustomException("Received amount can not cross balance amount.");
 
-                    invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount == invoiceDetail.WrittenOffAmount;
+                    invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount + invoiceDetail.AdditionalAmount == invoiceDetail.WrittenOffAmount;
                     invoiceDetail.UpdatedBy = invoiceWriteOff.AddedBy;
                     invoiceDetail.UpdatedDate = invoiceWriteOff.AddedDate;
                     invoiceDetail.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
@@ -2951,7 +2951,7 @@ namespace Library.Service.Invoices
                     // TODO: have a gap here if invoice split
                     var invoice = inviceDbList.First(r => r.Id == invoiceDetail.InvoiceId);
                     invoice.WrittenOffAmount += additionalTax.TaxAmount;
-                    invoice.IsWrittenOff = invoice.Amount == invoice.WrittenOffAmount;
+                    invoice.IsWrittenOff = invoice.Amount + invoice.AdditionalAmount == invoice.WrittenOffAmount;
                     invoice.UpdatedBy = invoiceWriteOff.AddedBy;
                     invoice.UpdatedDate = invoiceWriteOff.AddedDate;
                     invoice.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
@@ -3302,7 +3302,7 @@ namespace Library.Service.Invoices
                     if (invoiceDetail.NetAmount < invoiceDetail.WrittenOffAmount)
                         throw new CustomException("Received Amount can not cross Balance Amount");
 
-                    invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount == invoiceDetail.WrittenOffAmount;
+                    invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount + invoiceDetail.AdditionalAmount == invoiceDetail.WrittenOffAmount;
                     invoiceDetail.UpdatedBy = invoiceWriteOff.AddedBy;
                     invoiceDetail.UpdatedDate = invoiceWriteOff.AddedDate;
                     invoiceDetail.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
@@ -3311,7 +3311,7 @@ namespace Library.Service.Invoices
                     // TODO: have a gap here if invoice split
                     var invoice = inviceDbList.First(r => r.Id == invoiceDetail.InvoiceId);
                     invoice.WrittenOffAmount += invoiceDetail.WrittenOffAmount;
-                    invoice.IsWrittenOff = invoice.Amount == invoice.WrittenOffAmount;
+                    invoice.IsWrittenOff = invoice.Amount + invoice.AdditionalAmount == invoice.WrittenOffAmount;
                     invoice.UpdatedBy = invoiceWriteOff.AddedBy;
                     invoice.UpdatedDate = invoiceWriteOff.AddedDate;
                     invoice.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
@@ -3854,7 +3854,7 @@ namespace Library.Service.Invoices
                     if (invoiceDetail.NetAmount < invoiceDetail.WrittenOffAmount)
                         throw new CustomException("Received amount can not cross balance amount.");
 
-                    invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount == invoiceDetail.WrittenOffAmount;
+                    invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount + invoiceDetail.AdditionalAmount == invoiceDetail.WrittenOffAmount;
                     invoiceDetail.UpdatedBy = invoiceWriteOff.AddedBy;
                     invoiceDetail.UpdatedDate = invoiceWriteOff.AddedDate;
                     invoiceDetail.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
@@ -3863,7 +3863,7 @@ namespace Library.Service.Invoices
                     // TODO: have a gap here if invoice split
                     var invoice = inviceDbList.First(r => r.Id == invoiceDetail.InvoiceId);
                     invoice.WrittenOffAmount += voucherDetailVM.Amount;
-                    invoice.IsWrittenOff = invoice.Amount == invoice.WrittenOffAmount;
+                    invoice.IsWrittenOff = invoice.Amount + invoice.AdditionalAmount == invoice.WrittenOffAmount;
                     invoice.UpdatedBy = invoiceWriteOff.AddedBy;
                     invoice.UpdatedDate = invoiceWriteOff.AddedDate;
                     invoice.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
@@ -4661,7 +4661,7 @@ namespace Library.Service.Invoices
                         if (invoiceDetail.NetAmount < invoiceDetail.WrittenOffAmount)
                             throw new CustomException("Received amount can not cross balance amount.");
 
-                        invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount == invoiceDetail.WrittenOffAmount;
+                        invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount + invoiceDetail.AdditionalAmount == invoiceDetail.WrittenOffAmount;
                         invoiceDetail.UpdatedBy = invoiceWriteOff.AddedBy;
                         invoiceDetail.UpdatedDate = invoiceWriteOff.AddedDate;
                         invoiceDetail.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
@@ -4670,7 +4670,7 @@ namespace Library.Service.Invoices
                         // TODO: have a gap here if invoice split
                         var invoice = inviceDbList.First(r => r.Id == invoiceDetail.InvoiceId);
                         invoice.WrittenOffAmount += voucherDetailVM.CrAmount;
-                        invoice.IsWrittenOff = invoice.Amount == invoice.WrittenOffAmount;
+                        invoice.IsWrittenOff = invoice.Amount + invoice.AdditionalAmount == invoice.WrittenOffAmount;
                         invoice.UpdatedBy = invoiceWriteOff.AddedBy;
                         invoice.UpdatedDate = invoiceWriteOff.AddedDate;
                         invoice.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
@@ -5645,7 +5645,7 @@ namespace Library.Service.Invoices
                     if (invoiceDetail.NetAmount < invoiceDetail.WrittenOffAmount)
                         throw new CustomException("Received Amount can not cross Balance Amount");
 
-                    invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount == invoiceDetail.WrittenOffAmount;
+                    invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount + invoiceDetail.AdditionalAmount == invoiceDetail.WrittenOffAmount;
                     invoiceDetail.UpdatedBy = invoiceWriteOff.AddedBy;
                     invoiceDetail.UpdatedDate = invoiceWriteOff.AddedDate;
                     invoiceDetail.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
@@ -5654,7 +5654,7 @@ namespace Library.Service.Invoices
                     // TODO: have a gap here if invoice split
                     var invoice = inviceDbList.First(r => r.Id == invoiceDetail.InvoiceId);
                     invoice.WrittenOffAmount += voucherDetailVM.DrAmount;
-                    invoice.IsWrittenOff = invoice.Amount == invoice.WrittenOffAmount;
+                    invoice.IsWrittenOff = invoice.Amount + invoice.AdditionalAmount == invoice.WrittenOffAmount;
                     invoice.UpdatedBy = invoiceWriteOff.AddedBy;
                     invoice.UpdatedDate = invoiceWriteOff.AddedDate;
                     invoice.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
@@ -6696,7 +6696,7 @@ namespace Library.Service.Invoices
                         if (invoiceDetail.NetAmount < invoiceDetail.WrittenOffAmount)
                             throw new CustomException("Received amount can not cross balance amount.");
 
-                        invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount == invoiceDetail.WrittenOffAmount;
+                        invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount + invoiceDetail.AdditionalAmount == invoiceDetail.WrittenOffAmount;
                         invoiceDetail.UpdatedBy = invoiceWriteOff.AddedBy;
                         invoiceDetail.UpdatedDate = invoiceWriteOff.AddedDate;
                         invoiceDetail.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
@@ -6704,7 +6704,7 @@ namespace Library.Service.Invoices
 
                         var invoice = inviceDbList.First(r => r.Id == invoiceDetail.InvoiceId);
                         invoice.WrittenOffAmount = invoiceDetail.WrittenOffAmount;
-                        invoice.IsWrittenOff = invoice.Amount == invoice.WrittenOffAmount;
+                        invoice.IsWrittenOff = invoice.Amount + invoice.AdditionalAmount == invoice.WrittenOffAmount;
                         invoice.UpdatedBy = invoiceWriteOff.AddedBy;
                         invoice.UpdatedDate = invoiceWriteOff.AddedDate;
                         invoice.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
@@ -8261,7 +8261,7 @@ namespace Library.Service.Invoices
                         if (invoiceDetail.NetAmount < invoiceDetail.WrittenOffAmount)
                             throw new CustomException("Received amount can not cross balance amount.");
 
-                        invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount == invoiceDetail.WrittenOffAmount;
+                        invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount + invoiceDetail.AdditionalAmount == invoiceDetail.WrittenOffAmount;
                         invoiceDetail.UpdatedBy = invoiceWriteOff.AddedBy;
                         invoiceDetail.UpdatedDate = invoiceWriteOff.AddedDate;
                         invoiceDetail.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
@@ -8269,7 +8269,7 @@ namespace Library.Service.Invoices
 
                         var invoice = inviceDbList.First(r => r.Id == invoiceDetail.InvoiceId);
                         invoice.WrittenOffAmount = invoiceDetail.WrittenOffAmount;
-                        invoice.IsWrittenOff = invoice.Amount == invoice.WrittenOffAmount;
+                        invoice.IsWrittenOff = invoice.Amount + invoice.AdditionalAmount == invoice.WrittenOffAmount;
                         invoice.UpdatedBy = invoiceWriteOff.AddedBy;
                         invoice.UpdatedDate = invoiceWriteOff.AddedDate;
                         invoice.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
@@ -8832,8 +8832,8 @@ namespace Library.Service.Invoices
                         var invoiceDetail = _invoiceService.FindInvoiceDetail(item.InvoiceDetailId);
                         invoiceDetail.WrittenOffAmount -= item.Amount;
                         invoice.WrittenOffAmount -= item.Amount;
-                        invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount == invoiceDetail.WrittenOffAmount;
-                        invoice.IsWrittenOff = invoice.Amount == invoice.WrittenOffAmount;
+                        invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount + invoiceDetail.AdditionalAmount == invoiceDetail.WrittenOffAmount;
+                        invoice.IsWrittenOff = invoice.Amount + invoice.AdditionalAmount == invoice.WrittenOffAmount;
 
                         _invoiceService.UpdateInvoiceDetail(invoiceDetail);
                         _invoiceService.Update(invoice);
@@ -9005,8 +9005,8 @@ namespace Library.Service.Invoices
                     var invoiceDetail = _invoiceService.FindInvoiceDetail(item.InvoiceDetailId);
                     invoiceDetail.WrittenOffAmount -= item.Amount;
                     invoice.WrittenOffAmount -= item.Amount;
-                    invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount == invoiceDetail.WrittenOffAmount;
-                    invoice.IsWrittenOff = invoice.Amount == invoice.WrittenOffAmount;
+                    invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount + invoiceDetail.AdditionalAmount == invoiceDetail.WrittenOffAmount;
+                    invoice.IsWrittenOff = invoice.Amount + invoice.AdditionalAmount == invoice.WrittenOffAmount;
 
                     _invoiceService.UpdateInvoiceDetail(invoiceDetail);
                     _invoiceService.Update(invoice);
@@ -9110,9 +9110,9 @@ namespace Library.Service.Invoices
 
                 foreach (var item in invoiceWriteOffDetail)
                 {
-                    vendorAdWrsql = @"update TRN.InvoiceDetail set WrittenOffAmount=0,IsWrittenOff=0 where InvoiceId ='" + item.InvoiceId + "'";
+                    vendorAdWrsql = @"update TRN.InvoiceDetail set WrittenOffAmount= WrittenOffAmount - " + item.Amount + " ,IsWrittenOff=0 where InvoiceId ='" + item.InvoiceId + "'";
                     vendorAdWr.Append(vendorAdWrsql);
-                    vendorAdWrsql = @"update TRN.Invoice set WrittenOffAmount=0,IsWrittenOff=0 where Id ='" + item.InvoiceId + "'";
+                    vendorAdWrsql = @"update TRN.Invoice set WrittenOffAmount= WrittenOffAmount - " + item.Amount + " ,IsWrittenOff=0 where Id ='" + item.InvoiceId + "'";
                     vendorAdWr.Append(vendorAdWrsql);
                     vendorAdWrsql = @"delete from TRN.InvoiceWriteOffDetail where Id='" + item.Id + "'";
                     vendorAdWr.Append(vendorAdWrsql);
