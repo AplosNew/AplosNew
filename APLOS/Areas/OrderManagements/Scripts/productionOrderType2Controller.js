@@ -540,7 +540,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
             url: $scope.path + 'GetProductionOrderType2WorkCenterList?productionOrderId=' + $scope.model.Id
         }).then(function successCallback(response) {
             $scope.productionWorkCenterList = response.data;
-           // $scope.getProductionBulletinData($scope.model.Id);
+            // $scope.getProductionBulletinData($scope.model.Id);
             $scope.GetSavedWorkCenterListByEntityandFirstProcess();
         });
     }
@@ -606,7 +606,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                         ShowResult(response.data.Message, 'success');
                         $scope.model.Id = response.data.DATA;
                         $scope.getData();
-                        getProductionProcessSetList();
+                        getProductionRecipeMaterialList();
                         $scope.btndisable = false;
                         $scope.Action = "Update"
                         //var uploadObj = $("#UploadDefault").data("ejUploadbox");
@@ -1038,6 +1038,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
             for (var i = 0; i < response.data.length; i++) {
                 if (response.data[i].Days < 0)
                     response.data[i].Days = response.data[i].Days * -1;
+                response.data[i].Id = null;
             }
             $scope.prdProcessSetList = response.data;
             for (var i = 0; i < $scope.prdProcessSetList.length; i++) {
@@ -1821,7 +1822,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         }).then(function successCallback(res) {
             $scope.productionFPWorkCenterList = res.data;
             if ($scope.model.IsPreDefineLotApplicable) {
-              //  $scope.GetPOLotControlSettingsData();
+                //  $scope.GetPOLotControlSettingsData();
             }
         });
     }

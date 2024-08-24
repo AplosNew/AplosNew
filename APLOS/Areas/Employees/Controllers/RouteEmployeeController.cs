@@ -299,7 +299,11 @@ namespace Aplos.Areas.Employees.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(ET.getviewUnassign(PlantId), JsonRequestBehavior.AllowGet);
         }
-
+        [HttpGet, Authorize]
+        public JsonResult GetBusVerificationData(string fromDate, string toDate)
+        {
+            return Json(ET.GetBusVerificationData(fromDate, toDate), JsonRequestBehavior.AllowGet);
+        }
 
         #region Save Operations
         [HttpPost]
@@ -347,50 +351,39 @@ namespace Aplos.Areas.Employees.Controllers
             }
         }
 
-
-        [HttpGet, Authorize]
-        public ActionResult GetBusVerificationReport(ReportFormat reportFormat)
+       
+        [HttpPost, Authorize]
+        public ActionResult GetBusVerificationReport(List<Dictionary<string, object>> data, string reportFileName)
         {
             try
             {
-                string fileName = "";
-
-                IWorkbook workbook = GetBusVerificationReportWorkbook("Data");
-                var reportFileName = DateTime.Now.ToString("yyMMdd") + "BusVerificationReport";
-                // return RenderReportAsPdf(workbook, reportFileName);
-                switch (reportFormat)
+                DataTable dt = new DataTable("DD");
+                foreach (string item in data[0].Keys)
                 {
-                    case ReportFormat.Pdf:
-                        PdfDocument document = new PdfDocument();
-                        ExcelToPdfConverterSettings settings = new ExcelToPdfConverterSettings();
-                        settings.TemplateDocument = document;
-                        for (int i = 0; i < workbook.Worksheets.Count; i++)
-                        {
-                            ExcelToPdfConverter converter1 = new ExcelToPdfConverter(workbook.Worksheets[i]);
-                            document = converter1.Convert(settings);
-                        }
-                        document.Save(reportFileName + ".pdf", HttpContext.ApplicationInstance.Response, HttpReadType.Save);
-                        return null;
+                    if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        continue;
 
-                    case ReportFormat.PdfView:
-                        PdfDocument document1 = new PdfDocument();
-                        ExcelToPdfConverterSettings settings1 = new ExcelToPdfConverterSettings();
-                        settings1.TemplateDocument = document1;
-                        for (int i = 0; i < workbook.Worksheets.Count; i++)
-                        {
-                            ExcelToPdfConverter converter1 = new ExcelToPdfConverter(workbook.Worksheets[i]);
-                            document1 = converter1.Convert(settings1);
-                        }
-                        document1.Save(reportFileName + ".pdf", HttpContext.ApplicationInstance.Response, HttpReadType.Open);
-                        //return RenderReportAsPdf(document1, reportFileName);
-                        return RenderReportAsPdf(workbook, reportFileName);
-                    case ReportFormat.Excel:
-                        return RenderReportAsExcel(workbook, reportFileName);
-
-                    default:
-                        return RenderReportAsExcel(workbook, reportFileName);
+                    dt.Columns.Add(item);
                 }
 
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    foreach (string item in data[i].Keys)
+                    {
+                        if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                            continue;
+
+                        dr[item] = data[i][item];
+                    }
+
+                    dt.Rows.Add(dr);
+                }
+
+                string fileName = "";
+                fileName = GetBusVerificationReportWorkbook(dt, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -399,7 +392,7 @@ namespace Aplos.Areas.Employees.Controllers
 
         }
 
-        public IWorkbook GetBusVerificationReportWorkbook(string SheetName)
+        public string GetBusVerificationReportWorkbook(DataTable data, string ReportHeader, string reportFileName)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ExcelEngine excelEngine = null;
@@ -414,25 +407,7 @@ namespace Aplos.Areas.Employees.Controllers
                 workbook = application.Workbooks.Create(1);
                 workbook.Worksheets[0].Name = "Data";
                 sheet = workbook.Worksheets[0];
-                DataTable dtOrder = null;
-                string sql = "";
-                sql = @"SELECT BV.EmpSystemID,EI.EmployeeCode,FORMAT(BV.WorkDate,'dd-MMM-yyyy')WorkDate,ISNULL(format(BV.InTime,'dd-MMM-yyyy hh:mm tt'),'') as InTime
-,ISNULL(format(BV.OutTime,'dd-MMM-yyyy hh:mm tt'),'') OutTime,BV.AddedBy,FORMAT(BV.AddedDate,'dd-MMM-yyyy')AddedDate,BV.UpdatedBy,FORMAT(BV.UpdatedDate,'dd-MMM-yyyy')UpdatedDate
-,ST.UserName Stoppage,TD.TransportUserName Transport,R.StandardName [Route],S.UserName Section,SS.UserName SubSection,DEPT.UserName Department
-FROM dbo.BusVerification BV
-LEFT JOIN dbo.EmployeeTransportAllocation ETA ON ETA.EmployeeSystemId=EmpSystemId
-LEFT JOIN HKP.Stoppage ST on ST.Id=ETA.StoppageId
-LEFT JOIN RouteSchedule RS on RS.Id = ETA.TripId
-LEFT JOIN MST.Route R on R.Id = RS.RouteId
-LEFT JOIN TransportDetail TD on TD.Id = RS.TransportId
-LEFT JOIN EmployeeInformation EI on EI.SystemId = ETA.EmployeeSystemId
-LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-LEFT JOIN ORG.Department DEPT ON EI.DepartmentId=DEPT.Id
-Where ETA.AssignStatus=1";
-
-
-                dtOrder = _sqlRepository.GetDataTable(sql);
+                DataTable dtOrder = data;
 
 
                 if (dtOrder.Rows.Count == 0)
@@ -447,15 +422,15 @@ Where ETA.AssignStatus=1";
                 #region ColumnsHeader
 
                 sheet[ROW, COL].Text = "SNo"; sheet[ROW, COL].ColumnWidth = 5; int colSL = COL; COL++;
-                sheet[ROW, COL].Text = "Emp SystemID"; sheet[ROW, COL].ColumnWidth = 10; int colEID = COL; COL++;
-                sheet[ROW, COL].Text = "Employee Code"; sheet[ROW, COL].ColumnWidth = 11; int colEC = COL; COL++;
-                sheet[ROW, COL].Text = "Work Date"; sheet[ROW, COL].ColumnWidth = 8; int colWD = COL; COL++;
+                sheet[ROW, COL].Text = "EmpSystemID"; sheet[ROW, COL].ColumnWidth = 10; int colEID = COL; COL++;
+                sheet[ROW, COL].Text = "EmployeeCode"; sheet[ROW, COL].ColumnWidth = 11; int colEC = COL; COL++;
+                sheet[ROW, COL].Text = "WorkDate"; sheet[ROW, COL].ColumnWidth = 8; int colWD = COL; COL++;
                 sheet[ROW, COL].Text = "InTime"; sheet[ROW, COL].ColumnWidth = 15; int colIT = COL; COL++;
                 sheet[ROW, COL].Text = "OutTime"; sheet[ROW, COL].ColumnWidth = 15; int colOT = COL; COL++;
                 sheet[ROW, COL].Text = "AddedBy"; sheet[ROW, COL].ColumnWidth = 13.50; int colAB = COL; COL++;
                 sheet[ROW, COL].Text = "AddedDate"; sheet[ROW, COL].ColumnWidth = 8; int colAD = COL; COL++;                
                 sheet[ROW, COL].Text = "UpdatedBy"; sheet[ROW, COL].ColumnWidth = 13.50; int colUB = COL; COL++;
-                sheet[ROW, COL].Text = "UpdatedDate"; sheet[ROW, COL].ColumnWidth = 8; int colUD = COL; COL++;                
+                sheet[ROW, COL].Text = "UpdatedDate"; sheet[ROW, COL].ColumnWidth = 10; int colUD = COL; COL++;                
                 sheet[ROW, COL].Text = "Route"; sheet[ROW, COL].ColumnWidth = 13.50; int colRoute = COL; COL++;
                 sheet[ROW, COL].Text = "Stoppage"; sheet[ROW, COL].ColumnWidth = 15; int colStoppage = COL; COL++;
                 sheet[ROW, COL].Text = "TransportNo"; sheet[ROW, COL].ColumnWidth = 13.50; int colTN = COL; COL++;
@@ -515,8 +490,7 @@ Where ETA.AssignStatus=1";
                 sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                 sheet["A" + startRow.ToString()].FreezePanes();
 
-
-                reportUtility.CompanyHeader(ref sheet, 3, "Bus Verification Report", identity.CompanyId);
+                reportUtility.CompanyHeader(ref sheet, endCol, "Bus Verification Report", identity.CompanyId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -530,8 +504,11 @@ Where ETA.AssignStatus=1";
                 sheet.PageSetup.CenterHorizontally = true;
                 #endregion
 
-
-                return workbook;
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
             }
             catch (Exception ex)
             {
