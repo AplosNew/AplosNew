@@ -202,7 +202,7 @@ namespace Library.Service.SalesManagements
                         currentSalesMaterialId++;
                         var salesMaterial = new SalesMaterial
                         {
-                            Id = _pkGeneratorService.MakePK(sales.Id, currentSalesMaterialId, 2),
+                            Id = _pkGeneratorService.MakePK(sales.Id, currentSalesMaterialId, 3),
                             SalesId = sales.Id,
                             MaterialMasterId = salesMaterialVM.MaterialMasterId,
                             ArticleId = salesMaterialVM.ArticleId,
@@ -419,7 +419,7 @@ namespace Library.Service.SalesManagements
                             currentSalesMaterialId++;
                             var salesMaterial = new SalesMaterial
                             {
-                                Id = _pkGeneratorService.MakePK(sales.Id, currentSalesMaterialId, 2),
+                                Id = _pkGeneratorService.MakePK(sales.Id, currentSalesMaterialId, 3),
                                 SalesId = sales.Id,
                                 MaterialMasterId = salesMaterialVM.MaterialMasterId,
                                 ArticleId = salesMaterialVM.ArticleId,
@@ -1685,7 +1685,7 @@ namespace Library.Service.SalesManagements
                         currentSalesMaterialId++;
                         var salesMaterial = new SalesMaterial
                         {
-                            Id = _pkGeneratorService.MakePK(sales.Id, currentSalesMaterialId, 2),
+                            Id = _pkGeneratorService.MakePK(sales.Id, currentSalesMaterialId, 3),
                             SalesId = sales.Id,
                             MaterialMasterId = salesMaterialVM.MaterialMasterId,
                             SalesOrderId = salesMaterialVM.SalesOrderId,
@@ -1960,7 +1960,7 @@ namespace Library.Service.SalesManagements
                             historyId++;
                             var salesMaterial = new SalesMaterial
                             {
-                                Id = _pkGeneratorService.MakePK(sales.Id, historyId, 2),
+                                Id = _pkGeneratorService.MakePK(sales.Id, historyId, 3),
                                 SalesId = sales.Id,
                                 SalesOrderId = salesMaterialVM.SalesOrderId,
                                 MaterialMasterId = salesMaterialVM.MaterialMasterId,
@@ -3214,7 +3214,7 @@ namespace Library.Service.SalesManagements
                         currentSalesMaterialId++;
                         var salesMaterial = new SalesMaterial
                         {
-                            Id = _pkGeneratorService.MakePK(sales.Id, currentSalesMaterialId, 2),
+                            Id = _pkGeneratorService.MakePK(sales.Id, currentSalesMaterialId, 3),
                             SalesId = sales.Id,
                             MaterialMasterId = salesMaterialVM.MaterialMasterId,
                             SalesOrderId = salesMaterialVM.SalesOrderId,
@@ -3526,7 +3526,7 @@ namespace Library.Service.SalesManagements
                             historyId++;
                             var salesMaterial = new SalesMaterial
                             {
-                                Id = _pkGeneratorService.MakePK(sales.Id, historyId, 2),
+                                Id = _pkGeneratorService.MakePK(sales.Id, historyId, 3),
                                 SalesId = sales.Id,
                                 SalesOrderId = salesMaterialVM.SalesOrderId,
                                 MaterialMasterId = salesMaterialVM.MaterialMasterId,
