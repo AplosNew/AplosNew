@@ -2493,21 +2493,27 @@ namespace Library.Service.Advances
                 totalAmountDr += voucherDetailDr.DrAmount;
                 totalAmountCr += voucherDetailDr.CrAmount;
 
-                // INSRT INTO GLTransactionDetail
-               
-                _voucherService.InsertGLTransactionDetail(voucherDetailDr, new GLTransactionDetail
-                {
-                    VoucherDetailId = voucherDetailDr.Id,
-                    SourceType = voucherDetailDr.PaymentSource,
-                    BankMasterId = voucherDetailDr.BankMasterId,
-                    CashMasterId = voucherDetailDr.CashMasterId,
-                    DrAmount = voucherDetailDr.DrAmount,
-                    AddedBy = voucherDetailDr.AddedBy,
-                    AddedDate = voucherDetailDr.AddedDate,
-                    AddedFromIP = voucherDetailDr.AddedFromIP
-                });
-                   
-                _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailDr, new VoucherDetailCurrency
+                    // INSRT INTO GLTransactionDetail
+                    var glTransactionDetail = new GLTransactionDetail
+                    {
+                        VoucherDetailId = voucherDetailDr.Id,
+                        SourceType = voucherDetailDr.PaymentSource,
+                        BankMasterId = voucherDetailDr.BankMasterId,
+                        CashMasterId = voucherDetailDr.CashMasterId,
+                        AddedBy = voucherDetailDr.AddedBy,
+                        AddedDate = voucherDetailDr.AddedDate,
+                        AddedFromIP = voucherDetailDr.AddedFromIP
+                    };
+
+                    if (bankMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
+                        glTransactionDetail.DrAmount = voucherDetailDr.DrAmount;
+                    else
+                        glTransactionDetail.DrAmount = Math.Round((voucherDetailDr.DrAmount * voucherVM.CompanyCurrencyRate), 2, MidpointRounding.AwayFromZero);
+
+                    _voucherService.InsertGLTransactionDetail(voucherDetailDr, glTransactionDetail);
+
+
+                    _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailDr, new VoucherDetailCurrency
                 {
                     ParallelCurrencyId = companyCurrencyId,
                     FromCurrencyId = voucherDetailDr.CurrencyId,
@@ -2605,18 +2611,24 @@ namespace Library.Service.Advances
                     totalAmountCr += voucherDetailDr.CrAmount;
 
                     // INSRT INTO GLTransactionDetail
-                    
-                    _voucherService.InsertGLTransactionDetail(voucherDetailDr, new GLTransactionDetail
+                    var glTransactionDetail = new GLTransactionDetail
                     {
                         VoucherDetailId = voucherDetailDr.Id,
                         SourceType = voucherDetailDr.PaymentSource,
                         BankMasterId = voucherDetailDr.BankMasterId,
                         CashMasterId = voucherDetailDr.CashMasterId,
-                        DrAmount = voucherDetailDr.DrAmount,
                         AddedBy = voucherDetailDr.AddedBy,
                         AddedDate = voucherDetailDr.AddedDate,
                         AddedFromIP = voucherDetailDr.AddedFromIP
-                    });
+                    };
+
+                    if (cashMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
+                        glTransactionDetail.DrAmount = voucherDetailDr.DrAmount;
+                    else
+                        glTransactionDetail.DrAmount = Math.Round((voucherDetailDr.DrAmount * voucherVM.CompanyCurrencyRate), 2, MidpointRounding.AwayFromZero);
+
+                    _voucherService.InsertGLTransactionDetail(voucherDetailDr, glTransactionDetail);
+
                         
                     _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailDr, new VoucherDetailCurrency
                     {
