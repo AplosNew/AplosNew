@@ -49,7 +49,28 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
     $scope.ChangeValue = function () {
         $scope.LcModel.LoanAmount = null;
         $scope.LcModel.LoanNo = null;
-        $scope.LcModel.LoanDate = null;
+        $scope.LcModel.LoanDate = $filter("dateFiltering")(Date.now());
+    };
+    //$scope.invalidPostingDate = false;
+    $scope.checkPostingDate = function () {
+        if (baseService.isUndefinedOrNull($scope.LcModel.LoanDate)) {
+            ShowResult("Loan Date is required.! ", "failure");
+            return true;
+        }
+        else if (new Date($scope.LcModel.LoanDate) > new Date()) {
+            ShowResult("Loan date must be below or equal to current Date! " , "failure");
+            return true;
+        }
+        else if ($scope.selectedInvoiceList.length > 0) {
+            for (var i = 0; i < $scope.selectedInvoiceList.length; i++) {
+                if (new Date($scope.selectedInvoiceList[i].PostingDate) > new Date($scope.LcModel.LoanDate)) {
+                    $scope.LcModel.LoanDate = $filter("dateFiltering")(Date.now());
+                    ShowResult("Loan date must be below or equal to payable of " + $scope.selectedInvoiceList[i].VoucherNo, "failure");
+                    return true;
+                }
+            }
+        }
+        
     };
     //#endregion
 
@@ -64,7 +85,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
         $scope.selectedInvoiceList = [];
         $scope.AutoLoanAvailableDataList = [];
         $scope.fromDateTitle = "As On Date";
-        $scope.LcModel = { LoanAmount: 0, IsLoan: 'true'};
+        $scope.LcModel = { LoanAmount: 0, IsLoan: 'true', LoanDate: $filter("dateFiltering")(Date.now()) };
     }
     //#endregion
 
@@ -117,7 +138,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
 
     //#region Save
     $scope.validation = function () {
-
+        $scope.checkPostingDate();
         var tempBankMasterId = $scope.selectedInvoiceList[0].OpeningBankMasterId
         if (tempBankMasterId != null) {
             for (var i = 0; i < $scope.selectedInvoiceList.length; i++) {

@@ -211,6 +211,7 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
                             obj.IssueQty = $scope.SearchmaterialList[i].IssueQty;
                             obj.OtherQty = 0;
                             obj.WasteQty = 0;
+                            obj.PendingBookedQty = 0;
                             obj.TotalQty = $scope.SearchmaterialList[i].TranQty;
 
                             $scope.IssueSlipDataList.push(obj);
@@ -228,6 +229,8 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
     $scope.GetTotalQty = function (obj) {
 
         obj.data.TotalQty = parseFloat(obj.data.RequestedQty + obj.data.OtherQty + obj.data.WasteQty).toFixed(2);
+        obj.data.PendingBookedQty = parseFloat(obj.data.RequestedQty - obj.data.OtherQty).toFixed(2);
+
         var gridObj = $("#SOGrid").data("ejGrid");
         gridObj.refreshContent(true);
         gridObj.refreshTemplate();
