@@ -298,16 +298,25 @@ namespace Library.MaterialManagement.InventoryManagements
                         LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
                         left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id
 
-						left join(  SELECT IRD.InventoryMaterialId, IRD.MaterialStorageId, Sum(IRD.BaseQty-ISNULL(IRD.ShortageQty,0)) AS TransactionQty ,  Sum((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount)) TotalMaterialBooksCurrencyAmount,SUM(ROUND(IRD.ShortageQty*ird.MaterialTranRate,2)) ShortageValue
+						left join( select x.InventoryMaterialId,x.MaterialStorageId,sum(x.TransactionQty) TransactionQty
+						,sum(x.TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount,SUM(x.ShortageValue) ShortageValue from ( 
+						
+						SELECT IRD.InventoryMaterialId, IRD.MaterialStorageId, (IRD.BaseQty-ISNULL(IRD.ShortageQty,0)) AS TransactionQty 
+						,  ((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount)) TotalMaterialBooksCurrencyAmount
+						,(ROUND(IRD.ShortageQty*ird.MaterialTranRate,2)) ShortageValue
 									FROM  [TRN].[InventoryReceiveDetail] IRD
 									LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
-									where convert(Date,IR.GRNDate) > '" + toDate + @"'   group By IRD.InventoryMaterialId, IRD.MaterialStorageId
+									where convert(Date,IR.GRNDate) > '" + toDate + @"'   --group By IRD.InventoryMaterialId, IRD.MaterialStorageId
                                     UNION ALL
-                                    SELECT IRD.InventoryMaterialId, IRD.MaterialStorageId, Sum(IRD.BaseQty-ISNULL(IRD.ShortageQty,0)) AS TransactionQty ,  Sum((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount)) TotalMaterialBooksCurrencyAmount,SUM(ROUND(IRD.ShortageQty*ird.MaterialTranRate,2)) ShortageValue
+                                    SELECT IRD.InventoryMaterialId, IRD.MaterialStorageId, (IRD.BaseQty-ISNULL(IRD.ShortageQty,0)) AS TransactionQty 
+									,  ((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount)) TotalMaterialBooksCurrencyAmount,(ROUND(IRD.ShortageQty*ird.MaterialTranRate,2)) ShortageValue
 									FROM  [TRN].[InventoryReceiveDetail] IRD
 									LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
-									where convert(Date,IR.GRNDate) = '" + toDate + @"'    group By IRD.InventoryMaterialId, IRD.MaterialStorageId) AS opbal1 
+									where convert(Date,IR.GRNDate) = '" + toDate + @"' 
+									) x group By x.InventoryMaterialId, x.MaterialStorageId
+									) AS opbal1 
                                     ON opbal1.InventoryMaterialId=IM.Id AND IM.PlantId='" + plantId + @"' and opbal1.MaterialStorageId=IRS.MaterialStorageId
+
 
 						left join(SELECT IRD.InventoryMaterialId, IRD.MaterialStorageId, Sum(IRD.BaseQty-ISNULL(IRD.ShortageQty,0)) AS TransactionQty ,  Sum((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount)) TotalMaterialBooksCurrencyAmount,SUM(ROUND(IRD.ShortageQty*ird.MaterialTranRate,2)) ShortageValue
 									FROM  [TRN].[InventoryReceiveDetail] IRD

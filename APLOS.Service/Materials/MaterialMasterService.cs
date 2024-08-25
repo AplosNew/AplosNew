@@ -8604,8 +8604,8 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 					,Round(IRD.BooksCurrencyBaseRate,4) RcvRate
 					--,Round(IRD.TotalMaterialBooksCurrencyAmount,2) RcvAmount	
 					,Round((Round(IRD.BaseQty-ISNULL(IRD.ShortageQty,0),2)*Round(IRD.BooksCurrencyBaseRate,4)),2) RcvAmount	
-
-					,Round(IRD.TotalMaterialBooksCurrencyAmount,2)-(ISNULL(IRD.ShortageQty,0)*Round(IRD.BooksCurrencyBaseRate,4)) TotalRcvAmount	
+                    ,Round(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount TotalRcvAmount
+					--,Round(IRD.TotalMaterialBooksCurrencyAmount,2)-(ISNULL(IRD.ShortageQty,0)*Round(IRD.BooksCurrencyBaseRate,4)) TotalRcvAmount	
 	
 					,REPLACE(CONVERT(CHAR(11), main.IssueDate, 106),' ','-') IssueDate
 					,main.IssueNo IssueNo
@@ -8659,8 +8659,10 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 
 					,Round(((((IRD.BaseQty-ISNULL(IRD.ShortageQty,0)-isnull(Round(main.PurchaseReturnQty,2),0))-isnull(Round(main.IssueQty,2),0))+isnull(Round(main.IssueReturnQty,2),0))-isnull(Round(main.Salesqty,2),0)+isnull(Round(main.SalesReturnQty,2),0)-Isnull(Round(CMD.TransactionQty,2),0)),2) BalanceQty
 					,CASE WHEN Round((IRD.BaseQty- isnull(main.IssueQty,0)-isnull(CMD.TransactionQty,0)),2)>0 then Round(IRD.BooksCurrencyBaseRate,4) else 0 END BalanceRate
-					,Round((((((IRD.BaseQty-ISNULL(IRD.ShortageQty,0)-isnull(Round(main.PurchaseReturnQty,2),0))-isnull(Round(main.IssueQty,2),0))+isnull(Round(main.IssueReturnQty,2),0))-isnull(Round(main.PhysicalStockAdjustmentqty,2),0)-isnull(Round(main.Salesqty,2),0)+isnull(Round(main.SalesReturnQty,2),0) )* Round(IRD.BooksCurrencyBaseRate,4)),2)-ISNULL(Round(CMD.Amount,2),0) BalanceAmount
-					,IRD.IsAsset ,CASE WHEN IRD.IsAsset=1 THEN 'Asset' ELSE 'Inventory' END IsAssetStatus
+					--,Round((((((IRD.BaseQty-ISNULL(IRD.ShortageQty,0)-isnull(Round(main.PurchaseReturnQty,2),0))-isnull(Round(main.IssueQty,2),0))+isnull(Round(main.IssueReturnQty,2),0))-isnull(Round(main.PhysicalStockAdjustmentqty,2),0)-isnull(Round(main.Salesqty,2),0)+isnull(Round(main.SalesReturnQty,2),0) )* Round(IRD.BooksCurrencyBaseRate,4)),2)-ISNULL(Round(CMD.Amount,2),0) BalanceAmount
+					,Round((((((IRD.TotalMaterialBooksCurrencyAmount-ISNULL(IRD.ShortageValue,0)-isnull(Round(main.PurchaseReturnAmount,2),0))-isnull(Round(main.IssueAmount,2),0))+isnull(Round(main.IssueReturnAmount,2),0))-isnull(Round(main.PhysicalStockAdjustmentAmount,2),0)-isnull(Round(main.SalesAmount,2),0)+isnull(Round(main.SalesReturnAmount,2),0) )),2)-ISNULL(Round(CMD.Amount,2),0) BalanceAmount
+					
+                    ,IRD.IsAsset ,CASE WHEN IRD.IsAsset=1 THEN 'Asset' ELSE 'Inventory' END IsAssetStatus
 					FROM TRN.InventoryMaterial AS IM
 						LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
 						left JOIN MST.MaterialMaster AS MM ON ART.MaterialMasterId=MM.Id
@@ -8701,7 +8703,8 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                      LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryReceiveDetailId=IRD.ID 
                                      LEFT JOIN  TRN.InventoryIssueDetail IID on IID.ID=IH.InventoryIssueDetailId
                                      LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id 
-                                     Where  Ih.Qty>0 and Convert(date ,II.IssueDate) < '" + toDate+ @"'
+                                     Where   Convert(date ,II.IssueDate) <= '" + toDate+ @"' --and Ih.Qty>0 
+                                     AND ISNULL(IH.inventoryreceivedetailId,'')  NOT IN (SELECT inventoryreceivedetailId FROM [TRN].[CapitalizationMasterDetail] where  InventoryIssueHistoryId is null and Source='AUC' )
                                      group by IH.InventoryReceiveDetailId,II.IssueDate,II.Id,II.IssueType,Ih.TotalAmount
 
                                      Union all
@@ -8724,23 +8727,20 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                      from  [TRN].[InventoryReceiveDetail] AS IRD 
                                      LEFT JOIN TRN.PurchaseReturnDetail IH On IH.InventoryReceiveDetailId=IRD.ID 
                                      LEFT JOIN TRN.PurchaseReturn II ON IH.PurchaseReturnId=II.Id 
-                                     Where Ih.TransactionQty>0  AND Convert(date ,II.DocDate)  < '" + toDate + @"'
+                                     Where   Convert(date ,II.DocDate)  <= '" + toDate + @"'
                                      group by IH.InventoryReceiveDetailId,II.POReturnDate ,II.Id
 
+                             UNION ALL
 
-                             Union all
- 
- 
-
-                        select  IH.InventoryReceiveDetailId,NULL IssueDate,NULL IssueNo,NULL IssueType,NULL POReturnDate  ,NULL PurchaseReturnNo,    II.IssueDate ReturnIssueDate ,II.Id ReturnIssueReturnNo, NULL PhysicalIssueDate,NULL PhysicalIssueNo,NULL SalesDate,NULL SalesNo,NULL SalesReturnDate,NULL SalesReturnNo
+                            SELECT  IH.InventoryReceiveDetailId,NULL IssueDate,NULL IssueNo,NULL IssueType,NULL POReturnDate  ,NULL PurchaseReturnNo,    II.IssueDate ReturnIssueDate ,II.Id ReturnIssueReturnNo, NULL PhysicalIssueDate,NULL PhysicalIssueNo,NULL SalesDate,NULL SalesNo,NULL SalesReturnDate,NULL SalesReturnNo
 
                                      , 0 IssueQty,0 Rate,0 IssueAmount
 									 ,0 TotalIssueAmount
 									 ,0 PurchaseReturnQty
                                      ,0 PurchaseReturnRate,0PurchaseReturnAmount
-                                    ,(Sum(Isnull(IH.Qty,0))) IssueReturnQty 
-                                    ,Sum(IH.Rate) IssueReturnRate
-                                    ,(Sum(Isnull(IH.Qty,0))*Sum(IH.Rate)) AS IssueReturnAmount 
+                                   ,(Sum(Isnull(IH.Qty,0))) IssueReturnQty 
+                                    ,Sum(IRD.MaterialTranRate) IssueReturnRate
+                                    ,(sum(IH.Qty*IRD.MaterialTranRate)) AS IssueReturnAmount 
                                     , 0 PhysicalStockAdjustmentqty   ,0 PhysicalStockAdjustmentRate ,0 PhysicalStockAdjustmentAmount
 									,0 Salesqty 
 									,0 BaseRate
@@ -8752,11 +8752,11 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                      LEFT JOIN TRN.InventoryIssueReturnHistory IH On IH.InventoryReceiveDetailId=IRD.ID 
                                      --LEFT JOIN  TRN.InventoryIssueDetail IID on IID.ID=IH.InventoryIssueDetailId
                                      LEFT JOIN TRN.InventoryIssueReturn II ON IH.InventoryIssueReturnId=II.Id 
-                                     Where  Ih.Qty>0 and Convert(date ,II.IssueDate)  < '" + toDate + @"'
+                                     Where   Convert(date ,II.IssueDate)  <= '" + toDate + @"'
                                      group by IH.InventoryReceiveDetailId,II.IssueDate ,II.Id
 
-                             Union all
-                        select  IH.InventoryReceiveDetailId,NULL IssueDate,NULL IssueNo,NULL IssueType,NULL POReturnDate  ,NULL PurchaseReturnNo,    NULL ReturnIssueDate ,NULL IssueReturnNo, II.IssueDate PhysicalIssueDate,II.Id PhysicalIssueNo,NULL SalesDate,NULL SalesNo,NULL SalesReturnDate,NULL SalesReturnNo
+                             UNION ALL
+                            SELECT  IH.InventoryReceiveDetailId,NULL IssueDate,NULL IssueNo,NULL IssueType,NULL POReturnDate  ,NULL PurchaseReturnNo,    NULL ReturnIssueDate ,NULL IssueReturnNo, II.IssueDate PhysicalIssueDate,II.Id PhysicalIssueNo,NULL SalesDate,NULL SalesNo,NULL SalesReturnDate,NULL SalesReturnNo
 									, 0 IssueQty,0 Rate,0 IssueAmount,
 									0 TotalIssueAmount,0 PurchaseReturnQty
                                      ,0 PurchaseReturnRate,0PurchaseReturnAmount
@@ -8765,20 +8765,14 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                     ,Sum(IH.Rate) PhysicalStockAdjustmentRate
                                     ,(Sum(Isnull(Ih.Qty,0))*Sum(IH.Rate)) AS PhysicalStockAdjustmentAmount
 
-									,0 Salesqty 
-									,0 BaseRate
-									,0 SalesAmount
-									,0 SalesReturnqty 
-									,0 SalesReturnRate
-									,0 SalesReturnAmount
+									,0 Salesqty ,0 BaseRate ,0 SalesAmount ,0 SalesReturnqty 
+									,0 SalesReturnRate ,0 SalesReturnAmount
                                      from  [TRN].[InventoryReceiveDetail] AS IRD 
                                      LEFT JOIN TRN.PhysicalStockAdjustmentHistory IH On IH.InventoryReceiveDetailId=IRD.ID 
                                      LEFT JOIN  TRN.PhysicalStockAdjustmentDetail IID on IID.ID=IH.PhysicalStockAdjustmentDetailId
                                      LEFT JOIN TRN.PhysicalStockAdjustmentMaster II ON IID.PhysicalStockAdjustmentMasterID=II.Id 
                                      Where Ih.Qty>0 --ANd IH.InventoryReceiveDetailId='2020258-1'
                                      group by IH.InventoryReceiveDetailId,II.IssueDate,II.Id,II.IssueType
-
-
 
 									Union all
                                     select  IH.InventoryReceiveDetailId,NULL IssueDate,NULL IssueNo,NULL IssueType,NULL POReturnDate  ,NULL PurchaseReturnNo,    NULL ReturnIssueDate ,NULL IssueReturnNo, NULL PhysicalIssueDate,NULL PhysicalIssueNo,II.SalesDate,II.Id SalesNo,NULL SalesReturnDate,NULL SalesReturnNo
@@ -8793,10 +8787,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 									,(Sum(Isnull(Ih.Qty,0))) Salesqty 
 									,Sum(IH.BaseRate) BaseRate
 									,(Sum(Isnull(Ih.Qty,0))*Sum(IH.BaseRate)) AS SalesAmount
-
-									,0 SalesReturnqty 
-									,0 SalesReturnRate
-									,0 SalesReturnAmount
+									,0 SalesReturnqty  ,0 SalesReturnRate ,0 SalesReturnAmount
                                     from  [TRN].[InventoryReceiveDetail] AS IRD 
                                     LEFT JOIN TRN.InventorySalesHistory IH On IH.InventoryReceiveDetailId=IRD.ID 
                                     LEFT JOIN  TRN.InventorySalesDetail IID on IID.ID=IH.InventorySalesDetailId
