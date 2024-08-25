@@ -1528,7 +1528,7 @@ LEFT JOIN HKP.Process P ON P.id=M.ProcessId
         {
             try
             {
-                string sql = @"SELECT D.*,A.StandardName Article,U.Code UOM,CC.UserName CostCenter FROM dbo.InputConfirmationDetail D
+                string sql = @"SELECT D.*,A.StandardName Article,U.Code UOM,CC.UserName CostCenter,PendingBookedQty=RequestedQty - OtherQty FROM dbo.InputConfirmationDetail D
  LEFT JOIN MST.MaterialMasterArticle A ON A.Id=D.ArticleId
  LEFT JOIN SCS.UnitofMeasurement U ON U.Id=D.UOMId 
 Left Join [ORG].[CostCenter] CC On CC.Id=D.CostCenterId
