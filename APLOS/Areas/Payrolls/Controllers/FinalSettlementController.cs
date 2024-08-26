@@ -1989,14 +1989,14 @@ WHERE E.EmployeeStatus='Active' AND A.ActionStatus='FullAndFinalApproveBy'";
 
             try
             {
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select top(1) a.Fromdate,a.Todate from trn.EmployeeLeaveSummary a LEFT JOIN LeaveType t on t.Id=a.LeaveTypeID where EmployeeId='" + empId + @"' AND t.LeaveType='Earn' order by fromdate desc", out dsFromTo, false, "1");
-                if (dsFromTo.Tables[0].Rows.Count > 0)
-                {
-                    fromDate = dsFromTo.Tables[0].Rows[0]["Fromdate"].ToString();
-                    toDate = dsFromTo.Tables[0].Rows[0]["Todate"].ToString();
-                }
-
+                //ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                //con.OpenDataSetThroughAdapter("select top(1) a.Fromdate,a.Todate from trn.EmployeeLeaveSummary a LEFT JOIN LeaveType t on t.Id=a.LeaveTypeID where EmployeeId='" + empId + @"' AND t.LeaveType='Earn' order by fromdate desc", out dsFromTo, false, "1");
+                //if (dsFromTo.Tables[0].Rows.Count > 0)
+                //{
+                //    fromDate = dsFromTo.Tables[0].Rows[0]["Fromdate"].ToString();
+                //    toDate = dsFromTo.Tables[0].Rows[0]["Todate"].ToString();
+                //}
+                string year = DateTime.Now.Year.ToString();
 
                 string sql = @"SELECT A.Id,A.FinalSettlementId,E.SystemId EmpSystemId,OL.Id EmployeeSeperationItemId,OL.UserName,OL.Formula,OL.FormulaId
 ,Value= ISNULL(CASE WHEN OL.UserName='JoiningDate' THEN FORMAT(E.DOJ,'dd-MMM-yyyy')
@@ -2077,29 +2077,26 @@ LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TRN].[Resignation] R ON R.EmployeeId=E.SystemId
 AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC)
 LEFT JOIN(
-select e.SystemID
-,Balance=ISNULL((CONVERT(NUMERIC(10,2),count(CONVERT(NUMERIC(10,2),a.WorkDate))/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty))+S.BroughtForward-ISNULL(B.Availed,0)),0)
-,C.NoticePeriod
-from AttdnProcessData a
-left join EmployeeInformation e on e.SystemId=a.EmpSystemID
+Select Balance=ISNULL((CONVERT(NUMERIC(10,2),CONVERT(NUMERIC(10,2),P.PayDays)/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty))+S.BroughtForward-ISNULL(B.Availed,0)),0),C.NoticePeriod,E.SystemId
+FROM EmployeeInformation E
+ LEFT JOIN (SELECT SUM(ISNULL(TotalPresent,0) + ISNULL(TotalLate,0))PayDays, EmpSystemID
+ FROM [dbo].[SalaryProceAttdnData] WHERE EmpSystemID='" + empId + @"' and YearNo='"+ year + @"' Group By EmpSystemID
+) P ON P.EmpSystemID=E.SystemId
 left join mst.DesignationMasterLegalDesignation d on d.LegalDesignationId=e.LegalDesignationId
 left join SCS.DesignationMasterConfiguration c on c.DesignationMasterId=d.DesignationMasterId and c.PlantId=e.PlantId
 left join LeavePolicyDetail dp on dp.LPMSystemID=c.LeavePolicyMasterId
-join LeavePolicyWorkingDays p on  p.LPDetailID=dp.SystemID and a.DayStatus=p.DayType  
-left join LeaveType t on t.Id=dp.LTSystemID 
 LEFT JOIN(
 Select COUNT(a.EmpSystemID)Availed,a.EmpSystemID from AttdnProcessData a  
 LEFT JOIN LeaveType t on t.Id=a.LTSystemID 
-where a.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND EmpSystemID='" + empId + @"' AND t.LeaveType='Earn'
+where a.WorkDate between '01-JAN-" + year + @"' AND  '31-DEC-" + year + @"' AND EmpSystemID='" + empId + @"' AND t.LeaveType='Earn'
 Group By a.EmpSystemID
-) B ON a.EmpSystemID=B.EmpSystemID
+) B ON E.SystemID=B.EmpSystemID
 LEFT JOIN(
 select top(1) BroughtForward=CASE WHEN A.Closing>A.CarryForward THEN A.Closing ELSE A.CarryForward END,A.EmployeeId,0 EncashedInbetween from dbo.AnnualLeaveDataPast A
 left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
-Where EmployeeId='" + empId + @"' order by A.AddedDate desc
-) S ON a.EmpSystemID=S.EmployeeId
-where a.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and e.SystemID='" + empId + @"' and t.LeaveType='Earn'
-group by E.SystemID,dp.EncashWorkingDaysQty,S.BroughtForward,B.Availed,C.NoticePeriod
+Where EmployeeId='" + empId + @"' AND A.Closing>A.CarryForward order by A.AddedDate desc
+) S ON E.SystemID=S.EmployeeId
+where e.SystemID='" + empId + @"' AND dp.EncashWorkingDaysQty<>0
 ) LV ON LV.SystemID=E.SystemId
  LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = E.SystemId
  LEFT JOIN SalaryInfoDefine SID ON SID.SalaryID=SIDM.SystemID AND OL.SalaryHeadID = SID.SalaryHeadID
