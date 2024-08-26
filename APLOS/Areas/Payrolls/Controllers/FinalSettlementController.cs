@@ -2094,7 +2094,7 @@ Group By a.EmpSystemID
 LEFT JOIN(
 select top(1) BroughtForward=CASE WHEN A.Closing>A.CarryForward THEN A.Closing ELSE A.CarryForward END,A.EmployeeId,0 EncashedInbetween from dbo.AnnualLeaveDataPast A
 left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
-Where EmployeeId='" + empId + @"' AND A.Closing>A.CarryForward order by A.AddedDate desc
+Where EmployeeId='" + empId + @"' AND (A.Closing<>0 OR A.CarryForward<>0) order by A.AddedDate desc
 ) S ON E.SystemID=S.EmployeeId
 where e.SystemID='" + empId + @"' AND dp.EncashWorkingDaysQty<>0
 ) LV ON LV.SystemID=E.SystemId
