@@ -5568,7 +5568,7 @@ namespace Library.MaterialManagement.Inventory
 								when IR.CheckedByStatus Is null and IR.AuthorizedByStatus Is null Then 'Approved'
                             else ''
                             END
-							,IRD.LotNo , IRD.QualityStatus , IRD.GrossAmount ,IRD.DiscountAmount
+							,IRD.LotNo , IRD.QualityStatus , IRD.GrossAmount ,IRD.DiscountAmount,IRD.AlternativeQty
                             FROM TRN.InventoryReceive IR
                             LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                             LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -5760,7 +5760,7 @@ namespace Library.MaterialManagement.Inventory
 								when IR.CheckedByStatus Is null and IR.AuthorizedByStatus Is null Then 'Approved'
                             else ''
                             END
-							,Null LotNo , Null QualityStatus , Null GrossAmount ,Null DiscountAmount
+							,Null LotNo , Null QualityStatus , Null GrossAmount ,Null DiscountAmount,0 AlternativeQty
                             FROM TRN.InventoryReceive IR
                             LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                             LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -6406,11 +6406,17 @@ namespace Library.MaterialManagement.Inventory
             string replaceString = "{materialItems}";
 
             DataTable dsOrderItems, dsTax;
-
+            int LasColumnIndex = 0;
             dsOrderItems = loadOrderMasterItems(grnId);
             dsTax = loadOrderMasterTax(grnId);
+                double baleQtyNew = clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(AlternativeQty)", null));
 
-            int LasColumnIndex = 15;
+            if(baleQtyNew>0)
+             LasColumnIndex = 16;
+            else
+                LasColumnIndex = 15;
+
+
             Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
             DataView dv = new DataView(dsTax.DefaultView.ToTable(true, "TaxCode"));
             if (dv.Count > 0)
@@ -6519,8 +6525,16 @@ namespace Library.MaterialManagement.Inventory
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UoM");
             range.ApplyCharacterFormat(FontBold);
             int colUoM = COL; COL++;
-
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Quality Status");
+            int colAlterQty = 0;
+            if (baleQtyNew > 0)
+            {
+                range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Bale Qty");
+                range.ApplyCharacterFormat(FontBold);
+                 colAlterQty = COL; COL++;
+            }
+            
+            
+                range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Quality Status");
             range.ApplyCharacterFormat(FontBold);
             int colQualityStatus = COL; COL++;
 
@@ -6659,8 +6673,10 @@ namespace Library.MaterialManagement.Inventory
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00"));
                 TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("#,##0.0000"));
                 TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
-                //TROW.Cells[colExchangerate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["ToCurrencyRate"].ToString()).ToString("#,##0.0000"));
-
+                if (baleQtyNew > 0)
+                {
+                    TROW.Cells[colAlterQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["AlternativeQty"].ToString()).ToString("#,##0.00"));
+                }
                 TROW.Cells[colQualityStatus].AddParagraph().AppendText(dsOrderMaster.Rows[i]["QualityStatus"].ToString().ToString());
                 TROW.Cells[colGrossAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["GrossAmount"].ToString()).ToString("#,##0.00"));
                 TROW.Cells[colDiscountAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["DiscountAmount"].ToString()).ToString("#,##0.00"));
