@@ -191,40 +191,67 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
 
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("select top(1) a.Fromdate,a.Todate from trn.EmployeeLeaveSummary a LEFT JOIN LeaveType t on t.Id=a.LeaveTypeID where EmployeeId='" + EmpSystemId + @"' AND t.LeaveType='Earn' order by fromdate desc", out dsFromTo, false, "1");
-                if (dsFromTo.Tables[0].Rows.Count > 0)
-                {
-                    fromDate = dsFromTo.Tables[0].Rows[0]["Fromdate"].ToString();
-                    toDate = dsFromTo.Tables[0].Rows[0]["Todate"].ToString();
-                }
-                string sql = @"select e.SystemID,e.EmployeeCode,e.EmployeeName,t.UserName LeaveType,t.Id LeaveTypeId,ISNULL(S.BroughtForward,0)BroughtForward,CONVERT(NUMERIC(10,2),count(CONVERT(NUMERIC(10,2),a.WorkDate))/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty)) DaysCanBeSanctioned
-,ISNULL(B.Availed,0)AvailedLeave,Balance=ISNULL((CONVERT(NUMERIC(10,2),count(CONVERT(NUMERIC(10,2),a.WorkDate))/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty))+S.BroughtForward-ISNULL(B.Availed,0)),0)
-,ISNULL(S.EncashedInbetween,0) EncashedInbetween,LeaveDaysAllowed=ISNULL((CONVERT(NUMERIC(10,2),count(CONVERT(NUMERIC(10,2),a.WorkDate))/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty))+S.BroughtForward-ISNULL(B.Availed,0)),0)
-from AttdnProcessData a
-left join EmployeeInformation e on e.SystemId=a.EmpSystemID
+                //                objCon.OpenDataSetThroughAdapter("select top(1) a.Fromdate,a.Todate from trn.EmployeeLeaveSummary a LEFT JOIN LeaveType t on t.Id=a.LeaveTypeID where EmployeeId='" + EmpSystemId + @"' AND t.LeaveType='Earn' order by fromdate desc", out dsFromTo, false, "1");
+                //                if (dsFromTo.Tables[0].Rows.Count > 0)
+                //                {
+                //                    fromDate = dsFromTo.Tables[0].Rows[0]["Fromdate"].ToString();
+                //                    toDate = dsFromTo.Tables[0].Rows[0]["Todate"].ToString();
+                //                }
+                //                string sql = @"select e.SystemID,e.EmployeeCode,e.EmployeeName,t.UserName LeaveType,t.Id LeaveTypeId,ISNULL(S.BroughtForward,0)BroughtForward,CONVERT(NUMERIC(10,2),count(CONVERT(NUMERIC(10,2),a.WorkDate))/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty)) DaysCanBeSanctioned
+                //,ISNULL(B.Availed,0)AvailedLeave,Balance=ISNULL((CONVERT(NUMERIC(10,2),count(CONVERT(NUMERIC(10,2),a.WorkDate))/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty))+S.BroughtForward-ISNULL(B.Availed,0)),0)
+                //,ISNULL(S.EncashedInbetween,0) EncashedInbetween,LeaveDaysAllowed=ISNULL((CONVERT(NUMERIC(10,2),count(CONVERT(NUMERIC(10,2),a.WorkDate))/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty))+S.BroughtForward-ISNULL(B.Availed,0)),0)
+                //from AttdnProcessData a
+                //left join EmployeeInformation e on e.SystemId=a.EmpSystemID
+                //left join mst.DesignationMasterLegalDesignation d on d.LegalDesignationId=e.LegalDesignationId
+                //left join SCS.DesignationMasterConfiguration c on c.DesignationMasterId=d.DesignationMasterId and c.PlantId=e.PlantId
+                //left join LeavePolicyDetail dp on dp.LPMSystemID=c.LeavePolicyMasterId
+                //join LeavePolicyWorkingDays p on  p.LPDetailID=dp.SystemID and a.DayStatus=p.DayType  
+                //left join LeaveType t on t.Id=dp.LTSystemID 
+                //LEFT JOIN(
+                //Select COUNT(a.EmpSystemID)Availed,a.EmpSystemID from AttdnProcessData a  
+                //LEFT JOIN LeaveType t on t.Id=a.LTSystemID 
+                //where a.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND EmpSystemID='" + EmpSystemId + @"' AND t.LeaveType='Earn'
+                //Group By a.EmpSystemID
+                //) B ON a.EmpSystemID=B.EmpSystemID
+                //LEFT JOIN(
+                //--select top(1) BroughtForward=isnull(a.BroughtForward,0)+isnull(a.CarryForwardOpeningBalance,0),a.EmployeeId,a.EncashedInbetween 
+                //--from trn.EmployeeLeaveSummary a
+                //--		LEFT JOIN LeaveType t on t.Id=a.LeaveTypeID 
+                //--		where EmployeeId='" + EmpSystemId + @"' AND t.LeaveType='Earn' 
+                //--		order by fromdate desc
+                //select top(1) BroughtForward=CASE WHEN A.Closing>A.CarryForward THEN A.Closing ELSE A.CarryForward END,A.EmployeeId,0 EncashedInbetween from dbo.AnnualLeaveDataPast A
+                //left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+                //Where EmployeeId='" + EmpSystemId + @"' order by A.AddedDate desc
+                //) S ON a.EmpSystemID=S.EmployeeId
+                //where a.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and e.SystemID='" + EmpSystemId + @"' and t.LeaveType='Earn'
+                //group by E.SystemID,e.EmployeeCode,e.EmployeeName,t.UserName,t.id,dp.EncashWorkingDaysQty,B.Availed,S.BroughtForward,S.EncashedInbetween";
+
+                string year = DateTime.Now.Year.ToString();
+
+                string sql = @"Select E.SystemID,E.EmployeeCode,E.EmployeeName,t.UserName LeaveType,t.Id LeaveTypeId,S.BroughtForward,DaysCanBeSanctioned=CONVERT(NUMERIC(10,0),CONVERT(NUMERIC(10,2),P.PayDays)/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty)),ISNULL(B.Availed,0)AvailedLeave
+,Balance=ROUND(ISNULL((CONVERT(NUMERIC(10,2),CONVERT(NUMERIC(10,2),P.PayDays)/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty))+S.BroughtForward-ISNULL(B.Availed,0)),0),0)
+,ISNULL(S.EncashedInbetween,0) EncashedInbetween,LeaveDaysAllowed=ROUND(ISNULL((CONVERT(NUMERIC(10,2),CONVERT(NUMERIC(10,2),P.PayDays)/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty))+S.BroughtForward-ISNULL(B.Availed,0)),0),0)
+FROM EmployeeInformation E
+ LEFT JOIN (SELECT SUM(ISNULL(TotalPresent,0) + ISNULL(TotalLate,0))PayDays, EmpSystemID
+ FROM [dbo].[SalaryProceAttdnData] WHERE EmpSystemID='" + EmpSystemId + @"' and YearNo='"+ year + @"' Group By EmpSystemID
+) P ON P.EmpSystemID=E.SystemId
 left join mst.DesignationMasterLegalDesignation d on d.LegalDesignationId=e.LegalDesignationId
 left join SCS.DesignationMasterConfiguration c on c.DesignationMasterId=d.DesignationMasterId and c.PlantId=e.PlantId
 left join LeavePolicyDetail dp on dp.LPMSystemID=c.LeavePolicyMasterId
-join LeavePolicyWorkingDays p on  p.LPDetailID=dp.SystemID and a.DayStatus=p.DayType  
 left join LeaveType t on t.Id=dp.LTSystemID 
 LEFT JOIN(
 Select COUNT(a.EmpSystemID)Availed,a.EmpSystemID from AttdnProcessData a  
 LEFT JOIN LeaveType t on t.Id=a.LTSystemID 
-where a.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND EmpSystemID='" + EmpSystemId + @"' AND t.LeaveType='Earn'
+where a.WorkDate between '01-JAN-" + year + @"' AND  '31-DEC-" + year + @"' AND EmpSystemID='" + EmpSystemId + @"' AND t.LeaveType='Earn'
 Group By a.EmpSystemID
-) B ON a.EmpSystemID=B.EmpSystemID
+) B ON E.SystemID=B.EmpSystemID
 LEFT JOIN(
---select top(1) BroughtForward=isnull(a.BroughtForward,0)+isnull(a.CarryForwardOpeningBalance,0),a.EmployeeId,a.EncashedInbetween 
---from trn.EmployeeLeaveSummary a
---		LEFT JOIN LeaveType t on t.Id=a.LeaveTypeID 
---		where EmployeeId='" + EmpSystemId + @"' AND t.LeaveType='Earn' 
---		order by fromdate desc
 select top(1) BroughtForward=CASE WHEN A.Closing>A.CarryForward THEN A.Closing ELSE A.CarryForward END,A.EmployeeId,0 EncashedInbetween from dbo.AnnualLeaveDataPast A
 left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
-Where EmployeeId='" + EmpSystemId + @"' order by A.AddedDate desc
-) S ON a.EmpSystemID=S.EmployeeId
-where a.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and e.SystemID='" + EmpSystemId + @"' and t.LeaveType='Earn'
-group by E.SystemID,e.EmployeeCode,e.EmployeeName,t.UserName,t.id,dp.EncashWorkingDaysQty,B.Availed,S.BroughtForward,S.EncashedInbetween";
+Where EmployeeId='" + EmpSystemId + @"' AND (A.Closing<>0 OR A.CarryForward<>0) order by A.AddedDate desc
+) S ON E.SystemID=S.EmployeeId
+where e.SystemID='" + EmpSystemId + @"' AND dp.EncashWorkingDaysQty<>0";
+
 
                 objCon.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
             }

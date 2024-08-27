@@ -2077,7 +2077,7 @@ LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TRN].[Resignation] R ON R.EmployeeId=E.SystemId
 AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC)
 LEFT JOIN(
-Select Balance=ISNULL((CONVERT(NUMERIC(10,2),CONVERT(NUMERIC(10,2),P.PayDays)/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty))+S.BroughtForward-ISNULL(B.Availed,0)),0),C.NoticePeriod,E.SystemId
+Select Balance=ISNULL((CONVERT(NUMERIC(10,0),CONVERT(NUMERIC(10,2),P.PayDays)/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty))+S.BroughtForward-ISNULL(B.Availed,0)),0),C.NoticePeriod,E.SystemId
 FROM EmployeeInformation E
  LEFT JOIN (SELECT SUM(ISNULL(TotalPresent,0) + ISNULL(TotalLate,0))PayDays, EmpSystemID
  FROM [dbo].[SalaryProceAttdnData] WHERE EmpSystemID='" + empId + @"' and YearNo='"+ year + @"' Group By EmpSystemID
