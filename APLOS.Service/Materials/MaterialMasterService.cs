@@ -8660,7 +8660,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 					,Round(((((IRD.BaseQty-ISNULL(IRD.ShortageQty,0)-isnull(Round(main.PurchaseReturnQty,2),0))-isnull(Round(main.IssueQty,2),0))+isnull(Round(main.IssueReturnQty,2),0))-isnull(Round(main.Salesqty,2),0)+isnull(Round(main.SalesReturnQty,2),0)-Isnull(Round(CMD.TransactionQty,2),0)),2) BalanceQty
 					,CASE WHEN Round((IRD.BaseQty- isnull(main.IssueQty,0)-isnull(CMD.TransactionQty,0)),2)>0 then Round(IRD.BooksCurrencyBaseRate,4) else 0 END BalanceRate
 					--,Round((((((IRD.BaseQty-ISNULL(IRD.ShortageQty,0)-isnull(Round(main.PurchaseReturnQty,2),0))-isnull(Round(main.IssueQty,2),0))+isnull(Round(main.IssueReturnQty,2),0))-isnull(Round(main.PhysicalStockAdjustmentqty,2),0)-isnull(Round(main.Salesqty,2),0)+isnull(Round(main.SalesReturnQty,2),0) )* Round(IRD.BooksCurrencyBaseRate,4)),2)-ISNULL(Round(CMD.Amount,2),0) BalanceAmount
-					,Round((((((IRD.TotalMaterialBooksCurrencyAmount-ISNULL(IRD.ShortageValue,0)-isnull(Round(main.PurchaseReturnAmount,2),0))-isnull(Round(main.IssueAmount,2),0))+isnull(Round(main.IssueReturnAmount,2),0))-isnull(Round(main.PhysicalStockAdjustmentAmount,2),0)-isnull(Round(main.SalesAmount,2),0)+isnull(Round(main.SalesReturnAmount,2),0) )),2)-ISNULL(Round(CMD.Amount,2),0) BalanceAmount
+					,Round((((((Round(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount-isnull(Round(main.PurchaseReturnAmount,2),0))-isnull(Round(main.TotalIssueAmount,2),0))+isnull(Round(main.IssueReturnAmount,2),0))-isnull(Round(main.PhysicalStockAdjustmentAmount,2),0)-isnull(Round(main.SalesAmount,2),0)+isnull(Round(main.SalesReturnAmount,2),0) )),2)-ISNULL(Round(CMD.Amount,2),0) BalanceAmount
 					
                     ,IRD.IsAsset ,CASE WHEN IRD.IsAsset=1 THEN 'Asset' ELSE 'Inventory' END IsAssetStatus
 					FROM TRN.InventoryMaterial AS IM
@@ -8771,7 +8771,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                      LEFT JOIN TRN.PhysicalStockAdjustmentHistory IH On IH.InventoryReceiveDetailId=IRD.ID 
                                      LEFT JOIN  TRN.PhysicalStockAdjustmentDetail IID on IID.ID=IH.PhysicalStockAdjustmentDetailId
                                      LEFT JOIN TRN.PhysicalStockAdjustmentMaster II ON IID.PhysicalStockAdjustmentMasterID=II.Id 
-                                     Where Ih.Qty>0 --ANd IH.InventoryReceiveDetailId='2020258-1'
+                                      
                                      group by IH.InventoryReceiveDetailId,II.IssueDate,II.Id,II.IssueType
 
 									Union all
@@ -8792,7 +8792,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                     LEFT JOIN TRN.InventorySalesHistory IH On IH.InventoryReceiveDetailId=IRD.ID 
                                     LEFT JOIN  TRN.InventorySalesDetail IID on IID.ID=IH.InventorySalesDetailId
                                     LEFT JOIN TRN.InventorySales II ON IID.InventorySalesId=II.Id 
-                                    Where Ih.Qty>0 --ANd IH.InventoryReceiveDetailId='2020258-1'
+                                    --Where Ih.Qty>0 --ANd IH.InventoryReceiveDetailId='2020258-1'
                                     group by IH.InventoryReceiveDetailId,II.SalesDate,II.Id,II.IssueType
 
 									Union all
@@ -8817,7 +8817,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 									left JOIN trn.InventoryReceive IR ON IR.Id=Ins.InventoryReceiveId
 									Left join trn.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId=IR.Id		
                                    
-                                    Where ISD.TransactionQty>0 --ANd IH.InventoryReceiveDetailId='2020258-1'
+                                    --Where ISD.TransactionQty>0 --ANd IH.InventoryReceiveDetailId='2020258-1'
                                     group by IRD.Id,Ins.SalesDate,Ins.Id--,Ins.Iss
                                      )main on main.InventoryReceiveDetailId=IRD.Id			
                                      									 
@@ -9572,6 +9572,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 10;
             sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].RowHeight = 22;
             var balanceQty = 0.00;
+            var balanceAmt = 0.00;
             List<string> list = new List<string>();
             int sr = _rowL;
             for (int n = 0; n < inventoryMaterialList.Rows.Count; n++)
@@ -9609,27 +9610,37 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                     var SalesReturnQty = clsStaticInfo.dbl(inventoryMaterialList.Compute("SUM(SalesReturnQty)", "Id = '" + rcvid + "'").ToString());
                     var CapitalizeQty = clsStaticInfo.dbl(inventoryMaterialList.Compute("SUM(CapitalizeQty)", "Id = '" + rcvid + "'").ToString());
 
+
+                    var RcvAmt = clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TotalRcvAmount"].ToString());
+                    var IssueAmt = clsStaticInfo.dbl(inventoryMaterialList.Compute("SUM(TotalIssueAmount)", "Id = '" + rcvid + "'").ToString());
+                    var AdjustmentAmt = clsStaticInfo.dbl(inventoryMaterialList.Compute("SUM(AdjustmentAmount)", "Id = '" + rcvid + "'").ToString());
+                    var PurchaseReturnAmt = clsStaticInfo.dbl(inventoryMaterialList.Compute("SUM(PurchaseReturnAmount)", "Id = '" + rcvid + "'").ToString());
+                    var IssueReturnAmt = clsStaticInfo.dbl(inventoryMaterialList.Compute("SUM(IssueReturnAmount)", "Id = '" + rcvid + "'").ToString());
+                    var SalesAmt = clsStaticInfo.dbl(inventoryMaterialList.Compute("SUM(SalesAmount)", "Id = '" + rcvid + "'").ToString());
+                    var SalesReturnAmt = clsStaticInfo.dbl(inventoryMaterialList.Compute("SUM(SalesReturnAmount)", "Id = '" + rcvid + "'").ToString());
+                    var CapitalizeAmt = clsStaticInfo.dbl(inventoryMaterialList.Compute("SUM(CapitalizeAmount)", "Id = '" + rcvid + "'").ToString());
+
                     //end
 
                     //balanceQty = clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RcvQty"].ToString()) - clsStaticInfo.dbl(inventoryMaterialList.Compute("SUM(IssueQty)", "Id = '" + rcvid + "'").ToString());
                     balanceQty = RcvQty - IssueQty - AdjustmentQty - PurchaseReturnQty + IssueReturnQty - Salesqty + SalesReturnQty - CapitalizeQty;
+                    balanceAmt = RcvAmt - IssueAmt - AdjustmentAmt - PurchaseReturnAmt + IssueReturnAmt - SalesAmt + SalesReturnAmt - CapitalizeAmt;
                     report.SetText(ref sheet1, _rowL, colBalanceQty, balanceQty);
                     report.SetText(ref sheet1, _rowL, colBalanceQty, balanceQty);
                     if (balanceQty == 0)
                     {
                         var colBalanceRate1 = 0;
                         report.SetText(ref sheet1, _rowL, colBalanceQty, colBalanceRate1);
+                        report.SetText(ref sheet1, _rowL, colBalanceAmount, balanceAmt);
 
                     }
                     else
                     {
                         report.SetText(ref sheet1, _rowL, colBalanceRate, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BalanceRate"].ToString()));
                         sheet1.Range[_rowL, colBalanceRate].NumberFormat = report.NumberFormatDecimalFour();
-                        report.SetText(ref sheet1, _rowL, colBalanceAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BalanceRate"].ToString()) * balanceQty);
+                        //report.SetText(ref sheet1, _rowL, colBalanceAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BalanceRate"].ToString()) * balanceQty);
+                        report.SetText(ref sheet1, _rowL, colBalanceAmount, balanceAmt);
                     }
-
-
-
                 }
 
                 //Purchase Return
@@ -9639,8 +9650,6 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                 report.SetText(ref sheet1, _rowL, colPurchaseReturnRate, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["PurchaseReturnRate"].ToString()));
                 sheet1.Range[_rowL, colPurchaseReturnRate].NumberFormat = report.NumberFormatDecimalFour();
                 report.SetText(ref sheet1, _rowL, colPurchaseReturnAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["PurchaseReturnAmount"].ToString()));
-
-
 
 
                 //Issue
