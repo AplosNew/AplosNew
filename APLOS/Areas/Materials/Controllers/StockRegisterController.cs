@@ -117,11 +117,19 @@ namespace Aplos.Areas.Materials.Controllers
             try
             {
                 var tempquery = "";
+                var temptype = "";
                 if (FromDate == null || FromDate == "")
-                { tempquery = "AND convert(Date,IR.GRNDate) <  '" + ToDate + "'"; }
+                { tempquery = " AND convert(Date,IR.GRNDate) <  '" + ToDate + "'"; }
                 else
                 {
-                    tempquery = "AND convert(Date,IR.GRNDate) BETWEEN  '" + FromDate + "' AND '" + ToDate + @"'";
+                    tempquery = " AND convert(Date,IR.GRNDate) BETWEEN  '" + FromDate + "' AND '" + ToDate + @"'";
+                }
+                if(Type == "Regular" || Type == "Irregular") {
+                    temptype = " AND x.IsRegular = '" + Type + "'";
+                }
+                else
+                {
+                    temptype = "";
                 }
 
                 var str = @"SELECT * FROM (SELECT   ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo  
@@ -208,7 +216,7 @@ namespace Aplos.Areas.Materials.Controllers
 						AND (isnull(ir.AuthorizedByStatus,'')!='Reject') and   isnull(ir.CheckedByStatus,'')!='Reject'
                         AND IRD.QualityStatus!='Reject'
 					AND (IRD.BaseQty-IRD.IssueQty)>0   AND IRD.Id  NOT IN (SELECT ISNULL(InventoryReceiveDetailId,'') FROM [TRN].[CapitalizationMasterDetail]  where InventoryIssueHistoryId IS NULL)
-						) x where x.StockInDays >= " + Days + " AND x.IsRegular='" + Type + "'";
+						) x where x.StockInDays >= " + Days + " "+ temptype + "";
                 return _sqlRepository.GetDataTable(str);
 
             }
