@@ -12,6 +12,8 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
     $scope.bankCrReconUrl = $scope.path + "GetBankCrReconList";
     $scope.bankDrReconUrl = $scope.path + "GetBankDrReconList";
     $scope.deleteUrl = $scope.path + "/DeleteBankreconciliation";
+    $scope.exportgriddataUrlUpdate2 = 'GridReports/ExcelExportUpdate2';
+    $scope.downloadgriddataUrl2 = 'GridReports/Download';
     $controller("bankBaseController", { $scope: $scope, $http: $http });
 
     baseService.init($scope.listUrl, null, null, "DESC", "BankName", "BankName");
@@ -675,5 +677,83 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
             ShowResult(response.status.Message, "failure");
         });
         return true;
+    };
+
+    $scope.DrReconciledDataListReportExcel = function () {
+        if ($scope.bankReconciliationNew.FromDate === "" || $scope.bankReconciliationNew.FromDate === null || $scope.bankReconciliationNew.FromDate === undefined) {
+            ShowResult('Please Select From Date', 'failure');
+            return false;
+        }
+        if ($scope.bankReconciliationNew.ToDate === "" || $scope.bankReconciliationNew.ToDate === null || $scope.bankReconciliationNew.ToDate === undefined) {
+            ShowResult('Please Select To Date', 'failure');
+            return false;
+        }
+
+        var dataList = [];
+        var g = $("#GridbankDrReconciledList").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.bankDrReconciledDataList;
+        }
+        $scope.fileName = 'DrReconciledDataList';
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrlUpdate2,
+            data: {
+                'reportFileName': $scope.fileName,
+                'data': dataList
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $window.open($scope.downloadgriddataUrl2 + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
+    $scope.CrReconciledDataListReportExcel = function () {
+        if ($scope.bankReconciliationNew.FromDate === "" || $scope.bankReconciliationNew.FromDate === null || $scope.bankReconciliationNew.FromDate === undefined) {
+            ShowResult('Please Select From Date', 'failure');
+            return false;
+        }
+        if ($scope.bankReconciliationNew.ToDate === "" || $scope.bankReconciliationNew.ToDate === null || $scope.bankReconciliationNew.ToDate === undefined) {
+            ShowResult('Please Select To Date', 'failure');
+            return false;
+        }
+
+        var dataList = [];
+        var g = $("#GridbankCrReconciledList").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.bankCrReconciledDataList;
+        }
+        $scope.fileName = 'CrReconciledDataList';
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrlUpdate2,
+            data: {
+                'reportFileName': $scope.fileName,
+                'data': dataList
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $window.open($scope.downloadgriddataUrl2 + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
     };
 }
