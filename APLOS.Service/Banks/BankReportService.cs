@@ -19,13 +19,13 @@ namespace Library.Service.Banks
     public class BankReportService : IBankReportService
     {
         private readonly ISqlRepository _sqlRepository;
-        private readonly IBankJournalService _bankJournalService;
+        private readonly IBankJournalNewService _bankJournalService;
         private readonly ICompanyParallelCurrencyService _companyParallelCurrencyService;
         private readonly IPlantService _plantService;
 
         public BankReportService(
             ISqlRepository sqlRepository
-            , IBankJournalService bankJournalService
+            , IBankJournalNewService bankJournalService
             , ICompanyParallelCurrencyService companyParallelCurrencyService
             , IPlantService plantService
             )

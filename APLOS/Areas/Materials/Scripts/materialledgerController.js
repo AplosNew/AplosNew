@@ -78,7 +78,11 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
         Type: null,
         WithStock: true,
         WithoutStock: false,
-        Storage: false
+        Storage: false,
+        Bale: false,
+        Brand: false,
+        Amount: true,
+        Qty:true
 	};
 	$scope.changeSourceFrom = function (from) {
         if (from === 'AsOnDate') {

@@ -59,7 +59,7 @@ namespace Library.Service.Invoices
         private readonly IRepositoryAsync<TaxCode> _taxCodeRepository;
         private readonly IInvoiceTaxService _invoiceTaxService;
         private readonly IFinancingTypeGLService _financingTypeGLService;
-        private readonly IBankJournalService _bankJournalService;
+        private readonly IBankJournalNewService _bankJournalService;
         private readonly IRepositoryAsync<AdjustmentNote> _adjustmentNoteRepository;
         private readonly IRepositoryAsync<AdjustmentNoteDetail> _adjustmentNoteDetailRepository;
         private readonly IRepositoryAsync<PurchaseLC> _purchaseLCRepository;
@@ -99,7 +99,7 @@ namespace Library.Service.Invoices
             , IInvoiceTaxService invoiceTaxService
             , IRepositoryAsync<TaxCode> taxCodeRepository
             , IFinancingTypeGLService financingTypeGLService
-            , IBankJournalService bankJournalService
+            , IBankJournalNewService bankJournalService
             , IRepositoryAsync<AdjustmentNote> adjustmentNoteRepository
             , IRepositoryAsync<AdjustmentNoteDetail> adjustmentNoteDetailRepository
             , IRepositoryAsync<PurchaseLC> purchaseLCRepository

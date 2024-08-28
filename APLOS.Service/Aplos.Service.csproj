@@ -59,8 +59,10 @@
     <Compile Include="Attendances\IOTManagementService.cs" />
     <Compile Include="Attendances\OTManagementService.cs" />
     <Compile Include="Attendances\AttdnRawDataFromAppService.cs" />
+    <Compile Include="Banks\BankJournalNewService.cs" />
     <Compile Include="Banks\CheckLotDetailNewService.cs" />
     <Compile Include="Banks\CheckLotNewService.cs" />
+    <Compile Include="Banks\IBankJournalNewService.cs" />
     <Compile Include="Banks\ICheckLotDetailNewService.cs" />
     <Compile Include="Banks\ICheckLotNewService.cs" />
     <Compile Include="Biometrics\AttendanceDeviceZoneService.cs" />
