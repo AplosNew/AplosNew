@@ -234,7 +234,7 @@ function advanceJournalController(accountService, cboService, commonMessage, $sc
     };
 
     $scope.GetCOAICodeList = function () {
-        $scope.GLUrl1 = "Accounts/glitem/GetAllGLBudgetActivityPostingAutomaticOnly";
+        $scope.GLUrl1 = "Accounts/glitem/GetAllGLBudgetActivityForAdvanceJournal";
         $scope.GetCOAICodeListData = function (pageno) {
             baseService.paginationBase($scope.GLUrl1, pageno, $scope.glListParameters)
                 .then(function (result) {
