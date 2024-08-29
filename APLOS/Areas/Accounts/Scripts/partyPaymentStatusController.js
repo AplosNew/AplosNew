@@ -4058,7 +4058,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $scope.AssetWIPstatusList = response.data.DATA
         });
     }
-    $scope.GetAssetWIPstatusList();
+    //$scope.GetAssetWIPstatusList();
 
 
     $scope.TotalAssetWIPstatus = [{
@@ -4217,7 +4217,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $scope.NonRegisterAssetList = response.data.DATA
         });
     }
-    $scope.GetNonRegisterAssetData();
+    //$scope.GetNonRegisterAssetData();
 
 
     $scope.TotalNonRegisterAsset = [{
