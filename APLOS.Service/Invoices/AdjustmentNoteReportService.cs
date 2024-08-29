@@ -306,7 +306,7 @@ namespace Library.Service.Advances
             , UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
             , P.UserName AS Party, PP.UserName AS VendorPlant,bj.PartyType
             , BJ.CurrencyId, C.Code AS CurrencyCode
-	        ,FY.FiscalYearName
+	        ,FY.FiscalYearName,E.UserName EntityName
             FROM [TRN].[AdjustmentNote] AS BJ
             LEFT JOIN [TRN].[Voucher] AS V ON V.Id=BJ.VoucherId
             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
@@ -316,6 +316,7 @@ namespace Library.Service.Advances
             LEFT JOIN SEC.[User] U ON U.UserId=V.AddedBy
             LEFT JOIN SEC.[User] UP ON UP.UserId=V.PostedBy
 	        LEFT JOIN [SCS].[FiscalYear] AS FY ON FY.Id=V.FiscalYearId
+            LEFT JOIN [ORG].[Entity] E ON E.Id=BJ.EntityId
             WHERE BJ.Archive=0 AND BJ.CompanyGroupId='" + companyGroupId + "' AND BJ.CompanyId='" + companyId + "' AND BJ.PlantId='" + plantId + "'  AND BJ.VoucherId='" + voucherId + "' AND BJ.SourceType='" + sourceType + "'" +
             "";
             return _sqlRepository.GetData(cmdText);
@@ -400,16 +401,19 @@ namespace Library.Service.Advances
             int colPartyTypeValue = colVoucherDateValue;
             reportUtility.SetMasterHeaderText(ref sheet, row, colPartyType, "Party Type");
             reportUtility.SetText(ref sheet, row, colPartyTypeValue, header["PartyType"].ToString());
-            row++;
 
             int colDocRefNo = colParty;
             int colDocRefNoValue = colPartyValue;
             reportUtility.SetMasterHeaderText(ref sheet, row, colDocRefNo, "Doc Ref");
             reportUtility.SetText(ref sheet, row, colDocRefNoValue, header["DocRefNo"].ToString());
-            
+            row++;
+            int colEntity = colVoucherDate;
+            int colEntityValue = colVoucherDateValue;
+            reportUtility.SetMasterHeaderText(ref sheet, row, colEntity, "Entity");
+            reportUtility.SetText(ref sheet, row, colEntityValue, header["EntityName"].ToString());
 
-            int colFiscalYearName = colPartyType;
-            int colFiscalYearNameValue = colPartyTypeValue;
+            int colFiscalYearName = colParty;
+            int colFiscalYearNameValue = colPartyValue;
             reportUtility.SetMasterHeaderText(ref sheet, row, colFiscalYearName, "Fiscal Year ");
             reportUtility.SetText(ref sheet, row, colFiscalYearNameValue, header["FiscalYearName"].ToString());
             row++;
@@ -420,6 +424,8 @@ namespace Library.Service.Advances
             reportUtility.SetText(ref sheet, row, colStatusValue, header["Status"].ToString());
           
             row++;
+
+            
 
             colLast = companyCurrencyId == transcationCurrency ? 5 : 7;
             int colNarration  = colVoucherNo;
@@ -757,6 +763,13 @@ namespace Library.Service.Advances
             int colStatusValue = colDocRefNoValue;
             reportUtility.SetMasterHeaderText(ref sheet, row, colStatus, "Status");
             reportUtility.SetText(ref sheet, row, colStatusValue, header["Status"].ToString());
+
+            row++;
+
+            int colEntity = colDocRefNo;
+            int colEntityValue = colDocRefNoValue;
+            reportUtility.SetMasterHeaderText(ref sheet, row, colEntity, "Entity");
+            reportUtility.SetText(ref sheet, row, colEntityValue, header["EntityName"].ToString());
 
             row++;
 
