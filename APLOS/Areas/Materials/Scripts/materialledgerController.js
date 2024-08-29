@@ -78,7 +78,11 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
         Type: null,
         WithStock: true,
         WithoutStock: false,
-        Storage: false
+        Storage: false,
+        Bale: false,
+        Brand: false,
+        Amount: true,
+        Qty:true
 	};
 	$scope.changeSourceFrom = function (from) {
         if (from === 'AsOnDate') {
@@ -1119,7 +1123,8 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
 
         var reportFormat = "Pdf";
         if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-        $window.open('Materials/MaterialLedger/MaterialStockBalanceReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.Asset + '&Inventory=' + $scope.productNew.Inventory + '&Country=' + $scope.productNew.Country, '_blank');
+        $window.open('Materials/MaterialLedger/MaterialStockBalanceReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2
+                        + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.Asset + '&Inventory=' + $scope.productNew.Inventory + '&brand=' + $scope.productNew.Brand + '&bale=' + $scope.productNew.Bale, '_blank');
 
     };
     $scope.MaterialStockBalanceReportExcel = function (reportFormat) {
@@ -1280,7 +1285,7 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
 
         try {
             var Excel;
-            var file_src = 'Materials/MaterialLedger/MaterialStockBalanceReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.Asset + '&Inventory=' + $scope.productNew.Inventory + '&Country=' + $scope.productNew.Country + '&materialStorage=' + $scope.productNew.Storage;
+            var file_src = 'Materials/MaterialLedger/MaterialStockBalanceReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.Asset + '&Inventory=' + $scope.productNew.Inventory + '&Country=' + $scope.productNew.Country + '&materialStorage=' + $scope.productNew.Storage + '&bale=' + $scope.productNew.Bale + '&brand=' + $scope.productNew.Brand;
             $rootScope.report(file_src);
 
         } catch (e) {

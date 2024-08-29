@@ -1398,7 +1398,7 @@ namespace Library.MaterialManagement.InventoryManagements
             }
 
             #region Stock Balance
-            public IWorkbook CreateMaterialStockBalanceSheet(string companyId, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string Asset, string Inventory, string Country, string materialStorage)
+            public IWorkbook CreateMaterialStockBalanceSheet(string companyId, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string Asset, string Inventory, string Country, string materialStorage, bool bale, bool brand)
             {
                 try
                 {
@@ -1425,7 +1425,7 @@ namespace Library.MaterialManagement.InventoryManagements
 
                 if (fromDate == null || fromDate=="")
                 {
-					inventoryStockReportService.CreateMaterialStockBalanceSheet(ref sheet1, ref sheet2, report, Head, "Summary", companyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, Asset, Inventory, Country, materialStorage);
+					inventoryStockReportService.CreateMaterialStockBalanceSheet(ref sheet1, ref sheet2, report, Head, "Summary", companyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, Asset, Inventory, Country, materialStorage,bale,brand);
 				}
                 else
                 {

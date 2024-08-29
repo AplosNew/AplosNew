@@ -45,7 +45,7 @@ namespace Library.Service.Expenses
         private readonly IRepositoryAsync<ApprovalConfiguration> _approvalConfigurationrepository;
         private readonly IRepositoryAsync<ExpenseBooking> _expenseBookingRepository;
         private readonly IRepositoryAsync<ExpenseActivity> _expenseActivityRepository;
-        private readonly IBankJournalService _bankJournalService;
+        private readonly IBankJournalNewService _bankJournalService;
         private readonly IRepositoryAsync<EmployeeSubsequentTransaction> _employeeSubsequentTransactionRepository;
         private readonly IRepositoryAsync<InvoiceDetailCharges> _invoiceDetailChargesRepository;
 
@@ -61,7 +61,7 @@ namespace Library.Service.Expenses
             , IEmployeePayableService employeePayableService
             , IRepositoryAsync<ExpenseActivity> expenseActivityRepository
             , IRepositoryAsync<EmployeeSubsequentTransaction> employeeSubsequentTransactionRepository
-        , IBankJournalService bankJournalService
+        , IBankJournalNewService bankJournalService
 
             , IInvoiceService invoiceService
             , IRepositoryAsync<InvoiceDetailCharges> invoiceDetailChargesRepository

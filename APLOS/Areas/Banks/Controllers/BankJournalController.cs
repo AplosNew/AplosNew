@@ -22,6 +22,7 @@ namespace Aplos.Areas.Banks.Controllers
     public class BankJournalController : BaseController
     {
         private readonly IBankJournalService _bankJournalService;
+        private readonly IBankJournalNewService _bankJournalNewService;
         private readonly ICommonAccountsSetOffService _commonAccountsSetOffService;
         private readonly IBankReportService _bankReportService;
         private readonly ISqlRepository _sqlRepository;
@@ -33,6 +34,7 @@ namespace Aplos.Areas.Banks.Controllers
             , ICommonAccountsSetOffService commonAccountsSetOffService
             , ISqlRepository sqlRepository
             , AccountsBankService accountsBankService
+            , IBankJournalNewService bankJournalNewService
             )
         {
             _bankJournalService = bankJournalService;
@@ -40,6 +42,7 @@ namespace Aplos.Areas.Banks.Controllers
             _bankReportService = bankReportService;
             _sqlRepository = sqlRepository;
             _accountsBankService = accountsBankService;
+            _bankJournalNewService = bankJournalNewService;
         }
 
         [HttpGet]
@@ -81,7 +84,7 @@ namespace Aplos.Areas.Banks.Controllers
             if (voucherVM.BankJournalType == BankJournalType.ProfitEarn.ToString() && voucherVM.FinancingTypeId == null)
                 throw new CustomException("Please select Investment Type!");
 
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _bankJournalService.InsertBankJournal(voucherVM, voucherDetailVMList, bankChargeDetailVMList)) });
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _bankJournalNewService.InsertBankJournal(voucherVM, voucherDetailVMList, bankChargeDetailVMList)) });
         }
 
 
@@ -99,7 +102,7 @@ namespace Aplos.Areas.Banks.Controllers
             voucherVM.IsPark = true;
            
 
-            return Json(new { Message = string.Format(AplosMessage.VoucherUpdate, _bankJournalService.UpdateBankJournal(voucherVM, voucherDetailVMList, bankChargeDetailVMList)) });
+            return Json(new { Message = string.Format(AplosMessage.VoucherUpdate, _bankJournalNewService.UpdateBankJournal(voucherVM, voucherDetailVMList, bankChargeDetailVMList)) });
         }
         [HttpPost,Authorize]
         public JsonResult InsertExpenseToBankReconcil(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
