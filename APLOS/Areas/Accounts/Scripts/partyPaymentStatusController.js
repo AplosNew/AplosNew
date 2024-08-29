@@ -4058,7 +4058,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $scope.AssetWIPstatusList = response.data.DATA
         });
     }
-    $scope.GetAssetWIPstatusList();
+    //$scope.GetAssetWIPstatusList();
 
 
     $scope.TotalAssetWIPstatus = [{
