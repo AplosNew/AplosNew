@@ -31,8 +31,6 @@ function BarcodeGeneratorSettingController(cboService, commonMessage, $scope, $r
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
-            ClearFields(response.data.Sequence);
-            $scope.GetSequence();
         });
     }
     $scope.getData();
@@ -81,9 +79,8 @@ function BarcodeGeneratorSettingController(cboService, commonMessage, $scope, $r
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
+                    $scope.ModelNew.Id = response.data.Data.Id;
                     $scope.getData();
-
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
