@@ -202,6 +202,7 @@
                         <th>Budget</th>
                         <th>Activity</th>
                         <th>Amount</th>
+                        <th>{{companyCurrencyCode}}</th>
                         <th class="text-right">Action</th>
                     </tr>
                 </thead>
@@ -212,7 +213,12 @@
                         <td>{{x.ActivityName}}</td>
                         <td id="td_Amount">
                             <div class="show-message">
-                                <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.Amount">
+                                <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.Amount" ng-keyup="calvdCompanyCurrencyAmount(x)">
+                            </div>
+                        </td>
+                        <td id="td_VoucherDetailListCompanyCurrencyAmount">
+                            <div class="show-message">
+                                <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.CompanyCurrencyAmount">
                             </div>
                         </td>
                         <td class="text-right">
@@ -226,6 +232,7 @@
                         <td></td>
                         <td><b>Sub Total</b></td>
                         <td class="text-right"><b>{{ voucherDetailList | sumByKey : 'Amount' }}</b></td>
+                        <td class="text-right"><b>{{ voucherDetailList | sumByKey : 'CompanyCurrencyAmount' }}</b></td>
                         <td></td>
                     </tr>
                 </tfoot>
