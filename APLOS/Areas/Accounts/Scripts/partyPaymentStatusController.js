@@ -4217,7 +4217,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $scope.NonRegisterAssetList = response.data.DATA
         });
     }
-    $scope.GetNonRegisterAssetData();
+    //$scope.GetNonRegisterAssetData();
 
 
     $scope.TotalNonRegisterAsset = [{
