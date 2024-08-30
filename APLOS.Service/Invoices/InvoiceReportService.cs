@@ -531,11 +531,15 @@ namespace Library.Service.Invoices
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Vendor Plant");
             reportUtility.SetText(ref sheet, row, 2, header["VendorPlant"].ToString());
 
+            
+
             reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");
             reportUtility.SetText(ref sheet, row, 5, header["Status"].ToString());
             //sheet[row, 5].ColumnWidth = 15;
             row++;
-
+            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Entity");
+            reportUtility.SetText(ref sheet, row, 5, header["EntityName"].ToString());
+            row++;
             colLast = companyCurrencyId == transcationCurrency ? 5 : 7;
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Narration");
             reportUtility.SetText(ref sheet, row, 2, header["Narration"].ToString());
@@ -1274,15 +1278,17 @@ namespace Library.Service.Invoices
 							--,PostedBy = case when u.FullName<>'' then u.FullName else v.PostedBy end
 							 , UPPER(V.Narration) AS Narration 
 					    	, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
-                            , P.UserName AS Vendor,PP.UserName+' - '+'GSTIN:'+'('+PP.GSTIN+')' AS VendorPlant, BJ.CurrencyId, C.Code AS CurrencyCode,P.TINNO GSTINNo
+                            , P.UserName AS Vendor,PP.UserName+' - '+'GSTIN:'+'('+PP.GSTIN+')' AS VendorPlant
+                            , BJ.CurrencyId, C.Code AS CurrencyCode,P.TINNO GSTINNo,E.UserName EntityName
                             FROM [TRN].[Invoice] AS BJ
                             LEFT JOIN [TRN].[Voucher] AS V ON V.Id=BJ.VoucherId
                             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
 							LEFT JOIN [HKP].[Party] AS P ON P.Id=BJ.PartyId
 							LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=BJ.PartyPlantId
 							LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
-							left join [sec].[User] U on U.UserId=v.AddedBy
-							left join sec.[User] up on up.UserId=v.PostedBy
+							LEFT JOIN [SEC].[User] U on U.UserId=v.AddedBy
+							LEFT JOIN [SEC].[User] up on up.UserId=v.PostedBy
+							LEFT JOIN [ORG].[Entity] E on E.Id=BJ.EntityId
                             WHERE BJ.Archive=0 --AND BJ.CompanyGroupId='" + companyGroupId + @"' AND BJ.CompanyId='" + companyId + @"' AND BJ.PlantId='" + plantId + @"' 
                             AND BJ.VoucherId='" + voucherId + @"' AND BJ.SourceType='" + sourceType + @"'";
             return _sqlRepository.GetData(cmdText);
