@@ -395,6 +395,7 @@
     </Compile>
     <Compile Include="Areas\Administration\Controllers\AssetManagementController.cs" />
     <Compile Include="Areas\Administration\Controllers\EmpDocAssetTransectionController.cs" />
+    <Compile Include="Areas\Administration\Controllers\AssignControlSetupController.cs" />
     <Compile Include="Areas\Administration\Controllers\GeneralCheckedApprovedController.cs" />
     <Compile Include="Areas\Administration\Controllers\GeneralContractApprovedController.cs" />
     <Compile Include="Areas\Administration\Controllers\GeneralContractCheckedController.cs" />
@@ -1951,6 +1952,7 @@
     <Content Include="Areas\Accounts\Scripts\BalanceSheetSchedulingReportController.js" />
     <Content Include="Areas\Administration\Scripts\AssetManagementController.js" />
     <Content Include="Areas\Administration\Scripts\EmpDocAssetTransectionController.js" />
+    <Content Include="Areas\Administration\Scripts\AssignControlSetupController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralApprovedApplicationController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralContractApprovedController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralApprovedController.js" />
@@ -4995,6 +4997,7 @@
     <Content Include="Areas\Employees\Views\Caste\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\GoodWork\DateChange.cshtml" />
     <Content Include="Areas\Payrolls\Views\PaySlipsNew\SalaryAdvice.cshtml" />
+    <Content Include="Areas\Administration\Views\AssignControlSetup\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

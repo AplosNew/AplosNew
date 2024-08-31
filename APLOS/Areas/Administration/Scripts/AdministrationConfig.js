@@ -58,4 +58,8 @@ function AdministrationConfig($routeProvider, $locationProvider) {
             templateUrl: 'Administration/EmpDocAssetTransection/Aplos',
             controller: 'EmpDocAssetTransectionController'
         })
+        .when('/assign-control-setup', {
+            templateUrl: 'Administration/AssignControlSetup/Aplos',
+            controller: 'AssignControlSetupController'
+        })
 };
