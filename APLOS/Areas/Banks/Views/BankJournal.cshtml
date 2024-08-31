@@ -218,7 +218,7 @@
                         </td>
                         <td id="td_VoucherDetailListCompanyCurrencyAmount">
                             <div class="show-message">
-                                <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.CompanyCurrencyAmount">
+                                <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.CompanyCurrencyAmount" ng-readonly="voucher.CurrencyId == companyCurrencyId">
                             </div>
                         </td>
                         <td class="text-right">

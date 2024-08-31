@@ -373,18 +373,18 @@ function bankJournalController(bankService, accountService, cboService, commonMe
         if ($scope.voucher.BankJournalType == 'BankReverse') {
             $scope.voucher.IsReverse = true;
         }
-        //if ($scope.voucherDetailList.length > 0) {
-        //    for (var i = 0; i < $scope.voucherDetailList.length; i++) {
-        //        if (!baseService.isUndefinedOrNull($scope.voucherDetailList[i].CompanyCurrencyAmount)) {
-        //            ShowResult($scope.companyCurrencyCode + " is required.", "failure");
-        //            return false;
-        //        }
-        //        else if ($scope.voucherDetailList[i].CompanyCurrencyAmount===0) {
-        //            ShowResult($scope.companyCurrencyCode + " is required.", "failure");
-        //            return false;
-        //        }
-        //    }
-        //}
+        if ($scope.voucherDetailList.length > 0) {
+            for (var i = 0; i < $scope.voucherDetailList.length; i++) {
+                if (baseService.isUndefinedOrNull($scope.voucherDetailList[i].CompanyCurrencyAmount)) {
+                    ShowResult($scope.companyCurrencyCode + " is required.", "failure");
+                    return false;
+                }
+                else if (parseFloat($scope.voucherDetailList[i].CompanyCurrencyAmount) === 0) {
+                    ShowResult($scope.companyCurrencyCode + " is required.", "failure");
+                    return false;
+                }
+            }
+        }
 
         if ($scope.form0.$valid && !$scope.invalidDocDate && !$scope.invalidPostingDate && !$scope.invalidRow && !$scope.validation()) {
             $scope.actionIsDisable = true;
