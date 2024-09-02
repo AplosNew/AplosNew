@@ -196,27 +196,6 @@
                 </div>
             </div>
         </div>
-        @*<div class="common-btn">
-            <ul class="list-inline text-left">
-                <li>
-                    <div ej-tooltip e-showshadow="true" e-content="GRN Wise" ng-click="PurchaseOrderGRNWiseReportExcel('Excel');" e-width="width">
-                        <button class="btn"><i class="glyphicon glyphicon-file"></i>GRN Wise</button>
-                    </div>
-                </li>
-
-                <li>
-                    <div ej-tooltip e-showshadow="true" e-content="Party Wise" ng-click="PurchaseOrderPartyWiseReportExcel('Excel');" e-width="width">
-                        <button class="btn"><i class="glyphicon glyphicon-file"></i>Party Wise</button>
-                    </div>
-                </li>
-
-                <li>
-                    <div ej-tooltip e-showshadow="true" e-content="Export To Excel" ng-click="PurchaseOrderItemReportExcel('Excel');" e-width="width">
-                        <button class="btn"><i class="glyphicon glyphicon-file"></i>Item Wise</button>
-                    </div>
-                </li>
-            </ul>
-        </div>*@
         <div class="clearfix"></div>
         <fieldset class="scheduler-border" ng-show="report.ReportType=='GRNWise'">
             <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">GRN Wise</span></legend>
@@ -227,15 +206,6 @@
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
                          e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
                          e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
-                        @*<div e-stackedheaderrows>
-                            <div e-stackedheaderrow>
-                                <div e-stackedheadercolumns>
-
-                                    <div e-stackedheadercolumn e-headertext="Posted (Dr.)" e-column="GLCode,GL,BudgetrefNo,Budget,ActivityId,ActivityCode,Activity" textAlign='Center'></div>
-                                    <div e-stackedheadercolumn e-headertext="Posted (Cr.)" e-column="CGLCode,CGL,CBudgetrefNo,CBUdget,CActivityId,CActivityCode,CActivity" textAlign='Center'></div>
-                                </div>
-                            </div>
-                        </div>*@
                         <div e-columns>
                             <div e-column e-field="GRNNo" e-headertext="GRN No" e-width="90" textAlign='Left'></div>
                             <div e-column e-field="GRNEntryDate" e-headertext="GRN Date" e-width="90" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
@@ -251,6 +221,7 @@
                             <div e-column e-field="TotalMaterialBaseAmount" e-headertext="Total Base Amount" e-width="130" textAlign='Right'></div>
                             <div e-column e-field="Payment" e-headertext="Payment" e-width="110" textAlign='Right'></div>
                             <div e-column e-field="Balance" e-headertext="Balance" e-width="110" textAlign='Right'></div>
+                            <div e-column e-field="Entity" e-headertext="Entity" e-width="80"></div>
                             <div e-column e-field="PartyGroup" e-headertext="Party Group" e-width="110" textAlign='Right'></div>
                             <div e-column e-field="PartyCategory" e-headertext="Party Category" e-width="110" textAlign='Right'></div>
                             <div e-column e-field="PartySubCategory" e-headertext="Party Sub Category" e-width="130" textAlign='Right'></div>
@@ -282,6 +253,7 @@
                             <div e-column e-field="TotalBaseAmount" e-headertext="Total Base Amount" e-width="130"></div>
                             <div e-column e-field="Payment" e-headertext="Payment" e-width="100"></div>
                             <div e-column e-field="Balance" e-headertext="Balance" e-width="100"></div>
+                            <div e-column e-field="Entity" e-headertext="Entity" e-width="80"></div>
                             <div e-column e-field="PartyGroup" e-headertext="Party Group" e-width="100"></div>
                             <div e-column e-field="PartyCategory" e-headertext="Party Category" e-width="110"></div>
                             <div e-column e-field="PartySubCategory" e-headertext="Party Sub Category" e-width="125"></div>
@@ -402,6 +374,7 @@
                             <div e-column e-field="InventorySalesQty" e-headertext="InventorySalesQty" e-width="130"></div>
                             <div e-column e-field="InventoryScrapQty" e-headertext="InventoryScrapQty" e-width="130"></div>
                             <div e-column e-field="InventoryTransferQty" e-headertext="InventoryTransferQty" e-width="130"></div>
+                            <div e-column e-field="Entity" e-headertext="Entity" e-width="80"></div>
                             <div e-column e-field="PartyGroup" e-headertext="Party Group" e-width="100" textAlign='Right'></div>
                             <div e-column e-field="PartyCategory" e-headertext="Party Category" e-width="100" textAlign='Right'></div>
                             <div e-column e-field="PartySubCategory" e-headertext="Party SubCategory" e-width="100" textAlign='Right'></div>
