@@ -2104,7 +2104,8 @@ OUTER APPLY (SELECT * FROM dbo.EmployeeFullAndFinalSettlementItem WHERE Employee
 AND ISNULL(EmpSystemId,'" + empId + @"')='" + empId + @"') A
 Where OL.EmployeeSeperationSetupId=
 (select EmployeeSeperationSetupId from [dbo].[EmpSeperationDesignationGroup] where DesignationGroupId=
-(select DesignationGroupId from [dbo].EmployeeInformation Where SystemId='" + empId + @"'))
+(select DM.DesignationGroupId from [dbo].EmployeeInformation EI
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId Where EI.SystemId='" + empId + @"'))
 ORDER BY OL.Sequence";
                 return _sqlRepository.GetDataTable(sql);
             }
