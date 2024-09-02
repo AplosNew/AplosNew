@@ -3588,7 +3588,7 @@ namespace Aplos.MaterialManagement
                     ,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
                     ,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
                     ,IR.DocRefNo,IR.PartyType ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
-                    ,REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') DocRefDate,'' GrnDocDateDifference,'' GateName,EI.EmployeeName Employee
+                    ,REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') DocRefDate,'' GrnDocDateDifference,'' GateName,EI.EmployeeName Employee,EN.UserName Entity
 					from [TRN].[InventoryReceive] AS IR
 					left jOIN (select InventoryReceiveId,Sum(TransactionQty)TransactionQty,Sum(MaterialTranAmount)MaterialTranAmount
 						,Sum(TotalMaterialTranAmount)TotalMaterialTranAmount,Sum(TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount
@@ -3605,7 +3605,8 @@ namespace Aplos.MaterialManagement
 					LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
 					LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
 					LEFT JOIN EmployeeInformation EI ON EI.SystemId=IR.EmployeeId
-                    left JOIN trn.Invoice as I ON I.InventoryReceiveId=IR.Id					
+                    left JOIN trn.Invoice as I ON I.InventoryReceiveId=IR.Id	
+                    left join org.Entity EN ON EN.Id=I.EntityId
 					left join trn.Voucher V on V.Id=I.VoucherId
                     left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
 					left join trn.Voucher V1 on V1.Id=ep.VoucherId
@@ -3615,7 +3616,7 @@ namespace Aplos.MaterialManagement
 
 					group by IR.PartyId,IR.GRNDate,IR.Id,IR.GateEntryNo,p.UserName,P.Code,PP.GSTIN,IRD.TotalMaterialTranAmount,IRD.TotalMaterialBooksCurrencyAmount,IRD.TotalTaxAmount,IRD.ChargesTaxTranAmount
 					,MaterialTranAmount,IR.EmployeeId,IR.EmployeeId,V.VoucherNo,V1.VoucherNo,ep.PostingDate,I.PostingDate,IR.DocRefNo,CU.Code,IR.PartyType,PAG.UserName
-					,PC.UserName,PSC.UserName,PG.UserName,IR.ToCurrencyRate,EI.EmployeeName,IR.DocDate";
+					,PC.UserName,PSC.UserName,PG.UserName,IR.ToCurrencyRate,EI.EmployeeName,IR.DocDate,EN.UserName";
 
                 if (isreport)
                 {
@@ -3730,7 +3731,7 @@ namespace Aplos.MaterialManagement
 								where xPDAMAP.GRNId=ir.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 						,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup	
 						,RCM= CASE When IR.IsTaxApplicable=0 Then 'No' Else 'Yes' END
-						,IM.MaterialMasterId ,IR.IsNonCreditable
+						,IM.MaterialMasterId ,IR.IsNonCreditable,EN.UserName Entity
 					from TRN.InventoryMaterial AS IM
 					JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
 					left join hkp.MaterialCategory MC on MC.Id = MM.MaterialCategoryId
@@ -3763,7 +3764,8 @@ namespace Aplos.MaterialManagement
                     LEFT JOIN hkp.MaterialStorage AS MS ON MS.Id=IR.MaterialStorageId
 					LEFT JOIN EmployeeInformation EI1 ON EI1.SystemId=IR.CheckedBy
 					LEFT JOIN EmployeeInformation EI2 ON EI2.SystemId=IR.AuthorizedBy
-                    left JOIN trn.Invoice as I ON I.InventoryReceiveId=IR.Id					
+                    left JOIN trn.Invoice as I ON I.InventoryReceiveId=IR.Id
+                    left join org.Entity EN ON EN.Id=I.EntityId
 					left join trn.Voucher V on V.Id=I.VoucherId
 					left join trn.Voucher VN on VN.Id=IR.VoucherId
                     left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
@@ -3872,7 +3874,7 @@ namespace Aplos.MaterialManagement
 					,'' RefferenceNo ,'' PurchaseLCId ,'' ContractId ,'' ContractNo ,'' LCANo ,'' LCDate
 					,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 					,RCM= CASE When IR.IsTaxApplicable=0 Then 'No' Else 'Yes' END
-					 ,NULL MaterialMasterId ,IsNULL(IR.IsNonCreditable,0) IsNonCreditable
+					 ,NULL MaterialMasterId ,IsNULL(IR.IsNonCreditable,0) IsNonCreditable,EN.UserName Entity
 						
 			from trn.InventoryService AS ISs
 			LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
@@ -3890,7 +3892,8 @@ namespace Aplos.MaterialManagement
 			LEFT JOIN hkp.MaterialStorage AS MS ON MS.Id=IR.MaterialStorageId
 			LEFT JOIN EmployeeInformation EI1 ON EI1.SystemId=IR.CheckedBy
 			LEFT JOIN EmployeeInformation EI2 ON EI2.SystemId=IR.AuthorizedBy
-			left JOIN trn.Invoice as I ON I.InventoryReceiveId=IR.Id					
+			left JOIN trn.Invoice as I ON I.InventoryReceiveId=IR.Id	
+            left join org.Entity EN ON EN.Id=I.EntityId
 			left join trn.Voucher V on V.Id=I.VoucherId
 			left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
 			left join trn.Voucher V1 on V1.Id=ep.VoucherId
@@ -4053,7 +4056,10 @@ namespace Aplos.MaterialManagement
                 COL++;
 
 
-
+                sheet[ROW, COL].Text = "Entity";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colEntity = COL;
+                COL++;
 
                 sheet[ROW, COL].Text = "Party Group";
                 sheet[ROW, COL].ColumnWidth = 10;
@@ -4109,6 +4115,7 @@ namespace Aplos.MaterialManagement
                     sheet[ROW, ColTaxAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalTaxAmount"].ToString());
                     sheet[ROW, ColPayment].Number = clsStaticInfo.dbl(data.Rows[i]["Payment"].ToString());
                     sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(data.Rows[i]["Balance"].ToString());
+                    sheet[ROW, colEntity].Text = data.Rows[i]["Entity"].ToString();
                     sheet[ROW, colPartyGroup].Text = data.Rows[i]["PartyGroup"].ToString();
                     sheet[ROW, colPartyCategory].Text = data.Rows[i]["PartyCategory"].ToString();
                     sheet[ROW, colPartySubCategory].Text = data.Rows[i]["PartySubCategory"].ToString();
@@ -4563,6 +4570,11 @@ namespace Aplos.MaterialManagement
                 int ColEmployee = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "Entity";
+                sheet[ROW, COL].ColumnWidth = 14;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColEntity = COL;
+                COL++;
 
                 sheet[ROW, COL].Text = "Party Group";
                 sheet[ROW, COL].ColumnWidth = 14;
@@ -4632,6 +4644,7 @@ namespace Aplos.MaterialManagement
                     sheet[ROW, ColGateEntryNo].Text = data.Rows[i]["GateEntryNo"].ToString();
                     sheet[ROW, ColGateName].Text = data.Rows[i]["GateName"].ToString();
                     sheet[ROW, ColEmployee].Text = data.Rows[i]["Employee"].ToString();
+                    sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
                     sheet[ROW, ColPartyGroup].Text = data.Rows[i]["PartyGroup"].ToString();
                     sheet[ROW, ColPartyCategory].Text = data.Rows[i]["PartyCategory"].ToString();
                     sheet[ROW, ColPartySubCategory].Text = data.Rows[i]["PartySubCategory"].ToString();
@@ -5164,6 +5177,12 @@ namespace Aplos.MaterialManagement
                 int ColLCDate = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "Entity";
+                sheet[ROW, COL].ColumnWidth = 14;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColEntity = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Party Group";
                 sheet[ROW, COL].ColumnWidth = 14;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -5296,6 +5315,7 @@ namespace Aplos.MaterialManagement
                     sheet[ROW, ColContractNo].Text = data.Rows[i]["ContractNo"].ToString();
 
 
+                    sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
                     sheet[ROW, ColPartyGroup].Text = data.Rows[i]["PartyGroup"].ToString();
                     sheet[ROW, ColPartyCategory].Text = data.Rows[i]["PartyCategory"].ToString();
                     sheet[ROW, ColPartySubCategory].Text = data.Rows[i]["PartySubCategory"].ToString();
@@ -5439,11 +5459,13 @@ namespace Aplos.MaterialManagement
 													,CONVERT(DECIMAL(15,4),SUM(IRD.TotalTaxAmount+IRD.ChargesTaxTranAmount*IR.ToCurrencyRate))  TotalTaxAmount
 													,CONVERT(DECIMAL(15,4),SUM(ISNULL(inv.WrittenOffAmount,0))) Payment
 													,Balance=CONVERT(DECIMAL(15,4),SUM(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate)+SUM((IRD.TotalTaxAmount+IRD.ChargesTaxTranAmount)*IR.ToCurrencyRate)-SUM(ISNULL(inv.WrittenOffAmount,0)))
-						                            ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,CP.PartyType,PAG.UserName PartyAccountGroup
+						                              ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,CP.PartyType,PAG.UserName PartyAccountGroup,EN.UserName Entity
 						                            FROM [TRN].[InventoryReceiveDetail] IRD 
 						                            JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
 						                            JOIN ORG.Company CO ON CO.Id=IR.CompanyId
 						                            JOIN SCS.Currency C ON C.Id=CO.BaseCurrencyId
+													left join trn.invoice iv on iv.inventoryreceiveid=ir.id
+													left join org.Entity EN ON EN.Id=Iv.EntityId
 						                            left join (select iv.InventoryReceiveId,iv.PartyId,sum(iv.Amount) Amount,sum((iwd.Amount*IV.CompanyCurrencyRate)) writtenOffAmount 
 													from  TRN.Invoice iv left join trn.InvoiceWriteOffDetail iwd on iwd.InvoiceId=iv.Id
 													left join trn.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId
@@ -5462,7 +5484,7 @@ namespace Aplos.MaterialManagement
 						                            WHERE   IR.PlantId='" + PlantId + @"' AND convert(Date,IR.GRNDate) BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' 
                                                     AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
 
-						                            GROUP BY  ir.PartyId,EI.EmployeeName,p.UserName,P.Code,PP.GSTIN,C.Code,PC.UserName,PSC.UserName,PG.UserName,CP.PartyType,PAG.UserName ";
+						                            GROUP BY  ir.PartyId,EI.EmployeeName,p.UserName,P.Code,PP.GSTIN,C.Code,PC.UserName,PSC.UserName,PG.UserName,CP.PartyType,PAG.UserName,EN.UserName ";
 
                 if (isreport)
                 {
