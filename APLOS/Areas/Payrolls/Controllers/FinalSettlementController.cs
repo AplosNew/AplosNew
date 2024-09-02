@@ -1831,9 +1831,9 @@ from EmployeeFullAndFinalSettlement  E
 LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=E.EmpSystemId
 LEFT JOIN HKP.LegalDesignation LD ON LD.Id=EI.LegalDesignationId
 LEFT JOIN ORG.Department D ON D.Id=EI.DepartmentId
-LEFT JOIN HKP.DesignationGroup EDG ON  EDG.Id=EI.DesignationGroupId
 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
+LEFT JOIN HKP.DesignationGroup EDG ON  EDG.Id=DM.DesignationGroupId
 where FinalSettlementId='" + masterId + "'";
             var data = _sqlRepository.GetDataCollection(sql);
 
