@@ -231,6 +231,8 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         , TaxOptionService1: 'Yes'
         , msgForAllocationNeed: null
         , AlternativeQty: 0
+        , OtherPartyDocRefNo: null
+        , OtherPartyRCMApplicable: false
     };
     $scope.advanceTax = {
         TaxCodeId: null,
@@ -4793,6 +4795,8 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
             $scope.manualValidationAddRemove('div_svcRateOther', 'OtherserviceModel', 'TransactionAmount', 'Amount');
             $scope.OtherserviceModel.OtherPartyId = $scope.productNew.OtherPartyId;
             $scope.OtherserviceModel.OtherPartyPlantId = $scope.productNew.OtherInvoicingPartyPlantId;
+            $scope.OtherserviceModel.OtherPartyDocRefNo = $scope.productNew.OtherPartyDocRefNo;
+            $scope.OtherserviceModel.OtherPartyRCMApplicable = $scope.productNew.OtherPartyRCMApplicable;
 
             $http({
                 method: 'POST',

@@ -1049,7 +1049,7 @@ namespace Library.Accounting.Accounts
             var plantName = new DataView(_sqlRepository.GetDataTable(@"SELECT UserName from org.Plant WHERE Id='" + plantId + "'")).ToTable(true, "UserName").Rows[0]["UserName"].ToString();
 
             var sql = @"SELECT IR.PartyId, CONCAT(P.Code,'-', P.UserName) AS Vendor, IR.EmployeeId, EMP.EmployeeCode, EMP.EmployeeName
-	                         , IR.DocDate, IR.IsNonCreditable, IR.AlongwithInvoice,IR.DocRefNo
+	                         , IR.DocDate, IR.IsNonCreditable, IR.AlongwithInvoice,IR.OtherPartyDocRefNo DocRefNo
 							 ,InvoiceNo=CASE WHEN IR.EmployeeId<>'' THEN IV.InvoiceNo ELSE IV.InvoiceNo END
 	                         , VoucherNo=CASE WHEN IR.EmployeeId<>'' THEN V.VoucherNo ELSE V.VoucherNo END
 							 , VoucherDate=CASE WHEN IR.EmployeeId<>'' THEN V.VoucherDate ELSE V.VoucherDate END

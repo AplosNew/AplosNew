@@ -1549,7 +1549,7 @@
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
             <div ng-form="tabForm2">
-                <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="col-xs-12 col-sm-4 col-md-4">
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Other Vendor<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
@@ -1562,6 +1562,30 @@
                                 </span>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label class="col-sm-6 control-label">DocRefNo<sup>*</sup></label>
+                            <div class="col-sm-6 show-message">
+                                <input type="text" name="OtherPartyDocRefNo" ng-model="productNew.OtherPartyDocRefNo" class="form-control" ng-keyup="CheckSpecialCharecter();" maxlength="30" tabindex="2" autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">RCM Applicable</label>
+                        <div class="col-sm-8 pdr3">
+                            <div class="checkbox-site" style="margin-left:45px">
+                                <label>
+                                    <input type="checkbox"  ng-model="productNew.OtherPartyRCMApplicable">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
                 <ul class="common-btn list-inline text-left">
@@ -1599,7 +1623,7 @@
                     </table>
                 </div>
             </div>
-        </div>
+            </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
             <div ng-form="tabForm2">
 

@@ -527,6 +527,30 @@
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }" ng-form="tabForm4" ng-show="OtherVendorChargesPayableList.length">
 
+                <div class="col-xs-12 col-sm-4 col-md-4" ng-show="OtherVendorChargesPayableList.length">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Doc Ref No</label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="OtherPartyDocRefNo" ng-model="modelNew.OtherPartyDocRefNo" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4" ng-show="OtherVendorChargesPayableList.length">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">RCM Applicable</label>
+                        <div class="col-sm-8 pdr3">
+                            <div class="checkbox-site" style="margin-left:45px">
+                                <label>
+                                    <input type="checkbox" ng-model="modelNew.OtherPartyRCMApplicable">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                
+                <div class="clearfix"></div>
                 <div class="table-responsive modal-table">
                     <table class="table table-striped">
                         <thead>

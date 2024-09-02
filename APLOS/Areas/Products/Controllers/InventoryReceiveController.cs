@@ -1188,11 +1188,11 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetOtherVendorChargesPayable(string inveReveiveId,string otherPartyId)
+        public JsonResult GetOtherVendorChargesPayable(string inveReveiveId,string otherPartyId,bool rcmApplicable)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
-            return Json(_accountsInventoryPayableService.GetOtherVendorChargesPayableData(identity.CompanyId,  identity.PlantId, inveReveiveId, otherPartyId), JsonRequestBehavior.AllowGet);
+            return Json(_accountsInventoryPayableService.GetOtherVendorChargesPayableData(identity.CompanyId,  identity.PlantId, inveReveiveId, otherPartyId, rcmApplicable), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]

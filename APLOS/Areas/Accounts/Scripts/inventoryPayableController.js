@@ -301,6 +301,8 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
         $scope.modelNew.IsFOC = data.data.IsFOC;
         $scope.modelNew.ShortageQty = data.data.ShortageQty;
         $scope.modelNew.ShortageValue = data.data.ShortageValue;
+        $scope.modelNew.OtherPartyDocRefNo = data.data.OtherPartyDocRefNo;
+        $scope.modelNew.OtherPartyRCMApplicable = data.data.OtherPartyRCMApplicable;
         $scope.modelNew.IsInvoice = true;
         $scope.TDSList = [];
         $scope.controlInvoicePaymentTerm();
@@ -322,7 +324,7 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
         getInventoryMaterialList(data.data.Id, data.data.EmployeeId, data.data.IsTaxApplicable, $scope.modelNew.IsFOC);
         getInventoryTaxList(data.data.Id);
         if (data.data.OtherPartyId) {
-            getOtherVendorChargesList(data.data.Id, data.data.OtherPartyId);
+            getOtherVendorChargesList(data.data.Id, data.data.OtherPartyId, data.data.OtherPartyRCMApplicable);
         }
         if (data.data.GRNType == 'GRNBYPO') {
 
@@ -375,8 +377,8 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
     }
 
     $scope.OtherVendorChargesPayableList = [];
-    function getOtherVendorChargesList(inveReveiveId, otherVendorId) {
-        $http.get('Products/InventoryReceive/GetOtherVendorChargesPayable?inveReveiveId=' + inveReveiveId + '&otherPartyId=' + otherVendorId )
+    function getOtherVendorChargesList(inveReveiveId, otherVendorId,rcmApplicable) {
+        $http.get('Products/InventoryReceive/GetOtherVendorChargesPayable?inveReveiveId=' + inveReveiveId + '&otherPartyId=' + otherVendorId + '&rcmApplicable=' + rcmApplicable)
             .then(function (response) {
                 $scope.OtherVendorChargesPayableList = [];
                 $scope.OtherVendorChargesPayableList = response.data;
