@@ -1831,9 +1831,9 @@ from EmployeeFullAndFinalSettlement  E
 LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=E.EmpSystemId
 LEFT JOIN HKP.LegalDesignation LD ON LD.Id=EI.LegalDesignationId
 LEFT JOIN ORG.Department D ON D.Id=EI.DepartmentId
-LEFT JOIN HKP.DesignationGroup EDG ON  EDG.Id=EI.DesignationGroupId
 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
+LEFT JOIN HKP.DesignationGroup EDG ON  EDG.Id=DM.DesignationGroupId
 where FinalSettlementId='" + masterId + "'";
             var data = _sqlRepository.GetDataCollection(sql);
 
@@ -2104,7 +2104,8 @@ OUTER APPLY (SELECT * FROM dbo.EmployeeFullAndFinalSettlementItem WHERE Employee
 AND ISNULL(EmpSystemId,'" + empId + @"')='" + empId + @"') A
 Where OL.EmployeeSeperationSetupId=
 (select EmployeeSeperationSetupId from [dbo].[EmpSeperationDesignationGroup] where DesignationGroupId=
-(select DesignationGroupId from [dbo].EmployeeInformation Where SystemId='" + empId + @"'))
+(select DM.DesignationGroupId from [dbo].EmployeeInformation EI
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId Where EI.SystemId='" + empId + @"'))
 ORDER BY OL.Sequence";
                 return _sqlRepository.GetDataTable(sql);
             }
