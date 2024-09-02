@@ -62,8 +62,9 @@ namespace Library.Model.Inventory
         public string JobWorkContractId { get; set; }
         public string ByWhomEmployeeId { get; set; } 
         public string CancelStatus { get; set; } 
-        public string TrancastionTypeId { get; set; } 
-
+        public string TrancastionTypeId { get; set; }
+        public string OtherPartyDocRefNo { get; set; }
+        public bool OtherPartyRCMApplicable { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties

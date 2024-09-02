@@ -259,6 +259,8 @@ namespace Library.MaterialManagement.Inventory
                     var inventoryReceivedata = _inventoryReceiveService.Query(r => r.Id == service.InventoryReceiveId).Select().FirstOrDefault();
                     inventoryReceivedata.OtherPartyId = entity.OtherPartyId;
                     inventoryReceivedata.OtherPartyPlantId = entity.OtherPartyPlantId;
+                    inventoryReceivedata.OtherPartyDocRefNo = entity.OtherPartyDocRefNo;
+                    inventoryReceivedata.OtherPartyRCMApplicable = entity.OtherPartyRCMApplicable;
                     AuditService.AddedLog(inventoryReceivedata); 
                     _inventoryReceiveService.Update(inventoryReceivedata);
                     
