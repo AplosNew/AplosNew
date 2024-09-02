@@ -375,11 +375,11 @@ function bankJournalController(bankService, accountService, cboService, commonMe
         }
         if ($scope.voucherDetailList.length > 0) {
             for (var i = 0; i < $scope.voucherDetailList.length; i++) {
-                if (!baseService.isUndefinedOrNull($scope.voucherDetailList[i].CompanyCurrencyAmount)) {
+                if (baseService.isUndefinedOrNull($scope.voucherDetailList[i].CompanyCurrencyAmount)) {
                     ShowResult($scope.companyCurrencyCode + " is required.", "failure");
                     return false;
                 }
-                else if ($scope.voucherDetailList[i].CompanyCurrencyAmount===0) {
+                else if (parseFloat($scope.voucherDetailList[i].CompanyCurrencyAmount) === 0) {
                     ShowResult($scope.companyCurrencyCode + " is required.", "failure");
                     return false;
                 }
