@@ -1447,7 +1447,7 @@ namespace Library.Accounting.Accounts
         {
             var cmdText = @"SELECT VT.UserName AS VoucherTypeName, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
             , REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, V.DocRefNo, V.AddedBy, V.PostedBy, UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
-            , P.UserName AS Vendor, PP.UserName AS VendorPlant, IV.CurrencyId, C.Code AS CurrencyCode,IV.ServiceAcknowledgementMasterId ServiceAcknoledgeNo
+            , P.UserName AS Vendor, PP.UserName AS VendorPlant, IV.CurrencyId, C.Code AS CurrencyCode,IV.ServiceAcknowledgementMasterId ServiceAcknoledgeNo,EN.UserName Entity
             FROM TRN.ServiceAcknowledgementMaster SAM
             LEFT JOIN [TRN].[Invoice] AS IV ON SAM.Id=IV.ServiceAcknowledgementMasterId
             LEFT JOIN [TRN].[Voucher] AS V ON V.Id=SAM.VoucherId
@@ -1455,6 +1455,7 @@ namespace Library.Accounting.Accounts
             LEFT JOIN [HKP].[Party] AS P ON P.Id=SAM.PartyId
             LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=SAM.InvoicingPartyPlantId
             LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
+            LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
             WHERE  V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"'
             AND SAM.VoucherId='" + voucherId + @"'
             AND V.SourceType='" + sourceType + "'";
@@ -1537,13 +1538,14 @@ namespace Library.Accounting.Accounts
             reportUtility.SetText(ref sheet, row, 4, header["DocRefNo"].ToString());
             row++;
 
-            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Vendor Plant");
-            reportUtility.SetText(ref sheet, row, 2, header["VendorPlant"].ToString());
+            //reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Vendor Plant");
+            //reportUtility.SetText(ref sheet, row, 2, header["VendorPlant"].ToString());
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Entity");
+            reportUtility.SetText(ref sheet, row, 2, header["Entity"].ToString());
             reportUtility.SetMasterHeaderText(ref sheet, row, 3, "Status");
             reportUtility.SetText(ref sheet, row, 4, header["Status"].ToString());
-
             row++;
-
+            
             colLast = companyCurrencyId == transcationCurrency ? 5 : 7;
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Narration");
             reportUtility.SetText(ref sheet, row, 2, header["Narration"].ToString());
