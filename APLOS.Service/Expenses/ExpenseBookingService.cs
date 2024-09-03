@@ -1093,7 +1093,11 @@ namespace Library.Service.Expenses
 
                 voucherVM.CompanyCurrencyRate = 1;
                 voucherVM.SourceType = SourceType.EmployeePayable.ToString();
+                if (string.IsNullOrEmpty(voucherVM.EntityId))
+                {
                 voucherVM.EntityId = _expenseBookingDetailRepository.SqlQuery<string>(@"SELECT MB.EntityId FROM dbo.EmployeeInformation AS EI LEFT JOIN MST.ManpowerBudget AS MB ON MB.Id=EI.BudgetCode WHERE EI.SystemId='" + voucherVM.EmployeeId + "'").First(); 
+
+                }
                 voucherVM.ExpenseBookingId = voucherVM.ExpenseBookingId;
                 // INSERT INTO EmployeePayable TABLE
                 var invoice = new Invoice();
@@ -1137,6 +1141,7 @@ namespace Library.Service.Expenses
                 var expenseBookingData = base.Find(voucherVM.ExpenseBookingId);
                 expenseBookingData.IsPosted = true;
                 expenseBookingData.VoucherId = voucher.Id;
+                expenseBookingData.EntityId = voucher.EntityId;
                 UpdateGraph(expenseBookingData);
                 var currentVoucherDetailId = 0;
 
