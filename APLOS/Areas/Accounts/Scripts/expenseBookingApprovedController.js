@@ -168,7 +168,9 @@ function expenseBookingApprovedController(cboService, commonMessage, $scope, $ro
         }
     };
 
-
+    cboService.getCboEntityByPlant(null, null, "", function (result) {
+        $scope.entityList = result;
+    });
 
 
     $scope.GetExpensesBookingById = function (id) {
@@ -200,6 +202,8 @@ function expenseBookingApprovedController(cboService, commonMessage, $scope, $ro
             $scope.GetCboExpensesBookingTransactionType();
         });
     };
+
+    
 
     function Get(id) {
         $scope.expensesBookingId = id;

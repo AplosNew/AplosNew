@@ -3409,9 +3409,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                                    	,l.UserName as Line
                                     ,OverStay = case when hr.NoPunchOnHoliday = 1 and dt.OriginalDayType = 'H' then 0.00
 									when hr.NoPunchOnWeekoff = 1 and dt.OriginalDayType = 'W' then 0.00 else AR.ProcessedOT end
-                                    ,DayStatus = case when hr.NoPunchOnHoliday = 1 and dt.OriginalDayType = 'H' then 'H' 
-									when hr.NoPunchOnWeekoff = 1 and dt.OriginalDayType = 'W' then 'W'
-									else AR.DayStatus end
+                                    --,DayStatus = case when hr.NoPunchOnHoliday = 1 and dt.OriginalDayType = 'H' then 'H' 
+									--when hr.NoPunchOnWeekoff = 1 and dt.OriginalDayType = 'W' then 'W'
+									--else AR.DayStatus end
+                                    ,AR.DayStatus
 									,InTimeShow = case when hr.NoPunchOnHoliday = 1 and dt.OriginalDayType = 'H' then null
 									 when hr.NoPunchOnWeekoff = 1 and dt.OriginalDayType = 'W' then null else AR.InTime end
 									,OutTimeShow = case when hr.NoPunchOnHoliday = 1 and dt.OriginalDayType = 'H' then Null
