@@ -470,11 +470,17 @@ namespace Library.Service.Employees
                 _row++;
                 _rowL = 12;
             }
+            
+            report.SetMasterHeaderText(ref sheet, _row, 1, "Entity");
+            report.SetText(ref sheet, _row, 2, headerData["Entity"].ToString());
+            sheet[report.GetColumnNameForXls(2) + _row + ":" + report.GetColumnNameForXls(3) + _row].Merge();
+            _row++;
 
             report.SetMasterHeaderText(ref sheet, _row, 1, "Narration");
             report.SetText(ref sheet, _row, 2, headerData["Narration"].ToString());
             sheet[report.GetColumnNameForXls(2) + _row + ":" + report.GetColumnNameForXls(3) + _row].Merge();
             _row++;
+
             var _rowR = 5;
 
             report.SetMasterHeaderText(ref sheet, _rowR, 4, "Entry Date");
@@ -501,6 +507,7 @@ namespace Library.Service.Employees
             report.SetText(ref sheet, _rowR, 5, Convert.ToBoolean(headerData["IsPark"]) ? "Parked" : "Posted");
             sheet[report.GetColumnNameForXls(5) + _rowR + ":" + report.GetColumnNameForXls(6) + _rowR].Merge();
 
+            
             var headreColIndex = 1;
 
             report.SetHeaderText(ref sheet, _rowL, headreColIndex, "GL", 24);

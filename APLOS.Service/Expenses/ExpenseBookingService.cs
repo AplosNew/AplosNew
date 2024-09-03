@@ -551,7 +551,7 @@ namespace Library.Service.Expenses
         {
             parameters.CmdText = @"SELECT DISTINCT EB.Id, EI.EmployeeCode, EI.EmployeeName, EB.EmployeeId, EB.CurrencyId, C.Code AS CurrencyCode, EB.InvoiceNumber, EB.InvoiceDate, EB.ApprovalStatus, EB.Remarks
                                 , [Post]=CASE WHEN EB.IsPosted=1 THEN 'Posted' ELSE 'Approved' END, EBD.Amount, EB.BeneficiaryType, ISNULL(EP.VoucherId, I.VoucherId) AS VoucherId
-								,EIH.EmployeeCode AS ApproverCode, EIH.EmployeeName AS ApprovedBy,V.IsPark,V.VoucherNo,V.PostingDate,EIR.EmployeeCode+'-'+EIR.EmployeeName CheckedBy
+								,EIH.EmployeeCode AS ApproverCode, EIH.EmployeeName AS ApprovedBy,V.IsPark,V.VoucherNo,V.PostingDate,EIR.EmployeeCode+'-'+EIR.EmployeeName CheckedBy,E.UserName Entity
                                 FROM [TRN].[ExpenseBooking] AS EB
                                 LEFT JOIN [TRN].[EmployeePayable] AS EP ON EP.ExpenseBookingId=EB.Id
                                 LEFT JOIN [TRN].[Invoice] AS I ON I.ExpenseBookingId=EB.Id
@@ -562,6 +562,7 @@ namespace Library.Service.Expenses
                                 LEFT JOIN [SCS].[Currency] C ON EB.CurrencyId=C.Id
                                 LEFT JOIN [HKP].[Party] AS P ON P.Id=EB.PartyId
 								LEFT JOIN [TRN].[Voucher] AS V ON V.Id=EB.VoucherId
+								LEFT JOIN [ORG].[Entity] AS E ON E.Id=V.EntityId
                                 LEFT JOIN (SELECT ExpenseBookingId, SUM(Amount) AS Amount FROM [TRN].[ExpenseBookingDetail] GROUP BY ExpenseBookingId) AS EBD ON EBD.ExpenseBookingId=EB.Id
                                 WHERE EB.Archive=0 AND V.Archive=0 AND EB.CompanyGroupId='" + companyGroupId + "' AND EB.CompanyId='" + companyId + "' AND EB.PlantId='" + plantId + "' AND EB.ApprovalStatus='" + ApprovalStatus.Approved + "' AND EB.IsPosted=1";
             return _sqlRepository.GetGridData(parameters);
