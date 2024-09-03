@@ -19,6 +19,12 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
     $scope.isMaternity = false;
     $scope.isManualFilter = false;
     $scope.empGrid = false;
+
+    $scope.salaryUnDisbursedDateRange = {
+        FromDate: $filter("dateFiltering")(Date.now()),
+        ToDate: $filter("dateFiltering")(Date.now())
+    };
+
     $scope.monthList = [
         {
             Value: 1,
@@ -384,6 +390,50 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
         }
     };
 
+    $scope.SalaryUnDisburseListDateRange = [];
+    $scope.GetSalaryUnDisbursedDateRange = function () {
+        $scope.SalaryUnDisburseListDateRange = [];
+        if (angular.isUndefinedOrNull($scope.disbursementAdvice.PaymentMode)) {
+            ShowResult("Select Payment Mode", 'failure');
+        }
+        else if (baseService.isUndefinedOrNull($scope.salaryUnDisbursedDateRange.FromDate)) {
+            manualValidation("div_FromDateUnDisbursed", true, "From Date is required.");
+        }
+        else if (baseService.isUndefinedOrNull($scope.salaryUnDisbursedDateRange.ToDate)) {
+            manualValidation("div_ToDateUnDisbursed", true, "To Date is required.");
+        }
+        else if (new Date($scope.salaryUnDisbursedDateRange.FromDate) > new Date($scope.salaryUnDisbursedDateRange.ToDate)) {
+            manualValidation("div_FromDateUnDisbursed", true, "From date must be below or equal to To Date");
+        }
+        else if (new Date($scope.salaryUnDisbursedDateRange.ToDate) < new Date($scope.salaryUnDisbursedDateRange.FromDate)) {
+            manualValidation("div_ToDateUnDisbursed", true, "To date must be above or equal to From Date.");
+        }
+        else {
+
+            var parameters = {
+                'fromDate': $scope.salaryUnDisbursedDateRange.FromDate, 'toDate': $scope.salaryUnDisbursedDateRange.ToDate, 'salaryProcessId': $scope.salaryProcessId, 'isActive': $scope.isActive,
+                'isSeperated': $scope.isSeperated, 'isMaternity': $scope.isMaternity, 'paymentMode': $scope.disbursementAdvice.PaymentMode
+
+            };
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                url: 'Accounts/SalaryDisbursement/GetSalaryUnDisbursedDateRange',
+                data: parameters
+            }).then(function successCallback(response) {
+                if (response.data.length > 0) {
+                    $scope.SalaryUnDisburseListDateRange = response.data;
+                }
+                else {
+                    ShowResult("No Data Found", 'failure');
+                }
+                var gridObj = $("#empInfoGridSalaryUnDisbursedDateRange").data("ejGrid");
+                gridObj.windowonresize();
+                gridObj.refreshContent(true);
+            });
+        }
+    };
+
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
     $scope.summaryfileName = "Salary UnDisbursed.xlsx"
     $scope.XlsSalaryUnDisburseReport = function () {
@@ -562,6 +612,82 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
             obj = {};
         }
         $scope.fileName = 'SalaryDisbursement';
+        $http({
+            method: "POST",
+            url: $scope.exportgriddataUrl,
+            data: {
+                'data': newDataList,
+                'reportFileName': $scope.fileName,
+
+            },
+
+            dataType: 'JSON',
+
+        })
+            .then(function successCallback(response) {
+
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
+    };
+
+    $scope.XlsSalaryUnDisbursedDateRangeReport = function () {
+        var dataList = [];
+        var newDataList = [];
+        var g = $("#empInfoGridSalaryUnDisbursedDateRange").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        var obj = {};
+
+        if (dataList.length == 0) {
+
+            dataList = $scope.SalaryUnDisburseListDateRange;
+        }
+
+        for (let i = 0; i < dataList.length; i++) {
+            obj.Id = dataList[i].Id;
+            obj.SalaryProcId = dataList[i].SalaryProcId;
+            obj.AddedBy = dataList[i].AddedBy;
+            obj.YearNo = dataList[i].YearNo;
+            obj.MonthName = dataList[i].MonthName;
+            obj.EmployeeCode = dataList[i].EmployeeCode;
+            obj.EmployeeName = dataList[i].EmployeeName;
+            obj.Designation = dataList[i].Designation;
+            obj.Department = dataList[i].Department;
+            obj.Division = dataList[i].Division;
+            obj.EmployeeCategory = dataList[i].EmployeeCategory;
+            obj.Plant = dataList[i].Plant;
+            obj.Section = dataList[i].Section;
+            obj.SubSection = dataList[i].SubSection;
+            obj.Unit = dataList[i].Unit;
+            obj.DOJ = dataList[i].DOJ;
+            obj.DOS = dataList[i].DOS;
+            obj.CurrentMonthEmployeeStatus = dataList[i].CurrentMonthEmployeeStatus;
+            obj.EmployeeStatus = dataList[i].EmployeeStatus;
+            obj.AccountsGroup = dataList[i].AccountsGroup;
+            obj.SalaryProcFlag = dataList[i].SalaryProcFlag;
+            obj.PayRollGroup = dataList[i].PayRollGroup;
+            obj.JobLocation = dataList[i].JobLocation;
+            obj.PaymentMode = dataList[i].PaymentMode;
+            obj.BankName = dataList[i].BankName;
+            obj.VoucherNo = dataList[i].VoucherNo;
+            obj.PayableVoucherNo = dataList[i].PayableVoucherNo;
+            obj.DisbursementVoucherNo = dataList[i].DisbursementVoucherNo;
+            obj.IsLock = dataList[i].IsLock;
+            obj.IsDisburse = dataList[i].IsDisburse;
+            obj.NetPayment = dataList[i].NetPayment;
+            newDataList.push(obj);
+            obj = {};
+        }
+        $scope.fileName = 'SalaryUnDisbursementMonthwise';
         $http({
             method: "POST",
             url: $scope.exportgriddataUrl,

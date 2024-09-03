@@ -91,7 +91,7 @@
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="Service" role="tab" data-toggle="tab">UnDisbursed</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Disbursed</a></li>
-
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="unDisbursed" role="tab" data-toggle="tab">UnDisbursed Month Wise</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -212,8 +212,8 @@
                         </script>
 
                         @*<script type="text/x-jsrender" id="headerTemplateB">
-                            <input type="checkbox" id="headchkB" e-checked="data.CheckBoxSelect" />
-                        </script>*@
+                        <input type="checkbox" id="headchkB" e-checked="data.CheckBoxSelect" />
+                    </script>*@
 
 
                     </div>
@@ -229,6 +229,86 @@
 
                     </div>
                 </div>
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="col-sm-3">
+                            <div class="form-group" id="div_FromDateUnDisbursed">
+                                <label class="col-sm-2" style="font-weight:normal; left:-35px;">From:<sup></sup></label>
+                                <div class="col-sm-10" style="left:-45px;">
+                                    <input type="text" name="Form Date" ng-model="salaryUnDisbursedDateRange.FromDate" datepicker tabindex="2" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group" id="div_ToDateUnDisbursed">
+                                <label class="col-sm-2" style="font-weight:normal; left:-45px;">To:<sup></sup></label>
+                                <div class="col-sm-10" style="left:-55px;">
+                                    <input type="text" name="To Date" ng-model="salaryUnDisbursedDateRange.ToDate" datepicker tabindex="3" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-1 col-sm-1 col-md-1" style="left:-50px;">
+                            <div class="form-group">
+                                <div class="common-btn">
+                                    <button ng-click="GetSalaryUnDisbursedDateRange();" class="btn"> <i class="glyphicon glyphicon-download"></i> Go</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-12">
+                        <div id="empInfoGridSalaryUnDisbursedDateRange" ng-init="chkinit()" ej-grid e-datasource="SalaryUnDisburseListDateRange" e-recorddoubleclick="Get" e-allowscrolling="true" e-pageSettings-pageSize="15"
+                             e-actioncomplete="actionCompleteSelected" e-templaterefresh=""
+                             e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" style="margin-left:1%">
+
+                            <div e-columns>
+                                <div e-column e-field="SalaryProcId" e-headertext="SalaryProcId" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="AddedBy" e-headertext="Created By" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="YearNo" e-headertext="Year" e-allowediting="false" e-width="60"></div>
+                                <div e-column e-field="MonthName" e-headertext="Month" e-allowediting="false" e-width="60"></div>
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="120"></div>
+                                <div e-column e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="Division" e-headertext="Division" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="Line" e-headertext="Line" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="CurrentMonthEmployeeStatus" e-headertext="CurrentMonthEmployeeStatus" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="EmployeeStatus" e-headertext="EmployeeStatus" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="AccountsGroup" e-headertext="AccountsGroup" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="PayableVoucherNo" e-headertext="Payable Voucher No" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="IsLock" e-headertext="Lock" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="DisbursementVoucherNo" e-headertext="Disbursement Voucher No" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="IsDisburse" e-headertext="Disbursed" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="DisbursementDate" e-headertext="Disbursement Date" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="PayRollGroup" e-headertext="PayRoll Gruop" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="JobLocation" e-headertext="Job Location" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="PaymentMode" e-headertext="Payment Mode" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="BankName" e-headertext="Bank Name" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="DOS" e-headertext="DOS" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="SalaryProcFlag" e-headertext="EmployeeStatus" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="NetPayment" e-headertext="Net Payment" e-allowediting="false" e-width="80"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="common-btn left">
+                            <ul class="list-inline text-left">
+                                <li> <button ng-click="XlsSalaryUnDisbursedDateRangeReport();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
+
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+
             </div>
 
         </div>
