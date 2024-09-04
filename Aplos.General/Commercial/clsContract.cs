@@ -2416,6 +2416,36 @@ Order By SO.DeliveryDate";
             { }
         }
 
+        public IEnumerable<object> GetAssignControlBudgetCodeSetupData(string assignControlSetupId)
+        {
+            try
+            {
+                var sql = @"SELECT GWB.*,E.Id EntityId,E.UserName EntityName,MB.IsOTEntitled,D.Id DivisionId,D.UserName Division,DP.Id DepartmentId
+					,DP.UserName Department,S.Id SectionId,S.UserName Section,SS.Id SubSectionId,SS.UserName SubSection
+					,DE.Id DesignationId,DE.UserName Designation,P.Activity,P.UserReportGroup UserGroup,PR.Id ProcessId
+					,PR.UserName Process,EC.UserName EmployeeType,MB.Id BudgetId,MB.Code,MD.BudgetedManpower,MD.DeployedManpower 
+					FROM  dbo.AssignControlBudgetCodeSetup GWB
+					left join mst.ManpowerBudget MB on MB.Id=GWB.BudgetId
+                    LEFT JOIN ORG.Position P ON P.Id=MB.PositionId
+					LEFT JOIN ORG.Entity E  ON E.Id=MB.EntityId
+                    LEFT JOIN ORG.Division D ON D.Id=P.DivisionId
+                    LEFT JOIN ORG.Department DP ON DP.Id=P.DepartmentId
+                    LEFT JOIN ORG.Section S ON S.Id=P.SectionId                    
+                    LEFT JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId                    
+					LEFT JOIN hkp.Designation DE ON DE.Id=P.DesignationId					
+					LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=DE.Id					
+					LEFT JOIN hkp.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId				
+					LEFT JOIN hkp.Process PR ON PR.Id=P.ProcessId 
+                    LEFT JOIN (Select SUM(TotalNumber)BudgetedManpower,SUM(Deployment)DeployedManpower,ManpowerBudgetId from MST.ManpowerBudgetDetail Group By ManpowerBudgetId) MD ON MD.ManpowerBudgetId=MB.Id
+                    where  GWB.AssignControlSetupId='" + assignControlSetupId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }
 
