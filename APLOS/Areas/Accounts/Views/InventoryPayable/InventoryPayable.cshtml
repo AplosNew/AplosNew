@@ -580,38 +580,7 @@
                 </div>
                 <div class="clearfix"></div>
             </div>
-            @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }" ng-form="tabForm4" ng-hide="(modelNew.CurrencyId==null||modelNew.CurrencyId=='') ||(currencyExchangeRate.length==1 && companyCurrencyId==modelNew.CurrencyId)">
-                    <div class="clearfix"></div>
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-6 col-md-6">
-                            <fieldset ng-hide="(modelNew.CurrencyId==null||modelNew.CurrencyId=='') ||(currencyExchangeRate.length==1 && companyCurrencyId==modelNew.CurrencyId)" class="scheduler-border">
-                                <legend class="scheduler-border">Currency Exchange Rate</legend>
-                                <div class="table-responsive modal-table">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Unit</th>
-                                                <th>From</th>
-                                                <th>To</th>
-                                                <th>Rate</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr ng-repeat="x in currencyExchangeRate" ng-hide="x.ParallelCurrencyId==modelNew.CurrencyId">
-                                                <td>{{x.FromCurrencyUnit}}</td>
-                                                <td>{{x.FromCurrencyCode}}</td>
-                                                <td>{{x.CompanyCurrencyRate}}</td>
-                                                <td>
-                                                    <input n-decimals="4" ng-maxlength="3" type="text" class="form-control text-right" ng-model="x.ToCurrencyRate" ng-keyup="changeCurrencyExchangeRate();" />
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </fieldset>
-                        </div>
-                    </div>
-                </div>*@
+           
         </div>
     </div>
     <div class="clearfix"></div>

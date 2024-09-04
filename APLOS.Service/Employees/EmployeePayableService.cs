@@ -655,7 +655,7 @@ namespace Library.Service.Employees
                         , AddedBy=CASE WHEN EB.AppliedBy='Self' THEN AEI.EmployeeName ELSE V.AddedBy END,U.FullName PostedBy, REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, UPPER(V.Narration) AS Narration
 						,EmployeeCode=CASE WHEN  EI.EmployeeCode<>'' THEN EI.EmployeeCode ELSE EPI.EmployeeCode END
 						,EmployeeName=CASE WHEN EI.EmployeeName<>'' THEN EI.EmployeeName ELSE EPI.EmployeeName END
-						, EB.BeneficiaryType
+						, EB.BeneficiaryType,E.UserName Entity
                         , EBAH.EmployeeId, EIA.EmployeeCode AS ApprovedByCode, EIA.EmployeeName AS ApprovedByName, P.Code AS PartyCode, P.UserName AS PartyName,REI.EmployeeName CheckedBy
                         FROM [TRN].[Voucher] AS V
                         LEFT JOIN [ORG].[Entity] AS E ON E.Id=V.EntityId
