@@ -18,7 +18,7 @@ function GoodWorkDateChangeController(cboService, commonMessage, $scope, $rootSc
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
     //***********************************Good Work ********************************************************//
-
+    $scope.btnDisable = false;
     $scope.ModelTemp = {
         Id: null,
         WorkDate: null,
@@ -414,6 +414,7 @@ function GoodWorkDateChangeController(cboService, commonMessage, $scope, $rootSc
 
             $scope.$broadcast('show-errors-check-validity');
             if ($scope.ModelNewForm.$valid) {
+                $scope.btnDisable = true;
                 $http({
                     method: 'POST',
                     url: $scope.saveUrl,
@@ -421,10 +422,12 @@ function GoodWorkDateChangeController(cboService, commonMessage, $scope, $rootSc
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
+                        $scope.btnDisable = false;
                         ShowResult(response.data.Message, 'failure');
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
+                        $scope.btnDisable = false;
                         $scope.Clear();
                         $scope.getData();
                     }
@@ -448,6 +451,7 @@ function GoodWorkDateChangeController(cboService, commonMessage, $scope, $rootSc
         $scope.dateControlShow = true;
         $scope.LBLShow = false;
         return true;
+        $scope.btnDisable = false;
     };
 
     $scope.WorkDates = $filter('date')(new Date(), 'dd-MMM-yyyy');

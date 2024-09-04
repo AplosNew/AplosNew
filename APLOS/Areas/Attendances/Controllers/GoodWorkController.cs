@@ -186,7 +186,7 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string xstr = @"select SD.SystemID ShiftId,P.Id PlantId,P.UserName Plant,SD.ShiftDefinationDescription,SD.UserName ShiftDefination 
-						,CONVERT(varchar(5),SD.InTime,108) InTime,CONVERT(VARCHAR(5), SD.InTime, 108) OutTime						
+						,CONVERT(varchar(5),SD.InTime,108) InTime,CONVERT(VARCHAR(5), SD.OutTime, 108) OutTime						
 						from ShiftDefination SD
 						left join ORG.Plant P on P.Id=SD.PlantID
                         Where SD.SystemID IN(	Select distinct MB.ShiftDefinationId from dbo.GoodWorkBudgetSetUp BS
@@ -194,7 +194,7 @@ namespace Aplos.Areas.Attendances.Controllers
 						Where GoodWorkSetUpId='" + setupId + "')";
 
             string str = @"SELECT SD.SystemID ShiftId,P.Id PlantId,P.UserName Plant,SD.ShiftDefinationDescription,SD.UserName ShiftDefination 
-,CONVERT(varchar(5),SD.InTime,108) InTime,CONVERT(VARCHAR(5), SD.InTime, 108) OutTime	from ShiftDefination SD
+,CONVERT(varchar(5),SD.InTime,108) InTime,CONVERT(VARCHAR(5), SD.OutTime, 108) OutTime	from ShiftDefination SD
 left join ORG.Plant P on P.Id=SD.PlantID
 WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Where p.WorkDate='" + date + "')";
 
