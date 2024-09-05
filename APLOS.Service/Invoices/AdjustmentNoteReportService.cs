@@ -402,27 +402,30 @@ namespace Library.Service.Advances
             reportUtility.SetMasterHeaderText(ref sheet, row, colPartyType, "Party Type");
             reportUtility.SetText(ref sheet, row, colPartyTypeValue, header["PartyType"].ToString());
 
-            int colDocRefNo = colParty;
-            int colDocRefNoValue = colPartyValue;
+            
+            row++;
+
+            int colDocRefNo = colVoucherNo;
+            int colDocRefNoValue = colVoucherNoValue;
             reportUtility.SetMasterHeaderText(ref sheet, row, colDocRefNo, "Doc Ref");
             reportUtility.SetText(ref sheet, row, colDocRefNoValue, header["DocRefNo"].ToString());
+
+            int colFiscalYearName = colVoucherDate;
+            int colFiscalYearNameValue = colVoucherDateValue;
+            reportUtility.SetMasterHeaderText(ref sheet, row, colFiscalYearName, "Fiscal Year ");
+            reportUtility.SetText(ref sheet, row, colFiscalYearNameValue, header["FiscalYearName"].ToString());
             row++;
+
+            int colStatus = colVoucherNo;
+            int colStatusValue = colVoucherNoValue;
+            reportUtility.SetMasterHeaderText(ref sheet, row, colStatus, "Status");
+            reportUtility.SetText(ref sheet, row, colStatusValue, header["Status"].ToString());
+
             int colEntity = colVoucherDate;
             int colEntityValue = colVoucherDateValue;
             reportUtility.SetMasterHeaderText(ref sheet, row, colEntity, "Entity");
             reportUtility.SetText(ref sheet, row, colEntityValue, header["EntityName"].ToString());
 
-            int colFiscalYearName = colParty;
-            int colFiscalYearNameValue = colPartyValue;
-            reportUtility.SetMasterHeaderText(ref sheet, row, colFiscalYearName, "Fiscal Year ");
-            reportUtility.SetText(ref sheet, row, colFiscalYearNameValue, header["FiscalYearName"].ToString());
-            row++;
-
-            int colStatus = colPartyType;
-            int colStatusValue = colPartyTypeValue;
-            reportUtility.SetMasterHeaderText(ref sheet, row, colStatus, "Status");
-            reportUtility.SetText(ref sheet, row, colStatusValue, header["Status"].ToString());
-          
             row++;
 
             
