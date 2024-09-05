@@ -2310,7 +2310,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         try {
             if (baseService.isUndefinedOrNull(data.BankName))
                 throw "Bank Is Not Selected";
-            location.href = "SalesManagements/Sales/BankLatter?salesId=" + data.Id + '&BankName=' + data.BankName;
+            location.href = "SalesManagements/Sales/BankLatter?salesId=" + data.Id + '&BankName=' + data.BankId;
 
         }
         catch (e) {
