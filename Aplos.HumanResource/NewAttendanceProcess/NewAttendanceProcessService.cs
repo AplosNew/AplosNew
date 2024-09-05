@@ -85,6 +85,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             var RosterShiftIn = clsWebLib.RetValidLen(UnProcessed.Tables[0].Rows[i][@"RosterShiftIn"]).ToString();
                             var RosterShiftOut = clsWebLib.RetValidLen(UnProcessed.Tables[0].Rows[i][@"RosterShiftOut"]).ToString();
                             var BudgetId = UnProcessed.Tables[0].Rows[i][@"BudgetId"].ToString();
+                            var Deployment = UnProcessed.Tables[0].Rows[i][@"Deployment"].ToString();
+                            var BudgetedManpower = UnProcessed.Tables[0].Rows[i][@"BudgetedManpower"].ToString();
                             var RosterId = UnProcessed.Tables[0].Rows[i][@"RosterId"].ToString();
                             var GivenDesignationId = UnProcessed.Tables[0].Rows[i][@"GivenDesignationId"].ToString();
                             ShiftTime(ref RosterShiftIn, ref RosterShiftOut, WkDate);
@@ -117,6 +119,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["RosterId"] = clsWebLib.RetValidLen(RosterId);
                                 dr["GivenDesignationId"] = clsWebLib.RetValidLen(GivenDesignationId);
                                 dr["PlantInPunchStartTime"] = clsWebLib.RetValidLen(PlantInPunchStartTime);
+                                dr["Deployment"] = clsWebLib.RetValidLen(Deployment);
+                                dr["BudgetedManpower"] = clsWebLib.RetValidLen(BudgetedManpower);
 
                                 #region ManualData Entry
                                 if (clsWebLib.RetValidLen(ManualInTime).ToString() != "")
@@ -218,6 +222,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 {
                                     dr["BudgetId"] = clsWebLib.RetValidLen(BudgetId); 
                                 }
+                                dr["Deployment"] = clsWebLib.RetValidLen(Deployment);
+                                dr["BudgetedManpower"] = clsWebLib.RetValidLen(BudgetedManpower);
                                 dr["RosterId"] = clsWebLib.RetValidLen(RosterId);
                                 dr["PlantInPunchStartTime"] = clsWebLib.RetValidLen(PlantInPunchStartTime);
                                 if (string.IsNullOrEmpty(dr["GivenDesignationId"].ToString()))
@@ -1007,7 +1013,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 m.DayStatus as ManualDayStatus,IsManualDayStatus=case When isnull(m.DayStatus,'') ='' then 'false' 
                 else 'true' end,IsManualInTime=case When isnull(m.InTime,'') ='' then 'false' 
                 else 'true' end,IsManualOutTime=case When isnull(m.OutTime,'') ='' then 'false' 
-                else 'true' end,mb.Id as BudgetId,rh.Id as RosterId,e.GivenDesignationId,Op.InPunchStartTime as PlantInPunchStartTime, 
+                else 'true' end,mb.Id as BudgetId,mb.Deployment,MBD.TotalNumber BudgetedManpower,rh.Id as RosterId,e.GivenDesignationId,Op.InPunchStartTime as PlantInPunchStartTime, 
                 FullDayDuration=case when isnull(p.ManualShiftID,'')!='' then
 				isnull(isnull(isnull(sd.FullDayDuration,p.ShiftFullDayDuration),
 				sdmaster.FullDayDuration),isnull(sdz.FullDayDuration,sdy.FullDayDuration)) 
@@ -1036,12 +1042,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 left outer join AttndManualDataFromApp m on e.SystemId=m.EmpSystemID and
 				m.WorkDate='" + Date+@"'
                 left join ShiftDefination sd on sd.SystemID=m.ShiftSystemId
-                left join AttdnProcessData p on p.EmpSystemID=e.SystemId and p.WorkDate='"+Date+@"'
+                left join AttdnProcessData p on p.EmpSystemID=e.SystemId and p.WorkDate='"+Date+ @"'
                 left join mst.ManpowerBudget mb on mb.Id=e.BudgetCode
+                LEFT JOIN MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId=mb.Id 
+				AND MBD.Id=(Select top(1) Id From MST.ManpowerBudgetDetail Where ManpowerBudgetId=mb.Id Order By EffectiveDate DESC)
                 left join ShiftDefination sdy on sdy.SystemID=mb.ShiftDefinationId
                 left join dbo.RosterBudget rb on rb.BudgetId=mb.Id 
                 left join RosterPatternHeader rh on rh.Id=rb.RosterId
-                left join dbo.RosterPatternProcess rp on rp.RPHeaderId=rh.Id and rp.WorkDate='"+Date+@"'
+                left join dbo.RosterPatternProcess rp on rp.RPHeaderId=rh.Id and rp.WorkDate='" + Date+@"'
                 left join ShiftDefination sdz on sdz.SystemID=rp.ShiftDefinationID
                 left join org.Plant pl on pl.Id=e.PlantId
                 left join OutPunchConfigurationHeader Op on OP.PlantId=pl.Id
@@ -1466,7 +1474,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             {
                 var sql = @"Select distinct format(apd.WorkDate ,'dd-MMM-yyyy')
                 as WorkDate ,
-                mb.Id as BudgetId ,isnull(Deployment,0) as Deployment ,
+                mb.Id as BudgetId ,isnull(mb.Deployment,0) as Deployment ,
                 Total=isnull((Select top 1 TotalNumber from mst.ManpowerBudgetDetail
                 where ManpowerBudgetId = mb.Id
                 order by EffectiveDate desc),'0')
