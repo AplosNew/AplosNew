@@ -570,6 +570,22 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetSalesServiceChargeList(string salesId)
+        {
+            AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
+            return Json(accountsSalesService.GetSalesServiceChargeList(salesId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetSalesServiceTaxList(string salesId)
+        {
+            AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
+            return Json(accountsSalesService.GetSalesServiceTaxList(salesId), JsonRequestBehavior.AllowGet);
+        }
+
+
+
         [HttpGet, Authorize]
         public ActionResult GetPackingSalesDetailDataBySales(string salesId, string packingId, string smIds)
         {
@@ -594,7 +610,8 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
         [HttpPost]
         public JsonResult SaveSalesReturn(Dictionary<string, object> data, List<Dictionary<string, object>> detaildataList
-            , List<Dictionary<string, object>> taxList, List<Dictionary<string, object>> itemScanCildList, Dictionary<string, object> ItemScandata, List<Dictionary<string, object>> itemScanCildNewList)
+            , List<Dictionary<string, object>> taxList, List<Dictionary<string, object>> itemScanCildList, Dictionary<string, object> ItemScandata
+            , List<Dictionary<string, object>> itemScanCildNewList, List<Dictionary<string, object>> serviceDataList, List<Dictionary<string, object>> serviceTaxList)
         {
             try
             {
@@ -608,7 +625,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                         item["ReturnNetWeight"] = 0;
                     }
                 }
-                string _id = InsertSalesReturn(data, detaildataList, taxList, itemScanCildList, ItemScandata, itemScanCildNewList);
+                string _id = InsertSalesReturn(data, detaildataList, taxList, itemScanCildList, ItemScandata, itemScanCildNewList, serviceDataList, serviceTaxList);
                 return Json(new { Id = _id, Message = string.Format(AplosMessage.Success + " Sales Return No <b>" + _id + "</b>") });
             }
             catch (Exception ex)
@@ -617,7 +634,8 @@ namespace Aplos.Areas.SalesManagements.Controllers
             }
         }
         private string InsertSalesReturn(Dictionary<string, object> data, List<Dictionary<string, object>> detaildataList, List<Dictionary<string, object>> taxList
-            , List<Dictionary<string, object>> itemScanCildList, Dictionary<string, object> ItemScandata, List<Dictionary<string, object>> itemScanCildNewList)
+            , List<Dictionary<string, object>> itemScanCildList, Dictionary<string, object> ItemScandata, List<Dictionary<string, object>> itemScanCildNewList
+            , List<Dictionary<string, object>> serviceDataList, List<Dictionary<string, object>> serviceTaxList)
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsMaster;
@@ -626,6 +644,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             DataSet dsitemscanChild;
             DataSet dsitemscanChildNew;
             DataSet dsitemscanNew;
+            DataSet dsSerDetail;
             string TableName = "dbo.ItemScanChild";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -635,6 +654,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 string sqlmaster = "SELECT * FROM [TRN].[SalesReturn] WHERE Id='" + data["SalesId"].ToString() + "'";
                 string sqlDetail = "SELECT * FROM [TRN].[SalesReturnDetail] WHERE SalesId='" + data["SalesId"].ToString() + "'";
                 string taxsql = "SELECT * FROM [TRN].[SalesReturnTax] WHERE SalesId='" + data["SalesId"].ToString() + "'";
+                string servicesql = "SELECT * FROM [TRN].[SalesReturnService] WHERE SalesId='" + data["SalesId"].ToString() + "'";
                 string itemScanChildsql = "SELECT * FROM dbo.ItemScanChild WHERE SalesId='" + data["SalesId"].ToString() + "'";
                 string itemScansql = "SELECT * FROM dbo.ItemScan WHERE 1=2";
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -643,6 +663,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 objCon.OpenDataSetThroughAdapter(taxsql, out dstax, false, "1");
                 objCon.OpenDataSetThroughAdapter(itemScanChildsql, out dsitemscanChild, false, "1");
                 objCon.OpenDataSetThroughAdapter(itemScansql, out dsitemscanNew, false, "1");
+                objCon.OpenDataSetThroughAdapter(servicesql, out dsSerDetail, false, "1");
                 objCon.getDataSet("Select * from dbo.ItemScanChild where 1=2", out dsitemscanChildNew);
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
@@ -700,7 +721,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                                     if (dvtx.Count == 0)
                                     {
                                         taxcount++;
-                                        string taxid = materialCommonService.MakePK(detailid, taxcount, 2);
+                                        string taxid ="SD"+ materialCommonService.MakePK(detailid, taxcount, 2);
                                         tx["Id"] = taxid;
                                         tx["SalesReturnId"] = _Id;
                                         tx["SalesReturnDetailId"] = detailid;
@@ -791,9 +812,59 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
                     }
                 }
+                if (serviceDataList != null)
+                {
+                    foreach (var Seritem in serviceDataList)
+                    {
+                        int Index = 0; string _itemNewId = "";
+                        DataView dv = new DataView(dsSerDetail.Tables[0]);
+                        dv.RowFilter = "Id='" + Seritem["Id"] + "'";
+                        if (dv.Count == 0)
+                        {
+                            ccount++;
+                            string serDetailid = materialCommonService.MakePK(_Id, ccount, 2);
+                            Seritem["Id"] = serDetailid;
+                            Seritem["SalesReturnId"] = _Id;
+                            Seritem["SalesId"] = Seritem["SalesId"];
+                            Seritem["SalesServiceId"] = Seritem["SalesServiceId"];
+                            Seritem["ServiceMasterId"] = Seritem["ServiceMasterId"];
+                            Seritem["Amount"] = Seritem["Amount"];
+                            Seritem["TotalTaxAmount"] = Seritem["TotalTaxAmount"];
+                            Seritem["AddedBy"] = identity.Name;
+                            Seritem["AddedDate"] = DateTime.Now;
+                            Seritem["AddedFromIP"] = identity.IPAddress;
+                            materialCommonService.AddNewRowD(dsSerDetail.Tables[0], Seritem);
+
+                            if (serviceTaxList != null)
+                            {
+                                foreach (var sertx in serviceTaxList.Where(r => r["SalesServiceId"].ToString() == Seritem["SalesServiceId"].ToString()))
+                                {
+                                    DataView dvtx = new DataView(dstax.Tables[0]);
+                                    dvtx.RowFilter = "Id='" + sertx["Id"] + "'";
+
+                                    if (dvtx.Count == 0)
+                                    {
+                                        taxcount++;
+                                        string taxid = "SS" + materialCommonService.MakePK(serDetailid, taxcount, 2);
+                                        sertx["Id"] = taxid;
+                                        sertx["SalesReturnId"] = _Id;
+                                        sertx["SalesServiceId"] = serDetailid;
+                                        sertx["SalesId"] = sertx["SalesId"];
+                                        sertx["AddedBy"] = identity.Name;
+                                        sertx["AddedDate"] = DateTime.Now;
+                                        sertx["AddedFromIP"] = identity.IPAddress;
+                                        materialCommonService.AddNewRowD(dstax.Tables[0], sertx);
+                                    }
+
+                                }
+                            }
+                        }
+
+                    }
+                }
 
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster, dsDetail, dstax, dsitemscanChild, dsitemscanNew, dsitemscanChildNew);
+                obj.SaveDataSets(dsMaster, dsDetail, dsSerDetail, dstax, dsitemscanChild, dsitemscanNew, dsitemscanChildNew);
                 return _Id;
             }
             catch (Exception ex)

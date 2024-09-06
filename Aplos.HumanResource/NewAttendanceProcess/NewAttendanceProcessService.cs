@@ -2958,12 +2958,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 AllowedOTLimit=null,TargetOT=null,AdditionalOT=null,CalculatedOT=0,SandwichReprocess=0
                 where PlantID='" + Plant+"' and WorkDate='"+PreDay+"'";
 
-                ConnectionManager.DAL.ConManager objCone = null;
-                objCone = new ConnectionManager.DAL.ConManager("1");
-                objCone.OpenConnection("1");
-                objCone.BeginTransaction();
+                ConnectionManager.clsConnection objCone = new ConnectionManager.clsConnection();
 
-                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                //ConnectionManager.DAL.ConManager objCone = null;
+                //objCone = new ConnectionManager.DAL.ConManager("1");
+                //objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+                objCone.executeQuery(sql);
+                //objCone.ExecuteNonQueryWrapper(sql, true, "1");
                 objCone.CommitTransaction();
             }
             catch (Exception ex)
@@ -2982,12 +2984,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 and IsOTEntitled='1'
                 and IsOTComfirm=0";
 
-                ConnectionManager.DAL.ConManager objCone = null;
-                objCone = new ConnectionManager.DAL.ConManager("1");
-                objCone.OpenConnection("1");
+                ConnectionManager.clsConnection objCone = new ConnectionManager.clsConnection();
+                //ConnectionManager.DAL.ConManager objCone = null;
+                //objCone = new ConnectionManager.DAL.ConManager("1");
+                //objCone.OpenConnection("1");
                 objCone.BeginTransaction();
-
-                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.executeQuery(sql);
+                //objCone.ExecuteNonQueryWrapper(sql, true, "1");
                 objCone.CommitTransaction();
             }
             catch (Exception ex)
@@ -3106,12 +3109,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         WHERE PlantID='" + Plant + @"'
 								AND WorkDate='" + PreDay + "'";
 
-                ConnectionManager.DAL.ConManager objCone = null;
-                objCone = new ConnectionManager.DAL.ConManager("1");
-                objCone.OpenConnection("1");
+                ConnectionManager.clsConnection objCone = new ConnectionManager.clsConnection();
+                //ConnectionManager.DAL.ConManager objCone = null;
+                //objCone = new ConnectionManager.DAL.ConManager("1");
+                //objCone.OpenConnection("1");
                 objCone.BeginTransaction();
-
-                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.executeQuery(sql);
+                // objCone.ExecuteNonQueryWrapper(sql, true, "1");
                 objCone.CommitTransaction();
             }
             catch (Exception ex)
@@ -3134,12 +3138,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
 									        and ei.PlantId='"+Plant+@"') as x
 			            where x.RowIdx=Rowid";
 
-                ConnectionManager.DAL.ConManager objCone = null;
-                objCone = new ConnectionManager.DAL.ConManager("1");
-                objCone.OpenConnection("1");
+                //ConnectionManager.DAL.ConManager objCone = null;
+                //objCone = new ConnectionManager.DAL.ConManager("1");
+                //objCone.OpenConnection("1");
+                ConnectionManager.clsConnection objCone = new ConnectionManager.clsConnection();
                 objCone.BeginTransaction();
 
-                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.executeQuery(sql);
+                //objCone.ExecuteNonQueryWrapper(sql, true, "1");
                 objCone.CommitTransaction();
             }
             catch (Exception ex)
@@ -3185,12 +3191,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
 								WHERE PlantID='" + Plant + @"'
 								AND WorkDate='" + PreDay + "'";
 
-                ConnectionManager.DAL.ConManager objCone = null;
-                objCone = new ConnectionManager.DAL.ConManager("1");
-                objCone.OpenConnection("1");
+                //ConnectionManager.DAL.ConManager objCone = null;
+                //objCone = new ConnectionManager.DAL.ConManager("1");
+                //objCone.OpenConnection("1");
+                ConnectionManager.clsConnection objCone = new ConnectionManager.clsConnection();
                 objCone.BeginTransaction();
-
-                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.executeQuery(sql);
+                //objCone.ExecuteNonQueryWrapper(sql, true, "1");
                 objCone.CommitTransaction();
             }
             catch (Exception ex)
@@ -3277,12 +3284,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 and WorkDate='"+Date+@"' and IsOTComfirm=0 AND IsOTEntitled=1
                 and PlantID='"+Plant+"'";
 
-                ConnectionManager.DAL.ConManager objCone = null;
-                objCone = new ConnectionManager.DAL.ConManager("1");
-                objCone.OpenConnection("1");
+                //ConnectionManager.DAL.ConManager objCone = null;
+                //objCone = new ConnectionManager.DAL.ConManager("1");
+                //objCone.OpenConnection("1");
+                ConnectionManager.clsConnection objCone = new ConnectionManager.clsConnection();
                 objCone.BeginTransaction();
 
-                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.executeQuery(sql);
+                //objCone.ExecuteNonQueryWrapper(sql, true, "1");
                 objCone.CommitTransaction();
             }
             catch (Exception ex)
