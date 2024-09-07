@@ -562,6 +562,10 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/EmployeePayable/EmployeePayment",
             controller: "employeePaymentController"
         })
+        .when("/multiple-employee-payment", {
+            templateUrl: "Accounts/EmployeePayable/MultipleEmployeePayment",
+            controller: "multipleEmployeePaymentController"
+        })
         .when("/fixed-asset-master-opening-balance", {
             templateUrl: "Accounts/OpeningBalance/FixedAssetMaster",
             controller: "fixedAssetMasterOpeningBalanceController"
