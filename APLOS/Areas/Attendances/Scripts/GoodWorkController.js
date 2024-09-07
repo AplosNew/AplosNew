@@ -405,7 +405,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         }
     };
 
-
+    $scope.btnDisable = false;
     $scope.Save = function () {
         try {
             if ($scope.ModelNew.CheckedStatus == 'Checked' || $scope.ModelNew.ApprovedStatus == 'Approved') {
@@ -414,6 +414,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
 
             $scope.$broadcast('show-errors-check-validity');
             if ($scope.ModelNewForm.$valid) {
+                $scope.btnDisable = true;
                 $http({
                     method: 'POST',
                     url: $scope.saveUrl,
@@ -421,10 +422,12 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
+                        $scope.btnDisable = false;
                         ShowResult(response.data.Message, 'failure');
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
+                        $scope.btnDisable = false;
                         $scope.Clear();
                         $scope.getData();
                     }
@@ -448,6 +451,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         $scope.dateControlShow = true;
         $scope.LBLShow = false;
         return true;
+        $scope.btnDisable = false;
     };
 
     $scope.WorkDates = $filter('date')(new Date(), 'dd-MMM-yyyy');

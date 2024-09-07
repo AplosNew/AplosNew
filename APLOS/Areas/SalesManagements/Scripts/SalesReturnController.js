@@ -524,7 +524,21 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
             .then(function (response) {
                 $scope.detailList = response.data;
                 getInvTaxList();
+                getSalesServiceList();
             });
+    }
+
+    $scope.chargesList = [];
+    function getSalesServiceList() {
+        $scope.SalesServiceurl = 'SalesManagements/Sales/GetSalesServiceChargeList?salesId=' + $scope.productNew.SalesId
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: $scope.SalesServiceurl
+        }).then(function successCallback(response) {
+            $scope.chargesList = response.data;
+            getServiceTaxList();
+        });
     }
 
     $scope.tempidList = [];
@@ -578,6 +592,18 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
             //taxProcess();
         });
     }
+
+    function getServiceTaxList() {
+        $scope.returnTaxurl = 'SalesManagements/Sales/GetSalesServiceTaxList?salesId=' + $scope.productNew.SalesId
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: $scope.returnTaxurl
+        }).then(function successCallback(response) {
+            $scope.Servicetaxlist = response.data;
+        });
+    }
+
     function taxProcess() {
         for (var i = 0; i < $scope.taxlist.length; i++) {
             $scope.taxlist[i].Amount = valueCheckInList($scope.detailList, $scope.taxlist[i].SalesMaterialId, $scope.taxlist[i].Percentage);
@@ -617,17 +643,8 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
                 $scope.tempitemScanList.push($scope.itemScanChildList[i])
                 $scope.tempData.VerifiedQty = parseFloat($scope.tempData.VerifiedQty.toFixed(4))
                 $scope.tempData.VerifiedQty = parseFloat(($scope.tempData.VerifiedQty + Math.round(($scope.itemScanChildList[i].ReturnNetWeight) * 100 + Number.EPSILON) / 100).toFixed(4))
-                //$scope.tempData.VerifiedQty += parseFloat((Math.round(($scope.itemScanChildList[i].ReturnNetWeight) * 100 + Number.EPSILON) / 100).toFixed(4))
-                //$scope.tempData.Amount += Math.round(($scope.itemScanChildList[i].NetWeight * $scope.tempData.TransactionRate) * 100 + Number.EPSILON) / 100
             }
         }
-
-        //for (var j = 0; j < $scope.taxlist.length; j++) {
-        //    if ($scope.taxlist[j].SalesMaterialId == $scope.tempData.SalesMaterialId) {
-        //        $scope.taxlist[j].Amount = Math.round(($scope.tempData.Amount * ($scope.taxlist[j].Percentage / 100)) * 100 + Number.EPSILON) / 100
-        //        $scope.tempData.TaxAmount += Math.round(($scope.tempData.Amount * ($scope.taxlist[j].Percentage / 100)) * 100 + Number.EPSILON) / 100
-        //    }
-        //}
         angular.element(document.querySelector('#ISCpopUp')).modal('hide');
     }
 
@@ -642,12 +659,30 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         data.Amount = Math.round((data.ReturnQty * data.TransactionRate) * 100 + Number.EPSILON) / 100
         data.CurrentBalanceQty = data.BalanceQty - data.ReturnQty
         data.TaxAmount = 0;
+        var TotalQty = $filter('sumByKey')($filter('filter')($scope.detailList), 'TransactionQty');
+        var ratio = data.ReturnQty / TotalQty;
         for (var j = 0; j < $scope.taxlist.length; j++) {
             if ($scope.taxlist[j].SalesMaterialId == data.SalesMaterialId) {
                 $scope.taxlist[j].Amount = Math.round((data.Amount * ($scope.taxlist[j].Percentage / 100)) * 100 + Number.EPSILON) / 100
                 data.TaxAmount += Math.round((data.Amount * ($scope.taxlist[j].Percentage / 100)) * 100 + Number.EPSILON) / 100
             }
+           
+
+            if ($scope.chargesList.length > 0) {
+                //var TotalServiceCharge = $filter('sumByKey')($filter('filter')($scope.chargesList), 'BalanceAmount');
+
+                for (var k = 0; k < $scope.chargesList.length; k++) {
+                    $scope.chargesList[k].ReturnAmount = Math.round(($scope.chargesList[k].BalanceAmount * ratio) * 100 + Number.EPSILON) / 100
+                    $scope.chargesList[k].TotalTaxAmount = Math.round(($scope.chargesList[k].SalesServiceTaxAmount * ratio) * 100 + Number.EPSILON) / 100
+                }
+                if ($scope.Servicetaxlist.length > 0) {
+                    for (var l = 0; l < $scope.Servicetaxlist.length; l++) {
+                        $scope.Servicetaxlist[l].Amount = Math.round(($scope.Servicetaxlist[l].TaxAmount * ratio) * 100 + Number.EPSILON) / 100
+                    }
+                }
+            }
         }
+
         angular.element(document.querySelector('#ISCpopUp')).modal('hide');
     }
     // #endregion Details

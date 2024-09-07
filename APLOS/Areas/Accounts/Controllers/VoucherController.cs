@@ -2950,10 +2950,11 @@ namespace Aplos.Areas.Accounts.Controllers
 									,CAST([CBDRcumulative] AS DECIMAL(18,2)) CBDRcumulative
 									, CAST([CBCRcumulative] AS DECIMAL(18,2))CBCRcumulative
 									, [BalanceType], [MainHead], [GLGeneralInfoId], [GL], [GLGeneralInfoCode], [Budget], FYCB.BudgetMasterId
-									, [Activity], FYCB.ActivityId,[Particulars]
+									, [Activity], FYCB.ActivityId,[Particulars]=case when FYCB.PartyId<>'' then P.UserName Else FYCB.Particulars end
                                     , BankMasterId, CashMasterId, PartyId,PartyPlantId,BMA.Id ControlId
 									FROM [TRN].[FiscalYearCloseTrialBalance]  FYCB 
 									LEFT JOIN [MST].BudgetMasterActivity BMA ON BMA.ActivityId=FYCB.ActivityId AND BMA.BudgetMasterId=FYCB.BudgetMasterId
+									LEFT JOIN HKP.Party P ON P.Id=FYCB.PartyId
                                     WHERE FYCB.FiscalYearCloseId= '" + fiscalYearCloseId + @"' AND FYCB.CompanyId='" + companyId + @"'  AND FYCB.PlantId='" + plantId + @"'   
                                     )T
 									WHERE DRcumulative+CRcumulative<>0

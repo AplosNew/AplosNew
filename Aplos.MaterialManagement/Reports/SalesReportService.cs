@@ -3766,15 +3766,15 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
             ReportUtility ru = new ReportUtility();
             if (BankName != "" || BankName != null || BankName != "null")
             {
-                if (BankName == "HDFC 59265400002289")
+                if (BankName == "20204")
                 {
                     fileName = "REQUEST-LETTER-HDFC.docx";
                 }
-                if (BankName == "ICICI Bank Limited")
+                if (BankName == "20239")
                 {
                     fileName = "REQUEST-LETTER-ICICI.docx";
                 }
-                if (BankName == "Standard Chartered Bank (Ludhiana)")
+                if (BankName == "20242")
                 {
                     fileName = "SCB.docx";
                 }
