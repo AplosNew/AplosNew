@@ -1974,6 +1974,7 @@
     <Content Include="Areas\Materials\Scripts\BarcodeGeneratorSettingController.js" />
     <Content Include="Areas\OrderManagements\Scripts\masterOrderApproveByController.js" />
     <Content Include="Areas\OrderManagements\Scripts\masterOrderCheckByController.js" />
+    <Content Include="Areas\OrderManagements\Scripts\productionOrderSchedulingParametersType2Controller.js" />
     <Content Include="Areas\OrderManagements\Scripts\productionOrderType2Controller.js" />
     <Content Include="Areas\OrderManagements\Scripts\productionOrderSchedulingParametersType1NewController.js" />
     <Content Include="Areas\OrderManagements\Scripts\TermsandConditionGroupController.js" />
@@ -5000,6 +5001,7 @@
     <Content Include="Areas\Payrolls\Views\PaySlipsNew\SalaryAdvice.cshtml" />
     <Content Include="Areas\Administration\Views\AssignControlSetup\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\MultipleEmployeePayment.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\productionOrderSchedulingParametersType1\Type2.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

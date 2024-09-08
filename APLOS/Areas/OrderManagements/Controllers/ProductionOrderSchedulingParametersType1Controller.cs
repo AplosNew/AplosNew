@@ -95,6 +95,16 @@ namespace Aplos.Areas.OrderManagements.Controllers
             });
 
         }
+        public async Task<ActionResult> Type2()
+        {
+            return await Task.Factory.StartNew(() =>
+            {
+
+                SendNotification("Ready to Simulate");
+                return View();
+            });
+
+        }
         #endregion
 
         #region -- Operations
