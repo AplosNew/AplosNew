@@ -476,6 +476,8 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
                         , 'itemScanCildList': $scope.tempitemScanList
                         , 'ItemScandata': $scope.tempitemScan
                         , 'itemScanCildNewList': $scope.itemScanNewListForSales
+                        , 'serviceDataList':  $scope.chargesList
+                        , 'serviceTaxList':  $scope.Servicetaxlist
                     }
                     , dataType: 'JSON'
                 }).then(function successCallback(response) {

@@ -828,6 +828,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         $scope.chargesListPOnew = [];
         $scope.ServiceTaxList = [];
         $scope.advanceTaxesList = [];
+        $scope.otherserviceList = [];
         $scope.TotalSumAfterTCSVal = "";
 
         // $scope.POId1 = '';

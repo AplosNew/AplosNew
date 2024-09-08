@@ -3551,10 +3551,10 @@
                                 <td>{{x.HSNCode}}</td>
                                 @*<td class="text-right">{{x.Percentage}}</td>*@
                                 <td class="text-right">
-                                    <input type="text" n-decimals="4" ng-model="x.Percentage" ng-keyup="calculateTaxAmountForService(x);" class="form-control text-right" ng-disabled="productNew.TaxOptionService==='No'" />
+                                    <input type="text" n-decimals="4" ng-model="x.Percentage" ng-keyup="calculateotherSvcTaxCategory();" class="form-control text-right" ng-disabled="productNew.TaxOptionService==='No'" />
                                 </td>
                                 <td class="text-right">
-                                    <input type="text" n-decimals="2" ng-model="x.TaxAmount" ng-keyup="checkRowValidationService(x);" class="form-control text-right" ng-disabled="productNew.TaxOptionService==='Yes'" />
+                                    <input type="text" n-decimals="2" ng-model="x.TaxAmount" ng-keyup="calculateotherSvcTaxCategory();" class="form-control text-right" ng-disabled="productNew.TaxOptionService==='Yes'" />
                                 </td>
                             </tr>
                             <tr>

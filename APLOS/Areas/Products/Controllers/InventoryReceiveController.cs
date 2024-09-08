@@ -1253,7 +1253,17 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
         public JsonResult OtherVendorServiceChargesCreate(InventoryMaterialViewModel entity, IEnumerable<InventoryReceiveTax> taxCategoryList)
         {
-
+            if(string.IsNullOrEmpty(entity.OtherPartyDocRefNo)) throw new CustomException("Please Input Other Party DocRefNo !!");
+            if (entity.OtherPartyRCMApplicable)
+            {
+                foreach (var item in taxCategoryList)
+                {
+                    if (item.TaxAmount == 0)
+                    {
+                        item.TaxAmount = Math.Round( Convert.ToDecimal(entity.TransactionAmount * 5 / 100),2);
+                    }
+                }
+            }
             _inventoryService.OtherVendorInsertGraph(entity, taxCategoryList);
             return Json(new { entity.Id, Message = AplosMessage.Success });
         }

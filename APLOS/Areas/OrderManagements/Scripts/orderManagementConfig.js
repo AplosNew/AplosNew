@@ -300,7 +300,10 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             templateUrl: 'OrderManagements/productionorder/Type2',
             controller: 'productionOrderType2Controller'
         })
-
+        .when('/productionOrderSchedulingParametersType2', {
+            templateUrl: 'OrderManagements/ProductionOrderSchedulingParametersType1/Type2',
+            controller: 'productionOrderSchedulingParametersType2Controller'
+        })
 
         ;
 }
