@@ -949,7 +949,7 @@ order by  Assigned, ProductCode , PO
         {
             try
             {
-                var str = @"Select pk.PackingId, format(pk.Date,'dd-MMM-yyyy') as AddedDate, format(pk.InactiveDate,'dd-MMM-yyyy') as InActiveDate, DATEDIFF(Day,GETDATE() , InactiveDate) as Active , p.UserName as Customer, ms.UserName as StorageLoc , e.EmployeeName as ByWhom,
+                var str = @"Select Top 4000 pk.PackingId, format(pk.Date,'dd-MMM-yyyy') as AddedDate, format(pk.InactiveDate,'dd-MMM-yyyy') as InActiveDate, DATEDIFF(Day,GETDATE() , InactiveDate) as Active , p.UserName as Customer, ms.UserName as StorageLoc , e.EmployeeName as ByWhom,
 ei.Employeename as DRespPerson, en.UserName as Entity, pk.Remarks,pk.CustomerId,pk.EntityId,PS.SalesId
 from trn.Packing pk
 left join hkp.Party p on p.Id = pk.CustomerId

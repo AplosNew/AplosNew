@@ -106,13 +106,27 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_accountVoucherReportService.GetEmployeeAvailableInvoiceList(parameters, identity.CompanyGroupId, identity.CompanyId,identity.PlantId, employeeId), JsonRequestBehavior.AllowGet);
         }
+        [HttpPost, Authorize]
+        public JsonResult GetMultipleEmployeeList(string column, string value, GridParameter parameters)
+        {
+            AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var res = _accountsInvoiceService.GetMultipleEmployeeListQuery(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value, parameters);
+            var jsondata = Json(res, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
         #endregion
 
         #region EmployeePayment
-        
+
         public ActionResult EmployeePayment()
         {
             return View("~/Areas/Accounts/Views/EmployeePayment.cshtml");
+        }
+        public ActionResult MultipleEmployeePayment()
+        {
+            return View("~/Areas/Accounts/Views/MultipleEmployeePayment.cshtml");
         }
 
         [Authorize, HttpGet]

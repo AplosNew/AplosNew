@@ -153,6 +153,7 @@ upanelApp.controller("EmployeeLockAndUnLockController", EmployeeLockAndUnLockCon
 upanelApp.controller("employeePayableController", employeePayableController);
 upanelApp.controller("employeePayableOpeningBalanceController", employeePayableOpeningBalanceController);
 upanelApp.controller("employeePaymentController", employeePaymentController);
+upanelApp.controller("multipleEmployeePaymentController", multipleEmployeePaymentController);
 upanelApp.controller("employeeProbationalPeriodController", employeeProbationalPeriodController);
 upanelApp.controller("EmployeeProfileApprovalController", EmployeeProfileApprovalController);
 upanelApp.controller("EmployeeProfileUnApprovalController", EmployeeProfileUnApprovalController);
@@ -1273,6 +1274,7 @@ upanelApp.controller("LeaveTransectionController", LeaveTransectionController)
 upanelApp.controller("otApproveController", otApproveController)
 upanelApp.controller("GoodWorkReportController", GoodWorkReportController)
 upanelApp.controller("productionOrderSchedulingParametersType1NewController", ProductionOrderSchedulingParametersType1NewController);
+upanelApp.controller("productionOrderSchedulingParametersType2Controller", ProductionOrderSchedulingParametersType2Controller);
 upanelApp.controller("fullandfinalSettlementApproveController", fullandfinalSettlementApproveController);
 upanelApp.controller("fullandfinalSettlementPaymentController", fullandfinalSettlementPaymentController);
 upanelApp.controller("OrderLineCostingItemServiceMasterMappingController", OrderLineCostingItemServiceMasterMappingController);

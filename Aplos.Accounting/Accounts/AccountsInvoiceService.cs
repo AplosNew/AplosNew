@@ -821,6 +821,80 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        public List<Dictionary<string, object>> GetMultipleEmployeeListQuery(string companyGroupId, string companyId, string plantId, string column, string value, GridParameter parameters)
+        {
+            try
+            {
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var sql = @"SELECT * FROM (SELECT X.*,ISNULL(Y.AdvanceNetBalance,0)AdvanceNetBalance FROM 
+ (SELECT EP.EmployeeId,EMP.EmployeeCode,EMP.EmployeeName,LDEG.UserName LegalDesignation, DEPT.UserName Department,S.UserName Section
+										,SS.UserName SubSection,L.UserName Line
+										, SUM(EPD.NetAmount) AS Receivable
+                                        , SUM(EPD.WrittenOffAmount) AS Received, SUM(EPD.NetAmount-EPD.WrittenOffAmount) AS Balance
+                                        FROM [TRN].[EmployeePayableDetail] AS EPD
+                                        LEFT JOIN [TRN].[EmployeePayable] AS EP ON EPD.EmployeePayableId=EP.Id
+                                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.EmployeePayableDetailId=EPD.Id
+                                        LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+										LEFT JOIN EmployeeInformation AS EMP ON EP.EmployeeId=EMP.SystemId
+                                        LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                                        LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                        LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                        LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
+                                        LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                                        LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
+                                        LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
+                                        LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
+                                        LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
+                                        WHERE EP.Archive=0 AND EP.IsPark=0 AND EP.IsWrittenOff=0 AND EPD.IsWrittenOff=0 AND EPD.IsBlock=0 AND EP.SourceType IN ('EmployeePayable','SalaryPayable','VendorInvoice','InventoryPayable')
+                                        AND EP.CompanyGroupId='" + companyGroupId + @"' AND EP.CompanyId='" + companyId + @"' AND EP.PlantId='" + plantId + @"' AND EP.EmployeeId IS NOT NULL AND (EPD.NetAmount-EPD.WrittenOffAmount)>0 
+										GROUP BY EMP.EmployeeName,EP.EmployeeId,EMP.EmployeeCode,DEPT.UserName,S.UserName,SS.UserName,LDEG.UserName, L.UserName 
+										)X 
+	LEFT JOIN (SELECT T.EmployeeId, T.EmployeeCode, T.EmployeeName ,SUM(Receivable)Receivable,SUM(Received)Received,SUM(Balance)AdvanceNetBalance
+				FROM (SELECT  AM.EmployeeId, EI.EmployeeCode, EI.EmployeeName
+								, AD.Amount AS Receivable, AD.WrittenOffAmount+ISNULL(SAVW.SalaryWrittenOffAmount,0) AS Received
+                                , AD.Amount-AD.WrittenOffAmount-ISNULL(SAVW.SalaryWrittenOffAmount,0)AS Balance
+                                FROM [TRN].[AdvanceDetail] AS AD
+                                LEFT JOIN [TRN].[Advance] AS AM ON AD.AdvanceId=AM.Id
+                                LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdvanceDetailId=AD.Id
+                                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                                LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=AM.EmployeeId
+								LEFT JOIN (SELECT SUM(ARS.InstallmentAmount)-ADV.WrittenOffAmount SalaryWrittenOffAmount,ADV.Id AdvanceId
+                                    FROM  [TRN].EmployeeAdvanceDeduction EAD 
+                                    LEFT JOIN dbo.AdvanceReqSchedule  ARS ON EAD.AdvanceReqScheduleId=ARS.Id
+                                    INNER JOIN [TRN].EmployeeSalaryAdvance ESA ON ESA.Id=ARS.EmployeeSalaryAdvanceId
+                                    INNER JOIN [TRN].[Advance] ADV ON ADV.VoucherId=ESA.VoucherId
+                                    LEFT JOIN DBO.SalaryLock SL ON SL.YearNo=ARS.YearNo AND SL.MonthNo=ARS.MonthNo AND SL.EmpSystemId=ESA.EmployeeId AND SL.PayableVoucherId IS NULL
+									GROUP BY ADV.Id,ADV.WrittenOffAmount) SAVW ON SAVW.AdvanceId=AD.AdvanceId
+                                WHERE AM.Archive=0 AND AM.IsPosted=1 AND AM.IsWrittenOff=0 AND AD.IsWrittenOff=0 AND AM.SourceType in ('EmployeeAdvance','InterTransaction','FixedAssetDisposeJournal')
+                                AND AM.CompanyGroupId='" + companyGroupId + @"' AND AM.CompanyId='" + companyId + @"' AND AM.PlantId='" + plantId + @"' AND AM.EmployeeId<>'' 
+                                
+                                UNION ALL
+								SELECT  VD.EmployeeId, EI.EmployeeCode, EI.EmployeeName
+								, AD.AdvanceAmount AS Receivable, ISNULL(AD.WrittenOffAmount,0) AS Received
+                                , AD.AdvanceAmount-ISNULL(AD.WrittenOffAmount,0)AS Balance
+                                FROM [TRN].[EmployeeAdvanceDetail] AS AD
+                                LEFT JOIN [TRN].[EmployeeAdvance] AS AM ON AD.EmployeeAdvanceId=AM.Id
+                                LEFT JOIN [TRN].[EmployeeAdvanceRequisition] AS EAR ON EAR.SystemId=AM.RequisitionId
+                                LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.Id=AD.VoucherDetailId
+                                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                                LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=AD.EmpSystemId
+                                WHERE  AD.IsWrittenOff=0 AND (AD.AdvanceAmount-ISNULL(AD.WrittenOffAmount,0))>0 AND EAR.AdvanceType='General'
+                                AND AM.CompanyGroupId='" + companyGroupId + @"' AND AM.CompanyId='" + companyId + @"' AND AM.PlantId='" + plantId + @"' AND ISNULL(AD.EmpSystemId,'')<>'' 
+                                ) AS T WHERE T.Balance>0 GROUP BY T.EmployeeId, T.EmployeeCode, T.EmployeeName )Y ON Y.EmployeeId=X.EmployeeId
+                    ) AS TEMP WHERE " + strkey + "";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
+            }
+        }
 
         public List<Dictionary<string, object>> GetMultiplePaymentParkList(string plantId)
         {
