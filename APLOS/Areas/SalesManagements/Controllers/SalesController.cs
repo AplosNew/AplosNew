@@ -651,10 +651,10 @@ namespace Aplos.Areas.SalesManagements.Controllers
             try
             {
                 MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
-                string sqlmaster = "SELECT * FROM [TRN].[SalesReturn] WHERE Id='" + data["SalesId"].ToString() + "'";
-                string sqlDetail = "SELECT * FROM [TRN].[SalesReturnDetail] WHERE SalesId='" + data["SalesId"].ToString() + "'";
-                string taxsql = "SELECT * FROM [TRN].[SalesReturnTax] WHERE SalesId='" + data["SalesId"].ToString() + "'";
-                string servicesql = "SELECT * FROM [TRN].[SalesReturnService] WHERE SalesId='" + data["SalesId"].ToString() + "'";
+                string sqlmaster = "SELECT * FROM [TRN].[SalesReturn] WHERE 1=2";
+                string sqlDetail = "SELECT * FROM [TRN].[SalesReturnDetail] WHERE 1=2";
+                string taxsql = "SELECT * FROM [TRN].[SalesReturnTax] WHERE 1=2";
+                string servicesql = "SELECT * FROM [TRN].[SalesReturnService] WHERE 1=2";
                 string itemScanChildsql = "SELECT * FROM dbo.ItemScanChild WHERE SalesId='" + data["SalesId"].ToString() + "'";
                 string itemScansql = "SELECT * FROM dbo.ItemScan WHERE 1=2";
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -825,9 +825,9 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             string serDetailid = materialCommonService.MakePK(_Id, ccount, 2);
                             Seritem["Id"] = serDetailid;
                             Seritem["SalesReturnId"] = _Id;
-                            Seritem["SalesId"] = Seritem["SalesId"];
-                            Seritem["SalesServiceId"] = Seritem["SalesServiceId"];
-                            Seritem["ServiceMasterId"] = Seritem["ServiceMasterId"];
+                            //Seritem["SalesId"] = Seritem["SalesId"];
+                            //Seritem["SalesServiceId"] = Seritem["SalesServiceId"];
+                            //Seritem["ServiceMasterId"] = Seritem["ServiceMasterId"];
                             Seritem["Amount"] = Seritem["Amount"];
                             Seritem["TotalTaxAmount"] = Seritem["TotalTaxAmount"];
                             Seritem["AddedBy"] = identity.Name;
@@ -848,8 +848,8 @@ namespace Aplos.Areas.SalesManagements.Controllers
                                         string taxid = "SS" + materialCommonService.MakePK(serDetailid, taxcount, 2);
                                         sertx["Id"] = taxid;
                                         sertx["SalesReturnId"] = _Id;
-                                        sertx["SalesServiceId"] = serDetailid;
                                         sertx["SalesId"] = sertx["SalesId"];
+                                        sertx["SalesReturnDetailId"] = serDetailid;
                                         sertx["AddedBy"] = identity.Name;
                                         sertx["AddedDate"] = DateTime.Now;
                                         sertx["AddedFromIP"] = identity.IPAddress;

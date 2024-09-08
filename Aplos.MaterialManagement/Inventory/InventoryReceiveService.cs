@@ -2252,6 +2252,83 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
+        public decimal GetOtherChargesRatio(string receiveId, string detailId, decimal detailTotalAmnt, string serviceId, decimal svcTotalAmnt, bool isNonCreditable)
+        {
+            try
+            {
+                decimal svcAmount = 0;
+                if (isNonCreditable)
+                    svcAmount = _inventoryReceiveRepository.SqlQuery<decimal>("SELECT ISNULL(SUM(Amount), 0) FROM TRN.InventoryService WHERE InventoryReceiveId='" + receiveId + "' AND ISNULL(Id, '')<>'" + serviceId + "' AND IsOtherVendor=1").First();//+ISNULL(SUM(TotalTaxAmount), 0)
+                else
+                    svcAmount = _inventoryReceiveRepository.SqlQuery<decimal>("SELECT ISNULL(SUM(Amount), 0) FROM TRN.InventoryService WHERE InventoryReceiveId='" + receiveId + "' AND ISNULL(Id, '')<>'" + serviceId + "' AND IsOtherVendor=1").First();
+                if (svcTotalAmnt > 0) svcAmount += svcTotalAmnt;
+                else svcAmount -= svcTotalAmnt;
+
+                var detailAmount = _inventoryReceiveRepository.SqlQuery<decimal>("SELECT ISNULL(SUM(MaterialTranAmount), 1) FROM TRN.InventoryReceiveDetail WHERE InventoryReceiveId='" + receiveId + "' AND ISNULL(Id, '')<>'" + detailId + "'").First();
+                if (detailTotalAmnt > 0)
+                {
+                    detailAmount += detailTotalAmnt;
+                }
+
+                else
+                {
+                    detailAmount -= detailTotalAmnt;
+                    //detailAmount = 1;
+                }
+
+                return svcAmount == 0 && detailAmount == 0 ? 0 : (svcAmount / detailAmount);
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
+
+        public decimal GetOtherChargesTaxRatio(string receiveId, string detailId, decimal detailTotalAmnt, string serviceId, decimal svcTotalAmnt, bool isNonCreditable)
+        {
+            try
+            {
+                decimal svcAmount = 0;
+                if (isNonCreditable)
+                    svcAmount = _inventoryReceiveRepository.SqlQuery<decimal>("SELECT ISNULL(SUM(TotalTaxAmount), 0) FROM TRN.InventoryService WHERE InventoryReceiveId='" + receiveId + "' AND ISNULL(Id, '')<>'" + serviceId + "' AND IsOtherVendor=1 ").First();
+                else
+                    svcAmount = _inventoryReceiveRepository.SqlQuery<decimal>("SELECT ISNULL(SUM(TotalTaxAmount), 0) FROM TRN.InventoryService WHERE InventoryReceiveId='" + receiveId + "' AND ISNULL(Id, '')<>'" + serviceId + "' AND IsOtherVendor=1 ").First();
+                if (svcTotalAmnt > 0) svcAmount += svcTotalAmnt;
+                else svcAmount -= svcTotalAmnt;
+
+                var detailAmount = _inventoryReceiveRepository.SqlQuery<decimal>("SELECT ISNULL(SUM(MaterialTranAmount), 1) FROM TRN.InventoryReceiveDetail WHERE InventoryReceiveId='" + receiveId + "' AND ISNULL(Id, '')<>'" + detailId + "'").First();
+                if (detailTotalAmnt > 0)
+                {
+                    detailAmount += detailTotalAmnt;
+                }
+
+                else
+                {
+                    detailAmount -= detailTotalAmnt;
+                    //detailAmount = 1;
+                }
+
+                return svcAmount == 0 && detailAmount == 0 ? 0 : (svcAmount / detailAmount);
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
         public void GRNApproved(IEnumerable<InventoryReceive> entities, string GRNStatus)
         {
             var flag = false;

@@ -2500,6 +2500,8 @@ namespace Library.Service.SalesManagements
                     AddedBy = invoice.AddedBy,
                     AddedDate = invoice.AddedDate,
                     AddedFromIP = invoice.AddedFromIP,
+                    PostedBy = invoice.AddedBy,
+                    PostedDate = invoice.AddedDate,
                     VoucherDate = invoice.VoucherDate,
                     DocDate = invoice.DocDate,
                     DocRefNo = invoice.DocRefNo,
