@@ -166,81 +166,133 @@
     <div class="clearfix"></div>
     <br />
     <div class="col-xs-12 col-sm-12 col-md-12 ">
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <div class="table-responsive modal-table ">
-                <table class="table table-striped" ng-show="partyList.length">
-                    <thead>
-                        <tr>
-                            <th>Employee Code</th>
-                            <th>Employee Name</th>
-                            <th>Designation</th>
-                            <th>Department</th>
-                            <th>Section</th>
-                            <th>Payable Amount</th>
-                            <th>Advance Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="x in partyDataListNew">
-                            <td>{{x.EmployeeCode}}</td>
-                            <td>{{x.EmployeeName}}</td>
-                            <td>{{x.LegalDesignation}}</td>
-                            <td>{{x.Department}}</td>
-                            <td>{{x.Section}}</td>
-                            <td>{{x.Balance}}</td>
-                            <td>{{x.AdvanceNetBalance}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <div class="table-responsive modal-table ">
+            <table class="table table-striped" ng-show="partyList.length">
+                <thead>
+                    <tr>
+                        <th>Employee Code</th>
+                        <th>Employee Name</th>
+                        <th>Designation</th>
+                        <th>Department</th>
+                        <th>Section</th>
+                        <th>Payable Amount</th>
+                        <th>Advance Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in partyDataListNew">
+                        <td>{{x.EmployeeCode}}</td>
+                        <td>{{x.EmployeeName}}</td>
+                        <td>{{x.LegalDesignation}}</td>
+                        <td>{{x.Department}}</td>
+                        <td>{{x.Section}}</td>
+                        <td>{{x.Balance}}</td>
+                        <td>{{x.AdvanceNetBalance}}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-
     </div>
     <div class="clearfix"></div>
     <br />
-    <div class="table-responsive modal-table" ng-show="voucherDetailList.length">
-        <table class="table table-striped table-bordered">
-            <thead>
-                <tr>
-                    <th>Voucher No</th>
-                    <th>DocDate</th>
-                    <th>Doc Ref No</th>
-                    <th>Posting Date</th>
-                    <th>Currency</th>
-                    <th>Payable</th>
-                    <th>Payment</th>
-                    <th>Balance</th>
-                    <th>Amount</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="x in voucherDetailList">
-                    <td>{{x.VoucherNo}}</td>
-                    <td>{{x.DocDate |dateFiltering}}</td>
-                    <td>{{x.DocRefNo}}</td>
-                    <td>{{x.PostingDate |dateFiltering}}</td>
-                    <td>{{x.CurrencyCode}}</td>
-                    <td class="text-right">{{x.Receivable | number:2}}</td>
-                    <td class="text-right">{{x.Received | number:2}}</td>
-                    <td class="text-right">{{x.Balance | number:2}}</td>
-                    <td><input ng-keyup="convertAmount(x)" type="text" n-decimals="2" class="form-control text-right" name="Amount" ng-model="x.Amount"></td>
-                    <td class="text-right">
-                        <button ng-click="removeRow($index)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove">
-                            <i class="glyphicon glyphicon-remove"></i>
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-            <tfoot ng-show="voucherDetailList.length">
-                <tr>
-                    <td colspan="7"></td>
-                    <td><b>Sub Total</b></td>
-                    <td class="text-right"><b>{{ voucherDetailList | sumByKey : 'Amount' }}</b></td>
-                    <td></td>
-                </tr>
-            </tfoot>
-        </table>
+    @*<div class="table-responsive modal-table" ng-show="voucherDetailList.length">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Voucher No</th>
+                        <th>DocDate</th>
+                        <th>Doc Ref No</th>
+                        <th>Posting Date</th>
+                        <th>Currency</th>
+                        <th>Payable</th>
+                        <th>Payment</th>
+                        <th>Balance</th>
+                        <th>Amount</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in voucherDetailList">
+                        <td>{{x.VoucherNo}}</td>
+                        <td>{{x.DocDate |dateFiltering}}</td>
+                        <td>{{x.DocRefNo}}</td>
+                        <td>{{x.PostingDate |dateFiltering}}</td>
+                        <td>{{x.CurrencyCode}}</td>
+                        <td class="text-right">{{x.Receivable | number:2}}</td>
+                        <td class="text-right">{{x.Received | number:2}}</td>
+                        <td class="text-right">{{x.Balance | number:2}}</td>
+                        <td><input ng-keyup="convertAmount(x)" type="text" n-decimals="2" class="form-control text-right" name="Amount" ng-model="x.Amount"></td>
+                        <td class="text-right">
+                            <button ng-click="removeRow($index)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                <i class="glyphicon glyphicon-remove"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot ng-show="voucherDetailList.length">
+                    <tr>
+                        <td colspan="7"></td>
+                        <td><b>Sub Total</b></td>
+                        <td class="text-right"><b>{{ voucherDetailList | sumByKey : 'Amount' }}</b></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>*@
+    <div class="col-xs-12 col-sm-12 col-md-12 ">
+        <div class="table-responsive modal-table ">
+            <table class="table table-striped" ng-show="paymentSelectedList.length">
+                <thead>
+                    <tr>
+                        <th>Action</th>
+                        <th>Employee Code</th>
+                        <th>Employee Name</th>
+                        <th>Voucher No</th>
+                        <th>Posting Date</th>
+                        <th>Doc Date</th>
+                        <th>Doc Ref</th>
+                        <th>Currency</th>
+                        <th>Payable</th>
+                        <th>Payment</th>
+                        <th>Balance</th>
+                        <th>
+                            Amount
+                            <div class="common-btn">
+                                <button ng-click="copyPayableBalanceAmount();" class="btn" tabindex="5"><i class="glyphicon"></i> Copy</button>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in paymentSelectedList">
+                        <td class="text-right">
+                            <button ng-click="removeRow($index,x)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                <i class="glyphicon glyphicon-remove"></i>
+                            </button>
+                        </td>
+                        <td>{{x.EmployeeCode}}</td>
+                        <td>{{x.EmployeeName}}</td>
+                        <td>{{x.VoucherNo}}</td>
+                        <td>{{x.PostingDate | dateFiltering}}</td>
+                        <td>{{x.DocDate | dateFiltering}}</td>
+                        <td>{{x.DocRefNo}}</td>
+                        <td>{{x.CurrencyCode}}</td>
+                        <td class="text-right">{{x.Receivable | number:4}}</td>
+                        <td class="text-right">{{x.Received | number:4}}</td>
+                        <td class="text-right">{{x.Balance | number:4}}</td>
+                        <td>
+                            <input ng-keyup="checkPaymentAmountByBalanceAmount(x);" type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" autocomplete="off" name="Amount" ng-model="x.Amount">
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="11" class="text-right">Total</td>
+                        <td class="text-right"><b>{{ (paymentSelectedList) | sumByKey:'Amount' }}</b></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
     </div>
     <div class="clearfix"></div>
     <br />
@@ -375,13 +427,102 @@
     </div>
 </div>
 
+<div class="modal fade site-modal in" id="EmployeePayableListPopUP" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:1000px">
+        <div class="modal-content" ng-form name="materialgridCharacteristicsForm">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="closePopUp()">&times;</button>
+                <h4 class="modal-title">Payable</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="popUpParameters.searchBy">
+                                            <option ng-repeat="option in multipleEmployeeInvoiceSearchList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search" ng-enter="customerreceivableGLData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="customerreceivableGLData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>To Pay</th>
+                                <th>Employee Code</th>
+                                <th>Employee Name</th>
+                                <th>Entity</th>
+                                <th>Voucher No</th>
+                                <th>Posting Date</th>
+                                <th>Doc Date</th>
+                                <th>Doc Ref</th>
+                                <th>Currency</th>
+                                <th>Payable</th>
+                                <th>Payment</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in  paymentList |itemsPerPage:popUpParameters.pageSize"
+                                pagination-id="metaData.name + 'paymentList'"
+                                total-items="popUpParameters.total_count">
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="x.Active" ng-checked="x.Active"
+                                                   ng-click="pushInTempList($event,x);">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{x.EmployeeCode}}</td>
+                                <td>{{x.EmployeeName}}</td>
+                                <td>{{x.EntityName}}</td>
+                                <td>{{x.VoucherNo}}</td>
+                                <td>{{x.PostingDate | dateFiltering}}</td>
+                                <td>{{x.DocDate | dateFiltering}}</td>
+                                <td>{{x.DocRefNo}}</td>
+                                <td>{{x.CurrencyCode}}</td>
+                                <td class="text-right">{{x.Receivable | number:4}}</td>
+                                <td class="text-right">{{x.Received | number:4}}</td>
+                                <td class="text-right">{{x.Balance | number:4}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'paymentList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="customerreceivableGLData(newPageNumber)">
+                </dir-pagination-controls>
+            </div>
+            <div class="modal-footer  common-btn">
+                <button type="button" class="btn btn-default" ng-click="closePopUp()">Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <confirm-archive-generic modalid="confirmSavePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="Save()"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(payableId)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(employeePayableWriteOffId,voucherId)"></confirm-archive-generic>
 
 @Html.Partial("~/Areas/Banks/Views/_CashPopUp.cshtml")
 @Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
-@Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
-@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")
-@Html.Partial("~/Areas/Accounts/Views/_EmployeePayablePopUp.cshtml")
-@Html.Partial("~/Areas/Accounts/Views/_EmployeeOutStandingAdvancePopUp.cshtml")
+@*@Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")*@
+@*@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")*@
+@*@Html.Partial("~/Areas/Accounts/Views/_EmployeePayablePopUp.cshtml")*@
+@*@Html.Partial("~/Areas/Accounts/Views/_EmployeeOutStandingAdvancePopUp.cshtml")*@

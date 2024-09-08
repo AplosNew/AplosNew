@@ -116,6 +116,13 @@ namespace Aplos.Areas.Accounts.Controllers
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
+        [HttpGet, Authorize]
+        public JsonResult GetMultipleEmployeeAvailableInvoiceList(GridParameter parameters, string employeeId)
+        {
+            AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsInvoiceService.GetMultipleEmployeeAvailableInvoiceList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, employeeId), JsonRequestBehavior.AllowGet);
+        }
         #endregion
 
         #region EmployeePayment

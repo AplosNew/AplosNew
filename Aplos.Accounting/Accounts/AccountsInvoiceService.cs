@@ -885,7 +885,8 @@ namespace Library.Accounting.Accounts
                                 WHERE  AD.IsWrittenOff=0 AND (AD.AdvanceAmount-ISNULL(AD.WrittenOffAmount,0))>0 AND EAR.AdvanceType='General'
                                 AND AM.CompanyGroupId='" + companyGroupId + @"' AND AM.CompanyId='" + companyId + @"' AND AM.PlantId='" + plantId + @"' AND ISNULL(AD.EmpSystemId,'')<>'' 
                                 ) AS T WHERE T.Balance>0 GROUP BY T.EmployeeId, T.EmployeeCode, T.EmployeeName )Y ON Y.EmployeeId=X.EmployeeId
-                    ) AS TEMP WHERE " + strkey + "";
+                                
+                    ) AS TEMP WHERE " + strkey + "  ORDER BY EmployeeName ASC ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -893,6 +894,46 @@ namespace Library.Accounting.Accounts
                 throw new CustomException(ex.Message, ex,
                     Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
+            }
+        }
+
+        public GridModel GetMultipleEmployeeAvailableInvoiceList(GridParameter parameters, string companyGroupId, string companyId, string plantId, string employeeId)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT 0 Active,EMP.EmployeeCode,EMP.EmployeeName,EPD.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode+' - '+GLGI.UserName AS GLGeneralInfoName, EPD.BudgetMasterId, B.UserName AS BudgetName, EPD.ActivityId, A.UserName AS ActivityName,
+                                        V.VoucherNo, Replace(CONVERT(VARCHAR(11), EP.DocDate, 106), ' ', '-') DocDate,Replace(CONVERT(VARCHAR(11), EP.PostingDate, 106), ' ', '-') PostingDate,
+                                        EP.DocRefNo, EP.Narration, EP.Id AS EmployeePayableId, EPD.Id AS EmployeePayableDetailId, EP.VoucherId, VD.EntityId, E.UserName AS EntityName, VD.PlantId,
+                                        VD.Id AS VoucherDetailId, EP.CurrencyId, C.Code AS CurrencyCode, EP.EmployeeId, EPD.NetAmount AS Receivable,
+                                        EPD.WrittenOffAmount AS Received, EPD.NetAmount-EPD.WrittenOffAmount AS Balance,EP.InventoryReceiveId GRNNo, ET.AdvanceType JournalType
+                                        ,Particular=REPLACE(REPLACE(
+										STUFF((SELECT DISTINCT ','+xpo.UserName from
+											hkp.Activity xpo
+											INNER JOin TRN.VoucherDetail xPDAMAP on xpo.id=xPDAMAP.ActivityId
+											WHERE VD.ActivityId!=xPDAMAP.ActivityId and xPDAMAP.VoucherId=V.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										,'&amp;','&'), 'amp;', '')
+                                        FROM [TRN].[EmployeePayableDetail] AS EPD
+                                        LEFT JOIN [TRN].[EmployeePayable] AS EP ON EPD.EmployeePayableId=EP.Id
+                                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.EmployeePayableDetailId=EPD.Id
+                                        LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                                        LEFT JOIN EmployeeInformation AS EMP ON EP.EmployeeId=EMP.SystemId
+                                        LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=EPD.GLGeneralInfoId
+										LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=EPD.BudgetMasterId
+										LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+										LEFT JOIN [HKP].[Activity] AS A ON A.Id=EPD.ActivityId
+                                        LEFT JOIN [SCS].[Currency] AS C ON C.Id=EP.CurrencyId
+                                        LEFT JOIN [ORG].[Entity] AS E ON E.Id=VD.EntityId
+                                        LEFT JOIN HKP.EmployeeTransactionType ET ON ET.Id=EP.EmployeeTransactionTypeId
+                                        WHERE EP.Archive=0 AND EP.IsPark=0 AND EP.IsWrittenOff=0 AND EPD.IsWrittenOff=0 AND EPD.IsBlock=0 AND EP.SourceType IN ('EmployeePayable','SalaryPayable','VendorInvoice','InventoryPayable')
+                                        AND EP.CompanyGroupId='" + companyGroupId + @"' AND EP.CompanyId='" + companyId + @"' AND EP.PlantId='" + plantId + @"' AND EP.EmployeeId " + employeeId + @" AND (EPD.NetAmount-EPD.WrittenOffAmount)>0 ";
+
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
 
