@@ -1,6 +1,6 @@
 ﻿'use strict';
-AssignControlSetupController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$window'];
-function AssignControlSetupController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window ) {
+AssignControlSetupController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
+function AssignControlSetupController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'Assign Control Setup';
     $scope.Action = 'Save';
     $scope.ModelList = [];
@@ -12,7 +12,7 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
-    
+
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -26,13 +26,6 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
         { Value: "Leave", Text: "Leave" }
     ];
 
-
-    $scope.AssignForList = [
-        { Value: "Creation", Text: "Creation" },
-        { Value: "Checking", Text: "Checking" },
-        { Value: "Approving", Text: "Approving" }
-    ];
-
     $scope.getData = function () {
         $http({
             method: 'POST',
@@ -41,8 +34,6 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
-            ClearFields(response.data.Sequence);
-            $scope.GetSequence();
         });
     }
     $scope.getData();
@@ -92,7 +83,7 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                  //  ClearFields(response.data.Sequence);
+                    //  ClearFields(response.data.Sequence);
                     $scope.getData();
 
                 }
@@ -128,6 +119,7 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
     $scope.Clear = function () {
         ClearFields($scope.GetSequence());
         return true;
+
     };
 
     function ClearFields(seq) {
@@ -135,7 +127,10 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
         $scope.BudgetCodeList = [];
-        $scope.SavedBudgetedEmployeeList = [];
+        $scope.assignFor = null;
+        $scope.CreationBudgetedEmployeeList = [];
+        $scope.CheckingBudgetedEmployeeList = [];
+        $scope.ApprovingBudgetedEmployeeList = [];
     }
 
     //#region BudgetCode
@@ -164,7 +159,7 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
     $scope.popUpDataList = [];
     $scope.popUpBudgetCode = function () {
         try {
-           
+
             $scope.popUpUrl = 'employees/recruitment/GetBudgetCodeList';
 
             $scope.popUpEmpDataList = [];
@@ -197,7 +192,7 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
     };
     function CheckBoxSelectGWS(e) {
         var ChkOrUnchk = false;
-        if (e.model.checkState === "check") {
+        if (e.model.checkassignFor === "check") {
             ChkOrUnchk = true;
         }
 
@@ -299,7 +294,7 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
 
     $scope.BCSave = function () {
 
-       
+
         $http({
             method: 'POST',
             url: $scope.path + "CreateBudgetCode",
@@ -365,10 +360,11 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
 
     //#region
     // #region  Dynamic PopUp
-
+    $scope.assignFor = null;
     $scope.BudgetedEmployeeList = [];
-    $scope.popUpEmployee = function () {
+    $scope.popUpEmployee = function (assignFor) {
         try {
+            $scope.assignFor = assignFor;
             $scope.BudgetedEmployeeList = [];
             $http({
                 method: 'GET',
@@ -388,7 +384,7 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
     };
     function CheckBoxSelectBE(e) {
         var ChkOrUnchk = false;
-        if (e.model.checkState === "check") {
+        if (e.model.checkassignFor === "check") {
             ChkOrUnchk = true;
         }
 
@@ -407,49 +403,18 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
         gridObj.refreshContent();
     };
 
-    $scope.BESave = function () {
-        var savebelist = [];
-        for (var i = 0; i < $scope.BudgetedEmployeeList.length; i++) {
-            if ($scope.BudgetedEmployeeList[i].BEFlag == false || !baseService.isUndefinedOrNull($scope.BudgetedEmployeeList[i].Id)) {
-                savebelist.push($scope.BudgetedEmployeeList[i]);
-            }
-        }
-        $http({
-            method: 'POST',
-            url:
-                "Administration/AssignControlSetup/CreateBudgetedEmployee",
-            data: {
-                'data': savebelist
-                , 'assignControlSetupId': $scope.ModelNew.Id
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.GetBudgetedEmployee();
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
-        }
-    };
-
     $scope.closeEmpPopUp = function () {
         angular.element(document.querySelector('#popUpEmp')).modal('hide');
     };
 
     // #endregion
 
-   
-
     $scope.refreshTemplateRemove = function (args) {
         $("#headchkRemove").ejCheckBox({ "change": CheckBoxSelectRemove });
     };
     function CheckBoxSelectRemove(e) {
         var ChkOrUnchk = false;
-        if (e.model.checkState === "check") {
+        if (e.model.checkassignFor === "check") {
             ChkOrUnchk = true;
         }
 
@@ -467,7 +432,6 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
         var gridObj = $("#GridBC").data("ejGrid");
         gridObj.refreshContent();
     };
-
 
     var getString = function (data) {
         var string = "''";
@@ -533,20 +497,28 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
             }
         });
     };
-   
 
     //#endregion
 
-    $scope.SavedBudgetedEmployeeList = [];
-    $scope.GetBudgetedEmployee = function () {
+    $scope.CreationBudgetedEmployeeList = [];
+    $scope.CheckingBudgetedEmployeeList = [];
+    $scope.ApprovingBudgetedEmployeeList = [];
+    $scope.GetBudgetedEmployee = function (assignFor) {
         try {
+            $scope.assignFor = assignFor
             $scope.BudgetedEmployeeList = [];
             $http({
                 method: 'GET',
-                url: 'Administration/AssignControlSetup/GetSavedBudgetedEmployeeData?AssignControlSetupId=' + $scope.ModelNew.Id
+                url: 'Administration/AssignControlSetup/GetSavedBudgetedEmployeeData?AssignControlSetupId=' + $scope.ModelNew.Id + '&assignFor=' + $scope.assignFor
 
             }).then(function successCallback(response) {
-                $scope.SavedBudgetedEmployeeList = response.data;
+                if ($scope.assignFor == 'Creation') {
+                    $scope.CreationBudgetedEmployeeList = response.data;
+                } else if ($scope.assignFor == 'Checking') {
+                    $scope.CheckingBudgetedEmployeeList = response.data;
+                } else {
+                    $scope.ApprovingBudgetedEmployeeList = response.data;
+                }
             });
         } catch (e) {
             ShowResult(e, 'failure');
@@ -558,7 +530,7 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
     };
     function CheckBoxSelectBE(e) {
         var ChkOrUnchk = false;
-        if (e.model.checkState === "check") {
+        if (e.model.checkassignFor === "check") {
             ChkOrUnchk = true;
         }
 
@@ -577,20 +549,97 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
         gridObj.refreshContent();
     };
 
-    $scope.BESave = function () {
-        var savebelist = [];
-        for (var i = 0; i < $scope.BudgetedEmployeeList.length; i++) {
-            if ($scope.BudgetedEmployeeList[i].BEFlag == true) {
-                savebelist.push($scope.BudgetedEmployeeList[i]);
+    function CheckExistsEmployee(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].EmployeeId == Id) {
+                return true;
             }
         }
+        return false;
+    }
+
+    $scope.BESave = function () {
+        try {
+            var savebelist = [];
+            for (var i = 0; i < $scope.BudgetedEmployeeList.length; i++) {
+                if ($scope.BudgetedEmployeeList[i].BEFlag == true) {
+                    if ($scope.assignFor == 'Creation') {
+                        if ($scope.CreationBudgetedEmployeeList.length > 0) {
+                            if (CheckExistsEmployee($scope.CreationBudgetedEmployeeList, $scope.BudgetedEmployeeList[i].EmployeeId) == false) {
+                                $scope.BudgetedEmployeeList[i].AssignFor = $scope.assignFor;
+                                savebelist.push($scope.BudgetedEmployeeList[i]);
+                            }
+                        } else {
+                            $scope.BudgetedEmployeeList[i].AssignFor = $scope.assignFor;
+                            savebelist.push($scope.BudgetedEmployeeList[i]);
+                        }
+                    } else if ($scope.assignFor == 'Checking') {
+                        if ($scope.CheckingBudgetedEmployeeList.length > 0) {
+                            if (CheckExistsEmployee($scope.CheckingBudgetedEmployeeList, $scope.BudgetedEmployeeList[i].EmployeeId) == false) {
+                                $scope.BudgetedEmployeeList[i].AssignFor = $scope.assignFor;
+                                savebelist.push($scope.BudgetedEmployeeList[i]);
+                            }
+                        }
+                        else {
+                            $scope.BudgetedEmployeeList[i].AssignFor = $scope.assignFor;
+                            savebelist.push($scope.BudgetedEmployeeList[i]);
+                        }
+                    } else {
+                        if ($scope.ApprovingBudgetedEmployeeList.length > 0) {
+                            if (CheckExistsEmployee($scope.ApprovingBudgetedEmployeeList, $scope.BudgetedEmployeeList[i].EmployeeId) == false) {
+                                $scope.BudgetedEmployeeList[i].AssignFor = $scope.assignFor;
+                                savebelist.push($scope.BudgetedEmployeeList[i]);
+                            }
+                        }
+                        else {
+                            $scope.BudgetedEmployeeList[i].AssignFor = $scope.assignFor;
+                            savebelist.push($scope.BudgetedEmployeeList[i]);
+                        }
+                    }
+                }
+            }
+            if (savebelist.length > 0) {
+                $http({
+                    method: 'POST',
+                    url: "Administration/AssignControlSetup/CreateBudgetedEmployee",
+                    data: {
+                        'data': savebelist
+                        , 'assignControlSetupId': $scope.ModelNew.Id
+                    },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.GetBudgetedEmployee($scope.assignFor);
+                        $scope.closeEmpPopUp();
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.removeEmployee = function (data) {
+        try {
+            $scope.tempId = data.data.Id;
+            $scope.message_confirmation = "Are you sure want to permanent delete ?";
+            angular.element(document.querySelector('#confirmAuthorityRemovePopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+    $scope.DeleteEmployee = function () {
         $http({
             method: 'POST',
-            url:"Administration/AssignControlSetup/CreateBudgetedEmployee",
-            data: {
-                'data': savebelist
-                , 'assignControlSetupId': $scope.ModelNew.Id
-            },
+            url: 'Administration/AssignControlSetup/DeleteEmployee',
+            data: { 'Id': $scope.tempId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -598,10 +647,12 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.GetBudgetedEmployee();
+                $scope.GetBudgetedEmployee($scope.assignFor);
             }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
-        }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
     };
+
 }

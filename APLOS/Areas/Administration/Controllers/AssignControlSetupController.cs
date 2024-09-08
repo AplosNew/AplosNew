@@ -330,21 +330,26 @@ namespace Aplos.Areas.Administration.Controllers
             {
                 #region Entity 
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.AssignControlBudgetedEmployee where  AssignControlSetupId='" + assignControlSetupId + "'", out dsBC, false, "1");
-              
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.AssignControlBudgetedEmployee where AssignControlSetupId='" + assignControlSetupId + "'", out dsBC, false, "1");
+
+                //objCon.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[AssignControlBudgetedEmployee] where AssignControlSetupId='" + assignControlSetupId + "'", out dsDD, false, "1");
+                //int ccount = Convert.ToInt32(dsDD.Tables[0].Rows[0]["countId"].ToString());
+
                 if (data != null)
                 {
-
+                    
 
                     foreach (var item in data)
                     {
+                        genid.GenID("AssignControlBudgetedEmployee", out _Id);
                         DataView dv = new DataView(dsBC.Tables[0]);
                         dv.RowFilter = "Id='" + item["Id"] + "'";
-                        if (dv.Count == 0 && Convert.ToBoolean(item["BEFlag"]) == true)
+                        if (dv.Count == 0)
                         {
                             //ccount++;
 
-                            item["Id"] = item["EmployeeId"].ToString();
+                           // item["Id"] = materialCommonService.MakePK(assignControlSetupId, ccount, 2); ;
+                            item["Id"] = _Id;
                             item["AssignControlSetupId"] = assignControlSetupId;
 
                             AddNewRow(dsBC.Tables[0], item);
@@ -367,29 +372,36 @@ namespace Aplos.Areas.Administration.Controllers
             }
         }
 
-        [HttpGet, Authorize]
-        public JsonResult GetSavedBudgetedEmployeeData(string AssignControlSetupId)
+        [Authorize, HttpPost]
+        public ActionResult DeleteEmployee(string Id)
         {
             try
             {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from AssignControlBudgetedEmployee where Id ='" + Id + "'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        [HttpGet, Authorize]
+        public JsonResult GetSavedBudgetedEmployeeData(string AssignControlSetupId, string assignFor)
+        {
+            try
+            {
+                string af = @"AND AE.AssignFor='"+ assignFor + "'";
                 string CmdText = @"SELECT AE.Id,CAST (CASE WHEN AE.EmployeeId IS NULL THEN 1 ELSE 0 END AS bit) BEFlag,E.SystemId EmployeeId						    	
-							    	,E.EmployeeName
-							    	,PMB.Code BudgetCode
-							    	,PR.UserName PositionName
-							    	,EN.UserName EntityName
-							    	,D.UserName Designation
-							    	,GD.UserName GivenDesignation
-                                    ,LD.UserName LegalDesignation
-							    	,DEPT.UserName AS Department
-							    	,DV.UserName AS Division
-									,SC.UserName AS Section
-                                    ,E.EmployeeCode
-                                    ,E.DOJ
-                                    ,P.UserName Plant
-									,SS.UserName SubSection
-                                    ,E.EmployeeCodeNumeric
-                                    ,C.UserName Company
-                                    ,EC.UserName EmployeeCategory
+							    	,E.EmployeeName,PMB.Code BudgetCode,PR.UserName PositionName,EN.UserName EntityName,D.UserName Designation
+							    	,GD.UserName GivenDesignation,LD.UserName LegalDesignation,DEPT.UserName AS Department,DV.UserName AS Division
+									,SC.UserName AS Section,E.EmployeeCode,E.DOJ,P.UserName Plant,SS.UserName SubSection,E.EmployeeCodeNumeric
+                                    ,C.UserName Company,EC.UserName EmployeeCategory
 							    FROM dbo.AssignControlBudgetedEmployee AE
 								LEFT JOIN EmployeeInformation E ON E.SystemId=AE.EmployeeId
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
@@ -406,7 +418,7 @@ namespace Aplos.Areas.Administration.Controllers
                                 LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
 								LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
                                 LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
-                                Where AssignControlSetupId='" + AssignControlSetupId + @"' AND E.EmployeeStatus='Active' AND E.EmpType<>'Guest' 
+                                Where AssignControlSetupId='" + AssignControlSetupId + @"' AND E.EmployeeStatus='Active' AND E.EmpType<>'Guest' "+af+@"
 								order by EmployeeCodeNumeric";
                 return Json(_sqlRepository.GetDataCollection(CmdText, null), JsonRequestBehavior.AllowGet);
             }
