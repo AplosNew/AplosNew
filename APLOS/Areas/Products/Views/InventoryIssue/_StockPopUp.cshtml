@@ -24,8 +24,8 @@
                                     <th>Storage Location</th>
                                     <th>Balance Qty</th>
                                     <th class="col-md-3" colspan="3" style="width:300px;">Requisition Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                    <th colspan="2" style="width:200px;">Bale Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                                     <th>Lot No.</th>
-                                    <th>TransferedFromGrnId</th>
                                     <th>Receive Qty</th>
                                     <th>Issue Qty</th>
                                     <th>Shortage Qty</th>
@@ -41,6 +41,7 @@
                                     <th>Approved</th>
                                     <th>Posting</th>
                                     <th>IssueByUoM</th>
+                                    <th>TransferedFromGrnId</th>
                                     @*<th class="col-md-3">Requisition Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>*@
                                 </tr>
                             </thead>
@@ -70,8 +71,13 @@
                                             <span class="input-group-addon">{{x.IssueTransactionUoM}}</span>
                                         </div>
                                     </td>
+                                    <td class="text-right" colspan="2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">{{x.BalanceBaleQty}}</span>
+                                            <input type="text" n-decimals="20" ng-model="x.CurrentIssueBaleQty" class="form-control text-right"  ng-disabled="productNew.Id!=null" width="200" />
+                                        </div>
+                                    </td>
                                     <td>{{x.LotNumber}}</td>
-                                    <td>{{x.TransferedFromGrnId}}</td>
                                     <td>{{x.TransactionQty}} {{x.TUoM}}</td>
                                     @*<td>{{x.BaseQty}} {{x.BUoM}}</td>*@
                                     <td>{{x.BaseIssueQty}} {{x.BUoM}}</td>
@@ -89,22 +95,16 @@
                                     <td>{{x.BaseCurrencyRate|setDecimal:4}} {{x.BCurrency}}</td>
                                     <td>{{x.IsApproved}}</td>
                                     <td>{{x.IsPosting}}</td>
+                                    <td>{{x.TransferedFromGrnId}}</td>
                                     <td>{{x.IssueByUoM}}</td>
 
 
-                                    @*<td class="text-right" colspan="3">
-            <div class="input-group">
-                <input type="text" n-decimals="20" ng-model="x.RequisitionQty" class="form-control text-right"  ng-disabled="productNew.Id!=null" width="200" />
-                <span class="input-group-addon">{{x.TrasactopmUomQty}}</span>
-                <span class="input-group-addon">{{x.IssueTransactionUoM}}</span>
-            </div>
-        </td>*@
                                 </tr>
                                 <tr>
                                     <td colspan="9" class="text-right"><strong>Total : </strong></td>
                                     <td class="text-left"><strong>{{materialStockList | sumByKey : 'BalanceStock' }}</strong></td>
                                     <td class="text-center"><strong>{{materialStockList | sumByKey : 'RequisitionQty' }}</strong></td>
-                                    <td colspan="3"></td>
+                                    <td colspan="5"></td>
                                     <td class="text-left"><strong>{{materialStockList | sumByKey : 'TransactionQty' }}</strong></td>
                                     @*<td class="text-left"><strong>{{materialStockList | sumByKey : 'BaseQty' }}</strong></td>*@
                                     <td class="text-left"><strong>{{materialStockList | sumByKey : 'IssueQty' }}</strong></td>

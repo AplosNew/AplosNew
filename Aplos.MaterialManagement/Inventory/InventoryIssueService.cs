@@ -870,6 +870,7 @@ namespace Library.MaterialManagement.Inventory
                                         TotalAmount = (item.BaseQty == (item.IssueQty + item.RequisitionQty - item.IssueReturnQty)) ? Math.Round(Convert.ToDecimal(item.TotalMaterialBooksCurrencyAmount + item.AdditionalChargesAmount - item.TotalIssueAmount + item.TotalIssueReturnAmount), 2) : Math.Round(historyTotalCal, 2),//Convert.ToDecimal(detailtrnAmount),
                                         IssueRequestDetailId = item.IssueRequest,
                                         IssueReturnQty = 0,
+                                        BaleQty = Convert.ToDecimal(item.CurrentIssueBaleQty),
                                         BooksCurrencyBaseRate = (item.TransactionUoMId == item.BaseUOMId)? Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate), 4) : Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate), 4) * Convert.ToDecimal((item.BaseUoMFactor / item.GRNBaseUoMFactor)),
                                         TotalMaterialBooksCurrencyAmount = (item.BaseQty == (item.IssueQty + item.RequisitionQty-item.IssueReturnQty)) ? Math.Round(Convert.ToDecimal(item.TotalMaterialBooksCurrencyAmount + item.AdditionalChargesAmount - item.TotalIssueAmount+item.TotalIssueReturnAmount), 2) : Math.Round(historyTotalCal, 2)//totalReqQty item.RequisitionQty
                                     };
@@ -1287,6 +1288,7 @@ namespace Library.MaterialManagement.Inventory
                                         IsCapitalize = false,
                                         IssueRequestDetailId = receiveDetailRow.IssueRequest,
                                         IssueReturnQty = 0,
+                                        BaleQty = Convert.ToDecimal(issue.CurrentIssueBaleQty),
                                         //BooksCurrencyBaseRate = Math.Round(Convert.ToDecimal(issue.BooksCurrencyBaseRate), 4),
                                         //TotalMaterialBooksCurrencyAmount = Math.Round(Convert.ToDecimal(SelectedGRN.Qty * issue.BooksCurrencyBaseRate), 2)
                                         BooksCurrencyBaseRate = Math.Round(Convert.ToDecimal(issue.BaseRate), 4),

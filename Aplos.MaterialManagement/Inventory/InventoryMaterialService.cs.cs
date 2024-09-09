@@ -1904,6 +1904,7 @@ LEFT JOIN (
                         ,TrasactopmUomQty=(((ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0)+ISNULL(IIR.IssueReturnQty,0))*BaseUoMFactor)/BaseUoMFactor) 
 						--,0 TrasactopmUomQty
 						,'' IssueTransactionUoMId ,'' IssueTransactionUoM,ird.MaterialStorageId,MS.UserName MaterialStorage,IRD.LotNumber
+                    ,ISNULL(IRD.AlternativeQty,0) - ISNULL(II.IssueBaleQty,0) BalanceBaleQty,0 CurrentIssueBaleQty
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
                     left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
 					left join mst.MaterialMaster MM ON MM.Id=Im.MaterialMasterId
@@ -1915,7 +1916,7 @@ LEFT JOIN (
                     left JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
 					LEFT JOIN (
 									    SELECT IID.InventoryMaterialId,IH.InventoryReceiveDetailId, IH.MaterialStorageId
-                                        , Sum(ISNULL(IH.Qty,0)) IssueQty , Sum(ISNULL(IH.TotalMaterialBooksCurrencyAmount,0)) IssueAmount,IID.IsAsset
+                                        , Sum(ISNULL(IH.Qty,0)) IssueQty , Sum(ISNULL(IH.TotalMaterialBooksCurrencyAmount,0)) IssueAmount,SUM(ISNULL(IH.BaleQty,0)) IssueBaleQty,IID.IsAsset
 									    FROM TRN.InventoryIssueDetail IID  
 									    LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
 									    LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
@@ -1980,7 +1981,7 @@ LEFT JOIN (
                         ,TrasactopmUomQty=(((ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0))*BaseUoMFactor)/BaseUoMFactor) 
 						--,0 TrasactopmUomQty
 						,'' IssueTransactionUoMId
-						,'' IssueTransactionUoM,ird.MaterialStorageId,MS.UserName MaterialStorage,IRD.LotNumber
+						,'' IssueTransactionUoM,ird.MaterialStorageId,MS.UserName MaterialStorage,IRD.LotNumber,0 BalanceBaleQty,0 CurrentIssueBaleQty
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
                     left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
 					left join mst.MaterialMaster MM ON MM.Id=Im.MaterialMasterId
@@ -2047,7 +2048,7 @@ LEFT JOIN (
                         ,TrasactopmUomQty=(((ISNULL(IRD.BaseQty,0) - ISNULL(IRD.BaseIssueQty, 0))*BaseUoMFactor)/BaseUoMFactor) 
 						--,0 TrasactopmUomQty
 						,'' IssueTransactionUoMId
-						,'' IssueTransactionUoM,ird.MaterialStorageId,MS.UserName MaterialStorage,IRD.LotNumber
+						,'' IssueTransactionUoM,ird.MaterialStorageId,MS.UserName MaterialStorage,IRD.LotNumber,0 BalanceBaleQty,0 CurrentIssueBaleQty
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
                     left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
 					left join mst.MaterialMaster MM ON MM.Id=Im.MaterialMasterId
@@ -2094,7 +2095,7 @@ LEFT JOIN (
 						 ,IM.FirstCharacteristicsId ,IM.SecondCharacteristicsId
 						,IM.ThirdCharacteristicsId,IssueByUoM=CASE WHEN MM.IssueByUoM=0 THEN 'No' ELSE 'Yes' END
                         ,TrasactopmUomQty=(((ISNULL(IRD.BaseQty,0) - ISNULL(IRD.BaseIssueQty, 0))*BaseUoMFactor)/BaseUoMFactor) 
-						,'' IssueTransactionUoMId ,'' IssueTransactionUoM,ird.MaterialStorageId,MS.UserName MaterialStorage,IRD.LotNumber
+						,'' IssueTransactionUoMId ,'' IssueTransactionUoM,ird.MaterialStorageId,MS.UserName MaterialStorage,IRD.LotNumber,0 BalanceBaleQty,0 CurrentIssueBaleQty
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
                     left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
 					left join mst.MaterialMaster MM ON MM.Id=Im.MaterialMasterId

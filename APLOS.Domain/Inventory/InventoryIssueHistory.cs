@@ -20,6 +20,7 @@ namespace Library.Model.Inventory
         public decimal? TotalMaterialBooksCurrencyAmount { get; set; }        
             
         public decimal IssueReturnQty { get; set; } 
+        public decimal BaleQty { get; set; } 
 
         
         #endregion Scalar Properties
