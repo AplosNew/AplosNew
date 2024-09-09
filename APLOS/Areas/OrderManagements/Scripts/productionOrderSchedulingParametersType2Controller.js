@@ -1,6 +1,6 @@
 ﻿'use strict';
-ProductionOrderSchedulingParametersType1NewController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$filter", "$window", "$http"];
-function ProductionOrderSchedulingParametersType1NewController(cboService, commonMessage, $scope, $rootScope, baseService, $filter, $window, $http) {
+ProductionOrderSchedulingParametersType2Controller.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$filter", "$window", "$http"];
+function ProductionOrderSchedulingParametersType2Controller(cboService, commonMessage, $scope, $rootScope, baseService, $filter, $window, $http) {
     $rootScope.title = "Product Planning";
     $scope.Action = 'Save';
     $scope.index = -1;
