@@ -2493,7 +2493,7 @@ namespace Library.Accounting.Accounts
 		{
 			try
 			{
-				var sql = @"SELECT A.Id , A.ServiceMasterId
+				var sql = @"SELECT A.Id,A.Id SalesServiceId, A.ServiceMasterId,A.SalesId
                         , B.UserName AS ServiceMasterName
                          ,A.Amount Amount,0 OtherServiceAmount,Amount BalanceAmount, 0 ReturnAmount,0 TotalTaxAmount
                         ,IRT.TaxAmount SalesServiceTaxAmount
@@ -2515,7 +2515,7 @@ namespace Library.Accounting.Accounts
 		{
 			try
 			{
-				var sql = @"SELECT A.Id,A.SalesId, A.TaxCategoryId, TC.UserName AS TaxCategory, A.HSNCodeId, HN.Code AS HSNCode
+				var sql = @"SELECT A.Id,A.SalesId, A.TaxCategoryId, TC.UserName AS TaxCategory, A.HSNCodeId, HN.Code AS HSNCode,NULL SalesReturnDetailId
 							,A.[Percentage],A.Amount TaxAmount,0 Amount,A.SalesServiceId,ISS.ServiceMasterId
                             FROM [TRN].[SalesTax] AS A JOIN [MST].[TaxCategory] AS TC ON A.TaxCategoryId=TC.Id
                             LEFT JOIN [HKP].[HSNCode] AS HN ON A.HSNCodeId=HN.Id

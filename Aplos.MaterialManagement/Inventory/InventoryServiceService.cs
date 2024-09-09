@@ -254,8 +254,8 @@ namespace Library.MaterialManagement.Inventory
                         }
                     }
                     var isNonCreditable = _inventoryReceiveService.Query(t => t.Id == service.InventoryReceiveId).Select(t => t.IsNonCreditable).FirstOrDefault();//+ service.TotalTaxAmount
-                    var ratio = _inventoryReceiveService.GetChargesRatio(service.InventoryReceiveId, null, 0, service.Id, isNonCreditable ? (service.Amount) : service.Amount, isNonCreditable);
-                    var ratioServiceTax = _inventoryReceiveService.GetChargesTaxRatio(service.InventoryReceiveId, null, 0, service.Id, isNonCreditable ? (service.TotalTaxAmount) : service.TotalTaxAmount, isNonCreditable);
+                    var ratio = _inventoryReceiveService.GetOtherChargesRatio(service.InventoryReceiveId, null, 0, service.Id, isNonCreditable ? (service.Amount) : service.Amount, isNonCreditable);
+                    var ratioServiceTax = _inventoryReceiveService.GetOtherChargesTaxRatio(service.InventoryReceiveId, null, 0, service.Id, isNonCreditable ? (service.TotalTaxAmount) : service.TotalTaxAmount, isNonCreditable);
                     var inventoryReceivedata = _inventoryReceiveService.Query(r => r.Id == service.InventoryReceiveId).Select().FirstOrDefault();
                     inventoryReceivedata.OtherPartyId = entity.OtherPartyId;
                     inventoryReceivedata.OtherPartyPlantId = entity.OtherPartyPlantId;
@@ -861,8 +861,8 @@ namespace Library.MaterialManagement.Inventory
                         {
                             item.AdditionalChargesTax = Math.Round(item.MaterialTranAmount * ratioServiceTax, 2);
                             item.AdditionalChargesAmount = Math.Round(item.MaterialTranAmount * ratio, 2);
-                            Tax += Convert.ToDecimal(item.ChargesTaxTranAmount);
-                            serviceCN += Convert.ToDecimal(item.ChargesTranAmount);
+                            Tax += Convert.ToDecimal(item.AdditionalChargesTax);
+                            serviceCN += Convert.ToDecimal(item.AdditionalChargesAmount);
                         }
                         else
                         {
@@ -873,8 +873,8 @@ namespace Library.MaterialManagement.Inventory
                                 serviceCN1 = serviceex.Sum(r => r.Amount);
                             }
 
-                            item.AdditionalChargesTax = Math.Round(Convert.ToDecimal(service.TotalTaxAmount), 2);
-                            item.AdditionalChargesAmount = Math.Round(Convert.ToDecimal(service.Amount), 2);
+                            item.AdditionalChargesTax = Math.Round(Convert.ToDecimal(Tax1- Tax), 2);
+                            item.AdditionalChargesAmount = Math.Round(Convert.ToDecimal(serviceCN1- serviceCN), 2);
                         }
                       
                         item.ModelState = ModelState.Modified;

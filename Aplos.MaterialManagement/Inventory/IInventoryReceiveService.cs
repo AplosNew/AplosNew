@@ -48,7 +48,8 @@ namespace Library.MaterialManagement.Inventory
         decimal GetChargesRatio(string receiveId, string detailId, decimal detailTotalAmnt, string serviceId, decimal svcTotalAmnt, bool isNonCreditable);
 		
 		decimal GetChargesTaxRatio(string receiveId, string detailId, decimal detailTotalAmnt, string serviceId, decimal svcTotalAmnt, bool isNonCreditable);
-
+        decimal GetOtherChargesRatio(string receiveId, string detailId, decimal detailTotalAmnt, string serviceId, decimal svcTotalAmnt, bool isNonCreditable);
+         decimal GetOtherChargesTaxRatio(string receiveId, string detailId, decimal detailTotalAmnt, string serviceId, decimal svcTotalAmnt, bool isNonCreditable);
         void Delete(string id);
         void JWDelete(string id);
         void GRNApproved(IEnumerable<InventoryReceive> entities,string GRNStatus);

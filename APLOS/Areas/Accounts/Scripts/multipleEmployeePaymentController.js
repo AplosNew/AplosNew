@@ -256,65 +256,65 @@ function multipleEmployeePaymentController(cboService, commonMessage, $scope, $r
         return manualValidation("div_entity", $scope.invalidEntity, "Entity is required.");
     };
 
-    $scope.employeeWiseOutstandingAdvanceList = [];
-    $scope.getEmployeeWiseOutstandingAdvance = function (id) {
-        $scope.employeeWiseOutstandingAdvanceList = [];
-        $http({
-            method: "GET",
-            url: "accounts/Advance/GetEmployeeTotalAdvanceAmountByEmployeeId?employeeId=" + id
-        }).then(function successCallback(response) {
-            $scope.employeeOutStandingAdvanceDataList = response.data.Rows;
-            $scope.TotalAdvanceAmount = $filter("sumByKey")($filter("filter")($scope.employeeOutStandingAdvanceDataList), "Balance");
-            if ($scope.employeeOutStandingAdvanceDataList.length > 0) {
-                angular.element(document.querySelector("#employeeOutStandingAdvancePopUp")).modal("show");
-            }
-        });
-    };
-    $scope.showEmployeeListPopUp = function () {
-        baseService.setCurrentPage('employeeList');
-        $scope.getEmployeeData = function (pageno) {
-            var url = null;
-            if (baseService.isUndefinedOrNull($scope.employeeUrl)) {
-                url = 'accounts/EmployeePayable/GetEmployeeListByPlant';
-            }
-            else {
-                url = $scope.employeeUrl;
-            }
-            baseService.paginationBase(url, pageno, $scope.employeeParameters)
-                .then(function (result) {
-                    $scope.employeeList = result.Rows;
-                    $scope.employeeParameters.total_count = result.Total;
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, 'failure');
-                }).finally(function () {
-                });
-        };
-        angular.element(document.querySelector('#employeePopUp')).modal('show');
-        $scope.getEmployeeData();
-    };
+    //$scope.employeeWiseOutstandingAdvanceList = [];
+    //$scope.getEmployeeWiseOutstandingAdvance = function (id) {
+    //    $scope.employeeWiseOutstandingAdvanceList = [];
+    //    $http({
+    //        method: "GET",
+    //        url: "accounts/Advance/GetEmployeeTotalAdvanceAmountByEmployeeId?employeeId=" + id
+    //    }).then(function successCallback(response) {
+    //        $scope.employeeOutStandingAdvanceDataList = response.data.Rows;
+    //        $scope.TotalAdvanceAmount = $filter("sumByKey")($filter("filter")($scope.employeeOutStandingAdvanceDataList), "Balance");
+    //        if ($scope.employeeOutStandingAdvanceDataList.length > 0) {
+    //            angular.element(document.querySelector("#employeeOutStandingAdvancePopUp")).modal("show");
+    //        }
+    //    });
+    //};
+    //$scope.showEmployeeListPopUp = function () {
+    //    baseService.setCurrentPage('employeeList');
+    //    $scope.getEmployeeData = function (pageno) {
+    //        var url = null;
+    //        if (baseService.isUndefinedOrNull($scope.employeeUrl)) {
+    //            url = 'accounts/EmployeePayable/GetEmployeeListByPlant';
+    //        }
+    //        else {
+    //            url = $scope.employeeUrl;
+    //        }
+    //        baseService.paginationBase(url, pageno, $scope.employeeParameters)
+    //            .then(function (result) {
+    //                $scope.employeeList = result.Rows;
+    //                $scope.employeeParameters.total_count = result.Total;
+    //            }, function () {
+    //                ShowResult(commonMessage.NetworkError, 'failure');
+    //            }).finally(function () {
+    //            });
+    //    };
+    //    angular.element(document.querySelector('#employeePopUp')).modal('show');
+    //    $scope.getEmployeeData();
+    //};
 
-    $scope.closeEmployeePopUp = function () {
-        if ($scope.employeeIndex !== -1) {
-            var employee = $scope.employeeList[$scope.employeeIndex];
-            $scope.voucher.EmployeeName = employee.EmployeeName;
-            $scope.voucher.EmployeeId = employee.SystemId;
-            $scope.voucher.EntityId = employee.EntityId;
-            $scope.GetEmployeeTransactionNo($scope.voucher.EmployeeId);
-            $scope.getEmployeeWiseOutstandingAdvance($scope.voucher.EmployeeId);
-        }
-        $scope.hideEmployeePopUp();
-    };
+    //$scope.closeEmployeePopUp = function () {
+    //    if ($scope.employeeIndex !== -1) {
+    //        var employee = $scope.employeeList[$scope.employeeIndex];
+    //        $scope.voucher.EmployeeName = employee.EmployeeName;
+    //        $scope.voucher.EmployeeId = employee.SystemId;
+    //        $scope.voucher.EntityId = employee.EntityId;
+    //        $scope.GetEmployeeTransactionNo($scope.voucher.EmployeeId);
+    //        $scope.getEmployeeWiseOutstandingAdvance($scope.voucher.EmployeeId);
+    //    }
+    //    $scope.hideEmployeePopUp();
+    //};
 
-    $scope.hideEmployeePopUp = function () {
-        angular.element(document.querySelector("#employeePopUp")).modal("hide");
-    };
+    //$scope.hideEmployeePopUp = function () {
+    //    angular.element(document.querySelector("#employeePopUp")).modal("hide");
+    //};
 
-    $scope.updatePartyAmount = function () {
-        var row = $filter("filter")($scope.voucherDetailList, { "TrnType": "Cr" });
-        if (!baseService.isUndefinedOrNull(row) && row.length > 0) {
-            row[0].Amount = $scope.voucher.Amount;
-        }
-    };
+    //$scope.updatePartyAmount = function () {
+    //    var row = $filter("filter")($scope.voucherDetailList, { "TrnType": "Cr" });
+    //    if (!baseService.isUndefinedOrNull(row) && row.length > 0) {
+    //        row[0].Amount = $scope.voucher.Amount;
+    //    }
+    //};
 
     $scope.selectedInvoiceGLId = null;
     $scope.selectedInvoiceGLName = null;
@@ -351,113 +351,113 @@ function multipleEmployeePaymentController(cboService, commonMessage, $scope, $r
         $scope.voucher.DocDate = $scope.voucher.PostingDate;
     };
 
-    $scope.getById = function (id) {
-        $http({
-            method: "GET",
-            url: "accounts/Advance/GetAdvance/" + id
-        }).then(function successCallback(response) {
-            $scope.voucher = response.data;
-            $scope.voucher.DocDate = $filter("dateFiltering")($scope.voucher.DocDate);
-            $scope.voucher.VoucherDate = $filter("dateFiltering")($scope.voucher.VoucherDate);
-            $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucher.PostingDate);
-            $scope.Action = "Update";
-            if (!$rootScope.isCollapsed) {
-                $rootScope.toggle();
-            }
-        });
-    };
+    //$scope.getById = function (id) {
+    //    $http({
+    //        method: "GET",
+    //        url: "accounts/Advance/GetAdvance/" + id
+    //    }).then(function successCallback(response) {
+    //        $scope.voucher = response.data;
+    //        $scope.voucher.DocDate = $filter("dateFiltering")($scope.voucher.DocDate);
+    //        $scope.voucher.VoucherDate = $filter("dateFiltering")($scope.voucher.VoucherDate);
+    //        $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucher.PostingDate);
+    //        $scope.Action = "Update";
+    //        if (!$rootScope.isCollapsed) {
+    //            $rootScope.toggle();
+    //        }
+    //    });
+    //};
 
 
-    $scope.employeePayableSearchList = [
-        {
-            "Text": "VoucherNo",
-            "Value": "VoucherNo"
-        },
-        {
-            "Text": "Employee Code",
-            "Value": "EmployeeCode"
-        },
-        {
-            "Text": "Employee Name",
-            "Value": "EmployeeName"
-        },
-        {
-            "Text": "Currency",
-            "Value": "CurrencyCode"
-        },
-        {
-            "Text": "Doc Date",
-            "Value": "DocDate"
-        },
-        {
-            "Text": "Doc Ref",
-            "Value": "DocRefNo"
-        }
-    ];
-    $scope.employeePayableParameters = {
-        limit: 5,
-        offset: 0,
-        order: "ASC",
-        sort: "VoucherNo",
-        searchBy: "VoucherNo",
-        pageSize: 5,
-        total_count: 0,
-        search: null,
-        serverPagination: true
-    };
+    //$scope.employeePayableSearchList = [
+    //    {
+    //        "Text": "VoucherNo",
+    //        "Value": "VoucherNo"
+    //    },
+    //    {
+    //        "Text": "Employee Code",
+    //        "Value": "EmployeeCode"
+    //    },
+    //    {
+    //        "Text": "Employee Name",
+    //        "Value": "EmployeeName"
+    //    },
+    //    {
+    //        "Text": "Currency",
+    //        "Value": "CurrencyCode"
+    //    },
+    //    {
+    //        "Text": "Doc Date",
+    //        "Value": "DocDate"
+    //    },
+    //    {
+    //        "Text": "Doc Ref",
+    //        "Value": "DocRefNo"
+    //    }
+    //];
+    //$scope.employeePayableParameters = {
+    //    limit: 5,
+    //    offset: 0,
+    //    order: "ASC",
+    //    sort: "VoucherNo",
+    //    searchBy: "VoucherNo",
+    //    pageSize: 5,
+    //    total_count: 0,
+    //    search: null,
+    //    serverPagination: true
+    //};
 
-    $scope.getPopupEmployeePayableList = function () {
-        $scope.getEmployeePayableData = function (pageno) {
-            $scope.customerReceivableGLUrl1 = "accounts/EmployeePayable/GetEmployeeAvailableInvoiceList?employeeId=" + $scope.voucher.EmployeeId;
-            baseService.paginationBase($scope.customerReceivableGLUrl1, pageno, $scope.employeePayableParameters)
-                .then(function (result) {
-                    try {
-                        $scope.employeePayableDataList = result.Rows;
-                        $scope.employeePayableParameters.total_count = result.Total;
-                        if (baseService.arrayLength($scope.employeePayableSearchList) === 0) {
-                            baseService.getDDLSearchColumn($scope.employeePayableDataList, $scope.employeePayableSearchList);
-                        }
-                    } catch (e) {
-                        ShowResult(e, "Error");
-                    }
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, "failure");
-                }).finally(function () {
-                });
-        };
-        angular.element(document.querySelector("#employeePayablePopUp")).modal("show");
-        $scope.getEmployeePayableData();
-    };
-    $scope.closePopUp = function () {
-        angular.element(document.querySelector("#employeePayablePopUp")).modal("hide");
-    };
+    //$scope.getPopupEmployeePayableList = function () {
+    //    $scope.getEmployeePayableData = function (pageno) {
+    //        $scope.customerReceivableGLUrl1 = "accounts/EmployeePayable/GetEmployeeAvailableInvoiceList?employeeId=" + $scope.voucher.EmployeeId;
+    //        baseService.paginationBase($scope.customerReceivableGLUrl1, pageno, $scope.employeePayableParameters)
+    //            .then(function (result) {
+    //                try {
+    //                    $scope.employeePayableDataList = result.Rows;
+    //                    $scope.employeePayableParameters.total_count = result.Total;
+    //                    if (baseService.arrayLength($scope.employeePayableSearchList) === 0) {
+    //                        baseService.getDDLSearchColumn($scope.employeePayableDataList, $scope.employeePayableSearchList);
+    //                    }
+    //                } catch (e) {
+    //                    ShowResult(e, "Error");
+    //                }
+    //            }, function () {
+    //                ShowResult(commonMessage.NetworkError, "failure");
+    //            }).finally(function () {
+    //            });
+    //    };
+    //    angular.element(document.querySelector("#employeePayablePopUp")).modal("show");
+    //    $scope.getEmployeePayableData();
+    //};
+    //$scope.closePopUp = function () {
+    //    angular.element(document.querySelector("#employeePayablePopUp")).modal("hide");
+    //};
 
-    $scope.selectEmployeePayablePopUp = function (data) {
-        data.Amount = null;
-        data.TrnType = "Dr";
-        var getRow = $filter("filter")($scope.voucherDetailList, { "TrnType": "Dr", "DocRefNo": data.DocRefNo });
-        if (getRow.length === 0) {
-            data.Amount = data.Balance;
-            $scope.voucherDetailList.push(data);
-            $scope.GetCurrencyExchangeRateList(data.CurrencyId, data);
-            if ($scope.voucherDetailList.length > 0)
-                $scope.isReadOnly = true;
-            else
-                $scope.isReadOnly = false;
-            angular.element(document.querySelector("#employeePayablePopUp")).modal("hide");
-        }
-        else {
-            ShowResult("Already Exist Payable", "failure", "employeePayablePopUp");
-        }
-    };
+    //$scope.selectEmployeePayablePopUp = function (data) {
+    //    data.Amount = null;
+    //    data.TrnType = "Dr";
+    //    var getRow = $filter("filter")($scope.voucherDetailList, { "TrnType": "Dr", "DocRefNo": data.DocRefNo });
+    //    if (getRow.length === 0) {
+    //        data.Amount = data.Balance;
+    //        $scope.voucherDetailList.push(data);
+    //        $scope.GetCurrencyExchangeRateList(data.CurrencyId, data);
+    //        if ($scope.voucherDetailList.length > 0)
+    //            $scope.isReadOnly = true;
+    //        else
+    //            $scope.isReadOnly = false;
+    //        angular.element(document.querySelector("#employeePayablePopUp")).modal("hide");
+    //    }
+    //    else {
+    //        ShowResult("Already Exist Payable", "failure", "employeePayablePopUp");
+    //    }
+    //};
 
-    $scope.showEmployeeOutStanding = function () {
-        angular.element(document.querySelector("#employeeOutStandingAdvancePopUp")).modal("show");
-    }
+    //$scope.showEmployeeOutStanding = function () {
+    //    angular.element(document.querySelector("#employeeOutStandingAdvancePopUp")).modal("show");
+    //}
 
-    $scope.closeEmployeeOutStandingAdvancePopUp = function () {
-        angular.element(document.querySelector("#employeeOutStandingAdvancePopUp")).modal("hide");
-    }
+    //$scope.closeEmployeeOutStandingAdvancePopUp = function () {
+    //    angular.element(document.querySelector("#employeeOutStandingAdvancePopUp")).modal("hide");
+    //}
 
     $scope.totalInvoiceAmount = function () {
         var invoiceData = null;
@@ -469,10 +469,10 @@ function multipleEmployeePaymentController(cboService, commonMessage, $scope, $r
         $scope.voucher.Amount = parseFloat($scope.voucher.InvoiceAmount);
     };
 
-    $scope.removeRow = function (index) {
-        $scope.voucherDetailList.splice(index, 1);
-        $scope.deletecurrency = null;
-    };
+    //$scope.removeRow = function (index) {
+    //    $scope.voucherDetailList.splice(index, 1);
+    //    $scope.deletecurrency = null;
+    //};
 
     $scope.clearBankCash = function (from) {
         $scope.voucher.GLGeneralInfoId = null;
@@ -807,6 +807,213 @@ function multipleEmployeePaymentController(cboService, commonMessage, $scope, $r
             }
         }
         return false;
+    }
+
+    $scope.multiplePaymentDetail = [];
+
+    $scope.tempList = [];
+    $scope.paymentSelectedList = [];
+    $scope.multipleEmployeeInvoiceSearchList = [
+        {
+            "name": "Voucher No",
+            "value": "VoucherNo"
+        },
+        {
+            "name": "Employee Code",
+            "value": "EmployeeCode"
+        },
+        {
+            "name": "Employee Name",
+            "value": "EmployeeName"
+        },
+        {
+            "name": "Entity",
+            "value": "EntityName"
+        },
+        {
+            "name": "Posting Date",
+            "value": "PostingDate"
+        },
+        {
+            "name": "Doc Date",
+            "value": "DocDate"
+        },
+        {
+            "name": "Doc Ref",
+            "value": "DocRefNo"
+        }
+    ];
+    $scope.popUpParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'ASC',
+        sort: 'EmployeeName',
+        searchBy: 'VoucherNo',
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
+    function avoidCheckList(id) {
+        for (var i = 0; i < $scope.paymentSelectedList.length; i++) {
+            if ($scope.paymentSelectedList[i].EmployeePayableDetailId === id) {
+                return true;
+                break;
+            }
+        }
+        return false;
+    }
+
+    function removeDuplicates(myArr, prop) {
+        return myArr.filter((obj, pos, arr) => {
+            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
+        });
+    }
+
+    $scope.sqlInStatement = null;
+    $scope.getPopupEmployeePayableList = function () {
+        if ($scope.partyDataListNew.length > 0) {
+            var uniqueEmployeeId = removeDuplicates($scope.partyDataListNew, 'EmployeeId');
+            var wcEmpCode = "";
+            if (uniqueEmployeeId.length > 0) {
+                wcEmpCode = "IN(";
+                wcEmpCode += Array.prototype.map.call(uniqueEmployeeId, function (item) { return "'" + item.EmployeeId + "'"; }).join(",") + ")";
+            }
+            $scope.sqlInStatement = wcEmpCode;
+        }
+
+        $scope.tempList = [];
+        $scope.customerreceivableGLData = function (pageno) {
+            $scope.customerReceivableGLUrl1 = 'accounts/EmployeePayable/GetMultipleEmployeeAvailableInvoiceList?employeeId=' + $scope.sqlInStatement;
+            baseService.paginationBase($scope.customerReceivableGLUrl1, pageno, $scope.popUpParameters)
+                .then(function (result) {
+                    try {
+                        $scope.paymentList = [];
+                        angular.forEach(result.Rows, function (item) {
+                            if (avoidCheckList(item.EmployeePayableDetailId) === false) {
+                                $scope.paymentList.push(item);
+                            }
+                        })
+                        $scope.popUpParameters.total_count = result.Total;
+                        for (var i = 0; i < $scope.paymentList.length; i++) {
+                            $scope.paymentList[i].Active = getActive($scope.tempList, $scope.paymentList[i].EmployeePayableDetailId);
+                        }
+                    } catch (e) {
+                        ShowResult(e, 'Error');
+                    }
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure');
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector('#EmployeePayableListPopUP')).modal('show');
+        $scope.customerreceivableGLData();
+    };
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#EmployeePayableListPopUP')).modal('hide');
+    };
+    
+    function getActive(list, id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].EmployeePayableDetailId === id) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    $scope.pushInTempList = function (event, data) {
+        try {
+            if (event.currentTarget.checked) {
+                if (checkExistTempList($scope.tempList, data.EmployeePayableDetailId) === false) {
+                    $scope.tempList.push(data);
+                }
+                else {
+                    for (var i = 0; i < baseService.arrayLength($scope.tempList); i++) {
+                        if ($scope.tempList[i].EmployeePayableDetailId === data.EmployeePayableDetailId) {
+                            $scope.tempList.splice(i, 1);
+                            break;
+                        }
+                    }
+
+                    $scope.tempList.push(data);
+                }
+            }
+            else {
+                for (var t = 0; t < baseService.arrayLength($scope.tempList); t++) {
+                    if ($scope.tempList[t].EmployeePayableDetailId === data.EmployeePayableDetailId) {
+                        $scope.tempList.splice(t, 1);
+                        break;
+                    }
+                }
+            }
+        } catch (e) {
+            event.currentTarget.checked = false;
+            ShowResult(e, "failure");
+        }
+    }
+
+    function checkExistTempList(list, id) {
+        for (var i = 0; i < baseService.arrayLength(list); i++) {
+            if (list[i].EmployeePayableDetailId === id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    cboService.getCboEntityByPlant(null, null, "", function (result) {
+        $scope.entityList = result;
+    });
+
+    $scope.closePopUp = function () {
+        if (baseService.arrayLength($scope.tempList) > 0) {
+            angular.forEach($scope.tempList, function (item) {
+                $scope.paymentSelectedList.push({
+                    EmployeePayableDetailId: item.EmployeePayableDetailId
+                    , EmployeePayableId: item.EmployeePayableId
+                    , VoucherNo: item.VoucherNo
+                    , PostingDate: item.PostingDate
+                    , DocDate: item.DocDate
+                    , DocRefNo: item.DocRefNo
+                    , CurrencyCode: item.CurrencyCode
+                    , Receivable: item.Receivable
+                    , Received: item.Received
+                    , Balance: item.Balance
+                    , Amount: item.Amount
+                    , EmployeeCode: item.EmployeeCode
+                    , EmployeeId: item.EmployeeId
+                    , EmployeeName: item.EmployeeName
+                    
+                });
+            });
+        }
+        angular.element(document.querySelector('#EmployeePayableListPopUP')).modal('hide');
+    };
+
+    $scope.removeRow = function (index, data) {
+        var row = $scope.paymentSelectedList[index];
+        var drc = $scope.tempList.length;
+        while (drc--) {
+            if ($scope.tempList[drc]['EmployeePayableDetailId'] === row.EmployeePayableDetailId) {
+                $scope.tempList.splice(drc, 1);
+            }
+        }
+        $scope.paymentSelectedList.splice(index, 1);
+    }
+
+    $scope.copyPayableBalanceAmount = function () {
+        for (var i = 0; i < $scope.paymentSelectedList.length; i++) {
+            $scope.paymentSelectedList[i].Amount = $scope.paymentSelectedList[i].Balance;
+        }
+    }
+
+    $scope.checkPaymentAmountByBalanceAmount = function (data) {
+        if (data.Amount > data.Balance) {
+            data.Amount = data.Balance;
+            ShowResult("Payment Amount can't be greater than Balance Amount!!", 'failure');
+        }
     }
 
 }
