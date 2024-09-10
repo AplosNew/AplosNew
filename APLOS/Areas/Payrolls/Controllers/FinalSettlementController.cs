@@ -2418,7 +2418,17 @@ ORDER BY OL.Sequence";
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster, dsEmpMaster, dsFNFEmpMaster, dsEmpSL);
 
-                elockBNsql = @"Select * from  dbo.SalaryLock where EmpSystemId IN(" + empIds + ") AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL";
+                elockBNsql = @"SELECT * FROM SalaryLock 
+Where EmpSystemId IN(
+(Select  spc.EmpInfoSystemID  from SalaryProcChild AS spc
+LEFT JOIN SalaryProcMaster AS spm ON spm.SystemID = spc.SlrProcMstSystemID 
+LEFT JOIN SalaryHead AS sh ON sh.SalaryHeadID = spc.SalaryHeadID
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId IN(" + empIds + @")
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=E.GivenDesignationId
+LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
+WHERE  spc.EmpInfoSystemID IN(" + empIds +@") AND HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
+))  AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND PastBonusDisbursed IS NULL
+";
                 con.OpenDataSetThroughAdapter(elockBNsql, out dsEmpBN, false, "1");
 
 
