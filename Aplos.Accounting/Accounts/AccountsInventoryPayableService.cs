@@ -1813,7 +1813,7 @@ UNION
                                  ,GRNACC.PurchaseDocumentAcceptanceId AcceptanceId, REPLACE(CONVERT(CHAR(11), PDA.AcceptanceDate, 106),' ','-') AS AcceptanceDate
 								, PDA.AcceptanceNo
 								,IsFOC=CASE WHEN IR.IsFOC=1 THEN 'YES' ELSE 'NO' END
-								,IR.GRNType,IR.OtherPartyId,IR.OtherPartyPlantId,IR.OtherPartyDocRefNo,IR.OtherPartyRCMApplicable,ISNULL(PLC.IsAccepptanceFirst,0) IsAccepptanceFirst
+								,IR.GRNType,IR.OtherPartyId,IR.OtherPartyPlantId,OP.UserName OtherPartyName,IR.OtherPartyDocRefNo,IR.OtherPartyRCMApplicable,ISNULL(PLC.IsAccepptanceFirst,0) IsAccepptanceFirst
 								,POId=	STUFF((select distinct ','+PO.Id from
 														TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
 														LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
@@ -1856,6 +1856,7 @@ UNION
                     LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
                     LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
                     LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+                    LEFT JOIN [HKP].[Party] AS OP ON IR.OtherPartyId=OP.Id
                     LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
                     LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
                     LEFT JOIN [TRN].GateEntry GE ON GE.Id=IR.GateEntryNo
