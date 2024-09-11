@@ -150,7 +150,8 @@ function budgetMasterController(cboService, commonMessage, $scope, $rootScope, b
         Remarks: null,
         Active: null,
         Archive: null,
-        IsDefault: null
+        IsDefault: null,
+        IsServiceApplicable: null
         
     };
 
@@ -445,7 +446,8 @@ function budgetMasterController(cboService, commonMessage, $scope, $rootScope, b
                         IsSpecific: item.IsSpecific,
                         Sequence: item.Sequence,
                         IsOrderSpecific: item.IsOrderSpecific,
-                        ActivityOrderType: item.ActivityOrderType
+                        ActivityOrderType: item.ActivityOrderType,
+                        IsServiceApplicable: item.IsServiceApplicable
                     }
                 );
             }
@@ -481,7 +483,8 @@ function budgetMasterController(cboService, commonMessage, $scope, $rootScope, b
         Description: null,
         Remarks: null,
         Active: true,
-        ValueOfDistribution: null
+        ValueOfDistribution: null,
+        IsServiceApplicable: false
     };
 
     $scope.addActivity = function () {

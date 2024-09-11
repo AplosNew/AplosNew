@@ -302,7 +302,6 @@ namespace Aplos.Areas.Accounts.Controllers
             return budMaxRefNo;
         }
 
-
         [HttpGet, Authorize]
         public JsonResult GetBudgetActivityList(string budgetMasterId)
         {

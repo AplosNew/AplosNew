@@ -324,12 +324,15 @@
                                             </div>
                                         </td>
                                         <td class="text-right">
+                                            <button class="btn single-btn tooltip-here" data-placement="top" title="Service Applicable" name="GL" ng-show="x.IsServiceApplicable" ng-click="GetCOAICodeList()" tabindex="6"><i class="fa fa-search"></i></button>
+
                                             <button ng-disabled="!x.IsSpecific||x.Id==null" ng-click="activityEdit($index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Edit">
                                                 <i class="glyphicon glyphicon-edit"></i>
                                             </button>
                                             <button ng-click="activityRemoveRow($index)" class="btn btn-action tooltip-here" data-placement="top" title="Remove" ng-disabled="x.IsDefault">
                                                 <i class="glyphicon glyphicon-remove"></i>
                                             </button>
+
                                         </td>
                                     </tr>
                                 </tbody>

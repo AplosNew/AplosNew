@@ -302,7 +302,9 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
         $scope.modelNew.ShortageQty = data.data.ShortageQty;
         $scope.modelNew.ShortageValue = data.data.ShortageValue;
         $scope.modelNew.OtherPartyDocRefNo = data.data.OtherPartyDocRefNo;
+        $scope.modelNew.OtherPartyName = data.data.OtherPartyName;
         $scope.modelNew.OtherPartyRCMApplicable = data.data.OtherPartyRCMApplicable;
+        $scope.OtherVendorChargesPayableList = [];
         $scope.modelNew.IsInvoice = true;
         $scope.TDSList = [];
         $scope.controlInvoicePaymentTerm();
@@ -902,6 +904,7 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
         $scope.inventoryReceivedList = [];
         $scope.inventoryPayableList = [];
         $scope.inventoryReceiveDetailList = [];
+        $scope.OtherVendorChargesPayableList = []; 
         $scope.advanceTaxesList = [];
         $scope.newList = [];
         $scope.TDSList = [];

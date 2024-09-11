@@ -3757,7 +3757,7 @@ namespace Library.MaterialManagement.Inventory
                         receiveDetail.InventoryMaterialId = itemDetail.InventoryMaterialId;
                         InsertGraph(receiveDetail);
                         UpdateInventoryDetail(receiveDetail, ratio, ratioServiceTax, Convert.ToDecimal(itemDetail.ToCurrencyRate), itemDetail.IsNonCreditable);
-                        updateArticleMinMaxValue( itemDetail.MinimumValue,  itemDetail.MaximumValue, Convert.ToDecimal(itemDetail.TotalMaterialTranAmount),  itemDetail.ArticleId);
+                        updateArticleMinMaxValue( itemDetail.MinimumValue,  itemDetail.MaximumValue, Math.Round(Convert.ToDecimal(itemDetail.TotalMaterialTranAmount),4),  itemDetail.ArticleId);
 
 
                     }
