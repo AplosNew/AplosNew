@@ -181,6 +181,30 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
+        public JsonResult InsertMultipleEmployeePayment(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> employeeDetailVMList, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.ToCurrencyRate = 1;
+            //if(voucherVM.ToCurrencyRate==0)
+            //    throw new CustomException("Rate can not 0");
+            if ((voucherVM.PaymentSource == PaymentSource.Bank.ToString()) && (voucherVM.BankMasterId == null))
+                throw new CustomException(Resources.SelectBank);
+            if ((voucherVM.PaymentSource == PaymentSource.Cash.ToString()) && (voucherVM.CashMasterId == null))
+                throw new CustomException(Resources.SelectCash);
+            if (voucherDetailVMList == null)
+                throw new CustomException("Please Select Payable");
+            foreach (var advanceDetailVM in voucherDetailVMList)
+            {
+                if (advanceDetailVM.Amount == 0 || advanceDetailVM.Amount.ToString() == null)
+                    throw new CustomException("Amount should more than 0");
+            }
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _employeePayableWirteOffService.InsertMultipleEmployeePayment(voucherVM, employeeDetailVMList, voucherDetailVMList)) });
+        }
+
+        [HttpPost]
         public ActionResult UpdateEmployeePayment()
         {
             return View();
