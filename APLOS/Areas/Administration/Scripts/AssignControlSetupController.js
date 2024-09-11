@@ -128,6 +128,7 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
         $scope.ModelNew.Sequence = seq;
         $scope.BudgetCodeList = [];
         $scope.assignFor = null;
+        $scope.BudgetedEmployeeList = [];
         $scope.CreationBudgetedEmployeeList = [];
         $scope.CheckingBudgetedEmployeeList = [];
         $scope.ApprovingBudgetedEmployeeList = [];
@@ -293,8 +294,6 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
     };
 
     $scope.BCSave = function () {
-
-
         $http({
             method: 'POST',
             url: $scope.path + "CreateBudgetCode",
@@ -323,6 +322,16 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
         }).then(function (response) {
             $scope.BudgetCodeList = response.data;
             $scope.GetBudgetedEmployee();
+        });
+    }
+
+    $scope.BudgetedEmployeeList = [];
+    $scope.GetBudgetedEmployee = function () {
+        $http({
+            method: 'GET',
+             url: 'Administration/AssignControlSetup/GetBudgetedEmployeeData?masterId=' + $scope.ModelNew.Id
+        }).then(function (response) {
+            $scope.BudgetedEmployeeList = response.data;
         });
     }
 
@@ -356,28 +365,6 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
         });
     };
 
-    //#endregion BudgetCode
-
-    //#region
-    // #region  Dynamic PopUp
-    $scope.assignFor = null;
-    $scope.BudgetedEmployeeList = [];
-    $scope.popUpEmployee = function (assignFor) {
-        try {
-            $scope.assignFor = assignFor;
-            $scope.BudgetedEmployeeList = [];
-            $http({
-                method: 'GET',
-                url: 'Administration/AssignControlSetup/GetBudgetedEmployeeData?masterId=' + $scope.ModelNew.Id
-
-            }).then(function successCallback(response) {
-                $scope.BudgetedEmployeeList = response.data;
-            });
-            angular.element(document.querySelector('#popUpEmp')).modal('show');
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    };
 
     $scope.refreshTemplateBE = function (args) {
         $("#headchkBE").ejCheckBox({ "change": CheckBoxSelectBE });
@@ -400,6 +387,54 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
             }
         }
         var gridObj = $("#GridBE").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+
+    //#endregion BudgetCode
+
+    //#region
+    // #region  Dynamic PopUp
+    $scope.assignFor = null;
+    $scope.EmployeeList = [];
+    $scope.popUpEmployee = function (assignFor) {
+        try {
+            $scope.assignFor = assignFor;
+            $scope.EmployeeList = [];
+            $http({
+                method: 'GET',
+              
+                 url: 'HumanResource/leaveApplicationNew/getemployeelist'
+            }).then(function successCallback(response) {
+                $scope.EmployeeList = response.data;
+            });
+            angular.element(document.querySelector('#popUpEmp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.refreshTemplateEmployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectEmp });
+    };
+    function CheckBoxSelectEmp(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkassignFor === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridEmp").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.EmployeeList.length; i++) {
+                $scope.EmployeeList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridEmp").data("ejGrid");
         gridObj.refreshContent();
     };
 
@@ -503,14 +538,13 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
     $scope.CreationBudgetedEmployeeList = [];
     $scope.CheckingBudgetedEmployeeList = [];
     $scope.ApprovingBudgetedEmployeeList = [];
-    $scope.GetBudgetedEmployee = function (assignFor) {
+    $scope.GetAssignedEmployee = function (assignFor) {
         try {
             $scope.assignFor = assignFor
-            $scope.BudgetedEmployeeList = [];
             $http({
                 method: 'GET',
                 url: 'Administration/AssignControlSetup/GetSavedBudgetedEmployeeData?AssignControlSetupId=' + $scope.ModelNew.Id + '&assignFor=' + $scope.assignFor
-
+               
             }).then(function successCallback(response) {
                 if ($scope.assignFor == 'Creation') {
                     $scope.CreationBudgetedEmployeeList = response.data;
@@ -525,30 +559,6 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
         }
     };
 
-    $scope.refreshTemplateBE = function (args) {
-        $("#headchkBE").ejCheckBox({ "change": CheckBoxSelectBE });
-    };
-    function CheckBoxSelectBE(e) {
-        var ChkOrUnchk = false;
-        if (e.model.checkassignFor === "check") {
-            ChkOrUnchk = true;
-        }
-
-        var filtered = $("#GridBE").data("ejGrid").getFilteredRecords();
-        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.BudgetedEmployeeList.length; i++) {
-                $scope.BudgetedEmployeeList[i].BEFlag = ChkOrUnchk;
-            }
-        }
-        else {
-            for (var j = 0; j < filtered.length; j++) {
-                filtered[j].BEFlag = ChkOrUnchk;
-            }
-        }
-        var gridObj = $("#GridBE").data("ejGrid");
-        gridObj.refreshContent();
-    };
-
     function CheckExistsEmployee(list, Id) {
         for (var i = 0; i < list.length; i++) {
             if (list[i].EmployeeId == Id) {
@@ -558,42 +568,54 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
         return false;
     }
 
-    $scope.BESave = function () {
+    $scope.EmployeeSave = function () {
         try {
             var savebelist = [];
-            for (var i = 0; i < $scope.BudgetedEmployeeList.length; i++) {
-                if ($scope.BudgetedEmployeeList[i].BEFlag == true) {
+            for (var i = 0; i < $scope.EmployeeList.length; i++) {
+                if ($scope.EmployeeList[i].Flag == true) {
                     if ($scope.assignFor == 'Creation') {
                         if ($scope.CreationBudgetedEmployeeList.length > 0) {
-                            if (CheckExistsEmployee($scope.CreationBudgetedEmployeeList, $scope.BudgetedEmployeeList[i].EmployeeId) == false) {
-                                $scope.BudgetedEmployeeList[i].AssignFor = $scope.assignFor;
-                                savebelist.push($scope.BudgetedEmployeeList[i]);
+                            if (CheckExistsEmployee($scope.CreationBudgetedEmployeeList, $scope.EmployeeList[i].SystemID) == false) {
+                                $scope.EmployeeList[i].Id = null;
+                                $scope.EmployeeList[i].EmployeeId = $scope.EmployeeList[i].SystemID;
+                                $scope.EmployeeList[i].AssignFor = $scope.assignFor;
+                                savebelist.push($scope.EmployeeList[i]);
                             }
                         } else {
-                            $scope.BudgetedEmployeeList[i].AssignFor = $scope.assignFor;
-                            savebelist.push($scope.BudgetedEmployeeList[i]);
+                            $scope.EmployeeList[i].Id = null;
+                            $scope.EmployeeList[i].AssignFor = $scope.assignFor;
+                            $scope.EmployeeList[i].EmployeeId = $scope.EmployeeList[i].SystemID;
+                            savebelist.push($scope.EmployeeList[i]);
                         }
                     } else if ($scope.assignFor == 'Checking') {
                         if ($scope.CheckingBudgetedEmployeeList.length > 0) {
-                            if (CheckExistsEmployee($scope.CheckingBudgetedEmployeeList, $scope.BudgetedEmployeeList[i].EmployeeId) == false) {
-                                $scope.BudgetedEmployeeList[i].AssignFor = $scope.assignFor;
-                                savebelist.push($scope.BudgetedEmployeeList[i]);
+                            if (CheckExistsEmployee($scope.CheckingBudgetedEmployeeList, $scope.EmployeeList[i].SystemID) == false) {
+                                $scope.EmployeeList[i].Id = null;
+                                $scope.EmployeeList[i].AssignFor = $scope.assignFor;
+                                $scope.EmployeeList[i].EmployeeId = $scope.EmployeeList[i].SystemID;
+                                savebelist.push($scope.EmployeeList[i]);
                             }
                         }
                         else {
-                            $scope.BudgetedEmployeeList[i].AssignFor = $scope.assignFor;
-                            savebelist.push($scope.BudgetedEmployeeList[i]);
+                            $scope.EmployeeList[i].Id = null;
+                            $scope.EmployeeList[i].AssignFor = $scope.assignFor;
+                            $scope.EmployeeList[i].EmployeeId = $scope.EmployeeList[i].SystemID;
+                            savebelist.push($scope.EmployeeList[i]);
                         }
                     } else {
                         if ($scope.ApprovingBudgetedEmployeeList.length > 0) {
-                            if (CheckExistsEmployee($scope.ApprovingBudgetedEmployeeList, $scope.BudgetedEmployeeList[i].EmployeeId) == false) {
-                                $scope.BudgetedEmployeeList[i].AssignFor = $scope.assignFor;
-                                savebelist.push($scope.BudgetedEmployeeList[i]);
+                            if (CheckExistsEmployee($scope.ApprovingBudgetedEmployeeList, $scope.EmployeeList[i].SystemID) == false) {
+                                $scope.EmployeeList[i].Id = null;
+                                $scope.EmployeeList[i].AssignFor = $scope.assignFor;
+                                $scope.EmployeeList[i].EmployeeId = $scope.EmployeeList[i].SystemID;
+                                savebelist.push($scope.EmployeeList[i]);
                             }
                         }
                         else {
-                            $scope.BudgetedEmployeeList[i].AssignFor = $scope.assignFor;
-                            savebelist.push($scope.BudgetedEmployeeList[i]);
+                            $scope.EmployeeList[i].Id = null;
+                            $scope.EmployeeList[i].AssignFor = $scope.assignFor;
+                            $scope.EmployeeList[i].EmployeeId = $scope.EmployeeList[i].SystemID;
+                            savebelist.push($scope.EmployeeList[i]);
                         }
                     }
                 }
@@ -601,7 +623,7 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
             if (savebelist.length > 0) {
                 $http({
                     method: 'POST',
-                    url: "Administration/AssignControlSetup/CreateBudgetedEmployee",
+                    url: "Administration/AssignControlSetup/CreateAssignEmployee",
                     data: {
                         'data': savebelist
                         , 'assignControlSetupId': $scope.ModelNew.Id
@@ -613,7 +635,7 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
-                        $scope.GetBudgetedEmployee($scope.assignFor);
+                        $scope.GetAssignedEmployee($scope.assignFor);
                         $scope.closeEmpPopUp();
                     }
                 }), function errorCallBack(response) {
@@ -647,12 +669,46 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.GetBudgetedEmployee($scope.assignFor);
+                $scope.GetAssignedEmployee($scope.assignFor);
             }
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
         });
+    };
+
+    $scope.BESave = function () {
+        try {
+            var savebelist = [];
+            for (var i = 0; i < $scope.BudgetedEmployeeList.length; i++) {
+                if ($scope.BudgetedEmployeeList[i].BEFlag == true || !baseService.isUndefinedOrNull($scope.BudgetedEmployeeList[i].Id)) {
+                    savebelist.push($scope.BudgetedEmployeeList[i]);
+                }
+            }
+            if (savebelist.length > 0) {
+                $http({
+                    method: 'POST',
+                    url: "Administration/AssignControlSetup/CreateBudgetedEmployee",
+                    data: {
+                        'data': savebelist
+                        , 'assignControlSetupId': $scope.ModelNew.Id
+                    },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.GetBudgetedEmployee();
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     };
 
 }

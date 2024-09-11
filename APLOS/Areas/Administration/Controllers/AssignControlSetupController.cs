@@ -273,7 +273,7 @@ namespace Aplos.Areas.Administration.Controllers
         {
             try
             {
-                string CmdText = @"SELECT CAST (0 AS bit) BEFlag,E.SystemId EmployeeId						    	
+                string CmdText = @"SELECT BE.Id,CAST (CASE WHEN BE.EmployeeId IS NULL THEN 0 ELSE 1 END AS bit) BEFlag,E.SystemId EmployeeId						    	
 							    	,E.EmployeeName
 							    	,PMB.Code BudgetCode
 							    	,PR.UserName PositionName
@@ -306,6 +306,7 @@ namespace Aplos.Areas.Administration.Controllers
                                 LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
 								LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
                                 LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
+                                OUTER APPLY (Select * from dbo.AssignControlBudgetedEmployee Where AssignControlSetupId='" + masterId + @"' AND  EmployeeId=E.SystemId)BE 
 								WHERE E.EmployeeStatus='Active' AND E.EmpType<>'Guest' 
 								 AND E.BudgetCode IN (SELECT BudgetId FROM dbo.AssignControlBudgetCodeSetup Where AssignControlSetupId='" + masterId + @"')
 								order by EmployeeCodeNumeric";
@@ -330,25 +331,76 @@ namespace Aplos.Areas.Administration.Controllers
             {
                 #region Entity 
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.AssignControlBudgetedEmployee where AssignControlSetupId='" + assignControlSetupId + "'", out dsBC, false, "1");
-
-                //objCon.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[AssignControlBudgetedEmployee] where AssignControlSetupId='" + assignControlSetupId + "'", out dsDD, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.AssignControlBudgetedEmployee where  AssignControlSetupId='" + assignControlSetupId + "'", out dsBC, false, "1");
+                //objCon.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[ExceptionGoodWorkEmployee] where GoodWorkSetupId='" + goodWorkSetupId + "'", out dsDD, false, "1");
                 //int ccount = Convert.ToInt32(dsDD.Tables[0].Rows[0]["countId"].ToString());
-
                 if (data != null)
                 {
-                    
+
 
                     foreach (var item in data)
                     {
-                        genid.GenID("AssignControlBudgetedEmployee", out _Id);
+                        DataView dv = new DataView(dsBC.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        if (dv.Count == 0 && Convert.ToBoolean(item["BEFlag"]) == true)
+                        {
+                            //ccount++;
+
+                            item["Id"] = item["EmployeeId"].ToString();
+                            item["AssignControlSetupId"] = assignControlSetupId;
+
+                            AddNewRow(dsBC.Tables[0], item);
+                        }
+                        else if (dv.Count > 0 && Convert.ToBoolean(item["BEFlag"]) == false)
+                        {
+                            DataRow drmo = dv[0].Row;
+                            drmo.Delete();
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+                #endregion
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsBC);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateAssignEmployee(List<Dictionary<string, object>> data, string assignControlSetupId)
+        {
+            MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            bplib.clsGenID genid = new bplib.clsGenID();
+            DataSet dsBC, dsDD;
+            string _Id = string.Empty;
+            try
+            {
+                #region Entity 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.AssignControlAuthorizeEmployee where AssignControlSetupId='" + assignControlSetupId + "'", out dsBC, false, "1");
+
+                if (data != null)
+                {
+
+
+                    foreach (var item in data)
+                    {
+                        genid.GenID("AssignControlAuthorizeEmployee", out _Id);
                         DataView dv = new DataView(dsBC.Tables[0]);
                         dv.RowFilter = "Id='" + item["Id"] + "'";
                         if (dv.Count == 0)
                         {
-                            //ccount++;
-
-                           // item["Id"] = materialCommonService.MakePK(assignControlSetupId, ccount, 2); ;
+                          
                             item["Id"] = _Id;
                             item["AssignControlSetupId"] = assignControlSetupId;
 
@@ -402,7 +454,7 @@ namespace Aplos.Areas.Administration.Controllers
 							    	,GD.UserName GivenDesignation,LD.UserName LegalDesignation,DEPT.UserName AS Department,DV.UserName AS Division
 									,SC.UserName AS Section,E.EmployeeCode,E.DOJ,P.UserName Plant,SS.UserName SubSection,E.EmployeeCodeNumeric
                                     ,C.UserName Company,EC.UserName EmployeeCategory
-							    FROM dbo.AssignControlBudgetedEmployee AE
+							    FROM dbo.AssignControlAuthorizeEmployee AE
 								LEFT JOIN EmployeeInformation E ON E.SystemId=AE.EmployeeId
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
