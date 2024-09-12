@@ -10,6 +10,7 @@ function expenseBookingApprovedController(cboService, commonMessage, $scope, $ro
     $scope.currencyExchangeRate = [];
     $scope.CurrencyList = [];
     $scope.transactionTypeList = [];
+    $scope.ispostDisable = false;
     $scope.path = "accounts/expenseBooking/";
     $scope.getListUrl = $scope.path + "getlist";
     $scope.saveUrl = $scope.path + "InsertExpenseBookingApproved";
@@ -312,6 +313,7 @@ function expenseBookingApprovedController(cboService, commonMessage, $scope, $ro
     $scope.Save = function () {
         $scope.$broadcast("show-errors-check-validity");
         try {
+            $scope.ispostDisable = true;
             if ($scope.form1.$valid && !$scope.validation() && !$scope.checkDocDate()) {
                 if ($scope.Action === "Post") {
                     $http({
@@ -325,10 +327,12 @@ function expenseBookingApprovedController(cboService, commonMessage, $scope, $ro
                     }).then(function successCallback(response) {
                         if (response.data.Error === true) {
                             ShowResult(response.data.Message, "failure");
+                            $scope.ispostDisable = false;
                         }
                         else {
                             ShowResult(response.data.Message, "success");
                             ClearFields(response.data.Sequence);
+                            $scope.ispostDisable = true;
                             $window.history.back();
                         }
                     }, function errorCallback(response) {

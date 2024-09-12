@@ -1575,7 +1575,6 @@ namespace Library.Service.Invoices
                     decimal totalAmountDr = 0;
                     decimal totalAmountCr = 0;
                     var invoiceTaxPk = _invoiceTaxService.GetMaxNumber();
-
                     foreach (var voucherDetailVM in voucherDetailVMList.Where(r => r.Amount > 0))
                     {
                         if (string.IsNullOrEmpty(voucherDetailVM.GLGeneralInfoId))
@@ -1667,7 +1666,7 @@ namespace Library.Service.Invoices
 
                             #endregion Currency
                         }
-                        else if (voucherDetailVM.TrnType == "Cr")
+                        else if (voucherDetailVM.TrnType == "Cr" && voucherDetailVM.OtherName == "Vendor")
                         {
                             currentInvoiceDetail++;
                             // INSERT INTO InvoiceDetail
@@ -1711,6 +1710,9 @@ namespace Library.Service.Invoices
                             if (voucherDetailVM.OtherName == "Tax")
                             {
                                 currentTaxRecord++;
+                            voucherCr.PartyId = null;
+                            voucherCr.PartyPlantId = null;
+                            voucherCr.PartyType = null;
                                 var invoiceTax = new InvoiceTax
                                 {
                                     Archive = false,
@@ -1757,8 +1759,6 @@ namespace Library.Service.Invoices
                             voucherCr.InvoiceDetailId = invoiceDetail.Id;
                             currentVoucherDetaiRecord++;
                             _voucherService.InsertVoucherDetail(voucherOtherCharges, voucherCr, currentVoucherDetaiRecord);
-         
-
                             #region Currency
 
 
@@ -1776,7 +1776,98 @@ namespace Library.Service.Invoices
 
                             #endregion Currency
                         }
+                    else if (voucherDetailVM.TrnType == "Cr" && voucherDetailVM.OtherName=="Tax")
+                    {
+                       
+                        // INSERT INTO VoucherDetail
+                        var voucherCr = new VoucherDetail
+                        {
+                            GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                            BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                            ActivityId = voucherDetailVM.ActivityId,
+                            CurrencyId = voucherOtherCharges.CurrencyId,
+                            DrAmount = 0,
+                            CrAmount = voucherDetailVM.Amount,
+                            DocDate = voucherOtherCharges.DocDate,
+                            DocRefNo = voucherOtherCharges.DocRefNo,
+                            Narration = invoice.Narration,
+                            EmployeeId = invoice.EmployeeId,
+                            PostingWithoutTaxAllow = invoice.IsExcludingTax
+                        };
+                        voucherDetailVM.Id = voucherCr.Id;
+                        totalAmountCr += voucherCr.CrAmount;
+
+                        if (voucherDetailVM.OtherName == "Tax")
+                        {
+                            currentTaxRecord++;
+                            voucherCr.PartyId = null;
+                            voucherCr.PartyPlantId = null;
+                            voucherCr.PartyType = null;
+                            var invoiceTax = new InvoiceTax
+                            {
+                                Archive = false,
+                                VoucherDetailId = voucherCr.Id,//voucherDetailCrrId,
+                                InvoiceId = invoice.Id,
+                                TaxYearId = voucherOtherCharges.TaxYearId,
+                                TaxYearPeriodId = voucherOtherCharges.TaxYearPeriodId,
+                                TaxCategoryId = voucherDetailVM.TaxCategoryId,
+                                TaxAmount = voucherDetailVM.Amount,
+                                TaxAutoAmount = 0,
+                                PartyId = voucherVM.PartyId,
+                                SourceType = SourceType.InventoryPayable.ToString(),
+                                AddedBy = voucherOtherCharges.AddedBy,
+                                AddedDate = voucherOtherCharges.AddedDate,
+                                AddedFromIP = voucherOtherCharges.AddedFromIP
+                            };
+                            _invoiceTaxService.InsertInvoiceTax(invoice, invoiceTax, invoiceTaxPk);
+                            var invoiceTaxDetail = new InvoiceTaxDetail
+                            {
+                                Id = invoiceTax.Id + 1,
+                                InvoiceTaxId = invoiceTax.Id,
+                                Amount = invoiceTax.TaxAmount,
+                                GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                                BudgetMasterId = voucherDetailVM.BudgetId,
+                                ActivityId = voucherDetailVM.ActivityId,
+                                AType = "Cr",
+                                Archive = false,
+                                ModelState = ModelState.Added,
+                                AddedBy = voucherOtherCharges.AddedBy,
+                                AddedDate = voucherOtherCharges.AddedDate,
+                                AddedFromIP = voucherOtherCharges.AddedFromIP
+                            };
+                            _invoiceTaxDetailRepository.Insert(invoiceTaxDetail);
+                            var inventoryreceivetax = _inventoryReceiveTaxRepository.Query(r => r.InventoryReceiveId == receiveId && r.InventoryReceiveDetailId != null && r.TaxCategoryId == voucherDetailVM.TaxCategoryId).Select().ToList();
+
+                            foreach (var Crtax in inventoryreceivetax)
+                            {
+                                Crtax.CrVoucherDetailId = voucherCr.Id;
+                                _inventoryReceiveTaxRepository.Update(Crtax);
+                            }
+                        }
+
+                       
+                        currentVoucherDetaiRecord++;
+                        _voucherService.InsertVoucherDetail(voucherOtherCharges, voucherCr, currentVoucherDetaiRecord);
+
+
+                        #region Currency
+
+
+                        var voucherDetailCRdb = new VoucherDetailCurrency
+                        {
+                            ToCurrencyRate = voucherVM.ToCurrencyRate,
+                            ToCurrencyId = companyCurrencyId,
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = voucherOtherCharges.CurrencyId,
+                            CrAmount = voucherVM.ToCurrencyRate * voucherCr.CrAmount,
+                            ToCurrencyConversion = 1 / voucherVM.ToCurrencyRate
+                        };
+                        _voucherService.InsertVoucherDetailCompanyCurrency(voucherCr, voucherDetailCRdb);
+                        voucherDetailCRdb = null;
+
+                        #endregion Currency
                     }
+                }
 
                     // Update Inventory Received
 

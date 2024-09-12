@@ -14,6 +14,7 @@ namespace Library.Service.Employees
         GridModel Query(GridParameter parameters, string companyGroupId, string companyId, string plantId);
 
         string InsertEmployeePayment(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList);
+        string InsertMultipleEmployeePayment(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> employeeDetailVMList, IEnumerable<VoucherDetailViewModel> voucherDetailVMList);
 
         void Post(string employeePayableWriteOffId);
         void DeletePayableWriteOff(string employeePayableWriteOffId, string voucherId);

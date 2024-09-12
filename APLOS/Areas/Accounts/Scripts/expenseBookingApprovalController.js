@@ -143,12 +143,14 @@ function expenseBookingApprovalController(cboService, commonMessage, $scope, $ro
                     }).then(function successCallback(response) {
                         if (response.data.Error === true) {
                             ShowResult(response.data.Message, "failure");
+                            $scope.ispostDisable = false;
                         }
                         else {
                             ShowResult(response.data.Message, "success");
                             $scope.getData();
                             baseService.paginationAdd();
                             ClearFields(response.data.Sequence);
+                            $scope.ispostDisable = false;
                         }
                     }, function errorCallback(response) {
                         ShowResult(response.status.Message, "failure");
@@ -222,6 +224,7 @@ function expenseBookingApprovalController(cboService, commonMessage, $scope, $ro
         $scope.budgetTransactionMaster = {};
         $scope.budgetTransactionDetailList = [];
         $scope.budgetTransactionMaster.Active = true;
+        $scope.ispostDisable = false;
     }
 
 

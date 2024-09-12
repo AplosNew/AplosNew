@@ -502,8 +502,9 @@ namespace Library.Service.Vouchers
                             AddedBy = invoiceWriteOff.AddedBy,
                             AddedDate = invoiceWriteOff.AddedDate,
                             AddedFromIP = invoiceWriteOff.AddedFromIP,
-                            Archive = invoiceWriteOff.Archive
-                            
+                            Archive = invoiceWriteOff.Archive,
+                            IsAdditionalAdvance = true
+
                         };
                         InsertAdvanceWriteOffDetail(advanceWriteOff, advanceWriteOffDetail, currentInvoiceWriteOffDetailId);
                         invoiceWriteOff.Amount = advanceWriteOffDetail.Amount;
