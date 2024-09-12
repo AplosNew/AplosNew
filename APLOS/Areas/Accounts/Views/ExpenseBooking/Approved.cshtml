@@ -133,7 +133,7 @@
     </div>
     <div class="common-btn">
         <ul class="list-inline text-right">
-            <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li><button ng-click="Save();" ng-disabled="ispostDisable" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
             <li><button ng-click="confirmDelete();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Delete</button></li>
             <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
             <li><button ng-click="Back();" class="btn"><i class="glyphicon glyphicon-backward"></i> Back</button></li>
