@@ -1759,7 +1759,6 @@ namespace Library.Service.Invoices
                             voucherCr.InvoiceDetailId = invoiceDetail.Id;
                             currentVoucherDetaiRecord++;
                             _voucherService.InsertVoucherDetail(voucherOtherCharges, voucherCr, currentVoucherDetaiRecord);
-
                             #region Currency
 
 
