@@ -92,6 +92,8 @@ function multipleEmployeePaymentController(cboService, commonMessage, $scope, $r
         TrnType: null
     };
 
+    $scope.TotalAdvanceAmount = 0;
+
     $scope.GetEmployeeTransactionNo = function (employeeId) {
         $http({
             method: "GET",
@@ -459,15 +461,15 @@ function multipleEmployeePaymentController(cboService, commonMessage, $scope, $r
     //    angular.element(document.querySelector("#employeeOutStandingAdvancePopUp")).modal("hide");
     //}
 
-    $scope.totalInvoiceAmount = function () {
-        var invoiceData = null;
-        $scope.voucher.InvoiceAmount = 0;
-        invoiceData = $filter("filter")($scope.voucherDetailCurrencyList, { "TrnType": "Dr" });
-        angular.forEach(invoiceData, function (item, i) {
-            $scope.voucher.InvoiceAmount += parseFloat(item.CompanyCurrencyDr);
-        });
-        $scope.voucher.Amount = parseFloat($scope.voucher.InvoiceAmount);
-    };
+    //$scope.totalInvoiceAmount = function () {
+    //    var invoiceData = null;
+    //    $scope.voucher.InvoiceAmount = 0;
+    //    invoiceData = $filter("filter")($scope.voucherDetailCurrencyList, { "TrnType": "Dr" });
+    //    angular.forEach(invoiceData, function (item, i) {
+    //        $scope.voucher.InvoiceAmount += parseFloat(item.CompanyCurrencyDr);
+    //    });
+    //    $scope.voucher.Amount = parseFloat($scope.voucher.InvoiceAmount);
+    //};
 
     //$scope.removeRow = function (index) {
     //    $scope.voucherDetailList.splice(index, 1);
@@ -633,15 +635,16 @@ function multipleEmployeePaymentController(cboService, commonMessage, $scope, $r
         $scope.$broadcast("show-errors-check-validity");
         $scope.checkDocDate();
         $scope.checkPostingDate();
-        $scope.passBankCashAmount();
+        //$scope.passBankCashAmount();
         if ($scope.form1.$valid && !$scope.invalidDocDate && !$scope.invalidPostingDate) {
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",
-                    url: "accounts/EmployeePayable/InsertEmployeePayment",
+                    url: "accounts/EmployeePayable/InsertMultipleEmployeePayment",
                     data: {
                         "voucherVM": $scope.voucher,
-                        "voucherDetailVMList": $scope.voucherDetailList
+                        "employeeDetailVMList": $scope.partyDataListNew,
+                        "voucherDetailVMList": $scope.paymentSelectedList
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -658,30 +661,7 @@ function multipleEmployeePaymentController(cboService, commonMessage, $scope, $r
                 });
                 return true;
             }
-            else if ($scope.Action === "Update") {
-                $http({
-                    method: "POST",
-                    url: "accounts/EmployeePayable/UpdateEmployeePayment",
-                    data: {
-                        "voucherVM": $scope.voucher,
-                        "voucherDetailVMList": $scope.voucherDetailList
-                    },
-                    dataType: "JSON"
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, "failure");
-                    }
-                    else {
-                        ShowResult(response.data.Message, "success");
-                        if ($scope.index > -1) {
-                            $scope.menuFrames[$scope.index] = $scope.menuFrame;
-                        }
-                        $scope.Clear();
-                    }
-                }, function errorCallback(response) {
-                    ShowResult(response.status.Message, "failure");
-                });
-            }
+          
             return true;
         }
     };
@@ -794,6 +774,7 @@ function multipleEmployeePaymentController(cboService, commonMessage, $scope, $r
                     }
                 }
             }
+            $scope.TotalAdvanceAmount = $filter("sumByKey")($filter("filter")($scope.partyDataListNew), "AdvanceNetBalance");
             angular.element(document.querySelector('#partyPopUp')).modal('hide');
         } catch (e) {
             ShowResult(e, "failure");

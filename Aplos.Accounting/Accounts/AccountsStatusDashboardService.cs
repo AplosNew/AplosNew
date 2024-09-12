@@ -57,14 +57,25 @@ namespace Library.Accounting.Accounts
                     OverDueLessThan15,	TodayBalance,	OneToSevenBalance,	EightToThirtyBalance,	ThirtyToSixtyBalance,	Onword60,	BooksDiscountAmount,	TaxAmount	,IsCustomer
                      FROM 
                     (SELECT count(X.NoOfInvoice) NoOfInvoice,convert(bit,0) AS isSelected,x.PartyNature,x.PartyGroup,x.PartyCategory,x.PartySubCategory,x.ResponsiblePerson,X.PartyId,X.PartyName,x.CurrencyCode
-                    ,ISNULL((SELECT sum(VDCA.DrAmount) -sum(ISNULL(AW.AdvanceWriteOffBooksAmount,0)) FROM TRN.Advance A
+                    ,ISNULL((SELECT sum(VDCA.DrAmount)+sum(ISNULL(ADDW.AdditionalAdvanceAmount,0)) -sum(ISNULL(AW.AdvanceWriteOffBooksAmount,0)) FROM TRN.Advance A
 					INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
 					INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdvanceDetailId=AD.Id
 				    INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCA ON VDCA.VoucherDetailId=VDA.Id
                     LEFT JOIN (select SUM(VDCW.CrAmount)AdvanceWriteOffBooksAmount,AdvanceId from [TRN].[AdvanceWriteOffDetail] AWD
-					INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.AdvanceWriteOffDetailId=AWD.Id
-					INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
-                    LEFT JOIN [TRN].[AdvanceWriteOff] AW ON AW.Id=AWD.AdvanceWriteOffId WHERE AW.IsPark=0 AND AW.Archive=0 AND convert(Date,AW.PostingDate) <= '" + toDate + @"' GROUP BY AdvanceId)AW ON AW.AdvanceId=A.Id
+					    INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.AdvanceWriteOffDetailId=AWD.Id
+					    INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+                        LEFT JOIN [TRN].[AdvanceWriteOff] AW ON AW.Id=AWD.AdvanceWriteOffId 
+				        LEFT JOIN [TRN].[Voucher] VW ON VW.Id=AW.VoucherId 
+				        WHERE VW.IsPark=0 AND VW.Archive=0
+                        AND convert(Date,AW.PostingDate) <= '" + toDate + @"' GROUP BY AdvanceId)AW ON AW.AdvanceId=A.Id
+                    LEFT JOIN (select SUM(VDCW.DrAmount)AdditionalAdvanceAmount,AdvanceId from [TRN].[AdvanceWriteOffDetail] AWD
+				        INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.AdvanceWriteOffDetailId=AWD.Id
+				        INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+                        LEFT JOIN [TRN].[AdvanceWriteOff] AW ON AW.Id=AWD.AdvanceWriteOffId 
+				        LEFT JOIN [TRN].[Voucher] VW ON VW.Id=AW.VoucherId 
+				        WHERE VW.IsPark=0 AND VW.Archive=0
+                        and ( convert(Date,AW.PostingDate) <= '" + toDate + @"' and AWD.IsAdditionalAdvance=1)
+                        GROUP BY AdvanceId)ADDW ON ADDW.AdvanceId=A.Id
 					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and A.PartyType='Vendor'  and A.SourceType='VendorAdvance' AND A.IsPark=0 AND convert(Date,A.PostingDate) <= '" + toDate + @"'  group by A.PartyId ),0) Advance 
 					 , ISNULL((SELECT SUM(VDC.DrAmount) - SUM(ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0))  FROM [TRN].[AdjustmentNote] A
 					 INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
@@ -22397,7 +22408,7 @@ group by Id) O60 ON O60.Id=IV.Id
 
                 UNION ALL
 				 SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,P.PartyNature,P.UserName PartyName
-                , ISNULL(VDCA.DrAmount,0)- ISNULL(AW.AdvanceWriteOffBooksAmount,0) VendorAdvance
+                , ISNULL(VDCA.DrAmount,0)+ISNULL(ADDW.AdditionalAdvanceAmount,0)- ISNULL(AW.AdvanceWriteOffBooksAmount,0) VendorAdvance
 				, 0 VendorDebitNote, 0 Payable, 0 ActualPayable
 				,0 CustomerAdvance,0 CustomerCreditNote,0 Receivable,0 ActualReceivable ,0 RemainingPOPayable
 				FROM TRN.Advance A
@@ -22410,13 +22421,23 @@ group by Id) O60 ON O60.Id=IV.Id
 				INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdvanceDetailId=AD.Id
 				INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCA ON VDCA.VoucherDetailId=VDA.Id
                 LEFT JOIN (select SUM(VDCW.CrAmount)AdvanceWriteOffBooksAmount,AdvanceId from [TRN].[AdvanceWriteOffDetail] AWD
-				INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.AdvanceWriteOffDetailId=AWD.Id
-				INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
-                LEFT JOIN [TRN].[AdvanceWriteOff] AW ON AW.Id=AWD.AdvanceWriteOffId WHERE AW.IsPark=0 AND AW.Archive=0
-                and ( convert(Date,AW.PostingDate) <= '" + toDate + @"')
-                GROUP BY AdvanceId)AW ON AW.AdvanceId=A.Id
-                where A.PlantId='" + plantId + @"' and A.SourceType='VendorAdvance'  and A.PartyType='Vendor' 
-				AND ( convert(Date,A.PostingDate) <= '" + toDate + @"' ) and ISNULL(VDCA.DrAmount,0)- ISNULL(AW.AdvanceWriteOffBooksAmount,0)>0
+				        INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.AdvanceWriteOffDetailId=AWD.Id
+				        INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+                        LEFT JOIN [TRN].[AdvanceWriteOff] AW ON AW.Id=AWD.AdvanceWriteOffId 
+				        LEFT JOIN [TRN].[Voucher] VW ON VW.Id=AW.VoucherId 
+				        WHERE VW.IsPark=0 AND VW.Archive=0
+                        and ( convert(Date,AW.PostingDate) <= '" + toDate + @"')
+                        GROUP BY AdvanceId)AW ON AW.AdvanceId=A.Id
+                LEFT JOIN (select SUM(VDCW.DrAmount)AdditionalAdvanceAmount,AdvanceId from [TRN].[AdvanceWriteOffDetail] AWD
+				        INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.AdvanceWriteOffDetailId=AWD.Id
+				        INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+                        LEFT JOIN [TRN].[AdvanceWriteOff] AW ON AW.Id=AWD.AdvanceWriteOffId 
+				        LEFT JOIN [TRN].[Voucher] VW ON VW.Id=AW.VoucherId 
+				        WHERE VW.IsPark=0 AND VW.Archive=0
+                        and ( convert(Date,AW.PostingDate) <= '" + toDate + @"' and AWD.IsAdditionalAdvance=1)
+                        GROUP BY AdvanceId)ADDW ON ADDW.AdvanceId=A.Id
+                where A.IsPark=0 AND A.PlantId='" + plantId + @"' and A.SourceType='VendorAdvance'  and A.PartyType='Vendor' 
+				AND ( convert(Date,A.PostingDate) <= '" + toDate + @"' ) and ISNULL(VDCA.DrAmount,0)+ISNULL(ADDW.AdditionalAdvanceAmount,0) - ISNULL(AW.AdvanceWriteOffBooksAmount,0)>0
                 
                 UNION ALL
 				 SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,P.PartyNature,P.UserName PartyName
