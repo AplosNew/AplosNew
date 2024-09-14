@@ -18,7 +18,7 @@ function ProductionOrderSchedulingParametersType2Controller(cboService, commonMe
     $scope.MaterialImagePath = virtualPath.ProductsImage;
     $scope.sortSettings = { sortedColumns: [{ field: "ProductionStatus", direction: "descending" }, { field: "LSD", direction: "ascending" }] };
     $scope.path = 'OrderManagements/productionOrderSchedulingParametersType1/';
-    $scope.getListUrl = $scope.path + 'GetListNew';
+    $scope.getListUrl = $scope.path + 'GetType2List';
     $scope.saveUrl = $scope.path + 'create';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
@@ -590,7 +590,7 @@ function ProductionOrderSchedulingParametersType2Controller(cboService, commonMe
     $scope.GetPlanningTypeEntiy = function () {
         $http({
             method: 'GET',
-            url: 'OrderManagements/ProductionOrder/GetPlanningTypeEntityCbo?processId=' + $scope.PlanningTypeProcessId
+            url: 'OrderManagements/ProductionOrder/GetPlanningType2EntityCbo?processId=' + $scope.PlanningTypeProcessId
         }).then(function successCallback(response) {
             $scope.entityList = response.data;
         });

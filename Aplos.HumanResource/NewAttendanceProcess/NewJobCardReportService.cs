@@ -175,6 +175,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             object totalLeaveDays;
                             object totalWeekOFFDays;
                             object totalHolidays;
+                            object totalPayDay;
                             object totalODD;
                             object totalDays;
                             object totalLWPDays;
@@ -197,6 +198,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             totalLeaveDays = dvSummary.ToTable().Compute(@"SUM(TotalLv)", null);
                             totalWeekOFFDays = dvSummary.ToTable().Compute(@"SUM(TotalWeekOff)", null);
                             totalHolidays = dvSummary.ToTable().Compute(@"SUM(TotalHoliDay)", null);
+                            totalPayDay = dvSummary.ToTable().Compute(@"SUM(PayDayValue)", null);
                             totalODD = dvBioDvAC.ToTable().Compute(@"SUM(DurationInMin)", null);
                             totalDays = dvSummary.ToTable().Compute(@"COUNT(DayValue)", null);
                             totalLWPDays = dvSummary.ToTable().Compute(@"SUM(TotalLWP)", null);
@@ -369,6 +371,16 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     sheet1.Range[7, 10, 7, 10 + 2].CellStyle.Font.Bold = true;
                                     sheet1.Range[7, 10, 7, 10 + 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
                                     sheet1.Range[7, 10, 7, 10 + 2].BorderAround(ExcelLineStyle.Hair);
+
+                                    sheet1.Range[8, 10].Text = "Total Pay Day";
+                                    sheet1.Range[8, 10, 8, 10 + 1].Merge();
+                                                 
+                                    sheet1.Range[8, 10 + 2].Text = totalPayDay.ToString();
+                                    sheet1.Range[8, 10].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                    sheet1.Range[8, 10 + 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[8, 10, 8, 10 + 2].CellStyle.Font.Bold = true;
+                                    sheet1.Range[8, 10, 8, 10 + 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    sheet1.Range[8, 10, 8, 10 + 2].BorderAround(ExcelLineStyle.Hair);
 
                                     if (chkAdditionInfo == true)
                                     {
@@ -3300,7 +3312,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 								ISNULL(TotalMLv, 0) + ISNULL(a.WeekOffValue, 0)
                                 + ISNULL(TotalCompAssignLv, 0) + ISNULL(a.HoliDayValue, 0) + 
 								ISNULL(TotalWeekOffHoliDay, 0)
-								,Category,DayStatus
+								,Category,DayStatus,PayDayValue
                                 FROM(SELECT EmpSystemID, WorkDate, EmployeeCode,
 								Category,DayStatus,PresentValue,AbsentValue,LateValue,                          
 			                              
@@ -3309,7 +3321,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 TotalWeekOffHoliDay = 0,
                                 OTHr,LvValue,WeekOffValue,HoliDayValue,
                                 LWPValue=Case When(DayStatus='LWP')
-								then 1 else 0 end
+								then 1 else 0 end,A.PayDayValue
                                 FROM dbo.AttdnProcessData a
                                 left join daytype p on a.DayStatus=p.DayType
                                 left join employeeInformation ei on ei.SystemId =a.EmpSystemID

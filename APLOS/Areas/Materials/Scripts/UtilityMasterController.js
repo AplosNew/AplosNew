@@ -572,7 +572,7 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
                 $scope.UtilityCategoryList = response.data;
             })
     }
-    $scope.GetUtilityCategoryList();
+ //   $scope.GetUtilityCategoryList();
 
     $scope.UtilityCategoryTemp = {
         Id: null,
