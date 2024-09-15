@@ -437,7 +437,7 @@ function ProductionOrderSchedulingParametersType2Controller(cboService, commonMe
         $http({
             method: 'POST',
             data: { 'column': $scope.NewSearchParameters.searchBy, 'value': $scope.NewSearchParameters.search, 'baseprocessid': $scope.PlanningTypeProcessId, 'entityid': $scope.EntityId },
-            url: $scope.path + "GetPONewList"
+            url: $scope.path + "GetPOType2List"
         }).then(function successCallback(response) {
             $scope.modelListNew = response.data;
         });

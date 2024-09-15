@@ -372,7 +372,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     sheet1.Range[7, 10, 7, 10 + 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
                                     sheet1.Range[7, 10, 7, 10 + 2].BorderAround(ExcelLineStyle.Hair);
 
-                                    sheet1.Range[8, 10].Text = "Total Pay Day";
+                                    sheet1.Range[8, 10].Text = "Total Pay Days";
                                     sheet1.Range[8, 10, 8, 10 + 1].Merge();
                                                  
                                     sheet1.Range[8, 10 + 2].Text = totalPayDay.ToString();
