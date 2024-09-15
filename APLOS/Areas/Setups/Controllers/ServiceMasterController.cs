@@ -4,12 +4,17 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
+using Library.Model.Enums;
 using Library.Model.Materials;
 using Library.Security.Core;
+using Library.Service.Helpers;
 using Library.Service.Materials;
+using OTSBD;
+using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Threading;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
@@ -32,13 +37,13 @@ namespace Aplos.Areas.Setups.Controllers
 
         #region Pages
 
-       
+
         public ActionResult Aplos()
         {
             return View();
         }
 
-      
+
         #endregion Pages
 
         #region -- Operations
@@ -57,7 +62,7 @@ namespace Aplos.Areas.Setups.Controllers
         [HttpGet, Authorize]
         public ActionResult GetHSNCodeByServiceGroupId(string groupId)
         {
-            var sql = @"SELECT Code FROM HKP.HSNCode WHERE Id =(SELECT HSNCodeId FROM [HKP].[ServiceGroup] WHERE Id='"+ groupId + "')";
+            var sql = @"SELECT Code FROM HKP.HSNCode WHERE Id =(SELECT HSNCodeId FROM [HKP].[ServiceGroup] WHERE Id='" + groupId + "')";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -130,7 +135,7 @@ namespace Aplos.Areas.Setups.Controllers
                 }
                 #endregion data update 
 
-                clsStaticInfo _info = new clsStaticInfo();
+                OTSBD.clsStaticInfo _info = new OTSBD.clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
 
                 return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
@@ -144,7 +149,7 @@ namespace Aplos.Areas.Setups.Controllers
         {
             DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM [MST].[ServiceControl]");
             if (dt.Rows.Count > 0)
-                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+                return OTSBD.clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
             return 1;
         }
@@ -244,7 +249,7 @@ namespace Aplos.Areas.Setups.Controllers
                                     FROM [HKP].[ServiceMaster] SM
 									 LEFT JOIN [HKP].[ServiceGroup] AS SG ON SG.Id=SM.ServiceGroupId
 									left join(select * from  [MST].[ServiceControlServiceMaster] where ServiceControlId='" + serviceControlId + @"') SC on SC.ServiceMasterId=SM.Id
-                                    --where SM.CompanyId='"+identity.CompanyId+"'";
+                                    --where SM.CompanyId='" + identity.CompanyId + "'";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
@@ -407,7 +412,7 @@ namespace Aplos.Areas.Setups.Controllers
                         EditRow(drmo, item);
                     }
                 }
-                clsStaticInfo _info = new clsStaticInfo();
+                OTSBD.clsStaticInfo _info = new OTSBD.clsStaticInfo();
                 _info.SaveDataSets(dsDr);
 
                 #endregion data update 
@@ -462,7 +467,7 @@ namespace Aplos.Areas.Setups.Controllers
                 }
                 #endregion data update 
 
-                clsStaticInfo _info = new clsStaticInfo();
+                OTSBD.clsStaticInfo _info = new OTSBD.clsStaticInfo();
                 _info.SaveDataSets(dsAB);
                 return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
             }
@@ -513,7 +518,7 @@ namespace Aplos.Areas.Setups.Controllers
                 }
                 #endregion data update 
 
-                clsStaticInfo _info = new clsStaticInfo();
+                OTSBD.clsStaticInfo _info = new OTSBD.clsStaticInfo();
                 _info.SaveDataSets(dsAPB);
                 return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
             }
@@ -563,7 +568,7 @@ namespace Aplos.Areas.Setups.Controllers
                 }
                 #endregion data update 
 
-                clsStaticInfo _info = new clsStaticInfo();
+                OTSBD.clsStaticInfo _info = new OTSBD.clsStaticInfo();
                 _info.SaveDataSets(dsAPB);
                 return Json(new { Error = false, Id = Id, Message = AplosMessage.Updated });
             }
@@ -573,5 +578,298 @@ namespace Aplos.Areas.Setups.Controllers
             }
         }
         #endregion
+
+        #region Upload Data
+        [HttpGet, Authorize]
+        public ActionResult GetSampleFile(ReportFormat reportFormat)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            IWorkbook workbook = GetSampleFileServiceMaster(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName);
+            var reportFileName = "Service Master Data upload Sample File";
+
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+
+        }
+
+        public IWorkbook GetSampleFileServiceMaster(string Name, string CompanyGroupId, string PlantId, string CompanyId, string PlantName)
+        {
+            #region declare
+            clsReport objRpt = null;
+            OTSBD.clsStaticInfo objStatic = null;
+            objStatic = new OTSBD.clsStaticInfo();
+            string OTConsiderOn = string.Empty;
+
+            #endregion
+            try
+            {
+                ReportUtility ru = new ReportUtility();
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                var workbook = ru.GetWorkbook(ref excelEngine, 1);
+                workbook.Version = ExcelVersion.Excel2013;
+
+                objRpt = new clsReport();
+                string toDay = DateTime.Now.ToString("dd-MMM-yyyy");
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(2);
+
+                int xlsRow = 1, xlsCol = 1;
+                int endXlsCol = 1;
+
+                #region Lunch Out
+                IWorksheet sheet1 = null;
+                sheet1 = workbook.Worksheets[0];
+                IWorksheet sheetSource = null;
+                sheetSource = workbook.Worksheets[1];
+                xlsRow = 1;
+
+                #region ------------------Column Header------------------
+
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceMasterId"); int colServiceMasterId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DrControlId"); int colDrControlId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "CrControlId"); int colCrControlId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PurchaseApplicable"); int colPurchaseApplicable = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SalesApplicable"); int colSalesApplicable = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IndependentApplicable"); int colIndependentApplicable = xlsCol;
+                endXlsCol = xlsCol;
+
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
+
+                xlsRow++;
+
+                sheet1.Range[xlsRow, colPurchaseApplicable, xlsRow, colPurchaseApplicable].DataValidation.AllowType = ExcelDataType.Integer;
+                sheet1.Range[xlsRow, colSalesApplicable, xlsRow, colSalesApplicable].DataValidation.AllowType = ExcelDataType.Integer;
+                sheet1.Range[xlsRow, colIndependentApplicable, xlsRow, colIndependentApplicable].DataValidation.AllowType = ExcelDataType.Integer;
+
+                #endregion ------------------Column Header------------------
+
+                #region UsedRange Alignment
+
+                sheet1.UsedRange.WrapText = true;
+                sheet1.UsedRange.CellStyle.Font.Size = 10;
+                sheet1.Range["A1"].CellStyle.Font.Size = 10;
+                sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+
+                #endregion UsedRange Alignment
+
+                #region Page Setup
+                sheet1.PageSetup.TopMargin = 0.5;
+                sheet1.PageSetup.BottomMargin = 0.7;
+                sheet1.PageSetup.PrintTitleRows = "$1:$5";
+                sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + Name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                sheet1.PageSetup.LeftMargin = 0.5;
+                sheet1.PageSetup.RightMargin = 0.2;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet1.PageSetup.FitToPagesTall = 0;
+                sheet1.PageSetup.FitToPagesWide = 1;
+                sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet1.IsDisplayZeros = false;
+                sheet1.Name = "Sheet1";
+                #endregion Page Setup
+
+                #endregion  Lunch Out
+
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult ImportData(FormCollection form)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                List<UploadedDataViewModel> data = new List<UploadedDataViewModel>();
+
+                var file = Request.Files["file"];
+
+                if (file != null)
+                {
+                    var extension = Path.GetExtension(file.FileName);
+                    if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
+                    {
+
+                    }
+                    else
+                        throw new CustomException(Resources.ExcelUploadError);
+                }
+                else
+                {
+                    throw new CustomException(Resources.ExcelUploadError);
+                }
+                string path = "";
+                if (file != null)
+                {
+                    path = Path.Combine(ResourcesPathReader.GetAttendanceRawData(), file.FileName);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                        file.SaveAs(path);
+                    }
+                    else
+                    {
+                        file.SaveAs(path);
+                    }
+                }
+                FileInfo docFile;
+                string exception = "\r\n";
+                try
+                {
+                    try
+                    {
+                        string connString = string.Empty;
+                        ExcelEngine excelEngine = null;
+                        IApplication application = null;
+                        IWorkbook workbook = null;
+
+                        excelEngine = new ExcelEngine();
+                        application = excelEngine.Excel;
+                        workbook = excelEngine.Excel.Workbooks.Open(path);
+
+                        DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
+                        DataSet dsExcel = new DataSet();
+                        dsExcel.Tables.Add(dt);
+
+
+                        docFile = new FileInfo(path);
+                        if (docFile.Exists)
+                        {
+                            exception += "\r\nTrying to delete";
+                            docFile.Delete();
+                        }
+
+                        if (dsExcel.Tables[0].Rows.Count > 0)
+                        {
+                            for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
+                            {
+                                UploadedDataViewModel vm = new UploadedDataViewModel();
+
+                                vm.ServiceMasterId = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
+                                vm.DrControlId = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
+                                vm.CrControlId = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
+                                vm.PurchaseApplicable = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
+                                vm.SalesApplicable = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
+                                vm.IndependentApplicable = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
+
+                                data.Add(vm);
+
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("Please Select File");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                        docFile = new FileInfo(path);
+                        if (docFile.Exists)
+                        {
+                            docFile.Delete();
+                        }
+                        throw (ex);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    //throw ex;
+                }
+                finally
+                {
+                }
+                JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SaveUploadedData(List<Dictionary<string, object>> data)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            bplib.clsGenID genid = new bplib.clsGenID();
+            DataSet dsBC, dsDD;
+            string _Id = string.Empty;
+            try
+            {
+                #region Entity 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM [HKP].[ServiceMasterGL] where 1=1", out dsBC, false, "1");
+
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsBC.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        if (dv.Count == 0)
+                        {
+                            item["PurchaseApplicable"] = (item["PurchaseApplicable"].ToString() == "1") ? true : false;
+                            item["SalesApplicable"] = (item["SalesApplicable"].ToString() == "1") ? true : false;
+                            item["IndependentApplicable"] = (item["IndependentApplicable"].ToString() == "1") ? true : false;
+                            AddNewRow(dsBC.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+                #endregion
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsBC);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        #endregion
+    }
+
+    public class UploadedDataViewModel
+    {
+        public string ServiceMasterId { get; set; }
+        public string DrControlId { get; set; }
+        public string CrControlId { get; set; }
+        public string PurchaseApplicable { get; set; }
+        public string SalesApplicable { get; set; }
+        public string IndependentApplicable { get; set; }
+
     }
 }

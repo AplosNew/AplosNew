@@ -2426,7 +2426,7 @@ LEFT JOIN SalaryHead AS sh ON sh.SalaryHeadID = spc.SalaryHeadID
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId IN(" + empIds + @")
 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=E.GivenDesignationId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
-WHERE  spc.EmpInfoSystemID IN(" + empIds +@") AND HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
+WHERE  spc.EmpInfoSystemID IN(" + empIds + @") AND HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0 AND EC.UserName='Staff'
 ))  AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND PastBonusDisbursed IS NULL
 ";
                 con.OpenDataSetThroughAdapter(elockBNsql, out dsEmpBN, false, "1");

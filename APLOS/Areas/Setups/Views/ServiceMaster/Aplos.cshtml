@@ -1,219 +1,286 @@
-﻿<togglable name="Service Master"></togglable>
-<div class="form-elements" ng-form id="serviceMasterNew" name="serviceMasterForm">
-    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
-        <div class="form-group">
-            <label class="col-sm-3 col-md-4 control-label">Company</label>
-            <div class="col-sm-3 col-md-8">
-                <div class="select-style">
-                    <select class="form-control" ng-model="serviceMasterNew.CompanyId"
-                            ng-options="item.Value as item.Text for item in companyList" >
-                        <option></option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="clearfix"></div>
-
-    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="number" max="10000" name="Sequence" ng-model="serviceMasterNew.Sequence" class="form-control" required tabindex="1">
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Service Category</label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="ServiceCategory" ng-model="serviceMasterNew.ServiceCategory" class="form-control" tabindex="3" maxlength="50">
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Standard Name" ng-model="serviceMasterNew.StandardName" class="form-control" required tabindex="5" maxlength="50">
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Service Group<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select class="form-control" ng-model="serviceMasterNew.ServiceGroupId"
-                            ng-options="item.Value as item.Text for item in serviceGroupList" id="serviceGroupId" ng-change="GetHSNCodeByServiceGroupId();"
-                            name="Cost Center SubCategory" required tabindex="7">
-                        <option></option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="form-group" >
-            <label class="col-sm-4 control-label">UoM<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select name="Transaction UoM" class="form-control" ng-model="serviceMasterNew.TransactionUoMId" ng-options="item.Value as item.Text for item in uoMList" >
-                        <option value=""></option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Dr Control<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="input-group">
-                    <input type="text" ng-model="serviceMasterNew.DrActivityName" class="form-control" readonly>
-                    <span class="input-group-btn">
-                        <button ng-click="popUp('Dr');" class="btn single-small-btn" ng-disabled="serviceMasterNew.CompanyId==null" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
-                    </span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Description</label>
-            <div class="col-sm-8">
-                <textarea class="form-control" rows="3" name="Description" ng-model="serviceMasterNew.Description" tabindex="9" maxlength="250"></textarea>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">IS PO</label>
-            <div class="col-sm-8">
-                <div class="checkbox-site">
-                    <label>
-                        <input type="checkbox" ng-model="serviceMasterNew.IsPO" tabindex="11">
-                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                    </label>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Active</label>
-            <div class="col-sm-8">
-                <div class="checkbox-site">
-                    <label>
-                        <input type="checkbox" ng-model="serviceMasterNew.Active" tabindex="13">
-                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                    </label>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Code" ng-model="serviceMasterNew.Code" class="form-control" required tabindex="2" maxlength="10">
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Service Sub Category</label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="ServiceSubCategory" ng-model="serviceMasterNew.ServiceSubCategory" class="form-control" tabindex="4" maxlength="50">
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">User Defined Name<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="User Defined Name" ng-model="serviceMasterNew.UserName" class="form-control" required tabindex="6" maxlength="50">
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">HSN Code<sup></sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select id="hsnCodeId" name="HSN Code" class="form-control" ng-model="serviceMasterNew.HSNCodeId"
-                            ng-options="item.Value as item.Text for item in hsnCodeList" tabindex="8">
-                        <option value=""></option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Cr Control<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="input-group">
-                    <input type="text" ng-model="serviceMasterNew.CrActivityName" class="form-control" readonly>
-                    <span class="input-group-btn">
-                        <button ng-click="popUp('Cr');" class="btn single-small-btn" ng-disabled="serviceMasterNew.CompanyId==null" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
-                    </span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Remarks</label>
-            <div class="col-sm-8">
-                <textarea class="form-control" rows="3" ng-model="serviceMasterNew.Remarks" maxlength="250" tabindex="10"></textarea>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">IS Approved</label>
-            <div class="col-sm-8">
-                <div class="checkbox-site">
-                    <label>
-                        <input type="checkbox" ng-model="serviceMasterNew.IsApproved" tabindex="11">
-                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                    </label>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="common-btn">
-        <ul class="list-inline text-right">
-            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+﻿<div class="tab-design">
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="Service Master" role="tab" data-toggle="tab">Service Master</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);" href="" aria-controls="Upload" role="tab" data-toggle="tab">Upload</a></li>
         </ul>
     </div>
-</div>
-<div class="aplos-grid-toggle">
-    <div class="row text-right">
-        <div class="col-xs-12 col-sm-12 col-sm-12">
-            <div class="search-form">
-                <div class="row">
-                    <div class="col-xs-12 col-sm-3 col-md-3">
-                        <div class="select-style">
-                            <select ng-model="$root.parameters.searchBy">
-                                <option ng-repeat="option in searchByServiceMasterList" value="{{option.value}}">{{option.name}}</option>
-                            </select>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }" ng-form="tabForm1" id="ServiceMaster">
+            <togglable name="Service Master"></togglable>
+            <div class="form-elements" ng-form id="serviceMasterNew" name="serviceMasterForm">
+                <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+                    <div class="form-group">
+                        <label class="col-sm-3 col-md-4 control-label">Company</label>
+                        <div class="col-sm-3 col-md-8">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="serviceMasterNew.CompanyId"
+                                        ng-options="item.Value as item.Text for item in companyList">
+                                    <option></option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-xs-12 col-sm-7 col-md-7">
-                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="clearfix"></div>
+
+                <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="number" max="10000" name="Sequence" ng-model="serviceMasterNew.Sequence" class="form-control" required tabindex="1">
+                        </div>
                     </div>
-                    <div class="col-xs-12 col-sm-2 col-md-2">
-                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Service Category</label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="ServiceCategory" ng-model="serviceMasterNew.ServiceCategory" class="form-control" tabindex="3" maxlength="50">
+                        </div>
                     </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Standard Name" ng-model="serviceMasterNew.StandardName" class="form-control" required tabindex="5" maxlength="50">
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Service Group<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="serviceMasterNew.ServiceGroupId"
+                                        ng-options="item.Value as item.Text for item in serviceGroupList" id="serviceGroupId" ng-change="GetHSNCodeByServiceGroupId();"
+                                        name="Cost Center SubCategory" required tabindex="7">
+                                    <option></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">UoM<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select name="Transaction UoM" class="form-control" ng-model="serviceMasterNew.TransactionUoMId" ng-options="item.Value as item.Text for item in uoMList">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Dr Control<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="input-group">
+                                <input type="text" ng-model="serviceMasterNew.DrActivityName" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button ng-click="popUp('Dr');" class="btn single-small-btn" ng-disabled="serviceMasterNew.CompanyId==null" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Description</label>
+                        <div class="col-sm-8">
+                            <textarea class="form-control" rows="3" name="Description" ng-model="serviceMasterNew.Description" tabindex="9" maxlength="250"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">IS PO</label>
+                        <div class="col-sm-8">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" ng-model="serviceMasterNew.IsPO" tabindex="11">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Active</label>
+                        <div class="col-sm-8">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" ng-model="serviceMasterNew.Active" tabindex="13">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Code" ng-model="serviceMasterNew.Code" class="form-control" required tabindex="2" maxlength="10">
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Service Sub Category</label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="ServiceSubCategory" ng-model="serviceMasterNew.ServiceSubCategory" class="form-control" tabindex="4" maxlength="50">
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">User Defined Name<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="User Defined Name" ng-model="serviceMasterNew.UserName" class="form-control" required tabindex="6" maxlength="50">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">HSN Code<sup></sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select id="hsnCodeId" name="HSN Code" class="form-control" ng-model="serviceMasterNew.HSNCodeId"
+                                        ng-options="item.Value as item.Text for item in hsnCodeList" tabindex="8">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Cr Control<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="input-group">
+                                <input type="text" ng-model="serviceMasterNew.CrActivityName" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button ng-click="popUp('Cr');" class="btn single-small-btn" ng-disabled="serviceMasterNew.CompanyId==null" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Remarks</label>
+                        <div class="col-sm-8">
+                            <textarea class="form-control" rows="3" ng-model="serviceMasterNew.Remarks" maxlength="250" tabindex="10"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">IS Approved</label>
+                        <div class="col-sm-8">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" ng-model="serviceMasterNew.IsApproved" tabindex="11">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                        <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                        <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="aplos-grid-toggle">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="$root.parameters.searchBy">
+                                            <option ng-repeat="option in searchByServiceMasterList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Sequence</th>
+                                <th>Code</th>
+                                <th>Standard Name</th>
+                                <th>User Defined Name</th>
+                                <th>Service Group</th>
+                                <th>Active</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in serviceMasters |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+                                <td>{{x.Sequence}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.ServiceGroupName}}</td>
+                                <td>{{x.Active?'Yes':'No'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getData(newPageNumber)">
+                    </dir-pagination-controls>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="table-responsive modal-table">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Sequence</th>
-                    <th>Code</th>
-                    <th>Standard Name</th>
-                    <th>User Defined Name</th>
-                    <th>Service Group</th>
-                    <th>Active</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr dir-paginate="x in serviceMasters |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
-                    <td>{{x.Sequence}}</td>
-                    <td>{{x.Code}}</td>
-                    <td>{{x.StandardName}}</td>
-                    <td>{{x.UserName}}</td>
-                    <td>{{x.ServiceGroupName}}</td>
-                    <td>{{x.Active?'Yes':'No'}}</td>
-                </tr>
-            </tbody>
-        </table>
-        <dir-pagination-controls max-size="10"
-                                 direction-links="true"
-                                 boundary-links="true"
-                                 on-page-change="getData(newPageNumber)">
-        </dir-pagination-controls>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-form="tabForm2" id="Upload">
+            <togglable name=" To be Uploaded & Downloaded"></togglable>
+            <div class="form-elements form-horizontal row" ng-form name="ModelNewForm">
+                <div class="col-md-10">
+                    <div class="inputBtnSection common-btn">
+                        <label class="fileUpload col-sm-4 ">
+                            <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                        </label>
+                        <input type="button" value="Import Data" class="btn btn-success"
+                               ng-click="ImportData()" />
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="GetSampleFile();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File Download</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div id="GridWorkCenterProduct"
+                         ng-init="chkinit()"
+                         ej-grid e-datasource="UploadedData"
+                         e-allowfiltering="true"
+                         e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowscrolling="true"
+                         e-pagesettings-pagesize="25"
+                         e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="ServiceMasterId" e-headertext="ServiceMasterId" e-width="100"></div>
+                            <div e-column e-field="DrControlId" e-headertext="DrControlId" e-width="100"></div>
+                            <div e-column e-field="CrControlId" e-headertext="CrControlId" e-width="100"></div>
+                            <div e-column e-field="PurchaseApplicable" e-headertext="PurchaseApplicable" e-width="80"></div>
+                            <div e-column e-field="SalesApplicable" e-headertext="SalesApplicable" e-width="80"></div>
+                            <div e-column e-field="IndependentApplicable" e-headertext="IndependentApplicable" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12 ">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li ng-show="ShowSaveBtn"> <button ng-click="SaveUploadedData();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
     </div>
 </div>
+
+
 <confirm-modal></confirm-modal>
 @Html.Partial("~/Areas/Accounts/Views/_GLBudgetActivityPopUp.cshtml")
+ 

@@ -1852,12 +1852,12 @@ namespace Library.MaterialManagement.Inventory
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
-        public IEnumerable<object> GetTaxCategoryOtherVendorList(string companyGroupId, string receiveId, string plantId, string hsnCodeId, string GRNDate,string OtherPartyPlantId)
+        public IEnumerable<object> GetTaxCategoryOtherVendorList(string companyGroupId, string receiveId, string plantId, string hsnCodeId, string GRNDate, string OtherPartyPlantId)
         {
             try
             {
                 var sql = @"DECLARE @receiveId varchar(10)='" + receiveId + @"'
-                                  , @otherPartyPlantId varchar(30)='"+ OtherPartyPlantId + @"'
+                                  , @otherPartyPlantId varchar(30)='" + OtherPartyPlantId + @"'
                                   , @partyState varchar(30)
                                   , @partyCountry varchar(10)
                                   , @plantState varchar(30)
@@ -5280,7 +5280,8 @@ namespace Library.MaterialManagement.Inventory
                 var poApprovedStatus = "";
                 foreach (DataColumn item in dtOrderMaster.Columns)
                     columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
-                var dsServiceItems = loadGRNServiceMaster(grnId);
+                var dsServiceItems = GetGRNServiceMaster(grnId);
+                var dsOtherServiceItems = GetOtherVendorGRNServiceMaster(grnId);
                 var materialTotal = makeOrderDetailsTable(document, dtOrderMaster, grnId);//Material Details 
                 var dsInventoryReceiveAdditionalTax = loadInventoryReceiveAdditionalTax(grnId);
                 var InventoryReceiveAdditionalTax = 0.00;
@@ -5303,8 +5304,17 @@ namespace Library.MaterialManagement.Inventory
 
                     //{TotalInWords}
                 }
-                document.Replace("{GrandTotal}", ((materialTotal + serviceTotal) + InventoryReceiveAdditionalTax).ToString("#,##0.00") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
-                document.Replace("{TotalInWords}", ru.InWord(((materialTotal + serviceTotal) + InventoryReceiveAdditionalTax), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
+                var otherserviceTotal = 0.00;
+                if (dsOtherServiceItems.Rows.Count > 0)
+
+                {
+                    otherserviceTotal = makeOtherOrderServiceTable(document, dsOtherServiceItems, grnId);//Service Details 
+                    document.Replace("{OtherServiceDetails}", "Other Service Details", true, true);
+
+                    //{TotalInWords}
+                }
+                document.Replace("{GrandTotal}", ((materialTotal + serviceTotal + otherserviceTotal) + InventoryReceiveAdditionalTax).ToString("#,##0.00") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                document.Replace("{TotalInWords}", ru.InWord(((materialTotal + serviceTotal + otherserviceTotal) + InventoryReceiveAdditionalTax), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
 
                 Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
 
@@ -5645,7 +5655,7 @@ namespace Library.MaterialManagement.Inventory
 								when IR.CheckedByStatus Is null and IR.AuthorizedByStatus Is null Then 'Approved'
                             else ''
                             END
-							,IRD.LotNo , IRD.QualityStatus , IRD.GrossAmount ,IRD.DiscountAmount,IRD.AlternativeQty
+							,IRD.LotNo , IRD.QualityStatus , IRD.GrossAmount ,IRD.DiscountAmount,IRD.AlternativeQty,('Other Vendor : '+OP.UserName) OtherParty,IR.OtherPartyPlantId
                             FROM TRN.InventoryReceive IR
                             LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                             LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -5709,6 +5719,7 @@ namespace Library.MaterialManagement.Inventory
 
 									)PO1 ON PO1.GRNId = IRD.InventoryReceiveId
 							LEFT JOIN [TRN].[GateEntry] GTE  ON GTE.ID= IR.GateEntryNo
+							LEFT JOIN HKP.Party OP ON OP.Id=IR.OtherPartyId
                             WHERE IR.Id ='" + OrderMasterID + @"' and IOM.MaterialMasterId is not NULL
 
                             Union ALL
@@ -5837,7 +5848,7 @@ namespace Library.MaterialManagement.Inventory
 								when IR.CheckedByStatus Is null and IR.AuthorizedByStatus Is null Then 'Approved'
                             else ''
                             END
-							,Null LotNo , Null QualityStatus , Null GrossAmount ,Null DiscountAmount,0 AlternativeQty
+							,Null LotNo , Null QualityStatus , Null GrossAmount ,Null DiscountAmount,0 AlternativeQty,('Other Vendor : '+OP.UserName) OtherParty,IR.OtherPartyPlantId
                             FROM TRN.InventoryReceive IR
                             LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                             LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -5889,6 +5900,7 @@ namespace Library.MaterialManagement.Inventory
 
 									)PO1 ON PO1.GRNId = IRD.InventoryReceiveId
 							LEFT JOIN [TRN].[GateEntry] GTE  ON GTE.ID= IR.GateEntryNo
+							LEFT JOIN HKP.Party OP ON OP.Id=IR.OtherPartyId
                             WHERE IR.Id ='" + OrderMasterID + "' and IOM.MaterialMasterId is NULL";
 
 
@@ -6396,6 +6408,54 @@ namespace Library.MaterialManagement.Inventory
 
             }
         }
+        public DataTable GetGRNServiceMaster(string OrderMasterID)
+        {
+            string strSQL;
+
+            try
+            {
+                strSQL = @"SELECT IOS.Id ServiceId, SM.UserName  Service ,IOS.Amount,IOS.TotalTaxAmount,IOS.AddedBy,IOS.AddedDate,IOS.UpdatedBy,IOS.UpdatedDate 
+                               FROM TRN.InventoryReceive   IR
+                            INNER join trn.inventoryservice IOS ON IOS.InventoryReceiveId = IR.Id
+                            INNER JOIN HKP.ServiceMaster SM ON IOS.ServiceMasterId = SM.Id 
+                            where IR.Id = '" + OrderMasterID + "' AND ISNULL(IOS.IsOtherVendor,0)=0";
+
+                return _sqlRepository.GetDataTable(strSQL);
+
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }
+        public DataTable GetOtherVendorGRNServiceMaster(string OrderMasterID)
+        {
+            string strSQL;
+
+            try
+            {
+                strSQL = @"SELECT IOS.Id ServiceId, SM.UserName Service ,IOS.Amount,IOS.TotalTaxAmount,IOS.AddedBy,IOS.AddedDate,IOS.UpdatedBy,IOS.UpdatedDate 
+                               FROM TRN.InventoryReceive IR
+                            INNER join trn.inventoryservice IOS ON IOS.InventoryReceiveId = IR.Id
+                            INNER JOIN HKP.ServiceMaster SM ON IOS.ServiceMasterId = SM.Id 
+                            where IR.Id = '" + OrderMasterID + "' AND ISNULL(IOS.IsOtherVendor,0)=1";
+
+                return _sqlRepository.GetDataTable(strSQL);
+
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }
 
         public DataTable loadInventoryReceiveAdditionalTax(string grnId)
         {
@@ -6432,7 +6492,7 @@ namespace Library.MaterialManagement.Inventory
                               Inner join trn.InventoryReceiveTax IRT ON IRT.InventoryReceiveId = IR.Id and IRT.InventoryServiceId = ISER.Id
                                LEFT OUTER JOIN [MST].[TaxCategory] TG ON tg.Id=IRT.TaxCategoryId
                                 WHERE IR.Id='" + OrderMasterID + @"'
-								and InventoryServiceId  is not null and   InventoryReceiveDetailId is null 
+								and InventoryServiceId  is not null and   InventoryReceiveDetailId is null AND ISNULL(ISER.IsOtherVendor,0)=0
 								 ORDER BY tg.[Sequence]";
                 return _sqlRepository.GetDataTable(strSQL);
 
@@ -6447,6 +6507,31 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
+        public DataTable loadOtherVendorGRNServiceMasterTex(string OrderMasterID)
+        {
+            string strSQL;
+            try
+            {
+                strSQL = @"select InventoryServiceId,IR.Id PurchaseOrderId,tg.Code AS TaxCode,IRT.Percentage, IRT.TaxAmount
+                    from TRN.InventoryReceive IR
+                              INNER JOIN trn.InventoryService ISER ON ISER.InventoryReceiveId = IR.Id
+                              Inner join trn.InventoryReceiveTax IRT ON IRT.InventoryReceiveId = IR.Id and IRT.InventoryServiceId = ISER.Id
+                               LEFT OUTER JOIN [MST].[TaxCategory] TG ON tg.Id=IRT.TaxCategoryId
+                                WHERE IR.Id='" + OrderMasterID + @"'
+								and InventoryServiceId  is not null and   InventoryReceiveDetailId is null  AND ISNULL(ISER.IsOtherVendor,0)=1
+								 ORDER BY tg.[Sequence]";
+                return _sqlRepository.GetDataTable(strSQL);
+
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }
 
 
         public DataTable loadPurchaseReturnServiceTax(string grnId)
@@ -6486,10 +6571,10 @@ namespace Library.MaterialManagement.Inventory
             int LasColumnIndex = 0;
             dsOrderItems = loadOrderMasterItems(grnId);
             dsTax = loadOrderMasterTax(grnId);
-                double baleQtyNew = clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(AlternativeQty)", null));
+            double baleQtyNew = clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(AlternativeQty)", null));
 
-            if(baleQtyNew>0)
-             LasColumnIndex = 16;
+            if (baleQtyNew > 0)
+                LasColumnIndex = 16;
             else
                 LasColumnIndex = 15;
 
@@ -6607,11 +6692,11 @@ namespace Library.MaterialManagement.Inventory
             {
                 range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Bale Qty");
                 range.ApplyCharacterFormat(FontBold);
-                 colAlterQty = COL; COL++;
+                colAlterQty = COL; COL++;
             }
-            
-            
-                range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Quality Status");
+
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Quality Status");
             range.ApplyCharacterFormat(FontBold);
             int colQualityStatus = COL; COL++;
 
@@ -7720,6 +7805,275 @@ namespace Library.MaterialManagement.Inventory
             return total;
         }
 
+        public double makeOtherOrderServiceTable(WordDocument document, DataTable dsOrderMaster, string grnId)
+        {
+            string replaceString = "{OtherServiceItems}";
+
+            ReportUtility ru = new ReportUtility();
+
+            DataTable dsTax;
+            //clsDataContext data = new clsDataContext();
+
+            IWParagraphStyle rightAlign = document.AddParagraphStyle("rightAlign2");
+            //Sets the formatting of the style
+            rightAlign.CharacterFormat.FontSize = 8f;
+            rightAlign.CharacterFormat.TextColor = Color.Black;
+            rightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
+
+            dsTax = loadOtherVendorGRNServiceMasterTex(grnId);
+
+            int LasColumnIndex = 1;
+            Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
+            DataView dv = new DataView(dsTax.DefaultView.ToTable(true, "TaxCode"));
+
+            //LasColumnIndex++;
+            //dicTaxes.Add("totaltax", LasColumnIndex);
+            if (dv.Count > 0)
+            {
+                for (int i = 0; i < dv.Count; i++)
+                {
+                    LasColumnIndex++;
+                    dicTaxes.Add(dv[i]["TaxCode"].ToString(), LasColumnIndex);
+                    LasColumnIndex++;
+                }
+            }
+
+            WTable wTable = new WTable(document);
+            wTable.TableFormat.Borders.LineWidth = 1;
+            wTable.TableFormat.Borders.BorderType = BorderStyle.Single;
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex + 1);
+
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+
+            #region column headers
+            document.EnsureMinimal();
+
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            FontBold.Bold = true;
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Service Name");
+            range.ApplyCharacterFormat(FontBold);
+            //wTable.Rows[ROW].Cells[COL].Width = 100;
+            int colServiceName = COL; //COL++;
+
+            int colTotalTaxableAmount = COL;
+            if (dv.Count > 0)
+            {
+                COL++;
+                colTotalTaxableAmount = COL;
+                range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Taxable Amount");
+                range.ApplyCharacterFormat(FontBold);
+                //COL++;
+                for (int i = 0; i < dv.Count; i++)
+                {
+                    //two columns required for tax
+                    COL++;
+                    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText(dv[i]["TaxCode"].ToString());
+                    range.ApplyCharacterFormat(FontBold);
+                    COL++;
+                    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
+                }
+            }
+            else
+            {
+                COL++;
+                colTotalTaxableAmount = COL;
+                range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Total Amount");
+            }
+
+            wTable.Rows.Add(TemplateRow);
+            ROW++;
+
+            if (dv.Count > 0)
+            {
+                for (int i = 0; i < dv.Count; i++)
+                {
+
+                    range = wTable.Rows[ROW].Cells[dicTaxes[dv[i]["TaxCode"].ToString()]].AddParagraph().AppendText("Rate(%)");
+                    range.ApplyCharacterFormat(FontBold);
+                    range = wTable.Rows[ROW].Cells[dicTaxes[dv[i]["TaxCode"].ToString()] + 1].AddParagraph().AppendText("Amount");
+                    range.ApplyCharacterFormat(FontBold);
+
+                }
+            }
+
+            #endregion column headers
+            double totalValue = 0;
+            int startRow = ROW + 1;
+            for (int i = 0; i < dsOrderMaster.Rows.Count; i++)
+            {
+                ROW++;
+                wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                }
+                IParagraphItem p = TROW.Cells[colServiceName].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Service"].ToString());
+
+                TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["Amount"].ToString()).ToString("#,##0.00"));
+
+                totalValue += clsStdLib.dbl(dsOrderMaster.Rows[i]["Amount"].ToString());
+
+                //TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(totalValue.ToString("F2"));
+
+                if (dv.Count > 0)
+                {
+                    //dsTax.Tables[0].DefaultView.RowFilter = "MasterOrderItemId='" + dsOrderItems.Tables[0].Rows[i]["MasterOrderItemId"].ToString() + "'";
+                    DataView dvtax = new DataView(dsTax.DefaultView.ToTable());
+                    //double totalTax = 0;
+
+                    for (int T = 0; T < dv.Count; T++)
+                    {
+                        dvtax.RowFilter = "TaxCode='" + dv[T]["TaxCode"].ToString() + "' AND InventoryServiceId='" + dsOrderMaster.Rows[i]["ServiceId"] + "'";
+                        if (dvtax.Count > 0)
+                        {
+                            TROW.Cells[dicTaxes[dv[T]["TaxCode"].ToString()]].AddParagraph().AppendText(Convert.ToDouble(dvtax[0]["Percentage"].ToString()).ToString("F2"));
+                            TROW.Cells[dicTaxes[dv[T]["TaxCode"].ToString()] + 1].AddParagraph().AppendText(Convert.ToDouble(dvtax[0]["TaxAmount"].ToString()).ToString("F2"));
+                        }
+                    }
+                }
+            }
+
+            ROW++;
+
+            #region Total
+            int TotalRow = ROW;
+            wTable.AddRow();
+            //wTable.AddRow();
+            WTableRow _TROW = wTable.LastRow;
+
+            _TROW.Cells[0].AddParagraph().AppendText("Total").ApplyCharacterFormat(FontBold);
+
+            for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
+            {
+                if (dicTaxes.ContainsValue(C))
+                    continue;
+
+                double value = 0;
+                for (int i = startRow; i < TotalRow; i++)
+                {
+
+                    foreach (WParagraph item in wTable.Rows[i].Cells[C].Paragraphs)
+                    {
+                        value += clsStdLib.dbl(item.Text);
+                    }
+                }
+                _TROW.Cells[C].AddParagraph().AppendText(value.ToString("F2"));
+            }
+
+
+            #endregion Total
+
+
+            ROW++;
+
+
+            #region Sub Total
+            //int SubTotalRow = ROW;
+            //int SubTotalColumn = 0;//_TROW.Cells.Count - 5;
+            //wTable.AddRow();
+            //_TROW = wTable.LastRow;
+
+            //_TROW.Cells[SubTotalColumn].AddParagraph().AppendText("Sub Total");
+
+            double total = clsStdLib.dbl(dsOrderMaster.Compute("SUM(Amount)", "").ToString())
+//- clsStdLib.dbl(dsOrderItems.Tables[0].Compute("SUM(Discount)", "").ToString())
++ clsStdLib.dbl(dsTax.Compute("SUM(TaxAmount)", "").ToString());
+
+
+
+            //_TROW.Cells[SubTotalColumn + 1].AddParagraph().AppendText(total.ToString("F2") + " (" + ru.InWord(total, dsOrderMaster.Rows[0]["CurrencyId"].ToString()) + ")");
+
+            #endregion Total
+
+
+            ROW++;
+
+            #region Total Payable
+            //int TotalPayableRow = ROW;
+            //int TotalPayableColumn = 0;//_TROW.Cells.Count - 5;
+            //wTable.AddRow();
+            //_TROW = wTable.LastRow;
+
+            //_TROW.Cells[TotalPayableColumn].AddParagraph().AppendText("Total Amount Payable");
+            //_TROW.Cells[TotalPayableColumn + 1].AddParagraph().AppendText("Need To Discuss");
+
+            #endregion Total Payable
+
+
+            ROW++;
+
+            #region paragrpath formats
+            //Adds a new paragraph style named "MyStyle"
+            IWParagraphStyle myStyle2 = document.AddParagraphStyle("MyStyle3");
+            //Sets the formatting of the style
+            myStyle2.CharacterFormat.FontSize = 8f;
+            myStyle2.CharacterFormat.TextColor = Color.Black;
+            myStyle2.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+            for (int R = 0; R < wTable.Rows.Count; R++)
+            {
+                WTableRow TROW = wTable.Rows[R];
+                TROW.Cells[0].Width = 35;
+                if (dv.Count < 3)
+                    TROW.Cells[0].Width = +((3 - dv.Count) * 40);//for each tax group missing, adjust width with 0 cell
+
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.ApplyStyle("MyStyle3");
+                    }
+                }
+            }
+
+
+            #endregion paragrpath formats
+
+
+            #region merging section
+
+
+            //tax codes merging (horizontal)
+            ROW = 0;
+            for (int i = 0; i < dv.Count; i++)
+                wTable.ApplyHorizontalMerge(ROW, dicTaxes[dv[i]["TaxCode"].ToString()], dicTaxes[dv[i]["TaxCode"].ToString()] + 1);
+
+            //primary cells merging (veritcal)
+            ROW++;
+            for (int i = 0; i <= colTotalTaxableAmount; i++)
+                wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
+
+            IWParagraphStyle style2 = document.AddParagraphStyle("SubTotalStyle3");
+            style2.CharacterFormat.Bold = true;
+            style2.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Left;
+
+
+            //Adds new paragraph to the section
+
+
+            //for (int CELL = 0; CELL < wTable.Rows[SubTotalRow].Cells.Count; CELL++)
+            //    foreach (WParagraph PARA in wTable.Rows[SubTotalRow].Cells[CELL].Paragraphs)
+            //        PARA.ApplyStyle("SubTotalStyle2");
+
+            //wTable.ApplyHorizontalMerge(SubTotalRow, 1, wTable.LastCell.GetCellIndex());
+            #endregion merging section
+
+
+
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTable);
+            document.Replace(replaceString, textBodyPart, true, true);
+            return total;
+        }
 
         public double makeInventoryReceiveAdditionalTaxTable(WordDocument document, DataTable dsOrderMaster, string grnId)
         {
@@ -9049,9 +9403,9 @@ namespace Library.MaterialManagement.Inventory
                             LEFT JOIN HKP.Party P ON P.Id=IR.PartyId
                             WHERE IM.ArticleId in (select IM.ArticleId from trn.InventoryReceiveDetail IRD
                             					JOIN  trn.InventoryReceive IR   ON IR.Id=IRD.InventoryReceiveId
-                            					LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId where IR.Id='"+ grnId + @"')
+                            					LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId where IR.Id='" + grnId + @"')
                             ORDER BY IR.GRNDate DESC ";
-                return _sqlRepository.GetDataCollection(Sql); 
+                return _sqlRepository.GetDataCollection(Sql);
             }
             catch (Exception ex)
             {
@@ -9311,7 +9665,7 @@ namespace Library.MaterialManagement.Inventory
                 foreach (DataColumn item in dtOrderMaster.Columns)
                     columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
 
-               // var dsServiceItems = loadIssueServiceMaster(grnId);
+                // var dsServiceItems = loadIssueServiceMaster(grnId);
                 var materialTotal = makeIssueOrderDetailsTable(document, dtOrderMaster, grnId);                //Material Details 
 
                 var serviceTotal = 0.00;
