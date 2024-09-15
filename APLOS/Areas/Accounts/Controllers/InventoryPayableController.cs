@@ -117,7 +117,7 @@ namespace Aplos.Areas.Accounts.Controllers
 		                            WHERE B.PlantId=@plantId GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                         --LEFT JOIN TRN.GRNAcceptanceMap IGD ON IGD.GRNId=IR.Id
-                        LEFT JOIN TRN.Invoice IV ON IV.inventoryReceiveId=IR.Id
+                        LEFT JOIN TRN.Invoice IV ON IV.inventoryReceiveId=IR.Id  and IR.PartyId=IV.PartyId
                         LEFT JOIN TRN.Adjustmentnote AN ON AN.inventoryReceiveId=IR.Id
 						LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
 						LEFT JOIN TRN.EmployeePayable EP ON EP.InventoryReceiveId=IR.Id

@@ -526,7 +526,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public ActionResult DeleteInventoryPayable(string grnId, string voucherId, string invoiceId, string type, string tDSTaxVoucherId, string tDSVoucherNo, string deletedRemarks)
+        public ActionResult DeleteInventoryPayable(string grnId, string voucherId, string invoiceId,string otherVendorId, string type, string tDSTaxVoucherId, string tDSVoucherNo, string deletedRemarks)
         {
             if (deletedRemarks == null || deletedRemarks == "")
                 throw new CustomException("Deleted Remarks is required!");
@@ -534,7 +534,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 throw new CustomException("TDS voucher no  " + tDSVoucherNo + "need to delete first!");
 
             if (type == NewBeneficiaryType.Vendor.ToString())
-                _invoiceService.DeleteInventoryPayable(grnId, invoiceId, voucherId, deletedRemarks);
+                _invoiceService.DeleteInventoryPayable(grnId, invoiceId,otherVendorId, voucherId, deletedRemarks);
             if (type == NewBeneficiaryType.Employee.ToString())
                 _employeePayableService.DeleteGRNBeneficiaryEmployee(grnId, invoiceId, voucherId, deletedRemarks);
             return Json(new { Message = AplosMessage.Deleted });
