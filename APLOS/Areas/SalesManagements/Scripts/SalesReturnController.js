@@ -343,7 +343,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         $scope.taxAbleAmnt = $scope.detailList[index].TotalAmount;
         if ($scope.ReturnType == 'PackingSales') {
             for (var i = 0; i < $scope.taxlist.length; i++) {
-                $scope.taxlist[i].Amount = ($scope.detailList[index].Amount * $scope.taxlist[i].Percentage) / 100
+                $scope.taxlist[i].Amount = Math.round((($scope.detailList[index].Amount * $scope.taxlist[i].Percentage) / 100) * 1000 + Number.EPSILON) / 1000
             }
         }
         $scope.indexRow = index;
@@ -432,12 +432,19 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
                 $scope.newList.push($scope.detailList[i])
                 angular.forEach($scope.taxlist, function (a) {
                     if (a.SalesMaterialId == $scope.detailList[i].SalesMaterialId) {
-                        a.Amount = (($scope.detailList[i].Amount * a.Percentage) / 100).toFixed(2)
+                        a.Amount = Math.round((($scope.detailList[i].Amount * a.Percentage) / 100) * 100 + Number.EPSILON) / 100
                         $scope.newtaxList.push(a);
                     }
                 });
             }
         }
+        if ($scope.newList.length > 0) {
+            for (var q = 0; q < $scope.newList.length; q++) {
+                $scope.newList[q].TaxAmount = Math.round($filter("sumByKey")($filter("filter")($scope.newtaxList, { SalesMaterialId: $scope.newList[q].Id }), "Amount") * 1000 + Number.EPSILON) / 1000;
+            }
+        }
+
+      
         if ($scope.productNew.SourceType == 'Packing') {
             for (var i = 0; i < $scope.newList.length; i++) {
                 if ($scope.newList[i].VerifiedQty > 0 && $scope.newList[i].VerifiedQty != $scope.newList[i].ReturnQty) {

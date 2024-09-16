@@ -704,7 +704,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             item["BaseAmount"] = item["Amount"];
                             item["TransactionAmount"] = item["Amount"];
                             item["BooksCurrencyTransactionAmount"] = item["Amount"];
-                            item["BooksCurrencyTaxAmount"] = item["TaxAmount"];
+                            item["BooksCurrencyTaxAmount"] = item["TaxAmount"]; 
                             item["BooksCurrencyBaseRate"] = item["BaseRate"];
                             item["AddedBy"] = identity.Name;
                             item["AddedDate"] = DateTime.Now;
