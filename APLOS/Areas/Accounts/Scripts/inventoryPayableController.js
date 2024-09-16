@@ -1273,12 +1273,12 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
 
     }
 
-    $scope.delete = function (gRNId, voucherId, invoiceId, type, tDSTaxVoucherId, tDSVoucherNo, deletedRemarks) {
+    $scope.delete = function (gRNId, voucherId, invoiceId,otherVendorId, type, tDSTaxVoucherId, tDSVoucherNo, deletedRemarks) {
         $http({
             method: "POST",
             url: 'accounts/Invoice/DeleteInventoryPayable',
             data: {
-                "grnId": gRNId, "voucherId": voucherId, "invoiceId": invoiceId, "type": type, "tDSTaxVoucherId": tDSTaxVoucherId, "tDSVoucherNo": tDSVoucherNo, "deletedRemarks": deletedRemarks
+                "grnId": gRNId, "voucherId": voucherId, "invoiceId": invoiceId, "otherVendorId": otherVendorId, "type": type, "tDSTaxVoucherId": tDSTaxVoucherId, "tDSVoucherNo": tDSVoucherNo, "deletedRemarks": deletedRemarks
             },
             dataType: "JSON"
         }).then(function successCallback(response) {
@@ -1313,6 +1313,7 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
         $scope.TDSVoucherNo = data.TDSVoucherNo;
         $scope.InvoiceId = data.InvoiceId;
         $scope.Type = data.GRNType;
+        $scope.OtherVendorId = data.OtherPartyId;
         $scope.message_delete_confirmation = "Are you sure to Delete?";
         angular.element(document.querySelector('#confirmDeletePopUp_Remarks')).modal('show');
     };

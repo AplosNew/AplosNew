@@ -5203,7 +5203,7 @@ namespace Library.Service.Invoices
         #endregion
 
         #region Inventory Payable
-        public void DeleteInventoryPayable(string grnId, string invoiceId, string voucherId, string deletedRemarks)
+        public void DeleteInventoryPayable(string grnId, string invoiceId, string otherVendorId, string voucherId, string deletedRemarks)
         {
             var flag = false;
             try
@@ -5224,6 +5224,8 @@ namespace Library.Service.Invoices
                     var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
                     var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
 
+                   
+
                     var invoice = base.Find(invoiceId);
                     if (invoice.WrittenOffAmount > 0)
                         throw new CustomException("Please Delete Payment Voucher first ! ");
@@ -5242,6 +5244,69 @@ namespace Library.Service.Invoices
                     grnBuilder.Append(buildergrnTaxSql);
                     grnBuilder.Append(buildergrnmapSql);
                     _sqlRepository.ExecuteSqlCommand(grnBuilder.ToString());
+
+                    if (otherVendorId != null)
+                    {
+                        var otherInvoice = base.Query(r => r.InventoryReceiveId == grnId && r.PartyId == otherVendorId).Select().FirstOrDefault();
+                        var tempVoucherId = otherInvoice.VoucherId;
+                        if (otherInvoice.WrittenOffAmount > 0)
+                            throw new CustomException("Please Delete Payment Voucher first ! ");
+
+                        var otherInvoiceDetail = _invoiceDetailRepository.Query(r => r.InvoiceId == otherInvoice.Id).Select().ToList();
+                        var otherInvoiceTax = _invoiceTaxRepository.Query(r => r.InvoiceId == otherInvoice.Id).Select().ToList();
+                        var othervoucherdetail = _voucherService.QueryVoucherDetail(tempVoucherId).Select().ToList();
+                        var othervoucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(tempVoucherId).Select().ToList();
+
+
+                        foreach (var item in othervoucherdetailcurrnecy)
+                        {
+                            _voucherService.DeleteVoucherDetailCurrency(item.Id);
+                        }
+                        if (otherInvoiceTax != null)
+                        {
+                            foreach (var otherTX in otherInvoiceTax)
+                            {
+                                var rdBuilder = new System.Text.StringBuilder();
+                                var builderSql = @"UPDATE [TRN].InvoiceTax SET VoucherDetailId=NULL WHERE Id='" + otherTX.Id + "'";
+                                rdBuilder.Append(builderSql);
+                                _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                            }
+                        }
+
+                        foreach (var item in othervoucherdetail)
+                        {
+                            var gltransaction = _voucherService.QueryGLTransactionDetail(item.Id).Select().ToList();
+                            if (gltransaction.Count > 0)
+                            {
+                                foreach (var item1 in gltransaction)
+                                {
+                                    _voucherService.DeleteGLTransactionDetail(item1.Id);
+
+                                }
+
+                            }
+                            _voucherService.DeleteVoucherDetail(item.Id);
+                        }
+                        if (otherInvoiceTax != null)
+                        {
+                            foreach (var otherTX in otherInvoiceTax)
+                            {
+                                var invoicetaxDdetail = _invoiceTaxDetailRepository.Query(r => r.InvoiceTaxId == otherTX.Id).Select().ToList();
+                                foreach (var item1 in invoicetaxDdetail)
+                                {
+                                    _invoiceTaxDetailRepository.Delete(item1.Id);
+                                }
+                                _invoiceTaxRepository.Delete(otherTX.Id);
+                            }
+                        }
+                        foreach (var item in otherInvoiceDetail)
+                        {
+                            _invoiceDetailRepository.Delete(item.Id);
+                        }
+                        base.Delete(otherInvoice.Id);
+                        _voucherService.DeleteVoucher(tempVoucherId);
+
+                    }
 
                     foreach (var item in voucherdetailcurrnecy)
                     {

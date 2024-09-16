@@ -2564,8 +2564,8 @@ namespace Library.Accounting.Accounts
 			,TC.Id ThirdCharacteristicsId
 			,TC.CharacteristicsValueId ThirdCharacteristicsValueId
             ,MO.Id MasterOrderId,SO.Id SONo,po.PONumber, FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate,DT.UserName DestinationName
-			, SO.SOType,SO.Rate,ISC.ReturnNetWeight ReturnQty,(ISC.ReturnNetWeight * SM.TransactionRate) Amount
-			, TaxAmount=(SM.TaxAmount/SM.BaseAmount)*(ISC.ReturnNetWeight * SM.TransactionRate),ISC.ReturnNetWeight VerifiedQty
+			, SO.SOType,SO.Rate,ISC.ReturnNetWeight ReturnQty,ROUND((ISC.ReturnNetWeight * SM.TransactionRate),2) Amount
+			, TaxAmount=ROUND(ROUND((SM.TaxAmount/SM.BaseAmount),2)*ROUND((ISC.ReturnNetWeight * SM.TransactionRate),2),2),ISC.ReturnNetWeight VerifiedQty
            ,SM.TransactionQty SalesQty
                 ,SM.TransactionQty ,OtherQty=ISNULL(SRD.OtherReturnQty,0),BalanceQty=SM.TransactionQty-ISNULL(SRD.OtherReturnQty,0),CurrentBalanceQty=SM.TransactionQty-ISC.ReturnNetWeight
                 ,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
