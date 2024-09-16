@@ -462,6 +462,8 @@ from trn.ProductionOrderDetail AS pod JOIN  trn.SalesOrder SO ON pod.SalesOrderI
             return Json(_sqlRepository.GetDataCollection(sch.GetAllWorkcenterWisePlanningSummary(EntityId), null), JsonRequestBehavior.AllowGet);
         }
 
+       
+
 
         [HttpPost, Authorize]
         public ActionResult GetSingleWorkcenterWisePlanningSummary(string WorkCenterId)
@@ -5833,6 +5835,1159 @@ isnull(S.username,'')<>'" + PlanningStatus.CLOSED.ToString() + @"' AND  po.entit
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost, Authorize]
+        public ActionResult GetAllWorkcenterWisePlanningType2Summary(string EntityId)
+        {
+
+            Library.Planning.PlanningType1.PlanningType1Scheduler sch = new Library.Planning.PlanningType1.PlanningType1Scheduler();
+
+            return Json(_sqlRepository.GetDataCollection(sch.GetAllWorkcenterWisePlanningType2Summary(EntityId), null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetSingleWorkcenterWisePlanningType2Summary(string WorkCenterId)
+        {
+
+            Library.Planning.PlanningType1.PlanningType1Scheduler sch = new Library.Planning.PlanningType1.PlanningType1Scheduler();
+
+            return Json(_sqlRepository.GetDataCollection(sch.GetSingleWorkcenterWisePlanningType2Summary(WorkCenterId), null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult UpdateType2Priority(List<Dictionary<string, object>> data)
+        {
+
+            try
+            {
+                if (data == null)
+                    throw new Exception("No data changed!!!");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    con.executeQuery("update ProductionOrderSchedulingParametersType2 SET ProductionPriority =" + clsStaticInfo.dbl(data[i]["ProductionPriority"].ToString()) + " WHERE ProductionOrderID='" + data[i]["Id"].ToString() + "' ");
+                }
+
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = "Priority successfully reinitialized" }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetProductionType2RecipeMaterialList(string productionOrderId)
+        {
+            return Json(_productionOrderService.GetProductionOrderType2MaterialList(productionOrderId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult LoadType2FilterSQL()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @" SELECT * FROM (
+                                        SELECT DISTINCT 
+                                        isnull(po.Id,'') ProductOrderId,isnull(mo.Id,'')AS MasterOrderNo,isnull(mo.BuyerReferenceNo,'') AS BuyerOrderNo,isnull(moi.BuyerReferenceNo,'') AS BuyerItemNo,
+                                        wc.Sequence, isnull(wc.Id,'') AS WorkCenterId,isnull(wc.UserName,'') AS WorkCenter,isnull(e.Id,'') AS EntityId,isnull(e.UserName,'') Entity,
+                                        isnull(pm.Id,'') ProductMasterId,isnull(pm.UserName,'') ProductMaster,isnull(pc.Id,'') ProductCategoryId,isnull(pc.UserName,'') ProductCategory,
+                                        isnull(mm.Id,'') MaterialMasterId,isnull(mm.UserName ,'')MaterialMaster,isnull(MMr.Id,'') ArticleId,isnull(mmr.ShortName,'') Article,isnull(b.Id,'') BuyerId,isnull(b.UserName,'') Buyer,
+                                        isnull(p.Id,'') CustomerId,isnull(p.UserName,'') Customer,
+                                        isnull(acci.SystemId,'') AccountInchargeId, isnull(ACCI.EmployeeName,'') AS AccountIncharge,isnull(acch.SystemId,'') AccountHolderId, isnull(acch.EmployeeName,'') AS AccountHolder,
+                                        isnull(ps.Id,'') AS ProductionStatusId, isnull(ps.UserName,'') AS ProductionStatus
+                                        from trn.ProductionOrderType2 PO
+				                                inner join ProductionOrderSchedulingParametersType2 T1 on t1.ProductionOrderID=po.Id
+				                                INNER join ProductionPlanningType2 p1 on p1.ProductionOrderID=t1.ProductionOrderID and ProcessID=(select ProcessId from trn.ProductionOrderType2ProcessSet where IsBaseProcess=1 and ProductionOrderID=po.Id)
+	
+				                                left outer join scs.WorkCenterMaster WC on wc.id=p1.WorkCenterMasterId
+				                                LEFT OUTER JOIN EmployeeInformation AS ACCI ON ACCI.SystemId=wc.AccountInCharge
+				                                LEFT OUTER JOIN EmployeeInformation AS ACCH ON ACCH.SystemId=wc.AccountHolder
+
+				                                INNER JOIN trn.ProductionOrderType2Detail AS pod ON pod.ProductionOrderId=PO.Id
+				                                LEFT OUTER JOIN trn.SalesOrder SO ON so.Id=pod.SalesOrderId
+				                                left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
+				                                left outer join mst.MaterialMaster mm on mm.id=p1.MaterialMasterId
+				                                LEFT OUTER JOIN MST.MaterialMasterArticle MMR ON mmr.Id=moi.ArticleId
+ 
+				                                left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+				                                left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+				                                left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
+
+				                                left outer join trn.MasterOrder MO on mo.Id=moi.MasterOrderId
+				                                left outer join [HKP].Buyer B on B.Id=MO.BuyerId
+				                                left outer join [HKP].[Party] p on P.Id=MO.PartyId
+
+				                                left outer join org.Entity E on e.Id=p1.EntityID
+				                                LEFT OUTER JOIN org.Unit AS u ON u.Id=e.UnitId
+				                                left outer join org.Plant PLN on pln.Id=PO.PlantId
+				                                LEFT OUTER JOIN hkp.ProductionStatus AS ps ON ps.Id=po.ProductionStatusId
+				
+                                WHERE po.PlantId='" + identity.PlantId + @"'
+                                ) AS KK";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult getProductMasterType2Parameters(string productionOrderID, string entityid, string baseprocessid)
+        {
+
+
+            string sql = @"SELECT SSS.*,PD.ProductMasterId AS Id,pm.UserName AS ProductName,pc.UserName AS ProductCategory,puc.UserName AS ProductSubCategory, 
+                            pme.NoOfWorkStation, pme.EfficencyPercentage AS Efficiency,pme.StandardWorkingHours PlanWorkingHoursPerDay, pme.SPT,
+                            MLD.[Value] AS MinimumLineDays,format((SELECT min(SO.MainRawMaterialInhouseDate) AS MainRawMaterialInhouseDate
+                                        FROM trn.SalesOrder AS so
+                                        INNER JOIN trn.ProductionOrderType2Detail AS pod ON pod.SalesOrderId=so.Id where pod.ProductionOrderId='" + productionOrderID + @"'),'dd-MMM-yyyy') AS MainRawMaterialInhouseDate,
+                                   format( (SELECT min(SO.OtherRawMaterialInhouseDate) AS OtherRawMaterialInhouseDate
+                                        FROM trn.SalesOrder AS so
+                                        INNER JOIN trn.ProductionOrderType2Detail AS pod ON pod.SalesOrderId=so.Id where pod.ProductionOrderId='" + productionOrderID + @"'),'dd-MMM-yyyy') AS OtherRawMaterialInhouseDate,
+                                   format( (SELECT min(SO.LSD) AS LSD
+                                        FROM trn.SalesOrder AS so
+                                        INNER JOIN trn.ProductionOrderType2Detail AS pod ON pod.SalesOrderId=so.Id where pod.ProductionOrderId='" + productionOrderID + @"'),'dd-MMM-yyyy') AS LSD,
+                                     format((SELECT MAX(SO.CommitmentDate) AS CommitmentDate
+                                                        FROM trn.SalesOrder AS so
+                                        INNER JOIN trn.ProductionOrderType2Detail AS pod ON pod.SalesOrderId=so.Id where pod.ProductionOrderId='" + productionOrderID + @"'),'dd-MMM-yyyy') AS CommitmentDate,
+                                                                    PM.FirstdayOutPut AS FirstDayOutPut,PM.IncrementValue,PM.DaysToReachTheTarget AS DayToReachTheTarget,
+                                CASE WHEN ISNULL(PD.IsFixed,'')='FIXED' THEN 'FIXED' ELSE 'PERCENTAGE' END AS IncrementType
+                                    FROM [TRN].[ProductDefinition] PD
+                                LEFT OUTER JOIN [MST].[ProductMaster] PM ON pm.Id=pd.ProductMasterId AND PM.BaseProcessId='" + baseprocessid + @"'
+                                LEFT OUTER JOIN [HKP].[ProductCategory] PC ON pc.Id=pm.ProductCategoryId
+                                    LEFT OUTER JOIN [HKP].[ProductSubCategory] PUC ON PUC.Id=pm.ProductSubCategoryId
+                                LEFT OUTER JOIN [TRN].[ProductMasterEfficency] PME ON pme.ProductMasterId=pm.Id AND pme.EfficencyName='Planning'
+                                LEFT OUTER JOIN dbo.EntityConfig con ON 1=1 and con.EntityId='" + entityid + @"' AND con.StandardName='" + EntityConfigParameter.StandardWorkingHoursPerDay + @"'
+                                   LEFT OUTER JOIN dbo.EntityConfig MLD ON 1=1 and MLD.EntityId='" + entityid + @"' AND MLD.StandardName='" + EntityConfigParameter.MinimumLineDays + @"'
+                        
+                                   CROSS JOIN (select
+                                                    pod.ProductionOrderId,
+                                                    mm.userName AS Material,ma.StandardName AS Article, --PM.UserName AS Product,pc.UserName AS ProductCategory,
+                                                     min(so.DeliveryDate) AS FirstShipmentDate,  max(so.DeliveryDate) AS LastShipmentDate,
+                                                    sum(so.Qty) AS Qty,
+                                                    MasterOrderId =STUFF((select distinct ','+XMOI.Id from 
+																			trn.MasterOrder XMOI 	 
+								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+								                                INNER JOIN trn.ProductionOrderType2Detail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+                                                    BuyerRefNo =STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																			trn.MasterOrder XMOI 	 
+								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+								                                INNER JOIN trn.ProductionOrderType2Detail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+
+                                                    OwnRefNo =STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrder XMOI 	 
+								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+								                                INNER JOIN trn.ProductionOrderType2Detail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+
+													StyleNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderType2Detail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+	                                                
+                                                    OwnStyleNo=STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderType2Detail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+
+                                                    SONo=STUFF((select distinct ','+sox.Id from 
+								                                trn.MasterOrderItem XMOI 	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+								                                INNER JOIN trn.ProductionOrderType2Detail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                                                    SODesc=STUFF((select distinct ','+sox.[Description] from 
+								                                trn.MasterOrderItem XMOI 	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+								                                INNER JOIN trn.ProductionOrderType2Detail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                                                    buyer=STUFF((select distinct ','+XB.UserName from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+
+                                                    Customer=STUFF((select distinct ','+XP.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                                      from 
+ 
+ 
+                                                     trn.SalesOrder SO 
+                                                      JOIN trn.ProductionOrderType2Detail AS pod ON pod.SalesOrderId=so.Id
+                                                    left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
+                                                    left outer join mst.MaterialMaster mm on mm.id=MOI.MaterialMasterId
+                                                    left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+                                                    left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+                                                    left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
+													LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
+                                                 WHERE pod.ProductionOrderId='" + productionOrderID + @"'
+                                                    group by pod.ProductionOrderId,mm.userName,ma.StandardName,PM.UserName,pc.UserName) AS SSS
+                        WHERE PD.MaterialMasterId IN (
+	
+                                    SELECT DISTINCT moi.MaterialMasterId FROM [TRN].[ProductionOrderType2Detail] D
+                                    INNER JOIN trn.SalesOrder AS so ON so.Id=d.SalesOrderId
+                                    INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
+                                    WHERE d.ProductionOrderId='" + productionOrderID + @"'
+                                    )    ";
+
+            string sqlBulletinData = @"SELECT tm.RequiredStdTarget,tm.PlannedHoursPerDay, tm.MaxNoOfWS,sum(d.TotalSPT) AS SPT
+									,SUM(D.AllotedWorkstation) AS TotalWS
+									  FROM trn.ProductionBulletinTemplate AS T
+									INNER JOIN  trn.ProductionBulletinTemplateMaster AS TM ON t.Id=tm.ProductionBulletinTemplateId
+									INNER JOIN trn.ProductionBulletinTemplateDetail AS D ON d.ProductionBulletinTemplateMasterId=TM.Id
+									WHERE t.ProductionOrderId='" + productionOrderID + "' AND TM.ProcessId='" + baseprocessid + @"'
+									GROUP BY tm.RequiredStdTarget,tm.PlannedHoursPerDay, tm.MaxNoOfWS";
+
+            return Json(new { MainData = _sqlRepository.GetDataCollection(sql), BulletinData = _sqlRepository.GetDataCollection(sqlBulletinData) }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> ProductionType2PlanSimulation(string entityid, string processid)
+        {
+            return await Task.Factory.StartNew(() =>
+            {
+                try
+                {
+
+                    string EntityIds = "" + entityid + "";
+                    string _sql = @"SELECT distinct WCM.EntityId
+                                  from (SELECT distinct W.ProductionOrderId,W.WorkCenterMasterId FROM trn.ProductionOrderType2WorkCenter AS W
+                                UNION
+                                SELECT distinct W.ProductionOrderId,W.WorkCenterMasterId FROM trn.RunningOrderWorkCenter AS W
+                                ) AS W
+                                JOIN trn.ProductionOrderType2 AS po ON po.Id=w.ProductionOrderId
+                                join scs.WorkCenterMaster AS wcm ON wcm.Id=w.WorkCenterMasterId
+                                INNER JOIN hkp.ProductionStatus AS ps ON ps.Id = po.ProductionStatusId
+                                WHERE  (po.EntityId IN(" + entityid + @") OR WCM.EntityId IN(" + entityid + @")) 
+                            AND ps.UserName NOT IN ('" + PlanningStatus.CLOSED.ToString() + @"')
+UNION
+SELECT distinct po.EntityId FROM 
+trn.ProductionOrderType2WorkCenter W
+JOIN trn.ProductionOrderType2 AS po ON W.ProductionOrderId=po.Id
+JOIN scs.WorkCenterMaster AS wcm ON wcm.Id=w.WorkCenterMasterId
+INNER JOIN hkp.ProductionStatus AS ps ON ps.Id = po.ProductionStatusId
+WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningStatus.CLOSED.ToString() + @"')
+UNION
+SELECT distinct po.EntityId FROM 
+trn.RunningOrderWorkCenter W
+JOIN trn.ProductionOrderType2 AS po ON W.ProductionOrderId=po.Id
+JOIN scs.WorkCenterMaster AS wcm ON wcm.Id=w.WorkCenterMasterId
+INNER JOIN hkp.ProductionStatus AS ps ON ps.Id = po.ProductionStatusId
+WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningStatus.CLOSED.ToString() + @"')";
+
+                    DataTable dt = _sqlRepository.GetDataTable(_sql);
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+
+                        EntityIds += ",'" + dt.Rows[i]["EntityId"].ToString() + "'";
+                    }
+                    ProductionPlanType2SimulationAlgorithm(entityid, EntityIds, processid);
+                }
+                catch (Exception ex)
+                {
+                    return Json(new
+                    {
+                        Error = true,
+                        Message = ex.Message
+                    }, JsonRequestBehavior.AllowGet);
+                }
+                finally
+                {
+
+                }
+
+                return Json(new { Error = false, Message = "Success" }, JsonRequestBehavior.AllowGet);
+            });
+        }
+
+        public void ProductionPlanType2SimulationAlgorithm(string entityid, string ProcessingEntities, string processid)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            Library.General.Setups.ProcessLock _lock = new Library.General.Setups.ProcessLock(identity.Name, Library.General.Setups.ProcessLockId.PlanningType1, entityid);
+            _lock.LockProcess();
+            try
+            {
+                SendNotification("-------------Starting Simulation-------------");
+                DataTable dtWCValidation = _sqlRepository.GetDataTable(@"SELECT wcm.Id,ed.StartDate,wcm.UserName FROM scs.WorkCenterMaster AS wcm 
+                                        LEFT JOIN scs.WorkCenterMasterEffectiveDate AS ED ON ed.WorkCenterMasterId=wcm.Id AND ed.Id=(SELECT TOP 1 Id FROM scs.WorkCenterMasterEffectiveDate WHERE WorkCenterMasterId=wcm.Id ORDER BY StartDate DESC)
+                                        WHERE wcm.EntityId IN (" + ProcessingEntities + @")  AND wcm.ProcessId='" + processid + @"'  AND wcm.Active=1");
+
+                if (dtWCValidation.Rows.Count == 0)
+                    throw new Exception("No workcenter found. Please create workcenters and try again");
+
+                string WithoutEffectiveDate = "";
+                for (int i = 0; i < dtWCValidation.Rows.Count; i++)
+                {
+                    if (dtWCValidation.Rows[i]["StartDate"].ToString() != "")
+                    {
+                        WithoutEffectiveDate = dtWCValidation.Rows[i]["StartDate"].ToString();
+                        break;
+                    }
+                }
+
+                if (WithoutEffectiveDate == "")
+                    throw new Exception("No workcenter was found with effective date. Please set effective date for workcenters");
+
+                Dictionary<string, DataTable> dicWorkCenterRunningHours = WorkCenterRunningHours();
+
+                //first close all production order having all sales order closed
+                _sqlRepository.ExecuteSqlCommand(@"UPDATE  trn.ProductionOrderType2 SET ProductionStatusId = (SELECT TOP 1 Id FROM hkp.ProductionStatus AS ps WHERE ps.StandardName='Closed')
+                                                FROM trn.ProductionOrderType2 PO 
+
+                                                WHERE PO.Id IN (
+			                                                SELECT PO.Id AS ProductionOrderId FROM trn.ProductionOrderType2 AS po 
+			                                                INNER JOIN hkp.ProductionStatus ps ON ps.Id=po.ProductionStatusId
+			                                                LEFT OUTER JOIN trn.ProductionOrderType2Detail AS pod ON pod.ProductionOrderId=po.Id
+			                                                AND pod.Id = (
+			                                                SELECT TOP 1 pod.Id FROM trn.ProductionOrderType2Detail AS pod
+			                                                INNER JOIN trn.SalesOrder AS so ON so.id=pod.SalesOrderId 
+			                                                INNER JOIN hkp.OrderStatus AS os ON os.Id=so.OrderStatusId
+			                                                WHERE os.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' AND pod.ProductionOrderId=po.Id)
+			                                                WHERE ISNULL(pod.Id,'')='' AND ps.StandardName<>'Closed'
+                                                )");
+
+                _sqlRepository.ExecuteSqlCommand(@"DELETE FROM ProductionPlanningType2 WHERE ProductionOrderID IN (
+                                                SELECT po.Id FROM trn.ProductionOrder AS po
+                                                INNER JOIN ProductionPlanningType2 AS ppt ON ppt.ProductionOrderID=po.Id
+                                                INNER JOIN hkp.ProductionStatus AS ps ON po.ProductionStatusId=ps.Id
+                                                WHERE ps.UserName='" + Library.Model.Enums.OrderStatusEnum.Closed.ToString() + @"'
+                                                )");
+
+                string runningsql = @"SELECT DISTINCT po.Id FROM trn.ProductionOrderType2 AS po
+                                    LEFT OUTER JOIN hkp.ProductionStatus AS ps ON ps.Id=po.ProductionStatusId
+                                    LEFT OUTER JOIN trn.RunningOrderWorkCenter AS r ON po.Id=r.ProductionOrderId
+                                    WHERE ISNULL(r.Id,'')='' AND ps.UserName='running' AND po.EntityId IN (" + ProcessingEntities + @")";
+                DataTable dtCheck = _sqlRepository.GetDataTable(runningsql);
+                if (dtCheck.Rows.Count > 0)
+                {
+                    string ids = "";
+                    for (int i = 0; i < dtCheck.Rows.Count; i++)
+                    {
+                        if (ids == "")
+                            ids = dtCheck.Rows[i]["id"].ToString();
+                        else
+                            ids += "," + dtCheck.Rows[i]["id"].ToString();
+                    }
+
+                    new Exception("The following production orders are running but no workcenter was defined: " + ids);
+                }
+
+                _sqlRepository.ExecuteSqlCommand(@"delete FROM ProductionPlanningType2 where EntityId IN (" + ProcessingEntities + @")");
+
+                Dictionary<string, double> DicBalanceWorkcenterHours = new Dictionary<string, double>();
+
+                DataTable dtWorkCenter = dtAllAvailableWrokcenters(ProcessingEntities, processid);
+                dtWorkCenter.Columns.Add("CURRENT_APPLICABLE");
+                dtWorkCenter.Columns.Add("ACTUAL_APPLICABLE");
+                dtWorkCenter.Columns.Add("AlreadyBooked", typeof(double));
+                dtWorkCenter.Columns.Add("isResidualApplicable", typeof(bool));
+                dtWorkCenter.DefaultView.RowFilter = null;
+                DataTable dvDistinctEntity = dtWorkCenter.DefaultView.ToTable(true, "EntityId");
+
+                Dictionary<string, DataTable> dicCalendar = dtProductionCalendar(System.DateTime.Now, 1500, processid, ProcessingEntities);
+                DataTable dtCalendar = new DataTable("Temp");
+                DataTable productionOrders = dtProductionType2Parameters(ProcessingEntities);
+                for (int i = 0; i < productionOrders.Rows.Count; i++)
+                {
+
+                    dtCalendar = dicCalendar[productionOrders.Rows[i]["EntityId"].ToString()];
+
+                    sbLog = new StringBuilder();
+                    SendNotification("Simulating production order#" + productionOrders.Rows[i]["ProductionOrderID"].ToString(), i, productionOrders.Rows.Count);
+                    sbLog.AppendLine("Starting simulation for production order#" + productionOrders.Rows[i]["ProductionOrderID"].ToString());
+                    DateTime startDate = Convert.ToDateTime(Convert.ToDateTime(productionOrders.Rows[i]["LSD"].ToString()).ToString("dd-MMM-yyyy"));
+                    DateTime LSD = Convert.ToDateTime(Convert.ToDateTime(productionOrders.Rows[i]["LSD"].ToString()).ToString("dd-MMM-yyyy"));
+                    double DaysToReachTheTarget = clsStaticInfo.dbl(productionOrders.Rows[i]["DayToReachTheTarget"].ToString());
+                    DaysToBeAddedForLineChange = (int)DaysToReachTheTarget - 1;
+
+                    DataTable dtCurrentWorkCenter = dtType2AvailableWrokcenters(productionOrders.Rows[i]["ProductionOrderID"].ToString(), productionOrders.Rows[i]["ProductionStatusName"].ToString(), processid);
+
+                    StringCollection strColMultipleProductionInSingleLine = new StringCollection();
+                    if (dtCurrentWorkCenter.Rows.Count == 0)
+                    {
+                        foreach (DataRow item in dtWorkCenter.Rows)
+                        {
+                            if (strColMultipleProductionInSingleLine.Contains(item["WorkCenterMasterId"].ToString()) == false)
+                            {
+                                strColMultipleProductionInSingleLine.Add(item["WorkCenterMasterId"].ToString());
+
+
+                                dtWorkCenter.DefaultView.RowFilter = "WorkCenterMasterId='" + item["WorkCenterMasterId"].ToString() + "'";
+                                if (dtWorkCenter.DefaultView.Count == 1)
+                                {
+                                    item["CURRENT_APPLICABLE"] = "YES";
+                                    item["ACTUAL_APPLICABLE"] = "YES";
+                                    item["AlreadyBooked"] = 0;
+
+                                }
+                                else if (dtWorkCenter.DefaultView.Count > 1)
+                                {
+                                    dtWorkCenter.DefaultView.RowFilter = "WorkCenterMasterId='" + item["WorkCenterMasterId"].ToString() + "' AND MaterialMasterId='" + productionOrders.Rows[i]["MaterialMasterId"].ToString() + "'";
+                                    if (dtWorkCenter.DefaultView.Count == 1)
+                                    {
+                                        dtWorkCenter.DefaultView[0].Row["CURRENT_APPLICABLE"] = "YES";
+                                        dtWorkCenter.DefaultView[0].Row["ACTUAL_APPLICABLE"] = "YES";
+                                        item["AlreadyBooked"] = 0;
+                                    }
+                                    else
+                                    {
+                                        dtWorkCenter.DefaultView.RowFilter = "WorkCenterMasterId='" + item["WorkCenterMasterId"].ToString() + "'";
+                                        dtWorkCenter.DefaultView[0].Row["CURRENT_APPLICABLE"] = "YES";
+                                        dtWorkCenter.DefaultView[0].Row["ACTUAL_APPLICABLE"] = "YES";
+                                        item["AlreadyBooked"] = 0;
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int WC = 0; WC < dtCurrentWorkCenter.Rows.Count; WC++)
+                        {
+                            if (strColMultipleProductionInSingleLine.Contains(dtCurrentWorkCenter.Rows[WC]["WorkCenterMasterId"].ToString()) == false)
+                            {
+                                strColMultipleProductionInSingleLine.Add(dtCurrentWorkCenter.Rows[WC]["WorkCenterMasterId"].ToString());
+
+                                dtWorkCenter.DefaultView.RowFilter = "WorkCenterMasterId='" + dtCurrentWorkCenter.Rows[WC]["WorkCenterMasterId"].ToString() + "'";
+                                if (dtWorkCenter.DefaultView.Count == 1)
+                                {
+                                    dtWorkCenter.DefaultView[0].Row["CURRENT_APPLICABLE"] = "YES";
+                                    dtWorkCenter.DefaultView[0].Row["ACTUAL_APPLICABLE"] = "YES";
+                                    dtWorkCenter.DefaultView[0].Row["AlreadyBooked"] = clsStaticInfo.dbl(dtCurrentWorkCenter.Rows[WC]["AlreadyBooked"].ToString());
+                                    dtWorkCenter.DefaultView[0].Row["CurrentPRQty"] = clsStaticInfo.dbl(dtCurrentWorkCenter.Rows[WC]["CurrentPRQty"].ToString());
+                                    dtWorkCenter.DefaultView[0].Row["isResidualApplicable"] = dtCurrentWorkCenter.Rows[WC]["isResidualApplicable"];
+
+                                }
+                                else if (dtWorkCenter.DefaultView.Count > 1)
+                                {
+
+                                    DataRow[] dr = dtWorkCenter.Select("WorkCenterMasterId='" + dtCurrentWorkCenter.Rows[WC]["WorkCenterMasterId"].ToString() + "' AND MaterialMasterId='" + productionOrders.Rows[i]["MaterialMasterId"].ToString() + "'");
+                                    if (dr.Length == 1)
+                                    {
+                                        dr[0]["CURRENT_APPLICABLE"] = "YES";
+                                        dr[0]["ACTUAL_APPLICABLE"] = "YES";
+                                        dr[0]["AlreadyBooked"] = clsStaticInfo.dbl(dtCurrentWorkCenter.Rows[WC]["AlreadyBooked"].ToString());
+                                        dr[0]["CurrentPRQty"] = clsStaticInfo.dbl(dtCurrentWorkCenter.Rows[WC]["CurrentPRQty"].ToString());
+                                        dr[0]["isResidualApplicable"] = dtCurrentWorkCenter.Rows[WC]["isResidualApplicable"];
+
+
+                                    }
+                                    else
+                                    {
+                                        dr = dtWorkCenter.Select("WorkCenterMasterId='" + dtCurrentWorkCenter.Rows[WC]["WorkCenterMasterId"].ToString() + "'");
+                                        dr[0]["CURRENT_APPLICABLE"] = "YES";
+                                        dr[0]["ACTUAL_APPLICABLE"] = "YES";
+                                        dr[0]["AlreadyBooked"] = clsStaticInfo.dbl(dtCurrentWorkCenter.Rows[WC]["AlreadyBooked"].ToString());
+                                        dr[0]["CurrentPRQty"] = clsStaticInfo.dbl(dtCurrentWorkCenter.Rows[WC]["CurrentPRQty"].ToString());
+                                        dr[0]["isResidualApplicable"] = dtCurrentWorkCenter.Rows[WC]["isResidualApplicable"];
+
+                                    }
+
+                                }
+                            }
+
+                        }
+
+                    }
+
+                    StringCollection strMaxAllocatedLines = new StringCollection();
+                    double AllocatedLines = clsStaticInfo.dbl(productionOrders.Rows[i]["AllocatedLines"].ToString()); sbLog.AppendLine("Total Allocated Lines" + AllocatedLines);
+                    double TotalLineDays = Math.Ceiling(clsStaticInfo.dbl(productionOrders.Rows[i]["RequiredLineDays"].ToString()));
+                    double MinimumLineDays = clsStaticInfo.dbl(productionOrders.Rows[i]["MinimumLineDays"].ToString());
+
+
+                    if (productionOrders.Rows[i]["ProductionStatusName"].ToString().ToUpper() == PlanningStatus.RUNNING.ToString())
+                    {
+                        AllocatedLines = clsStaticInfo.dbl(dtWorkCenter.Compute("COUNT(WorkCenterMasterId)", "CURRENT_APPLICABLE='YES'").ToString());
+                        MinimumLineDays = clsStaticInfo.dbl(productionOrders.Rows[i]["RunningOrderBlockSize"].ToString());
+                        DaysToBeAddedForLineChange = (int)MinimumLineDays;
+                    }
+                    sbLog.AppendLine("Minimum workcenter days" + MinimumLineDays);
+
+                    double TotalOrderQuantity = (int)clsStaticInfo.dbl(productionOrders.Rows[i]["SOQuantity"].ToString()); sbLog.AppendLine("Total order qty" + TotalOrderQuantity);
+                    double TempTotalOrderQty = TotalOrderQuantity;
+
+
+                    double TargetPerDay = (int)clsStaticInfo.dbl(productionOrders.Rows[i]["TargetPerDay"].ToString());
+                    List<ProductionBlock> _ProductionBlock = new List<ProductionBlock>();
+                    StringCollection sbNoOfLineUtilization = new StringCollection();
+
+                    int dayCount = 0;
+                    string LastProductionLineID = "";
+                    DataRow BestLine = null;
+                    int Index = -1;
+                    DateTime LSDForLine = startDate;
+                    bool isBuildUpRequired = false;
+                    int blockCount = 0;
+                    while (TotalOrderQuantity > 0)
+                    {
+
+                        Index++;
+                        bool isStyleChanged = false;
+                        if (dayCount % MinimumLineDays == 0)
+                        {
+                            BestLine = null;//to determine the best line for each rotation, ignoring residual values plotting on the same line. delete this line if you want to assign residial value for current best line
+                            isBuildUpRequired = false;
+                            blockCount++;
+                            sbLog.AppendLine("Start plotting block" + blockCount);
+                            Index = 0;//important, resetting the calendar
+                            DateTime tempdate = LSD;
+
+                            GetPrefferedWorkcenter(dtWorkCenter, ref TotalOrderQuantity, TempTotalOrderQty);
+                            #region Scan for each date starting from it's LSD to maximum block date to get the available best line to fit starting date
+
+
+                            int tempCalendarIndex = -1;
+                            do
+                            {
+                                //GetPrefferedWorkcenter(dtWorkCenter, ref TotalOrderQuantity, TempTotalOrderQty);
+
+                                tempCalendarIndex++;
+                                startDate = Convert.ToDateTime(Convert.ToDateTime(productionOrders.Rows[i]["LSD"].ToString()).ToString("dd-MMM-yyyy"));
+                                //predict whether the last portion is less or equal to minimum line days
+                                //because we the don't want to change the line
+
+                                if (BestLine != null)
+                                {
+                                    dtCalendar = dicCalendar[BestLine["EntityId"].ToString()];
+
+                                    dtCalendar.DefaultView.RowFilter = "WorkingDate>#" + Convert.ToDateTime(BestLine["LastProductionDate"].ToString()).ToString("dd-MMM-yyyy") + "#";
+                                    if (dtCalendar.DefaultView.Count == 0)
+                                    {
+                                        throw new Exception("Production calendar does not support date after " + Convert.ToDateTime(BestLine["LastProductionDate"].ToString()).ToString("dd-MMM-yyyy"));
+                                    }
+
+                                }
+                                else
+                                {
+                                    for (int ENT = 0; ENT < dvDistinctEntity.Rows.Count; ENT++)
+                                    {
+                                        dtCalendar = dicCalendar[dvDistinctEntity.Rows[ENT]["EntityId"].ToString()];
+
+                                        dtCalendar.DefaultView.RowFilter = "WorkingDate>#" + startDate + "#";
+                                        if (dtCalendar.DefaultView.Count == 0)
+                                        {
+                                            throw new Exception("Production calendar does not support date after " + startDate);
+                                        }
+                                    }
+                                    BestLine = drBestLine(tempdate, productionOrders.Rows[i]["MaterialMasterId"].ToString(), dtWorkCenter, LastProductionLineID);
+                                    dtCalendar = dicCalendar[BestLine["EntityId"].ToString()];
+                                    dtCalendar.DefaultView.RowFilter = "WorkingDate>#" + startDate + "#";
+                                }
+
+                                double tempQty = TotalOrderQuantity;
+                                int tempDayCount = 0;
+
+                                //determining how many days to take to finish the production
+                                while (tempQty > 0)
+                                {
+                                    tempDayCount++;
+                                    try
+                                    {
+                                        tempQty = tempQty - getTarget(ref isBuildUpRequired, productionOrders.Rows[i], BestLine, tempDayCount, dtCalendar.DefaultView[tempCalendarIndex].Row, dicWorkCenterRunningHours, out double _STP, out double _AHP);// TargetPerDay;
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        throw new Exception("Production calendar does not support date after " + dtCalendar.DefaultView[tempCalendarIndex - 1]["ProductionDate"].ToString());
+                                    }
+                                }
+
+                                if (tempDayCount <= MinimumLineDays)
+                                {
+                                    sbLog.AppendLine("Last block will run for [" + tempDayCount + "] which is less or equal to minimum workcenter days[" + MinimumLineDays + "], therefore no alter between lines");
+
+                                    dtWorkCenter.DefaultView.RowFilter = "isnull(isResidualApplicable,0)=1 AND CURRENT_APPLICABLE='YES'";
+                                    if (dtWorkCenter.DefaultView.Count > 0)
+                                    {
+
+                                        BestLine = dtWorkCenter.Select("WorkCenterMasterId='" + dtWorkCenter.DefaultView[0]["WorkCenterMasterId"].ToString() + "'")[0];
+                                    }
+                                    break;
+                                }
+                                //}
+
+                                //else determine the best line for that production
+
+                                BestLine = drBestLine(tempdate, productionOrders.Rows[i]["MaterialMasterId"].ToString(), dtWorkCenter, LastProductionLineID);
+                                if (BestLine != null)
+                                {
+                                    //after allocating first line, we are resetting the production start time as LSD for each block of production
+                                    if (Convert.ToDateTime(BestLine["LastProductionDate"].ToString()) <= LSD)
+                                        startDate = LSD;
+                                    break;
+                                }
+
+                                tempdate = tempdate.AddDays(1);
+                            } while (tempdate < startDate);
+                            #endregion Scan for each date starting from it's LSD to maximum block date to get the available best line to fit starting date
+
+                            if (BestLine == null)
+                            {
+                                sbLog.AppendLine("No available best workcenter found!!!! ALLOCATION TERMINATED!!!");
+                                break;
+                            }
+
+
+                            LastProductionLineID = BestLine["WorkcenterMasterID"].ToString();
+
+                            if (strMaxAllocatedLines.Contains(LastProductionLineID) == false)
+                                strMaxAllocatedLines.Add(LastProductionLineID);
+
+                            //shift LSD to future date if best line's last production date is later on LSD
+                            if (startDate <= Convert.ToDateTime(BestLine["LastProductionDate"].ToString()))
+                                startDate = Convert.ToDateTime(BestLine["LastProductionDate"].ToString()).AddDays(1);
+
+
+                            // DateTime LSDForLine = startDate;
+                            dtCalendar.DefaultView.RowFilter = "WorkingDate>=#" + startDate.ToString("dd-MMM-yyyy") + "#";
+
+
+                            if (productionOrders.Rows[i]["MaterialMasterId"].ToString() != BestLine["MaterialMasterId"].ToString())
+                            {
+                                BestLine["LastStyleRunningFor"] = "0";
+                                isStyleChanged = true;
+                            }
+                            BestLine["MaterialMasterID"] = productionOrders.Rows[i]["MaterialMasterId"].ToString();
+
+                        }
+
+
+                        isBuildUpRequired = false;
+                        ProductionBlock entry = new ProductionBlock();
+
+                        try
+                        {
+                            LSDForLine = Convert.ToDateTime(dtCalendar.DefaultView[Index]["WorkingDate"].ToString());//there is no relationship but index number
+
+                        }
+                        catch (Exception ex)
+                        {
+                            string Error = string.Format("System cannot render calendar after {0} for production order#{1}",
+                               LSDForLine.ToString("dd-MMM-yyyy"),
+                                productionOrders.Rows[i]["ProductionOrderID"].ToString()).ToString();
+                            throw new Exception(Error);
+                        }
+
+                        entry.ProductionDate = LSDForLine;
+                        entry.WorkCenterMasterId = BestLine["WorkCenterMasterId"].ToString();
+                        entry.MaterialMasterId = productionOrders.Rows[i]["MaterialMasterId"].ToString();
+                        entry.EntityId = BestLine["EntityId"].ToString();//productionOrders.Rows[i]["EntityId"].ToString();
+                        entry.ProcessID = BestLine["ProcessID"].ToString();
+                        entry.ProductionOrderId = productionOrders.Rows[i]["ProductionOrderId"].ToString();
+
+                        entry.ProductionHours = clsStaticInfo.dbl(dtCalendar.DefaultView[Index]["WorkingHours"].ToString()) + clsStaticInfo.dbl(dtCalendar.DefaultView[Index]["OTHours"].ToString());// clsStaticInfo.dbl(productionOrders.Rows[i]["PlanWorkingHoursPerDay"].ToString());
+                        if (bplib.clsWebLib.GetBoolData(productionOrders.Rows[i]["ConsiderHourFromWorkCenter"].ToString()) == true)
+                            entry.ProductionHours = clsStaticInfo.dbl(BestLine["StandardTimePerDay"].ToString());
+
+                        entry.BlockNo = blockCount;
+                        TargetPerDay = getTarget(ref isBuildUpRequired, productionOrders.Rows[i], BestLine, Index + 1, dtCalendar.DefaultView[Index].Row, dicWorkCenterRunningHours, out double StandardTargetPerDay, out double ActualHoursPerDay);//index+1=n'th day of production
+
+                        entry.isBuildUp = isBuildUpRequired;
+                        if (TotalOrderQuantity < TargetPerDay)
+                        {
+                            entry.Quantity = TotalOrderQuantity;
+                        }
+                        else
+                        {
+                            entry.Quantity = TargetPerDay;
+                        }
+                        //if (entry.ProductionOrderId == "20118" && entry.WorkCenterMasterId == "3")
+                        //{
+
+                        //}
+                        //if (entry.ProductionOrderId == "201166")
+                        //{
+
+                        //}
+                        if (strMaxAllocatedLines.Contains(entry.WorkCenterMasterId) == false)
+                            strMaxAllocatedLines.Add(entry.WorkCenterMasterId);
+
+                        entry.Quantity = Math.Round(AllocatedQty(ref LSDForLine, entry.WorkCenterMasterId, DicBalanceWorkcenterHours, ActualHoursPerDay, StandardTargetPerDay, entry.Quantity, entry.isBuildUp));
+
+                        if (productionOrders.Rows[i]["MaterialMasterId"].ToString() != BestLine["MaterialMasterId"].ToString())
+                        {
+                            sbLog.AppendLine("Style changed");
+                            entry.isStyleChange = true;
+
+                        }
+                        entry.isStyleChange = isStyleChanged;
+                        _ProductionBlock.Add(entry);
+
+
+                        BestLine["LastProductionDate"] = LSDForLine.ToString("dd-MMM-yyyy");
+                        DataRow[] drSameLine = dtWorkCenter.Select("WorkCenterMasterId='" + BestLine["WorkCenterMasterId"].ToString() + "'");
+                        foreach (DataRow drTempSameLine in drSameLine)
+                        {
+                            drTempSameLine["LastProductionDate"] = LSDForLine.ToString("dd-MMM-yyyy");
+                        }
+
+                        TotalOrderQuantity = TotalOrderQuantity - entry.Quantity;
+                        TempTotalOrderQty = TempTotalOrderQty - entry.Quantity;
+                        BestLine["AlreadyBooked"] = clsStaticInfo.dbl(BestLine["AlreadyBooked"].ToString()) + entry.Quantity;
+
+
+
+                        BestLine["LastStyleRunningFor"] = clsStaticInfo.dbl(BestLine["LastStyleRunningFor"].ToString()) + 1;
+
+                        dayCount++;
+
+
+                        //taking only number of workcenters based on AllocatedLines
+                        if (productionOrders.Rows[i]["ProductionStatusName"].ToString().ToUpper() != PlanningStatus.RUNNING.ToString())
+                        {
+                            if (strMaxAllocatedLines.Count == AllocatedLines)
+                            {
+                                for (int w = 0; w < dtWorkCenter.Rows.Count; w++)
+                                {
+                                    dtWorkCenter.Rows[w]["CURRENT_APPLICABLE"] = "NO";
+                                    dtWorkCenter.Rows[w]["ACTUAL_APPLICABLE"] = "NO";
+                                    if (strMaxAllocatedLines.Contains(dtWorkCenter.Rows[w]["WorkCenterMasterId"].ToString()))
+                                    {
+                                        dtWorkCenter.Rows[w]["ACTUAL_APPLICABLE"] = "YES";
+                                        dtWorkCenter.Rows[w]["CURRENT_APPLICABLE"] = "YES";
+                                    }
+                                }
+                            }
+                        }
+
+                        if (TotalOrderQuantity <= 0)
+                        {
+                            GetPrefferedWorkcenter(dtWorkCenter, ref TotalOrderQuantity, TempTotalOrderQty);
+                            dayCount = 0;
+                            BestLine = null;
+                        }
+
+
+
+
+                    }
+
+                    sbLog.AppendLine("End of plotting block#" + blockCount);
+                    foreach (DataRow item in dtWorkCenter.Rows)
+                    {
+                        item["CURRENT_APPLICABLE"] = "NO";
+                        item["ACTUAL_APPLICABLE"] = "NO";
+                        item["CurrentPRQty"] = "0";
+                        item["AlreadyBooked"] = "0";
+                        item["isResidualApplicable"] = false;
+
+                    }
+
+                    //saving final PR data
+                    saveProductionPlanType2(_ProductionBlock, productionOrders.Rows[i]["ProductionOrderID"].ToString(), entityid, processid);
+                }
+                SendNotification("Distributing production quantity in sales orders and calculating expected completion date");
+                Library.OrderManagement.Production.ExpectedSOWiseDateService expectedSO = new Library.OrderManagement.Production.ExpectedSOWiseDateService();
+                expectedSO.Type2ExpectedSOWiseProductionCompletionSave(entityid);
+
+                SendNotification("Simulation Completed");
+                _lock.UnlockProcess();
+            }
+            catch (Exception ex)
+            {
+                SendNotification(ex.ToString());
+                _lock.UnlockProcess();
+                string x = ex.Message;
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+
+        }
+
+        private DataTable dtProductionType2Parameters(string entityid)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
+            connection.BeginTransaction();
+            connection.executeQuery(@"update  trn.ProductionOrderType2  SET Qty = k.OrderQty,PlannedQty =k.PlannedQty
+                                        FROM trn.ProductionOrderType2 AS po
+                                        INNER JOIN (
+                                        select pod.ProductionOrderId,
+                                        SUM(CEILING((isnull(SO.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0))))) AS PlannedQty,
+                                        --SUM(CEILING((so.Qty*(1+(moi.ExtraOrderPercentage/100)))*(1+(moi.OrderWastagePercentage/100)))) AS PlannedQty,
+                                                                    sum(SO.Qty) AS OrderQty 
+
+					                                        from trn.ProductionOrderType2Detail POD 
+                                                                    left outer join trn.SalesOrder SO on so.id=pod.SalesOrderId
+                                                                    left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
+                                                                    INNER JOIN hkp.OrderStatus AS os ON os.Id=so.OrderStatusId
+                            
+                                                            WHERE os.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"'
+                                        GROUP BY pod.ProductionOrderId
+                                    ) AS K ON k.ProductionOrderId=po.Id");
+            connection.CommitTransaction();
+
+            connection = new ConnectionManager.clsConnection();
+            connection.BeginTransaction();
+            connection.executeQuery(@"delete FROM ProductionPlanningType2 WHERE ProductionOrderID IN (
+                                SELECT po.Id FROM trn.ProductionOrderType2 AS po
+                                INNER JOIN hkp.ProductionStatus AS ps ON ps.Id = po.ProductionStatusId
+                                WHERE ps.UserName NOT IN ('" + PlanningStatus.ACTIVE.ToString() + @"','" + PlanningStatus.RUNNING.ToString() + @"')
+                                )");
+            connection.CommitTransaction();
+
+            string sql = @"SELECT  PO.EntityId, PO.Remarks,s.UserName AS ProductionStatus, EN.UserName AS EntityName, PS.UserName AS ProductionStatusName,mm.MaterialMasterId,
+                            --ISNULL(PO.PlannedQty,0)-ISNULL(PRODPR.ProductionQtyAtPR,0) AS SOQuantity,ISNULL(PRODPR.ProductionQtyAtPR,0) AS ProductionQty,
+                            ISNULL(CASE WHEN ISNULL(T1.Qty,0)>0 THEN T1.Qty ELSE PO.PlannedQty END,0)-(ISNULL(PRODPR.ProductionQtyAtPR,0)-ISNULL(PRDQ.ProductionBookedQty,0)) AS SOQuantity,ISNULL(PRODPR.ProductionQtyAtPR,0) AS ProductionQty,
+                           t1.*
+                                                            FROM [TRN].[ProductionOrderType2] AS PO
+                                                        JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
+                                                        INNER JOIN (
+														SELECT DISTINCT pod.ProductionOrderId,mm.Id AS MaterialMasterId
+FROM trn.ProductionOrderType2Detail AS pod
+INNER JOIN(SELECT distinct pod.ProductionOrderId,(select top(1) SalesOrderId from trn.ProductionOrderType2Detail where ProductionOrderId=POD.ProductionOrderId) SOId
+FROM trn.ProductionOrderType2Detail POD) A ON A.ProductionOrderId=pod.ProductionOrderId
+INNER JOIN trn.SalesOrder AS so ON A.SOId=so.Id
+INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
+INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId
+							) AS MM ON mm.ProductionOrderId=po.Id
+                            LEFT JOIN [HKP].[ProductionStatus] AS PS ON PO.ProductionStatusId = PS.Id
+                            INNER JOIN ProductionOrderSchedulingParametersType2 t1 ON t1.ProductionOrderID=po.Id
+                            LEFT OUTER  JOIN (SELECT pod.ProductionOrderId,SUM(so.Qty) AS Qty
+                                                FROM trn.SalesOrder AS so
+                            INNER JOIN trn.ProductionOrderType2Detail AS pod ON pod.SalesOrderId=so.Id GROUP BY pod.ProductionOrderId) AS SO ON so.ProductionOrderId=po.Id
+                            LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
+                           
+							--production at PR Level
+							LEFT OUTER JOIN (
+												SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR,MIN(s.ProductionDate) AS ProductionStartDateAtPR
+											FROM  trn.ProductionSummary S 
+											WHERE  CONVERT(DATETIME, format(s.ProductionDate,'dd-MMM-yyyy'))<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'
+											GROUP BY  s.ProductionOrderId,s.ProcessId
+							) AS PRODPR ON  PRODPR.ProductionOrderId=po.id AND PRODPR.ProcessId=(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID=po.Id)
+							
+                            left outer join (SELECT pod.ProductionOrderId,
+                                sum(isnull(so.ProductionBookedQty,0)) ProductionBookedQty
+                                 FROM trn.SalesOrder AS so
+                                INNER JOIN trn.ProductionOrderType2Detail AS pod ON pod.SalesOrderId=so.Id
+
+                                GROUP BY pod.ProductionOrderId
+                            ) AS PRDQ ON PRDQ.ProductionOrderId=T1.ProductionOrderId
+							
+
+                            WHERE 
+                            po.EntityId IN(" + entityid + @")  AND ps.UserName IN ('" + PlanningStatus.ACTIVE.ToString() + @"','" + PlanningStatus.RUNNING.ToString() + @"')
+                            ORDER BY ps.UserName DESC, t1.ProductionPriority ASC";
+            DataTable _dtProductionParameters = _sqlRepository.GetDataTable(sql);
+
+            return _dtProductionParameters;
+        }
+
+        private DataTable dtType2AvailableWrokcenters(string productionOrderID, string ProductionStatusName, string processid)
+        {
+            //for running
+            string sql = @"SELECT DISTINCT  WS.*,convert(bit,0) as isResidualApplicable FROM ProductionPlanningType2 AS w
+                        INNER JOIN [SCS].[WorkCenterMaster] WS ON ws.Id=w.WorkCenterMasterId
+                       INNER JOIN trn.FreezeConfigPlanningType2 AS F ON f.EntityId=w.EntityID AND f.FreezeDate 
+                       BETWEEN (SELECT MIN(ProductionDate) FROM ProductionPlanningType2 WHERE ProductionOrderId='" + productionOrderID + @"') 
+                       AND (SELECT MAX(ProductionDate) FROM ProductionPlanningType2 WHERE ProductionOrderId='" + productionOrderID + @"') 
+                       WHERE W.ProductionOrderId='" + productionOrderID + @"' AND WS.ProcessID='" + processid + @"'";
+
+            DataTable dtWorkCenter = _sqlRepository.GetDataTable(sql);
+
+            //freeze
+            if (dtWorkCenter.Rows.Count == 0)
+            {
+              
+                sql = @"SELECT ws.*,isnull(W.isResidualApplicable,0) AS isResidualApplicable FROM [TRN].[RunningOrderWorkCenter] W
+                        INNER JOIN [SCS].[WorkCenterMaster] WS ON ws.Id=w.WorkCenterMasterId
+                        INNER JOIN ProductionOrderSchedulingParametersType2 AS T ON t.ProductionOrderID=w.ProductionOrderId
+                        INNER JOIN trn.ProductionOrder po ON po.Id=t.ProductionOrderID
+                        LEFT OUTER JOIN hkp.ProductionStatus AS ps ON ps.Id=po.ProductionStatusId
+                WHERE  ps.UserName='" + PlanningStatus.RUNNING.ToString() + @"' AND W.ProductionOrderId='" + productionOrderID + "' AND WS.ProcessID='" + processid + "'";
+
+                dtWorkCenter = _sqlRepository.GetDataTable(sql);
+            }
+
+            if (dtWorkCenter.Rows.Count == 0)
+            {
+                //excluded WC
+                DataTable dsExcludeWorkCenter = null;
+                sql = @"SELECT ws.*,convert(bit,0) as isResidualApplicable FROM [TRN].[ProductionOrderType2WorkCenter] W
+                        INNER JOIN [SCS].[WorkCenterMaster] WS ON ws.Id=w.WorkCenterMasterId
+                        INNER JOIN ProductionOrderSchedulingParametersType2 AS t ON t.ProductionOrderID=w.ProductionOrderId
+                WHERE t.WCPreferenceType='EXCLUDE' AND W.ProductionOrderId='" + productionOrderID + "' AND WS.ProcessID='" + processid + "'";
+                dsExcludeWorkCenter = _sqlRepository.GetDataTable(sql);
+                if (dsExcludeWorkCenter.Rows.Count > 0)
+                {
+                    sql = @"SELECT WC.*,convert(bit,0) as isResidualApplicable FROM  [SCS].[WorkCenterMaster] WC 
+
+                                WHERE wc.[Active]=1 and  WC.ProcessId ='" + processid + @"' AND WC.EntityId IN (
+                                SELECT DISTINCT d.EntityId FROM [TRN].ProductionOrder D
+                               
+                                WHERE d.Id='" + productionOrderID + @"'
+                                ) AND WC.Id NOT IN (SELECT ws.Id FROM [TRN].[ProductionOrderType2WorkCenter] W
+                        INNER JOIN [SCS].[WorkCenterMaster] WS ON ws.Id=w.WorkCenterMasterId
+                        INNER JOIN ProductionOrderSchedulingParametersType2 AS t ON t.ProductionOrderID=w.ProductionOrderId
+                WHERE t.WCPreferenceType='EXCLUDE' AND W.ProductionOrderId='" + productionOrderID + "' AND WS.ProcessID='" + processid + @"')
+                                ";
+                    dtWorkCenter = _sqlRepository.GetDataTable(sql);
+                }
+                else
+                {
+                    if (dtWorkCenter.Rows.Count == 0)
+                    {
+                        sql = @"SELECT ws.*,convert(bit,0) as isResidualApplicable FROM [TRN].[ProductionOrderType2WorkCenter] W
+                        INNER JOIN [SCS].[WorkCenterMaster] WS ON ws.Id=w.WorkCenterMasterId
+                        INNER JOIN ProductionOrderSchedulingParametersType2 AS t ON t.ProductionOrderID=w.ProductionOrderId
+                WHERE t.WCPreferenceType='INCLUDE' AND W.ProductionOrderId='" + productionOrderID + "' AND WS.ProcessID='" + processid + "'";
+                        dtWorkCenter = _sqlRepository.GetDataTable(sql);
+                    }
+
+                    if (dtWorkCenter.Rows.Count == 0)
+                    {
+                        sbLog.AppendLine("No workcenter preference was defined in production order\r\nSearching in product preference...");
+                        sql = @"SELECT WC.*,convert(bit,0) as isResidualApplicable FROM [SCS].[WorkCenterMasterProductPriority] WP 
+                                INNER JOIN [SCS].[WorkCenterMaster] WC ON wc.Id=wp.WorkCenterMasterId
+
+                                WHERE WP.ProductMasterId IN (
+                                SELECT DISTINCT pd.ProductMasterId FROM [TRN].[ProductionOrderType2Detail] D
+                                INNER JOIN trn.SalesOrder AS so ON so.Id=d.SalesOrderId
+                                INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
+                                INNER JOIN trn.ProductDefinition AS pd ON pd.MaterialMasterId=moi.MaterialMasterId
+
+                                WHERE d.ProductionOrderId='" + productionOrderID + @"'
+                                ) AND WC.ProcessID='" + processid + @"' AND WC.EntityId IN (
+                                SELECT DISTINCT d.EntityId FROM [TRN].ProductionOrder D
+                                WHERE d.Id='" + productionOrderID + @"'
+                                ) 
+                                ORDER BY WP.Priority ASC";
+                        dtWorkCenter = _sqlRepository.GetDataTable(sql);
+
+                    }
+                    else
+                    {
+                        for (int i = 0; i < dtWorkCenter.Rows.Count; i++)
+                            sbLog.AppendLine("workcenter preference found at production order [" + dtWorkCenter.Rows[i]["username"].ToString() + "]");
+
+                    }
+                    if (dtWorkCenter.Rows.Count == 0)
+                    {
+                        sbLog.AppendLine("No workcenter preference was defined in product configuration");
+                        sql = @"SELECT WC.*,convert(bit,0) as isResidualApplicable FROM  [SCS].[WorkCenterMaster] WC 
+
+                                WHERE wc.[Active]=1 and WC.ProcessId ='" + processid + @"' AND WC.EntityId IN (
+                                SELECT DISTINCT d.EntityId FROM [TRN].ProductionOrder D
+                               
+                                WHERE d.Id='" + productionOrderID + @"'
+                                ) 
+                                ";
+                        dtWorkCenter = _sqlRepository.GetDataTable(sql);
+
+                    }
+                    else
+                    {
+                        for (int i = 0; i < dtWorkCenter.Rows.Count; i++)
+                            sbLog.AppendLine("workcenter preference found at product configuration [" + dtWorkCenter.Rows[i]["username"].ToString() + "]");
+
+
+                    }
+                }
+            }
+            //final block for all workcenters with last production date
+            string workcenterlist = "''";
+            for (int i = 0; i < dtWorkCenter.Rows.Count; i++)
+                workcenterlist += ",'" + dtWorkCenter.Rows[i]["ID"].ToString() + "'";
+
+            if (ProductionStatusName.ToUpper() == PlanningStatus.RUNNING.ToString().ToUpper())
+            {
+                sql = @"SELECT WC.Id AS WorkCenterMasterId, p.MaterialMasterId,WC.ProcessID,isnull(RWC.isResidualApplicable,0) AS isResidualApplicable,
+                    isnull(RWC.Qty,0) AS CurrentPRQty,
+                    ISNULL(prd.Quantity,0) AlreadyBooked,
+                    FORMAT(ISNULL(p.ProductionDate,dateadd(DAY,-1, CONVERT(DATE, CASE WHEN ISNULL(e.StartDate,'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"')<='" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"' THEN '" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"' ELSE e.StartDate END))),'dd-MMM-yyyy') AS LastProductionDate,0 AS LastStyleRunningFor,
+                           p.Quantity--, p.ProductionHours
+                      FROM [SCS].[WorkCenterMaster] WC 
+                        left outer join trn.RunningOrderWorkCenter RWC on RWC.WorkCenterMasterId=WC.ID and RWC.ProductionOrderId='" + productionOrderID + @"'
+                         left outer join (SELECT t.WorkCenterMasterId,t.ProductionOrderId,SUM(t.Quantity) AS Quantity
+					                      FROM trn.ProductionSummary t
+                                         WHERE t.ProductionDate<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'
+                                         GROUP BY  t.WorkCenterMasterId,t.ProductionOrderId ) AS PRD oN prd.ProductionOrderId=RWC.ProductionOrderId and PRD.WorkCenterMasterId=RWC.WorkCenterMasterId       
+
+INNER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[WorkCenterMasterEffectiveDate] GROUP BY WorkCenterMasterId) E ON e.WorkCenterMasterId=WC.Id
+                    LEFT OUTER JOIN 
+                    (
+		                 SELECT  * FROM ( SELECT dense_rank() OVER (PARTITION BY t.WorkCenterMasterId ORDER BY t.ProductionDate DESC) AS RANK,
+					                    t.WorkCenterMasterId,t.ProductionDate,t.Quantity,t.MaterialMasterId
+					                    FROM (SELECT t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId,SUM(t.Quantity) AS Quantity
+					                      FROM trn.ProductionSummary t 
+					                    INNER JOIN [TRN].[ProductionOrderType2] P ON p.Id=t.ProductionOrderID
+					                    LEFT OUTER JOIN (SELECT DISTINCT pod.ProductionOrderId,mm.Id AS MaterialMasterId
+					                                       FROM trn.ProductionOrderType2Detail AS pod
+														INNER JOIN trn.SalesOrder AS so ON pod.SalesOrderId=so.Id
+														INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
+														INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId) AS K ON k.ProductionOrderId=p.Id
+                                        where  t.ProductionDate<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'					                   
+                                        GROUP BY t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId) AS T
+		                    ) AS K WHERE K.[RANK]=1
+                    ) AS P ON p.WorkCenterMasterId=wc.Id
+                    WHERE WC.[Active]=1 AND WC.Id IN (" + workcenterlist + ")";
+                dtWorkCenter = _sqlRepository.GetDataTable(sql);
+            }
+            else
+            {
+                sql = @"SELECT WC.Id AS WorkCenterMasterId, p.MaterialMasterId,WC.ProcessID,convert(bit,0) AS isResidualApplicable,
+                    0 AS CurrentPRQty,
+                    ISNULL(prd.Quantity,0) AlreadyBooked,
+                    FORMAT(ISNULL(p.ProductionDate,dateadd(DAY,-1, CONVERT(DATE, CASE WHEN ISNULL(e.StartDate,'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"')<='" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"' THEN '" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"' ELSE e.StartDate END))),'dd-MMM-yyyy') AS LastProductionDate,0 AS LastStyleRunningFor,
+                           p.Quantity--, p.ProductionHours
+                      FROM [SCS].[WorkCenterMaster] WC 
+                        left outer join trn.ProductionOrderType2WorkCenter RWC on RWC.WorkCenterMasterId=WC.ID and RWC.ProductionOrderId='" + productionOrderID + @"'
+                         left outer join (SELECT t.WorkCenterMasterId,t.ProductionOrderId,SUM(t.Quantity) AS Quantity
+					                      FROM trn.ProductionSummary t
+                                         WHERE t.ProductionDate<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'
+                                         GROUP BY  t.WorkCenterMasterId,t.ProductionOrderId ) AS PRD oN prd.ProductionOrderId=RWC.ProductionOrderId and PRD.WorkCenterMasterId=RWC.WorkCenterMasterId       
+
+                            INNER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[WorkCenterMasterEffectiveDate] GROUP BY WorkCenterMasterId) E ON e.WorkCenterMasterId=WC.Id
+                    LEFT OUTER JOIN 
+                    (
+		                 SELECT  * FROM ( SELECT dense_rank() OVER (PARTITION BY t.WorkCenterMasterId ORDER BY t.ProductionDate DESC) AS RANK,
+					                    t.WorkCenterMasterId,t.ProductionDate,t.Quantity,t.MaterialMasterId
+					                    FROM (SELECT t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId,SUM(t.Quantity) AS Quantity
+					                      FROM trn.ProductionSummary t 
+					                    INNER JOIN [TRN].[ProductionOrderType2] P ON p.Id=t.ProductionOrderID
+					                    LEFT OUTER JOIN (SELECT DISTINCT pod.ProductionOrderId,mm.Id AS MaterialMasterId
+					                                       FROM trn.ProductionOrderType2Detail AS pod
+														INNER JOIN trn.SalesOrder AS so ON pod.SalesOrderId=so.Id
+														INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
+														INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId) AS K ON k.ProductionOrderId=p.Id
+                                        where  t.ProductionDate<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'					                   
+                                        GROUP BY t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId) AS T
+		                    ) AS K WHERE K.[RANK]=1
+                    ) AS P ON p.WorkCenterMasterId=wc.Id
+                    WHERE WC.[Active]=1 AND WC.Id IN (" + workcenterlist + ")";
+                dtWorkCenter = _sqlRepository.GetDataTable(sql);
+
+            }
+            string sqlLastRunningDays = @"SELECT *
+                    FROM ( SELECT dense_rank() OVER (PARTITION BY t.WorkCenterMasterId ORDER BY t.ProductionDate DESC) AS LW,
+					                    t.WorkCenterMasterId,t.ProductionDate,t.Quantity, t.MaterialMasterId
+                           from (SELECT t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId,SUM(t.Quantity) AS Quantity
+					                      FROM trn.ProductionSummary t 
+					                    INNER JOIN [TRN].[ProductionOrderType2] P ON p.Id=t.ProductionOrderID
+					                    LEFT OUTER JOIN (SELECT DISTINCT pod.ProductionOrderId,mm.Id AS MaterialMasterId
+					                                       FROM trn.ProductionOrderType2Detail AS pod
+														INNER JOIN trn.SalesOrder AS so ON pod.SalesOrderId=so.Id
+														INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
+														INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId) AS K ON k.ProductionOrderId=p.Id
+                                        WHERE p.Id='" + productionOrderID + @"' AND t.ProductionDate<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'
+					                    GROUP BY t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId) AS T
+                        ) AS T  
+                    WHERE LW<=(SELECT MAX(T1.DayToReachTheTarget)
+                   FROM ProductionOrderSchedulingParametersType2 AS T1 
+                  INNER JOIN trn.ProductionOrderType2 AS po ON t1.ProductionOrderID=po.Id WHERE po.Id='" + productionOrderID + @"' )";
+
+
+            DataTable dtWorkCenterProductionHistory = _sqlRepository.GetDataTable(sqlLastRunningDays);
+            DataView dvtemp = new DataView(dtWorkCenterProductionHistory);
+
+            Dictionary<string, int> distinctWorkCenter = new Dictionary<string, int>();
+            for (int i = 0; i < dtWorkCenterProductionHistory.Rows.Count; i++)
+            {
+                if (distinctWorkCenter.ContainsKey(dtWorkCenterProductionHistory.Rows[i]["WorkCenterMasterId"].ToString()) == false)
+                {
+                    dvtemp.RowFilter = "WorkCenterMasterId='" + dtWorkCenterProductionHistory.Rows[i]["WorkCenterMasterId"].ToString() + "'";
+                    string materialmasterid = dtWorkCenterProductionHistory.Rows[i]["MaterialMasterId"].ToString();
+                    int ReverseCountDays = 0;
+                    for (int R = 0; R < dvtemp.Count; R++)
+                    {
+                        if (materialmasterid == dtWorkCenterProductionHistory.Rows[i]["MaterialMasterId"].ToString())
+                            ReverseCountDays++;
+                        else
+                            break;
+                    }
+
+
+                    dtWorkCenter.DefaultView.RowFilter = "WorkCenterMasterId='" + dtWorkCenterProductionHistory.Rows[i]["WorkCenterMasterId"].ToString() + "'";
+                    if (dtWorkCenter.DefaultView.Count > 0)
+                        dtWorkCenter.DefaultView[0].Row["LastStyleRunningFor"] = ReverseCountDays;
+
+                }
+
+            }
+
+            return dtWorkCenter;
+        }
+
+        private void saveProductionPlanType2(List<ProductionBlock> entry, string productionOrderID, string entityid, string processid)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            DataSet dsMaster;
+            string sql = @"SELECT * FROM ProductionPlanningType2 t1 WHERE EntityID='" + entityid + "' AND t1.ProductionOrderID ='" + productionOrderID + "' AND ProcessID='" + processid + "'";
+            ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+            objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+            while (dsMaster.Tables[0].DefaultView.Count > 0)
+            {
+                dsMaster.Tables[0].DefaultView[0].Delete();
+            }
+
+
+            DataRow dr;
+
+            for (int i = 0; i < entry.Count; i++)
+            {
+
+                dr = dsMaster.Tables[0].NewRow();
+
+                dr["ProductionOrderID"] = entry[i].ProductionOrderId;
+                dr["WorkCenterMasterId"] = entry[i].WorkCenterMasterId;
+                dr["MaterialMasterId"] = entry[i].MaterialMasterId;
+                dr["EntityId"] = entry[i].EntityId;
+                dr["ProcessID"] = entry[i].ProcessID;
+                dr["ProductionDate"] = entry[i].ProductionDate;
+                dr["Quantity"] = entry[i].Quantity;
+                dr["ProductionHours"] = entry[i].ProductionHours;
+                dr["isBuildUp"] = entry[i].isBuildUp;
+                dr["isStyleChange"] = entry[i].isStyleChange;
+                dr["BlockNo"] = entry[i].BlockNo;
+
+                dr["AddedBy"] = identity.Name;
+                dr["AddedDate"] = System.DateTime.Now.ToString();
+                dr["AddedFromIP"] = identity.IPAddress;
+                dr["UpdatedBy"] = identity.Name;
+                dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                dr["UpdatedFromIP"] = identity.IPAddress;
+
+                dsMaster.Tables[0].Rows.Add(dr);
+
+            }
+
+
+
+            clsStaticInfo clsStatic = new clsStaticInfo();
+            clsStatic.SaveDataSets(dsMaster);
+        }
+
         #endregion
 
     }

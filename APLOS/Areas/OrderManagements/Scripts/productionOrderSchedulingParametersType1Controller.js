@@ -349,7 +349,6 @@ function ProductionOrderSchedulingParametersType1Controller(cboService, commonMe
 
             if ($scope.TabActiveIndex == 1) {
                 $scope.OpenSimulatedData();
-                $scope.OpenSimulatedData();
             }
 
 
