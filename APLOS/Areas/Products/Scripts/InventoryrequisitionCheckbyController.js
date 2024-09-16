@@ -1,5 +1,5 @@
 ﻿'use strict';
-InventoryrequisitionCheckbyController.$inject = ['$window', 'cboService', '$scope', '$rootScope', '$http', 'baseService','$filter'];
+InventoryrequisitionCheckbyController.$inject = ['$window', 'cboService', '$scope', '$rootScope', '$http', 'baseService', '$filter'];
 function InventoryrequisitionCheckbyController($window, cboService, $scope, $rootScope, $http, baseService, $filter) {
     $rootScope.title = "Inventory Approved";
     $scope.Action = 'Save';
@@ -24,7 +24,7 @@ function InventoryrequisitionCheckbyController($window, cboService, $scope, $roo
             $scope.endDate = response.data[0].EndDate;
             location.href = "Products/Requisition/RequisitionReportby?RequisitionId=" + data.Id + '&startDate=' + $scope.startDate + '&endDate=' + $scope.endDate + '&PreparedBy=' + data.PreparedBy + '&FromCheckedUI=' + FromCheckedUI;
         });
-        
+
     };
 
 
@@ -75,7 +75,7 @@ function InventoryrequisitionCheckbyController($window, cboService, $scope, $roo
     $scope.isSetReqchecked = function (tabNum) {
         return $scope.tab === tabNum;
     };
-   
+
     //#Region Grid data bind 
     $scope.RequisitionUncheckedList = [];
     $scope.RequisitionUnchecked = function () {
@@ -131,13 +131,11 @@ function InventoryrequisitionCheckbyController($window, cboService, $scope, $roo
     }
     $scope.poApproved();
     $scope.onClickPOA = function (z) {
-        debugger;
-
         var x = "#" + z;
         var gridObj = $(x).data("ejGrid");
         $scope.podata = gridObj.getSelectedRecords()[0];
-       
-        $scope.message = 'Are you sure want to ' + $scope.podata.CheckedStatus + '?';
+
+        $scope.message = 'Are you sure want to ' + $scope.podata.CheckedByStatus + '?';
         angular.element(document.querySelector('#poapprovealert')).modal('show');
 
     };
@@ -151,15 +149,10 @@ function InventoryrequisitionCheckbyController($window, cboService, $scope, $roo
         }
     }];
 
-
-
-
     $scope.approvalAlert = function () {
         $scope.message = 'Are you sure want to Approve?';
         angular.element(document.querySelector('#poapprovealert')).modal('show');
     };
-
-
 
     $scope.onClickRequisitionHoldReject = function (z) {
         //debugger;
@@ -220,7 +213,8 @@ function InventoryrequisitionCheckbyController($window, cboService, $scope, $roo
 
     $scope.poApp = function () {
         try {
-
+            var filteredData = $scope.podata.Id;
+           
             if ($scope.podata.CheckedStatus === "For Checked" || $scope.podata.CheckedStatus === "Select" || baseService.isUndefinedOrNull($scope.podata.CheckedStatus)) {
                 ShowResult("Please Select Checked By Status", 'failure');
                 return false;
@@ -235,8 +229,8 @@ function InventoryrequisitionCheckbyController($window, cboService, $scope, $roo
                 return false;
             }
 
-            var filteredData = $scope.podata.Id;
-            var data = ej.DataManager(window.lst).executeLocal(ej.Query().where("MaterialReqqusitionMasterId", "equal", parseInt(filteredData), true).take(100));
+
+            var data = ej.DataManager($scope.lst).executeLocal(ej.Query().where("MaterialReqqusitionMasterId", "equal", parseInt(filteredData), true).take(100));
             if (data.length == 0) {
                 throw "Requisition Details is reuired.";
             }
@@ -277,56 +271,73 @@ function InventoryrequisitionCheckbyController($window, cboService, $scope, $roo
             ShowResult(e, 'failure');
         }
     }
-   
+
     $scope.lst = [];
     $scope.ReqListDetails = function () {
-        //debugger;
-        $http({
-            method: 'GET',
-            //url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData
-            url: 'Products/Requisition/GetAllReqdataDetails'
-        }).then(function successCallback(response) {
-            $scope.lst = response.data;
-            //$scope.detailgrid($scope.lst);
-            window.lst = response.data;
+        try {
+            //debugger;
+            $http({
+                method: 'GET',
+                url: 'Products/Requisition/GetAllReqdataDetailsById?Id=' + $scope.podata.Id
+            }).then(function successCallback(response) {
+                $scope.lst = response.data;
+                if ($scope.lst.length > 0) {
+                    $scope.poApp();
+                } else {
+                  //  throw "Requisition Details is required.";
+                    ShowResult("Requisition Details is required.", 'failure');
+                }
 
-        });
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
-    $scope.ReqListDetails();
+    //$scope.ReqListDetails();
 
 
     $scope.data1 = $scope.lst;
     $scope.detailTemp = "#tabGridContents";
-    //$scope.detailgrid = "detailGridData(e)";
+
     $scope.detailgrid = function detailGridData(e) {
-        //debugger;
 
         var filteredData = e.data["Id"];
-        var data = ej.DataManager(window.lst).executeLocal(ej.Query().where("MaterialReqqusitionMasterId", "equal", parseInt(filteredData), true).take(100));
-        e.detailsElement.find("#detailGrid").ejGrid({
 
-            dataSource: data,
-            //columns: ["MaterialGroupName", "MaterialName", "ArticleName", "SKU1", "SKU2", "SKU3","MaterialDetail", "TransactionQty", "TransactionUoMId", "TransactionUoM", "EstimatedRate", "CurrencyName", "TotalAmount"]
-            //columns: [{ field: "BudgetType", headerText: "BudgetType", width: 150 }, { field: "ActivityName", headerText: "ActivityName", width: 150 }, { field: "MaterialGroupName", headerText: "Material Group Name", width: 150 }, { field: "MaterialName", headerText: "Material Name", width: 150 }, { field: "ArticleName", headerText: "Article Name", width: 250 }, { field: "SKU1", headerText: "SKU1", width: 100 }, { field: "SKU2", headerText: "SKU2", width: 100 }, { field: "SKU3", headerText: "SKU3", width: 100 }, { field: "MaterialDetail", headerText: "MaterialDetail", width: 150 }, { field: "TransactionQty", headerText: "T.Qty", width: 70 }, { field: "TransactionUoM", headerText: "UoM", width: 50 }, { field: "EstimatedRate", headerText: "E.Rate", width: 50 }, { field: "CurrencyName", headerText: "Curr", width: 30 }, { field: "TotalAmount", headerText: "T.Amount", width: 100 }]
-            columns: [
-                { field: "BudgetType", headerText: "BudgetType", width: 50 },
-                { field: "ActivityName", headerText: "ActivityName", width: 150 },
-                { field: "MaterialGroupName", headerText: "MaterialGroupName", width: 100 },
-                { field: "MaterialName", headerText: "Material Name", width: 150 },
-                { field: "ArticleName", headerText: "Article Name", width: 150 },
-                { field: "SKU1", headerText: "SKU1", width: 50 },
-                { field: "SKU2", headerText: "SKU2", width: 50 },
-                { field: "SKU3", headerText: "SKU3", width: 50 },
-                { field: "MaterialDetail", headerText: "MaterialDetail", width: 150 },
-                { field: "TransactionQty", headerText: "Qty", width: 70 },
-                { field: "TransactionUoM", headerText: "UoM", width: 50 },
-                { field: "EstimatedRate", headerText: "E.Rate", width: 50 },
-                { field: "CurrencyName", headerText: "Curr", width: 30 },
-                { field: "TotalAmount", headerText: "T.Amount", width: 100 }
-            ]
+        $http({
+            method: 'GET',
+            url: 'Products/Requisition/GetAllReqdataDetailsById?Id=' + filteredData
+        }).then(function successCallback(response) {
+            $scope.InvoiceNoList = response.data;
+
+            var data = ej.DataManager($scope.InvoiceNoList).executeLocal(ej.Query().where("MaterialReqqusitionMasterId", "equal", parseInt(filteredData), true).take(100));
+
+            e.detailsElement.find("#detailGrid").ejGrid({
+
+                dataSource: data,
+                columns: [
+                    { field: "BudgetType", headerText: "BudgetType", width: 50 },
+                    { field: "ActivityName", headerText: "ActivityName", width: 150 },
+                    { field: "MaterialGroupName", headerText: "MaterialGroupName", width: 100 },
+                    { field: "MaterialName", headerText: "Material Name", width: 150 },
+                    { field: "ArticleName", headerText: "Article Name", width: 150 },
+                    { field: "SKU1", headerText: "SKU1", width: 50 },
+                    { field: "SKU2", headerText: "SKU2", width: 50 },
+                    { field: "SKU3", headerText: "SKU3", width: 50 },
+                    { field: "MaterialDetail", headerText: "MaterialDetail", width: 150 },
+                    { field: "TransactionQty", headerText: "Qty", width: 70 },
+                    { field: "TransactionUoM", headerText: "UoM", width: 50 },
+                    { field: "EstimatedRate", headerText: "E.Rate", width: 50 },
+                    { field: "CurrencyName", headerText: "Curr", width: 30 },
+                    { field: "TotalAmount", headerText: "T.Amount", width: 100 }
+
+                ]
+            });
+            e.detailsElement.find(".tabcontrol").ejTab();
         });
-        e.detailsElement.find(".tabcontrol").ejTab();
+
+
     }
+
     //#endregion
     // #endregion Requisition
     $scope.recorddoubleclick = function ($event) {
@@ -375,8 +386,8 @@ function InventoryrequisitionCheckbyController($window, cboService, $scope, $roo
         angular.element(document.querySelector('#ListOfRequisition1')).modal('hide');
     };
 
-   
-   
+
+
 
     $scope.onClickAReqHR = function (args) {
 
@@ -544,6 +555,6 @@ function InventoryrequisitionCheckbyController($window, cboService, $scope, $roo
         }
     }];
 }
-    
+
 
 
