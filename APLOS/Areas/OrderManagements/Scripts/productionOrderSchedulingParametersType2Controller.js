@@ -179,7 +179,7 @@ function ProductionOrderSchedulingParametersType2Controller(cboService, commonMe
         var sorteddata = ej.DataManager(dataManagerObj).executeLocal(ej.Query().select(["Id", "ProductionPriority"]));
         $http({
             method: 'POST',
-            url: $scope.path + "UpdatePriority",
+            url: $scope.path + "UpdateType2Priority",
             data: { data: sorteddata }
         }).then(function successCallback(response) {
             $scope.loadDataForPriority();
@@ -192,7 +192,7 @@ function ProductionOrderSchedulingParametersType2Controller(cboService, commonMe
         $scope.openPopup('dialogSOItemsForProductionOrder');
         $http({
             method: 'GET',
-            url: 'OrderManagements/ProductionOrder/GetProductionRecipeMaterialList?productionOrderId=' + prodOrdId
+            url: 'OrderManagements/ProductionOrder/GetProductionType2RecipeMaterialList?productionOrderId=' + prodOrdId
         }).then(function successCallback(response) {
             $scope.SalesOrderListForProductionOrderId = response.data;
 
@@ -260,7 +260,7 @@ function ProductionOrderSchedulingParametersType2Controller(cboService, commonMe
     $scope.getModelFilter = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "LoadFilterSQL"
+            url: $scope.path + "LoadType2FilterSQL"
         }).then(function successCallback(response) {
 
             if (response.data.length > 0) {
@@ -389,7 +389,6 @@ function ProductionOrderSchedulingParametersType2Controller(cboService, commonMe
 
                 if ($scope.TabActiveIndex == 1) {
                     $scope.OpenSimulatedData();
-                    $scope.OpenSimulatedData();
                 }
             });
 
@@ -454,7 +453,7 @@ function ProductionOrderSchedulingParametersType2Controller(cboService, commonMe
     function getProductionRecipeMaterialList() {
         $http({
             method: 'GET',
-            url: 'OrderManagements/ProductionOrder/GetProductionRecipeMaterialList?productionOrderId=' + + $scope.productionOrderModel.Id
+            url: 'OrderManagements/ProductionOrder/GetProductionType2RecipeMaterialList?productionOrderId=' + + $scope.productionOrderModel.Id
         }).then(function successCallback(response) {
             $scope.recipeMaterialListSelected = response.data;
         });
@@ -489,7 +488,7 @@ function ProductionOrderSchedulingParametersType2Controller(cboService, commonMe
         $http({
             method: 'GET',
             //data: { 'productionOrderID': $scope.productionOrderModel.Id },
-            url: $scope.path + "getProductionOrderParameters?productionOrderID=" + $scope.productionOrderModel.Id
+            url: $scope.path + "getProductMasterType2Parameters?productionOrderID=" + $scope.productionOrderModel.Id
         }).then(function successCallback(response) {
             try {
                 if (!$scope.model.ID) {
@@ -1470,7 +1469,7 @@ function ProductionOrderSchedulingParametersType2Controller(cboService, commonMe
             $scope.TabActiveIndex = args.activeIndex;
             if (args.activeIndex == 1) {
                 $scope.OpenSimulatedData();
-                $scope.OpenSimulatedData();
+                //$scope.OpenSimulatedData();
             }
             else if (args.activeIndex == 2) {
 
@@ -1708,7 +1707,7 @@ function ProductionOrderSchedulingParametersType2Controller(cboService, commonMe
             }
             $http({
                 method: 'GET',
-                url: $scope.path + "ProductionPlanSimulationNew?entityid=" + $scope.EntityId + "&processid=" + $scope.PlanningTypeProcessId
+                url: $scope.path + "ProductionType2PlanSimulation?entityid=" + $scope.EntityId + "&processid=" + $scope.PlanningTypeProcessId
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
                     ShowResult(response.data.Message, 'failure');
@@ -2527,7 +2526,7 @@ function ProductionOrderSchedulingParametersType2Controller(cboService, commonMe
 
             $http({
                 method: 'POST',
-                url: $scope.path + "GetWorkcenterWisePlanningSummary?EntityId=" + $scope.EntityId
+                url: $scope.path + "GetAllWorkcenterWisePlanningType2Summary?EntityId=" + $scope.EntityId
 
             }).then(function successCallback(response) {
                 $scope.WorkAllCenterPlanList = response.data;

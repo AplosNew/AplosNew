@@ -4823,8 +4823,6 @@ ORDER BY IR.ID DESC";
                         LEFT JOIN [SCS].[Currency] AS CU ON IM.CurrencyId=CU.Id 
                         LEFT JOIN [HKP].[Activity] As Act On ACT.Id=IM.ActivityId
                         --Left join trn.PurchaseOrderDetail pod on pod.RequisitionDetailId=im.Id
-                        --JOIN [HKP].Budget
-                        --JOIN [HKP].Gl
                        --WHERE IM.MaterialReqqusitionMasterId
                        ";
                 return _sqlRepository.GetDataCollection(_sql);
@@ -4888,8 +4886,6 @@ ORDER BY IR.ID DESC";
                         LEFT JOIN [TRN].[MaterialRequsitionMaster] AS IR ON IM.MaterialReqqusitionMasterId=IR.Id
                         LEFT JOIN [SCS].[Currency] AS CU ON IM.CurrencyId=CU.Id 
                         LEFT JOIN [HKP].[Activity] As Act On ACT.Id=IM.ActivityId
-                        --JOIN [HKP].Budget
-                        --JOIN [HKP].Gl
                        WHERE IM.MaterialReqqusitionMasterId ='" + Id + @"'
                        ";
                 return _sqlRepository.GetDataCollection(_sql);
