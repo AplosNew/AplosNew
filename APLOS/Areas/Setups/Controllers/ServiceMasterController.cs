@@ -652,7 +652,7 @@ namespace Aplos.Areas.Setups.Controllers
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
-
+               
                 xlsRow++;
 
                 sheet1.Range[xlsRow, colPurchaseApplicable, xlsRow, colPurchaseApplicable].DataValidation.AllowType = ExcelDataType.Integer;
@@ -840,6 +840,8 @@ namespace Aplos.Areas.Setups.Controllers
                             item["PurchaseApplicable"] = (item["PurchaseApplicable"].ToString() == "1") ? true : false;
                             item["SalesApplicable"] = (item["SalesApplicable"].ToString() == "1") ? true : false;
                             item["IndependentApplicable"] = (item["IndependentApplicable"].ToString() == "1") ? true : false;
+                            item["DrControlId"] = (item["DrControlId"].ToString() == null) ? DBNull.Value : item["DrControlId"];
+                            item["CrControlId"] = (item["CrControlId"].ToString() == null) ? DBNull.Value : item["CrControlId"];
                             AddNewRow(dsBC.Tables[0], item);
                         }
                         else

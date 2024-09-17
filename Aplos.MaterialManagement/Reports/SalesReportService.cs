@@ -10687,7 +10687,7 @@ Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage,SM.UserName";
                                         WHERE IR.Id = SOI.SalesId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 										,'&amp;','&'), 'amp;', '')
                                 ,IR.ComercialInvoiceNo,IR.BLNumber,FORMAT(IR.BLDate, 'dd-MMM-yyyy')BLDate,
-								IR.EXPFromNo,FORMAT(IR.EXPDate, 'dd-MMM-yyyy')EXPDate,IR.ItemDescription
+								IR.EXPFromNo,FORMAT(IR.EXPDate, 'dd-MMM-yyyy')EXPDate,SR.Narration ItemDescription
 								,PSI.TransportVehicleNo,PSI.TransportDriverName,PPSI.UserName TransporterName, BM.AccountTitle,BM.AccountNumber
 								,BMA.Address1,PSI.TransportDocRefNo,FORMAT(PSI.TransportDocDate, 'dd-MMM-yyyy') CNFBLAWBDate
 								,B.UserName as Bank,BB.UserName as BankBranch

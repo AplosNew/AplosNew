@@ -137,6 +137,8 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 int ROW = 6; int COL = 1;
                 sheet.Range[ROW, COL].Text = "VechileNo.:";
                 sheet.Range[ROW, 2].Text = dtOrder.Rows[0]["VechileNo"].ToString();
+                sheet.Range[ROW, 2].ColumnWidth = 30;
+                sheet.Range[ROW, 2].WrapText = true;
                 sheet.Range[ROW, 3].Text = "GatePassDate: ";
                 sheet.Range[ROW, 4].Text = dtOrder.Rows[0]["GatePassDate"].ToString();
 
@@ -155,7 +157,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 #region ColumnsHeader
 
                 sheet[ROW, COL].Text = "InvoiceNo"; sheet[ROW, COL].ColumnWidth = 14; int colIN = COL; COL++;
-                sheet[ROW, COL].Text = "Customer Name"; sheet[ROW, COL].ColumnWidth = 16; int colCN = COL; COL++;
+                sheet[ROW, COL].Text = "Customer Name"; sheet[ROW, COL].ColumnWidth = 30; int colCN = COL; COL++;
                 sheet[ROW, COL].Text = "No.of Bag"; sheet[ROW, COL].ColumnWidth = 15; int colPackage = COL; COL++;
                 sheet[ROW, COL].Text = "Net Weight"; sheet[ROW, COL].ColumnWidth = 15; int colNW = COL; COL++;
                 sheet[ROW, COL].Text = "Gross Weight"; sheet[ROW, COL].ColumnWidth = 15; int colGW = COL; COL++;
