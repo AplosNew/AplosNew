@@ -137,6 +137,8 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 int ROW = 6; int COL = 1;
                 sheet.Range[ROW, COL].Text = "VechileNo.:";
                 sheet.Range[ROW, 2].Text = dtOrder.Rows[0]["VechileNo"].ToString();
+                sheet.Range[ROW, 2].ColumnWidth = 50;
+                sheet.Range[ROW, 2].WrapText = true;
                 sheet.Range[ROW, 3].Text = "GatePassDate: ";
                 sheet.Range[ROW, 4].Text = dtOrder.Rows[0]["GatePassDate"].ToString();
 
