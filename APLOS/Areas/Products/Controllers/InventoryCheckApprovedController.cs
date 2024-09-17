@@ -217,7 +217,7 @@ namespace Aplos.Areas.Products.Controllers
                                 ,MRM.ReasonWhyItIsNotPlanEarlier Reason
                                 ,MRM.ReqEmpId PreparedBy
 
-                        FROM[TRN].[MaterialRequsitionMaster] MRM
+                        FROM [TRN].[MaterialRequsitionMaster] MRM
                         Left Join[TRN].[MaterialRequsitionDetails] MRD On MRD.MaterialReqqusitionMasterId = MRM.Id
                         Left Join org.Entity E on E.Id = MRM.EntityId
                         LEFT JOin HKp.Activity A On A.Id = MRD.ActivityId

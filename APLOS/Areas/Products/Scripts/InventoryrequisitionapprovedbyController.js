@@ -211,15 +211,10 @@ function InventoryrequisitionapprovedbyController($window, cboService, $scope, $
         }
     }];
 
-
-
-
     $scope.approvalAlert = function () {
         $scope.message = 'Are you sure want to Approve?';
         angular.element(document.querySelector('#poapprovealert')).modal('show');
     };
-
-
 
     $scope.onClickRequisitionHoldReject = function (z) {
         //debugger;
@@ -253,7 +248,6 @@ function InventoryrequisitionapprovedbyController($window, cboService, $scope, $
             click: $scope.onClickRequisitionHoldReject
         }
     }];
-
 
     $scope.HoldandRejectAlert = function () {
         $scope.message = 'Are you sure want to Checked?';
@@ -297,7 +291,7 @@ function InventoryrequisitionapprovedbyController($window, cboService, $scope, $
         var filteredData = $scope.podata.Id;
         var data = ej.DataManager($scope.lst).executeLocal(ej.Query().where("MaterialReqqusitionMasterId", "equal", parseInt(filteredData), true).take(100));
         if (data.length == 0) {
-            throw "Requisition Details is reuired.";
+            throw "Requisition Details is required.";
         }
 
 
@@ -370,7 +364,7 @@ function InventoryrequisitionapprovedbyController($window, cboService, $scope, $
             }).then(function successCallback(response) {
                 $scope.lst = response.data;
                 if ($scope.lst.length > 0) {
-                    $scope.poApp();
+                    $scope.poAppAuth();
                 } else {
                     //  throw "Requisition Details is required.";
                     ShowResult("Requisition Details is required.", 'failure');
