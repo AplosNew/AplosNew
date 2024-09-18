@@ -840,8 +840,8 @@ namespace Aplos.Areas.Setups.Controllers
                             item["PurchaseApplicable"] = (item["PurchaseApplicable"].ToString() == "1") ? true : false;
                             item["SalesApplicable"] = (item["SalesApplicable"].ToString() == "1") ? true : false;
                             item["IndependentApplicable"] = (item["IndependentApplicable"].ToString() == "1") ? true : false;
-                            item["DrControlId"] = (item["DrControlId"].ToString() == null) ? DBNull.Value : item["DrControlId"];
-                            item["CrControlId"] = (item["CrControlId"].ToString() == null) ? DBNull.Value : item["CrControlId"];
+                            item["DrControlId"] = (item["DrControlId"].ToString() == null) ? DBNull.Value.ToString() : item["DrControlId"].ToString();
+                            item["CrControlId"] = (item["CrControlId"].ToString() == null) ? DBNull.Value.ToString() : item["CrControlId"].ToString();
                             AddNewRow(dsBC.Tables[0], item);
                         }
                         else
