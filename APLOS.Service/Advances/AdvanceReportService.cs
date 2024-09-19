@@ -2752,6 +2752,11 @@ select ESA.VoucherId, ESA.EmployeeId,ESA.PartyType,ESA.TransactionType,ESA.Sourc
                 int ColAdvanced = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "AdditionalAmount";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColAdditionalAmount = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Write-off";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int ColWriteoff = COL;
@@ -2784,6 +2789,7 @@ select ESA.VoucherId, ESA.EmployeeId,ESA.PartyType,ESA.TransactionType,ESA.Sourc
                     sheet[ROW, ColPostingDate].Text = data.Rows[i]["PostingDate"].ToString();
                     sheet[ROW, ColCurrency].Text = data.Rows[i]["CurrencyCode"].ToString();
                     sheet[ROW, ColAdvanced].Number = clsStaticInfo.dbl(data.Rows[i]["Receivable"].ToString());
+                    sheet[ROW, ColAdditionalAmount].Number = clsStaticInfo.dbl(data.Rows[i]["AdditionalAmount"].ToString());
                     sheet[ROW, ColWriteoff].Number = clsStaticInfo.dbl(data.Rows[i]["Received"].ToString());
                     sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(data.Rows[i]["Balance"].ToString());
 
@@ -2850,8 +2856,8 @@ select ESA.VoucherId, ESA.EmployeeId,ESA.PartyType,ESA.TransactionType,ESA.Sourc
                 string strSQL = @"SELECT AD.AdvanceId, AD.Id AS AdvanceDetailId, AD.PartyType, AD.CompanyId, AD.PlantId, AM.PartyId, AM.PartyPlantId,P.Code AS  PartyCode, P.UserName As PartyName, PP.UserName AS PartyPlantName, AM.AdvanceNo, AM.VoucherId, VD.Id AS VoucherDetailId, VD.EntityId
 								, EN.UserName AS EntityName, AM.CurrencyId, C.Code AS CurrencyCode, AD.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
 								, AD.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName, AD.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, V.VoucherNo, Replace(CONVERT(VARCHAR(11), AM.DocDate, 106), ' ', '-') AS DocDate
-                                , Replace(CONVERT(VARCHAR(11), AM.PostingDate, 106), ' ', '-') AS PostingDate, AM.DocRefNo, AM.Narration, AD.Amount AS Receivable, AD.WrittenOffAmount AS Received
-                                , AD.Amount-AD.WrittenOffAmount AS Balance, CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, CC.CompanyCurrencyConversion, GC.CompanyGroupCurrencyId
+                                , Replace(CONVERT(VARCHAR(11), AM.PostingDate, 106), ' ', '-') AS PostingDate, AM.DocRefNo, AM.Narration, AD.Amount AS Receivable, AD.AdditionalAmount AS AdditionalAmount, AD.WrittenOffAmount AS Received
+                                , AD.Amount+AD.AdditionalAmount-AD.WrittenOffAmount AS Balance, CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, CC.CompanyCurrencyConversion, GC.CompanyGroupCurrencyId
                                 , GC.CompanyGroupFromCurrencyId, GC.CompanyGroupCurrencyRate, GC.CompanyGroupCurrencyConversion, HC.HardCurrencyId, HC.HardFromCurrencyId, HC.HardCurrencyRate, HC.HardCurrencyConversion
                                 FROM [TRN].[AdvanceDetail] AS AD
                                 LEFT JOIN [TRN].[Advance] AS AM ON AD.AdvanceId=AM.Id
