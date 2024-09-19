@@ -1729,7 +1729,7 @@ Where HeadCategory='Net Payable' ";
 						left join trn.Voucher v on v.Id=sl.PayableVoucherId
                         LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.BonusDisbursementVoucherId 
                         LEFT JOIN [dbo].[BonusDisbursementAdvice]  DA ON DA.Id=sl.BonusDisbursementAdviceId
-                        where sl.PayableVoucherId<>'' AND sl.BonusDisbursementVoucherId IS NOT NULL and sl.IsBonusDisbursed=1 AND sl.PastDisbursed IS NULL
+                        where sl.PayableVoucherId<>'' AND sl.BonusDisbursementVoucherId IS NOT NULL and sl.IsBonusDisbursed=1 
                         and sl.BonusDisbursementVoucherId='" + voucherId + @"'
                          and spc.DisbusmentAmount!=0  
                         and spd.PlantId='" + identity.PlantId + @"' 
@@ -3781,7 +3781,7 @@ AND CONCAT(YEAR('" + toDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + toDate + @"
                                     LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.BonusDisbursementVoucherId
                                     left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=SPCD.SalaryHeadID and vd.CrAmount>0
                                     LEFT JOIN [dbo].[BonusDisbursementAdvice]  DA ON DA.Id=sl.BonusDisbursementAdviceId 
-                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' AND ISNULL(e.PaymentMode,'')='" + paymentMode + "' AND ISNULL(sl.PayableVoucherId,'')<>''  and sl.islocked=1 AND ISNULL(sl.IsBonusDisbursed,0) = 0 " + wcPayrollGroup + @" 
+                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' AND ISNULL(e.PaymentMode,'')='" + paymentMode + "' AND ISNULL(sl.PayableVoucherId,'')<>''  and sl.islocked=1 AND ISNULL(sl.IsBonusDisbursed,0) = 0 AND ISNULL(sl.PastBonusDisbursed,0) = 0 " + wcPayrollGroup + @" 
                                     AND CONCAT(sl.YearNo,RIGHT('00'+Isnull(Cast(SL.MonthNo AS VARCHAR(max)), ''),2)) 
 									BETWEEN  CONCAT(YEAR('" + fromDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + fromDate + @"') AS VARCHAR(max)), ''),2))
 									AND CONCAT(YEAR('" + toDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + toDate + @"') AS VARCHAR(max)), ''),2))
