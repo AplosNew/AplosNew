@@ -27,8 +27,9 @@ namespace Library.Service.Extension.Accounts
 
 							, AddedBy =case when u.FullName<>'' then u.FullName else v.AddedBy end
 							,PostedBy = case when up.FullName<>'' then up.FullName else v.PostedBy end
-
+							,ET.UserName Entity
                             FROM [TRN].[BankJournal] AS BJ
+							left join org.Entity ET on ET.Id = BJ.EntityId
                             LEFT JOIN [TRN].[Voucher] AS V ON V.Id=BJ.VoucherId
                             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
                             LEFT JOIN [MST].[BankMaster] AS BM ON BM.Id=BJ.BankMasterId
