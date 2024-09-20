@@ -37,6 +37,7 @@
                                 <th>Posting Date</th>
                                 <th>Currency</th>
                                 <th>Advanced</th>
+                                <th>Additional Amount</th>
                                 <th>Write-off</th>
                                 <th>Balance</th>
                             </tr>
@@ -50,6 +51,7 @@
                                 <td>{{x.PostingDate |dateFiltering}}</td>
                                 <td>{{x.CurrencyCode}}</td>
                                 <td class="text-right">{{x.Receivable | number:2}}</td>
+                                <td class="text-right">{{x.AdditionalAmount | number:2}}</td>
                                 <td class="text-right">{{x.Received | number:2}}</td>
                                 <td class="text-right">{{x.Balance | number:2}}</td>
                             </tr>

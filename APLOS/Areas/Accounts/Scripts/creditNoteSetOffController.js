@@ -295,6 +295,18 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
         return manualValidation("div_PostingDate", $scope.invalidPostingDate, msg);
     };
 
+    $scope.checkPostingDateWithInvoice = function () {
+        var msg = "";
+        for (var i = 0; i < $scope.voucherInvoiceDetailList.length; i++) {
+            if (new Date($scope.voucherInvoiceDetailList[i].PostingDate) > new Date($scope.voucher.PostingDate)) {
+                msg = "Posting date must be below or equal to payable of " + $scope.voucherInvoiceDetailList[i].VoucherNo;
+                $scope.invalidPostingDate = true;
+                break;
+            }
+        }
+        return manualValidation("div_PostingDate", $scope.invalidPostingDate, msg);
+    };
+
     $scope.invalidEntity = false;
     $scope.entityValidation = function () {
         $scope.invalidEntity = baseService.isUndefinedOrNull($scope.voucher.EntityId);
@@ -907,6 +919,7 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
         $scope.$broadcast("show-errors-check-validity");
         $scope.checkDocDate();
         $scope.checkPostingDate();
+        $scope.checkPostingDateWithInvoice();
         $scope.passBankCashAmount();
         $scope.entityValidation();
         if ($scope.form1.$valid && !$scope.validation() && !$scope.invalidDocDate && !$scope.invalidPostingDate) {

@@ -3797,7 +3797,7 @@ namespace Library.Service.Employees
 			,ISNULL(LLD.Name, NDept.UserName) as NewDepartment
             ,ISNULL(DG.Name,OLDG.LegalDesignation) as PreviousDesignation
             ,ISNULL(DGN.Name,NEWG.LegalDesignation) as NewDesignation
-            ,ISNULL(SG.Name,OLDG.SalaryGrade) as PreviousGrade
+             ,ISNULL(SG.Name,PGD.UserName) as PreviousGrade
             ,ISNULL(SGN.Name,NEWG.SalaryGrade) as NewGrade
             
             from
@@ -3857,7 +3857,7 @@ namespace Library.Service.Employees
             LEFT JOIN [SCS].[LegalSalaryGrade] LSG ON LSGD.LegalSalaryGradeId = LSG.Id
             LEFT JOIN hkp.LegalDesignation LD ON LSGD.LegalDesignationId = LD.Id            
             ) OLDG ON OLDG.LegalDesignationId = IH.FROMLegalDesignationId and OLDG.PlantId=ei.PlantId
-
+            LEFT JOIN [SCS].[LegalSalaryGrade] PGD ON IH.LegalSalaryGradeId = PGD.Id 
             LEFT JOIN HKP.LocalLanguage DP ON DP.DepartmentId =OLD.DepartmentId AND DP.LanguageId='" + languageId + @"'                                  
             --LEFT JOIN HKP.LocalLanguage DPN ON DPN.DepartmentId =NEW.DepartmentId AND DPN.LanguageId='" + languageId + @"'
             LEFT JOIN HKP.LocalLanguage DG ON DG.LegalDesignationId=OLDG.LegalDesignationId AND DG.LanguageId='" + languageId + @"'

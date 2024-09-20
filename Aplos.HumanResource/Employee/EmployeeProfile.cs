@@ -1,4 +1,5 @@
 ﻿using clsAttendance;
+using ConnectionManager.DAL;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
@@ -23,6 +24,7 @@ namespace Aplos.HumanResource
     {
         SqlRepository _sqlRepository;
         ConnectionManager.clsConnectionManager ConManager;
+        private ConManager objCon;
         clsEmployeeLoad objEL = new clsEmployeeLoad();
         public EmployeeProfile()
         {
@@ -2838,6 +2840,475 @@ Where EmpSystemId='"+ empId + "'";
 
 
             return 0;
+        }
+
+        public Dictionary<string, object> GetLanguage(string plantId, string pkId, string templateType)
+        {
+            var sql = @"SELECT Id,Language FROM SCS.RptConfigTemplate WHERE  Id='" + pkId + "'  AND PlantId='" + plantId + "' and type='" + templateType + "'";
+            return _sqlRepository.GetData(sql);
+        }
+
+        private DataTable getLanguageId(string username)
+        {
+            try
+            {
+                var sql = @"Select Id from SCS.Language where UserName ='" + username.Replace("\r\n", "").Trim() + "'";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private DataTable getLanguageName(string Id)
+        {
+            try
+            {
+                var sql = @"Select UserName from SCS.Language where Id ='" + Id + "'";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        public Dictionary<string, object> GetAppointmentFilePath(string plantId, string Language, string pkId, string reportType)
+        {
+            var sql = @"SELECT Id,TemplateFileName FROM SCS.RptConfigTemplate WHERE  Language='" + Language + "'  AND PlantId='" + plantId + "' and Type='" + reportType + "' and Id='" + pkId + "'";
+            return _sqlRepository.GetData(sql);
+        }
+
+        public string cnDgt(string input)
+        {
+            return input.Replace('0', '০')
+                     .Replace('1', '১')
+                     .Replace('2', '২')
+                     .Replace('3', '৩')
+                     .Replace('4', '৪')
+                     .Replace('5', '৫')
+                     .Replace('6', '৬')
+                     .Replace('7', '৭')
+                     .Replace('8', '৮')
+                     .Replace('9', '৯');
+        }
+
+        public string cnDgt(string input, string lng)
+        {
+            if (lng == "Bengali")
+            {
+                return input.Replace('0', '০')
+                    .Replace('1', '১')
+                    .Replace('2', '২')
+                    .Replace('3', '৩')
+                    .Replace('4', '৪')
+                    .Replace('5', '৫')
+                    .Replace('6', '৬')
+                    .Replace('7', '৭')
+                    .Replace('8', '৮')
+                    .Replace('9', '৯');
+            }
+            else if (lng == "Hindi")
+            {
+                return input.Replace('0', '०')
+                    .Replace('1', '१')
+                    .Replace('2', '२')
+                    .Replace('3', '३')
+                    .Replace('4', '४')
+                    .Replace('5', '५')
+                    .Replace('6', '६')
+                    .Replace('7', '७')
+                    .Replace('8', '८')
+                    .Replace('9', '९');
+            }
+            else if (lng == "English")
+            {
+                return input.Replace('0', '0')
+                    .Replace('1', '1')
+                    .Replace('2', '2')
+                    .Replace('3', '3')
+                    .Replace('4', '4')
+                    .Replace('5', '5')
+                    .Replace('6', '6')
+                    .Replace('7', '7')
+                    .Replace('8', '8')
+                    .Replace('9', '9');
+            }
+            return input;
+        }
+
+        public string ChangeMonth(string input, string lng)
+        {
+            if (lng == "Bengali")
+            {
+                return input
+                     //.Replace("Jan", "জানুয়ারি")
+                     //.Replace("Feb", "ফেব্রুয়ারি")
+                     //.Replace("Mar", "মার্চ")
+                     //.Replace("Apr", "এপ্রিল")
+                     //.Replace("May", "মে")
+                     //.Replace("Jun", "জুন")
+                     //.Replace("Jul", "জুলাই")
+                     //.Replace("Aug", "আগস্ট")
+                     //.Replace("Sep", "সেপ্টেম্বর")
+                     //.Replace("Oct", "অক্টোবর")
+                     //.Replace("Nov", "নভেম্বর")
+                     //.Replace("Dec", "ডিসেম্বর");
+                     .Replace("Jan", "জানু")
+                    .Replace("Feb", "ফেব্রু")
+                    .Replace("Mar", "মার্চ")
+                    .Replace("Apr", "এপ্রিল")
+                    .Replace("May", "মে")
+                    .Replace("Jun", "জুন")
+                    .Replace("Jul", "জুলাই")
+                    .Replace("Aug", "আগস্ট")
+                    .Replace("Sep", "সেপ্টে")
+                    .Replace("Oct", "অক্টো")
+                    .Replace("Nov", "নভে")
+                    .Replace("Dec", "ডিসে");
+            }
+            else if (lng == "Hindi")
+            {
+                return input
+                    .Replace("Jan", "जनवरी")
+                    .Replace("Feb", "फरवरी")
+                    .Replace("Mar", "मार्च")
+                    .Replace("Apr", "अप्रैल")
+                    .Replace("May", "मई")
+                    .Replace("Jun", "जून")
+                    .Replace("Jul", "जुलाई")
+                    .Replace("Aug", "अगस्त")
+                    .Replace("Sep", "सितम्बर")
+                    .Replace("Oct", "अक्तूबर")
+                    .Replace("Nov", "नवम्बर")
+                    .Replace("Dec", "दिसम्बर");
+            }
+            return input;
+        }
+
+        public string GetFormatedDate(string date, string lng)
+        {
+            var formateDate = string.Empty;
+            var day = cnDgt(date.Substring(0, 2), lng);
+            var mon = ChangeMonth(date.Substring(3, 3), lng);
+            var year = cnDgt(date.Substring(7, 4), lng);
+            return formateDate = day + "-" + mon + "-" + year;
+        }
+
+        public void GetIncrementHistory(string companyGroupId, string companyId, string plantId, string empId, string empType, string reportType, string tempId)//, string templatePathHindi, string templatePathEnglish, string templatePathBangla)
+        {
+            try
+            {
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility oRU = new ReportUtility();
+                string File = "";
+                string langID = "";
+                string strPath = "";
+                string language = "";
+                var fileName = "";
+                var lang = GetLanguage(plantId, tempId, reportType);
+
+                if (lang.Count > 0)
+                {
+                    var dtLangId = getLanguageId(lang["Language"].ToString()); //getLanguageId
+                    langID = dtLangId.Rows[0]["Id"].ToString();
+                    var dtLangName = getLanguageName(langID);
+                    language = dtLangName.Rows[0]["UserName"].ToString();
+                }
+                else
+                {
+                    langID = tempId;
+                    var dtLangName = getLanguageName(langID);
+                    language = dtLangName.Rows[0]["UserName"].ToString();
+                    fileName = "App" + plantId + language + ".docx";
+                    strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
+                    File = fileName;
+                    if (!System.IO.File.Exists(strPath))
+                    {
+                        throw new CustomException("File <" + fileName + "> Not Found.");
+                    }
+                }
+
+                var Templatefile = GetAppointmentFilePath(plantId, language, tempId, reportType);
+                if (Templatefile.Count > 0)
+                {
+                    fileName = Templatefile["TemplateFileName"].ToString();
+                }
+                if (!string.IsNullOrEmpty(fileName))
+                {
+                    strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), fileName);
+                    File = fileName;
+                    if (!System.IO.File.Exists(strPath))
+                    {
+                        throw new CustomException("File Not Found");
+                    }
+                }
+
+                string filepath = "";
+                if (System.IO.File.Exists(strPath) && tempId != "English")
+                {
+                    filepath = strPath;
+                }
+                else
+                {
+                    File = "IH" + plantId + "English.docx";
+                    filepath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), File);
+                }
+
+                FileInfo DocFile = new FileInfo(filepath);
+                if (DocFile.Exists == false)
+                {
+                    //DocFile = new FileInfo(System.Web.HttpContext.Current.Server.MapPath(".") + "\\Doc1.docx");
+                    throw new CustomException("File Not Found");
+                }
+
+
+                DataSet dsCompanyInfo = null;
+                string strCompanyInfoSQL = @"select a.Address1 CompanyAddress, c.UserName CompanyName from org.Company c
+                                            left join  mst.addressmaster a on a.id=c.AddressMasterId
+                                            where c.id='" + identity.CompanyId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strCompanyInfoSQL, out dsCompanyInfo, false, "1");
+
+                DataTable dtEmpInfo = GetEmpInfo(empId, langID);
+                // DataTable dtEmpInfo = GetEmployeeById(empId, plantId, empType, langID, tempId);
+
+                DataTable dtEmpHeaderInfo = GetEmpHeaderInfo(empId, langID);
+
+                ////A opens input document.
+                WordDocument document = new WordDocument(DocFile.FullName);
+                WSection section = document.Sections[0];
+                //TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
+                //Dictionary<string, int> replaced = new Dictionary<string, int>();
+
+
+
+                if (bplib.clsWebLib.IsNumeric(dtEmpHeaderInfo.Rows[0]["EmployeeCode"].ToString()))
+
+                    document.Replace("{EmployeeCode}", cnDgt(dtEmpHeaderInfo.Rows[0]["EmployeeCode"].ToString(), language), false, true);
+                else
+                    document.Replace("{EmployeeCode}", dtEmpHeaderInfo.Rows[0]["EmployeeCode"].ToString(), false, true);
+
+
+                if (bplib.clsWebLib.IsDateOK(dtEmpHeaderInfo.Rows[0]["DateOfJoin"].ToString()))
+                    document.Replace("{DateOfJoin}", GetFormatedDate(dtEmpHeaderInfo.Rows[0]["DateOfJoin"].ToString(), language), false, true);
+                else
+                    document.Replace("{DateOfJoin}", dtEmpHeaderInfo.Rows[0]["DateOfJoin"].ToString(), false, true);
+                document.Replace("{EmployeeName}", dtEmpHeaderInfo.Rows[0]["EmployeeName"].ToString(), false, true);
+                document.Replace("{DepartmentName}", dtEmpHeaderInfo.Rows[0]["Department"].ToString(), false, true);
+                document.Replace("{SectionName}", dtEmpHeaderInfo.Rows[0]["SectionName"].ToString(), false, true);
+                document.Replace("{DesignationName}", dtEmpHeaderInfo.Rows[0]["DesignationName"].ToString(), false, true);
+                document.Replace("{Category}", dtEmpHeaderInfo.Rows[0]["Category"].ToString(), false, true);
+
+
+                //makeAppraisalDetailTable(document, dtEmpInfo);
+
+
+                WTable table2 = (WTable)section.Body.Tables[1];
+                WTableRow copiedRow2 = table2.Rows[1].Clone();
+
+                WTableRow row2;
+
+                for (int ROW = 0; ROW < dtEmpInfo.Rows.Count; ROW++)
+                {
+                    if (ROW > 0)
+                    {
+                        row2 = copiedRow2.Clone();
+                        table2.Rows.Add(row2);
+                    }
+                    if (bplib.clsWebLib.IsDateOK(dtEmpHeaderInfo.Rows[0]["DateOfJoin"].ToString()))
+                        table2.Replace("{AppraisalDate}", GetFormatedDate(dtEmpInfo.Rows[ROW]["AppraisalDate"].ToString(), language), false, true);
+                    else
+
+                        table2.Replace("{AppraisalDate}", dtEmpInfo.Rows[ROW]["AppraisalDate"].ToString(), false, true);
+                    table2.Replace("{PreviousDepartment}", dtEmpInfo.Rows[ROW]["PreviousDepartment"].ToString(), false, true);
+                    table2.Replace("{NewDepartment}", dtEmpInfo.Rows[ROW]["NewDepartment"].ToString(), false, true);
+
+                    table2.Replace("{PreviousGross}", string.Format("{0:N2}", dtEmpInfo.Rows[ROW]["PreviousGross"].ToString()), false, true);
+                    table2.Replace("{NewGross}", string.Format("{0:N2}", dtEmpInfo.Rows[ROW]["NewGross"].ToString()), false, true);
+                    table2.Replace("{IncrementAmount}", string.Format("{0:N2}", dtEmpInfo.Rows[ROW]["IncrementAmount"].ToString()), false, true);
+
+                    table2.Replace("{PreviousGrade}", dtEmpInfo.Rows[ROW]["PreviousGrade"].ToString(), false, true);
+                    table2.Replace("{NewGrade}", dtEmpInfo.Rows[ROW]["NewGrade"].ToString(), false, true);
+                    table2.Replace("{PreviousDesignation}", dtEmpInfo.Rows[ROW]["PreviousDesignation"].ToString(), false, true);
+                    table2.Replace("{NewDesignation}", dtEmpInfo.Rows[ROW]["NewDesignation"].ToString(), false, true);
+                }
+
+                if (!string.IsNullOrEmpty(dtEmpHeaderInfo.Rows[0]["EmployeePic"].ToString()))
+                {
+                    var pic = dtEmpHeaderInfo.Rows[0]["EmployeePic"].ToString();
+                    string picpath = ResourcesPathReader.GetEmployeeDestinationPicPath() + pic;
+                    //WPicture ImgwPicture = new WPicture(document);
+                    if (System.IO.File.Exists(picpath))
+                    {
+                        try
+                        {
+                            Image Img = Image.FromFile(picpath);
+                            Image newImage = resizeImage(Img, 139, 123);
+
+                            section.Tables[0].Rows[1].Cells[2].Paragraphs[0].AppendPicture(newImage);
+                            //document.Replace();
+                            //document.Replace("{EmpPic}", "", true, true);
+
+                            //document.Replace("{emppic}", textBodyPart, true, true);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw (ex);
+                        }
+                    }
+                }
+
+                //#endregion
+
+                string fileNames = string.Empty;
+                if (!string.IsNullOrEmpty(dtEmpHeaderInfo.Rows[0]["EmployeeCode"].ToString()))
+                {
+
+                    fileNames = dtEmpHeaderInfo.Rows[0]["EmployeeCode"].ToString() + "-Increment-History.docx";
+
+                }
+                else
+                {
+                    fileNames = "Increment-History.docx";
+                }
+                document.Save(fileNames, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
+                document.Close();
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        private DataTable GetEmpInfo(string EmpSystemId, string languageId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string Sql = @"SELECT distinct format(salaryInfoTo.EffectiveDate,'dd-MMM-yyyy')AppraisalDate,
+			CONVERT(NUMERIC(10,2),salaryInfoFrom.EntryAmount) PreviousGross,
+			CONVERT(NUMERIC(10,2),salaryInfoTo.EntryAmount) NewGross,
+			CONVERT(NUMERIC(10,2),salaryInfoTo.EntryAmount-salaryInfoFrom.EntryAmount) IncrementAmount			
+             ,sh.SalaryHead
+            ,ei.EmpPicPath
+            ,ei.Employeecode
+            ,ei.Employeename
+            
+            ,ISNULL(DP.Name, isnull(OLD.Department,dep.username)) as PreviousDepartment
+            --,ISNULL(DPN.Name,NEW.Department) as NewDepartment
+			,ISNULL(LLD.Name, NDept.UserName) as NewDepartment
+            ,ISNULL(DG.Name,OLDG.LegalDesignation) as PreviousDesignation
+            ,ISNULL(DGN.Name,NEWG.LegalDesignation) as NewDesignation
+             ,ISNULL(SG.Name,PGD.UserName) as PreviousGrade
+            ,ISNULL(SGN.Name,NEWG.SalaryGrade) as NewGrade
+            
+            from
+            IncrementHistory IH
+            LEFT JOIN (
+            SELECT SM.SystemID,SM.EmpInfoSystemID,SM.EffectiveDate,SD.EntryAmount,SD.SalaryHeadID FROM SalaryInfoDefineMaster SM
+            LEFT JOIN SalaryInfoDefine SD ON SD.SalaryID=SM.SystemID
+            WHERE SM.EmpInfoSystemID='" + EmpSystemId + @"' AND SM.IsApproved=1
+            Union
+            SELECT SMB.SystemID,SMB.EmpInfoSystemID,SMB.EffectiveDate,SDB.EntryAmount,SDB.SalaryHeadID FROM SalaryInfoBackMaster SMB
+            LEFT JOIN SalaryInfoBack SDB ON SDB.SalaryID=SMB.SystemID
+            WHERE SMB.EmpInfoSystemID='" + EmpSystemId + @"'
+            ) salaryInfoTo on IH.EmpSystemID=salaryInfoTo.EmpInfoSystemID AND IH.ToEffectiveDate=salaryInfoTo.EffectiveDate --and IH.ToSalaryId=salaryInfoTo.SystemID
+            LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=salaryInfoTo.SalaryHeadID
+            
+            LEFT JOIN (
+            SELECT SM.SystemID,SM.EmpInfoSystemID,SM.EffectiveDate,SD.EntryAmount,SD.SalaryHeadID FROM SalaryInfoDefineMaster SM
+            LEFT JOIN SalaryInfoDefine SD ON SD.SalaryID=SM.SystemID
+            WHERE SM.EmpInfoSystemID='" + EmpSystemId + @"' AND SM.IsApproved=1
+            Union
+            SELECT SMB.SystemID,SMB.EmpInfoSystemID,SMB.EffectiveDate,SDB.EntryAmount,SDB.SalaryHeadID FROM SalaryInfoBackMaster SMB
+            LEFT JOIN SalaryInfoBack SDB ON SDB.SalaryID=SMB.SystemID
+            WHERE SMB.EmpInfoSystemID='" + EmpSystemId + @"'
+              ) salaryInfoFrom on IH.EmpSystemID=salaryInfoFrom.EmpInfoSystemID AND IH.FromEffectiveDate=salaryInfoFrom.EffectiveDate --and IH.FromSalaryId=salaryInfoFrom.SystemID
+            LEFT JOIN SalaryHead SH1 ON SH1.SalaryHeadID=salaryInfoFrom.SalaryHeadID
+            LEFT JOIN EmployeeInformation ei ON EI.SystemId=salaryInfoTo.EmpInfoSystemID
+			left join org.Department dep on dep.Id = ei.DepartmentId     
+            LEFT JOIN hkp.LegalDesignation LD ON IH.ToLegalDesignationId = LD.Id
+            left join (
+            --Select distinct dep.Id as DepartmentId, dep.UserName as Department ,mpb.Code
+            --from org.Position p
+            --left join mst.ManpowerBudget mpb on mpb.PositionId = p.Id
+            --left join org.Department dep on dep.Id = p.DepartmentId       
+			select dep.Id as DepartmentId, dep.UserName as Department ,mb.Code from MST.ManpowerBudget MB
+			LEFT JOIN [dbo].[EmployeeBudgetCodeHistory] H ON H.BudgetId=MB.Id AND H.Id=
+			(select top(1) Id from [dbo].[EmployeeBudgetCodeHistory] where BudgetId=MB.Id Order BY AddedDate DESC)
+			left join org.Position p on p.Id =mb.PositionId 
+			left join org.Department dep on dep.Id = p.DepartmentId 
+			where h.EmpSystemID='" + EmpSystemId + @"'
+            ) OLD on old.Code=IH.FromBudgetCode
+            left join (
+            --Select distinct dep.Id as DepartmentId, dep.UserName as Department ,mpb.Code
+            --from org.Position p
+            --left join mst.ManpowerBudget mpb on mpb.PositionId = p.Id
+            --left join org.Department dep on dep.Id = p.DepartmentId  
+			select dep.Id as DepartmentId, dep.UserName as Department ,e.BudgetCode Code from EmployeeInformation E 
+			left join mst.ManpowerBudget mpb on mpb.Id = e.BudgetCode
+			left join org.Department dep on dep.Id = e.DepartmentId  
+            ) NEW on NEW.Code=IH.ToBudgetCode  
+            left join (
+            select LSG.Id as SalaryGradeId, LSG.UserName SalaryGrade,LD.UserName LegalDesignation,LSGD.LegalDesignationId,lsgd.PlantId from [MST].[LegalSalaryGradeDesignation] LSGD
+            LEFT JOIN [SCS].[LegalSalaryGrade] LSG ON LSGD.LegalSalaryGradeId = LSG.Id
+            LEFT JOIN hkp.LegalDesignation LD ON LSGD.LegalDesignationId = LD.Id           
+            ) NEWG ON NEWG.LegalDesignationId = IH.ToLegalDesignationId and NEWG.PlantId=ei.PlantId            
+            left join (
+            select LSG.Id as SalaryGradeId,  LSG.UserName SalaryGrade,LD.UserName LegalDesignation,LSGD.LegalDesignationId,lsgd.PlantId from [MST].[LegalSalaryGradeDesignation] LSGD
+            LEFT JOIN [SCS].[LegalSalaryGrade] LSG ON LSGD.LegalSalaryGradeId = LSG.Id
+            LEFT JOIN hkp.LegalDesignation LD ON LSGD.LegalDesignationId = LD.Id            
+            ) OLDG ON OLDG.LegalDesignationId = IH.FROMLegalDesignationId and OLDG.PlantId=ei.PlantId
+            LEFT JOIN [SCS].[LegalSalaryGrade] PGD ON IH.LegalSalaryGradeId = PGD.Id 
+            LEFT JOIN HKP.LocalLanguage DP ON DP.DepartmentId =OLD.DepartmentId AND DP.LanguageId='" + languageId + @"'                                  
+            --LEFT JOIN HKP.LocalLanguage DPN ON DPN.DepartmentId =NEW.DepartmentId AND DPN.LanguageId='" + languageId + @"'
+            LEFT JOIN HKP.LocalLanguage DG ON DG.LegalDesignationId=OLDG.LegalDesignationId AND DG.LanguageId='" + languageId + @"'
+            LEFT JOIN HKP.LocalLanguage DGN ON DGN.LegalDesignationId=NEWG.LegalDesignationId AND DGN.LanguageId='" + languageId + @"'
+            LEFT JOIN HKP.LocalLanguage SG ON SG.LegalSalaryGradeId =OLDG.SalaryGradeId AND SG.LanguageId='" + languageId + @"'
+            LEFT JOIN HKP.LocalLanguage SGN ON SGN.LegalSalaryGradeId =NEWG.SalaryGradeId AND SGN.LanguageId='" + languageId + @"'
+
+			LEFT JOIN HKP.LocalLanguage LLD ON LLD.DepartmentId=ei.DepartmentId AND LLD.LanguageId='" + languageId + @"'
+			LEFT JOIN ORG.Department as NDept on NDept.Id=ei.DepartmentId
+
+            where IH.EmpSystemID='" + EmpSystemId + @"' and sh.HeadCategory='gross' and sh1.HeadCategory='gross'";
+            return _sqlRepository.GetDataTable(Sql);
+        }
+        private DataTable GetEmpHeaderInfo(string EmpSystemId, string languageId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string Sql = @"select 
+e.SystemId
+,e.EmployeeCode 
+,case when isnull(cg.Id,'')='' THEN isnull(E.EmployeeNameLocal,E.EmployeeName) ELSE EmployeeName END AS EmployeeName 
+,Format( e.DOJ,'dd-MMM-yyyy') as DateOfJoin
+,ISNULL(LDP.Name, d.UserName) as Department
+,ISNULL(LD.Name,LG.UserName) as DesignationName
+,ISNULL(LS.Name,s.UserName) as SectionName
+,ISNULL(LL.Name,L.UserName) as Line
+,ISNULL(LC.Name,C.UserName) as Category,
+E.EmpPicPath EmployeePic
+
+
+,e.EmploymentType as Agreement from EmployeeInformation as e
+left outer join ORG.Department as d on d.Id=e.DepartmentId
+left outer join HKP.LegalDesignation as LG on LG.Id=e.LegalDesignationId
+left outer join org.Section as S on S.Id=e.SectionId
+left join mst.ManpowerBudget mpb on mpb.Id = e.BudgetCode
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId = e.GivenDesignationId
+LEFT JOIN HKP.EmployeeCategory C ON C.Id = DM.EmployeeCategoryId
+left outer join ORG.line as L on L.Id=e.LineId 
+LEFT JOIN org.CompanyGroup  CG on e.GroupID=cg.Id and CG.LanguageId='" + languageId + @"'
+--LEFT JOIN HKP.LocalLanguage B ON B.DesignationId=E.GivenDesignationId AND PL.LanguageId='" + languageId + @"'
+LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.LanguageId='" + languageId + @"'
+ LEFT JOIN HKP.LocalLanguage LD ON LD.LegalDesignationId=E.LegalDesignationId AND LD.LanguageId='" + languageId + @"'
+ LEFT JOIN HKP.LocalLanguage LS ON LS.SectionId=e.SectionId  AND LS.LanguageId='" + languageId + @"'
+ LEFT JOIN HKP.LocalLanguage LL ON LL.LineId=e.LineId  AND LL.LanguageId='" + languageId + @"'
+ LEFT JOIN HKP.LocalLanguage LC ON LC.EmployeeCategoryId=e.EmployeeCategorySystemID  AND LC.LanguageId='" + languageId + @"'
+ where e.SystemId ='" + EmpSystemId + @"'";
+            return _sqlRepository.GetDataTable(Sql);
         }
     }
     public class EmployeeOperation

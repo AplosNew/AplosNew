@@ -269,9 +269,10 @@
         <div class="clearfix"></div>
         <div class="col-xs-12 col-sm-6 col-md-6">
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label" ng-show="checkedByList.length">{{productNew.labelCheckAndApproved}}</label>
+                <label class="col-sm-4 control-label">{{productNew.labelCheckAndApproved}}</label>@*ng-show="checkedByList.length"*@
                 <div class="col-sm-8 show-message">
-                    <div class="select-style" ng-show="checkedByList.length">
+                    <div class="select-style">
+                        @*ng-show="checkedByList.length"*@
                         <select id="CheckedBy" class="form-control" name="Checked By" ng-model="productNew.CheckedBy" tabindex="12">
                             <option ng-repeat="option in checkedByList" value="{{option.Value}}">{{option.Text}}</option>
                         </select>
