@@ -1,4 +1,5 @@
 ﻿using clsAttendance;
+using ConnectionManager.DAL;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
@@ -23,6 +24,7 @@ namespace Aplos.HumanResource
     {
         SqlRepository _sqlRepository;
         ConnectionManager.clsConnectionManager ConManager;
+        private ConManager objCon;
         clsEmployeeLoad objEL = new clsEmployeeLoad();
         public EmployeeProfile()
         {
@@ -2839,6 +2841,7 @@ Where EmpSystemId='"+ empId + "'";
 
             return 0;
         }
+
     }
     public class EmployeeOperation
     {

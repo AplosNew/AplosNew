@@ -387,6 +387,17 @@ namespace Aplos.Areas.Accounts.Controllers
                         throw new CustomException("Voucher Park Mode not allowed,  Voucher No '" + dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
                     }
 
+                    DataSet dsMaster2 = null;
+                    string setOffsql2 = @"SELECT VoucherNo from trn.InvoiceWriteOffDetail iwd JOIN trn.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId LEFT JOIN trn.Voucher v on v.Id = iw.VoucherId
+                                            WHERE InvoiceId in (select Id from trn.invoice where VoucherId = '" + voucherId + "')";
+                    objCon1 = new ConnectionManager.DAL.ConManager("1");
+                    objCon1.OpenDataSetThroughAdapter(setOffsql2, out dsMaster2, false, "1");
+
+                    if (dsMaster2.Tables[0].Rows.Count > 0)
+                    {
+                        throw new CustomException("Voucher Park Mode not allowed, Payment Voucher No '" + dsMaster2.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
+                    }
+
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
                 }

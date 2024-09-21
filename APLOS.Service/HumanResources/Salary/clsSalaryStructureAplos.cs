@@ -15514,7 +15514,9 @@ public class IncrementHistoryModel
     public string FromGivenDesignationId { get; set; }
     public string ToGivenDesignationId { get; set; }
     public string FromLegalDesignationId { get; set; }
-    public string ToLegalDesignationId { get; set; }
+    public string ToLegalDesignationId { get; set; }  
+    public string LegalSalaryGradeId { get; set; }
+    public string NewLegalSalaryGradeId { get; set; }
     public DateTime? FromEffectiveDate { get; set; }
     public DateTime? ToEffectiveDate { get; set; }
     public string FromBudgetCode { get; set; }

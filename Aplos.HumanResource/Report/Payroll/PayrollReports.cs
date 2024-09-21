@@ -4923,6 +4923,7 @@ namespace Library.HumanResource.Report.Payroll
 
 													Where A.HeadCategory In('Annual Bonus Retain')
 													ORDER BY A.EmpSystemId,A.YearNo,A.MonthNo";
+            
             DataTable dt = _sqlRepository.GetDataTable(strSql);
 
             Dictionary<string, List<DataRow>> dicBonus = new Dictionary<string, List<DataRow>>();

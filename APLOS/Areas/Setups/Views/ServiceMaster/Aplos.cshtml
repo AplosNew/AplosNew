@@ -66,16 +66,16 @@
                         </div>
                     </div>
                     @*<div class="form-group">
-                        <label class="col-sm-4 control-label">Dr Control<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <div class="input-group">
-                                <input type="text" ng-model="serviceMasterNew.DrActivityName" class="form-control" readonly>
-                                <span class="input-group-btn">
-                                    <button ng-click="popUp('Dr');" class="btn single-small-btn" ng-disabled="serviceMasterNew.CompanyId==null" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
-                                </span>
+                            <label class="col-sm-4 control-label">Dr Control<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group">
+                                    <input type="text" ng-model="serviceMasterNew.DrActivityName" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="popUp('Dr');" class="btn single-small-btn" ng-disabled="serviceMasterNew.CompanyId==null" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
                             </div>
-                        </div>
-                    </div>*@
+                        </div>*@
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Description</label>
                         <div class="col-sm-8">
@@ -136,16 +136,16 @@
                         </div>
                     </div>
                     @*<div class="form-group">
-                        <label class="col-sm-4 control-label">Cr Control<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <div class="input-group">
-                                <input type="text" ng-model="serviceMasterNew.CrActivityName" class="form-control" readonly>
-                                <span class="input-group-btn">
-                                    <button ng-click="popUp('Cr');" class="btn single-small-btn" ng-disabled="serviceMasterNew.CompanyId==null" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
-                                </span>
+                            <label class="col-sm-4 control-label">Cr Control<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group">
+                                    <input type="text" ng-model="serviceMasterNew.CrActivityName" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="popUp('Cr');" class="btn single-small-btn" ng-disabled="serviceMasterNew.CompanyId==null" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
                             </div>
-                        </div>
-                    </div>*@
+                        </div>*@
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Remarks</label>
                         <div class="col-sm-8">
@@ -161,6 +161,13 @@
                                     <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                 </label>
                             </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li><button style="margin-left: 5px;" ng-disabled="serviceMasterNew.Id==null" ng-click="GetServiceMasterGL();" class="btn"><i class="glyphicon glyphicon-eye-open" style="top: 1px;"></i>Service Master GL</button></li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -283,4 +290,181 @@
 
 <confirm-modal></confirm-modal>
 @Html.Partial("~/Areas/Accounts/Views/_GLBudgetActivityPopUp.cshtml")
- 
+<div class="modal fade site-modal in" id="ServiceMasterGLPOP" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Service Master GL<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div clas="row">
+
+                    <div class="modal-body form-elements form-horizontal">
+                        <div class="row" ng-form name="SMGLform">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Dr GL</label>
+                                    <div class="col-sm-8">
+                                        <div class="input-group">
+                                            <input tabindex="1" type="text" name="Dr GL" ng-model="ModelProcessPara.DrActivityName" class="form-control ng-pristine ng-valid ng-isolate-scope ng-empty ng-touched" readonly="">
+                                            <span class="input-group-btn">
+                                                <button ng-click="GetControlDrCrData('ControlDr');" class="btn single-small-btn" tabindex="305"><i class="glyphicon glyphicon-search"></i></button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Purchase Applicable</label>
+                                    <div class="col-sm-8">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="ModelProcessPara.PurchaseApplicable" tabindex="11">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Independent Applicable</label>
+                                    <div class="col-sm-8">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="ModelProcessPara.IndependentApplicable" tabindex="11">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Cr GL</label>
+                                    <div class="col-sm-8">
+                                        <div class="input-group">
+                                            <input tabindex="1" type="text" name="Cr GL" ng-model="ModelProcessPara.CrActivityName" class="form-control ng-pristine ng-valid ng-isolate-scope ng-empty ng-touched" readonly="">
+                                            <span class="input-group-btn">
+                                                <button ng-click="GetControlDrCrData('ControlCr');" class="btn single-small-btn" tabindex="305"><i class="glyphicon glyphicon-search"></i></button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Sales Applicable</label>
+                                    <div class="col-sm-8">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="ModelProcessPara.SalesApplicable" tabindex="11">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Active</label>
+                                    <div class="col-sm-8">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="ModelProcessPara.Active" tabindex="11">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="common-btn" style="padding-right: 15px;">
+                                <ul class="list-inline text-right">
+                                    <li><button ng-click="SaveGLData();" ng-disabled="serviceMasterNew.Id==null" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Save</button></li>
+                                    <li><button ng-click="CloseFormulaPopUp();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="11"></i> Close</button></li>
+                                </ul>
+                            </div>
+                            <div class="col-xs-12">
+                                <div class="table-responsive modal-table">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>ServiceMasterId</th>
+                                                <th>DrControlId</th>
+                                                <th>CrControlId</th>
+                                                <th>PurchaseApplicable</th>
+                                                <th>SalesApplicable</th>
+                                                <th>IndependentApplicable</th>
+                                                <th>Active</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="x in ServiceMasterGLList">
+                                                <td>{{x.ServiceMasterId}}</td>
+                                                <td>{{x.DrControlId}}</td>
+                                                <td>{{x.CrControlId}}</td>
+                                                <td>{{x.PurchaseApplicable?'Yes':'No'}}</td>
+                                                <td>{{x.SalesApplicable?'Yes':'No'}}</td>
+                                                <td>{{x.IndependentApplicable?'Yes':'No'}}</td>
+                                                <td>{{x.Active?'Yes':'No'}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="DrGLPoUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Dr GL<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row">
+                    <div style="color:black;" id="GridCDr" ej-grid e-datasource="ControlDrListData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="SelectDr" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="AccountGroupName" e-headertext="Account Group Name" e-width="80"></div>
+                            <div e-column e-field="GLGeneralInfoName" e-headertext="GL General Info Name" e-width="80"></div>
+                            <div e-column e-field="BudgetName" e-headertext="Budget Name" e-width="80"></div>
+                            <div e-column e-field="ActivityName" e-headertext="Activity Name" e-width="80"></div>
+                            <div e-column e-field="RefNo" e-headertext="RefNo" e-width="50"></div>
+                            <div e-column e-field="BudgetMasterActivityId" e-headertext="ControlId" e-width="50"></div>
+                        </div>
+                    </div>
+                    <div class="common-btn" style="padding-right: 15px;">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="CloseDr();" class="btn">Close</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="CrGLPoUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Cr GL<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row">
+                    <div style="color:black;" id="GridCCr" ej-grid e-datasource="ControlCrListData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="SelectCr" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="AccountGroupName" e-headertext="Account Group Name" e-width="80"></div>
+                            <div e-column e-field="GLGeneralInfoName" e-headertext="GL General Info Name" e-width="80"></div>
+                            <div e-column e-field="BudgetName" e-headertext="Budget Name" e-width="80"></div>
+                            <div e-column e-field="ActivityName" e-headertext="Activity Name" e-width="80"></div>
+                            <div e-column e-field="RefNo" e-headertext="RefNo" e-width="50"></div>
+                            <div e-column e-field="BudgetMasterActivityId" e-headertext="ControlId" e-width="50"></div>
+                        </div>
+                    </div>
+                    <div class="common-btn" style="padding-right: 15px;">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="CloseCr();" class="btn">Close</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

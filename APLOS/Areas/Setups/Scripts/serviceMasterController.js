@@ -348,6 +348,27 @@ function ServiceMasterController(commonMessage, $window, $scope, $rootScope, bas
             for (var i = 0; i < $scope.UploadedData.length; i++) {
                 $scope.UploadedData[i].Id = null;
                 $scope.UploadedData[i].Active = true;
+                if ($scope.UploadedData[i].PurchaseApplicable=="1") {
+                    $scope.UploadedData[i].PurchaseApplicable = true;
+                }
+                else {
+                    $scope.UploadedData[i].PurchaseApplicable = false;
+
+                }
+                if ($scope.UploadedData[i].SalesApplicable == "1") {
+                    $scope.UploadedData[i].SalesApplicable = true;
+                }
+                else {
+                    $scope.UploadedData[i].SalesApplicable = false;
+
+                }
+                if ($scope.UploadedData[i].IndependentApplicable == "1") {
+                    $scope.UploadedData[i].IndependentApplicable = true;
+                }
+                else {
+                    $scope.UploadedData[i].IndependentApplicable = false;
+
+                }
             }
             $http({
                 method: 'POST',
@@ -370,29 +391,6 @@ function ServiceMasterController(commonMessage, $window, $scope, $rootScope, bas
                 ShowResult(response.data.Message, 'failure');
             }
 
-
-            //$.ajax({
-            //    type: "POST",
-            //    url: $scope.path + 'SaveUploadedData',
-            //    data: {
-            //        'data': $scope.UploadedData
-            //    },
-            //    dataType: "json",
-            //    success: function (response) {
-            //        if (response.Error === true) {
-            //            $scope.ShowSaveBtn = true;
-            //            ShowResult(response.Message, 'failure');
-            //        }
-            //        else {
-            //            ShowResult(response.Message, 'success');
-            //            $scope.UploadedData = [];
-            //            $("#uploadImage").val(null);
-            //            $scope.ShowSaveBtn = false;
-            //        }
-
-            //    }
-            //});
-
         } catch (e) {
             $scope.ShowSaveBtn = false;
             ShowResult(e, 'failure');
@@ -401,4 +399,107 @@ function ServiceMasterController(commonMessage, $window, $scope, $rootScope, bas
     };
     //  #endregion Data Upload Download
 
+    $scope.ModelProcessPara = { Id: null, ServiceMasterId:null, DrControlId: null, CrControlId: null, PurchaseApplicable: false, IndependentApplicable: false, SalesApplicable: false,  Active: true, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+
+    $scope.ServiceMasterGLList = [];
+    $scope.GetServiceMasterGL = function () {
+        $scope.ServiceMasterGLList = [];
+        $http.get('Setups/ServiceMaster/GetServiceMasterGL?ServiceMasterId=' + $scope.serviceMasterNew.Id)
+            .then(function (response) {
+                $scope.ServiceMasterGLList = response.data;
+                angular.element(document.querySelector("#ServiceMasterGLPOP")).modal("show");
+            });
+    };
+
+    $scope.GetServiceMasterGLData = function () {
+        $scope.ServiceMasterGLList = [];
+        $http.get('Setups/ServiceMaster/GetServiceMasterGL?ServiceMasterId=' + $scope.serviceMasterNew.Id)
+            .then(function (response) {
+                $scope.ServiceMasterGLList = response.data;
+            });
+    };
+
+    $scope.ControlCrListData = [];
+    $scope.ControlDrListData = [];
+    $scope.GetControlDrCrData = function (tab) {
+        try {
+            if (baseService.isUndefinedOrNull($scope.serviceMasterNew.CompanyId)) {
+                throw "Select Company.";
+            }
+            $scope.TabName = tab;
+            $http({
+                method: 'GET',
+                url: 'Setups/ServiceMaster/getControlDrlist?tabName=' + $scope.TabName + '&companyId=' + $scope.serviceMasterNew.CompanyId,
+            }).then(function successCallback(response) {
+                if ($scope.TabName == "ControlCr") {
+                    $scope.ControlCrListData = response.data;
+                    angular.element(document.querySelector("#CrGLPoUp")).modal("show");
+                    var gridObj = $("#CrGLPoUp").data("ejGrid");
+                    gridObj.clearFiltering();  // clears all the filtering
+                } else {
+                    $scope.ControlDrListData = response.data;
+                    angular.element(document.querySelector("#DrGLPoUp")).modal("show");
+                    var gridObj = $("#DrGLPoUp").data("ejGrid");
+                    gridObj.clearFiltering();  // clears all the filtering
+                }
+
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.SelectDr = function (args) {
+        $scope.ModelProcessPara.DrAccountGroupName = args.data.AccountGroupName;
+        $scope.ModelProcessPara.DrActivityName = args.data.ActivityName;
+        $scope.ModelProcessPara.DrControlId = args.data.BudgetMasterActivityId;
+        angular.element(document.querySelector("#DrGLPoUp")).modal("hide");
+    }
+
+    $scope.SelectCr = function (args) {
+        $scope.ModelProcessPara.CrActivityName = args.data.ActivityName;
+        $scope.ModelProcessPara.CrAccountGroupName = args.data.AccountGroupName;
+        $scope.ModelProcessPara.CrControlId = args.data.BudgetMasterActivityId;
+        angular.element(document.querySelector("#CrGLPoUp")).modal("hide");
+    }
+
+    $scope.CloseDr = function () {
+        angular.element(document.querySelector("#DrGLPoUp")).modal("hide");
+    }
+
+    $scope.CloseCr = function () {
+        angular.element(document.querySelector("#DrGLPoUp")).modal("hide");
+    }
+
+
+    $scope.SaveGLData = function () {
+        try {
+            $scope.ModelProcessPara.ServiceMasterId = $scope.serviceMasterNew.Id;
+            var datatoSave = [];
+            datatoSave.push($scope.ModelProcessPara);
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SaveUploadedData',
+                data: { 'data': datatoSave},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ModelProcessPara = { Id: null, ServiceMasterId: null, DrControlId: null, CrControlId: null, PurchaseApplicable: false, IndependentApplicable: false, SalesApplicable: false, Active: true, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+                    $scope.GetServiceMasterGLData();
+                    datatoSave = [];
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            $scope.ShowSaveBtn = false;
+            ShowResult(e, 'failure');
+
+        }
+    };
 }
