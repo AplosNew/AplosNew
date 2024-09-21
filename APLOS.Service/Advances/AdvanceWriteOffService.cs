@@ -2241,7 +2241,7 @@ namespace Library.Service.Advances
                 if (null == advance)
                     throw new CustomException("Advance Id not found!");
                 advance.WrittenOffAmount += totalCrAmount;
-                advance.IsWrittenOff = advance.Amount == advance.WrittenOffAmount;
+                advance.IsWrittenOff = advance.Amount + advance.AdditionalAmount == advance.WrittenOffAmount;
                 advance.UpdatedBy = advanceWriteOff.AddedBy;
                 advance.UpdatedDate = advanceWriteOff.AddedDate;
                 advance.UpdatedFromIP = advanceWriteOff.AddedFromIP;
@@ -2251,9 +2251,9 @@ namespace Library.Service.Advances
                 if (null == advanceDetail)
                     throw new CustomException("Advance Detail Id not found!");
                 advanceDetail.WrittenOffAmount += totalCrAmount;
-                if (advanceDetail.Amount < advanceDetail.WrittenOffAmount)
+                if (advanceDetail.Amount + advanceDetail.AdditionalAmount < advanceDetail.WrittenOffAmount)
                     throw new CustomException("Invoice amount can not cross Advance amount.");
-                advanceDetail.IsWrittenOff = advanceDetail.Amount == advanceDetail.WrittenOffAmount;
+                advanceDetail.IsWrittenOff = advanceDetail.Amount + advanceDetail.AdditionalAmount == advanceDetail.WrittenOffAmount;
                 advanceDetail.UpdatedBy = advanceWriteOff.AddedBy;
                 advanceDetail.UpdatedDate = advanceWriteOff.AddedDate;
                 advanceDetail.UpdatedFromIP = advanceWriteOff.AddedFromIP;
@@ -2900,7 +2900,7 @@ namespace Library.Service.Advances
                     throw new CustomException("Advance Id not found!");
                 
                 advance.WrittenOffAmount += totalCrAmount;
-                advance.IsWrittenOff = advance.Amount == totalCrAmount;
+                advance.IsWrittenOff = advance.Amount + advance.AdditionalAmount == totalCrAmount;
                 advance.UpdatedBy = invoiceWriteOff.AddedBy;
                 advance.UpdatedDate = invoiceWriteOff.AddedDate;
                 advance.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
@@ -2911,10 +2911,10 @@ namespace Library.Service.Advances
                     throw new CustomException("Advance Detail Id not found!");
                 
                 advanceDetail.WrittenOffAmount += totalCrAmount;
-                if (advanceDetail.Amount < advanceDetail.WrittenOffAmount)
+                if (advanceDetail.Amount + advanceDetail.AdditionalAmount < advanceDetail.WrittenOffAmount)
                     throw new CustomException("Invoice amount can not cross Advance amount.");
                 
-                advanceDetail.IsWrittenOff = advanceDetail.Amount == advanceDetail.WrittenOffAmount ;
+                advanceDetail.IsWrittenOff = advanceDetail.Amount + advanceDetail.AdditionalAmount == advanceDetail.WrittenOffAmount ;
                 advanceDetail.UpdatedBy = invoiceWriteOff.AddedBy;
                 advanceDetail.UpdatedDate = invoiceWriteOff.AddedDate;
                 advanceDetail.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
