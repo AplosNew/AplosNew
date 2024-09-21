@@ -65,7 +65,12 @@ namespace Aplos.Areas.Setups.Controllers
             var sql = @"SELECT Code FROM HKP.HSNCode WHERE Id =(SELECT HSNCodeId FROM [HKP].[ServiceGroup] WHERE Id='" + groupId + "')";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
-
+        [HttpGet, Authorize]
+        public ActionResult GetServiceMasterGL(string ServiceMasterId)
+        {
+            var sql = @"SELECT * FROM [HKP].[ServiceMasterGL] Where ServiceMasterId='"+ ServiceMasterId + "'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
         [Authorize, HttpGet]
         public JsonResult GetAutoSequence()
         {
@@ -580,6 +585,50 @@ namespace Aplos.Areas.Setups.Controllers
         #endregion
 
         #region Upload Data
+
+        [Authorize, HttpGet]
+        public ActionResult GetControlDrlist(string tabName,string companyId)
+        {
+            try
+            {
+                var sql = "";
+                if (tabName == "ControlDr")
+                {
+                    sql = @"SELECT AG.UserName AS AccountGroupName, GLGI.Id AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                                    , BMA.BudgetMasterId, BM.RefNo, B.Code BudgetCode, B.UserName BudgetName, BMA.ActivityId, A.Code ActivityCode, A.UserName ActivityName 
+									,BMA.Active,BMA.Id BudgetMasterActivityId
+                                    FROM [MST].[BudgetMasterActivity] BMA
+									 JOIN [MST].[BudgetMaster] AS BM ON BM.Id=BMA.BudgetMasterId
+									LEFT JOIN [HKP].[Budget] B ON B.Id=BM.BudgetId
+									 JOIN [HKP].[Activity] A ON A.Id=BMA.ActivityId
+									LEFT JOIN  [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=BM.GLGeneralInfoId
+                                    LEFT JOIN [HKP].[GLCompanyInfo] AS GLCI ON GLCI.GLGeneralInfoId=GLGI.Id
+                                    LEFT JOIN [HKP].[AccountGroup] AS AG ON AG.Id=GLGI.AccountGroupId
+									WHERE GLGI.Archive=0 AND GLGI.Active=1 AND  GLCI.CompanyId='" + companyId + @"' AND BMA.Active=1 AND BM.Active=1";
+                }
+                else
+                {
+                    sql = @"SELECT AG.UserName AS AccountGroupName, GLGI.Id AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                                    , BMA.BudgetMasterId, BM.RefNo, B.Code BudgetCode, B.UserName BudgetName, BMA.ActivityId, A.Code ActivityCode, A.UserName ActivityName 
+									,BMA.Active,BMA.Id BudgetMasterActivityId
+                                    FROM [MST].[BudgetMasterActivity] BMA
+									 JOIN [MST].[BudgetMaster] AS BM ON BM.Id=BMA.BudgetMasterId
+									LEFT JOIN [HKP].[Budget] B ON B.Id=BM.BudgetId
+									 JOIN [HKP].[Activity] A ON A.Id=BMA.ActivityId
+									LEFT JOIN  [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=BM.GLGeneralInfoId
+                                    LEFT JOIN [HKP].[GLCompanyInfo] AS GLCI ON GLCI.GLGeneralInfoId=GLGI.Id
+                                    LEFT JOIN [HKP].[AccountGroup] AS AG ON AG.Id=GLGI.AccountGroupId
+									WHERE GLGI.Archive=0 AND GLGI.Active=1 AND  GLCI.CompanyId='" + companyId + @"' AND BMA.Active=1 AND BM.Active=1";
+                }
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetSampleFile(ReportFormat reportFormat)
         {
@@ -827,21 +876,26 @@ namespace Aplos.Areas.Setups.Controllers
             {
                 #region Entity 
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM [HKP].[ServiceMasterGL] where 1=1", out dsBC, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM [HKP].[ServiceMasterGL] where 1=2", out dsBC, false, "1");
 
                 if (data != null)
                 {
                     foreach (var item in data)
                     {
                         DataView dv = new DataView(dsBC.Tables[0]);
-                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        dv.RowFilter = "Id='" + Convert.ToInt64(item["Id"]) + "'";
+
                         if (dv.Count == 0)
                         {
-                            item["PurchaseApplicable"] = (item["PurchaseApplicable"].ToString() == "1") ? true : false;
-                            item["SalesApplicable"] = (item["SalesApplicable"].ToString() == "1") ? true : false;
-                            item["IndependentApplicable"] = (item["IndependentApplicable"].ToString() == "1") ? true : false;
-                            item["DrControlId"] = (item["DrControlId"].ToString() == null) ? DBNull.Value.ToString() : item["DrControlId"].ToString();
-                            item["CrControlId"] = (item["CrControlId"].ToString() == null) ? DBNull.Value.ToString() : item["CrControlId"].ToString();
+                            if (item["DrControlId"] == null || item["DrControlId"] == "")
+                            {
+                                item["DrControlId"] = null;
+                            }
+                            if (item["CrControlId"] == null|| item["CrControlId"] == "")
+                            {
+                                item["CrControlId"] = null;
+                            }
+
                             AddNewRow(dsBC.Tables[0], item);
                         }
                         else
@@ -850,6 +904,8 @@ namespace Aplos.Areas.Setups.Controllers
                             EditRow(drmo, item);
                         }
                     }
+
+
                 }
                 #endregion
                 OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
