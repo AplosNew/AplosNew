@@ -5184,6 +5184,7 @@
     <Content Include="Areas\SalesManagements\Views\InputCreditApprove.cshtml" />
     <Content Include="Areas\Products\Views\PurchaseOrder\_ServiceControlServiceMasterPopUp.cshtml" />
     <Content Include="Areas\SalesManagements\Views\SalesProcess.cshtml" />
+    <Content Include="Areas\Setups\Views\ServiceMaster\_ServiceMasterPopUpNew.cshtml" />
     <None Include="Reports\HumanResource\Payrolls\PayrollsDataSet.xsd">
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>PayrollsDataSet.Designer.cs</LastGenOutput>

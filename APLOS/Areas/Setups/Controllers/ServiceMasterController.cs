@@ -7,7 +7,9 @@ using Library.Data.Sql;
 using Library.Model.Enums;
 using Library.Model.Materials;
 using Library.Security.Core;
+using Library.Service.Enums;
 using Library.Service.Helpers;
+using Library.Service.Logs;
 using Library.Service.Materials;
 using OTSBD;
 using Syncfusion.XlsIO;
@@ -15,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
@@ -98,6 +101,40 @@ namespace Aplos.Areas.Setups.Controllers
                 throw new CustomException(Resources.IdNotFound);
         }
 
+        [HttpPost, Authorize]
+        public JsonResult GetServicePopUpList(string column, string value)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(GetServiceList(column, value, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+        public IEnumerable<object>  GetServiceList(string column, string value, string companyId)
+        {
+            try
+            {
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
+                        SELECT TOP 400 * FROM (SELECT ST.UserName ServiceType,SG.UserName ServiceGroup,SM.Id ServiceMasterid,SM.UserName ServiceName,GL.AccountCode GLCode,GL.UserName GL,B.UserName Budget
+                        ,A.UserName Activity,BM.GLGeneralInfoId,BMA.BudgetMasterId,BMA.ActivityId ,BM.RefNo,SMGL.DrControlId 
+                        FROM  HKP.ServiceMaster SM  
+                        LEFT JOIN HKP.ServiceGroup SG ON SG.Id=SM.ServiceGroupId
+                        LEFT JOIN HKP.ServiceType ST ON ST.Id=SG.ServiceTypeId
+                        LEFT JOIN HKP.ServiceMasterGL SMGL ON SMGL.ServiceMasterId=SM.Id
+                        LEFT JOIN MST.BudgetMasterActivity BMA ON BMA.Id=SMGL.DrControlId
+                        LEFT JOIN MST.BudgetMaster BM ON BM.Id=BMA.BudgetMasterId
+                        LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
+                        LEFT JOIN HKP.Activity A ON A.Id=BMA.ActivityId
+                        LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=BM.GLGeneralInfoId) AS TEMP WHERE " + strkey + " order by ServiceName ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
         #endregion -- Operations
 
         #region Service Control

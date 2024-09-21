@@ -2850,4 +2850,27 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         $scope.newJVList[$scope.indexGL].ActivityName = data.ActivityName;
         $scope.closeCOAICodeListPopUp();
     };
+
+
+    $scope.searchByService = "ServiceName"; $scope.searchService = "";
+    $scope.searchByServiceList = [{ value: 'ServiceName', name: "Service" }, { value: 'ServiceType', name: "Service Type" }, { value: 'ServiceGroup', name: "Service Group" }, { value: 'GLCode', name: "GL Code" }
+        , { value: 'GL', name: "GL" }, { value: 'Budget', name: "Budget" }, { value: 'Activity', name: "Activity" } ];
+
+    $scope.serviceLists = [];
+    $scope.getServiceDataList = function () {
+        $http({
+            method: 'POST',
+            url: 'SetUps/ServiceMaster/GetServicePopUpList',
+            data: { column: $scope.searchByService, value: $scope.searchService },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.serviceLists = response.data;
+        });
+        angular.element(document.querySelector('#ServicePopUp')).modal('show');
+    };
+    //$scope.getServiceDataList();
+
+    $scope.closeServiceDataPopUp = function () {
+        angular.element(document.querySelector("#ServicePopUp")).modal("hide");
+    };
 }

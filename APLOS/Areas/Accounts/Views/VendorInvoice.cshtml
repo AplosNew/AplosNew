@@ -264,6 +264,8 @@
     <div class="clearfix"></div>
     <div class="col-xs-12 col-sm-2 col-md-2" ng-show="voucher.PaymentSource=='@Library.Model.Payments.PaymentSource.GL.ToString()'">
         <button ng-click="popUp();" class="btn single-btn" ng-disabled="voucher.InvoiceType=='LC'"><i class="glyphicon glyphicon-plus"></i> Add GL</button>
+        <button ng-click="getServiceDataList();" class="btn"><i class="glyphicon glyphicon-plus"></i> Add  Charges</button>
+
     </div>
     <div class="col-xs-12 col-sm-2 col-md-2" ng-show="voucher.PaymentSource=='@Library.Model.Payments.PaymentSource.Loan.ToString()'">
         <button class="btn single-btn" ng-click="showloanPopUp()" tabindex="10"><i class="glyphicon glyphicon-plus"></i> Select Loan</button>
@@ -629,6 +631,7 @@
 @Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
 @*@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")*@
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
+@Html.Partial("~/Areas/SetUps/Views/ServiceMaster/_ServiceMasterPopUpNew.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_TaxCodePopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLMappingPopUp.cshtml")
 @Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
@@ -766,17 +769,17 @@
                         <input id="postingDate" type="text" datepicker name="Posting Date" ng-model="voucherdb.PostingDate" ng-disabled="true" class="form-control" tabindex="1">
                     </div>
                 </div>
-                <div class="form-group" >
+                <div class="form-group">
                     <label class="col-sm-6 control-label">Doc Date<sup>*</sup></label>
                     <div class="col-sm-6 show-message">
                         <input type="text" name="DocDate" datepicker ng-model="voucherdb.DocDate" ng-disabled="true" class="form-control" tabindex="3">
                     </div>
                 </div>
-                
+
 
             </div>
             <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group" >
+                <div class="form-group">
                     <label class="col-sm-6 control-label">Doc Ref<sup>*</sup></label>
                     <div class="col-sm-6 show-message">
                         <input type="text" maxlength="50" name="Doc Ref" ng-model="voucherdb.DocRefNo" class="form-control" tabindex="4" ng-disabled="true">
@@ -790,7 +793,7 @@
                 </div>
             </div>
             <div class="modal-body">
-                <div class="form-horizontal col-xs-12 col-sm-12 col-md-12" >
+                <div class="form-horizontal col-xs-12 col-sm-12 col-md-12">
                     <div class="form-group">
                         <label class="col-sm-2 control-label">Narration<sup>*</sup></label>
                         <div class="col-sm-10 show-message">
@@ -841,8 +844,8 @@
                     </ul>
                 </div>
             </div>
-            </div>
         </div>
+    </div>
 </div>
 
 @Html.Partial("~/Areas/Accounts/Views/_GLBudgetActivityPopUp.cshtml")
