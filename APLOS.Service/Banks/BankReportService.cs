@@ -387,7 +387,12 @@ namespace Library.Service.Banks
 
             sheet.Range[row, colNaration].VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[row, colNarationValue].VerticalAlignment = ExcelVAlign.VAlignTop;
+            row++;
 
+            int colEntityNo = colVoucherNo;
+            int colEntityNoValue = colVoucherNoValue;
+            reportUtility.SetMasterHeaderText(ref sheet, row, colEntityNo, "Entity");
+            reportUtility.SetText(ref sheet, row, colEntityNoValue, header["Entity"].ToString());
 
 
             int colDocRef = colVoucherDate;
