@@ -2871,4 +2871,67 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
     $scope.closeServiceDataPopUp = function () {
         angular.element(document.querySelector("#ServicePopUp")).modal("hide");
     };
+
+    $scope.ServiceGLSelect = function (obj) {
+        $scope.model = obj.data;
+        $scope.selectedInvoiceGLId = $scope.model.GLGeneralInfoId;
+        $scope.selectedInvoiceGLName = $scope.model.GLGeneralInfoName;
+        $scope.selectedInvoiceGLCode = $scope.model.GLGeneralInfoCode;
+        $scope.voucherDetail.BudgetMasterId = $scope.model.BudgetMasterId;
+        $scope.voucherDetail.ServiceMasterId = $scope.model.ServiceMasterId;
+        $scope.voucherDetail.BudgetName = $scope.model.BudgetName;
+        $scope.voucherDetail.ActivityId = $scope.model.ActivityId;
+        $scope.voucherDetail.ActivityName = $scope.model.ActivityName;
+        $scope.voucherDetail.IsOrderSpecific = $scope.model.IsOrderSpecific;
+        $scope.voucherDetail.ActivityOrderType = $scope.model.ActivityOrderType;
+        $scope.voucherDetail.ValueOfDistribution = $scope.model.ValueOfDistribution;
+        $scope.voucherDetail.AccountType = $scope.model.AccountType;
+        $scope.addServiceGLRow();
+        $scope.closeServiceDataPopUp();
+    };
+    $scope.addServiceGLRow = function () {
+        if (baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
+            ShowResult("Please select Currency!", "failure");
+            return true;
+        }
+        if (baseService.isUndefinedOrNull($scope.selectedInvoiceGLId)) {
+            ShowResult("Please select GL.", "failure");
+            return;
+        }
+        var getRow = null;
+        if ($scope.partyType === "Vendor") {
+            if ($scope.companyConfig.IsVoucherFromBudget) {
+                getRow = $filter("filter")($scope.voucherDetailList, { "TrnType": "Dr", "GLGeneralInfoId": $scope.selectedInvoiceGLId, "BudgetMasterId": $scope.voucherDetail.BudgetMasterId, "ActivityId": $scope.voucherDetail.ActivityId });
+            }
+            else
+                getRow = $filter("filter")($scope.voucherDetailList, { "TrnType": "Dr", "GLGeneralInfoId": $scope.selectedInvoiceGLId });
+        }
+
+        if (!baseService.isUndefinedOrNull(getRow) && getRow.length > 0 && getRow[0].GLGeneralInfoId === $scope.selectedInvoiceGLId) {
+            ShowResult("This GL Budget and Activity is already added!", "failure");
+        }
+        else {
+            $scope.voucherDetail.Id = baseService.pk();
+            $scope.voucherDetail.GLGeneralInfoId = $scope.selectedInvoiceGLId;
+            $scope.voucherDetail.GLGeneralInfoCode = $scope.selectedInvoiceGLCode;
+            $scope.voucherDetail.GLGeneralInfoName = $scope.selectedInvoiceGLName;
+            $scope.voucherDetail.PostingWithoutTaxAllow = $scope.selectedInvoiceGLPostingWithoutTaxAllow;
+
+            $scope.voucherDetail.DocDate = $scope.voucher.DocDate;
+            $scope.voucherDetail.DocRefNo = $scope.voucher.DocRefNo;
+            $scope.voucherDetail.Narration = $scope.voucher.Narration;
+            $scope.voucherDetail.EntityId = $scope.voucher.EntityId;
+            $scope.voucherDetail.PlantId = $scope.voucher.PlantId;
+           
+            $scope.voucherDetail.Amount = null;
+            $scope.voucherDetail.TotalTax = null;
+            $scope.voucherDetail.TotalAmount = null;
+
+            $scope.voucherDetail.TrnType = $scope.partyType === "Customer" ? "Cr" : "Dr";
+            $scope.voucherDetail.InvoiceTaxViewModel = [];
+            $scope.voucherDetailList.splice(0, 0, $scope.voucherDetail);
+            clearVoucherDetail();
+            $scope.searchStr = null;
+        }
+    };
 }
