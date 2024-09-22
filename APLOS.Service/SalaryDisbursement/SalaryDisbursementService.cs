@@ -291,6 +291,7 @@ namespace Library.Service.SalaryDisbursement
 
                 var directVoucherData = voucherVM;
                 var InDirectVoucherData = voucherVM;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 //**************Insert Direct Salary JV****************
                 _unitOfWork.BeginTransaction();
@@ -299,6 +300,11 @@ namespace Library.Service.SalaryDisbursement
                 {
                     directVoucherData.DocRefNo = "D" + voucherVM.DocRefNo;
                     directVoucherData.Narration = "Direct Salary for the month of " + monthName + " " + yearNo;
+                    //AuditService.PostedLog(directVoucherData);
+
+                    //directVoucherData.PostedBy = identity.Name;
+                    //directVoucherData.PostedFromIP = identity.IPAddress;
+                    //directVoucherData.PostedDate = System.DateTime.Now.ToString();
                     var voucherdirect = _voucherService.InsertVoucher(directVoucherData);
                     directVoucherId = voucherdirect.Id;
 
@@ -808,6 +814,7 @@ namespace Library.Service.SalaryDisbursement
                 {
                     InDirectVoucherData.DocRefNo = "I" + voucherVM.DocRefNo;
                     InDirectVoucherData.Narration = "InDirect Salary for the month of " + monthName + " " + yearNo;
+                    //AuditService.PostedLog(InDirectVoucherData);
                     var voucherI = _voucherService.InsertVoucher(InDirectVoucherData);
                     InDirectVoucherId = voucherI.Id;
 

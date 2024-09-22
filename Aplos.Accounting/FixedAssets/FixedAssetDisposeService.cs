@@ -272,6 +272,7 @@ namespace Library.Accounting.FixedAssets
                     SourceType = SourceType.FixedAssetDisposeJournal.ToString(),
                     VoucherTypeId = voucherVM.VoucherTypeId
                 };
+                AuditService.PostedLog(voucher);
                 _accountsCommonService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);
                
                     invoice.VoucherId = voucher.Id;
@@ -487,6 +488,7 @@ namespace Library.Accounting.FixedAssets
                     SourceType = SourceType.FixedAssetDisposeJournal.ToString(),
                     VoucherTypeId = voucherVM.VoucherTypeId
                 };
+                AuditService.PostedLog(voucher);
                 _accountsCommonService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);
 
                 var currentVoucherDetaiRecord = 0;
@@ -655,6 +657,7 @@ namespace Library.Accounting.FixedAssets
                     SourceType = SourceType.FixedAssetDisposeJournal.ToString(),
                     VoucherTypeId = voucherVM.VoucherTypeId
                 };
+                AuditService.PostedLog(voucher);
                 _accountsCommonService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);
 
                 var currentVoucherDetaiRecord = 0;
@@ -2179,6 +2182,7 @@ namespace Library.Accounting.FixedAssets
                     SourceType = SourceType.FixedAssetCapitalizeJournal.ToString(),
                     VoucherTypeId = voucherVM.VoucherTypeId
                 };
+                AuditService.PostedLog(voucher);
                 _accountsCommonService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);
 
                 var currentVoucherDetaiRecord = 0;
@@ -2740,6 +2744,7 @@ namespace Library.Accounting.FixedAssets
                     SourceType = SourceType.DepreciationJournal.ToString(),
                     VoucherTypeId = voucherVM.VoucherTypeId
                 };
+                AuditService.PostedLog(voucher);
                 _accountsCommonService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);
 
                 var currentVoucherDetaiRecord = 0;
