@@ -289,10 +289,10 @@ namespace Library.Service.Invoices
                         VoucherTypeId = voucherVM.VoucherTypeId,
                     };
                     voucher.TransactionRefNo = DateTime.Now.Year.ToString().Substring(2) + voucher.Id;
-                    voucher.PostedBy = receiveData.AddedBy;
-                    voucher.PostedFromIP = invoice.AddedFromIP;
-                    voucher.PostedDate = invoice.AddedDate;
-                    _voucherService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix);
+                    voucher.AddedBy = receiveData.AddedBy;
+                    voucher.AddedFromIP = invoice.AddedFromIP;
+                    voucher.AddedDate = invoice.AddedDate;
+                    _voucherService.InsertVoucherDirectPost(voucher, voucherVM.FiscalYearPrefix,true);
 
                     receiveData.VoucherId = voucher.Id;
                     receiveData.InvoiceNo = voucherVM.InvoiceNo;
