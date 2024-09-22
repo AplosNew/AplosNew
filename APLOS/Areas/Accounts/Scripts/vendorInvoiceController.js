@@ -2868,8 +2868,6 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         });
         angular.element(document.querySelector('#ServicePopUp')).modal('show');
     };
-    //$scope.getServiceDataList();
-
     $scope.closeServiceDataPopUp = function () {
         angular.element(document.querySelector("#ServicePopUp")).modal("hide");
     };
