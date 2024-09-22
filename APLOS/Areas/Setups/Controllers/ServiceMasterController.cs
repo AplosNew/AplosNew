@@ -120,8 +120,9 @@ namespace Aplos.Areas.Setups.Controllers
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
                 var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
-                        SELECT TOP 400 * FROM (SELECT ST.UserName ServiceType,SG.UserName ServiceGroup,SM.Id ServiceMasterid,SM.UserName ServiceName,GL.AccountCode GLCode,GL.UserName GL,B.UserName Budget
-                        ,A.UserName Activity,BM.GLGeneralInfoId,BMA.BudgetMasterId,BMA.ActivityId ,BM.RefNo,SMGL.DrControlId 
+                        SELECT TOP 400 * FROM (SELECT ST.UserName ServiceType,SG.UserName ServiceGroup,SM.Id ServiceMasterid,SM.UserName ServiceName,GL.AccountCode GLGeneralInfoCode
+						,GL.UserName GLGeneralInfoName,B.UserName BudgetName,A.UserName ActivityName,BM.GLGeneralInfoId
+                        ,BMA.BudgetMasterId,BMA.ActivityId ,BM.RefNo,SMGL.DrControlId,A.IsOrderSpecific,A.ActivityOrderType,A.ValueOfDIstribution 
                         FROM  HKP.ServiceMaster SM  
                         LEFT JOIN HKP.ServiceGroup SG ON SG.Id=SM.ServiceGroupId
                         LEFT JOIN HKP.ServiceType ST ON ST.Id=SG.ServiceTypeId
