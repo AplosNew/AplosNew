@@ -1,0 +1,52 @@
+﻿<div class="modal fade site-modal in" id="ServicePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header"> Service List <button type="button" class="close" ng-click="closeServiceDataPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchByService">
+                                            <option ng-repeat="option in searchByServiceList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchService" ng-enter="getServiceDataList()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getServiceDataList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+                        <div style="color:black;" id="ServiceGrid" ej-grid e-datasource="serviceLists" e-recorddoubleclick="ServiceGLSelect"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="ServiceType" e-headertext="ServiceType" e-width="50" e-filter="false"></div>
+                                <div e-column e-field="ServiceGroup" e-headertext="ServiceGroup" e-width="130"></div>
+                                <div e-column e-field="ServiceName" e-headertext="ServiceName" e-width="130"></div>
+                                <div e-column e-field="GLGeneralInfoCode" e-headertext="GLCode" e-width="50"></div>
+                                <div e-column e-field="GLGeneralInfoName" e-headertext="GL" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="BudgetName" e-headertext="Budget" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="ActivityName" e-headertext="Activity" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="RefNo" e-headertext="RefNo" e-width="80" textAlign='Right'></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closeServiceDataPopUp();" class="btn"> Close</button></li>
+                </ul>
+                @*<i>**Showing top 100 {{partyType}} order by Code</i>*@
+            </div>
+        </div>
+    </div>
+</div>

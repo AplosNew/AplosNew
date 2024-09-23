@@ -1899,7 +1899,7 @@ namespace Aplos.Areas.Employees.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                employeeProfile.GetIncrementHistory(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, empId, "Permanent", reportType, tempId);//, strPathHindi, strPathEnglish, strPathBangla);
+                _employeeProfileService.EmployeeIncrementHistory(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, empId, "Permanent", reportType, tempId);//, strPathHindi, strPathEnglish, strPathBangla);
 
             }
             catch (Exception ex)
