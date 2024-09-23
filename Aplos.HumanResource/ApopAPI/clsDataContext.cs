@@ -6112,6 +6112,7 @@ and EmployeeCode = '" + EmpSysId + "' order by AddedDate Desc ";
         {
             try
             {
+                string NewBudget = null, NewWorkdate = null, NewEmpSystem = null;
                 DataSet dsMaster;
                 string TableName = "dbo.TempBudgetCodeChange";
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -6147,13 +6148,27 @@ and EmployeeCode = '" + EmpSysId + "' order by AddedDate Desc ";
 
                         dsMaster.Tables[0].Rows.Add(dr);
 
+                        NewBudget = item.NewBudgetId;
+                        NewWorkdate = item.WorkDate;
+                        NewEmpSystem = item.EmpSystemId;
+
                     }
 
+                   
 
                 }
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
                 string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                string strSQL = "Update [dbo].AttdnProcessData set BudgetId= " + NewBudget + " WHERE EmpSystemID = " + NewEmpSystem + " AND WorkDate='" + NewWorkdate + "'";
+
+
+                con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenConnection("1");
+                con.BeginTransaction();
+                con.ExecuteNonQueryWrapper(strSQL, true, "1");
+                con.CommitTransaction();
 
                 return MasterId;
 
@@ -6212,6 +6227,7 @@ and EmployeeCode = '" + EmpSysId + "' order by AddedDate Desc ";
         {
             try
             {
+                string NewBudget = null, NewWorkdate = null, NewEmpSystem = null;
                 DataSet dsMaster;
                 //  string TableName = "dbo.AttdnProcessData";
 
@@ -6243,6 +6259,10 @@ and EmployeeCode = '" + EmpSysId + "' order by AddedDate Desc ";
 
                         dr.EndEdit();
 
+                        NewBudget = item.NewBudgetId;
+                        NewWorkdate = item.WorkDate;
+                        NewEmpSystem = item.EmpSystemId;
+
                     }
                 }
 
@@ -6250,6 +6270,15 @@ and EmployeeCode = '" + EmpSysId + "' order by AddedDate Desc ";
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
                 string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                string strSQL = "Update [dbo].AttdnProcessData set BudgetId= " + NewBudget + " WHERE EmpSystemID = " + NewEmpSystem + " AND WorkDate='" + NewWorkdate + "'";
+
+
+                con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenConnection("1");
+                con.BeginTransaction();
+                con.ExecuteNonQueryWrapper(strSQL, true, "1");
+                con.CommitTransaction();
 
                 return MasterId;
 
