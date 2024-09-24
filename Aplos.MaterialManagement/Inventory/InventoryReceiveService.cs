@@ -6512,7 +6512,7 @@ namespace Library.MaterialManagement.Inventory
             string strSQL;
             try
             {
-                strSQL = @"select InventoryServiceId,IR.Id PurchaseOrderId,tg.Code AS TaxCode,IRT.Percentage, IRT.TaxAmount
+                strSQL = @"select InventoryServiceId,IR.Id PurchaseOrderId,TaxCode=case when ir.OtherPartyRCMApplicable=1 then 'RCM' else tg.Code end,IRT.Percentage, IRT.TaxAmount
                     from TRN.InventoryReceive IR
                               INNER JOIN trn.InventoryService ISER ON ISER.InventoryReceiveId = IR.Id
                               Inner join trn.InventoryReceiveTax IRT ON IRT.InventoryReceiveId = IR.Id and IRT.InventoryServiceId = ISER.Id

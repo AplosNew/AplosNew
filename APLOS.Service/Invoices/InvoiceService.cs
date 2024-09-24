@@ -2092,7 +2092,8 @@ namespace Library.Service.Invoices
                                 PostingWithoutTaxAllow = invoice.IsExcludingTax,
                                 TrnNature = TransactionNature.Purchases.ToString(),
                                 PaymentSource = PaymentSource.GL.ToString(),
-                                CostCenterId = voucherDetailVM.CostCenterId
+                                CostCenterId = voucherDetailVM.CostCenterId,
+                                ServiceMasterId = voucherDetailVM.ServiceMasterId
                             };
                             currentVoucherDetailId++;
                             _voucherService.InsertVoucherDetail(voucher, voucherDetailDr, currentVoucherDetailId);
