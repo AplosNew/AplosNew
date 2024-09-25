@@ -410,6 +410,12 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         try {
             if ($scope.ModelNew.CheckedStatus == 'Checked' || $scope.ModelNew.ApprovedStatus == 'Approved') {
                 throw "Checked or Approved data can't be updated!";
+            } else {
+                for (var i = 0; i < $scope.GoodWorkList.length; i++) {
+                    if ($scope.GoodWorkList[i].Minute > $scope.GoodWorkList[i].OverStay) {
+                        throw "Good Work Minute can't greater then Over Stay.";
+                    }
+                }
             }
 
             $scope.$broadcast('show-errors-check-validity');

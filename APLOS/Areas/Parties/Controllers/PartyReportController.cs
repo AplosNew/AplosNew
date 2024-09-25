@@ -34,6 +34,7 @@ namespace Aplos.Areas.Parties.Controllers
             return View("~/Areas/Parties/Views/interpartyLeadger.cshtml");
         }
 
+
         [HttpGet, Authorize]
         public ActionResult GetPartyLedgerReport(ReportFormat reportFormat, PartyType partyType, string partyId, string partyPlantId, string gSTINId, string fromDate, string toDate, string glId, bool active, string reportLongSize)
         {

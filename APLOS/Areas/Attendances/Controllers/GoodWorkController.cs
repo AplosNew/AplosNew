@@ -143,7 +143,7 @@ namespace Aplos.Areas.Attendances.Controllers
                          LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
 						 left join dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate='" + workDate + @"'
                          WHERE  EI.PlantId='" + identity.PlantId + @"'  " + ec + @"  " + dep + @"  " + sec + @"   " + subsec + @"   " + des + @" " + userGr + @"
-                         and ei.SystemId in (select EmpSystemID from dbo.AttdnProcessData where ShiftSystemId='" + shiftId + @"' and WorkDate='" + workDate + @"')  
+                          AND ei.SystemId in (select EmpSystemID from dbo.AttdnProcessData where ShiftSystemId='" + shiftId + @"' and WorkDate='" + workDate + @"')  
                         AND ei.SystemId IN(Select EmployeeId From [dbo].[ExceptionGoodWorkEmployee] where GoodWorkSetUpId = '" + userGroupId + @"')
                         and EI.EmployeeStatus='Active' and EI.BudgetCode in (SELECT BudgetId FROM dbo.GoodWorkBudgetSetup where GoodWorkSetUpId = '" + userGroupId + @"')
                         AND ei.SystemId NOT IN(select GWD.EmpSystemId  from GoodWork GW left join GoodworkDetail GWD on GW.Id=GWD.GoodWorkId where GW.WorkDate between '" + workDate + @"' AND '" + workDate + @"')
