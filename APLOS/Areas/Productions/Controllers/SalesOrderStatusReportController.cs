@@ -464,8 +464,9 @@ namespace Aplos.Areas.Productions.Controllers
                             left join
                             (
                             Select SalesOrderId , SUM(isnull(sm.TransactionQty , 0)) as DispatchQty
-                            from trn.SalesMaterial sm
-                            group by SalesOrderId
+                            from trn.SalesMaterial sm 
+							where SalesId <> 'MS20241392' 
+                            group by SalesOrderId 
                             ) as sm on sm.SalesOrderId = so.Id
 
                             left join (select PLI.SOId, sum(isc.NetWeight) ScanQty
@@ -486,7 +487,7 @@ namespace Aplos.Areas.Productions.Controllers
 							from TRN.ProductionSummary GROUP BY ProductionOrderId) PFLB ON PFLB.ProductionOrderId=POR.Id
 							left join HKP.ProductionStatus PST on PST.Id=POR.ProductionStatusId
 
-                            where SO.Id in(" + parameters["SOId"] + @")
+                            where SO.Id <> 'ms20241392' and  SO.Id in(" + parameters["SOId"] + @")
                             AND ISNULL(OS.UserName,'') in(" + parameters["OrderStatus"] + @")
                             AND SO.OrderCategoryId in(" + parameters["OrderCategoryId"] + @")
                             AND SO.ResponsiblePersonId in(" + parameters["ResponsiblePersonId"] + @")

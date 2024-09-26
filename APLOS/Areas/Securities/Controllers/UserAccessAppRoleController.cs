@@ -53,7 +53,7 @@ where E.EmployeeStatus = 'Active'";
                 string TableNameHead = "SEC.AppRoleMapping";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from SEC.AppRoleMapping where UserId = '" + data["UserId"] + "' AND RoleId= '" + data["RoleId"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from SEC.AppRoleMapping where EmployeeId = '" + data["EmployeeId"] + "' AND RoleId= '" + data["RoleId"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Name already exists!!!");
 
