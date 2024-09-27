@@ -91,7 +91,7 @@ namespace Aplos.Areas.Materials.Controllers
 select format(UT.Date,'yyyy-MM-dd') TransactionDate, UT.UtilityMasterId , UM.UserName UtilityMasterName,isnull(UMSS.Id,'') InputSouceId,isnull(UMSS.UserName,'') InputSouceName,   isnull(UT.MultiplyingFactor,0)*UT.Quantity TransactionQuantity , isnull(UMS.Reading,0) SumOfChild
 ,(isnull(UT.MultiplyingFactor,0)*UT.Quantity) - isnull(UMS.Reading,0) NetQty , UG.UserName UtilityGroup
 ,Rate = isnull((select Top 1 Rate from UtilityDetail where EffectiveDate Between @Fromdate and @Todate and UtilityMasterId = UM.Id Order by AddedDate desc),0)
-,Um.UtilityCategory,UM.UtilitySubCategory , UOM.UserName UOM , UT.Quantity , UT.MultiplyingFactor , UT.Remarks ,UT.Id
+,Um.UtilityCategory,UM.UtilitySubCategory , UOM.UserName UOM , UT.Quantity , UT.MultiplyingFactor , UT.Remarks ,UT.Id , ET.UserName Entity
 from UtilityTransaction UT
 left join (select format(UT.Date,'yyyy-MM-dd') [Date], UM.InPutSourceId , UMSS.UserName InputSouce, sum(isnull(UT.MultiplyingFactor,0)*UT.Quantity) Reading 
 			from UtilityTransaction UT 
@@ -99,6 +99,7 @@ left join (select format(UT.Date,'yyyy-MM-dd') [Date], UM.InPutSourceId , UMSS.U
 			left join UtilityMaster UMSS on UMSS.Id = UM.InPutSourceId
 			Group by [Date],UM.InPutSourceId ,UMSS.UserName ) UMS on UMS.Date = UT.Date and UMS.InPutSourceId = UT.UtilityMasterId
 			left join UtilityMaster UM on UM.Id	= UT.UtilityMasterId
+			left join org.Entity ET on ET.Id = UM.EntityId
 			left join UtilityMaster UMSS on UMSS.Id = UM.InPutSourceId 
 			left join hkp.UtilityGroup UG on UG.Id = UM.UtilityGroupId
             left join [SCS].[UnitOfMeasurement] UOM on UOM.Id = UT.UoMId
@@ -144,6 +145,11 @@ left join (select format(UT.Date,'yyyy-MM-dd') [Date], UM.InPutSourceId , UMSS.U
                 sheet[ROW, COL].Text = "TransactionDate";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int ColDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Entity";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColEntity = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "UtilityMasterName";
@@ -267,6 +273,7 @@ left join (select format(UT.Date,'yyyy-MM-dd') [Date], UM.InPutSourceId , UMSS.U
                 for (int i = 0; i < data.Count; i++)
                 {
                     sheet[ROW, ColDate].Text = data[i]["TransactionDate"].ToString(); 
+                    sheet[ROW, ColEntity].Text = data[i]["Entity"].ToString(); 
                     sheet[ROW, ColMasterName].Text = data[i]["UtilityMasterName"].ToString(); 
                     sheet[ROW, ColSourceName].Text = data[i]["InputSouceName"].ToString();
                     sheet[ROW, ColTrnQty].Number = clsStaticInfo.dbl(data[i]["TransactionQuantity"].ToString());
