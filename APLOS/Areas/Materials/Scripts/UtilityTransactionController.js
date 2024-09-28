@@ -108,6 +108,7 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
         $scope.ModelNew.MultiplyingFactor = obj.data.MultiplyingFactor;
         $scope.ModelNew.UoMId = obj.data.UoMId;
         $scope.ModelNew.UoM = obj.data.UoM;
+        $scope.ModelNew.InPutSourceId = obj.data.InPutSourceId;
 
         $scope.GetEditReadingList();
         $scope.GetUoMAndReadingApplicable();

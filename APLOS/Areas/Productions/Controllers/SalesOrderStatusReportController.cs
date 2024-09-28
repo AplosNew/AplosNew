@@ -464,8 +464,7 @@ namespace Aplos.Areas.Productions.Controllers
                             left join
                             (
                             Select SalesOrderId , SUM(isnull(sm.TransactionQty , 0)) as DispatchQty
-                            from trn.SalesMaterial sm 
-							where SalesId <> 'MS20241392' 
+                            from trn.SalesMaterial sm  
                             group by SalesOrderId 
                             ) as sm on sm.SalesOrderId = so.Id
 
