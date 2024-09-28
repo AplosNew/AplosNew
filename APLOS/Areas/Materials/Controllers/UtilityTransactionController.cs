@@ -61,7 +61,7 @@ namespace Aplos.Areas.Materials.Controllers
             string sql = @"select top(1000) UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],UM.Id UtilityMasterId,UM.UserName UtilityMaster,UT.Quantity
 							            ,UT.Reading,UOM.Id UoMId,UOM.UserName UoM,UT.Quantity,UT.Reading
                                         ,UT.LastReading,FORMAT(UT.LastReadingDate,'dd-MMM-yyyy')LastReadingDate,CONVERT(varchar(5),UT.LastReadingTime,108) LastReadingTime
-                                        ,UT.Remarks, UM.MultiplyingFactor
+                                        ,UT.Remarks, UM.MultiplyingFactor,UT.InputSourceId
 							            from dbo.UtilityTransaction UT
 										left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
 										left join SCS.UnitOfMeasurement UOM on UOM.Id=UM.UoMId
@@ -88,7 +88,7 @@ namespace Aplos.Areas.Materials.Controllers
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
                 var sql = @"select top 1000 * from (select distinct UM.Id as UtilityMasterId, UM.UserName as UtilityMaster,UOM.UserName UoM,UM.IsReadingApplicable,C.LastReading
-								,UG.UserName UtilityGroup,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory,UM.MultiplyingFactor,UM.UoMId
+								,UG.UserName UtilityGroup,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory,UM.MultiplyingFactor,UM.UoMId,UM.InPutSourceId
 
                                 from UtilityMaster UM
                                 left join SCS.UnitOfMeasurement UOM on UOM.Id=UM.UoMId
