@@ -92,7 +92,8 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             try
             {
-                return Json(new { Error = "No", Data = rm.Save(data, PlantId, ResidenceGroupId, Emp, ServiceTypeId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+                rm.Save(data, PlantId, ResidenceGroupId, Emp, ServiceTypeId);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
             }
             catch (Exception e)
             {

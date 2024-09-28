@@ -6,21 +6,10 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.ModelList = [];
     $scope.path = 'HumanResource/ResidenceMaster/';
     $scope.getListUrl = $scope.path + 'getlist';
-    $scope.saveUrl = $scope.path + 'Save';    
-    $scope.deleteUrl = $scope.path + 'delete/';   
-    baseService.init($scope.getListUrl);
+    $scope.saveUrl = $scope.path + 'Save';
+    $scope.deleteUrl = $scope.path + 'delete/';
 
-    //  #region Tab change
-    $scope.tab = 1;
-    $scope.setTab = function (newTab) {
-        $scope.tab = newTab;
-
-
-    };
-    $scope.isSet = function (tabNum) {
-        return $scope.tab === tabNum;
-    };
-     //  #endregion Tab change
+    
 
     // POP CLOSED FOR PLANT
     $scope.closePlantPop = function () {
@@ -83,7 +72,7 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
     }
     $scope.getData();
 
-    
+
 
     $scope.getPlant = function () {
         $http({
@@ -166,19 +155,19 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
         angular.element(document.querySelector('#PlantPop')).modal('show');
     }
 
-   
+
 
     // SAVE OPERATION
 
     $scope.ModalTemp = {
-       
+
         Location: null,
         Id: null,
         ResidenceCategory: null,
         ResidenceSubCategory: null,
         PlantId: null,
         EmployeeCategoryId: null,
-        ResidenceGroupId:null,
+        ResidenceGroupId: null,
         Block: null,
         Floor: null,
         ResidenceNumber: null,
@@ -191,17 +180,18 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
     };
     $scope.ModalNew = Object.assign({}, $scope.ModalTemp);
 
-   
+
     //$scope.Get = function (args) {
     //    $scope.ModalNew = Object.assign({}, args.data);
-       
+
     //    $scope.Action = 'Update';
-        
+
     //};
 
     $scope.Get = function (args) {
 
         $scope.ModalNew = Object.assign({}, args.data);
+        $scope.dependency();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -210,30 +200,37 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
     };
 
     $scope.Save = function () {
-        $http({
-            method: 'POST',
-           url: $scope.saveUrl,
-            data: {
-                'data': $scope.ModalNew,
-                'PlantId': $scope.SelectedPlantId,
-                'ResidenceGroupId': $scope.ResidenceGroupId,
-                'Emp': $scope.EmployeeCatId,
-                'ServiceTypeId': $scope.ServiceId,
-            },
-            dataType: 'JSON',
-        }).then(function successCallback(response) {
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.ModalNewForm.$valid) {
+                $http({
+                    method: 'POST',
+                    url: $scope.saveUrl,
+                    data: {
+                        'data': $scope.ModalNew,
+                        'PlantId': $scope.SelectedPlantId,
+                        'ResidenceGroupId': $scope.ResidenceGroupId,
+                        'Emp': $scope.EmployeeCatId,
+                        'ServiceTypeId': $scope.ServiceId,
+                    },
+                    dataType: 'JSON',
+                }).then(function successCallback(response) {
 
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');               
-                $scope.getData();               
-                ClearFields();
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.getData();
+                        ClearFields();
 
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
             }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
 
     };
@@ -263,8 +260,8 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
             Vacancy: null,
             AssetName: null,
             Remarks: null,
-            isActive: null,
-            Rent:null,
+            isActive: true,
+            Rent: null,
         };
 
         $scope.ModalNew = Object.assign({}, $scope.ModalTemp);
@@ -284,16 +281,16 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
         }, {
             BookId: '4',
             VacancyStatusName: 'All'
-        }, ];
+        },];
 
         $scope.GetSelectedValue = function () {
             if ($scope.SelectedBook) {
                 $scope.selectedVacancyStatusName = $scope.SelectedVacancyStatus.VacancyStatusName;
-               
+
             }
             else {
                 $scope.selectedVacancyStatusName = 'Please select Vacancy Status';
-               
+
             }
         }
     });
@@ -309,7 +306,7 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
                     'Value': 'Joint',
                     'Text': 'Joint'
                 }
-               
+
             ];
         }
         if ($scope.ModalNew.ResidentType == "Bachelor") {
@@ -323,7 +320,7 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
                     'Value': 'Female',
                     'Text': 'Female'
                 }
-               
+
             ];
         }
     }
@@ -378,7 +375,7 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
         $http({
             method: 'POST',
             url: $scope.path + 'getPositionTabGridData',
-            dataType:'JSON'
+            dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.PositionTabgridList = response.data;
         })

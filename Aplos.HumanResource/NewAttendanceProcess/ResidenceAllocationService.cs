@@ -103,14 +103,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                if (data["PlantId"] == null)
-                {
-                    throw new Exception("Please Select Plant Id !!");
-                }
-                if (data["ResidenceGroupId"] == null)
-                {
-                    throw new Exception("Please SelectResidenceGroup Id!!");
-                }
+                
                 // Unique User Validation
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where ResidenceNumber='" + data["ResidenceNumber"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 //if (dsMaster.Tables[0].Rows.Count > 0)
@@ -123,26 +116,17 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                     #region data Master update
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 bplib.clsGenID genid = new bplib.clsGenID();
+
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     genid.GenID(TableName, out _Id);
 
                     data["Id"] = "RM" + _Id;
-                    //data["PlantId"] = PlantId;
-                    //data["ResidenceGroupId"] = ResidenceGroupId;
-                    //data["EmployeeCategoryId"] = Emp;
-                    //data["EmpServiceTypeId"] = ServiceTypeId;
                     AddNewRow(dsMaster.Tables[0], data);
-
-
                 }
                 else
                 {
                     _Id = data["Id"].ToString();
-                    data["PlantId"] = PlantId;
-                    data["ResidenceGroupId"] = ResidenceGroupId;
-                    data["EmployeeCategoryId"] = Emp;
-                    data["EmpServiceTypeId"] = ServiceTypeId;
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 #endregion data Master update

@@ -3,11 +3,11 @@
                 <div class="row">
                     <input type="hidden" name="Id" ng-model="ModalNew.Id">
                     <div class="col-xs-12 col-sm-6 col-md-6">
-                        <div class="form-group">
+                        <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
-                            <div class="col-sm-6">
+                            <div class="col-sm-6 show-message">
                                 <div class="select-style">
-                                    <select class="form-control" id="Plant" ng-model="ModalNew.PlantId" required name="Residence Type" tabindex="0">
+                                    <select class="form-control" id="Plant" ng-model="ModalNew.PlantId" required name="Plant" tabindex="0">
 
                                         <option value="">--Select--</option>
                                         <option ng-repeat="option in PlantList" value="{{option.Value}}">{{option.Text}}</option>
@@ -15,18 +15,14 @@
                                     </select>
 
                                 </div>
-                                @*<input type="text" name="Plant" ng-model="Plant" class="form-control" maxlength="200" tabindex="5" ng-disabled="true">
-                                <div class="col-sm-2">
-                                    <button ng-click="openPlantPop()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
-                                </div>*@
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Location<sup>*</sup></label>
-                            <div class="col-sm-6">
+                            <div class="col-sm-6 show-message">
                                 @*<input type="text" name="Location" ng-model="ModalNew.Location" class="form-control" maxlength="200" tabindex="5">*@
                                 <div class="select-style">
-                                    <select class="form-control" id="Location" ng-model="ModalNew.Location" required name="Residence Type"
+                                    <select class="form-control" id="Location" ng-model="ModalNew.Location" required name="Location"
                                             tabindex="2">
                                         <option value="">--Select--</option>
                                         <option value="Guest House">Guest House</option>
@@ -41,7 +37,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Residence Type<sup>*</sup></label>
                             <div class="col-sm-6 show-message">
                                 <div class="select-style">
@@ -55,17 +51,17 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Block<sup>*</sup></label>
-                            <div class="col-sm-6">
-                                <input type="text" name="Block" ng-model="ModalNew.Block" class="form-control" maxlength="200" tabindex="5">
+                            <div class="col-sm-6 show-message">
+                                <input type="text" name="Block" ng-model="ModalNew.Block" class="form-control" maxlength="200" required tabindex="5">
 
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Floor<sup>*</sup></label>
-                            <div class="col-sm-6">
+                            <div class="col-sm-6 show-message">
                                 <div class="select-style">
                                     <select class="form-control" id="Floor" ng-model="ModalNew.Floor" required name="Floor" tabindex="2">
                                         <option value="">--Select--</option>
@@ -85,10 +81,10 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Residence Number<sup>*</sup></label>
-                            <div class="col-sm-6">
-                                <input type="text" name="Residence Number" ng-model="ModalNew.ResidenceNumber" class="form-control" maxlength="200" tabindex="5">
+                            <div class="col-sm-6 show-message">
+                                <input type="text" name="Residence Number" ng-model="ModalNew.ResidenceNumber" class="form-control" required maxlength="200" tabindex="5">
                             </div>
                         </div>
 
@@ -113,9 +109,9 @@
                     </div>
 
                     <div class="col-xs-12 col-sm-6 col-md-6">
-                        <div class="form-group">
+                        <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Residence Group<sup>*</sup></label>
-                            <div class="col-sm-6">
+                            <div class="col-sm-6 show-message">
                                 <div class="select-style">
                                     <select class="form-control" id="ResidenceGroup" ng-model="ModalNew.ResidenceGroupId" required name="Residence Group" tabindex="2">
 
@@ -130,11 +126,11 @@
                         </div>
 
 
-                        <div class="form-group">
+                        <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Employee Type<sup>*</sup></label>
-                            <div class="col-sm-6">
+                            <div class="col-sm-6 show-message">
                                 <div class="select-style">
-                                    <select class="form-control" id="EmployeeCategoryId" ng-model="ModalNew.EmployeeCategoryId" required name="Residence Type" tabindex="4">
+                                    <select class="form-control" id="EmployeeCategoryId" ng-model="ModalNew.EmployeeCategoryId" required name="Employee Type" tabindex="4">
                                         <option value="">--Select--</option>
                                         <option ng-repeat="option in EmployeeCategoryList" value="{{option.value}}">{{option.Text}}</option>
 
@@ -143,11 +139,11 @@
                             </div>
 
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Residence Category<sup>*</sup></label>
                             <div class="col-sm-6 show-message">
                                 <div class="select-style">
-                                    <select class="form-control" id="ResidenceSubCategory" ng-model="ModalNew.ResidenceCategory" required name="Residence Sub Category" tabindex="2">
+                                    <select class="form-control" id="ResidenceSubCategory" ng-model="ModalNew.ResidenceCategory" required name="Residence Category" tabindex="2">
                                         <option value="">--Select--</option>
                                         <option ng-repeat="option in residenceCategoryList" value="{{option.Value}}">{{option.Text}}</option>
 
@@ -155,26 +151,26 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Rooms<sup>*</sup></label>
-                            <div class="col-sm-6">
-                                <input type="number" name="Rooms" ng-model="ModalNew.Rooms" class="form-control" maxlength="200" tabindex="5">
+                            <div class="col-sm-6 show-message">
+                                <input type="number" name="Rooms" ng-model="ModalNew.Rooms" class="form-control" required maxlength="200" tabindex="5">
                             </div>
                         </div>
 
 
 
-                        <div class="form-group">
+                        <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Vacancy<sup>*</sup></label>
-                            <div class="col-sm-6">
-                                <input type="number" name="Vacancy" ng-model="ModalNew.Vacancy" class="form-control" maxlength="200" tabindex="5">
+                            <div class="col-sm-6 show-message">
+                                <input type="number" name="Vacancy" ng-model="ModalNew.Vacancy" class="form-control" required maxlength="200" tabindex="5">
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Asset Name<sup>*</sup></label>
-                            <div class="col-sm-6">
-                                <input type="text" name="Asset Name" ng-model="ModalNew.AssetName" class="form-control" maxlength="200" tabindex="5">
+                            <div class="col-sm-6 show-message">
+                                <input type="text" name="Asset Name" ng-model="ModalNew.AssetName" class="form-control" required maxlength="200" tabindex="5">
                             </div>
                         </div>
 
