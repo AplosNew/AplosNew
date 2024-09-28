@@ -502,4 +502,101 @@ function ServiceMasterController(commonMessage, $window, $scope, $rootScope, bas
 
         }
     };
+
+    //  #region  Data Upload Download
+    $scope.GetTDSSampleFile = function () {
+        var ReportFormat = 'Excel';
+        location.href = $scope.path + 'GetTDSSampleFile?reportFormat=' + ReportFormat;
+    };
+    $scope.UploadedTDSData = [];
+    $scope.picdata = null;
+    $scope.ShowSaveBtn = false;
+    $("#uploadImage2").change(function () {
+        $scope.picdata = this.files[0];
+    });
+
+   
+    $scope.ImportTDSData = function () {
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.ModelNewTDSForm.$valid) {
+                var picData = new FormData();
+                $http({
+                    method: 'POST',
+                    url: $scope.path + 'ImportTDSData',
+                    headers: { 'Content-Type': undefined },
+                    transformRequest: function (data) {
+                        picData.append("modelNew", angular.toJson(data.modelNew));
+                        if (baseService.isUndefinedOrNull($scope.picdata) === false) {
+                            picData.append('file', data.file);
+                        }
+                        return picData;
+                    },
+                    data: {
+                        'file': $scope.picdata
+
+                    }
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        $scope.ShowSaveBtn = false;
+                        ShowResult(response.data.Message, "failure");
+
+                    }
+                    else {
+                        $scope.UploadedTDSData = [];
+                        $scope.UploadedTDSData = response.data;
+                        $scope.ShowSaveBtn = true;
+                    }
+                }, function errorCallback(response) {
+
+                });
+                return true;
+
+            }
+        } catch (e) {
+
+            ShowResult(e, "failure");
+        }
+    };
+    $scope.SaveUploadedTDSData = function () {
+        try {
+            for (var i = 0; i < $scope.UploadedTDSData.length; i++) {
+                if (baseService.isUndefinedOrNull($scope.UploadedTDSData[i].ServiceMasterId)) {
+                    throw "ServiceMasterId is required.";
+                }
+                if (baseService.isUndefinedOrNull($scope.UploadedTDSData[i].TaxCodeId)) {
+                    throw "TaxCodeId is required.";
+                }
+                $scope.UploadedTDSData[i].Id = null;
+                $scope.UploadedTDSData[i].Active = true;
+            }
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SaveUploadedTDSData',
+                data: {
+                    'data': $scope.UploadedTDSData
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.UploadedTDSData = [];
+                    $("#uploadImage2").val(null);
+                    $scope.ShowSaveBtn = false;
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            $scope.ShowSaveBtn = false;
+            ShowResult(e, 'failure');
+
+        }
+    };
+    //  #endregion Data Upload Download TDS
+
 }
