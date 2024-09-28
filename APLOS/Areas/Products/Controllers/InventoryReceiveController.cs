@@ -1254,6 +1254,7 @@ namespace Aplos.Areas.Products.Controllers
         public JsonResult OtherVendorServiceChargesCreate(InventoryMaterialViewModel entity, IEnumerable<InventoryReceiveTax> taxCategoryList)
         {
             if(string.IsNullOrEmpty(entity.OtherPartyId)) throw new CustomException("Please Input Other Party !!");
+            if(string.IsNullOrEmpty(entity.OtherPartyPlantId)) throw new CustomException("Please Input Other Party Plant !!");
             if(string.IsNullOrEmpty(entity.OtherPartyDocRefNo)) throw new CustomException("Please Input Other Party DocRefNo !!");
             if (entity.OtherPartyRCMApplicable)
             {

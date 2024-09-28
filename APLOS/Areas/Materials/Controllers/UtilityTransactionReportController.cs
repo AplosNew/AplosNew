@@ -93,14 +93,14 @@ select format(UT.Date,'yyyy-MM-dd') TransactionDate, UT.UtilityMasterId , UM.Use
 ,Rate = isnull((select Top 1 Rate from UtilityDetail where EffectiveDate Between @Fromdate and @Todate and UtilityMasterId = UM.Id Order by AddedDate desc),0)
 ,Um.UtilityCategory,UM.UtilitySubCategory , UOM.UserName UOM , UT.Quantity , UT.MultiplyingFactor , UT.Remarks ,UT.Id , ET.UserName Entity
 from UtilityTransaction UT
-left join (select format(UT.Date,'yyyy-MM-dd') [Date], UM.InPutSourceId , UMSS.UserName InputSouce, sum(isnull(UT.MultiplyingFactor,0)*UT.Quantity) Reading 
+left join (select format(UT.Date,'yyyy-MM-dd') [Date], UT.InPutSourceId , UMSS.UserName InputSouce, sum(isnull(UT.MultiplyingFactor,0)*UT.Quantity) Reading 
 			from UtilityTransaction UT 
 			left join UtilityMaster UM on UM.Id = UT.UtilityMasterId 
-			left join UtilityMaster UMSS on UMSS.Id = UM.InPutSourceId
-			Group by [Date],UM.InPutSourceId ,UMSS.UserName ) UMS on UMS.Date = UT.Date and UMS.InPutSourceId = UT.UtilityMasterId
+			left join UtilityMaster UMSS on UMSS.Id = UT.InPutSourceId
+			Group by [Date],UT.InPutSourceId ,UMSS.UserName ) UMS on UMS.Date = UT.Date and UMS.InPutSourceId = UT.UtilityMasterId
 			left join UtilityMaster UM on UM.Id	= UT.UtilityMasterId
 			left join org.Entity ET on ET.Id = UM.EntityId
-			left join UtilityMaster UMSS on UMSS.Id = UM.InPutSourceId 
+			left join UtilityMaster UMSS on UMSS.Id = UT.InPutSourceId 
 			left join hkp.UtilityGroup UG on UG.Id = UM.UtilityGroupId
             left join [SCS].[UnitOfMeasurement] UOM on UOM.Id = UT.UoMId
 			where UT.[Date] Between @Fromdate and  @Todate and UM.UtilityGroupId = @UtilityGroupid and UM.Active = 1";
