@@ -56,7 +56,7 @@
 <togglable name="Production Order"></togglable>
 <div class="form-horizontal form-elements" ng-form="modelNewForm" id="mainPOContainer">
     <div class="col-xs-6 col-sm-6 col-md-6" id="ProductionEntity">
-       
+
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Planning Type Process<sup>*</sup></label>
             <div class="col-sm-8 show-message">
@@ -68,7 +68,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Required Time Unit<sup>*</sup></label>
             <div class="col-sm-8 show-message">
@@ -224,8 +224,8 @@
             <div class="row" ng-form="tabFrom2">
                 <div class="col-xs-12">
                     <ul class="common-btn list-inline text-left">
-                        <li><button ng-click="processSetPopUp();" ng-disabled="model.EntityId==null" class="btn"><i class="glyphicon glyphicon-plus"></i> Process Set</button></li>
-                        <li><button ng-click="processPopUp();" ng-disabled="model.EntityId==null" class="btn"><i class="glyphicon glyphicon-plus"></i> Production Process</button></li>
+                        <li><button ng-click="processSetPopUp();" ng-disabled="model.EntityId==null ||model.UsedInPB==true" class="btn"><i class="glyphicon glyphicon-plus"></i> Process Set</button></li>
+                        <li><button ng-click="processPopUp();" ng-disabled="model.EntityId==null ||model.UsedInPB==true" class="btn"><i class="glyphicon glyphicon-plus"></i> Production Process</button></li>
                     </ul>
                 </div>
                 <div class="col-xs-12 table-responsive modal-table" ng-show="prdProcessSetList.length>0">

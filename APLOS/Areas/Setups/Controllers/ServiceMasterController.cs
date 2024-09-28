@@ -955,6 +955,277 @@ namespace Aplos.Areas.Setups.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
+
+
+        [HttpGet, Authorize]
+        public ActionResult GetTDSSampleFile(ReportFormat reportFormat)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            IWorkbook workbook = GetTDSSampleFileServiceMaster(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName);
+            var reportFileName = "Service Master TDS Data upload Sample File";
+
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+
+        }
+
+        public IWorkbook GetTDSSampleFileServiceMaster(string Name, string CompanyGroupId, string PlantId, string CompanyId, string PlantName)
+        {
+            #region declare
+            clsReport objRpt = null;
+            OTSBD.clsStaticInfo objStatic = null;
+            objStatic = new OTSBD.clsStaticInfo();
+            string OTConsiderOn = string.Empty;
+
+            #endregion
+            try
+            {
+                ReportUtility ru = new ReportUtility();
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                var workbook = ru.GetWorkbook(ref excelEngine, 1);
+                workbook.Version = ExcelVersion.Excel2013;
+
+                objRpt = new clsReport();
+                string toDay = DateTime.Now.ToString("dd-MMM-yyyy");
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(2);
+
+                int xlsRow = 1, xlsCol = 1;
+                int endXlsCol = 1;
+
+                #region Lunch Out
+                IWorksheet sheet1 = null;
+                sheet1 = workbook.Worksheets[0];
+                IWorksheet sheetSource = null;
+                sheetSource = workbook.Worksheets[1];
+                xlsRow = 1;
+
+                #region ------------------Column Header------------------
+
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceMasterId"); int colServiceMasterId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "TaxCodeId"); int colDrControlId = xlsCol; xlsCol += 1;
+                endXlsCol = xlsCol;
+
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
+
+                xlsRow++;
+
+                #endregion ------------------Column Header------------------
+
+                #region UsedRange Alignment
+
+                sheet1.UsedRange.WrapText = true;
+                sheet1.UsedRange.CellStyle.Font.Size = 10;
+                sheet1.Range["A1"].CellStyle.Font.Size = 10;
+                sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+
+                #endregion UsedRange Alignment
+
+                #region Page Setup
+                sheet1.PageSetup.TopMargin = 0.5;
+                sheet1.PageSetup.BottomMargin = 0.7;
+                sheet1.PageSetup.PrintTitleRows = "$1:$5";
+                sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + Name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                sheet1.PageSetup.LeftMargin = 0.5;
+                sheet1.PageSetup.RightMargin = 0.2;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet1.PageSetup.FitToPagesTall = 0;
+                sheet1.PageSetup.FitToPagesWide = 1;
+                sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet1.IsDisplayZeros = false;
+                sheet1.Name = "Sheet1";
+                #endregion Page Setup
+
+                #endregion  Lunch Out
+
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult ImportTDSData(FormCollection form)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                List<UploadedTDSDataViewModel> data = new List<UploadedTDSDataViewModel>();
+
+                var file = Request.Files["file"];
+
+                if (file != null)
+                {
+                    var extension = Path.GetExtension(file.FileName);
+                    if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
+                    {
+
+                    }
+                    else
+                        throw new CustomException(Resources.ExcelUploadError);
+                }
+                else
+                {
+                    throw new CustomException(Resources.ExcelUploadError);
+                }
+                string path = "";
+                if (file != null)
+                {
+                    path = Path.Combine(ResourcesPathReader.GetAttendanceRawData(), file.FileName);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                        file.SaveAs(path);
+                    }
+                    else
+                    {
+                        file.SaveAs(path);
+                    }
+                }
+                FileInfo docFile;
+                string exception = "\r\n";
+                try
+                {
+                    try
+                    {
+                        string connString = string.Empty;
+                        ExcelEngine excelEngine = null;
+                        IApplication application = null;
+                        IWorkbook workbook = null;
+
+                        excelEngine = new ExcelEngine();
+                        application = excelEngine.Excel;
+                        workbook = excelEngine.Excel.Workbooks.Open(path);
+
+                        DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
+                        DataSet dsExcel = new DataSet();
+                        dsExcel.Tables.Add(dt);
+
+
+                        docFile = new FileInfo(path);
+                        if (docFile.Exists)
+                        {
+                            exception += "\r\nTrying to delete";
+                            docFile.Delete();
+                        }
+
+                        if (dsExcel.Tables[0].Rows.Count > 0)
+                        {
+                            for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
+                            {
+                                UploadedTDSDataViewModel vm = new UploadedTDSDataViewModel();
+
+                                vm.ServiceMasterId = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
+                                vm.TaxCodeId = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
+
+                                data.Add(vm);
+
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("Please Select File");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                        docFile = new FileInfo(path);
+                        if (docFile.Exists)
+                        {
+                            docFile.Delete();
+                        }
+                        throw (ex);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    //throw ex;
+                }
+                finally
+                {
+                }
+                JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SaveUploadedTDSData(List<Dictionary<string, object>> data)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            bplib.clsGenID genid = new bplib.clsGenID();
+            DataSet dsBC;
+            string _Id = string.Empty;
+            try
+            {
+                #region Entity 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM [HKP].[ServiceMasterTDS] where 1=2", out dsBC, false, "1");
+
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsBC.Tables[0]);
+                        dv.RowFilter = "Id='" + Convert.ToInt64(item["Id"]) + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            
+                            AddNewRow(dsBC.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+
+
+                }
+                #endregion
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsBC);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
         #endregion
     }
 
@@ -966,6 +1237,13 @@ namespace Aplos.Areas.Setups.Controllers
         public string PurchaseApplicable { get; set; }
         public string SalesApplicable { get; set; }
         public string IndependentApplicable { get; set; }
+
+    }
+
+    public class UploadedTDSDataViewModel
+    {
+        public string ServiceMasterId { get; set; }
+        public string TaxCodeId { get; set; }
 
     }
 }
