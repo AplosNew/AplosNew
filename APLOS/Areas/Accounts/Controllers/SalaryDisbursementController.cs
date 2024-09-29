@@ -181,7 +181,7 @@ namespace Aplos.Areas.Accounts.Controllers
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
-            voucherVM.IsPark = false;
+            voucherVM.IsPark = true;
             int year = Int32.Parse(yearNo);
             int month = Int32.Parse(monthNo);
 
@@ -817,6 +817,12 @@ namespace Aplos.Areas.Accounts.Controllers
         //    voucherVM.SourceType = SourceType.FinalSettlementJournal.ToString();
         //    return Json(new { Message = string.Format(AplosMessage.VoucherSave, _salaryDisbursementService.ParkFinalSettlementDisbursement(voucherVM, directJVList, disbursementAdviceId)) });
         //}
+        [HttpPost]
+        public JsonResult PostSalaryPayable(string voucherId)
+        {
+            _salaryDisbursementService.PostSalarydisbursement(voucherId);
+            return Json(new { Message = AplosMessage.Posted });
+        }
         [HttpPost]
         public JsonResult PostFinalSettlementdisbursement(string voucherId)
         {
