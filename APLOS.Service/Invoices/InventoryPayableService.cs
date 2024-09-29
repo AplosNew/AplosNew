@@ -346,7 +346,8 @@ namespace Library.Service.Invoices
                                 DocDate = voucherVM.DocDate,
                                 DocRefNo = voucherVM.DocRefNo,
                                 Narration = voucherDetailVM.Narration,
-                                PostingWithoutTaxAllow = invoice.IsExcludingTax
+                                PostingWithoutTaxAllow = invoice.IsExcludingTax,
+                                EntityId = voucherDetailVM.EntityId
                             };
                             totalAmountDr += voucherDr.DrAmount;
                             voucherDetailVM.Id = voucherDr.Id;
@@ -354,7 +355,7 @@ namespace Library.Service.Invoices
                             _voucherService.InsertVoucherDetail(voucher, voucherDr, currentVoucherDetaiRecord);
 
                             foreach (var item in inventoryReceiveDetailVMList.Where(r => r.GLGeneralInfoId == voucherDr.GLGeneralInfoId
-                            && r.BudgetMasterId == voucherDr.BudgetMasterId && r.ActivityId == voucherDr.ActivityId))
+                            && r.BudgetMasterId == voucherDr.BudgetMasterId && r.ActivityId == voucherDr.ActivityId && r.EntityId == voucherDr.EntityId))
                             {
                                 var inventoryReceiveDetail = _inventoryReceiveDetailRepository.Find(item.InventoryReceiveDetailId);
                                 var CrGLBAct = inventoryPayableVMList.Where(r => r.InventoryReceiveDetailId == item.InventoryReceiveDetailId).FirstOrDefault();
