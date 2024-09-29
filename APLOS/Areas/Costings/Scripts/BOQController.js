@@ -82,8 +82,15 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
     $scope.materialType = 'BOM';
     $scope.SelectedMaterial = {};
     $scope.getMaterial = function (data) {
-        $scope.SelectedMaterial = data;
-        $scope.getMaterialMasterbyTypePopUp();
+        try {
+            if (data.UsedBOQ == true) {
+                throw "Material and Article clould not change while used in PO.";
+            }
+            $scope.SelectedMaterial = data;
+            $scope.getMaterialMasterbyTypePopUp();
+        } catch (e) {
+            ShowResult(e, 'failure', 'articleSearchPop');
+        }
     };
     $scope.selectMaterialByType = function (ob) {
 
@@ -106,6 +113,9 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
     };
     $scope.selectarticle = function (ob) {
         try {
+            if (data.UsedBOQ == true) {
+                throw "Material and Article clould not change while used in PO.";
+            }
 
             $scope.SelectedMaterial.MaterialMasterId = ob.MaterialMasterId;
             $scope.SelectedMaterial.Material = ob.MaterialMasterName;
