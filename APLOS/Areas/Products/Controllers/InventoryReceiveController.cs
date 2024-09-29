@@ -1253,14 +1253,23 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
         public JsonResult OtherVendorServiceChargesCreate(InventoryMaterialViewModel entity, IEnumerable<InventoryReceiveTax> taxCategoryList)
         {
+            if(string.IsNullOrEmpty(entity.OtherPartyId)) throw new CustomException("Please Input Other Party !!");
+            if(string.IsNullOrEmpty(entity.OtherPartyPlantId)) throw new CustomException("Please Input Other Party Plant !!");
             if(string.IsNullOrEmpty(entity.OtherPartyDocRefNo)) throw new CustomException("Please Input Other Party DocRefNo !!");
             if (entity.OtherPartyRCMApplicable)
             {
+                var number = taxCategoryList.Count();
                 foreach (var item in taxCategoryList)
                 {
-                    if (item.TaxAmount == 0)
+                    if (item.TaxAmount == 0 && number==1)
                     {
                         item.TaxAmount = Math.Round( Convert.ToDecimal(entity.TransactionAmount * 5 / 100),2);
+                        item.Percentage = 5;
+                    }
+                    else
+                    {
+                        item.TaxAmount = Math.Round(Convert.ToDecimal(entity.TransactionAmount * 5 / 200), 2);
+                        item.Percentage = Convert.ToDecimal(2.5);
                     }
                 }
             }

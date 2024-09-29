@@ -70,7 +70,7 @@
                                 <div class="common-btn">
                                     <ul class="list-inline small">
                                         <li>
-                                            <button ng-click="$parent.getMaterial(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                            <button ng-click="$parent.getMaterial(data);"  ng-disabled="data.UsedBOQ==true"  class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
                                                 <i class="glyphicon glyphicon-search"></i>
                                             </button>
                                         </li>
@@ -81,7 +81,7 @@
                                 <div class="common-btn">
                                     <ul class="list-inline small">
                                         <li>
-                                            <button ng-click="$parent.getArticle(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                            <button ng-click="$parent.getArticle(data);"  ng-disabled="data.UsedBOQ==true" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
                                                 <i class="glyphicon glyphicon-search"></i>
                                             </button>
                                         </li>

@@ -2,7 +2,8 @@
     <div class="site-tab">
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="Service Master" role="tab" data-toggle="tab">Service Master</a></li>
-            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);" href="" aria-controls="Upload" role="tab" data-toggle="tab">Upload</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);" href="" aria-controls="GLpload" role="tab" data-toggle="tab">GL Upload</a></li>
+            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);" href="" aria-controls="TDSUpload" role="tab" data-toggle="tab">TDS Upload</a></li>
         </ul>
     </div>
     <div class="tab-content">
@@ -66,16 +67,16 @@
                         </div>
                     </div>
                     @*<div class="form-group">
-                            <label class="col-sm-4 control-label">Dr Control<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="input-group">
-                                    <input type="text" ng-model="serviceMasterNew.DrActivityName" class="form-control" readonly>
-                                    <span class="input-group-btn">
-                                        <button ng-click="popUp('Dr');" class="btn single-small-btn" ng-disabled="serviceMasterNew.CompanyId==null" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
-                                    </span>
-                                </div>
+                        <label class="col-sm-4 control-label">Dr Control<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="input-group">
+                                <input type="text" ng-model="serviceMasterNew.DrActivityName" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button ng-click="popUp('Dr');" class="btn single-small-btn" ng-disabled="serviceMasterNew.CompanyId==null" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
                             </div>
-                        </div>*@
+                        </div>
+                    </div>*@
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Description</label>
                         <div class="col-sm-8">
@@ -136,16 +137,16 @@
                         </div>
                     </div>
                     @*<div class="form-group">
-                            <label class="col-sm-4 control-label">Cr Control<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="input-group">
-                                    <input type="text" ng-model="serviceMasterNew.CrActivityName" class="form-control" readonly>
-                                    <span class="input-group-btn">
-                                        <button ng-click="popUp('Cr');" class="btn single-small-btn" ng-disabled="serviceMasterNew.CompanyId==null" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
-                                    </span>
-                                </div>
+                        <label class="col-sm-4 control-label">Cr Control<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="input-group">
+                                <input type="text" ng-model="serviceMasterNew.CrActivityName" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button ng-click="popUp('Cr');" class="btn single-small-btn" ng-disabled="serviceMasterNew.CompanyId==null" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
                             </div>
-                        </div>*@
+                        </div>
+                    </div>*@
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Remarks</label>
                         <div class="col-sm-8">
@@ -277,6 +278,53 @@
                     <div class="common-btn">
                         <ul class="list-inline text-right">
                             <li ng-show="ShowSaveBtn"> <button ng-click="SaveUploadedData();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }" ng-form="tabForm3" id="TDSUpload">
+            <togglable name=" To be Uploaded & Downloaded"></togglable>
+            <div class="form-elements form-horizontal row" ng-form name="ModelNewTDSForm">
+                <div class="col-md-10">
+                    <div class="inputBtnSection common-btn">
+                        <label class="fileUpload col-sm-4 ">
+                            <input id="uploadImage2" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                        </label>
+                        <input type="button" value="Import Data" class="btn btn-success"
+                               ng-click="ImportTDSData()" />
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="GetTDSSampleFile();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File Download</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div id="GridTDS"
+                         ej-grid e-datasource="UploadedTDSData"
+                         e-allowfiltering="true"
+                         e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowscrolling="true"
+                         e-pagesettings-pagesize="25"
+                         e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="ServiceMasterId" e-headertext="ServiceMasterId" e-width="100"></div>
+                            <div e-column e-field="TaxCodeId" e-headertext="TaxCodeId" e-width="100"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12 ">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li ng-show="ShowSaveBtn"> <button ng-click="SaveUploadedTDSData();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
                         </ul>
                     </div>
                 </div>

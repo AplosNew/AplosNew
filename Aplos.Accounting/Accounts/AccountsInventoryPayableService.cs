@@ -1406,7 +1406,7 @@ UNION
 							,HSNC.Code HSNCode
                             ,BudgetMasterId= CASE WHEN MM.IsAsset=0 THEN MGGL.InventoryBudgetMasterId ELSE MM.BudgetMasterId END
 							,MM.ActivityId,FAMBT.FixedAssetMasterId,B.UserName BudgetName,FAM.UserName AS FixedAssetMasterName
-                            ,MGPGL.BudgetMasterId VendorBudgetMasterId
+                            ,MGPGL.BudgetMasterId VendorBudgetMasterId,E.UserName EntityName,MRM.EntityId
 					  from TRN.InventoryMaterial AS IM
                         LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
                         LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
@@ -1418,7 +1418,9 @@ UNION
                         LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
                         LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
                         LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id and ird.InventoryReceiveId='" + inveReveiveId + @"'
-                        LEFT JOIN [TRN].[PurchaseOrderDetail] AS PID on PID.Id=IRD.PODetailsId   
+                        LEFT JOIN [TRN].[PurchaseOrderDetail] AS PID on PID.Id=IRD.PODetailsId 
+						LEFT JOIN [TRN].[MaterialRequsitionMaster] MRM ON MRM.Id=PID.RequisitionId
+						LEFT JOIN [ORG].[Entity] AS E ON E.Id= MRM.EntityId
                         LEFT JOIN (select PODetailsId,  Sum(TransactionQty) as OtherReceived 
 						from trn.InventoryReceiveDetail where InventoryReceiveId not in('" + inveReveiveId + @"')
                         Group By PODetailsId) AS Pre on pre.PODetailsId=IRD.PODetailsId
