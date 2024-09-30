@@ -448,7 +448,7 @@ namespace Library.Accounting.Accounts
 						, T.ActivityId, T.ActivityCode, T.ActivityName
 						, T.Dr
 						
-						, T.Cr, T.Amount, T.IsAsset,T.InventoryReceiveDetailId,T.BudgetActive,T.BudgetMasterActivityActive
+						, T.Cr, T.Amount, T.IsAsset,T.InventoryReceiveDetailId,T.BudgetActive,T.BudgetMasterActivityActive,T.EntityId,T.EntityName
 					FROM (
 						SELECT  'Material' AS OtherName, 'Dr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId, NULL AS TaxCodeId,MM.FixedAssetMasterId
 
@@ -465,10 +465,13 @@ namespace Library.Accounting.Accounts
 							, SUM(IRD.TotalMaterialTranAmount ) AS Dr, NULL Cr
 							, SUM(IRD.TotalMaterialTranAmount ) AS Amount
                            ,MM.IsAsset,IRD.Id AS  InventoryReceiveDetailId,BudgetActive=CASE WHEN BM.Active=1 THEN BM.Active ELSE BMF.Active END
-							,BudgetMasterActivityActive=case	WHEN BMA.Active=1 THEN BMA.Active ELSE BMAF.Active END 
+							,BudgetMasterActivityActive=case	WHEN BMA.Active=1 THEN BMA.Active ELSE BMAF.Active END  ,MRM.EntityId,E.UserName EntityName
 						FROM [TRN].[InventoryReceiveDetail] AS IRD
 						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
 						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
+						LEFT JOIN [TRN].[PurchaseOrderDetail] AS PID on PID.Id=IRD.PODetailsId   
+						LEFT JOIN [TRN].[MaterialRequsitionMaster] MRM ON MRM.Id=PID.RequisitionId
+						LEFT JOIN [ORG].[Entity] AS E ON E.Id= MRM.EntityId
 						LEFT JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
 						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
 								AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
@@ -489,11 +492,9 @@ namespace Library.Accounting.Accounts
 						GROUP BY MM.MaterialGroupMasterId, MGGL.InventoryGLId, GL.AccountCode, GL.UserName, MGGL.InventoryBudgetMasterId, B.Code, B.UserName
 						, MGGL.InventoryActivityId, A.Code, A.UserName
 					    ,MM.IsAsset,MM.FixedAssetMasterId,FAG.AssetUnderConstructionGLId,GLF.AccountCode,GLF.UserName
-						,FAG.AssetUnderConstructionBudgetMasterId,BF.Code,BF.UserName
+						,FAG.AssetUnderConstructionBudgetMasterId,BF.Code,BF.UserName ,MRM.EntityId,E.UserName
 						,FAG.AssetUnderConstructionActivityId,AF.Code,AF.UserName,IRD.Id,BM.Active,BMA.Active,BMF.Active,BMAF.Active
                     ) AS T
-					GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId
-                    , T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId,T.IsAsset, T.InventoryReceiveDetailId,T.BudgetActive,T.BudgetMasterActivityActive
 					
                    UNION
 				   
@@ -503,7 +504,7 @@ namespace Library.Accounting.Accounts
 						, TCGL.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
 						, SUM(IRT.TaxAmount) AS  Dr, NULL Cr
 						, SUM(IRT.TaxAmount) AS Amount
-                        ,0 IsAsset, NULL InventoryReceiveDetailId,BM.Active BudgetActive,BMA.Active BudgetMasterActivityActive
+                        ,0 IsAsset, NULL InventoryReceiveDetailId,BM.Active BudgetActive,BMA.Active BudgetMasterActivityActive,NULL EntityId,NULL EntityName
 					FROM [TRN].[InventoryReceiveTax] AS IRT
 					LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRT.InventoryReceiveDetailId=IRD.Id
                     LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -527,7 +528,7 @@ namespace Library.Accounting.Accounts
 						, TCGL.CreditableGLActivityId ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
 						, SUM(IRT.TaxAmount) AS  Dr, NULL Cr
 						, SUM(IRT.TaxAmount) AS Amount
-                        ,0 IsAsset, NULL InventoryReceiveDetailId,BM.Active BudgetActive,BMA.Active BudgetMasterActivityActive
+                        ,0 IsAsset, NULL InventoryReceiveDetailId,BM.Active BudgetActive,BMA.Active BudgetMasterActivityActive,NULL EntityId,NULL EntityName
 					FROM [TRN].[InventoryReceiveAdditionalTax] AS IRT
 					LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRT.InventoryReceiveId
 					LEFT JOIN [MST].[TaxCodeGL] AS TCGL ON TCGL.TaxCodeId=IRT.TaxCodeId
@@ -547,7 +548,7 @@ namespace Library.Accounting.Accounts
 						, TCGL.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
 						, SUM(IRTS.TaxAmount) AS  Dr, NULL Cr
 						, SUM(IRTS.TaxAmount) AS Amount
-                       ,0 IsAsset, NULL InventoryReceiveDetailId,BM.Active BudgetActive,BMA.Active BudgetMasterActivityActive
+                       ,0 IsAsset, NULL InventoryReceiveDetailId,BM.Active BudgetActive,BMA.Active BudgetMasterActivityActive,NULL EntityId,NULL EntityName
 					--, IRTS.TaxAmount
 					--, IRTS.TaxAmount
 					FROM [TRN].[InventoryReceiveTax] AS IRTS
@@ -569,11 +570,7 @@ namespace Library.Accounting.Accounts
 						, T.BudgetMasterId, T.BudgetCode, T.BudgetName
 						, T.ActivityId, T.ActivityCode, T.ActivityName
 						, T.Dr, T.Cr 
-                            --+ (ISNULL((SELECT SUM(IRTS.TaxAmount) AS Amount FROM [TRN].[InventoryReceiveTax] AS IRTS JOIN [TRN].[InventoryReceive] AS IR ON IRTS.InventoryReceiveId=IR.Id
-							--WHERE IRTS.InventoryReceiveId=@receiveId AND IRTS.InventoryServiceId<>''),0)/COUNT(*) OVER ()) AS Cr
-						, T.Amount ,T.IsAsset, NULL InventoryReceiveDetailId,T.BudgetActive,T.BudgetMasterActivityActive
-                            --+ (ISNULL((SELECT SUM(IRTS.TaxAmount) AS Amount FROM [TRN].[InventoryReceiveTax] AS IRTS JOIN [TRN].[InventoryReceive] AS IR ON IRTS.InventoryReceiveId=IR.Id
-							--WHERE IRTS.InventoryReceiveId=@receiveId AND IRTS.InventoryServiceId<>''),0)/COUNT(*) OVER ())AS Amount
+						, T.Amount ,T.IsAsset, NULL InventoryReceiveDetailId,T.BudgetActive,T.BudgetMasterActivityActive,NULL EntityId,NULL EntityName
 					FROM (
 						SELECT 'Vendor' AS OtherName,'Cr' AS TrnType, NULL MaterialGroupMasterId, NULL AS TaxCategoryId
 						, MAT.GLGeneralInfoId, MAT.GLGeneralInfoCode, MAT.GLGeneralInfoName
@@ -638,7 +635,7 @@ namespace Library.Accounting.Accounts
 						, T.BudgetMasterId, T.BudgetCode, T.BudgetName
 						, T.ActivityId, T.ActivityCode, T.ActivityName
 						, T.Dr, T.Cr 
-						, T.Amount ,0 IsAsset, NULL InventoryReceiveDetailId,T.BudgetActive,T.BudgetMasterActivityActive
+						, T.Amount ,0 IsAsset, NULL InventoryReceiveDetailId,T.BudgetActive,T.BudgetMasterActivityActive,NULL EntityId,NULL EntityName
 					FROM (
 						
 							SELECT IR.Id, 'Acceptance' AS OtherName, 'Cr' AS TrnType, NULL MaterialGroupMasterId, NULL AS TaxCategoryId
@@ -676,7 +673,7 @@ namespace Library.Accounting.Accounts
 						, T.BudgetMasterId, T.BudgetCode, T.BudgetName
 						, T.ActivityId, T.ActivityCode, T.ActivityName
 						, T.Dr, T.Cr 
-						, T.Amount ,0 IsAsset, NULL InventoryReceiveDetailId,T.BudgetActive,T.BudgetMasterActivityActive
+						, T.Amount ,0 IsAsset, NULL InventoryReceiveDetailId,T.BudgetActive,T.BudgetMasterActivityActive,NULL EntityId,NULL EntityName
 					FROM (
 						
 							SELECT IR.Id, 'LCBase' AS OtherName, 'Cr' AS TrnType, NULL MaterialGroupMasterId, NULL AS TaxCategoryId

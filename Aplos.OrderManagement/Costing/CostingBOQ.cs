@@ -144,6 +144,7 @@ namespace Library.OrderManagement.Costing
 
             string sql = @"SELECT distinct cb.CostingItemId,ci.Sequence,CI.UserName AS CostingItem,BI.BOMMaterialRefNo,cb.MaterialMasterId, cb.ArticleId,mm.Code AS MaterialCode,mm.UserName AS Material,
                                     mma.Code AS ArticleCode,mma.StandardName AS Article,cb.VendorId,p.UserName AS Vendor
+                                    ,UsedBOQ=(Select top(1) CAST(CASE WHEN Id IS NULL THEN 0 ELSE 1 END AS bit) from [TRN].[POBOQMAP] Where BOQDetailId=cb.Id)
                                       FROM BOQ AS cb 
                                     LEFT JOIN CostingBOQItems AS BI ON bi.CostingItemId=cb.CostingItemId AND bi.CostingBOQMasterId='" + CostingBOQMasterId + @"'
                                     LEFT JOIN hkp.CostingItem AS ci ON ci.Id=cb.CostingItemId

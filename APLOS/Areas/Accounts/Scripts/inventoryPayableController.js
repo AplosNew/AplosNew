@@ -230,12 +230,6 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
     $scope.IsPaymentTermHide = true;
 
     $scope.controlInvoicePaymentTerm = function () {
-        //if (!baseService.isUndefinedOrNull($scope.PurchaseLCId)) {
-        //    $scope.IsInvoiceDisable = true;
-        //    $scope.modelNew.IsInvoice = false;
-        //    $scope.IsPaymentTermHide = true;
-        //}
-        //else
             if ($scope.modelNew.PaymentMode == 'LC') {
             $scope.IsInvoiceDisable = true;
             $scope.modelNew.IsInvoice = false;
@@ -308,9 +302,6 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
         $scope.modelNew.IsInvoice = true;
         $scope.TDSList = [];
         $scope.controlInvoicePaymentTerm();
-        //if (baseService.isUndefinedOrNull($scope.PurchaseLCId) && $scope.TempEmployeeId!=null) {
-        //    $scope.modelNew.IsInvoice = true;
-        //};
         $scope.TotalPayableAmount = 0;
         $scope.getCboVoucherType();
         
@@ -320,7 +311,6 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
             $scope.GetCboExpensesBookingTranType();
             
         }
-        //$scope.paymentTerm();
         getRecievedList();
         getServiceChargeList();
         getInventoryMaterialList(data.data.Id, data.data.EmployeeId, data.data.IsTaxApplicable, $scope.modelNew.IsFOC);
@@ -358,7 +348,7 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
                 $scope.inventoryMaterialList = [];
                 $scope.newList = [];
                 $scope.inventoryMaterialList = response.data;
-
+                $scope.modelNew.EntityId = $scope.inventoryMaterialList[0].EntityId;
                 if (!$scope.modelNew.IsNonCreditable)
                     reArrangeCreditableList($scope.inventoryMaterialList, $scope.newList, $scope.inventoryReceiveDetailList);
                 else if ($scope.modelNew.IsNonCreditable)
@@ -368,6 +358,7 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
                 if (baseService.isUndefinedOrNull(employeeId))
                     getVendorPayableGLBudgetActivity(inveReveiveId);
             });
+       
     }
     $scope.inventoryTaxList = [];
     function getInventoryTaxList(inveReveiveId) {
@@ -453,54 +444,8 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
 
 
     function reArrangeCreditableList(list, newList, newInvRecDetailList) {
-        //var svcList = ($filter('filter')(list, { OtherName: 'Svc' }, true));
-        //for (var t = 0; t < baseService.arrayLength(svcList); t++) {
-        //    var row = svcList[t];
-        //    if (row.OtherName === 'Svc' && row.TrnType === 'Dr') {
-        //        var taxList = ($filter('filter')(list, { OtherName: 'Svc', TrnType: 'Dr', GLGeneralInfoId: row.GLGeneralInfoId, BudgetMasterId: row.BudgetMasterId, ActivityId: row.ActivityId }, true));
-        //        row.Amount = parseFloat(row.Amount) / parseFloat(baseService.arrayLength(taxList));
-        //        assignSvcInTax(row, list, 'Dr');
-        //    }
-        //    else if (row.OtherName === 'Svc' && row.TrnType === 'Cr') {
-        //        var taxList = ($filter('filter')(list, { OtherName: 'Svc', TrnType: 'Cr', GLGeneralInfoId: row.GLGeneralInfoId, BudgetMasterId: row.BudgetMasterId, ActivityId: row.ActivityId }, true));
-        //        row.Amount = parseFloat(row.Amount) / parseFloat(baseService.arrayLength(taxList));
-        //        assignSvcInTax(row, list, 'Cr');
-        //    }
-        //}
         for (var i = 0; i < baseService.arrayLength(list); i++) {
             var row = list[i];
-            //if (row.OtherName === 'Svc' && row.TrnType === 'Dr' && row.Dr > 0) {
-            //    var has = false;
-            //    for (var t = 0; t < baseService.arrayLength(newList); t++) {
-            //        if ('Tax' === newList[t].OtherName && row.TrnType === newList[t].TrnType && row.GLGeneralInfoId === newList[t].GLGeneralInfoId && row.BudgetMasterId === newList[t].BudgetMasterId
-            //            && row.ActivityId === newList[t].ActivityId) {
-            //            newList[t].Dr += row.Dr;
-            //            newList[t].Amount += row.Dr;
-            //            flag = true;
-            //            break;
-            //        }
-            //    }
-            //    if (!has) {
-            //        list[i].OtherName = 'Tax';
-            //        newList.push(list[i]);
-            //    }
-            //}
-            //else if (row.OtherName === 'Svc' && row.TrnType === 'Cr' && row.Cr > 0) {
-            //    var has = false;
-            //    for (var a = 0; a < baseService.arrayLength(newList); a++) {
-            //        if ('Tax' === newList[a].OtherName && row.TrnType === newList[a].TrnType && row.GLGeneralInfoId === newList[a].GLGeneralInfoId && row.BudgetMasterId === newList[a].BudgetMasterId
-            //            && row.ActivityId === newList[a].ActivityId) {
-            //            newList[a].Cr += row.Cr;
-            //            newList[a].Amount += row.Cr;
-            //            has = true;
-            //            break;
-            //        }
-            //    }
-            //    if (!has) {
-            //        list[i].OtherName = 'Tax';
-            //        newList.push(list[i]);
-            //    }
-            //}
             if (row.OtherName === 'Tax' && row.TrnType === 'Dr' && row.Dr > 0) {
                 var has = false;
                 for (var a = 0; a < baseService.arrayLength(newList); a++) {
@@ -549,7 +494,8 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
                 newInvRecDetailList.push(list[i]);
                 var has = false;
                 for (var a = 0; a < baseService.arrayLength(newList); a++) {
-                    if (row.OtherName === newList[a].OtherName && row.TrnType === newList[a].TrnType && row.GLGeneralInfoId === newList[a].GLGeneralInfoId && row.BudgetMasterId === newList[a].BudgetMasterId && row.ActivityId === newList[a].ActivityId) {
+                    if (row.OtherName === newList[a].OtherName && row.TrnType === newList[a].TrnType && row.GLGeneralInfoId === newList[a].GLGeneralInfoId
+                        && row.BudgetMasterId === newList[a].BudgetMasterId && row.ActivityId === newList[a].ActivityId && row.EntityId === newList[a].EntityId) {
                         newList[a].Dr += row.Dr;
                         newList[a].Amount += row.Dr;
                         has = true;
@@ -622,9 +568,7 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
         for (var i = 0; i < taxList.length; i++) {
             if (!lst.includes(taxList[i].TaxCategoryID)) {
                 lst.push(taxList[i].TaxCategoryID);
-
                 var svcList = ($filter('filter')(taxList, { TaxCategoryID: taxList[i].TaxCategoryID }, true));
-
                 var sum = 0;
                 for (var j = 0; j < svcList.length; j++) {
                     sum += svcList[j].Amount;
@@ -634,7 +578,6 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
                 newList.push(newListRow);
             }
         }
-
     }
     function assaignTax(taxList, newList) {
 
@@ -642,7 +585,6 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
         // var newList = [];
         var newListRow = {};
         for (var i = 0; i < taxList.length; i++) {
-            // var rowset = ($filter('filter')(taxList, { GLGeneralInfoId: taxList[i].GLGeneralInfoId, BudgetMasterId: taxList[i].BudgetMasterId, ActivityId: taxList[i].ActivityId }, true));
             if (!lst.includes(taxList[i].ActivityId)) {
                 lst.push(taxList[i].ActivityId);
                 var svcList = ($filter('filter')(taxList, { GLGeneralInfoId: taxList[i].GLGeneralInfoId, BudgetMasterId: taxList[i].BudgetMasterId, ActivityId: taxList[i].ActivityId }, true));
@@ -666,27 +608,14 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
         var taxList0 = ($filter('filter')(list, { OtherName: 'Tax' }, true));
         var taxList = taxList0.concat(svcList);
         assaignTax(taxList, newList);
-        //for (var t = 0; t < baseService.arrayLength(svcList); t++) {
-        //    var row = svcList[t];
-        //    if (row.OtherName === 'Svc' && row.TrnType === 'Dr') {
-        //        var taxList = ($filter('filter')(list, { OtherName: 'Tax', TrnType: 'Dr', GLGeneralInfoId: row.GLGeneralInfoId, BudgetMasterId: row.BudgetMasterId, ActivityId: row.ActivityId, TaxCategoryId: row.TaxCategoryId }, true));
-        //       // row.Amount = parseFloat(row.Amount) / parseFloat(baseService.arrayLength(taxList));
-        //        assignSvcInTax(row, taxList, 'Dr');
-        //    }
-        //    else if (row.OtherName === 'Svc' && row.TrnType === 'Cr') {
-        //        var taxList = ($filter('filter')(list, { OtherName: 'Tax', TrnType: 'Cr', GLGeneralInfoId: row.GLGeneralInfoId, BudgetMasterId: row.BudgetMasterId, ActivityId: row.ActivityId, TaxCategoryId: row.TaxCategoryId }, true));
-        //        row.Amount = parseFloat(row.Amount) / parseFloat(baseService.arrayLength(taxList));
-        //        assignSvcInTax(row, taxList, 'Cr');
-        //    }
-        //}
-
         for (var i = 0; i < baseService.arrayLength(list); i++) {
             var row = list[i];
             if (row.OtherName === 'Material' && row.TrnType === 'Dr') {
                 newInvRecDetailList.push(list[i]);
                 var flag = false;
                 for (var t = 0; t < baseService.arrayLength(newList); t++) {
-                    if (row.OtherName === newList[t].OtherName && row.TrnType === newList[t].TrnType && row.GLGeneralInfoId === newList[t].GLGeneralInfoId && row.BudgetMasterId === newList[t].BudgetMasterId && row.ActivityId === newList[t].ActivityId) {
+                    if (row.OtherName === newList[t].OtherName && row.TrnType === newList[t].TrnType && row.GLGeneralInfoId === newList[t].GLGeneralInfoId
+                        && row.BudgetMasterId === newList[t].BudgetMasterId && row.ActivityId === newList[t].ActivityId && row.EntityId === newList[t].EntityId) {
                         newList[t].Dr += row.Dr;
                         newList[t].Amount += row.Dr;
                         flag = true;
@@ -696,36 +625,20 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
                 if (!flag)
                     newList.push(list[i]);
             }
-            //else if (row.OtherName == 'Charge' || row.OtherName == 'Vendor')
-            //    newList.push(list[i]);
-
             else if (row.OtherName === 'Vendor' && $scope.AcceptanceId === null)
                 newList.push(list[i]);
             else if (row.OtherName === 'Acceptance' && $scope.AcceptanceId !== null)
                 newList.push(list[i]);
-
-            //else if(row.OtherName !== 'Svc')
-            //    if(row.OtherName !== 'Material')
-            //    newList.push(list[i]);
-            //else newList.push(list[i]);
         }
     }
 
     function assignSvcInTax(row, taxList, trnType) {
-        // $scope.TotalTaxAmount = parseFloat($filter('sumByKey')($filter('filter')(taxList, { OtherName: 'Tax' }), 'Amount'));
-
         for (var i = 0; i < baseService.arrayLength(taxList); i++) {
             var row2 = taxList[i];
             if (row2.OtherName === 'Tax' && row2.TrnType === trnType && row2.GLGeneralInfoId === row.GLGeneralInfoId
                 && row2.BudgetMasterId === row.BudgetMasterId && row2.ActivityId === row.ActivityId && row2.TaxCategoryId === row.TaxCategoryId) {
                 row2[trnType] += row.Amount;
                 row2.Amount += row.Amount;
-                //}
-                //else {
-                //    row2[trnType] += (row.Amount * row2.Amount) / $scope.TotalTaxAmount;
-                //    row2.Amount += (row.Amount * row2.Amount) / $scope.TotalTaxAmount;
-                //}
-
             }
 
         }
@@ -1464,4 +1377,23 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
         $scope.newList[$scope.indexGL].ActivityName = data.ActivityName;
         $scope.closeCOAICodeListPopUp();
     };
+
+    $scope.entityChanges = function (id) {
+        var tempEntityName = $.grep($scope.entityList, function (item) {
+            return item.Value === id;
+        })[0].Text;
+       
+        for (var i = 0; i < $scope.newList.length; i++) {
+            if ($scope.newList[i].EntityId == null && $scope.newList[i].OtherName == 'Material') {
+                $scope.newList[i].EntityId = id;
+                $scope.newList[i].EntityName = tempEntityName;
+            }
+        }
+        for (var j = 0; j < $scope.inventoryReceivedList.length; j++) {
+            if ($scope.inventoryReceivedList[j].EntityId == null) {
+                $scope.inventoryReceivedList[j].EntityId = id;
+                $scope.inventoryReceivedList[j].EntityName = tempEntityName;
+            }
+        }
+    }
 }

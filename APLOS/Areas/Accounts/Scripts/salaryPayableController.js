@@ -16,7 +16,7 @@ function salaryPayableController(cboService, commonMessage, $scope, $rootScope, 
     $scope.saveUrl = $scope.path + "ParkSalaryPayable";
     $scope.updateUrl = $scope.path + "UpdateEmployeePayable";
     $scope.deleteUrl = $scope.path + "delete/";
-    $scope.postUrl = $scope.path + "PostEmployeePayable";
+    $scope.postUrl = $scope.path + "PostSalaryPayable";
 
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
@@ -570,7 +570,7 @@ function salaryPayableController(cboService, commonMessage, $scope, $rootScope, 
             method: "POST",
             url: $scope.postUrl,
             data: {
-                "id": payableId
+                "voucherId": payableId
             },
             dataType: "JSON"
         }).then(function successCallback(response) {
