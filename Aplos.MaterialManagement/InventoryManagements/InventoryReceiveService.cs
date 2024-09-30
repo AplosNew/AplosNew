@@ -1429,7 +1429,7 @@ namespace Library.MaterialManagement.InventoryManagements
 				}
                 else
                 {
-					inventoryStockReportService.CreateMaterialStockBalanceForThePeriodSheet(ref sheet1, ref sheet2, report, Head, "Summary", companyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, Asset, Inventory, Country, materialStorage);
+					inventoryStockReportService.CreateMaterialStockBalanceForThePeriodSheet(ref sheet1, ref sheet2, report, Head, "Summary", companyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, Asset, Inventory, Country, materialStorage, bale, brand);
 				}
 					
 				workbook.Version = ExcelVersion.Excel2016;
