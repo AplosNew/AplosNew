@@ -637,12 +637,12 @@ function expenseBookingPotalController(cboService, commonMessage, $scope, $rootS
             ShowResult("Invoice Date must be below or equal to current Date!", "failure");
             return true;
         }
-        for (var i = 0; i < $scope.budgetTransactionDetailList.length; i++) {
-            if ($scope.budgetTransactionDetailList[i].IsOrderSpecific === true && $scope.invoiceDetailChargesList.length === 0) {
-                ShowResult($scope.budgetTransactionDetailList[i].BudgetName + ",  Please Distribute Expense!", "failure");
-                return true;
-            }
-        }
+        //for (var i = 0; i < $scope.budgetTransactionDetailList.length; i++) {
+        //    if ($scope.budgetTransactionDetailList[i].IsOrderSpecific === true && $scope.invoiceDetailChargesList.length === 0) {
+        //        ShowResult($scope.budgetTransactionDetailList[i].BudgetName + ",  Please Distribute Expense!", "failure");
+        //        return true;
+        //    }
+        //}
         return false;
     };
 
