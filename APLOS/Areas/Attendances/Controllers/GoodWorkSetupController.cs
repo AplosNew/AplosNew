@@ -281,20 +281,25 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
             }
         }
         [Authorize, HttpPost]
-        public ActionResult BudgetCodeDelete(string Id)
+        public ActionResult BudgetCodeDelete(string Id, string setupId)
         {
             try
             {
                 ConnectionManager.DAL.ConManager objCon;
                 DataSet dsMaster;
-                string sqlr = @"select * from GoodWorkBudgetSetUp where BudgetId in (" + Id + @")";
+                string sqlr = @"SELECT * FROM dbo.ExceptionGoodWorkEmployee A
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=A.EmployeeId
+Where E.BudgetCode IN (" + Id + @") AND A.GoodWorkSetupId='"+ setupId + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sqlr, out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    throw new Exception("Delete Budgeted Employee first.");
+                }
 
-                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
-                conC.BeginTransaction();
-                conC.executeQuery("delete from GoodWorkBudgetSetUp where BudgetId in (" + Id + ")");
-                conC.CommitTransaction();
+                objCon.BeginTransaction();
+                objCon.executeQuery("delete from GoodWorkBudgetSetUp where BudgetId in (" + Id + ")");
+                objCon.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
             }

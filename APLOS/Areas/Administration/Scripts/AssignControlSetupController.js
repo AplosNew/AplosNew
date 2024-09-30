@@ -335,37 +335,6 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
         });
     }
 
-    $scope.removeBudgetCode = function (tempId) {
-        try {
-            $scope.tempId = tempId.data.Id;
-            $scope.message_confirmation = "Are you sure want to permanent delete ?";
-            angular.element(document.querySelector('#confirmBudgetCodeRemovePopUp')).modal('show');
-        }
-        catch (e) {
-            ShowResult(e, 'Error');
-        }
-    };
-    $scope.removeBudgetCodeRow = function () {
-        $http({
-            method: 'POST',
-            url: 'Attendances/GoodWorkSetup/BudgetCodeDelete',
-            data: { 'Id': $scope.tempId },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.GetAssignControlBudgetCodeSetupData();
-            }
-            function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        });
-    };
-
-
     $scope.refreshTemplateBE = function (args) {
         $("#headchkBE").ejCheckBox({ "change": CheckBoxSelectBE });
     };
@@ -506,8 +475,9 @@ function AssignControlSetupController(cboService, commonMessage, $scope, $rootSc
         var deletedIds = getString($scope.NewBudgetCodeIds);
         $http({
             method: 'POST',
-            url: 'Attendances/GoodWorkSetup/BudgetCodeDelete',
-            data: { 'Id': deletedIds },
+            url: 'Administration/AssignControlSetup/BudgetCodeDelete',
+           
+            data: { 'Id': deletedIds, 'setupId': $scope.ModelNew.Id },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
