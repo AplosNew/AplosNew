@@ -255,7 +255,35 @@ namespace Aplos.Areas.Administration.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
+        [Authorize, HttpPost]
+        public ActionResult BudgetCodeDelete(string Id,string setupId)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster;
+                string sqlr = @"SELECT * FROM dbo.AssignControlBudgetedEmployee A
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=A.EmployeeId
+Where E.BudgetCode IN (" + Id + @") AND AssignControlSetupId='"+ setupId + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlr, out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count>0)
+                {
+                    throw new Exception("Delete Budgeted Employee first.");
+                }
 
+
+                objCon.BeginTransaction();
+                objCon.executeQuery("delete from AssignControlBudgetCodeSetup where BudgetId in (" + Id + ")");
+                objCon.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         [HttpGet, Authorize]
         public JsonResult GetAssignControlBudgetCodeSetupData(string assignControlSetupId)
         {

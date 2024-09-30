@@ -574,36 +574,7 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         });
     }
 
-    $scope.removeBudgetCode = function (tempId) {
-        try {
-            $scope.tempId = tempId.data.Id;
-            $scope.message_confirmation = "Are you sure want to permanent delete ?";
-            angular.element(document.querySelector('#confirmBudgetCodeRemovePopUp')).modal('show');
-        }
-        catch (e) {
-            ShowResult(e, 'Error');
-        }
-    };
-    $scope.removeBudgetCodeRow = function () {
-        $http({
-            method: 'POST',
-            url: 'Attendances/GoodWorkSetup/BudgetCodeDelete',
-            data: { 'Id': $scope.tempId },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.GetGoodWorkBudgetCodeData();
-            }
-            function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        });
-    };
-
+    
     //#endregion BudgetCode
 
     //#region
@@ -890,7 +861,8 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         $http({
             method: 'POST',
             url: 'Attendances/GoodWorkSetup/BudgetCodeDelete',
-            data: { 'Id': deletedIds},
+            //data: { 'Id': deletedIds },
+            data: { 'Id': $scope.tempId, 'setupId': $scope.ModelNew.Id },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
