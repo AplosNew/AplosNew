@@ -44,14 +44,12 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
 
     // #region POP UP 
     $scope.openEmpPopUp = function () {
+        $scope.getSearchedEmployee();
         angular.element(document.querySelector('#empPopUpId')).modal('show');
-
     }
 
     $scope.closeEmpPopUp = function () {
-
         angular.element(document.querySelector('#empPopUpId')).modal('hide');
-
     }
 
     $scope.openMedicinePopUp = function () {
@@ -194,7 +192,7 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
         });
 
     }
-    $scope.getEmployee();
+    //$scope.getEmployee();
     
     $scope.doubleEmployee = function (e) {
         todaysDate = new Date();
