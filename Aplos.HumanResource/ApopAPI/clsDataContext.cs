@@ -11481,6 +11481,7 @@ where QAT.ParameterId='" + ParameterId + "'";
                                      (select top(1) CONVERT(varchar(5),[AddedDate],108) from UtilityTransaction Where UtilityMasterId = '" + UtilityMasterId + @"' order by Date desc)
                                     , MultiplyingFactor = (select top(1)  MultiplyingFactor from UtilityMaster where Id = '" + UtilityMasterId + @"' order by Date desc)
 									,UtilityMasterId = (Select distinct Id from UtilityMaster where Id = '" + UtilityMasterId + @"' )
+									,InputSourceId = (Select distinct InputSourceId from UtilityMaster where Id = '" + UtilityMasterId + @"' )
 									,UtilityMaster = (Select distinct UserName from UtilityMaster where Id = '" + UtilityMasterId + @"' )
                                     ,UoMId = (Select distinct UoMId from UtilityMaster where Id = '" + UtilityMasterId + @"' )
                                     from UtilityTransaction
@@ -11498,6 +11499,7 @@ where QAT.ParameterId='" + ParameterId + "'";
                         MultiplyingFactor = dsRef.Tables[0].Rows[i]["MultiplyingFactor"].ToString(),
                         UtilityMaster = dsRef.Tables[0].Rows[i]["UtilityMaster"].ToString(),
                         UtilityMasterId = dsRef.Tables[0].Rows[i]["UtilityMasterId"].ToString(),
+                        InputSourceId = dsRef.Tables[0].Rows[i]["InputSourceId"].ToString(),
                         UoMId = dsRef.Tables[0].Rows[i]["UoMId"].ToString(),
 
                     });
@@ -11556,6 +11558,7 @@ where QAT.ParameterId='" + ParameterId + "'";
                         dr["MultiplyingFactor"] = item.MultiplyingFactor;
                         dr["UoMId"] = item.UoMId;
                         dr["IsAppEntry"] = true;
+                        dr["InputSourceId"] = item.InputSourceId;
 
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedFromIP"] = item.AddedFromIP;
@@ -14340,6 +14343,7 @@ where EmpSystemID = '" + EmpSysId + @"' and ComplianceDocumentId = '31'
         public string UtilityMaster { get; set; }
         public string UoMId { get; set; }
         public string IsMobileEntry { get; set; }
+        public string InputSourceId { get; set; }
 
     }
 
