@@ -1708,7 +1708,6 @@ where ES.MedicalLogId = '" + masterId + "'";
         {
             try
             {
-               string TableName = "dbo.EmployeeInformation";
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey =  column + " like '%" + value + "%'";
@@ -1716,12 +1715,12 @@ where ES.MedicalLogId = '" + masterId + "'";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 string sql = @"select EMP.EmployeeCode as Code, EMP.SystemId, EMP.EmployeeName, SC.UserName as Section, SBC.UserName SubSection,
-                                LDSG.UserName Designation, EMP.DOJ,
+                                LDSG.UserName Designation, FORMAT(EMP.DOJ,'dd-MMM-yyyy')DOJ,
                                 GDSG.UserName as GivenDesignation, UN.UserName as Entity
                                 from EmployeeInformation EMP
                                 LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
                                 LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
-                                left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+                                --left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
                                 left join ORG.Entity UN on UN.Id = MBGT.EntityId
                                 left join ORG.Department DP on DP.ID = POS.DepartmentId
                                 left join ORG.Section SC on SC.Id = POS.SectionId
@@ -1731,7 +1730,7 @@ where ES.MedicalLogId = '" + masterId + "'";
                                 LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
                                 left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
                                 left join hkp.EmployeeCategory x on x.Id=dm.EmployeeCategoryId
-                                where " + strkey + "";
+                                where " + strkey + " and EMP.EmployeeStatus='Active' ";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
