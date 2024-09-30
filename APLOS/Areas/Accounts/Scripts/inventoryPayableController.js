@@ -1396,4 +1396,8 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
             }
         }
     }
+    $scope.rcmApplicableCheck = function (rcm) {
+        getOtherVendorChargesList($scope.modelNew.Id, $scope.modelNew.OtherPartyId, rcm);
+    }
+
 }
