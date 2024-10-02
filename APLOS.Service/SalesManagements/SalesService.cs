@@ -2976,11 +2976,12 @@ namespace Library.Service.SalesManagements
                 vendorAdWr.Append(vendorAdWrsql);
                 vendorAdWrsql = @"delete trn.VoucherDetail where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "')";
                 vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.InvoiceDetailCharges where invoiceid in (select Id from TRN.Invoice  where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
                 vendorAdWrsql = @"delete from TRN.InvoiceDetail  where InvoiceId in(select Id from TRN.Invoice where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "'))";
                 vendorAdWr.Append(vendorAdWrsql);
 
-                vendorAdWrsql = @"delete trn.InvoiceDetailCharges where invoiceid in (select Id from TRN.Invoice  where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "'))";
-                vendorAdWr.Append(vendorAdWrsql);
+                
 
                 vendorAdWrsql = @"delete from TRN.Invoice  where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "')";
                 vendorAdWr.Append(vendorAdWrsql);

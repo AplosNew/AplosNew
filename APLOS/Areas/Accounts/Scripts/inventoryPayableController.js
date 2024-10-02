@@ -348,7 +348,7 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
                 $scope.inventoryMaterialList = [];
                 $scope.newList = [];
                 $scope.inventoryMaterialList = response.data;
-                $scope.tempEntityId = $scope.inventoryMaterialList[0].EntityId;
+               
                 if (!$scope.modelNew.IsNonCreditable)
                     reArrangeCreditableList($scope.inventoryMaterialList, $scope.newList, $scope.inventoryReceiveDetailList);
                 else if ($scope.modelNew.IsNonCreditable)
@@ -538,9 +538,13 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
                 
             //else newList.push(list[i]);
         }
-        $scope.modelNew.EntityId = $scope.inventoryMaterialList[0].EntityId;
-        $scope.entityChanges($scope.modelNew.EntityId);
-        $scope.tempEntityId = null;
+        $scope.tempEntityId = $scope.inventoryMaterialList[0].EntityId;
+        if ($scope.tempEntityId) {
+            $scope.modelNew.EntityId = $scope.tempEntityId;
+            $scope.entityChanges($scope.modelNew.EntityId);
+            $scope.tempEntityId = null;
+        }
+       
         distributeTCSAmount();
     }
 
