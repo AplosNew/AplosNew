@@ -325,7 +325,9 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
         UpdatedDate: null,
         UpdatedFromIP: null,
         IsConfirmation: null,
-        IsPromotion: null
+        IsPromotion: null,
+        LegalSalaryGradeId: null,
+        NewLegalSalaryGradeId: null
     };
     $scope.Calculated = false;
     $scope.MinWage = null;
