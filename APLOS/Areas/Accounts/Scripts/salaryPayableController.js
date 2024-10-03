@@ -51,11 +51,14 @@ function salaryPayableController(cboService, commonMessage, $scope, $rootScope, 
         {
             "name": "Month",
             "value": "Month"
-        }
-        ,
+        },
         {
             "name": "Year",
             "value": "YearNo"
+        },
+        {
+            "name": "Entity",
+            "value": "Entity"
         },
         {
             "name": "Currency",
@@ -276,6 +279,18 @@ function salaryPayableController(cboService, commonMessage, $scope, $rootScope, 
     $scope.salaryLockPayableList = [];
     $scope.salaryLockDirectTakeAwayNetPayAmount = null;
     $scope.getSalaryLockPayable = function () {
+        if (angular.isUndefinedOrNull($scope.voucher.YearNo)) {
+            ShowResult("Select Year", 'failure');
+            return;
+        }
+        if (angular.isUndefinedOrNull($scope.voucher.MonthNo)) {
+            ShowResult("Select Month", 'failure');
+            return;
+        }
+        if (angular.isUndefinedOrNull($scope.voucher.EntityId)) {
+            ShowResult("Select Entity", 'failure');
+            return;
+        }
         $scope.salaryLockPayableData = [];
         //$scope.IsDownloard = true;
         $http({
@@ -283,7 +298,7 @@ function salaryPayableController(cboService, commonMessage, $scope, $rootScope, 
             dataType: 'JSON',
             //url: $scope.getSearchListUrl,
             url: 'Accounts/SalaryDisbursement/GetSalaryLockDataList?yearNo=' + $scope.voucher.YearNo + '&monthNo=' + $scope.voucher.MonthNo +
-                '&employeeId=' + $scope.voucher.EmployeeId + '&isActive=' + $scope.voucher.IsActive + '&isSeperated=' + $scope.voucher.IsSeperated + '&isMaternity=' + $scope.voucher.IsMaternity,
+                '&employeeId=' + $scope.voucher.EmployeeId + '&isActive=' + $scope.voucher.IsActive + '&isSeperated=' + $scope.voucher.IsSeperated + '&isMaternity=' + $scope.voucher.IsMaternity + '&entityId=' + $scope.voucher.EntityId,
         }).then(function successCallback(response) {
             $scope.salaryLockPayableList = response.data;
            //$scope.IsDownloard = true;
@@ -311,7 +326,7 @@ function salaryPayableController(cboService, commonMessage, $scope, $rootScope, 
             dataType: 'JSON',
             //url: $scope.getSearchListUrl,
             url: 'Accounts/SalaryDisbursement/GetSalaryLockCTCDataList?yearNo=' + $scope.voucher.YearNo + '&monthNo=' + $scope.voucher.MonthNo + '&employeeId='
-                + $scope.voucher.EmployeeId + '&isActive=' + $scope.voucher.IsActive + '&isSeperated=' + $scope.voucher.IsSeperated + '&isMaternity=' + $scope.voucher.IsMaternity,
+                + $scope.voucher.EmployeeId + '&isActive=' + $scope.voucher.IsActive + '&isSeperated=' + $scope.voucher.IsSeperated + '&isMaternity=' + $scope.voucher.IsMaternity + '&entityId=' + $scope.voucher.EntityId,
         }).then(function successCallback(response) {
             $scope.salaryLockDirectCTCPayableData = response.data;
             $scope.getSalaryLockInDirectTakeAwayPayable();
@@ -328,7 +343,7 @@ function salaryPayableController(cboService, commonMessage, $scope, $rootScope, 
             dataType: 'JSON',
             //url: $scope.getSearchListUrl,
             url: 'Accounts/SalaryDisbursement/GetSalaryLockInDirectTakeAwayDataList?yearNo=' + $scope.voucher.YearNo + '&monthNo=' + $scope.voucher.MonthNo + '&employeeId='
-                + $scope.voucher.EmployeeId + '&isActive=' + $scope.voucher.IsActive + '&isSeperated=' + $scope.voucher.IsSeperated + '&isMaternity=' + $scope.voucher.IsMaternity,
+                + $scope.voucher.EmployeeId + '&isActive=' + $scope.voucher.IsActive + '&isSeperated=' + $scope.voucher.IsSeperated + '&isMaternity=' + $scope.voucher.IsMaternity + '&entityId=' + $scope.voucher.EntityId,
         }).then(function successCallback(response) {
             $scope.salaryLockInDirectTakeAwayPayableList = response.data;
 
@@ -352,7 +367,7 @@ function salaryPayableController(cboService, commonMessage, $scope, $rootScope, 
             dataType: 'JSON',
             //url: $scope.getSearchListUrl,
             url: 'Accounts/SalaryDisbursement/GetSalaryLockInDirectCTCDataList?yearNo=' + $scope.voucher.YearNo + '&monthNo=' + $scope.voucher.MonthNo + '&employeeId='
-                + $scope.voucher.EmployeeId + '&isActive=' + $scope.voucher.IsActive + '&isSeperated=' + $scope.voucher.IsSeperated + '&isMaternity=' + $scope.voucher.IsMaternity,
+                + $scope.voucher.EmployeeId + '&isActive=' + $scope.voucher.IsActive + '&isSeperated=' + $scope.voucher.IsSeperated + '&isMaternity=' + $scope.voucher.IsMaternity + '&entityId=' + $scope.voucher.EntityId,
         }).then(function successCallback(response) {
             $scope.salaryLockInDirectCTCPayableData = response.data;
             $scope.getsalaryHeadGLWithCoa();
@@ -372,7 +387,7 @@ function salaryPayableController(cboService, commonMessage, $scope, $rootScope, 
             dataType: 'JSON',
             //url: $scope.getSearchListUrl,
             url: 'Accounts/SalaryDisbursement/GetSalaryLockDataGLList?yearNo=' + $scope.voucher.YearNo + '&monthNo=' + $scope.voucher.MonthNo + '&employeeId='
-                + $scope.voucher.EmployeeId + '&isActive=' + $scope.voucher.IsActive + '&isSeperated=' + $scope.voucher.IsSeperated + '&isMaternity=' + $scope.voucher.IsMaternity,
+                + $scope.voucher.EmployeeId + '&isActive=' + $scope.voucher.IsActive + '&isSeperated=' + $scope.voucher.IsSeperated + '&isMaternity=' + $scope.voucher.IsMaternity + '&entityId=' + $scope.voucher.EntityId,
         }).then(function successCallback(response) {
             $scope.salaryLockPayableGLData = response.data;
 
@@ -399,7 +414,7 @@ function salaryPayableController(cboService, commonMessage, $scope, $rootScope, 
             dataType: 'JSON',
             //url: $scope.getSearchListUrl,
             url: 'Accounts/SalaryDisbursement/GetSalaryLockInDirectDataGLList?yearNo=' + $scope.voucher.YearNo + '&monthNo=' + $scope.voucher.MonthNo + '&employeeId='
-                + $scope.voucher.EmployeeId + '&isActive=' + $scope.voucher.IsActive + '&isSeperated=' + $scope.voucher.IsSeperated + '&isMaternity=' + $scope.voucher.IsMaternity,
+                + $scope.voucher.EmployeeId + '&isActive=' + $scope.voucher.IsActive + '&isSeperated=' + $scope.voucher.IsSeperated + '&isMaternity=' + $scope.voucher.IsMaternity + '&entityId=' + $scope.voucher.EntityId,
         }).then(function successCallback(response) {
             $scope.salaryLockInDirectPayableGLData = response.data;
             $scope.InDirectDifferenceAmount = (Math.round($filter("sumByKey")($filter("filter")($scope.salaryLockInDirectPayableGLData), "DrAmount") * 100 + Number.EPSILON) / 100) -
@@ -479,7 +494,9 @@ function salaryPayableController(cboService, commonMessage, $scope, $rootScope, 
         $scope.voucher.PostingDate = $filter("dateFiltering")(data.LastPostingDate);
         $scope.voucher.DocDate = $scope.voucher.PostingDate;
     };
-
+    cboService.getCboEntityByPlant(null, null, "", function (result) {
+        $scope.entityList = result;
+    });
     $scope.entityChange = function (id) {
         var entityrowdata = $filter("filter")($scope.entityList, { Value: id });
         $scope.voucher.PlantId = entityrowdata[0].PlantId;
@@ -641,6 +658,7 @@ function salaryPayableController(cboService, commonMessage, $scope, $rootScope, 
         $scope.salaryLockPayableData = [];
         $scope.expensesBookingDetailList = [];
         $scope.advanceTaxesList = [];
+        $scope.salaryLockInDirectPayableGLData = [];
     }
 
     $scope.getById = function (id) {
@@ -898,7 +916,8 @@ function salaryPayableController(cboService, commonMessage, $scope, $rootScope, 
                         'monthNo': $scope.voucher.MonthNo,
                         'isActive': $scope.voucher.IsActive,
                         'isSeperated': $scope.voucher.IsSeperated,
-                        'isMaternity': $scope.voucher.IsMaternity
+                        'isMaternity': $scope.voucher.IsMaternity,
+                        'entityId': $scope.voucher.EntityId
                     }
                 }).then(function successCallback(response) {
                     $scope.directSalaryLockSalarySheetDataList = response.data;
@@ -930,7 +949,8 @@ function salaryPayableController(cboService, commonMessage, $scope, $rootScope, 
                         'monthNo': $scope.voucher.MonthNo,
                         'isActive': $scope.voucher.IsActive,
                         'isSeperated': $scope.voucher.IsSeperated,
-                        'isMaternity': $scope.voucher.IsMaternity
+                        'isMaternity': $scope.voucher.IsMaternity,
+                        'entityId': $scope.voucher.EntityId
                     }
                 }).then(function successCallback(response) {
                     $scope.inDirectSalaryLockSalarySheetDataList = response.data;

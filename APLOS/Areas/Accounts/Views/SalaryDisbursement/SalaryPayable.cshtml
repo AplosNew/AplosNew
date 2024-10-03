@@ -21,6 +21,17 @@
                         <input required datepicker="getFiscalYearPeriod(voucher.PostingDate);getTaxCodeByTaxYear(voucher.PostingDate);" id="postingDate" type="text" name="PostingDate" ng-model="voucher.PostingDate" class="form-control" tabindex="1">
                     </div>
                 </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select id="entityId" class="form-control" name="Entity" ng-model="voucher.EntityId" ng-change="entityChange(voucher.EntityId)" tabindex="7" required>
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="col-md-3 ">
                 <div class="form-group" show-errors>
@@ -79,7 +90,6 @@
                         <input type="text" ng-maxlength="50" name="Doc Ref" ng-model="voucher.DocRefNo" class="form-control" tabindex="4" required capitalize autocomplete="off">
                     </div>
                     <div class="col-sm-4">
-
                     </div>
                 </div>
             </div>
@@ -439,6 +449,7 @@
                     <th>Posting Date</th>
                     <th>Month</th>
                     <th>Year</th>
+                    <th>Entity</th>
                     <th>Currency</th>
                     <th>Amount</th>
                     <th>Status</th>
@@ -453,6 +464,7 @@
                     <td>{{x.PostingDate | dateFiltering}}</td>
                     <td>{{x.Month}}</td>
                     <td>{{x.YearNo}}</td>
+                    <td>{{x.Entity}}</td>
                     <td>{{x.CurrencyCode}}</td>
                     <td class="text-right">{{x.DrAmount | number:2}}</td>
                     <td>{{x.IsPark?'Parked':'Posted'}}</td>

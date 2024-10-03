@@ -99,51 +99,51 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetSalaryLockDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity)
+        public JsonResult GetSalaryLockDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string entityId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
-            return Json(accountsSalaryPayableService.GetSalaryLockDataList(yearNo, monthNo, employeeId, isActive, isSeperated, isMaternity, identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(accountsSalaryPayableService.GetSalaryLockDataList(yearNo, monthNo, employeeId, isActive, isSeperated, isMaternity, identity.PlantId, entityId), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
-        public JsonResult GetSalaryLockCTCDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity)
+        public JsonResult GetSalaryLockCTCDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string entityId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
-            return Json(accountsSalaryPayableService.GetSalaryLockCTCDataList(yearNo, monthNo, employeeId, isActive, isSeperated, isMaternity, identity.PlantId), JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpGet]
-        public JsonResult GetSalaryLockDataGLList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
-            return Json(accountsSalaryPayableService.GetSalaryLockDataGLList(yearNo, monthNo, employeeId, isActive, isSeperated, isMaternity, identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(accountsSalaryPayableService.GetSalaryLockCTCDataList(yearNo, monthNo, employeeId, isActive, isSeperated, isMaternity, identity.PlantId, entityId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetSalaryLockInDirectTakeAwayDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity)
+        public JsonResult GetSalaryLockDataGLList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string entityId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
-            return Json(accountsSalaryPayableService.GetSalaryLockInDirectTakeAwayDataList(yearNo, monthNo, employeeId, isActive, isSeperated, isMaternity, identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(accountsSalaryPayableService.GetSalaryLockDataGLList(yearNo, monthNo, employeeId, isActive, isSeperated, isMaternity, identity.PlantId, entityId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetSalaryLockInDirectCTCDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity)
+        public JsonResult GetSalaryLockInDirectTakeAwayDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string entityId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
-            return Json(accountsSalaryPayableService.GetSalaryLockInDirectCTCDataList(yearNo, monthNo, employeeId, isActive, isSeperated, isMaternity, identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(accountsSalaryPayableService.GetSalaryLockInDirectTakeAwayDataList(yearNo, monthNo, employeeId, isActive, isSeperated, isMaternity, identity.PlantId, entityId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetSalaryLockInDirectDataGLList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity)
+        public JsonResult GetSalaryLockInDirectCTCDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string entityId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
-            return Json(accountsSalaryPayableService.GetSalaryLockInDirectDataGLList(yearNo, monthNo, employeeId, isActive, isSeperated, isMaternity, identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(accountsSalaryPayableService.GetSalaryLockInDirectCTCDataList(yearNo, monthNo, employeeId, isActive, isSeperated, isMaternity, identity.PlantId, entityId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetSalaryLockInDirectDataGLList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string entityId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
+            return Json(accountsSalaryPayableService.GetSalaryLockInDirectDataGLList(yearNo, monthNo, employeeId, isActive, isSeperated, isMaternity, identity.PlantId, entityId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -156,19 +156,19 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
         [Authorize, HttpPost]
-        public JsonResult GetDirectSalaryLockSalarySheetData(string yearNo, string monthNo, bool isActive, bool isSeperated, bool isMaternity)
+        public JsonResult GetDirectSalaryLockSalarySheetData(string yearNo, string monthNo, bool isActive, bool isSeperated, bool isMaternity, string entityId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
-            return Json(accountsSalaryPayableService.GetDirectSalaryLockSalarySheetData(yearNo, monthNo, isActive, isSeperated, isMaternity, identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(accountsSalaryPayableService.GetDirectSalaryLockSalarySheetData(yearNo, monthNo, isActive, isSeperated, isMaternity, identity.PlantId, entityId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost]
-        public JsonResult GetInDirectSalaryLockSalarySheetData(string yearNo, string monthNo, bool isActive, bool isSeperated, bool isMaternity)
+        public JsonResult GetInDirectSalaryLockSalarySheetData(string yearNo, string monthNo, bool isActive, bool isSeperated, bool isMaternity, string entityId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
-            return Json(accountsSalaryPayableService.GetInDirectSalaryLockSalarySheetData(yearNo, monthNo, isActive, isSeperated, isMaternity, identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(accountsSalaryPayableService.GetInDirectSalaryLockSalarySheetData(yearNo, monthNo, isActive, isSeperated, isMaternity, identity.PlantId, entityId), JsonRequestBehavior.AllowGet);
 
         }
 
@@ -1314,7 +1314,7 @@ Where HeadCategory='Net Payable' ";
                                     LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
                                     LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.DisbursementVoucherId 
                                     LEFT JOIN [dbo].[DisbursementAdvice]  DA ON DA.Id=sl.DisbursementAdviceId 
-                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' AND ISNULL(e.PaymentMode,'')='" + paymentMode + "' AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND ISNULL(sl.IsDisbursed,0) = 0 AND sl.PastDisbursed IS NULL  " + wcPayrollGroup + @" 
+                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' AND ISNULL(e.PaymentMode,'')='" + paymentMode + "' AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND ISNULL(sl.IsDisbursed,0) = 0 AND V.IsPark=0 AND sl.PastDisbursed IS NULL  " + wcPayrollGroup + @" 
                                     ) DD " + wcEmpStatus + @" ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
 
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -3787,7 +3787,7 @@ AND CONCAT(YEAR('" + toDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + toDate + @"
                                     LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.BonusDisbursementVoucherId
                                     left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=SPCD.SalaryHeadID and vd.CrAmount>0
                                     LEFT JOIN [dbo].[BonusDisbursementAdvice]  DA ON DA.Id=sl.BonusDisbursementAdviceId 
-                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' AND ISNULL(e.PaymentMode,'')='" + paymentMode + "' AND ISNULL(sl.PayableVoucherId,'')<>''  and sl.islocked=1 AND ISNULL(sl.IsBonusDisbursed,0) = 0 AND ISNULL(sl.PastBonusDisbursed,0) = 0 " + wcPayrollGroup + @" 
+                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' AND ISNULL(e.PaymentMode,'')='" + paymentMode + "' AND ISNULL(sl.PayableVoucherId,'')<>''  and sl.islocked=1 AND ISNULL(sl.IsBonusDisbursed,0) = 0 AND V.IsPark=0 AND ISNULL(sl.PastBonusDisbursed,0) = 0 " + wcPayrollGroup + @" 
                                     AND CONCAT(sl.YearNo,RIGHT('00'+Isnull(Cast(SL.MonthNo AS VARCHAR(max)), ''),2)) 
 									BETWEEN  CONCAT(YEAR('" + fromDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + fromDate + @"') AS VARCHAR(max)), ''),2))
 									AND CONCAT(YEAR('" + toDate + @"'),RIGHT('00'+Isnull(Cast(Month('" + toDate + @"') AS VARCHAR(max)), ''),2))
