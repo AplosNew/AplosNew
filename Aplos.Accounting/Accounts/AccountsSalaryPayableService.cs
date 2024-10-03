@@ -34,7 +34,7 @@ namespace Library.Accounting.Accounts
             _sqlRepository = sqlRepository;
         }
 
-        public List<Dictionary<string, object>> GetSalaryLockDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId)
+        public List<Dictionary<string, object>> GetSalaryLockDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId, string entityId)
         {
             string wcEmpStatus = " and (1=0 ";
 
@@ -76,7 +76,7 @@ namespace Library.Accounting.Accounts
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL--and sl.EmpSystemId='" + employeeId + @"' 
+                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND MPB.EntityId='" + entityId + @"' AND sl.PayableVoucherId IS NULL--and sl.EmpSystemId='" + employeeId + @"' 
                         AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 AND SPL.PlantId='" + plantId + @"'  and DMC.plantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='E' AND sh.IsGrossComponent=1 AND sh.PartOfNetPay=1 " + wcEmpStatus + @"
                         AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee])
@@ -96,7 +96,7 @@ namespace Library.Accounting.Accounts
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL--and sl.EmpSystemId='" + employeeId + @"' 
+                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND MPB.EntityId='" + entityId + @"' AND sl.PayableVoucherId IS NULL--and sl.EmpSystemId='" + employeeId + @"' 
                         AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 AND SPL.PlantId='" + plantId + @"'  and DMC.plantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='E' AND sh.IsGrossComponent=0 AND sh.PartOfNetPay=1 " + wcEmpStatus + @"
                         AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee])
@@ -116,7 +116,7 @@ namespace Library.Accounting.Accounts
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL --and sl.EmpSystemId='" + employeeId + @"' 
+                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND MPB.EntityId='" + entityId + @"' AND sl.PayableVoucherId IS NULL --and sl.EmpSystemId='" + employeeId + @"' 
                         AND ISNULL(sh.SalaryHead,'')  in ('Net Pay') and spc.DisbusmentAmount!=0 " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'  and DMC.plantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='E' 
                         AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee])
@@ -136,7 +136,7 @@ namespace Library.Accounting.Accounts
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL --and sl.EmpSystemId='" + employeeId + @"'
+                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND MPB.EntityId='" + entityId + @"' AND sl.PayableVoucherId IS NULL --and sl.EmpSystemId='" + employeeId + @"'
                         --and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable')  
                         and spc.DisbusmentAmount!=0 and  PO.DirectManpowerCost=1 AND sh.HeadType='D' " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'  and DMC.plantId='" + plantId + @"'
                         AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee])
@@ -147,7 +147,7 @@ namespace Library.Accounting.Accounts
 
         }
 
-        public List<Dictionary<string, object>> GetSalaryLockCTCDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId)
+        public List<Dictionary<string, object>> GetSalaryLockCTCDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId, string entityId)
         {
 
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
@@ -200,7 +200,7 @@ namespace Library.Accounting.Accounts
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL --and sl.EmpSystemId='" + employeeId + @"' 
+                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND MPB.EntityId='" + entityId + @"' AND sl.PayableVoucherId IS NULL --and sl.EmpSystemId='" + employeeId + @"' 
                         AND ISNULL(sh.HeadCategory,'')  in ('CTC') and spc.DisbusmentAmount!=0 AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='E' AND sh.IsGrossComponent=0 AND sh.PartOfNetPay=0 " + wcEmpStatus + @"
                         AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee])
@@ -209,7 +209,7 @@ namespace Library.Accounting.Accounts
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public List<Dictionary<string, object>> GetSalaryLockDataGLList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId)
+        public List<Dictionary<string, object>> GetSalaryLockDataGLList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId, string entityId)
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
@@ -278,7 +278,7 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN MST.BudgetMaster DBM ON DBM.Id=SGL.DrDirectBudgetMasterId
                             LEFT JOIN HKP.Budget DB ON DB.Id=DBM.BudgetId
                             LEFT JOIN HKP.Activity DA ON DA.Id=SGL.DrDirectActivityId
-                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'  and DMC.plantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
+                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND MPB.EntityId='" + entityId + @"' AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'  and DMC.plantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
                         and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=1 
                         AND ISNULL(sgl.DrDirectActivityId,'')<>'' 
                         AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where month(effectivedate)<=sl.MonthNo and year(effectivedate)=sl.YearNo)
@@ -312,7 +312,7 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN MST.BudgetMaster CDBM ON CDBM.Id=SGL.CrDirectBudgetMasterId
                             LEFT JOIN HKP.Budget CDB ON CDB.Id=CDBM.BudgetId
                             LEFT JOIN HKP.Activity CDA ON CDA.Id=SGL.CrDirectActivityId
-                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'  and DMC.plantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
+                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND MPB.EntityId='" + entityId + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'  and DMC.plantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
                         AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where month(effectivedate)<=sl.MonthNo and year(effectivedate)=sl.YearNo)
                         AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=1 
                          AND  ISNULL(sgl.CrDirectActivityId,'')<>'' 
@@ -328,7 +328,7 @@ namespace Library.Accounting.Accounts
 
         }
 
-        public List<Dictionary<string, object>> GetSalaryLockInDirectTakeAwayDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId)
+        public List<Dictionary<string, object>> GetSalaryLockInDirectTakeAwayDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId, string entityId)
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
@@ -382,7 +382,7 @@ namespace Library.Accounting.Accounts
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @"--and sl.EmpSystemId='" + employeeId + @"' 
+                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND MPB.EntityId='" + entityId + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @"--and sl.EmpSystemId='" + employeeId + @"' 
                         AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where month(effectivedate)<=sl.MonthNo and year(effectivedate)=sl.YearNo)
                         AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 
                         AND  PO.DirectManpowerCost=0 AND sh.HeadType='E' AND sh.IsGrossComponent=1 AND sh.PartOfNetPay=1 AND SPL.PlantId='" + plantId + @"'  and DMC.plantId='" + plantId + @"'
@@ -402,7 +402,7 @@ namespace Library.Accounting.Accounts
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @"--and sl.EmpSystemId='" + employeeId + @"'  
+                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND MPB.EntityId='" + entityId + @"' AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @"--and sl.EmpSystemId='" + employeeId + @"'  
                         AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 
                         AND  PO.DirectManpowerCost=0 AND sh.HeadType='E' AND sh.IsGrossComponent=0 AND sh.PartOfNetPay=1 AND SPL.PlantId='" + plantId + @"'
                         AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee])
@@ -422,7 +422,7 @@ namespace Library.Accounting.Accounts
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @"--and sl.EmpSystemId='" + employeeId + @"' 
+                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND MPB.EntityId='" + entityId + @"' AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @"--and sl.EmpSystemId='" + employeeId + @"' 
                         AND ISNULL(sh.SalaryHead,'')  in ('Net Pay') and spc.DisbusmentAmount!=0 AND SPL.PlantId='" + plantId + @"'  and DMC.plantId='" + plantId + @"'
                         AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where month(effectivedate)<=sl.MonthNo and year(effectivedate)=sl.YearNo)
                         AND  PO.DirectManpowerCost=0 AND sh.HeadType='E' 
@@ -443,7 +443,7 @@ namespace Library.Accounting.Accounts
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'  and DMC.plantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
+                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND MPB.EntityId='" + entityId + @"' AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'  and DMC.plantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
                         --and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') 
                         and spc.DisbusmentAmount!=0  and  PO.DirectManpowerCost=0 AND sh.HeadType='D'
                         AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where month(effectivedate)<=sl.MonthNo and year(effectivedate)=sl.YearNo)
@@ -454,7 +454,7 @@ namespace Library.Accounting.Accounts
         }
 
 
-        public List<Dictionary<string, object>> GetSalaryLockInDirectCTCDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId)
+        public List<Dictionary<string, object>> GetSalaryLockInDirectCTCDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId, string entityId)
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
@@ -507,7 +507,7 @@ namespace Library.Accounting.Accounts
 						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL--and sl.EmpSystemId='" + employeeId + @"' 
+                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND MPB.EntityId='" + entityId + @"' AND sl.PayableVoucherId IS NULL--and sl.EmpSystemId='" + employeeId + @"' 
                         AND ISNULL(sh.HeadCategory,'')  in ('CTC') and spc.DisbusmentAmount!=0 
                         AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where month(effectivedate)<=sl.MonthNo and year(effectivedate)=sl.YearNo)
                         AND  PO.DirectManpowerCost=0 AND sh.HeadType='E' AND sh.IsGrossComponent=0 AND sh.PartOfNetPay=0 " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'  and DMC.plantId='" + plantId + @"'
@@ -517,7 +517,7 @@ namespace Library.Accounting.Accounts
         }
 
 
-        public List<Dictionary<string, object>> GetSalaryLockInDirectDataGLList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId)
+        public List<Dictionary<string, object>> GetSalaryLockInDirectDataGLList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId, string entityId)
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
@@ -588,7 +588,7 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN HKP.Budget IB ON IB.Id=IBM.BudgetId
                             LEFT JOIN HKP.Activity IA ON IA.Id=SGL.DrInDirectActivityId
 							
-                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'  and DMC.plantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
+                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND MPB.EntityId='" + entityId + @"' AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'  and DMC.plantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
                         and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=0 
                         and ISNULL(sgl.DrInDirectActivityId,'')<>''
                        AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where month(effectivedate)<=sl.MonthNo and year(effectivedate)=sl.YearNo)
@@ -621,7 +621,7 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN MST.BudgetMaster CIBM ON CIBM.Id=SGL.CrInDirectBudgetMasterId
                             LEFT JOIN HKP.Budget CIB ON CIB.Id=CIBM.BudgetId
                             LEFT JOIN HKP.Activity CIA ON CIA.Id=SGL.CrInDirectActivityId
-                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'  and DMC.plantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
+                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND MPB.EntityId='" + entityId + @"' AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'  and DMC.plantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
                         and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=0 
                         AND ISNULL(sgl.CrInDirectActivityId,'')<>'' 
                         AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where month(effectivedate)<=sl.MonthNo and year(effectivedate)=sl.YearNo)
@@ -636,7 +636,7 @@ namespace Library.Accounting.Accounts
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public List<Dictionary<string, object>> GetDirectSalaryLockSalarySheetData(string yearNo, string monthNo, bool isActive, bool isSeperated, bool isMaternity, string plantId)
+        public List<Dictionary<string, object>> GetDirectSalaryLockSalarySheetData(string yearNo, string monthNo, bool isActive, bool isSeperated, bool isMaternity, string plantId, string entityId)
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
@@ -712,7 +712,7 @@ namespace Library.Accounting.Accounts
 											JOIN TRN.EmployeeAdvanceDeduction EAD ON EAD.AdvanceReqScheduleId=ARS.Id
 											JOIN [TRN].[EmployeeAdvanceDetail] WAD ON WAD.Id=ARS.EmployeeAdvanceDetailId
 											WHERE ARS.MonthNo='" + monthNo + "' AND ARS.YearNo='" + yearNo + @"' ) WA ON WA.EmployeeId=SL.EmpSystemId
-                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL 
+                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND MPB.EntityId='" + entityId + @"' AND sl.PayableVoucherId IS NULL 
                         AND ISNULL(sh.HeadCategory,'')  in ('Advance') and spc.DisbusmentAmount!=0 " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"' and DMC.plantId='" + plantId + @"'
                         AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where month(effectivedate)<=sl.MonthNo and year(effectivedate)=sl.YearNo)
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='D' 
@@ -721,7 +721,7 @@ namespace Library.Accounting.Accounts
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public List<Dictionary<string, object>> GetInDirectSalaryLockSalarySheetData(string yearNo, string monthNo, bool isActive, bool isSeperated, bool isMaternity, string plantId)
+        public List<Dictionary<string, object>> GetInDirectSalaryLockSalarySheetData(string yearNo, string monthNo, bool isActive, bool isSeperated, bool isMaternity, string plantId, string entityId)
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
@@ -797,7 +797,7 @@ namespace Library.Accounting.Accounts
 											JOIN [TRN].[EmployeeAdvanceDetail] WAD ON WAD.Id=ARS.EmployeeAdvanceDetailId
 											WHERE ARS.MonthNo='" + monthNo + "' AND ARS.YearNo='" + yearNo + @"' ) WA ON WA.EmployeeId=SL.EmpSystemId
 
-                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL 
+                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND MPB.EntityId='" + entityId + @"' AND sl.PayableVoucherId IS NULL 
                         AND ISNULL(sh.HeadCategory,'')  in ('Advance') and spc.DisbusmentAmount!=0 " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=0 AND sh.HeadType='D' 
                         AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where month(effectivedate)<=sl.MonthNo and year(effectivedate)=sl.YearNo)
@@ -2512,10 +2512,11 @@ namespace Library.Accounting.Accounts
         {
             var cmdText = @"SELECT VT.UserName AS VoucherTypeName, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
                             , REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, V.DocRefNo, V.AddedBy, V.PostedBy, UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
-                            , V.CurrencyId, C.Code AS CurrencyCode
+                            , V.CurrencyId, C.Code AS CurrencyCode,ET.UserName Entity
                             FROM  [TRN].[Voucher] AS V 
                             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
 							LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
+                            LEFT JOIN org.Entity ET on ET.Id = V.EntityId
                             WHERE V.Archive=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + "' AND V.Id='" + voucherId + "' ";
             return _sqlRepository.GetData(cmdText);
         }
@@ -2616,6 +2617,9 @@ namespace Library.Accounting.Accounts
             colLast = companyCurrencyId == transcationCurrency ? 5 : 7;
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Narration");
             reportUtility.SetText(ref sheet, row, 2, header["Narration"].ToString(), ExcelHAlign.HAlignLeft);
+            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Entity");
+            reportUtility.SetText(ref sheet, row, 5, header["Entity"].ToString(), ExcelHAlign.HAlignLeft);
+
             sheet[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(3) + row].Merge();
 
             row++;

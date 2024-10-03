@@ -156,9 +156,10 @@ namespace Library.Service.SalaryDisbursement
                                     when sl.MonthNo=9 then 'September'
                                     when sl.MonthNo=10 then 'October'
                                     when sl.MonthNo=11 then 'November'
-                                    when sl.MonthNo=12 then 'December' end,sl.MonthNo ,sl.YearNo
+                                    when sl.MonthNo=12 then 'December' end,sl.MonthNo ,sl.YearNo,ET.UserName Entity
                                     FROM TRN.[Voucher] AS V
                                     LEFT JOIN SCS.Currency AS C ON C.Id = V.CurrencyId
+                                    LEFT JOIN org.Entity ET on ET.Id = V.EntityId
                                     LEFT JOIN (SELECT SUM(VD.DrAmount) AS DrAmount, VD.VoucherId FROM [TRN].[VoucherDetail] AS VD WHERE VD.DrAmount <> 0 GROUP BY VD.VoucherId
                                     ) AS VD ON VD.VoucherId=V.Id
 									left join (select distinct PayableVoucherId,MonthNo,YearNo from dbo.SalaryLock) sl on sl.PayableVoucherId=v.Id
@@ -314,6 +315,7 @@ namespace Library.Service.SalaryDisbursement
                                 GLGeneralInfoId = directVoucherDetailVM.GLGeneralInfoId,
                                 BudgetMasterId = directVoucherDetailVM.BudgetMasterId,
                                 ActivityId = directVoucherDetailVM.ActivityId,
+                                EntityId = voucherVM.EntityId,
                                 DrAmount = directVoucherDetailVM.DrAmount,
                                 CrAmount = directVoucherDetailVM.CrAmount,
                                 TrnNature = directVoucherDetailVM.SalaryHead,
@@ -664,6 +666,7 @@ namespace Library.Service.SalaryDisbursement
                                             GLGeneralInfoId = directVoucherDetailVM.GLGeneralInfoId,
                                             BudgetMasterId = directVoucherDetailVM.BudgetMasterId,
                                             ActivityId = directVoucherDetailVM.ActivityId,
+                                            EntityId = voucherVM.EntityId,
                                             DrAmount = directVoucherDetailVM.DrAmount,
                                             CrAmount = directVoucherDetailVM.CrAmount - directAmount,
                                             TrnNature = directVoucherDetailVM.SalaryHead,
@@ -698,6 +701,7 @@ namespace Library.Service.SalaryDisbursement
                                         GLGeneralInfoId = directVoucherDetailVM.GLGeneralInfoId,
                                         BudgetMasterId = directVoucherDetailVM.BudgetMasterId,
                                         ActivityId = directVoucherDetailVM.ActivityId,
+                                        EntityId = voucherVM.EntityId,
                                         DrAmount = directVoucherDetailVM.DrAmount,
                                         CrAmount = directVoucherDetailVM.CrAmount,
                                         TrnNature = directVoucherDetailVM.SalaryHead,
@@ -738,6 +742,7 @@ namespace Library.Service.SalaryDisbursement
                                         GLGeneralInfoId = directVoucherDetailVM.GLGeneralInfoId,
                                         BudgetMasterId = directVoucherDetailVM.BudgetMasterId,
                                         ActivityId = directVoucherDetailVM.ActivityId,
+                                        EntityId = voucherVM.EntityId,
                                         DrAmount = 0,
                                         CrAmount = item.ProfitAmount,
                                         EmployeeId = item.EmployeeId,
@@ -824,6 +829,7 @@ namespace Library.Service.SalaryDisbursement
                                 GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                                 BudgetMasterId = voucherDetailVM.BudgetMasterId,
                                 ActivityId = voucherDetailVM.ActivityId,
+                                EntityId = voucherVM.EntityId,
                                 DrAmount = voucherDetailVM.DrAmount,
                                 CrAmount = voucherDetailVM.CrAmount,
                                 TrnNature = voucherDetailVM.SalaryHead,
@@ -916,6 +922,7 @@ namespace Library.Service.SalaryDisbursement
                                                 GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                                                 BudgetMasterId = voucherDetailVM.BudgetMasterId,
                                                 ActivityId = voucherDetailVM.ActivityId,
+                                                EntityId = voucherVM.EntityId,
                                                 DrAmount = voucherDetailVM.DrAmount,
                                                 CrAmount = item.Amount,
                                                 EmployeeId = item.EmployeeId,
@@ -1009,6 +1016,7 @@ namespace Library.Service.SalaryDisbursement
                                                 BudgetMasterId = voucherDetailVM.BudgetMasterId,
                                                 ActivityId = voucherDetailVM.ActivityId,
                                                 DrAmount = voucherDetailVM.DrAmount,
+                                                EntityId = voucherVM.EntityId,
                                                 CrAmount = item.Amount,
                                                 EmployeeId = item.EmployeeId,
                                                 TrnNature = voucherDetailVM.SalaryHead,
@@ -1099,6 +1107,7 @@ namespace Library.Service.SalaryDisbursement
                                                 GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                                                 BudgetMasterId = voucherDetailVM.BudgetMasterId,
                                                 ActivityId = voucherDetailVM.ActivityId,
+                                                EntityId = voucherVM.EntityId,
                                                 DrAmount = voucherDetailVM.DrAmount,
                                                 CrAmount = item.Amount,
                                                 EmployeeId = item.EmployeeId,
@@ -1177,6 +1186,7 @@ namespace Library.Service.SalaryDisbursement
                                             GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                                             BudgetMasterId = voucherDetailVM.BudgetMasterId,
                                             ActivityId = voucherDetailVM.ActivityId,
+                                            EntityId = voucherVM.EntityId,
                                             DrAmount = voucherDetailVM.DrAmount,
                                             CrAmount = voucherDetailVM.CrAmount - indirectAdvanceAmountTemp,
                                             TrnNature = voucherDetailVM.SalaryHead,
@@ -1209,6 +1219,7 @@ namespace Library.Service.SalaryDisbursement
                                         GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                                         BudgetMasterId = voucherDetailVM.BudgetMasterId,
                                         ActivityId = voucherDetailVM.ActivityId,
+                                        EntityId = voucherVM.EntityId,
                                         DrAmount = voucherDetailVM.DrAmount,
                                         CrAmount = voucherDetailVM.CrAmount,
                                         TrnNature = voucherDetailVM.SalaryHead,
@@ -1247,6 +1258,7 @@ namespace Library.Service.SalaryDisbursement
                                         GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                                         BudgetMasterId = voucherDetailVM.BudgetMasterId,
                                         ActivityId = voucherDetailVM.ActivityId,
+                                        EntityId = voucherVM.EntityId,
                                         DrAmount = voucherDetailVM.DrAmount,
                                         CrAmount = item.ProfitAmount,
                                         TrnNature = voucherDetailVM.SalaryHead,
@@ -1332,7 +1344,7 @@ namespace Library.Service.SalaryDisbursement
                                     left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						            left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						            left join ORG.Position PO on PO.Id=MPB.PositionId
-                                    where sl.YearNo='" + yearNo + "' and sl.MonthNo='" + monthNo + @"'   
+                                    where sl.YearNo='" + yearNo + "' and sl.MonthNo='" + monthNo + @"' AND MPB.EntityId='" + voucherVM.EntityId + @"'   
                                     and  PO.DirectManpowerCost=1 AND  spd.PlantId='" + voucherVM.PlantId + "' and sl.PayableVoucherId IS NULL)";
                     direct.Append(directsql);
                     _sqlRepository.ExecuteSqlCommand(direct.ToString());
@@ -1353,13 +1365,13 @@ namespace Library.Service.SalaryDisbursement
                                     left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						            left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						            left join ORG.Position PO on PO.Id=MPB.PositionId
-                                    where sl.YearNo='" + yearNo + "' and sl.MonthNo='" + monthNo + @"'   
+                                    where sl.YearNo='" + yearNo + "' and sl.MonthNo='" + monthNo + @"' AND MPB.EntityId='" + voucherVM.EntityId + @"'  
                                     and  PO.DirectManpowerCost=0 AND  spd.PlantId='" + voucherVM.PlantId + "' and sl.PayableVoucherId IS NULL)";
                     inDirect.Append(inDirectsql);
                     _sqlRepository.ExecuteSqlCommand(inDirect.ToString());
 
                 }
-                _unitOfWork.SaveChanges();
+                _unitOfWork.SaveChanges(); 
                 flag = false;
                 _unitOfWork.Commit();
                 return "Save Successful";
