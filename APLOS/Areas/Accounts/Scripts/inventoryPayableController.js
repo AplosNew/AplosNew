@@ -348,7 +348,7 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
                 $scope.inventoryMaterialList = [];
                 $scope.newList = [];
                 $scope.inventoryMaterialList = response.data;
-                $scope.modelNew.EntityId = $scope.inventoryMaterialList[0].EntityId;
+               
                 if (!$scope.modelNew.IsNonCreditable)
                     reArrangeCreditableList($scope.inventoryMaterialList, $scope.newList, $scope.inventoryReceiveDetailList);
                 else if ($scope.modelNew.IsNonCreditable)
@@ -538,6 +538,13 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
                 
             //else newList.push(list[i]);
         }
+        $scope.tempEntityId = $scope.inventoryMaterialList[0].EntityId;
+        if ($scope.tempEntityId) {
+            $scope.modelNew.EntityId = $scope.tempEntityId;
+            $scope.entityChanges($scope.modelNew.EntityId);
+            $scope.tempEntityId = null;
+        }
+       
         distributeTCSAmount();
     }
 
@@ -630,6 +637,10 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
             else if (row.OtherName === 'Acceptance' && $scope.AcceptanceId !== null)
                 newList.push(list[i]);
         }
+
+        $scope.modelNew.EntityId = $scope.tempEntityId;
+        $scope.entityChanges($scope.modelNew.EntityId);
+        $scope.tempEntityId = null;
     }
 
     function assignSvcInTax(row, taxList, trnType) {
@@ -1395,5 +1406,16 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
                 $scope.inventoryReceivedList[j].EntityName = tempEntityName;
             }
         }
+        for (var k = 0; k < $scope.inventoryReceiveDetailList.length; k++) {
+            if ($scope.inventoryReceiveDetailList[k].EntityId == null) {
+                $scope.inventoryReceiveDetailList[k].EntityId = id;
+                $scope.inventoryReceiveDetailList[k].EntityName = tempEntityName;
+            }
+        }
+        
     }
+    $scope.rcmApplicableCheck = function (rcm) {
+        getOtherVendorChargesList($scope.modelNew.Id, $scope.modelNew.OtherPartyId, rcm);
+    }
+
 }

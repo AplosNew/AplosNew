@@ -302,6 +302,7 @@ namespace Library.Service.Invoices
                     receiveData.ModelState = ModelState.Modified;
                     AuditService.UpdatedLog(receiveData);
                     invoice.InventoryReceiveId = receiveId;
+                    receiveData.OtherPartyRCMApplicable = voucherVM.OtherPartyRCMApplicable;
                     _inventoryReceiveRepository.Update(receiveData);
 
                     var grnAccMap = new GRNAcceptanceMap
