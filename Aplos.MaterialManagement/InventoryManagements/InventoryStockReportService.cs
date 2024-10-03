@@ -248,6 +248,7 @@ namespace Library.MaterialManagement.InventoryManagements
                          
 							,isnull(IFD1.IssueQty,0) IssueForThePeriod	
 							,isnull(IFD1.PolicyAmount,0) IssueForThePeriodAmount	
+							,isnull(IFD1.IssueBaleQty,0) IssueBaleQty	
 
 							--Issue Return
 							,isnull(IssueReturnData.Qty,0) IssueReturnQtyForThePeriod	
@@ -275,7 +276,7 @@ namespace Library.MaterialManagement.InventoryManagements
 							--Balance    
 							,(((((((isnull(opbal.TransactionQty,0) + isnull(opbal2.TransactionQty,0))-isnull(IFD1.IssueQty,0)-isnull(PurchaseReturnData.Qty,0))-isnull(AdjustmentData.Qty,0))+isnull(IssueReturnData.Qty,0))-isnull(InventorySalesData.Qty,0))-isnull(InventoryScrapData.Qty,0))-isnull(InventoryTransferData.CapitalizeQty,0)) Closing 
 							,(((((((isnull(opbal.TotalMaterialBooksCurrencyAmount-opbal.ShortageValue,0) + isnull(opbal2.TotalMaterialBooksCurrencyAmount-opbal2.ShortageValue,0))-isnull(IFD1.PolicyAmount,0)-isnull(AdjustmentData.AdjustmentAmount,0))-isnull(PurchaseReturnData.PurchaseReturnAmount,0))+isnull(IssueReturnData.IssueReturnAmount,0)-isnull(InventorySalesData.InventorySalesAmount,0))-isnull(InventoryScrapData.InventoryScrapAmount,0))-isnull(InventoryTransferData.CapitalizeAmount,0))) ClosingAmount
-
+                            ,isnull(opbal.BaleQty,0)+ISNULL(opbal2.BaleQty,0)-isnull(IFD1.IssueBaleQty,0) ClosingBaleQty
 
 						from TRN.InventoryMaterial AS IM
                         left join (select distinct InventoryMaterialId,MaterialStorageId from trn.InventoryReceiveDetail) as IRS on im.Id=irs.InventoryMaterialId
@@ -341,7 +342,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									WHERE convert(Date,II.IssueDate) <= '" + toDate + @"' AND II.PlantId='" + plantId + @"'  GROUP BY IID.InventoryMaterialId, IH.MaterialStorageId
 									) IFD On IFD.InventoryMaterialId=IM.Id and IFD.MaterialStorageId=IRS.MaterialStorageId
 
-						left join (select IID.InventoryMaterialId, IH.MaterialStorageId, Sum(IH.Qty) IssueQty , Sum(IH.TotalAmount) PolicyAmount
+						left join (select IID.InventoryMaterialId, IH.MaterialStorageId, Sum(IH.Qty) IssueQty,SUM(IH.BaleQty) IssueBaleQty , Sum(IH.TotalAmount) PolicyAmount
 									FROM TRN.InventoryIssueDetail IID  
 									LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
 									LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
@@ -444,14 +445,16 @@ namespace Library.MaterialManagement.InventoryManagements
                 if (Amount != "" && Qty != "")
                 {
                     StartRange = 15;
+
+                    StartRange = 15;
                     if (bale) { EndRange = StartRange + 2; }
                     else { EndRange = StartRange + 1; }
-
                     if (materialStorage == "true")
                     {
                         StartRange = 16;
-                        EndRange = StartRange + 2;
+                        EndRange = StartRange + 1;
                     }
+                    
 
                     sheet1.Range[_row, StartRange, _row, EndRange].Text = "Opening Balance";
                     sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Size = 10;
@@ -473,9 +476,8 @@ namespace Library.MaterialManagement.InventoryManagements
                     sheet1.Range[_row, StartRange, _row, EndRange].BorderInside(ExcelLineStyle.Hair);
                     sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.FillBackground = ExcelKnownColors.Tan;
                     sheet1.Range[_row, StartRange, _row, EndRange].Merge();
-                    StartRange = EndRange + 1;
-                    EndRange = StartRange + 1;
-
+                    if (bale) { StartRange = EndRange + 1; EndRange = StartRange + 2; }
+                    else { StartRange = EndRange + 1; EndRange = StartRange + 1; }
 
                     sheet1.Range[_row, StartRange, _row, EndRange].Text = "Issue Material";
                     sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Size = 10;
@@ -547,8 +549,8 @@ namespace Library.MaterialManagement.InventoryManagements
                     sheet1.Range[_row, StartRange, _row, EndRange].BorderInside(ExcelLineStyle.Hair);
                     sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.FillBackground = ExcelKnownColors.Tan;
                     sheet1.Range[_row, StartRange, _row, EndRange].Merge();
-                    StartRange = EndRange + 1;
-                    EndRange = StartRange + 1;
+                    if (bale) { StartRange = EndRange + 1; EndRange = StartRange + 2; }
+                    else { StartRange = EndRange + 1; EndRange = StartRange + 1; }
                     sheet1.Range[_row, StartRange, _row, EndRange].Text = "Closing Balance";
                     sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Size = 10;
                     sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Bold = true;
@@ -889,6 +891,16 @@ namespace Library.MaterialManagement.InventoryManagements
                     sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 
+                    if (bale)
+                    {
+                        sheet1headreColIndex++;
+                        sheet1.Range[_rowL, sheet1headreColIndex].Text = "Bale Qty";
+                        sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+                        sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+                    }
+                    
 
                     sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
                     sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 10;
@@ -1409,6 +1421,10 @@ namespace Library.MaterialManagement.InventoryManagements
                         }
                         report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IssueForThePeriod"].ToString())); col++;
                         report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IssueForThePeriodAmount"].ToString())); col++;
+                        if (bale)
+                        {
+                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IssueBaleQty"].ToString())); col++;
+                        }
                         report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IssueReturnQtyForThePeriod"].ToString())); col++;
                         report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IssueReturnForThePeriodAmount"].ToString())); col++;
                         report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["PurchaseReturnQtyForThePeriod"].ToString())); col++;
@@ -1498,12 +1514,20 @@ namespace Library.MaterialManagement.InventoryManagements
                         }
                         report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IssueForThePeriod"].ToString())); col++;
                         report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IssueReturnQtyForThePeriod"].ToString())); col++;
+                        if (bale)
+                        {
+                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IssueBaleQty"].ToString())); col++;
+                        }
                         report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["PurchaseReturnQtyForThePeriod"].ToString())); col++;
                         report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["AdjustmentQtyForThePeriod"].ToString())); col++;
                         report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventorySalesQtyForThePeriod"].ToString())); col++;
                         report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryScrapQtyForThePeriod"].ToString())); col++;
                         report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferQtyForThePeriod"].ToString())); col++;
                         report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Closing"].ToString())); col++;
+                        if (bale)
+                        {
+                            report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ClosingBaleQty"].ToString())); col++;
+                        }
                     }
                 }
             }

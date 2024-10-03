@@ -3358,7 +3358,8 @@ namespace Library.MaterialManagement.InventoryManagements
                                     , REPLACE(CONVERT(CHAR(11), PDA.AcceptanceDate, 106),' ','-') AcceptanceDate,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById,IR.GRNType
 									,IRD.GRNQTY,IRD.GRNValue,IRD.Shortageqty,IRD.ShortageRatePercent,IRD.ShortageValue
 									,IRD.RejectionQty,IRD.RejectRatePercent,IRD.RejectionValue,IRD.RejectClamPercent,IRD.ServiceTranAmount,IRD.ServiceTaxTranAmount,IRD.MaterialTaxAmount
-							,PO.UDNo,ISNULL(MLC.OpeningBank,'') OpeningBank,ISNULL(Pr.UserName ,'') CustomerName
+							,PO.UDNo,ISNULL(MLC.OpeningBank,'') OpeningBank,ISNULL(Pr.UserName ,'') CustomerName,OthP.UserName OtherPartyName,IR.OtherPartyId
+,IR.OtherPartyPlantId,IR.OtherPartyDocRefNo,IR.OtherPartyRCMApplicable,IR.OtherPartyPlantId OtherInvoicingPartyPlantId
 							FROM [TRN].[InventoryReceive] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -3458,6 +3459,7 @@ namespace Library.MaterialManagement.InventoryManagements
 							)PO ON PO.GRNId = IR.Id
 							LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
+                                 LEFT JOIN [HKP].[Party] OthP ON OthP.Id =IR.OtherPartyId 
 								 LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CON.MasterLCId
                         WHERE IR.PlantId='" + plantId + @"' 
                          
