@@ -1266,7 +1266,7 @@ namespace Aplos.Areas.Products.Controllers
                         item.TaxAmount = Math.Round( Convert.ToDecimal(entity.TransactionAmount * 5 / 100),2);
                         item.Percentage = 5;
                     }
-                    else
+                    else if (item.TaxAmount == 0 && number > 1)
                     {
                         item.TaxAmount = Math.Round(Convert.ToDecimal(entity.TransactionAmount * 5 / 200), 2);
                         item.Percentage = Convert.ToDecimal(2.5);

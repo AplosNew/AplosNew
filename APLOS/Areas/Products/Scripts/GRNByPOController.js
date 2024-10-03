@@ -1598,6 +1598,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         $scope.message = 'Are you sure want to permanently delete this?';
         angular.element(document.querySelector('#removePopUp')).modal('show');
     };
+
     $scope.serviceDelete = function () {
         try {
             $http({
@@ -1610,6 +1611,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                     ShowResult(response.data.Message, 'success');
                     $scope.id = null;
                     getServiceChargeList($scope.productNew.Id);
+                    getServiceOtherVendorChargeList($scope.productNew.Id);
                     getInventoryMaterialList($scope.productNew.Id);
                     $scope.getDataList();
                 }
