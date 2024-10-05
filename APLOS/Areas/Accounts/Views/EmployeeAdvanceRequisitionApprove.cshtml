@@ -145,12 +145,24 @@
                                 <div e-column e-field="CheckedBy" e-headertext="Checked By"></div>
                                 <div e-column e-field="ApprovedBy" e-headertext="Approved By"></div>
                                 <div e-column e-field="ApprovalStatus" e-headertext="Status"></div>
-                                <div e-column e-headertext="PDF" e-commands="PdfPrint" e-isunbound=true e-textalign="center" e-width="50"></div>
-                                <div e-column e-headertext="Excel" e-commands="ExcelPrint" e-isunbound=true e-textalign="center" e-width="50"></div>
+                                <div e-column e-headertext="Report" e-template="#ReportApprovalTemplate" e-width="100"></div>
+
                             </div>
                         </div>
 
                     </div>
+                    <script id="ReportApprovalTemplate" type="text/template">
+                        <div class="common-btn">
+                            <ul class="common-btn list-inline text-center">
+                                <li>
+                                    <button ng-click="$parent.onClickReportDownloadWord(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
+                                     <i class="fa fa-file-pdf-o"></i></button>
+                                    <button ng-click="$parent.onClickReportDownloadExcel(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Excel">
+                                     <i class="fa fa-file-excel-o"></i></button>
+                                </li>
+                            </ul>
+                        </div>
+                    </script>
                 </fieldset>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
