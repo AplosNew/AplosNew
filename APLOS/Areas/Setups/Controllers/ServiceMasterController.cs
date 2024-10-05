@@ -126,7 +126,7 @@ namespace Aplos.Areas.Setups.Controllers
                         FROM  HKP.ServiceMaster SM  
                         LEFT JOIN HKP.ServiceGroup SG ON SG.Id=SM.ServiceGroupId
                         LEFT JOIN HKP.ServiceType ST ON ST.Id=SG.ServiceTypeId
-                        LEFT JOIN HKP.ServiceMasterGL SMGL ON SMGL.ServiceMasterId=SM.Id
+                        JOIN HKP.ServiceMasterGL SMGL ON SMGL.ServiceMasterId=SM.Id
                         LEFT JOIN MST.BudgetMasterActivity BMA ON BMA.Id=SMGL.DrControlId
                         LEFT JOIN MST.BudgetMaster BM ON BM.Id=BMA.BudgetMasterId
                         LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
