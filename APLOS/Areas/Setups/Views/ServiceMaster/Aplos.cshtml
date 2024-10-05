@@ -236,7 +236,7 @@
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-form="tabForm2" id="Upload">
             <togglable name=" To be Uploaded & Downloaded"></togglable>
             <div class="form-elements form-horizontal row" ng-form name="ModelNewForm">
-                <div class="col-md-10">
+                <div class="col-md-9">
                     <div class="inputBtnSection common-btn">
                         <label class="fileUpload col-sm-4 ">
                             <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
@@ -245,7 +245,7 @@
                                ng-click="ImportData()" />
                     </div>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <div class="common-btn">
                         <ul class="list-inline text-right">
                             <li> <button ng-click="GetSampleFile();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File Download</button></li>
@@ -288,7 +288,7 @@
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }" ng-form="tabForm3" id="TDSUpload">
             <togglable name=" To be Uploaded & Downloaded"></togglable>
             <div class="form-elements form-horizontal row" ng-form name="ModelNewTDSForm">
-                <div class="col-md-10">
+                <div class="col-md-9">
                     <div class="inputBtnSection common-btn">
                         <label class="fileUpload col-sm-4 ">
                             <input id="uploadImage2" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
@@ -297,7 +297,7 @@
                                ng-click="ImportTDSData()" />
                     </div>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <div class="common-btn">
                         <ul class="list-inline text-right">
                             <li> <button ng-click="GetTDSSampleFile();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File Download</button></li>
@@ -376,6 +376,17 @@
                                         <div class="checkbox-site">
                                             <label>
                                                 <input type="checkbox" ng-model="ModelProcessPara.IndependentApplicable" tabindex="11">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Is Asset Applicable</label>
+                                    <div class="col-sm-8">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="ModelProcessPara.IsAssetApplicable" tabindex="11">
                                                 <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                             </label>
                                         </div>

@@ -126,7 +126,7 @@ namespace Aplos.Areas.Setups.Controllers
                         FROM  HKP.ServiceMaster SM  
                         LEFT JOIN HKP.ServiceGroup SG ON SG.Id=SM.ServiceGroupId
                         LEFT JOIN HKP.ServiceType ST ON ST.Id=SG.ServiceTypeId
-                        LEFT JOIN HKP.ServiceMasterGL SMGL ON SMGL.ServiceMasterId=SM.Id
+                        JOIN HKP.ServiceMasterGL SMGL ON SMGL.ServiceMasterId=SM.Id
                         LEFT JOIN MST.BudgetMasterActivity BMA ON BMA.Id=SMGL.DrControlId
                         LEFT JOIN MST.BudgetMaster BM ON BM.Id=BMA.BudgetMasterId
                         LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
@@ -688,6 +688,12 @@ namespace Aplos.Areas.Setups.Controllers
 
         }
 
+        public DataTable GetServiceMasterGLData()
+        {
+            var cmdText = @"SELECT * FROM [HKP].[ServiceMasterGL]";
+            return _sqlRepository.GetDataTable(cmdText);
+        }
+
         public IWorkbook GetSampleFileServiceMaster(string Name, string CompanyGroupId, string PlantId, string CompanyId, string PlantName)
         {
             #region declare
@@ -726,12 +732,13 @@ namespace Aplos.Areas.Setups.Controllers
                 #region ------------------Column Header------------------
 
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceMasterId"); int colServiceMasterId = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DrControlId"); int colDrControlId = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "CrControlId"); int colCrControlId = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PurchaseApplicable"); int colPurchaseApplicable = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SalesApplicable"); int colSalesApplicable = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IndependentApplicable"); int colIndependentApplicable = xlsCol;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceMasterId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16; int colServiceMasterId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DrControlId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 11; int colDrControlId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "CrControlId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 11; int colCrControlId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PurchaseApplicable"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19; int colPurchaseApplicable = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SalesApplicable"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colSalesApplicable = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IndependentApplicable"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 22; int colIndependentApplicable = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IsAssetApplicable"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colIsAssetAplicable = xlsCol;
                 endXlsCol = xlsCol;
 
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
@@ -747,6 +754,53 @@ namespace Aplos.Areas.Setups.Controllers
                 sheet1.Range[xlsRow, colIndependentApplicable, xlsRow, colIndependentApplicable].DataValidation.AllowType = ExcelDataType.Integer;
 
                 #endregion ------------------Column Header------------------
+
+                DataTable dtData = GetServiceMasterGLData();
+                for (int i = 0; i < dtData.Rows.Count; i++)
+                {
+                    sheet1[xlsRow, colServiceMasterId].Text = dtData.Rows[i]["ServiceMasterId"].ToString();
+                    sheet1[xlsRow, colDrControlId].Text = dtData.Rows[i]["DrControlId"].ToString();
+                    sheet1[xlsRow, colCrControlId].Text = dtData.Rows[i]["CrControlId"].ToString();
+                    if (dtData.Rows[i]["PurchaseApplicable"].ToString() == "False")
+                    {
+                        sheet1[xlsRow, colPurchaseApplicable].Text = "0";
+                    }
+                    else
+                    {
+                        sheet1[xlsRow, colPurchaseApplicable].Text = "1";
+                    }
+                    if (dtData.Rows[i]["SalesApplicable"].ToString() == "False")
+                    {
+                        sheet1[xlsRow, colSalesApplicable].Text = "0";
+                    }
+                    else
+                    {
+                        sheet1[xlsRow, colSalesApplicable].Text = "1";
+                    }
+                    if (dtData.Rows[i]["IndependentApplicable"].ToString() == "False")
+                    {
+                        sheet1[xlsRow, colIndependentApplicable].Text = "0";
+                    }
+                    else
+                    {
+                        sheet1[xlsRow, colIndependentApplicable].Text = "1";
+                    }
+                    if (dtData.Rows[i]["IsAssetApplicable"].ToString() == "False")
+                    {
+                        sheet1[xlsRow, colIsAssetAplicable].Text = "0";
+                    }
+                    else
+                    {
+                        sheet1[xlsRow, colIsAssetAplicable].Text = "1";
+                    }
+                    //sheet1[xlsRow, colPurchaseApplicable].Text =dtData.Rows[i]["PurchaseApplicable"].ToString();
+                    //sheet1[xlsRow, colSalesApplicable].Text = dtData.Rows[i]["SalesApplicable"].ToString();
+                    //sheet1[xlsRow, colIndependentApplicable].Text = dtData.Rows[i]["IndependentApplicable"].ToString();
+                    //sheet1[xlsRow, colIsAssetAplicable].Text = dtData.Rows[i]["IsAssetApplicable"].ToString();
+                   
+                    xlsRow++;
+                }
+
 
                 #region UsedRange Alignment
 
@@ -907,12 +961,20 @@ namespace Aplos.Areas.Setups.Controllers
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
-            bplib.clsGenID genid = new bplib.clsGenID();
             DataSet dsBC, dsDD;
             string _Id = string.Empty;
             try
             {
                 #region Entity 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                string  strSQL = "Delete FROM [HKP].[ServiceMasterGL]";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM [HKP].[ServiceMasterGL] where 1=2", out dsBC, false, "1");
 
@@ -957,6 +1019,60 @@ namespace Aplos.Areas.Setups.Controllers
         }
 
 
+        [HttpPost, Authorize]
+        public JsonResult SaveGLData(List<Dictionary<string, object>> data)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsBC, dsDD;
+            string _Id = string.Empty;
+            try
+            {
+                #region Entity 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM [HKP].[ServiceMasterGL] where 1=2", out dsBC, false, "1");
+
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsBC.Tables[0]);
+                        dv.RowFilter = "Id='" + Convert.ToInt64(item["Id"]) + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            if (item["DrControlId"] == null || item["DrControlId"] == "")
+                            {
+                                item["DrControlId"] = null;
+                            }
+                            if (item["CrControlId"] == null || item["CrControlId"] == "")
+                            {
+                                item["CrControlId"] = null;
+                            }
+
+                            AddNewRow(dsBC.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+
+
+                }
+                #endregion
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsBC);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetTDSSampleFile(ReportFormat reportFormat)
         {
@@ -976,6 +1092,12 @@ namespace Aplos.Areas.Setups.Controllers
                     return RenderReportAsExcel(workbook, reportFileName);
             }
 
+        }
+
+        public DataTable GetServiceMasterTDSData()
+        {
+            var cmdText = @"SELECT * FROM [HKP].[ServiceMasterTDS]";
+            return _sqlRepository.GetDataTable(cmdText);
         }
 
         public IWorkbook GetTDSSampleFileServiceMaster(string Name, string CompanyGroupId, string PlantId, string CompanyId, string PlantName)
@@ -1016,8 +1138,8 @@ namespace Aplos.Areas.Setups.Controllers
                 #region ------------------Column Header------------------
 
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceMasterId"); int colServiceMasterId = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "TaxCodeId"); int colDrControlId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceMasterId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16; int colServiceMasterId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "TaxCodeId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colDrControlId = xlsCol; xlsCol += 1;
                 endXlsCol = xlsCol;
 
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
@@ -1029,7 +1151,14 @@ namespace Aplos.Areas.Setups.Controllers
                 xlsRow++;
 
                 #endregion ------------------Column Header------------------
+                DataTable dtData = GetServiceMasterTDSData();
+                for (int i = 0; i < dtData.Rows.Count; i++)
+                {
+                    sheet1[xlsRow, colServiceMasterId].Text = dtData.Rows[i]["ServiceMasterId"].ToString();
+                    sheet1[xlsRow, colDrControlId].Text = dtData.Rows[i]["TaxCodeId"].ToString();
 
+                    xlsRow++;
+                }
                 #region UsedRange Alignment
 
                 sheet1.UsedRange.WrapText = true;
@@ -1185,12 +1314,21 @@ namespace Aplos.Areas.Setups.Controllers
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
-            bplib.clsGenID genid = new bplib.clsGenID();
             DataSet dsBC;
             string _Id = string.Empty;
             try
             {
                 #region Entity 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                string strSQL = "Delete FROM [HKP].[ServiceMasterGL]";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM [HKP].[ServiceMasterTDS] where 1=2", out dsBC, false, "1");
 
@@ -1225,6 +1363,8 @@ namespace Aplos.Areas.Setups.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
+
+     
 
         #endregion
     }

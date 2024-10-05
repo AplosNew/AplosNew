@@ -346,6 +346,9 @@ function ServiceMasterController(commonMessage, $window, $scope, $rootScope, bas
     $scope.SaveUploadedData = function () {
         try {
             for (var i = 0; i < $scope.UploadedData.length; i++) {
+                if (baseService.isUndefinedOrNull($scope.UploadedData[i].ServiceMasterId)) {
+                    throw "ServiceMasterId is required.";
+                }
                 $scope.UploadedData[i].Id = null;
                 $scope.UploadedData[i].Active = true;
                 if ($scope.UploadedData[i].PurchaseApplicable=="1") {
@@ -367,6 +370,13 @@ function ServiceMasterController(commonMessage, $window, $scope, $rootScope, bas
                 }
                 else {
                     $scope.UploadedData[i].IndependentApplicable = false;
+
+                }
+                if ($scope.UploadedData[i].IsAssetApplicable == "1") {
+                    $scope.UploadedData[i].IsAssetApplicable = true;
+                }
+                else {
+                    $scope.UploadedData[i].IsAssetApplicable = false;
 
                 }
             }
@@ -479,7 +489,7 @@ function ServiceMasterController(commonMessage, $window, $scope, $rootScope, bas
             datatoSave.push($scope.ModelProcessPara);
             $http({
                 method: 'POST',
-                url: $scope.path + 'SaveUploadedData',
+                url: $scope.path + 'SaveGLData',
                 data: { 'data': datatoSave},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -488,7 +498,7 @@ function ServiceMasterController(commonMessage, $window, $scope, $rootScope, bas
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.ModelProcessPara = { Id: null, ServiceMasterId: null, DrControlId: null, CrControlId: null, PurchaseApplicable: false, IndependentApplicable: false, SalesApplicable: false, Active: true, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+                    $scope.ModelProcessPara = { Id: null, ServiceMasterId: null, DrControlId: null, CrControlId: null, PurchaseApplicable: false, IsAssetApplicable: false, IsAssetApplicable: false, IndependentApplicable: false, SalesApplicable: false, Active: true, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
                     $scope.GetServiceMasterGLData();
                     datatoSave = [];
                 }
