@@ -1292,6 +1292,7 @@ upanelApp.controller("productionOrderType2Controller", productionOrderType2Contr
 upanelApp.controller("DebitCreditNoteProcessControlController", DebitCreditNoteProcessControlController)
 upanelApp.controller("SalaryAdviceController", SalaryAdviceController)
 upanelApp.controller("AssignControlSetupController", AssignControlSetupController)
+upanelApp.controller("JobWorkEntryController", JobWorkEntryController)
 
 
 

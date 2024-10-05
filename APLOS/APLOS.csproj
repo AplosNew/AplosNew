@@ -562,6 +562,7 @@
     <Compile Include="Areas\Materials\Controllers\QRCodeGeneratorController.cs" />
     <Compile Include="Areas\Materials\Controllers\WeighingScaleMasterController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\DocumentationController.cs" />
+    <Compile Include="Areas\Outsourcing\Controllers\JobWorkEntryController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeSeperationSetupController.cs" />
     <Compile Include="Areas\Processes\Controllers\ProcessManagementController.cs" />
     <Compile Include="Areas\Processes\Controllers\ProcessManagementRecepieController.cs" />
@@ -1978,6 +1979,7 @@
     <Content Include="Areas\OrderManagements\Scripts\productionOrderType2Controller.js" />
     <Content Include="Areas\OrderManagements\Scripts\productionOrderSchedulingParametersType1NewController.js" />
     <Content Include="Areas\OrderManagements\Scripts\TermsandConditionGroupController.js" />
+    <Content Include="Areas\Outsourcing\Scripts\JobWorkEntryController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeSeperationSetupController.js" />
     <Content Include="Areas\Payrolls\Scripts\fullandfinalSettlementPaymentController.js" />
     <Content Include="Areas\Payrolls\Scripts\fullandfinalSettlementApproveController.js" />
@@ -5002,6 +5004,7 @@
     <Content Include="Areas\Administration\Views\AssignControlSetup\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\MultipleEmployeePayment.cshtml" />
     <Content Include="Areas\OrderManagements\Views\productionOrderSchedulingParametersType1\Type2.cshtml" />
+    <Content Include="Areas\Outsourcing\Views\JobWorkEntry\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
