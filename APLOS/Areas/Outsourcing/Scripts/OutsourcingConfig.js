@@ -86,5 +86,10 @@ function OutsourcingConfig($routeProvider, $locationProvider) {
             templateUrl: 'Outsourcing/OutSourceBillingPost/aplos',
             controller: 'OutsourceBillingPostController'
         })
+
+        .when('/jobwork-entry', {
+            templateUrl: 'Outsourcing/JobWorkEntry/aplos',
+            controller: 'JobWorkEntryController'
+        })
         ;
 }
