@@ -692,10 +692,10 @@ namespace Aplos.Areas.Setups.Controllers
         {
             var cmdText = @"SELECT GL.*,SM.UserName ServiceMaster, A.UserName DrActivityName FROM [HKP].[ServiceMasterGL] GL
 LEFT JOIN HKP.ServiceMaster SM ON SM.Id=GL.ServiceMasterId
- JOIN [MST].[BudgetMasterActivity] BMA ON BMA.Id=GL.DrControlId
- JOIN [MST].[BudgetMaster] AS BM ON BM.Id=BMA.BudgetMasterId
- JOIN [HKP].[Budget] B ON B.Id=BM.BudgetId
- JOIN [HKP].[Activity] A ON A.Id=BMA.ActivityId";
+LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.Id=GL.DrControlId
+LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=BMA.BudgetMasterId
+LEFT JOIN [HKP].[Budget] B ON B.Id=BM.BudgetId
+LEFT JOIN [HKP].[Activity] A ON A.Id=BMA.ActivityId";
             return _sqlRepository.GetDataTable(cmdText);
         }
 
