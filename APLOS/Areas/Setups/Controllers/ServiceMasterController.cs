@@ -920,6 +920,7 @@ LEFT JOIN HKP.ServiceMaster SM ON SM.Id=GL.ServiceMasterId
                                 vm.PurchaseApplicable = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
                                 vm.SalesApplicable = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
                                 vm.IndependentApplicable = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
+                                vm.IsAssetApplicable = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
 
                                 data.Add(vm);
 
@@ -1388,6 +1389,7 @@ LEFT JOIN MST.TaxCode TC ON TC.Id=TDS.TaxCodeId";
         public string PurchaseApplicable { get; set; }
         public string SalesApplicable { get; set; }
         public string IndependentApplicable { get; set; }
+        public string IsAssetApplicable { get; set; }
 
     }
 
