@@ -611,7 +611,7 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
                     }
                    
                     angular.element(document.querySelector("#customerInvoicePopUp")).modal("hide");
-                    $scope.convertAmountCr(data);
+                    //$scope.convertAmountCr(data);
                 }
                 else {
                     ShowResult(data.DocRefNo + " already  Exist", "failure", "customerInvoicePopUp");
@@ -956,11 +956,23 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
             CloseShowResult();
         }
         if (data.CompanyCurrencyRate > $scope.advance.CompanyCurrencyRate) {
-            data.ExchangeAmount = Math.abs(data.DrAmount * ($scope.advance.CompanyCurrencyRate - data.CompanyCurrencyRate)).toFixed(2);
+            if ($scope.voucherDetailList.length === 1) {
+                data.ExchangeAmount = Math.abs(($scope.advance.PaymentAmount * $scope.advance.CompanyCurrencyRate).toFixed(2) - (data.DrAmount * data.CompanyCurrencyRate).toFixed(2)).toFixed(2);
+            }
+            else {
+                data.ExchangeAmount = Math.abs(data.DrAmount * ($scope.advance.CompanyCurrencyRate - data.CompanyCurrencyRate)).toFixed(2);
+            }
+
             data.ExchangeType = "ExchangeLoss";
         }
         else if (data.CompanyCurrencyRate < $scope.advance.CompanyCurrencyRate) {
-            data.ExchangeAmount = Math.abs(data.DrAmount * (data.CompanyCurrencyRate - $scope.advance.CompanyCurrencyRate)).toFixed(2);
+            if ($scope.voucherDetailList.length === 1) {
+                data.ExchangeAmount = Math.abs(($scope.advance.PaymentAmount * $scope.advance.CompanyCurrencyRate).toFixed(2) - (data.DrAmount * data.CompanyCurrencyRate).toFixed(2)).toFixed(2);
+            }
+            else {
+                data.ExchangeAmount = Math.abs(data.DrAmount * (data.CompanyCurrencyRate - $scope.advance.CompanyCurrencyRate)).toFixed(2);
+            }
+            
             data.ExchangeType = "ExchangeGain";
         }
         else {
@@ -1276,7 +1288,7 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
             else
                 $scope.isReadOnly = false;
             angular.element(document.querySelector("#customerAdvancePopUpNew")).modal("hide");
-            $scope.convertAmountCr(x);
+            //$scope.convertAmountCr(x);
         }
         else {
             ShowResult(data.DocRefNo + " already  Exist", "failure", "customerAdvancePopUpNew");
