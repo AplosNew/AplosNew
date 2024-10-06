@@ -1353,7 +1353,7 @@ namespace Library.Service.SalaryDisbursement
 
                 }
 
-                if (InDirectVoucherId != null)
+                if (InDirectVoucherId != null && InDirectVoucherId != "")
                 {
                     //var inDirect = new System.Text.StringBuilder();
                     //var inDirectsql = "";
