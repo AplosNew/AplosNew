@@ -690,7 +690,12 @@ namespace Aplos.Areas.Setups.Controllers
 
         public DataTable GetServiceMasterGLData()
         {
-            var cmdText = @"SELECT * FROM [HKP].[ServiceMasterGL]";
+            var cmdText = @"SELECT GL.*,SM.UserName ServiceMaster, A.UserName DrActivityName FROM [HKP].[ServiceMasterGL] GL
+LEFT JOIN HKP.ServiceMaster SM ON SM.Id=GL.ServiceMasterId
+ JOIN [MST].[BudgetMasterActivity] BMA ON BMA.Id=GL.DrControlId
+ JOIN [MST].[BudgetMaster] AS BM ON BM.Id=BMA.BudgetMasterId
+ JOIN [HKP].[Budget] B ON B.Id=BM.BudgetId
+ JOIN [HKP].[Activity] A ON A.Id=BMA.ActivityId";
             return _sqlRepository.GetDataTable(cmdText);
         }
 
@@ -738,7 +743,9 @@ namespace Aplos.Areas.Setups.Controllers
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PurchaseApplicable"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19; int colPurchaseApplicable = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SalesApplicable"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colSalesApplicable = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IndependentApplicable"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 22; int colIndependentApplicable = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IsAssetApplicable"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colIsAssetAplicable = xlsCol;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IsAssetApplicable"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colIsAssetAplicable = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceMasterId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16; int colServiceMaster = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DrActivityName"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40; int colDrControl = xlsCol; 
                 endXlsCol = xlsCol;
 
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
@@ -793,11 +800,9 @@ namespace Aplos.Areas.Setups.Controllers
                     {
                         sheet1[xlsRow, colIsAssetAplicable].Text = "1";
                     }
-                    //sheet1[xlsRow, colPurchaseApplicable].Text =dtData.Rows[i]["PurchaseApplicable"].ToString();
-                    //sheet1[xlsRow, colSalesApplicable].Text = dtData.Rows[i]["SalesApplicable"].ToString();
-                    //sheet1[xlsRow, colIndependentApplicable].Text = dtData.Rows[i]["IndependentApplicable"].ToString();
-                    //sheet1[xlsRow, colIsAssetAplicable].Text = dtData.Rows[i]["IsAssetApplicable"].ToString();
-                   
+                    sheet1[xlsRow, colServiceMaster].Text = dtData.Rows[i]["ServiceMaster"].ToString();
+                    sheet1[xlsRow, colDrControl].Text = dtData.Rows[i]["DrActivityName"].ToString();
+
                     xlsRow++;
                 }
 
@@ -1096,7 +1101,9 @@ namespace Aplos.Areas.Setups.Controllers
 
         public DataTable GetServiceMasterTDSData()
         {
-            var cmdText = @"SELECT * FROM [HKP].[ServiceMasterTDS]";
+            var cmdText = @"SELECT TDS.*,SM.UserName ServiceMaster,TC.UserName TaxCode FROM [HKP].[ServiceMasterTDS] TDS
+LEFT JOIN HKP.ServiceMaster SM ON SM.Id=TDS.ServiceMasterId
+LEFT JOIN MST.TaxCode TC ON TC.Id=TDS.TaxCodeId";
             return _sqlRepository.GetDataTable(cmdText);
         }
 
@@ -1140,6 +1147,8 @@ namespace Aplos.Areas.Setups.Controllers
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceMasterId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16; int colServiceMasterId = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "TaxCodeId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colDrControlId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceMaster"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colServiceMaster = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "TaxCode"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colTaxCode = xlsCol; 
                 endXlsCol = xlsCol;
 
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
@@ -1155,7 +1164,9 @@ namespace Aplos.Areas.Setups.Controllers
                 for (int i = 0; i < dtData.Rows.Count; i++)
                 {
                     sheet1[xlsRow, colServiceMasterId].Text = dtData.Rows[i]["ServiceMasterId"].ToString();
-                    sheet1[xlsRow, colDrControlId].Text = dtData.Rows[i]["TaxCodeId"].ToString();
+                    sheet1[xlsRow, colDrControlId].Text = dtData.Rows[i]["TaxCodeId"].ToString(); 
+                    sheet1[xlsRow, colServiceMaster].Text = dtData.Rows[i]["ServiceMaster"].ToString();
+                    sheet1[xlsRow, colTaxCode].Text = dtData.Rows[i]["TaxCode"].ToString();
 
                     xlsRow++;
                 }
@@ -1321,7 +1332,7 @@ namespace Aplos.Areas.Setups.Controllers
                 #region Entity 
                 objCon = new ConnectionManager.DAL.ConManager("1");
 
-                string strSQL = "Delete FROM [HKP].[ServiceMasterGL]";
+                string strSQL = "Delete FROM [HKP].[ServiceMasterTDS]";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
