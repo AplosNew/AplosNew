@@ -224,7 +224,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
 
             string sql = @"select GE.Id GateEntryNo , format(GE.GateEntryTime,'dd-MMM-yyyy') GateEntryDate , GE.PackageQty Quantity , PT.StandardName Party , GE.Remarks   from trn.GateEntry GE
 left join hkp.Party PT on PT.Id = GE.PartyId 
-where Convert(date,GE.GateEntryTime) between DATEADD(day, -2, CAST(GETDATE() AS date)) and GETDATE() order by GE.GateEntryTime desc";
+order by GE.GateEntryTime desc --where Convert(date,GE.GateEntryTime) between DATEADD(day, -2, CAST(GETDATE() AS date)) and GETDATE() ";
 
             var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
