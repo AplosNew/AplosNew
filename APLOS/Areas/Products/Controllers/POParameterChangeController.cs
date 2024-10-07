@@ -159,6 +159,7 @@ namespace Aplos.Areas.Products.Controllers
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsMaster;
             DataSet dsPOTax;
+            DataSet dsMap;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             try
@@ -166,9 +167,11 @@ namespace Aplos.Areas.Products.Controllers
                 MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 string sql = "SELECT * FROM [TRN].[PurchaseOrderDetail] WHERE Id='" + data.Id + "'";
                 string poTaxsql = "SELECT * FROM [TRN].[PurchaseOrderTax] WHERE InventoryReceiveDetailId='" + data.Id + "'";
+                string sqlmap = "SELECT * FROM TRN.POBOQMAP WHERE PODetailId ='" + data.Id + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
                 objCon.OpenDataSetThroughAdapter(poTaxsql, out dsPOTax, false, "1");
+                objCon.OpenDataSetThroughAdapter(sqlmap, out dsMap, false, "1");
 
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
@@ -195,6 +198,22 @@ namespace Aplos.Areas.Products.Controllers
                     dr.EndEdit();
                 }
 
+                if (dsMap.Tables[0].Rows.Count > 0)
+                {
+                    DataRow drm = dsMap.Tables[0].DefaultView[0].Row;
+                    drm.BeginEdit();
+
+                    drm["TransactionQty"] = data.TransactionQty;
+                    drm["BaseQty"] = data.TransactionQty;
+                    drm["POBOQQty"] = data.TransactionQty;
+
+                    drm["UpdatedBy"] = identity.Name;
+                    drm["UpdatedDate"] = DateTime.Now.ToString();
+                    drm["UpdatedFromIP"] = identity.IPAddress;
+
+                    drm.EndEdit();
+                }
+
                 if (poTaxList != null)
                 {
                     foreach (var item in poTaxList)
@@ -210,7 +229,7 @@ namespace Aplos.Areas.Products.Controllers
                 }
 
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster, dsPOTax);
+                obj.SaveDataSets(dsMaster, dsPOTax,dsMap);
             }
             catch (Exception ex)
             {
@@ -236,6 +255,7 @@ namespace Aplos.Areas.Products.Controllers
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsMaster;
             DataSet dsDetail;
+            DataSet dsMap;
             DataSet dsPOTax;
             DataSet dsPOLog;
             DataSet dsPOVersionLog;
@@ -246,12 +266,14 @@ namespace Aplos.Areas.Products.Controllers
                 MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 string sqlmaster = "SELECT * FROM [TRN].[PurchaseOrder] WHERE Id='" + data.Id + "'";
                 string sqlDetail = "SELECT * FROM [TRN].[PurchaseOrderDetail] WHERE InventoryReceiveId='" + data.Id + "'";
+                string sqlmap = "SELECT * FROM TRN.POBOQMAP WHERE PODetailId in (SELECT id FROM [TRN].[PurchaseOrderDetail] WHERE InventoryReceiveId='" + data.Id + "')";
                 string poTaxsql = "SELECT * FROM [TRN].[PurchaseOrderTax] WHERE InventoryReceiveId='" + data.Id + "'";
                 string poUpdateLogsql = "SELECT Top(1) * FROM [TRN].[PurchaseOrderUpdateLog] WHERE 1=2";
                 string poUpdateLogVersionsql = "SELECT Count(Id) Id  FROM [TRN].[PurchaseOrderUpdateLog] WHERE PurchaseOrderId='" + data.Id + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sqlmaster, out dsMaster, false, "1");
                 objCon.OpenDataSetThroughAdapter(sqlDetail, out dsDetail, false, "1");
+                objCon.OpenDataSetThroughAdapter(sqlmap, out dsMap, false, "1");
                 objCon.OpenDataSetThroughAdapter(poTaxsql, out dsPOTax, false, "1");
                 objCon.OpenDataSetThroughAdapter(poUpdateLogsql, out dsPOLog, false, "1");
                 objCon.OpenDataSetThroughAdapter(poUpdateLogVersionsql, out dsPOVersionLog, false, "1");
@@ -261,17 +283,14 @@ namespace Aplos.Areas.Products.Controllers
                     DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                     
                     dr.BeginEdit();
-
                     dr["Tolerance"] = data.Tolerance;
                     dr["PaymentTermId"] = data.PaymentTermId;
                     dr["DocRefNo"] = data.DocRefNo;
                     dr["DocDate"] = data.DocDate;
                     dr["Tolerance"] = data.Tolerance;
-
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
-
                     dr.EndEdit();
                 }
 
