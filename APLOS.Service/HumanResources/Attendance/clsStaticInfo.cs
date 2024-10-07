@@ -1079,8 +1079,28 @@ namespace OTSBD
 
             try
             {
-                strSQl = @"select * from IncrementHistory
-                            WHERE EmpSystemId = '" + pEmpSystemId + @"' AND ToEffectiveDate = '" + pToEffectiveDate.ToString() + @"'";
+                strSQl = @"select * from IncrementHistory WHERE EmpSystemId = '" + pEmpSystemId + @"' AND ToEffectiveDate = '" + pToEffectiveDate.ToString() + @"'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQl, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            { throw (ex); }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+
+        public void GetLegalSalaryGrade(string LegalDesignationId, out DataSet dsRef)
+        {
+            string strSQl;
+
+            ConnectionManager.DAL.ConManager objCon;
+
+            try
+            {
+                strSQl = @"Select LegalSalaryGradeId from [MST].[LegalSalaryGradeDesignation] where LegalDesignationId='"+ LegalDesignationId + "'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQl, out dsRef, false, false, "", "1");

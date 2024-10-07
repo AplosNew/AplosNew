@@ -1028,7 +1028,8 @@ public class clsSalaryStructureAplosNew
         DataTable dtIncrementHistory = null;
         DataRow drIncrementHistory = null;
         DataView dvIncrementHistory = null;
-
+        DataSet dsFLSG = null;
+        DataSet dsTLSG = null;
 
         DataSet dsConfirmationID = null;
 
@@ -1069,9 +1070,23 @@ public class clsSalaryStructureAplosNew
 
                 #region Increment History
                 objStatic.GetIncrementHistory(_para.EmpSystemID, _para.ToEffectiveDate.ToString(), out dsIncrementHistory);
+                
                 dtIncrementHistory = dsIncrementHistory.Tables[0];
                 dvIncrementHistory = new DataView();
                 dvIncrementHistory.Table = dtIncrementHistory;
+
+                objStatic.GetLegalSalaryGrade(_para.FromLegalDesignationId,out dsFLSG);
+                objStatic.GetLegalSalaryGrade(_para.ToLegalDesignationId, out dsTLSG);
+
+                if (dsFLSG.Tables[0].Rows.Count>0)
+                {
+                    _para.LegalSalaryGradeId = dsFLSG.Tables[0].Rows[0]["LegalSalaryGradeId"].ToString();
+                }
+
+                if (dsTLSG.Tables[0].Rows.Count > 0)
+                {
+                    _para.NewLegalSalaryGradeId = dsTLSG.Tables[0].Rows[0]["LegalSalaryGradeId"].ToString();
+                }
 
                 //dvNextDueDate.RowFilter = "Id =''";
                 if (_para.IsConfirmation == true)
@@ -1112,6 +1127,8 @@ public class clsSalaryStructureAplosNew
                     drIncrementHistory["ToEffectiveDate"] = _para.ToEffectiveDate;
                     drIncrementHistory["FromBudgetCode"] = _para.FromBudgetCode;
                     drIncrementHistory["ToBudgetCode"] = _para.ToBudgetCode;
+                    drIncrementHistory["NewLegalSalaryGradeId"] = _para.NewLegalSalaryGradeId;
+                    drIncrementHistory["LegalSalaryGradeId"] = _para.LegalSalaryGradeId;
                     drIncrementHistory["AddedBy"] = bplib.clsWebLib.RetValidLen(_para.AddedBy);
                     drIncrementHistory["AddedDate"] = DateTime.Now;
                     drIncrementHistory["AddedFromIP"] = "::";
@@ -1144,6 +1161,8 @@ public class clsSalaryStructureAplosNew
                     drIncrementHistory["ToEffectiveDate"] = _para.ToEffectiveDate;
                     drIncrementHistory["FromBudgetCode"] = _para.FromBudgetCode;
                     drIncrementHistory["ToBudgetCode"] = _para.ToBudgetCode;
+                    drIncrementHistory["NewLegalSalaryGradeId"] = _para.NewLegalSalaryGradeId;
+                    drIncrementHistory["LegalSalaryGradeId"] = _para.LegalSalaryGradeId;
                     drIncrementHistory["UpdatedBy"] = bplib.clsWebLib.RetValidLen(_para.UpdatedBy);
                     drIncrementHistory["UpdatedDate"] = DateTime.Now;
                     drIncrementHistory["UpdatedFromIP"] = "::";
