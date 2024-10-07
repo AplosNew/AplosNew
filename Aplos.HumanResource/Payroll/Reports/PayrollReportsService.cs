@@ -7756,7 +7756,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                 xlsCol = 1;
 
                 #region Column Variables
-                int ColSr = 0, ColIDNo = 0, ColName = 0, ColDOJ = 0, ColDOS = 0, cDept = 0, cSec = 0, cSubSec = 0, cLine = 0, cPayrollGroup = 0, cJobLocation = 0, cGender = 0,
+                int ColSr = 0, ColIDNo = 0, ColName = 0, ColDOJ = 0, ColDOS = 0, cDept = 0, cEntity=0, cSec = 0, cSubSec = 0, cLine = 0, cPayrollGroup = 0, cJobLocation = 0, cGender = 0,
                     cGrade = 0, ColGVDG = 0, ColGrs = 0, colPayDays = 0, ColPdDy = 0, ColLate = 0, ColAbDy = 0, ColHlDy = 0, ColWkOf = 0, ColLv = 0
                    , ColLWP = 0, colBank = 0, cDMP = 0, colBankAccountNo = 0, colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0;
                 int npstruct = 0, ColTotalWorkingDay = 0, ColActualWorkingDay = 0, ColLatePresent = 0, ColContractor = 0;
@@ -7775,6 +7775,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                 SetCellValue("Designation", sheet1, xlsRow, ref xlsCol, out ColGVDG, 25);
                 SetCellValue("Contractor", sheet1, xlsRow, ref xlsCol, out ColContractor, 25);
                 SetCellValue("Employee Category", sheet1, xlsRow, ref xlsCol, out int colEmpCategory, 25);
+                SetCellValue("Entity", sheet1, xlsRow, ref xlsCol, out cEntity, 25);
                 SetCellValue("Department", sheet1, xlsRow, ref xlsCol, out cDept, 25);
                 SetCellValue("Section", sheet1, xlsRow, ref xlsCol, out cSec, 25);
                 SetCellValue("SubSection", sheet1, xlsRow, ref xlsCol, out cSubSec, 25);
@@ -8037,6 +8038,11 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                             sheet1.Range[xlsRow, cDept].Text = dtEmployees.Rows[i]["DepartmentName"].ToString();
                         sheet1.Range[xlsRow, cDept].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, cDept].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["Entity"].ToString()) == false)
+                            sheet1.Range[xlsRow, cEntity].Text = dtEmployees.Rows[i]["Entity"].ToString();
+                        sheet1.Range[xlsRow, cEntity].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, cEntity].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["SectionName"].ToString()) == false)
                             sheet1.Range[xlsRow, cSec].Text = dtEmployees.Rows[i]["SectionName"].ToString();
@@ -18201,7 +18207,7 @@ INNER JOIN
                                     ,ISNULL(spld.IFSCCode,'') IFSCCode
                                     ,CASE WHEN ISNULL(PO.IsDirect,0) = 0 THEN 'No' ELSE 'Yes' END IsDirect
                                     ,CASE WHEN ISNULL(PO.DirectManpowerCost,0) = 0 THEN 'No' ELSE 'Yes' END DirectManpowerCost
-
+                                    ,ENT.UserName Entity
                                      FROM EmployeeInformation E
                                      left join hkp.Party p on p.Id = E.VendorId
                                           Left JOIN (
@@ -18210,7 +18216,7 @@ INNER JOIN
                                     JOIN SalaryProcMaster m on m.SystemID=c.SlrProcMstSystemID
                                     WHERE SlrProcMstSystemID IN(" + salaryProcessId + @") 
                                     ) SPM ON spm.EmpInfoSystemID=e.SystemId
-									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '202022' 
+									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '"+plantId+@"' 
                          
 									 			LEFT JOIN ORG.Plant F ON F.Id= E.PlantId
 												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID

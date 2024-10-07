@@ -744,7 +744,7 @@ LEFT JOIN [HKP].[Activity] A ON A.Id=BMA.ActivityId";
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SalesApplicable"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colSalesApplicable = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IndependentApplicable"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 22; int colIndependentApplicable = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IsAssetApplicable"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colIsAssetAplicable = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceMasterId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16; int colServiceMaster = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceMaster"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16; int colServiceMaster = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DrActivityName"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40; int colDrControl = xlsCol; 
                 endXlsCol = xlsCol;
 
