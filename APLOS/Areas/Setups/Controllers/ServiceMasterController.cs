@@ -690,12 +690,17 @@ namespace Aplos.Areas.Setups.Controllers
 
         public DataTable GetServiceMasterGLData()
         {
-            var cmdText = @"SELECT GL.*,SM.UserName ServiceMaster, A.UserName DrActivityName FROM [HKP].[ServiceMasterGL] GL
+            var cmdText = @"SELECT GL.*,SM.UserName ServiceMaster,SM.ServiceCategory,SM.ServiceSubCategory,SG.UserName ServiceGroup,H.Code HSNCode, A.UserName DrActivityName, CA.UserName CrActivityName 
+FROM [HKP].[ServiceMasterGL] GL
 LEFT JOIN HKP.ServiceMaster SM ON SM.Id=GL.ServiceMasterId
+LEFT JOIN HKP.ServiceGroup SG ON SG.Id=SM.ServiceGroupId
+LEFT JOIN HKP.HSNCode H ON H.Id=SM.HSNCodeId
 LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.Id=GL.DrControlId
 LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=BMA.BudgetMasterId
-LEFT JOIN [HKP].[Budget] B ON B.Id=BM.BudgetId
-LEFT JOIN [HKP].[Activity] A ON A.Id=BMA.ActivityId";
+LEFT JOIN [HKP].[Activity] A ON A.Id=BMA.ActivityId
+LEFT JOIN [MST].[BudgetMasterActivity] CBMA ON BMA.Id=GL.CrControlId
+LEFT JOIN [MST].[BudgetMaster] AS CBM ON CBM.Id=CBMA.BudgetMasterId
+LEFT JOIN [HKP].[Activity] CA ON A.Id=CBMA.ActivityId";
             return _sqlRepository.GetDataTable(cmdText);
         }
 
@@ -743,9 +748,14 @@ LEFT JOIN [HKP].[Activity] A ON A.Id=BMA.ActivityId";
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PurchaseApplicable"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19; int colPurchaseApplicable = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SalesApplicable"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colSalesApplicable = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IndependentApplicable"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 22; int colIndependentApplicable = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IsAssetApplicable"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colIsAssetAplicable = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceMaster"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16; int colServiceMaster = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DrActivityName"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40; int colDrControl = xlsCol; 
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IsAssetApplicable"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 17; int colIsAssetAplicable = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceMaster"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 30; int colServiceMaster = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceCategory"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16; int colServiceCategory = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceSubCategory"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16; int colServiceSubCategory = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceGroup"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25; int colServiceGroup = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "HSNCode"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colHSNCode = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DrActivityName"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40; int colDrControl = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "CrActivityName"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40; int colCrControl = xlsCol; 
                 endXlsCol = xlsCol;
 
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
@@ -801,7 +811,12 @@ LEFT JOIN [HKP].[Activity] A ON A.Id=BMA.ActivityId";
                         sheet1[xlsRow, colIsAssetAplicable].Text = "1";
                     }
                     sheet1[xlsRow, colServiceMaster].Text = dtData.Rows[i]["ServiceMaster"].ToString();
+                    sheet1[xlsRow, colServiceCategory].Text = dtData.Rows[i]["ServiceCategory"].ToString();
+                    sheet1[xlsRow, colServiceSubCategory].Text = dtData.Rows[i]["ServiceSubCategory"].ToString();
+                    sheet1[xlsRow, colServiceGroup].Text = dtData.Rows[i]["ServiceGroup"].ToString();
+                    sheet1[xlsRow, colHSNCode].Text = dtData.Rows[i]["HSNCode"].ToString();
                     sheet1[xlsRow, colDrControl].Text = dtData.Rows[i]["DrActivityName"].ToString();
+                    sheet1[xlsRow, colCrControl].Text = dtData.Rows[i]["CrActivityName"].ToString();
 
                     xlsRow++;
                 }

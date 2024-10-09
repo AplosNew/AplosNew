@@ -7871,7 +7871,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                 xlsCol++;
 
 
-                xlsCol++;
+               // xlsCol++;
                 sheet1.Range[xlsRow - 1, 1].Text = "Actual Salary Detail";
                 sheet1.Range[xlsRow - 1, 1].ColumnWidth = 14;
                 sheet1.Range[xlsRow - 1, 1, xlsRow - 1, 3].Merge();
