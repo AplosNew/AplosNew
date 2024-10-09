@@ -7756,8 +7756,8 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                 xlsCol = 1;
 
                 #region Column Variables
-                int ColSr = 0, ColIDNo = 0, ColName = 0, ColDOJ = 0, ColDOS = 0, cDept = 0, cSec = 0, cSubSec = 0, cLine = 0, cPayrollGroup = 0, cJobLocation = 0, cGender = 0,
-                    cGrade = 0, ColGVDG = 0, ColGrs = 0, colPayDays = 0, ColPdDy = 0, ColLate = 0, ColAbDy = 0, ColHlDy = 0, ColWkOf = 0, ColLv = 0
+                int ColSr = 0, ColIDNo = 0, ColName = 0, ColDOJ = 0, ColDOS = 0, cDept = 0, cEntity=0, cSec = 0, cSubSec = 0, cLine = 0, cPayrollGroup = 0, cJobLocation = 0, cGender = 0,
+                    cGrade = 0, ColGVDG = 0, ColGrs = 0, colPayDays = 0, ColPdDy = 0, ColLate = 0, ColAbDy = 0, ColHlDy = 0, ColWkOf = 0, ColLv = 0,ColDV=0,ColVN=0
                    , ColLWP = 0, colBank = 0, cDMP = 0, colBankAccountNo = 0, colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0;
                 int npstruct = 0, ColTotalWorkingDay = 0, ColActualWorkingDay = 0, ColLatePresent = 0, ColContractor = 0;
                 int ColSalaryId = 0; int ColSalaryDate = 0;
@@ -7775,6 +7775,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                 SetCellValue("Designation", sheet1, xlsRow, ref xlsCol, out ColGVDG, 25);
                 SetCellValue("Contractor", sheet1, xlsRow, ref xlsCol, out ColContractor, 25);
                 SetCellValue("Employee Category", sheet1, xlsRow, ref xlsCol, out int colEmpCategory, 25);
+                SetCellValue("Entity", sheet1, xlsRow, ref xlsCol, out cEntity, 25);
                 SetCellValue("Department", sheet1, xlsRow, ref xlsCol, out cDept, 25);
                 SetCellValue("Section", sheet1, xlsRow, ref xlsCol, out cSec, 25);
                 SetCellValue("SubSection", sheet1, xlsRow, ref xlsCol, out cSubSec, 25);
@@ -7847,29 +7848,40 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                     sheet1.Range[xlsRow, ds, xlsRow, ds + _count_deducting_head - 1].Merge();
                 }
                 npstruct = 0;
+                int voucherCol = 0;
+                int voucherNoCol = 0;
                 if (shtList.Count > 0)
                 {
                     xlsCol++;
                     npstruct = ColGrs + shtList.Count + 1;
+                    voucherCol = npstruct;
                     sheet1.Range[xlsRow + 1, npstruct].Text = "Net Payable";
                     //sheet1.Range[xlsRow, npstruct].ColumnWidth = 14;
                     //sheet1.Range[xlsRow, npstruct, xlsRow + 1, npstruct].Merge();
                 }
-
+                voucherCol++;
+                ColDV = voucherCol;
+                voucherNoCol = voucherCol;
+                voucherNoCol++;
+                ColVN = voucherNoCol;
+                SetCellValue("VoucherId", sheet1, xlsRow, ref voucherCol, out ColDV, 15);
+                SetCellValue("VoucherNo", sheet1, xlsRow, ref voucherNoCol, out ColVN, 15);
+                //ru.SetHeaderText(ref sheet1, xlsRow, voucherCol, "VoucherId"); sheet1.Range[xlsRow, voucherCol].ColumnWidth = 15; 
+                //ru.SetHeaderText(ref sheet1, xlsRow, voucherNoCol, "VoucherNo"); sheet1.Range[xlsRow, voucherNoCol].ColumnWidth = 15; 
                 xlsCol++;
 
 
-                xlsCol++;
+               // xlsCol++;
                 sheet1.Range[xlsRow - 1, 1].Text = "Actual Salary Detail";
                 sheet1.Range[xlsRow - 1, 1].ColumnWidth = 14;
                 sheet1.Range[xlsRow - 1, 1, xlsRow - 1, 3].Merge();
-                sheet1.Range[xlsRow, 1, xlsRow + 1, npstruct].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
-                sheet1.Range[xlsRow - 1, 1, xlsRow + 1, npstruct].BorderAround(ExcelLineStyle.Hair);
-                sheet1.Range[xlsRow - 1, 1, xlsRow + 1, npstruct].BorderInside(ExcelLineStyle.Hair);
-                sheet1.Range[xlsRow - 1, 1, xlsRow + 1, npstruct].CellStyle.Font.Bold = true;
-                sheet1.Range[xlsRow - 1, 1, xlsRow + 1, npstruct].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet1.Range[xlsRow - 1, 1, xlsRow + 1, npstruct].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                endXlsCol = npstruct;
+                sheet1.Range[xlsRow, 1, xlsRow + 1, voucherNoCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+                sheet1.Range[xlsRow - 1, 1, xlsRow + 1, voucherNoCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow - 1, 1, xlsRow + 1, voucherNoCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow - 1, 1, xlsRow + 1, voucherNoCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow - 1, 1, xlsRow + 1, voucherNoCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow - 1, 1, xlsRow + 1, voucherNoCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                endXlsCol = voucherNoCol;
 
 
                 #endregion------------------Column Header------------------
@@ -8038,6 +8050,11 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                         sheet1.Range[xlsRow, cDept].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, cDept].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["Entity"].ToString()) == false)
+                            sheet1.Range[xlsRow, cEntity].Text = dtEmployees.Rows[i]["Entity"].ToString();
+                        sheet1.Range[xlsRow, cEntity].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, cEntity].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["SectionName"].ToString()) == false)
                             sheet1.Range[xlsRow, cSec].Text = dtEmployees.Rows[i]["SectionName"].ToString();
                         sheet1.Range[xlsRow, cSec].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -8112,7 +8129,8 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                             sheet1.Range[xlsRow, cGender].Text = dtEmployees.Rows[i]["Gender"].ToString();
                         sheet1.Range[xlsRow, cGender].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, cGender].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
+                        sheet1.Range[xlsRow, ColDV].Text = dtEmployees.Rows[i]["DisbursementVoucherId"].ToString();
+                        sheet1.Range[xlsRow, ColVN].Text = dtEmployees.Rows[i]["VoucherNo"].ToString();
                         //5 "Section", "SubSection", 
 
                         #endregion
@@ -8194,6 +8212,10 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     }
 
                                 }
+
+
+
+
                             }
                         }
 
@@ -18178,7 +18200,7 @@ INNER JOIN
 
             try
             {
-                strSQL = @"SELECT EmpBasic.*,MMDSA.*,ISNULL(MW.Grade,'') Grade,ISNULL(MW.SalaryHeadValue,0) MinimumWage
+                strSQL = @"SELECT EmpBasic.*,MMDSA.*,ISNULL(MW.Grade,'') Grade,ISNULL(MW.SalaryHeadValue,0) MinimumWage,SL.DisbursementVoucherId,SL.VoucherNo
                             FROM
                                     (
 									SELECT DISTINCT E.SystemID EmpSystemId, isnull(E.VendorId,'') as Vendor , isnull(p.UserName,'') as Contractor ,ISNULL(EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EmployeeCodeNumeric,0) EmployeeCodeNumeric,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
@@ -18201,7 +18223,7 @@ INNER JOIN
                                     ,ISNULL(spld.IFSCCode,'') IFSCCode
                                     ,CASE WHEN ISNULL(PO.IsDirect,0) = 0 THEN 'No' ELSE 'Yes' END IsDirect
                                     ,CASE WHEN ISNULL(PO.DirectManpowerCost,0) = 0 THEN 'No' ELSE 'Yes' END DirectManpowerCost
-
+                                    ,ENT.UserName Entity
                                      FROM EmployeeInformation E
                                      left join hkp.Party p on p.Id = E.VendorId
                                           Left JOIN (
@@ -18210,7 +18232,7 @@ INNER JOIN
                                     JOIN SalaryProcMaster m on m.SystemID=c.SlrProcMstSystemID
                                     WHERE SlrProcMstSystemID IN(" + salaryProcessId + @") 
                                     ) SPM ON spm.EmpInfoSystemID=e.SystemId
-									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '202022' 
+									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '"+plantId+@"' 
                          
 									 			LEFT JOIN ORG.Plant F ON F.Id= E.PlantId
 												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
@@ -18272,6 +18294,9 @@ INNER JOIN
 										  FROM SalaryProceAttdnData MMDSA where MMDSA.MonthNo = MONTH('" + fromDate + @"') AND
 						                               MMDSA.YearNo = YEAR('" + fromDate + @"') --AND MMDSA.PlantID = '" + plantId + @"' 
 											) MMDSA ON EmpBasic.EmpSystemID = MMDSA.EmpSystemID 
+                                        LEFT JOIN (select SL.DisbursementVoucherId,V.VoucherNo,SL.EmpSystemId from dbo.SalaryLock SL
+											LEFT JOIN TRN.Voucher V ON V.Id=SL.DisbursementVoucherId
+											where  SL.MonthNo=MONTH('" + fromDate + @"') and SL.YearNo=year('" + fromDate + @"'))SL ON SL.EmpSystemId=EmpBasic.EmpSystemID
                                             WHERE EmpBasic.PlantId IN (" + plantId + @") " + wcEmpStatus + @"";
                 try
                 {
