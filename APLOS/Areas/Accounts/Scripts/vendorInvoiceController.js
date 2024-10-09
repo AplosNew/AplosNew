@@ -1444,6 +1444,36 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
     };
 
     $scope.getTDS($filter("dateFiltering")(Date.now()));
+
+    $scope.getTDSByServiceMasterId = function (date) {
+        $scope.TDSCboList = [];
+        var serviceMasterIds = "";
+        angular.forEach($scope.voucherDetailList, function (item) {
+            if (serviceMasterIds == "") {
+                serviceMasterIds = "'" + item.ServiceMasterId + "'";;
+            }
+            else {
+                serviceMasterIds += ",'" + item.ServiceMasterId + "'";
+
+            }
+        });
+
+        $http({
+            method: "get",
+            url: "accounts/TaxCode/GetTDSCboByServiceMasterId?postingDate=" + $filter("dateFiltering")(date) + '&serviceMasterIds=' + serviceMasterIds
+        }).then(
+            function successCallback(response) {
+                if (response.data.Error === true) {
+                    $scope.TDSlistMessage = response.data.Message;
+                }
+                else {
+                    $scope.TDSCboList = response.data;;
+                }
+            },
+            function errorCallback(response) {
+            });
+    };
+
     $scope.TDS = {
         TaxCodeId: null,
         Text: null,
@@ -2886,6 +2916,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         $scope.voucherDetail.ActivityOrderType = $scope.model.ActivityOrderType;
         $scope.voucherDetail.ValueOfDistribution = $scope.model.ValueOfDistribution;
         $scope.voucherDetail.AccountType = $scope.model.AccountType;
+        $scope.voucherDetail.IsAssetApplicable = $scope.model.IsAssetApplicable;
         $scope.addServiceGLRow();
         $scope.closeServiceDataPopUp();
     };
@@ -2933,5 +2964,6 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
             clearVoucherDetail();
             $scope.searchStr = null;
         }
+        $scope.getTDSByServiceMasterId($filter("dateFiltering")(Date.now()));
     };
 }

@@ -117,6 +117,13 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_accountsGLService.GetTDSCbo(postingDate, identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public JsonResult GetTDSCboByServiceMasterId(DateTime postingDate, string serviceMasterIds)
+        {
+            AccountsGLService _accountsGLService = new AccountsGLService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsGLService.GetTDSCboByServiceMasterId(postingDate, identity.CompanyId, serviceMasterIds), JsonRequestBehavior.AllowGet);
+        }
         [HttpGet,Authorize]
         public JsonResult GetTDSOutPutCbo(DateTime postingDate)
         {
