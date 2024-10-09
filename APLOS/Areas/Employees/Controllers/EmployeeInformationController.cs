@@ -19,6 +19,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
 using Aplos.HumanResource;
+using bplib;
 
 namespace Aplos.Areas.Employees.Controllers
 {
@@ -660,45 +661,8 @@ namespace Aplos.Areas.Employees.Controllers
 
         #region EmployeeInformation
 
-        //[HttpPost]
-        //public JsonResult Create(FormCollection form)
-        //{
-        //    var pre = form["employeeInformation"];
-        //    var settings = new JsonSerializerSettings
-        //    {
-        //        NullValueHandling = NullValueHandling.Ignore,
-        //        MissingMemberHandling = MissingMemberHandling.Ignore
-        //    };
-        //    var employee = JsonConvert.DeserializeObject<EmployeeInformation>(pre, settings);
-        //    var file = Request.Files["file"];
-        //    if (file != null)
-        //    {
-        //        var extension = Path.GetExtension(file.FileName);
-        //        if (extension.ToLower() == ".jpg" || extension.ToLower() == ".png")
-        //        {
-        //            employee.EmpPicPath = extension;
-        //            if (!string.IsNullOrEmpty(employee.EmpPicPath))
-        //                employee.EmpPicPath = employee.SystemId + employee.EmpPicPath;
-        //        }
-        //        else
-        //            throw new CustomException(Resources.ImageUploadError);
-        //    }
-        //    _employeeProfileService.InsetMaster(employee);
-        //    if (file != null)
-        //    {
-        //        var path = Path.Combine(ResourcesPathReader.GetEmployeeDestinationPicPath()/*Server.MapPath("~" + new AppSettingsReader().GetValue(UrlResources.EmployeeImage, typeof(string)).ToString())*/, employee.EmpPicPath);
-        //        if (System.IO.File.Exists(path))
-        //        {
-        //            System.IO.File.Delete(path);
-        //            file.SaveAs(path);
-        //        }
-        //        else
-        //        {
-        //            file.SaveAs(path);
-        //        }
-        //    }
-        //    return Json(new { EmployeeInformation = employee, Message = AplosMessage.Success });
-        //}
+       
+        
 
         [HttpPost]
         public JsonResult CreateNew(EmployeeInformation entity, string EmployeeCodeCheckLevel, EmpReferenceInformation empRef, Dictionary<string, object> empBank)
@@ -751,6 +715,7 @@ namespace Aplos.Areas.Employees.Controllers
                     }
                 }
                 employeeProfile.SaveData(entity, para, EmployeeCodeCheckLevel, empRef,empBank); //, WeekOff, OT
+
                 return Json(new { EmployeeInformation = entity, Message = AplosMessage.Insert + "Employee Code: " + entity.EmployeeCode + "" });
             }
             catch (Exception ex)
