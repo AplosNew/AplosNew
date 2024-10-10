@@ -313,6 +313,9 @@
                         <button ng-click="getExpenseDistribute($index,x)" ng-show="x.IsOrderSpecific" ng-disabled="x.TotalAmount == 0 || TotalChargesAmount == 0 " class="btn btn-action tooltip-here" data-placement="top" title="Expense Distribute">
                             <i>Distribute</i>
                         </button>
+                        <button ng-click="getAssetDistribute($index,x)" ng-show="x.IsAssetApplicable" ng-disabled="x.TotalAmount == 0 || TotalChargesAmount == 0 " class="btn btn-action tooltip-here" data-placement="top" title="Asset Distribute">
+                            <i>Distribute</i>
+                        </button>
                         <button ng-click="getTaxCode($index,x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Tax">
                             <i>Tax</i>
                         </button>

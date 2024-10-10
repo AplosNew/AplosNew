@@ -2423,12 +2423,14 @@ Where EmpSystemId IN(
 (Select  spc.EmpInfoSystemID  from SalaryProcChild AS spc
 LEFT JOIN SalaryProcMaster AS spm ON spm.SystemID = spc.SlrProcMstSystemID 
 LEFT JOIN SalaryHead AS sh ON sh.SalaryHeadID = spc.SalaryHeadID
-LEFT JOIN dbo.EmployeeInformation E ON E.SystemId IN(" + empIds + @")
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId IN (" + empIds + @")
 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=E.GivenDesignationId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
-WHERE  spc.EmpInfoSystemID IN(" + empIds + @") AND HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0 AND EC.UserName='Staff'
-))  AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND PastBonusDisbursed IS NULL
-";
+Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.YearNo AND sl.MonthNo=SPM.MonthNo
+LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
+left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 AND VD.AccountsGroupId=SL.AccountsGroupId 
+WHERE  spc.EmpInfoSystemID IN (" + empIds + @") AND sh.HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0 AND EC.UserName='Staff'
+AND sl.PayableVoucherId<>'' AND sl.BonusDisbursementVoucherId IS NULL AND sl.PastBonusDisbursed IS NULL))";
                 con.OpenDataSetThroughAdapter(elockBNsql, out dsEmpBN, false, "1");
 
 
