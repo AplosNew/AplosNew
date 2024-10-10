@@ -2279,6 +2279,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
                             , BudgetMasterId: $scope.BudgetMasterId
                             , ActivityId: $scope.ActivityId
                             , DocRefNo: a.DocRefNo
+                            , AdjustmentNoteId: a.AdjustmentNoteId
                         });
                     }
             });
