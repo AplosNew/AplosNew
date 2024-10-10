@@ -1268,7 +1268,7 @@ namespace Library.Accounting.Accounts
 										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
 										FROM [TRN].[VoucherDetailCurrency] AS VDC
 										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='C20201'
+										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
 									) AS CC ON CC.VoucherDetailId=VD.Id
 								WHERE II.VoucherId<>'' AND V.IsPark=0 AND AN.CompanyGroupId='" + companyGroupId + @"' AND AN.CompanyId='" + companyId + @"'
                                     ) AS TEMP WHERE " + strkey + " order by PostingDate DESC ";
