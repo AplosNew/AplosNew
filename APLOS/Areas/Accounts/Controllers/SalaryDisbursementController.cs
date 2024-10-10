@@ -504,9 +504,12 @@ namespace Aplos.Areas.Accounts.Controllers
                         and sl.BonusDisbursementAdviceId='" + disbursementAdviceId + @"'
                         and spc.DisbusmentAmount!=0  
                         and spd.PlantId='" + identity.PlantId + @"' 
-						and ISNULL(SH.HeadCategory, '')  in ('Monthly Bonus Retain','Annual Bonus Retain')
+						and ISNULL(SH.HeadCategory, '')  in ('Annual Bonus Retain')
                         ORDER BY ei.EmployeeCode,sl.YearNo,sl.MonthNo ";
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            //return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         [Authorize, HttpPost]
@@ -540,39 +543,39 @@ namespace Aplos.Areas.Accounts.Controllers
                 X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAmount) CrAmount,SUM(X.DisbusmentAmount) DisbusmentAmount,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
                 FROM
                 (
-    select sh.SalaryHead,sh.[Sequence], sl.YearNo, sl.MonthNo, sh.HeadType
-                , 0 DrAmount
-                , CrAmount =case when SUM(spc.DisbusmentAmount) < 0 then SUM(spc.DisbusmentAmount) * -1 else SUM(spc.DisbusmentAmount) end
-                , SUM(spc.DisbusmentAmount) DisbusmentAmount
-                    ,vd.GLGeneralInfoId 
-				, vd.BudgetMasterId
-				,vd.ActivityId
-                , CDGL.AccountCode + ' - ' + CDGL.UserName GLName
-                    , CDB.UserName BudgetName
-                    , CDA.UserName ActivityName
-                from[dbo].[SalaryLock] sl
-                left join dbo.SalaryProcMaster spm on   spm.MonthNo = sl.MonthNo and spm.YearNo = sl.YearNo
-                left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID = spm.SystemID and sl.EmpSystemId = spc.EmpInfoSystemID
-                left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
-                left join dbo.SalaryHead sh on sh.SalaryHeadID = spc.SalaryHeadID
-                left join dbo.EmployeeInformation ei on ei.SystemId = sl.EmpSystemId
-                left join MST.ManpowerBudget MPB on MPB.Id = ei.BudgetCode
-                left join ORG.Position PO on PO.Id = MPB.PositionId
-                left join trn.Voucher v on v.Id=sl.PayableVoucherId
-				left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Monthly Bonus' and vd.SalaryHeadId=sh.SalaryHeadID and Vd.AccountsGroupId=sl.AccountsGroupId and vd.CrAmount>0
-				LEFT JOIN HKP.GLGeneralInfo CDGL ON CDGL.Id=vd.GLGeneralInfoId
-                LEFT JOIN MST.BudgetMaster CDBM ON CDBM.Id=vd.BudgetMasterId
-                LEFT JOIN HKP.Budget CDB ON CDB.Id=CDBM.BudgetId
-                LEFT JOIN HKP.Activity CDA ON CDA.Id=vd.ActivityId
-                where sl.PayableVoucherId<>'' AND sl.BonusDisbursementVoucherId IS NULL and sl.IsBonusDisbursed=1 
-                and ISNULL(SH.HeadCategory, '')  in ('Monthly Bonus Retain') and spc.DisbusmentAmount != 0  
-                and sl.BonusDisbursementAdviceId='" + disbursementAdviceId + @"' " + EmpSystemIds + @"
+    -- select sh.SalaryHead,sh.[Sequence], sl.YearNo, sl.MonthNo, sh.HeadType
+    --            , 0 DrAmount
+    --            , CrAmount =case when SUM(spc.DisbusmentAmount) < 0 then SUM(spc.DisbusmentAmount) * -1 else SUM(spc.DisbusmentAmount) end
+    --            , SUM(spc.DisbusmentAmount) DisbusmentAmount
+    --                ,vd.GLGeneralInfoId 
+	--			  , vd.BudgetMasterId
+	--			  ,vd.ActivityId
+    --            , CDGL.AccountCode + ' - ' + CDGL.UserName GLName
+    --                , CDB.UserName BudgetName
+    --                , CDA.UserName ActivityName
+    --            from[dbo].[SalaryLock] sl
+    --            left join dbo.SalaryProcMaster spm on   spm.MonthNo = sl.MonthNo and spm.YearNo = sl.YearNo
+    --            left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID = spm.SystemID and sl.EmpSystemId = spc.EmpInfoSystemID
+    --            left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
+    --            left join dbo.SalaryHead sh on sh.SalaryHeadID = spc.SalaryHeadID
+    --            left join dbo.EmployeeInformation ei on ei.SystemId = sl.EmpSystemId
+    --            left join MST.ManpowerBudget MPB on MPB.Id = ei.BudgetCode
+    --            left join ORG.Position PO on PO.Id = MPB.PositionId
+    --            left join trn.Voucher v on v.Id=sl.PayableVoucherId
+	--			  left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Monthly Bonus' and vd.SalaryHeadId=sh.SalaryHeadID and Vd.AccountsGroupId=sl.AccountsGroupId and vd.CrAmount>0
+	--			  LEFT JOIN HKP.GLGeneralInfo CDGL ON CDGL.Id=vd.GLGeneralInfoId
+    --            LEFT JOIN MST.BudgetMaster CDBM ON CDBM.Id=vd.BudgetMasterId
+    --            LEFT JOIN HKP.Budget CDB ON CDB.Id=CDBM.BudgetId
+    --            LEFT JOIN HKP.Activity CDA ON CDA.Id=vd.ActivityId
+    --            where sl.PayableVoucherId<>'' AND sl.BonusDisbursementVoucherId IS NULL and sl.IsBonusDisbursed=1 
+    --            and ISNULL(SH.HeadCategory, '')  in ('Monthly Bonus Retain') and spc.DisbusmentAmount != 0  
+    --            and sl.BonusDisbursementAdviceId='" + disbursementAdviceId + @"' " + EmpSystemIds + @"
                        
-                group by sh.SalaryHead, sl.YearNo, sl.MonthNo, sh.HeadType, sh.[Sequence]
-                ,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId
-                , CDGL.AccountCode, CDGL.UserName, CDB.UserName, CDA.UserName
+    --             group by sh.SalaryHead, sl.YearNo, sl.MonthNo, sh.HeadType, sh.[Sequence]
+    --             ,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId
+    --             , CDGL.AccountCode, CDGL.UserName, CDB.UserName, CDA.UserName
 
-                UNION ALL
+    --          UNION ALL
                 select sh.SalaryHead,sh.[Sequence], sl.YearNo, sl.MonthNo, sh.HeadType
                 , 0 DrAmount
                 , CrAmount =case when SUM(spc.DisbusmentAmount) < 0 then SUM(spc.DisbusmentAmount) * -1 else SUM(spc.DisbusmentAmount) end
