@@ -8603,8 +8603,8 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 					,Round(IRD.BaseQty-ISNULL(IRD.ShortageQty,0),2) RcvQty
 					,Round(IRD.BooksCurrencyBaseRate,4) RcvRate
 					--,Round(IRD.TotalMaterialBooksCurrencyAmount,2) RcvAmount	
-					,Round((Round(IRD.BaseQty-ISNULL(IRD.ShortageQty,0),2)*Round(IRD.BooksCurrencyBaseRate,4)),2) RcvAmount	
-                    ,Round(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount TotalRcvAmount
+					,Round((Round(IRD.BaseQty-ISNULL(IRD.ShortageQty,0),2)*Round(IRD.BooksCurrencyBaseRate,4)),2)+ISNULL(ird.AdditionalChargesAmount,0) RcvAmount	
+                    ,Round(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount+ISNULL(ird.AdditionalChargesAmount,0) TotalRcvAmount
 					--,Round(IRD.TotalMaterialBooksCurrencyAmount,2)-(ISNULL(IRD.ShortageQty,0)*Round(IRD.BooksCurrencyBaseRate,4)) TotalRcvAmount	
 	
 					,REPLACE(CONVERT(CHAR(11), main.IssueDate, 106),' ','-') IssueDate
