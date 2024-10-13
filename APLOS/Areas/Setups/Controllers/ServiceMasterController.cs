@@ -751,7 +751,7 @@ LEFT JOIN [HKP].[Activity] CA ON A.Id=CBMA.ActivityId";
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IsAssetApplicable"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 17; int colIsAssetAplicable = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceMaster"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 30; int colServiceMaster = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceCategory"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16; int colServiceCategory = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceSubCategory"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16; int colServiceSubCategory = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceSubCategory"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colServiceSubCategory = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceGroup"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25; int colServiceGroup = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "HSNCode"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colHSNCode = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DrActivityName"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40; int colDrControl = xlsCol; xlsCol += 1;
@@ -1117,9 +1117,13 @@ LEFT JOIN [HKP].[Activity] CA ON A.Id=CBMA.ActivityId";
 
         public DataTable GetServiceMasterTDSData()
         {
-            var cmdText = @"SELECT TDS.*,SM.UserName ServiceMaster,TC.UserName TaxCode FROM [HKP].[ServiceMasterTDS] TDS
+            var cmdText = @"SELECT TDS.*,SM.UserName ServiceMaster,SM.ServiceCategory,SM.ServiceSubCategory,SG.UserName ServiceGroup,H.Code HSNCode,TC.UserName TaxCode,TXC.UserName TaxCategory
+FROM [HKP].[ServiceMasterTDS] TDS
 LEFT JOIN HKP.ServiceMaster SM ON SM.Id=TDS.ServiceMasterId
-LEFT JOIN MST.TaxCode TC ON TC.Id=TDS.TaxCodeId";
+LEFT JOIN MST.TaxCode TC ON TC.Id=TDS.TaxCodeId
+LEFT JOIN [MST].[TaxCategory] TXC ON TXC.Id=TC.TaxCategoryId
+LEFT JOIN HKP.ServiceGroup SG ON SG.Id=SM.ServiceGroupId
+LEFT JOIN HKP.HSNCode H ON H.Id=SM.HSNCodeId";
             return _sqlRepository.GetDataTable(cmdText);
         }
 
@@ -1164,6 +1168,11 @@ LEFT JOIN MST.TaxCode TC ON TC.Id=TDS.TaxCodeId";
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceMasterId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16; int colServiceMasterId = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "TaxCodeId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colDrControlId = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceMaster"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colServiceMaster = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceCategory"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16; int colServiceCategory = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceSubCategory"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colServiceSubCategory = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ServiceGroup"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25; int colServiceGroup = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "HSNCode"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colHSNCode = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "TaxCategory"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colTaxC = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "TaxCode"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colTaxCode = xlsCol; 
                 endXlsCol = xlsCol;
 
@@ -1182,8 +1191,12 @@ LEFT JOIN MST.TaxCode TC ON TC.Id=TDS.TaxCodeId";
                     sheet1[xlsRow, colServiceMasterId].Text = dtData.Rows[i]["ServiceMasterId"].ToString();
                     sheet1[xlsRow, colDrControlId].Text = dtData.Rows[i]["TaxCodeId"].ToString(); 
                     sheet1[xlsRow, colServiceMaster].Text = dtData.Rows[i]["ServiceMaster"].ToString();
+                    sheet1[xlsRow, colTaxC].Text = dtData.Rows[i]["TaxCategory"].ToString();
                     sheet1[xlsRow, colTaxCode].Text = dtData.Rows[i]["TaxCode"].ToString();
-
+                    sheet1[xlsRow, colServiceCategory].Text = dtData.Rows[i]["ServiceCategory"].ToString();
+                    sheet1[xlsRow, colServiceSubCategory].Text = dtData.Rows[i]["ServiceSubCategory"].ToString();
+                    sheet1[xlsRow, colServiceGroup].Text = dtData.Rows[i]["ServiceGroup"].ToString();
+                    sheet1[xlsRow, colHSNCode].Text = dtData.Rows[i]["HSNCode"].ToString();
                     xlsRow++;
                 }
                 #region UsedRange Alignment
