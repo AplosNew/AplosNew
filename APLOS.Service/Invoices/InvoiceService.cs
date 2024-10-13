@@ -1551,7 +1551,8 @@ namespace Library.Service.Invoices
                                         Amount = item.Amount,
                                         InvoiceType = item.InvoiceType,
                                         MasterOrderId = item.MasterOrderId,
-                                        ContractId = item.ContractId
+                                        ContractId = item.ContractId,
+                                        AdjustmentNoteId = item.AdjustmentNoteId
                                     };
                                     AuditService.AddedLog(invoiceCharges);
                                     _invoiceDetailChargesRepository.Insert(invoiceCharges);
@@ -2303,7 +2304,8 @@ namespace Library.Service.Invoices
                                                 Amount = item.Amount,
                                                 InvoiceType = item.InvoiceType,
                                                 MasterOrderId = item.MasterOrderId,
-                                                ContractId = item.ContractId
+                                                ContractId = item.ContractId,
+                                                AdjustmentNoteId = item.AdjustmentNoteId
                                             };
                                             AuditService.AddedLog(invoiceCharges);
                                             _invoiceDetailChargesRepository.Insert(invoiceCharges);

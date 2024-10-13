@@ -1209,7 +1209,7 @@ namespace Library.Accounting.Accounts
                                         IVD.WrittenOffAmount AS Received, IVD.NetAmount-IVD.WrittenOffAmount AS Balance, IV.PartyPlantId, PP.UserName AS PartyPlantName,
 										CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, CC.CompanyCurrencyConversion,
 										GC.CompanyGroupCurrencyId, GC.CompanyGroupFromCurrencyId, GC.CompanyGroupCurrencyRate, GC.CompanyGroupCurrencyConversion
-										,PDA.AcceptanceNo,PLC.ContractId,PDA.PurchaseLCId,ISNULL(IRD.TrnQty,0) TrnQty
+										,PDA.AcceptanceNo,PLC.ContractId,PDA.PurchaseLCId,ISNULL(IRD.TrnQty,0) TrnQty,'' AdjustmentNoteId
                                         FROM [TRN].[InvoiceDetail] AS IVD
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
 									    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
@@ -1242,6 +1242,35 @@ namespace Library.Accounting.Accounts
 									) AS GC ON GC.VoucherDetailId=VD.Id
                                         WHERE IV.Archive=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('" + SourceType.VendorInvoice + "','" + SourceType.InventoryPayable + "','" + SourceType.PurchaseDocAcceptance + "','" + SourceType.EmployeePayable + @"')
                                         AND IV.CompanyGroupId='" + companyGroupId + @"' AND IV.CompanyId='" + companyId + @"'
+
+                                UNION ALL
+								SELECT 0 Active, IVD.GLGeneralInfoId AS GLGeneralInfoId, '' AS GLGeneralInfoCode, '' AS GLGeneralInfoName, IVD.BudgetMasterId, '' AS BudgetName, IVD.ActivityId, '' AS EntityName, '' AS ActivityName,
+                                V.VoucherNo, Replace(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') DocDate ,Replace(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') PostingDate, V.DocRefNo, V.Narration, IVD.AdjustmentNoteId AS InvoiceId,V.EntityId,V.PlantId, '' AS InvoiceDetailId, II.VoucherId,
+                                '' AS VoucherDetailId, V.CurrencyId, C.Code AS CurrencyCode, AN.PartyId, IVD.Amount AS Receivable,V.ExchangeType, 0 ExchangeAmount,
+                                IVD.WrittenOffAmount AS Received, IVD.Amount-IVD.WrittenOffAmount AS Balance, AN.PartyPlantId, PP.UserName AS PartyPlantName,
+								CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, CC.CompanyCurrencyConversion,
+								NULL CompanyGroupCurrencyId, NULL CompanyGroupFromCurrencyId, NULL CompanyGroupCurrencyRate, NULL CompanyGroupCurrencyConversion
+								,'' AcceptanceNo,'' ContractId,'' PurchaseLCId,ISNULL(IID.TransactionQty,0) TrnQty,IVD.AdjustmentNoteId
+                                FROM [TRN].[SalesReturn] AS II
+                                JOIN (SELECT SUM(TransactionQty) TransactionQty,SalesReturnId FROM TRN.SalesReturnDetail GROUP BY SalesReturnId) AS IID ON IID.SalesReturnId=II.Id
+								JOIN TRN.Sales S ON S.Id=II.SalesId
+								JOIN TRN.AdjustmentNote AN ON AN.SalesReturnId=II.Id
+								LEFT JOIN TRN.AdjustmentNoteDetail IVD ON IVD.AdjustmentNoteId=AN.Id
+								LEFT JOIN TRN.AdditionalTax ADN ON ADN.AdjustmentNoteId=AN.Id
+								LEFT JOIN TRN.Voucher V ON V.Id=II.VoucherId
+								LEFT JOIN TRN.Voucher VADN ON VADN.Id=ADN.VoucherId
+								LEFT JOIN HKP.Party P ON P.Id=S.PartyId
+								LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AN.PartyPlantId
+								LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
+                                LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=IVD.Id
+								LEFT JOIN (
+										SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+										FROM [TRN].[VoucherDetailCurrency] AS VDC
+										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
+									) AS CC ON CC.VoucherDetailId=VD.Id
+								WHERE II.VoucherId<>'' AND V.IsPark=0 AND AN.CompanyGroupId='" + companyGroupId + @"' AND AN.CompanyId='" + companyId + @"'
                                     ) AS TEMP WHERE " + strkey + " order by PostingDate DESC ";
                 return _sqlRepository.GetDataCollection(sql);
 

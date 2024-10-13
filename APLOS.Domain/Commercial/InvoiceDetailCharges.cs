@@ -24,6 +24,7 @@ namespace Library.Model.Commercial
         public string MasterOrderId { get; set; }
         public string ContractId { get; set; }
         public string ExpenseBookingDetailId { get; set; }
+        public string AdjustmentNoteId { get; set; }
         
 
         public string GLGeneralInfoId { get; set; }

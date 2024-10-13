@@ -430,6 +430,37 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+
+        public List<Dictionary<string, object>> GetTDSCboByServiceMasterId(DateTime postingDate, string companyId, string serviceMasterIds)
+        {
+            try
+            {
+                var sql = @"SELECT DISTINCT TC.Id, TC.UserName,TCY.[Type],TCD.ValueOfFixed,TC.TaxCategoryId
+                        FROM [MST].[TaxCodeYear] AS TCY
+                        LEFT JOIN [MST].[TaxCode] AS TC ON TC.Id = TCY.TaxCodeId
+                        LEFT JOIN [MST].[TaxCodeGL] AS TCGL ON TC.Id = TCGL.TaxCodeId
+					    LEFT JOIN [SCS].[TaxYear] AS TY ON TY.Id=TCY.TaxYearId
+						LEFT JOIN [SCS].[TaxYearPeriod] AS TYP ON TYP.TaxYearId=TY.Id
+                        LEFT JOIN [ORG].Company AS CO ON CO.COAId=TCGL.COAId
+                        LEFT JOIN MST.TaxCategory TCA ON TCA.Id=TC.TaxCategoryId
+						LEFT JOIN MST.TaxCodeDetail TCD ON TCD.TaxCodeId=TC.Id AND TCD.TaxCodeYearId=TCY.Id
+                        WHERE TC.InputOrOutput='" + TaxCodeInputOutput.Input + @"'
+						AND TYP.StartDate <='" + postingDate.ToDbDate() + "' AND TYP.EndDate >='" + postingDate.ToDbDate() + "' AND CO.Id='" + companyId + @"' 
+                        AND TCA.TaxCategoryType='TDS'
+                        AND TCY.TaxCodeId IN (select TaxCodeId from [HKP].[ServiceMasterTDS] WHERE ServiceMasterId in (" + serviceMasterIds + @") )
+                    ";
+                var data = _sqlRepository.GetDataCollection(sql);
+                if (null == data)
+                    throw new CustomException(ResourcesCore.FYNotFound);
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
         public List<Dictionary<string, object>> GetTDSOutPutCbo(DateTime postingDate, string companyId)
         {
             try
