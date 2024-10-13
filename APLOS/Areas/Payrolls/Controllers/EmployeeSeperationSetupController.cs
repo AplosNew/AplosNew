@@ -665,7 +665,7 @@ Where N.EmployeeSeperationSetupId='" + masterId + "' Order By N.Sequence";
                     {
                         ccount++;
 
-                        data["Id"] = materialCommonService.MakePK(data["EmployeeSeperationSetupId"].ToString(), ccount, 2);
+                        data["Id"] = materialCommonService.MakePK(data["EmployeeSeperationSetupId"].ToString(), ccount, 3);
                         _Id = data["Id"].ToString();
                         AddNewRow(dsMaster.Tables[0], data);
                     }

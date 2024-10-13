@@ -2068,6 +2068,42 @@ WHEN OL.Formula='SeparationDate - ResignDate' THEN CAST(DATEDIFF(Day,
 AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC)),
 (Select FORMAT(DOS,'dd-MMM-yyyy') from dbo.EmployeeInformation Where SystemId='" + empId + @"')
 			 ) AS varchar(100))
+
+WHEN OL.UserName='GoodWork' THEN CAST((
+Select ROUND(((sum(gd.Minute)/60)*OLS.OTreductionFactor) *(B.Basic/104),2) from dbo.GoodWorkDetail GD
+left join EmployeeInformation ei on ei.SystemId=GD.EmpSystemId
+left join (Select top 1* from [dbo].[OTLimitSetting])OLS ON OLS.PlantID=ei.PlantId
+LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = GD.EmpSystemId
+LEFT JOIN(SELECT SID.SalaryID,SID.DefineAmount Gross,SH.SalaryHeadID GrossSalaryHeadID
+FROM SalaryInfoDefine SID 
+LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
+WHERE SH.HeadCategory='Gross')g ON g.SalaryID=SIDM.SystemID
+left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.SalaryID
+FROM SalaryInfoDefine SID 
+LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
+WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
+Where GWPaymentAdviseId IS NULL AND EmpSystemId='" + empId + @"' 
+Group By OLS.OTreductionFactor,B.Basic
+ ) AS varchar(100))
+
+ WHEN OL.UserName='OverTime' THEN CAST((
+Select ROUND(((sum(gd.CalculatedOT)/60)*OLS.OTreductionFactor) *(B.Basic/104),2) from dbo.AttdnProcessData GD
+left join EmployeeInformation ei on ei.SystemId=GD.EmpSystemId
+left join (Select top 1* from [dbo].[OTLimitSetting])OLS ON OLS.PlantID=ei.PlantId
+LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = GD.EmpSystemId
+LEFT JOIN(SELECT SID.SalaryID,SID.DefineAmount Gross,SH.SalaryHeadID GrossSalaryHeadID
+FROM SalaryInfoDefine SID 
+LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
+WHERE SH.HeadCategory='Gross')g ON g.SalaryID=SIDM.SystemID
+left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.SalaryID
+FROM SalaryInfoDefine SID 
+LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
+WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
+Where GD.GWPaymentAdviseId IS NULL AND GD.EmpSystemId='" + empId + @"' 
+AND GD.EmpSystemID NOT IN(Select EmpSystemID from dbo.ExceptionGoodWorkEmployee)
+Group By OLS.OTreductionFactor,B.Basic
+ ) AS varchar(100))
+
 ElSE CAST(A.Value as varchar(100)) END,0)
 ,OL.EntryState
 FROM EmployeeSeperationItem AS OL
@@ -2185,6 +2221,8 @@ ORDER BY OL.Sequence";
                 DataSet dsMaster, dsID, dsEmpID = null;
                 DataSet dsEmpMaster = null;
                 DataSet dsEmpSL = null;
+                DataSet dsEmpGW = null;
+                DataSet dsEmpAT = null;
                 DataSet dsEmpBN = null;
                 DataSet dsSalaryData = null;
                 DataSet dsProcSalaryData = null;
@@ -2414,9 +2452,55 @@ ORDER BY OL.Sequence";
 
                 }
 
+               string gwsql = @"Select * from dbo.GoodWorkDetail Where GWPaymentAdviseId IS NULL AND EmpSystemId IN(" + empIds + ")";
+                con.OpenDataSetThroughAdapter(gwsql, out dsEmpGW, false, "1");
+
+
+                for (int i = 0; i < dsEmpGW.Tables[0].Rows.Count; i++)
+                {
+                    DataView empgwdv = new DataView(dsEmpGW.Tables[0]);
+                    empgwdv.RowFilter = "EmpSystemId='" + dsEmpGW.Tables[0].Rows[i]["EmpSystemId"] + "' AND Id='" + dsEmpGW.Tables[0].Rows[i]["Id"] + "'";
+
+                    if (empgwdv.Count > 0)
+                    {
+                        DataRow drgw = empgwdv[0].Row;
+
+                        drgw.BeginEdit();
+                        drgw["EmployeeFinalSettlementId"] = _Id;
+                        drgw["UpdatedBy"] = identity.Name;
+                        drgw["UpdatedDate"] = DateTime.Now.ToString();
+                        drgw["UpdatedFromIP"] = identity.IPAddress;
+                        drgw.EndEdit();
+
+                    }
+                }
+
+                string atsql = @"Select * from dbo.AttdnProcessData Where GWPaymentAdviseId IS NULL AND EmpSystemId IN(" + empIds + ") AND EmpSystemID NOT IN(Select EmpSystemID from dbo.ExceptionGoodWorkEmployee)";
+                con.OpenDataSetThroughAdapter(atsql, out dsEmpAT, false, "1");
+
+
+                for (int i = 0; i < dsEmpAT.Tables[0].Rows.Count; i++)
+                {
+                    DataView empatdv = new DataView(dsEmpAT.Tables[0]);
+                    empatdv.RowFilter = "EmpSystemId='" + dsEmpAT.Tables[0].Rows[i]["EmpSystemId"] + "' AND Id='" + dsEmpAT.Tables[0].Rows[i]["RowId"] + "'";
+
+                    if (empatdv.Count > 0)
+                    {
+                        DataRow drat = empatdv[0].Row;
+
+                        drat.BeginEdit();
+                        drat["EmployeeFinalSettlementId"] = _Id;
+                        drat["UpdatedBy"] = identity.Name;
+                        drat["UpdatedDate"] = DateTime.Now.ToString();
+                        drat["UpdatedFromIP"] = identity.IPAddress;
+                        drat.EndEdit();
+
+                    }
+                }
+
                 #endregion data update 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsEmpMaster, dsFNFEmpMaster, dsEmpSL);
+                _info.SaveDataSets(dsMaster, dsEmpMaster, dsFNFEmpMaster, dsEmpSL, dsEmpGW, dsEmpAT);
 
                 elockBNsql = @"SELECT * FROM SalaryLock 
 Where EmpSystemId IN(
