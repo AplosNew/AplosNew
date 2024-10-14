@@ -1,4 +1,5 @@
 ﻿using Library.Core;
+using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Repositories;
 using Library.Data.Sql;
@@ -26,6 +27,7 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
 
 namespace Library.Service.Banks
 {
@@ -3294,6 +3296,7 @@ namespace Library.Service.Banks
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var voucher = _voucherRepository.Find(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
@@ -3311,7 +3314,7 @@ namespace Library.Service.Banks
                 foreach (var item in voucherdetail)
                 {
                     var rdBuilder = new System.Text.StringBuilder();
-                    var builderSql = @"UPDATE [TRN].VoucherDetail SET BankJournalDetailId=NULL,BankChargeId=NULL WHERE Id='" + item.Id + "'";
+                    var builderSql = @"UPDATE [TRN].VoucherDetail SET BankJournalDetailId=NULL,BankChargeId=NULL,UpdatedBy='" + identity.UserId + "' WHERE Id='" + item.Id + "'";
                     rdBuilder.Append(builderSql);
                     _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                     var glTransactionDetail = _gLTransactionDetailRepository.Query(r => r.VoucherDetailId == item.Id).Select().FirstOrDefault();
