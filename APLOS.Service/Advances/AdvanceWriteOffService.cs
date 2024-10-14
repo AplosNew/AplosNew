@@ -1,4 +1,5 @@
 ﻿using Library.Core;
+using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Repositories;
 using Library.Data.Sql;
@@ -30,6 +31,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 
 namespace Library.Service.Advances
 {
@@ -5344,6 +5346,7 @@ namespace Library.Service.Advances
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var voucher = _voucherRepository.Find(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
@@ -5374,7 +5377,7 @@ namespace Library.Service.Advances
                 {
                     
                         var rdBuildervd = new System.Text.StringBuilder();
-                        var buildervdSql = @"UPDATE [TRN].VoucherDetail SET BankChargeId=NULL WHERE Id='" + item.Id + "'";
+                        var buildervdSql = @"UPDATE [TRN].VoucherDetail SET BankChargeId=NULL,UpdatedBy='" + identity.UserId + "' WHERE Id='" + item.Id + "'";
                         rdBuildervd.Append(buildervdSql);
                         _sqlRepository.ExecuteSqlCommand(rdBuildervd.ToString());
                     _voucherDetailRepository.Delete(item.Id);

@@ -14476,7 +14476,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                     colAmount1stTotal = sheet1headreColIndex;
 
 
-                    sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+                    sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.ColorIndex = ExcelKnownColors.Grey_40_percent;
                     sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 10;
                     sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].RowHeight = 22;
                 }
