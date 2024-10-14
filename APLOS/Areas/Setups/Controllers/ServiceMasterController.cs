@@ -122,7 +122,7 @@ namespace Aplos.Areas.Setups.Controllers
                 var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
                         SELECT TOP 400 * FROM (SELECT ST.UserName ServiceType,SG.UserName ServiceGroup,SM.Id ServiceMasterId,SM.UserName ServiceName,GL.AccountCode GLGeneralInfoCode
 						,GL.UserName GLGeneralInfoName,B.UserName BudgetName,A.UserName ActivityName,BM.GLGeneralInfoId
-                        ,BMA.BudgetMasterId,BMA.ActivityId ,BM.RefNo,SMGL.DrControlId,A.IsOrderSpecific,A.ActivityOrderType,A.ValueOfDIstribution,SMGL.IsAssetApplicable
+                        ,BMA.BudgetMasterId,BMA.ActivityId ,BM.RefNo,SMGL.DrControlId,A.IsOrderSpecific,ACT.Id AccountType,A.ActivityOrderType,A.ValueOfDistribution,SMGL.IsAssetApplicable,BMA.Id BudgetMasterActivityId
                         FROM  HKP.ServiceMaster SM  
                         LEFT JOIN HKP.ServiceGroup SG ON SG.Id=SM.ServiceGroupId
                         LEFT JOIN HKP.ServiceType ST ON ST.Id=SG.ServiceTypeId
@@ -131,7 +131,9 @@ namespace Aplos.Areas.Setups.Controllers
                         LEFT JOIN MST.BudgetMaster BM ON BM.Id=BMA.BudgetMasterId
                         LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
                         LEFT JOIN HKP.Activity A ON A.Id=BMA.ActivityId
-                        LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=BM.GLGeneralInfoId) AS TEMP WHERE " + strkey + " order by ServiceName ";
+                        LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=BM.GLGeneralInfoId
+                        LEFT JOIN HKP.[AccountGroup]  AS AG ON AG.Id = GL.AccountGroupId
+                        LEFT JOIN HKP.[AccountType]  AS ACT ON ACT.Id = AG.AccountTypeId) AS TEMP WHERE " + strkey + " order by ServiceName ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
