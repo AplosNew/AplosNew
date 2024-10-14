@@ -353,7 +353,19 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
             $scope.advance.FiscalYearPeriodName = null;
             $scope.currencyExchangeRate = [];
             $scope.invalidPostingDate = true;
-        } else {
+        } else if ($scope.voucherDetailList.length > 0) {
+            for (var i = 0; i < $scope.voucherDetailList.length; i++) {
+                if (new Date($scope.voucherDetailList[i].PostingDate) > new Date($scope.advance.PostingDate)) {
+                    msg = "Posting date must be below or equal to payable of " + $scope.voucherDetailList[i].VoucherNo;
+                    $scope.invalidPostingDate = true;
+                    break;
+                }
+                else {
+                    $scope.invalidPostingDate = false;
+                }
+            }
+        }
+        else {
             $scope.invalidPostingDate = false;
         }
         return manualValidation("div_PostingDate", $scope.invalidPostingDate, msg);
@@ -726,7 +738,7 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
     $scope.Save = function () {
         $scope.$broadcast("show-errors-check-validity");
         $scope.checkPostingDate();
-        if ($scope.form0.$valid && !$scope.validation()) {
+        if ($scope.form0.$valid && !$scope.validation() && !$scope.invalidDocDate && !$scope.invalidPostingDate) {
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",
@@ -1394,6 +1406,14 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
             if ($scope.advanceNew.PaymentSource === 'Cash' && $scope.advanceNew.SettlementType === 'Return' && $scope.advanceNew.CashMasterId == null) {
                 ShowResult("Please select Cash!", "failure");
                 return true;
+            }
+            if ($scope.voucherDetailListNew.length > 0) {
+                for (var i = 0; i < $scope.voucherDetailListNew.length; i++) {
+                    if (new Date($scope.voucherDetailListNew[i].PostingDate) > new Date($scope.advanceNew.PostingDate)) {
+                        ShowResult("Posting date must be below or equal to payable of " + $scope.voucherDetailListNew[i].VoucherNo , "failure");
+                        return true;
+                    }
+                }
             }
         }
         return false;
