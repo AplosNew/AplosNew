@@ -402,6 +402,7 @@ namespace Library.Service.Invoices
 								WHEN CM.UserName<>'' THEN CM.UserName
                                 WHEN PP.UserName<>'' THEN PP.UserName
 								ELSE ''	END
+                            ,SM.UserName ServiceName
                             FROM [TRN].[VoucherDetailCurrency] AS VDC
                             JOIN [TRN].[VoucherDetail] AS VD ON VD.Id=VDC.VoucherDetailId
                             JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
@@ -418,7 +419,7 @@ namespace Library.Service.Invoices
                             LEFT JOIN [MST].[BudgetMaster] BUM ON VD.BudgetMasterId=BUM.Id
                             LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id=BUM.BudgetId
                             LEFT JOIN [HKP].[Activity] AS ACT ON ACT.Id=VD.ActivityId
-                            
+                            LEFT JOIN [HKP].[ServiceMaster] AS SM ON SM.Id=VD.ServiceMasterId
                             LEFT JOIN [MST].[CashMaster] AS CM ON CM.Id=VD.CashMasterId
                             LEFT JOIN [MST].[BankMaster] AS BNM ON BNM.Id=VD.BankMasterId
                             WHERE V.Archive=0 AND V.Id='" + voucherId + "' ORDER BY VD.DrAmount DESC";
@@ -617,9 +618,17 @@ namespace Library.Service.Invoices
                 for (int i = 0; i < dsLocal.Rows.Count; i++)
                 {
                     var glName = dsLocal.Rows[i]["Budget"].ToString();
+                    var serviceName = dsLocal.Rows[i]["ServiceName"].ToString();
 
-
-                    reportUtility.SetText(ref sheet, row, colGl, dsLocal.Rows[i]["GLGeneralInfoCode"] + " - " + glName + " - " + dsLocal.Rows[i]["Activity"]);
+                    if(serviceName!="")
+                    {
+                        reportUtility.SetText(ref sheet, row, colGl, dsLocal.Rows[i]["GLGeneralInfoCode"] + " - " + glName + " - " + dsLocal.Rows[i]["Activity"] + " - " + serviceName);
+                    }
+                    else
+                    {
+                        reportUtility.SetText(ref sheet, row, colGl, dsLocal.Rows[i]["GLGeneralInfoCode"] + " - " + glName + " - " + dsLocal.Rows[i]["Activity"]);
+                    }
+                    
 
                     sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(colGl + 2) + row].Merge();
 
