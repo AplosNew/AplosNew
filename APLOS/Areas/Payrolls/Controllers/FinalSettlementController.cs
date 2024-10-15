@@ -1983,19 +1983,9 @@ WHERE E.EmployeeStatus='Active' AND A.ActionStatus='FullAndFinalApproveBy'";
 
         public DataTable GetDataTable(string empId)
         {
-            string fromDate = null;
-            string toDate = null;
-            DataSet dsFromTo;
-
             try
             {
-                //ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                //con.OpenDataSetThroughAdapter("select top(1) a.Fromdate,a.Todate from trn.EmployeeLeaveSummary a LEFT JOIN LeaveType t on t.Id=a.LeaveTypeID where EmployeeId='" + empId + @"' AND t.LeaveType='Earn' order by fromdate desc", out dsFromTo, false, "1");
-                //if (dsFromTo.Tables[0].Rows.Count > 0)
-                //{
-                //    fromDate = dsFromTo.Tables[0].Rows[0]["Fromdate"].ToString();
-                //    toDate = dsFromTo.Tables[0].Rows[0]["Todate"].ToString();
-                //}
+               
                 string year = DateTime.Now.Year.ToString();
 
                 string sql = @"SELECT A.Id,A.FinalSettlementId,E.SystemId EmpSystemId,OL.Id EmployeeSeperationItemId,OL.UserName,OL.Formula,OL.FormulaId
@@ -2100,7 +2090,7 @@ FROM SalaryInfoDefine SID
 LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
 WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
 Where GD.GWPaymentAdviseId IS NULL AND GD.EmpSystemId='" + empId + @"' 
-AND GD.EmpSystemID NOT IN(Select EmployeeId from dbo.ExceptionGoodWorkEmployee) AND GD.CalculatedOT<>0
+AND GD.EmpSystemID NOT IN(Select EmployeeId from dbo.ExceptionGoodWorkEmployee) AND GD.CalculatedOT<>0 AND ISNULL(PastOTDisbursed,0)=0
 Group By OLS.OTreductionFactor,B.Basic
  ) AS varchar(100))
 
@@ -2475,7 +2465,7 @@ ORDER BY OL.Sequence";
                     }
                 }
 
-                string atsql = @"Select * from dbo.AttdnProcessData Where GWPaymentAdviseId IS NULL AND EmpSystemId IN(" + empIds + ") AND EmpSystemID NOT IN(Select EmployeeId from dbo.ExceptionGoodWorkEmployee) AND CalculatedOT<>0";
+                string atsql = @"Select * from dbo.AttdnProcessData Where GWPaymentAdviseId IS NULL AND EmpSystemId IN(" + empIds + ") AND EmpSystemID NOT IN(Select EmployeeId from dbo.ExceptionGoodWorkEmployee) AND CalculatedOT<>0 AND ISNULL(PastOTDisbursed,0)=0";
                 con.OpenDataSetThroughAdapter(atsql, out dsEmpAT, false, "1");
 
 
