@@ -2911,6 +2911,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         $scope.selectedInvoiceGLCode = $scope.model.GLGeneralInfoCode;
         $scope.voucherDetail.BudgetMasterId = $scope.model.BudgetMasterId;
         $scope.voucherDetail.ServiceMasterId = $scope.model.ServiceMasterId;
+        $scope.voucherDetail.ServiceName = $scope.model.ServiceName;
         $scope.voucherDetail.BudgetName = $scope.model.BudgetName;
         $scope.voucherDetail.ActivityId = $scope.model.ActivityId;
         $scope.voucherDetail.ActivityName = $scope.model.ActivityName;
