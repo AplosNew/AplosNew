@@ -2070,7 +2070,7 @@ AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.Empl
 			 ) AS varchar(100))
 
 WHEN OL.UserName='GoodWork' THEN CAST((
-Select ROUND(((sum(gd.Minute)/60)*OLS.OTreductionFactor) *(B.Basic/104),2) from dbo.GoodWorkDetail GD
+Select cast(((sum(gd.Minute)/60)*OLS.OTreductionFactor) *(B.Basic/104) AS decimal(18,0)) from dbo.GoodWorkDetail GD
 left join EmployeeInformation ei on ei.SystemId=GD.EmpSystemId
 left join (Select top 1* from [dbo].[OTLimitSetting])OLS ON OLS.PlantID=ei.PlantId
 LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = GD.EmpSystemId
@@ -2082,12 +2082,12 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 FROM SalaryInfoDefine SID 
 LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
 WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
-Where GWPaymentAdviseId IS NULL AND EmpSystemId='" + empId + @"' 
+Where GWPaymentAdviseId IS NULL AND EmpSystemId='" + empId + @"' AND GD.Minute<>0
 Group By OLS.OTreductionFactor,B.Basic
  ) AS varchar(100))
 
  WHEN OL.UserName='OverTime' THEN CAST((
-Select ROUND(((sum(gd.CalculatedOT)/60)*OLS.OTreductionFactor) *(B.Basic/104),2) from dbo.AttdnProcessData GD
+Select CAST(((sum(gd.CalculatedOT)/60)*OLS.OTreductionFactor) *(B.Basic/104) AS decimal(18,0)) from dbo.AttdnProcessData GD
 left join EmployeeInformation ei on ei.SystemId=GD.EmpSystemId
 left join (Select top 1* from [dbo].[OTLimitSetting])OLS ON OLS.PlantID=ei.PlantId
 LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = GD.EmpSystemId
@@ -2100,7 +2100,7 @@ FROM SalaryInfoDefine SID
 LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
 WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
 Where GD.GWPaymentAdviseId IS NULL AND GD.EmpSystemId='" + empId + @"' 
-AND GD.EmpSystemID NOT IN(Select EmpSystemID from dbo.ExceptionGoodWorkEmployee)
+AND GD.EmpSystemID NOT IN(Select EmployeeId from dbo.ExceptionGoodWorkEmployee) AND GD.CalculatedOT<>0
 Group By OLS.OTreductionFactor,B.Basic
  ) AS varchar(100))
 
@@ -2452,7 +2452,7 @@ ORDER BY OL.Sequence";
 
                 }
 
-               string gwsql = @"Select * from dbo.GoodWorkDetail Where GWPaymentAdviseId IS NULL AND EmpSystemId IN(" + empIds + ")";
+               string gwsql = @"Select * from dbo.GoodWorkDetail Where GWPaymentAdviseId IS NULL AND EmpSystemId IN(" + empIds + ")  AND Minute<>0";
                 con.OpenDataSetThroughAdapter(gwsql, out dsEmpGW, false, "1");
 
 
@@ -2475,14 +2475,14 @@ ORDER BY OL.Sequence";
                     }
                 }
 
-                string atsql = @"Select * from dbo.AttdnProcessData Where GWPaymentAdviseId IS NULL AND EmpSystemId IN(" + empIds + ") AND EmpSystemID NOT IN(Select EmpSystemID from dbo.ExceptionGoodWorkEmployee)";
+                string atsql = @"Select * from dbo.AttdnProcessData Where GWPaymentAdviseId IS NULL AND EmpSystemId IN(" + empIds + ") AND EmpSystemID NOT IN(Select EmployeeId from dbo.ExceptionGoodWorkEmployee) AND CalculatedOT<>0";
                 con.OpenDataSetThroughAdapter(atsql, out dsEmpAT, false, "1");
 
 
                 for (int i = 0; i < dsEmpAT.Tables[0].Rows.Count; i++)
                 {
                     DataView empatdv = new DataView(dsEmpAT.Tables[0]);
-                    empatdv.RowFilter = "EmpSystemId='" + dsEmpAT.Tables[0].Rows[i]["EmpSystemId"] + "' AND Id='" + dsEmpAT.Tables[0].Rows[i]["RowId"] + "'";
+                    empatdv.RowFilter = "EmpSystemId='" + dsEmpAT.Tables[0].Rows[i]["EmpSystemId"] + "' AND RowId='" + dsEmpAT.Tables[0].Rows[i]["RowId"] + "'";
 
                     if (empatdv.Count > 0)
                     {
@@ -2491,8 +2491,7 @@ ORDER BY OL.Sequence";
                         drat.BeginEdit();
                         drat["EmployeeFinalSettlementId"] = _Id;
                         drat["UpdatedBy"] = identity.Name;
-                        drat["UpdatedDate"] = DateTime.Now.ToString();
-                        drat["UpdatedFromIP"] = identity.IPAddress;
+                        drat["DateUpdated"] = DateTime.Now.ToString();
                         drat.EndEdit();
 
                     }
