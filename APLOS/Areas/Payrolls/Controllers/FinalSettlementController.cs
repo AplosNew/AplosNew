@@ -2077,7 +2077,7 @@ Group By OLS.OTreductionFactor,B.Basic
  ) AS varchar(100))
 
  WHEN OL.UserName='OverTime' THEN CAST((
-Select CAST(((sum(gd.CalculatedOT)/60)*OLS.OTreductionFactor) *(B.Basic/104) AS decimal(18,0)) from dbo.AttdnProcessData GD
+Select CAST(((sum(gd.AdditionalOT)/60)*OLS.OTreductionFactor) *(B.Basic/104) AS decimal(18,0)) from dbo.AttdnProcessData GD
 left join EmployeeInformation ei on ei.SystemId=GD.EmpSystemId
 left join (Select top 1* from [dbo].[OTLimitSetting])OLS ON OLS.PlantID=ei.PlantId
 LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = GD.EmpSystemId
@@ -2480,6 +2480,7 @@ ORDER BY OL.Sequence";
 
                         drat.BeginEdit();
                         drat["EmployeeFinalSettlementId"] = _Id;
+                        drat["PastOTDisbursed"] = true;
                         drat["UpdatedBy"] = identity.Name;
                         drat["DateUpdated"] = DateTime.Now.ToString();
                         drat.EndEdit();
