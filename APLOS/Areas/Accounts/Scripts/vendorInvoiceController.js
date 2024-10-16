@@ -1161,6 +1161,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         $scope.voucherDetail.ActivityOrderType = data.ActivityOrderType;
         $scope.voucherDetail.ValueOfDistribution = data.ValueOfDistribution;
         $scope.voucherDetail.AccountType = data.AccountType;
+        $scope.voucherDetail.BudgetMasterActivityId = data.BudgetMasterActivityId;
         $scope.addRow();
         $scope.closeGLPopUp();
     };
@@ -2910,6 +2911,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         $scope.selectedInvoiceGLCode = $scope.model.GLGeneralInfoCode;
         $scope.voucherDetail.BudgetMasterId = $scope.model.BudgetMasterId;
         $scope.voucherDetail.ServiceMasterId = $scope.model.ServiceMasterId;
+        $scope.voucherDetail.ServiceName = $scope.model.ServiceName;
         $scope.voucherDetail.BudgetName = $scope.model.BudgetName;
         $scope.voucherDetail.ActivityId = $scope.model.ActivityId;
         $scope.voucherDetail.ActivityName = $scope.model.ActivityName;
@@ -2918,6 +2920,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         $scope.voucherDetail.ValueOfDistribution = $scope.model.ValueOfDistribution;
         $scope.voucherDetail.AccountType = $scope.model.AccountType;
         $scope.voucherDetail.IsAssetApplicable = $scope.model.IsAssetApplicable;
+        $scope.voucherDetail.BudgetMasterActivityId = $scope.model.BudgetMasterActivityId;
         $scope.addServiceGLRow();
         $scope.closeServiceDataPopUp();
     };

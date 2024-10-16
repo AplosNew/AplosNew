@@ -1135,7 +1135,7 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
         },
         {
             "Text": "RefNo",
-            "Value": "TransactionRefNo"
+            "Value": "DocRefNo"
         },
         {
             "Text": "PINo",
