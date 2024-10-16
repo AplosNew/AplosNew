@@ -1996,7 +1996,7 @@ namespace Library.MaterialManagement.Inventory
                 //            FROM [TRN].[InventoryReceiveTax] AS A JOIN [MST].[TaxCategory] AS TC ON A.TaxCategoryId=TC.Id
                 //            LEFT JOIN [HKP].[HSNCode] AS HN ON A.HSNCodeId=HN.Id
                 //            WHERE A.InventoryReceiveDetailId='" + receiveDetailId + "' AND A.InventoryServiceId IS NULL ORDER BY TC.[Sequence]";
-                var sql = @"SELECT A.Id,A.InventoryReceiveDetailId, A.TaxCategoryId, TC.UserName AS TaxCategory, A.HSNCodeId, HN.Code AS HSNCode, A.[Percentage], A.TaxAmount,d.id As PODetailId
+                var sql = @"SELECT A.Id,A.InventoryReceiveDetailId, A.TaxCategoryId,A.InventoryReceiveId,A.InventoryServiceId, TC.UserName AS TaxCategory, A.HSNCodeId, HN.Code AS HSNCode, A.[Percentage], A.TaxAmount,d.id As PODetailId
                             FROM [TRN].[InventoryReceiveTax] AS A JOIN [MST].[TaxCategory] AS TC ON A.TaxCategoryId=TC.Id
                             LEFT JOIN [HKP].[HSNCode] AS HN ON A.HSNCodeId=HN.Id
                             left join TRN.InventoryReceiveDetail d on d.id= A.InventoryReceiveDetailId
