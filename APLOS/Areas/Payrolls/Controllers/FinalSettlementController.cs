@@ -2090,7 +2090,7 @@ FROM SalaryInfoDefine SID
 LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
 WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
 Where GD.GWPaymentAdviseId IS NULL AND GD.EmpSystemId='" + empId + @"' 
-AND GD.EmpSystemID NOT IN(Select EmployeeId from dbo.ExceptionGoodWorkEmployee) AND GD.CalculatedOT<>0 AND ISNULL(PastOTDisbursed,0)=0
+AND GD.EmpSystemID NOT IN(Select EmployeeId from dbo.ExceptionGoodWorkEmployee) AND GD.AdditionalOT<>0 AND ISNULL(PastOTDisbursed,0)=0
 Group By OLS.OTreductionFactor,B.Basic
  ) AS varchar(100))
 
@@ -2465,7 +2465,7 @@ ORDER BY OL.Sequence";
                     }
                 }
 
-                string atsql = @"Select * from dbo.AttdnProcessData Where GWPaymentAdviseId IS NULL AND EmpSystemId IN(" + empIds + ") AND EmpSystemID NOT IN(Select EmployeeId from dbo.ExceptionGoodWorkEmployee) AND CalculatedOT<>0 AND ISNULL(PastOTDisbursed,0)=0";
+                string atsql = @"Select * from dbo.AttdnProcessData Where GWPaymentAdviseId IS NULL AND EmpSystemId IN(" + empIds + ") AND EmpSystemID NOT IN(Select EmployeeId from dbo.ExceptionGoodWorkEmployee) AND AdditionalOT<>0 AND ISNULL(PastOTDisbursed,0)=0";
                 con.OpenDataSetThroughAdapter(atsql, out dsEmpAT, false, "1");
 
 
