@@ -740,14 +740,26 @@ namespace Library.MaterialManagement.Inventory
                                 var currentId = 0;
                                 foreach (var item in taxCategoryList.Where(r => r.InventoryReceiveDetailId == Temppodetailid))
                                 {
-                                    currentId++;
-                                    item.Id = MakePK(itemDetail.InventoryReceiveDetailId, currentId, 2);
-                                    item.InventoryReceiveId = entity.Id;//itemDetail.InventoryReceiveId;
-                                    item.InventoryReceiveDetailId = itemDetail.InventoryReceiveDetailId;
-                                    item.InventoryServiceId = null;
-                                    item.TaxAmount = Math.Round(item.TaxAmount, 2);
-                                    AuditService.AddedLog(item);
-                                    _receiveTaxRepository.Insert(item);
+                                    if (item.Id == null)
+                                    {
+                                        currentId++;
+                                        item.Id = MakePK(itemDetail.InventoryReceiveDetailId, currentId, 2);
+                                        item.InventoryReceiveId = entity.Id;//itemDetail.InventoryReceiveId;
+                                        item.InventoryReceiveDetailId = itemDetail.InventoryReceiveDetailId;
+                                        item.InventoryServiceId = null;
+                                        item.TaxAmount = Math.Round(item.TaxAmount, 2);
+                                        AuditService.AddedLog(item);
+                                        _receiveTaxRepository.Insert(item);
+                                    }
+                                    else
+                                    {
+                                        item.InventoryReceiveId = entity.Id;//itemDetail.InventoryReceiveId;
+                                        item.InventoryReceiveDetailId = itemDetail.InventoryReceiveDetailId;
+                                        item.InventoryServiceId = null;
+                                        item.TaxAmount = Math.Round(item.TaxAmount, 2);
+                                        AuditService.UpdatedLog(item);
+                                        _receiveTaxRepository.Update(item);
+                                    }
                                 }
                             }
                         }
@@ -873,7 +885,18 @@ namespace Library.MaterialManagement.Inventory
 
                     }
                 }
-                
+                if (taxCategoryList.IsNotNull())
+                {
+                    foreach (var item in taxCategoryList)
+                    {
+                        if (item.Id != null)
+                        {
+                            item.TaxAmount = Math.Round(item.TaxAmount, 2);
+                            AuditService.UpdatedLog(item);
+                            _receiveTaxRepository.Update(item);
+                        }
+                    }
+                }
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();

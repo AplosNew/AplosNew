@@ -1039,7 +1039,7 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
         },
         {
             "Text": "RefNo",
-            "Value": "TransactionRefNo"
+            "Value": "DocRefNo"
         },
         {
             "Text": "PINo",

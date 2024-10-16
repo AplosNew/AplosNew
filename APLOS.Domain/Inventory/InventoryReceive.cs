@@ -65,6 +65,7 @@ namespace Library.Model.Inventory
         public string TrancastionTypeId { get; set; }
         public string OtherPartyDocRefNo { get; set; }
         public bool OtherPartyRCMApplicable { get; set; }
+        public string OtherPartyVoucherId { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties
