@@ -1300,7 +1300,7 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                 left join org.Plant p on p.Id=pc.PlantId
 				left join org.Company c on c.Id=p.CompanyId
                 left join org.CompanyGroup cg on cg.Id=c.CompanyGroupId
-                left join LeaveType lt on lt.CompanyGroupId=cg.Id 
+                left join LeaveType lt on lt.CompanyGroupId=cg.Id AND lt.LeaveType='Earn'
                 left join EmployeeInformation e on e.PlantId=p.Id
                 left join ManualLeaveData md on md.EmployeeId=e.SystemId
 				and md.LeaveYearId=ld.Id and 
