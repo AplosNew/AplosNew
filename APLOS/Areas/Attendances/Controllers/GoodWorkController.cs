@@ -2275,7 +2275,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                 }
                 else
                 {
-                    conUpdate.executeQuery("UPDATE [dbo].[AttdnProcessData] SET GWPaymentAdviseId='" + _MasterId + "'  where EmpSystemId in (" + detailIds + ") and WorkDate between '" + data["FromDate"] + @"' and '" + data["ToDate"] + @"' AND DayStatus NOT  IN ('A') AND ISNULL(AdditionalOT,0)<>0 AND GWPaymentAdviseId IS NULL ");
+                    conUpdate.executeQuery("UPDATE [dbo].[AttdnProcessData] SET GWPaymentAdviseId='" + _MasterId + "',PastOTDisbursed=1 where EmpSystemId in (" + detailIds + ") and WorkDate between '" + data["FromDate"] + @"' and '" + data["ToDate"] + @"' AND DayStatus NOT  IN ('A') AND ISNULL(AdditionalOT,0)<>0 AND GWPaymentAdviseId IS NULL ");
                 }
                 conUpdate.CommitTransaction();
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Success });

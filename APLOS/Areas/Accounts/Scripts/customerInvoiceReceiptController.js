@@ -1122,4 +1122,5 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
     $scope.closeconfirmDeletePopUp_Remarks = function () {
         angular.element(document.querySelector("#confirmDeletePopUp_Remarks")).modal("hide");
     };
+
 }

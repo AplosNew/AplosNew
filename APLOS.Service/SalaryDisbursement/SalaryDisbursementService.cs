@@ -1933,7 +1933,9 @@ namespace Library.Service.SalaryDisbursement
                     directsql = @"update [dbo].[SalaryLock] set IsDisbursed=1, IsBonusDisbursed=1, FNFSettlementVoucherId='" + directVoucherId + @"' ,DisbursementVoucherId='" + directVoucherId + @"' ,BonusDisbursementVoucherId='" + directVoucherId + @"' where EmployeeFinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId IN (" + goodWorkPaymentAdviseDetailIds + @") ";
                     direct.Append(directsql);
                     directsql = @"
-                        UPDATE  [dbo].[EmployeeFullAndFinalSettlement] SET VoucherId='" + directVoucherId + @"' WHERE EmpSystemId IN (" + goodWorkPaymentAdviseDetailIds + @") ";
+                        UPDATE  [dbo].[EmployeeFullAndFinalSettlement] SET VoucherId='" + directVoucherId + @"' WHERE EmpSystemId IN (" + goodWorkPaymentAdviseDetailIds + @") 
+                        update dbo.GoodWorkDetail set DisbursementVoucherId='" + directVoucherId + @"'  where EmployeeFinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId IN (" + goodWorkPaymentAdviseDetailIds + @") 
+                        update dbo.AttdnProcessData set DisbursementVoucherId='" + directVoucherId + @"'  where EmployeeFinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId IN (" + goodWorkPaymentAdviseDetailIds + @") ";
                     direct.Append(directsql);
                     _sqlRepository.ExecuteSqlCommand(direct.ToString());
 

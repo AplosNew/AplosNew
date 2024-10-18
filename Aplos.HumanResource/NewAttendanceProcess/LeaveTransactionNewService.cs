@@ -541,9 +541,9 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                                          ltd.SystemID LvPolDetailsSystemID,
                                          --ltd.IsProrataPreviousyear,
                                          ltd.IsProratacurrentyear
-                                       ,DaysCanBeSanctioned=case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
+                                       ,DaysCanBeSanctioned=ISNULL(case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
 																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
-																   else Isnull(els.DaysCanBeSanctioned,0) END
+																   else Isnull(els.DaysCanBeSanctioned,0) END,0)
 ,CurrentAllocationDCBS= case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
 																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
 																   else Isnull(els.DaysCanBeSanctioned,0) END
@@ -663,7 +663,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 UNION ALL
  Select A.CalanderYearID,CAST (0 AS BIT) IsExceptionAllowed,A.FromDate,A.ToDate
  ,a.SystemID,A.LTSystemID,A.EmployeeId EmployeeID,A.LeaveName, A.LeaveDescription,ltd.SystemID LvPolDetailsSystemID,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear
- ,DaysCanBeSanctioned=CAST (B.CarryForward AS decimal(18,2))
+ ,DaysCanBeSanctioned=ISNULL(CAST (B.CarryForward AS decimal(18,2)),0)
  ,CurrentAllocationDCBS=CAST (B.CarryForward AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal
  ,CurrentAllocation=CASE WHEN Masterx.LeaveType='Earn' THEN(select ((SELECT DATEDIFF(day,  cast(YEAR('" + _FromDate + @"') as char(4)),  cast(YEAR('" + _FromDate + @"')+1 as char(4))))-COUNT(d.OffDayDate))/ltd.EncashWorkingDaysQty
 		                                from scs.OffDayDetail d
@@ -778,9 +778,9 @@ Where A.EmployeeId='" + EmpSystemID + "'"
 										 lt.Description LeaveDescription,
                                          ltd.SystemID LvPolDetailsSystemID
                                          ,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear
-                                     ,DaysCanBeSanctioned= case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
+                                     ,DaysCanBeSanctioned= ISNULL(case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
 																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
-																   else Isnull(els.DaysCanBeSanctioned,0) END
+																   else Isnull(els.DaysCanBeSanctioned,0) END,0)
 ,CurrentAllocationDCBS=case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
 																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
 																   else Isnull(els.DaysCanBeSanctioned,0) END
@@ -895,7 +895,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 UNION ALL
  Select A.CalanderYearID,CAST (0 AS BIT) IsExceptionAllowed,A.FromDate,A.ToDate
  ,a.SystemID,A.LTSystemID,A.EmployeeId EmployeeID,A.LeaveName, A.LeaveDescription,ltd.SystemID LvPolDetailsSystemID,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear
- ,DaysCanBeSanctioned=CAST (B.CarryForward AS decimal(18,2))
+ ,DaysCanBeSanctioned=ISNULL(CAST (B.CarryForward AS decimal(18,2)),0)
  ,CurrentAllocationDCBS=CAST (B.CarryForward AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal
  ,CurrentAllocation=CASE WHEN Masterx.LeaveType='Earn' THEN (select ((SELECT DATEDIFF(day,  cast(YEAR('" + _FromDate + @"') as char(4)),  cast(YEAR('" + _FromDate + @"')+1 as char(4))))-COUNT(d.OffDayDate))/ltd.EncashWorkingDaysQty
 		                                from scs.OffDayDetail d

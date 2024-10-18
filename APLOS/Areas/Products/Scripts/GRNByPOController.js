@@ -607,6 +607,11 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                                 $scope.product = Object.assign({}, $scope.productNew);
                                 $scope.product.POId = $scope.POId;
                                 $scope.product.PurchaseDocumentAcceptanceId = $scope.AcceptanceId;
+                                if ($scope.POMaterialTaxList.length == 0 && $scope.MaterialTaxList.length > 0) {
+                                    for (var i = 0; i < $scope.MaterialTaxList.length; i++) {
+                                        $scope.POMaterialTaxList.push($scope.MaterialTaxList[i])
+                                    }
+                                }
 
 
 
@@ -1146,6 +1151,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                     return ShowResult('This material already received');
                 }
             }
+            
 
             $http({
                 method: 'POST',
@@ -2279,6 +2285,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 
     $scope.GetMaterialTaxData = function () {
         $scope.MaterialTaxList = [];
+        $scope.POMaterialTaxList = [];
         $http({
             method: "GET",
             url: $scope.path + 'GetReceiveTaxList?receiveDetailId=' + $scope.masterId5
@@ -4222,6 +4229,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 
 
     $scope.closeReceiveTaxPopUpNew = function (data) {
+
         if (baseService.isUndefinedOrNull($scope.productId)) {
             $scope.inventoryMaterialListPO[$scope.receiveTaxindex].BaseTaxAmount = $filter("sumByKey")($filter("filter")($scope.receiveTaxList), "TaxAmount");
             for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {

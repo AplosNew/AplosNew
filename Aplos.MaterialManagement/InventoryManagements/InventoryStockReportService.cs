@@ -113,7 +113,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
 						LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
 						left join( 
-			                        SELECT IRD.InventoryMaterialId ,Sum(IRD.BaseQty-ISNULL(IRD.ShortageQty,0)) AS TransactionQty, Sum((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount)) TotalMaterialBooksCurrencyAmount
+			                        SELECT IRD.InventoryMaterialId ,Sum(IRD.BaseQty-ISNULL(IRD.ShortageQty,0)) AS TransactionQty, Sum((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount+isnull(ird.AdditionalChargesAmount,0))) TotalMaterialBooksCurrencyAmount
                                     ,SUM(ROUND(IRD.ShortageQty*ird.MaterialTranRate,2)) ShortageValue,SUM(ISNULL(IRD.AlternativeQty,2)) BaleQty
 			                        FROM [TRN].[InventoryReceiveDetail] IRD
 			                        LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
@@ -125,7 +125,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
                         left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id
 						left join(  select x.InventoryMaterialId,sum(x.transactionqty) transactionqty,sum(x.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount, SUM(X.ShortageValue) ShortageValue from (
-                                    SELECT IRD.InventoryMaterialId,  IRD.BaseQty-ISNULL(IRD.ShortageQty,0)  AS TransactionQty ,   (ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount) TotalMaterialBooksCurrencyAmount
+                                    SELECT IRD.InventoryMaterialId,  IRD.BaseQty-ISNULL(IRD.ShortageQty,0)  AS TransactionQty ,   (ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount+isnull(ird.AdditionalChargesAmount,0)) TotalMaterialBooksCurrencyAmount
                                     , ROUND(IRD.ShortageQty*ird.MaterialTranRate,2) ShortageValue,ROUND(IRD.AlternativeQty,2) BaleQty
 									FROM  [TRN].[InventoryReceiveDetail] IRD
 									LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
@@ -139,7 +139,7 @@ namespace Library.MaterialManagement.InventoryManagements
                                     ) x
 									GROUP BY x.InventoryMaterialId) AS opbal1 ON opbal1.InventoryMaterialId=IM.Id AND IM.PlantId='" + plantId + @"'
 
-						left join(SELECT IRD.InventoryMaterialId, Sum(IRD.BaseQty-ISNULL(IRD.ShortageQty,0)) AS TransactionQty ,  Sum((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount)) TotalMaterialBooksCurrencyAmount
+						left join(SELECT IRD.InventoryMaterialId, Sum(IRD.BaseQty-ISNULL(IRD.ShortageQty,0)) AS TransactionQty ,  Sum((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount+isnull(ird.AdditionalChargesAmount,0))) TotalMaterialBooksCurrencyAmount
                                     ,SUM(IRD.ShortageQty*IRD.MaterialTranRate) ShortageValue,SUM(ISNULL(IRD.AlternativeQty,0)) BaleQty
 									FROM  [TRN].[InventoryReceiveDetail] IRD
 									LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
@@ -294,7 +294,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
 						left join( 
 			                        SELECT IRD.InventoryMaterialId, IRD.MaterialStorageId
-                                    ,Sum(IRD.BaseQty-ISNULL(IRD.ShortageQty,0)) AS TransactionQty, Sum((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount)) TotalMaterialBooksCurrencyAmount
+                                    ,Sum(IRD.BaseQty-ISNULL(IRD.ShortageQty,0)) AS TransactionQty, Sum((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount+isnull(ird.AdditionalChargesAmount,0))) TotalMaterialBooksCurrencyAmount
                                     ,SUM(ROUND(IRD.ShortageQty*ird.MaterialTranRate,2)) ShortageValue,SUM(ISNULL(IRD.AlternativeQty,0)) BaleQty
 			                        FROM [TRN].[InventoryReceiveDetail] IRD
 			                        LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
@@ -309,14 +309,14 @@ namespace Library.MaterialManagement.InventoryManagements
 						,sum(x.TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount,SUM(x.ShortageValue) ShortageValue,SUM(X.BaleQty) BaleQty from ( 
 						
 						SELECT IRD.InventoryMaterialId, IRD.MaterialStorageId, (IRD.BaseQty-ISNULL(IRD.ShortageQty,0)) AS TransactionQty 
-						,  ((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount)) TotalMaterialBooksCurrencyAmount
+						,  ((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount+isnull(ird.AdditionalChargesAmount,0))) TotalMaterialBooksCurrencyAmount
 						,(ROUND(IRD.ShortageQty*ird.MaterialTranRate,2)) ShortageValue, ISNULL(IRD.AlternativeQty,0) BaleQty
 									FROM  [TRN].[InventoryReceiveDetail] IRD
 									LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
 									where convert(Date,IR.GRNDate) > '" + toDate + @"'   --group By IRD.InventoryMaterialId, IRD.MaterialStorageId
                                     UNION ALL
                                     SELECT IRD.InventoryMaterialId, IRD.MaterialStorageId, (IRD.BaseQty-ISNULL(IRD.ShortageQty,0)) AS TransactionQty 
-									,  ((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount)) TotalMaterialBooksCurrencyAmount
+									,  ((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount+isnull(ird.AdditionalChargesAmount,0))) TotalMaterialBooksCurrencyAmount
                                     ,(ROUND(IRD.ShortageQty*ird.MaterialTranRate,2)) ShortageValue, ISNULL(IRD.AlternativeQty,0) BaleQty
 									FROM  [TRN].[InventoryReceiveDetail] IRD
 									LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
@@ -326,7 +326,7 @@ namespace Library.MaterialManagement.InventoryManagements
                                     ON opbal1.InventoryMaterialId=IM.Id AND IM.PlantId='" + plantId + @"' and opbal1.MaterialStorageId=IRS.MaterialStorageId
 
 
-						left join(SELECT IRD.InventoryMaterialId, IRD.MaterialStorageId, Sum(IRD.BaseQty-ISNULL(IRD.ShortageQty,0)) AS TransactionQty ,  Sum((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount)) TotalMaterialBooksCurrencyAmount
+						left join(SELECT IRD.InventoryMaterialId, IRD.MaterialStorageId, Sum(IRD.BaseQty-ISNULL(IRD.ShortageQty,0)) AS TransactionQty ,  Sum((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount+isnull(ird.AdditionalChargesAmount,0))) TotalMaterialBooksCurrencyAmount
                                     ,SUM(ROUND(IRD.ShortageQty*ird.MaterialTranRate,2)) ShortageValue,SUM(ISNULL(IRD.AlternativeQty,0)) BaleQty
 									FROM  [TRN].[InventoryReceiveDetail] IRD
 									LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
@@ -1777,7 +1777,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
 						LEFT JOIN (  SELECT IRD.InventoryMaterialId
                                     ,Sum(IRD.BaseQty-ISNULL(IRD.ShortageQty,0))- sum(isnull(II.IssueQty,0))+SUM(ISNULL(IIR.IssueReturnQty,0))-SUM(isnull(ISD.Qty,0))-sum(ISNULL(PurReturnOBData.Qty,0)) AS TransactionQty
-                                , Sum(IRD.TotalMaterialBooksCurrencyAmount)-sum(II.PolicyAmount)-SUM(ISD.InventorySalesAmount)-sum(ISNULL(PurReturnOBData.PurchaseReturnAmount,0)) TotalMaterialBooksCurrencyAmount
+                                , Sum(IRD.TotalMaterialBooksCurrencyAmount+ISNULL(IRD.AdditionalChargesAmount,0))-sum(II.PolicyAmount)-SUM(ISD.InventorySalesAmount)-sum(ISNULL(PurReturnOBData.PurchaseReturnAmount,0)) TotalMaterialBooksCurrencyAmount
                                 ,sum(IRD.AlternativeQty)-SUM(ISNULL(II.IssueBaleQty,0)) OBBaleQty
 			                        FROM [TRN].[InventoryReceiveDetail] IRD
 			                        LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
@@ -1820,7 +1820,7 @@ namespace Library.MaterialManagement.InventoryManagements
                                     select * from (
 									SELECT IRD.InventoryMaterialId
                                     ,Sum(IRD.BaseQty-ISNULL(IRD.ShortageQty,0))- sum(isnull(II.IssueQty,0))+SUM(ISNULL(IIR.IssueReturnQty,0))-SUM(isnull(ISD.Qty,0))-sum(ISNULL(PurReturnOBData.Qty,0))-sum(ISNULL(InventoryTransferData.CapitalizeQty,0)) AS TransactionQty
-									, Sum(IRD.TotalMaterialBooksCurrencyAmount)-sum(ISNULL(II.PolicyAmount,0))-SUM(ISNULL(ISD.InventorySalesAmount,0))-sum(ISNULL(PurReturnOBData.PurchaseReturnAmount,0))-sum(ISNULL(InventoryTransferData.CapitalizeAmount,0)) TotalMaterialBooksCurrencyAmount
+									, Sum(IRD.TotalMaterialBooksCurrencyAmount+ISNULL(IRD.AdditionalChargesAmount,0))-sum(ISNULL(II.PolicyAmount,0))-SUM(ISNULL(ISD.InventorySalesAmount,0))-sum(ISNULL(PurReturnOBData.PurchaseReturnAmount,0))-sum(ISNULL(InventoryTransferData.CapitalizeAmount,0)) TotalMaterialBooksCurrencyAmount
 			                         ,sum(IRD.AlternativeQty)-SUM(ISNULL(II.IssueBaleQty,0)) OBBaleQty
                                     FROM [TRN].[InventoryReceiveDetail] IRD
 			                        LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
@@ -1876,7 +1876,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id
 						
-						LEFT JOIN (SELECT IRD.InventoryMaterialId, Sum(IRD.BaseQty-ISNULL(IRD.ShortageQty,0)) AS TransactionQty ,SUM(ISNULL(IRD.AlternativeQty,0)) BaleQty ,  Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
+						LEFT JOIN (SELECT IRD.InventoryMaterialId, Sum(IRD.BaseQty-ISNULL(IRD.ShortageQty,0)) AS TransactionQty ,SUM(ISNULL(IRD.AlternativeQty,0)) BaleQty ,  Sum(IRD.TotalMaterialBooksCurrencyAmount+ISNULL(IRD.AdditionalChargesAmount,0)) TotalMaterialBooksCurrencyAmount
 									FROM  [TRN].[InventoryReceiveDetail] IRD
 									LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
 									where convert(Date,IR.GRNDate)	BETWEEN  '" + fromDate + @"' AND  '" + toDate + @"' AND IR.OpeningBalanceId IS  NULL 
@@ -2021,7 +2021,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
 						left join( 
 			                        SELECT IRD.InventoryMaterialId, IRD.MaterialStorageId
-                                    ,Sum(IRD.BaseQty-IRD.ShortageQty)-sum(isnull(ii.IssueQty,0))+SUM(ISNULL(IIR.IssueReturnQty,0))-sum(isnull(ISD.Qty,0)) AS TransactionQty, Sum((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount)-Round(IRD.ShortageQty*IRD.MaterialTranRate,2))-SUM(ISNULL(II.IssueAmount,0))-SUM(ISNULL(ISD.InventorySalesAmount,0)) TotalMaterialBooksCurrencyAmount
+                                    ,Sum(IRD.BaseQty-IRD.ShortageQty)-sum(isnull(ii.IssueQty,0))+SUM(ISNULL(IIR.IssueReturnQty,0))-sum(isnull(ISD.Qty,0)) AS TransactionQty, Sum((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount+ISNULL(IRD.AdditionalChargesAmount,0))-Round(IRD.ShortageQty*IRD.MaterialTranRate,2))-SUM(ISNULL(II.IssueAmount,0))-SUM(ISNULL(ISD.InventorySalesAmount,0)) TotalMaterialBooksCurrencyAmount
 			                        FROM [TRN].[InventoryReceiveDetail] IRD
 			                        LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
 
@@ -2072,7 +2072,7 @@ namespace Library.MaterialManagement.InventoryManagements
                                     SELECT * FROM (
 									SELECT IRD.InventoryMaterialId, IRD.MaterialStorageId
                                     ,Sum(IRD.BaseQty-IRD.ShortageQty)+SUM(ISNULL(IIR.IssueReturnQty,0))- sum(isnull(II.IssueQty,0))-SUM(isnull(ISD.Qty,0))-sum(ISNULL(PurReturnOBData.Qty,0)) AS TransactionQty
-									, Sum((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount)-Round(IRD.ShortageQty*IRD.MaterialTranRate,2))+SUM(ISNULL(IIR.IssueReturnAmount,0))-sum(ISNULL(II.IssueAmount,0))-SUM(ISNULL(ISD.InventorySalesAmount,0))-sum(ISNULL(PurReturnOBData.PurchaseReturnAmount,0)) TotalMaterialBooksCurrencyAmount
+									, Sum((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount+ISNULL(IRD.AdditionalChargesAmount,0))-Round(IRD.ShortageQty*IRD.MaterialTranRate,2))+SUM(ISNULL(IIR.IssueReturnAmount,0))-sum(ISNULL(II.IssueAmount,0))-SUM(ISNULL(ISD.InventorySalesAmount,0))-sum(ISNULL(PurReturnOBData.PurchaseReturnAmount,0)) TotalMaterialBooksCurrencyAmount
 			                        FROM [TRN].[InventoryReceiveDetail] IRD
 			                        LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
                                     
@@ -2122,7 +2122,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
                         left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id
 						
-						left join(SELECT IRD.InventoryMaterialId, Sum(IRD.BaseQty) AS TransactionQty ,  Sum((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount)-Round(IRD.ShortageQty*IRD.MaterialTranRate,2)) TotalMaterialBooksCurrencyAmount
+						left join(SELECT IRD.InventoryMaterialId, Sum(IRD.BaseQty) AS TransactionQty ,  Sum((ROUND(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount+ISNULL(IRD.AdditionalChargesAmount,0))-Round(IRD.ShortageQty*IRD.MaterialTranRate,2)) TotalMaterialBooksCurrencyAmount
 											,IRD.MaterialStorageId
 									FROM  [TRN].[InventoryReceiveDetail] IRD
 									LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId

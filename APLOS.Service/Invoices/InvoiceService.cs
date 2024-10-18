@@ -1521,6 +1521,7 @@ namespace Library.Service.Invoices
                             GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                             BudgetMasterId = voucherDetailVM.BudgetMasterId,
                             ActivityId = voucherDetailVM.ActivityId,
+                            BudgetMasterActivityId = voucherDetailVM.BudgetMasterActivityId,
                             DrAmount = voucherDetailVM.Amount,
                             PostingWithoutTaxAllow = invoice.IsExcludingTax,
                             TrnNature = TransactionNature.Purchases.ToString(),
@@ -1551,7 +1552,8 @@ namespace Library.Service.Invoices
                                         Amount = item.Amount,
                                         InvoiceType = item.InvoiceType,
                                         MasterOrderId = item.MasterOrderId,
-                                        ContractId = item.ContractId
+                                        ContractId = item.ContractId,
+                                        AdjustmentNoteId = item.AdjustmentNoteId
                                     };
                                     AuditService.AddedLog(invoiceCharges);
                                     _invoiceDetailChargesRepository.Insert(invoiceCharges);
@@ -2088,6 +2090,7 @@ namespace Library.Service.Invoices
                                 GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                                 BudgetMasterId = voucherDetailVM.BudgetMasterId,
                                 ActivityId = voucherDetailVM.ActivityId,
+                                BudgetMasterActivityId = voucherDetailVM.BudgetMasterActivityId,
                                 DrAmount = voucherDetailVM.Amount,
                                 PostingWithoutTaxAllow = invoice.IsExcludingTax,
                                 TrnNature = TransactionNature.Purchases.ToString(),
@@ -2303,7 +2306,8 @@ namespace Library.Service.Invoices
                                                 Amount = item.Amount,
                                                 InvoiceType = item.InvoiceType,
                                                 MasterOrderId = item.MasterOrderId,
-                                                ContractId = item.ContractId
+                                                ContractId = item.ContractId,
+                                                AdjustmentNoteId = item.AdjustmentNoteId
                                             };
                                             AuditService.AddedLog(invoiceCharges);
                                             _invoiceDetailChargesRepository.Insert(invoiceCharges);

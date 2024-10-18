@@ -278,6 +278,7 @@
                     <th style="width:200px;">GL</th>
                     <th>Budget</th>
                     <th>Activity</th>
+                    <th>Service Name</th>
                     <th>Cost Center</th>
                     <th>Taxable Amount</th>
                     <th>Total Tax</th>
@@ -290,6 +291,7 @@
                     <td>{{x.GLGeneralInfoCode}} - {{x.GLGeneralInfoName}}</td>
                     <td>{{x.BudgetName}}</td>
                     <td>{{x.ActivityName}}</td>
+                    <td>{{x.ServiceName}}</td>
                     <td>
                         <select class="form-control" ng-disabled="x.AccountType!='Expense'" ng-model="x.CostCenterId" ng-options="item.Value as item.Text for item in costCenterCboList| filter:{ Value: x.CostCenterId }:true"></select>
                     </td>

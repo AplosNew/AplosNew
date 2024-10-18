@@ -8603,8 +8603,8 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 					,Round(IRD.BaseQty-ISNULL(IRD.ShortageQty,0),2) RcvQty
 					,Round(IRD.BooksCurrencyBaseRate,4) RcvRate
 					--,Round(IRD.TotalMaterialBooksCurrencyAmount,2) RcvAmount	
-					,Round((Round(IRD.BaseQty-ISNULL(IRD.ShortageQty,0),2)*Round(IRD.BooksCurrencyBaseRate,4)),2) RcvAmount	
-                    ,Round(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount TotalRcvAmount
+					,Round((Round(IRD.BaseQty-ISNULL(IRD.ShortageQty,0),2)*Round(IRD.BooksCurrencyBaseRate,4)),2)+ISNULL(ird.AdditionalChargesAmount,0) RcvAmount	
+                    ,Round(IRD.BaseQty*ird.MaterialTranRate*IR.ToCurrencyRate,2)+IRD.ChargesTranAmount+ISNULL(ird.AdditionalChargesAmount,0) TotalRcvAmount
 					--,Round(IRD.TotalMaterialBooksCurrencyAmount,2)-(ISNULL(IRD.ShortageQty,0)*Round(IRD.BooksCurrencyBaseRate,4)) TotalRcvAmount	
 	
 					,REPLACE(CONVERT(CHAR(11), main.IssueDate, 106),' ','-') IssueDate
@@ -14476,7 +14476,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                     colAmount1stTotal = sheet1headreColIndex;
 
 
-                    sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+                    sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.ColorIndex = ExcelKnownColors.Grey_40_percent;
                     sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 10;
                     sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].RowHeight = 22;
                 }

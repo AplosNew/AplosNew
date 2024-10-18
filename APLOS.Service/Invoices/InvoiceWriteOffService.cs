@@ -8907,6 +8907,7 @@ namespace Library.Service.Invoices
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
@@ -8933,7 +8934,7 @@ namespace Library.Service.Invoices
                     foreach (var item in bankCharges)
                     {
                         var rdBuilder = new System.Text.StringBuilder();
-                        var builderSql = @"UPDATE [TRN].VoucherDetail SET BankChargeId=NULL WHERE BankChargeId='" + item.Id + "'";
+                        var builderSql = @"UPDATE [TRN].VoucherDetail SET BankChargeId=NULL,UpdatedBy='" + identity.UserId + "' WHERE BankChargeId='" + item.Id + "'";
                         rdBuilder.Append(builderSql);
                         _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                         _bankChargeRepository.Delete(item.Id);

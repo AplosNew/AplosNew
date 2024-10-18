@@ -71,7 +71,8 @@ function CompanyController(addressService, fileReader, commonMessage, $scope, $r
         TINRequiredForSalaryAbove: 0,
         IsTINRequiredForSalaryAbove: false,
         IsAccountModuleRunning: false,
-        IsInventorySalesBook:true
+        IsInventorySalesBook:true,
+        IsInboundInvoiceServiceApplicable:false
     };
 
     $scope.contactMaster = {
