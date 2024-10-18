@@ -1492,7 +1492,7 @@ namespace Library.Service.Invoices
             {
                 #region Get Company Parallerl Currency Id
                 
-                   // var receiveData = _inventoryReceiveRepository.Find(receiveId);
+                    //var receiveNewData = _inventoryReceiveRepository.Find(receiveId);
                     voucherVM.PostingDate = receiveData.GRNDate;
                     AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
                     _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
@@ -1566,8 +1566,9 @@ namespace Library.Service.Invoices
                     };
                     voucherOtherCharges.TransactionRefNo = DateTime.Now.Year.ToString().Substring(2) + voucherOtherCharges.Id;
                     _voucherService.InsertVoucher(voucherOtherCharges, voucherVM.FiscalYearPrefix);
+                //receiveNewData.OtherPartyVoucherId = voucherOtherCharges.Id;
                 receiveData.OtherPartyVoucherId = voucherOtherCharges.Id;
-                _inventoryReceiveRepository.Update(receiveData);
+                //_inventoryReceiveRepository.Update(receiveNewData);
                     invoice.InventoryReceiveId = receiveId;
                  
                     invoice.VoucherId = voucherOtherCharges.Id;
