@@ -5248,7 +5248,7 @@ namespace Library.Service.Invoices
                     grnBuilder.Append(buildergrnDetailSql);
                     grnBuilder.Append(buildergrnTaxSql);
                     grnBuilder.Append(buildergrnmapSql);
-                    _sqlRepository.ExecuteSqlCommand(grnBuilder.ToString());
+                    //_sqlRepository.ExecuteSqlCommand(grnBuilder.ToString());
 
                     if (otherVendorId != null)
                     {
@@ -5308,10 +5308,15 @@ namespace Library.Service.Invoices
                         {
                             _invoiceDetailRepository.Delete(item.Id);
                         }
+                        var grnBuilderOtherVendor = new System.Text.StringBuilder();
+                        var buildergrnOtherVendorSql = @"UPDATE [TRN].InventoryReceive set OtherPartyVoucherId=NULL WHERE Id='" + grnId + "'";
+                        grnBuilderOtherVendor.Append(buildergrnOtherVendorSql);
+                        _sqlRepository.ExecuteSqlCommand(grnBuilderOtherVendor.ToString());
                         base.Delete(otherInvoice.Id);
                         _voucherService.DeleteVoucher(tempVoucherId);
 
                     }
+                    _sqlRepository.ExecuteSqlCommand(grnBuilder.ToString());
 
                     foreach (var item in voucherdetailcurrnecy)
                     {
