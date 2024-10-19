@@ -202,6 +202,7 @@
                         <th>Voucher No</th>
                         <th>DocDate</th>
                         <th>Doc Ref No</th>
+                        <th>Activity</th>
                         <th>Currency</th>
                         <th>Rate</th>
                         <th class="text-right">Receivable</th>
@@ -218,6 +219,7 @@
                         <td>{{x.VoucherNo}}</td>
                         <td>{{x.DocDate |dateFiltering}}</td>
                         <td>{{x.DocRefNo}}</td>
+                        <td>{{x.ActivityName}}</td>
                         <td>{{x.CurrencyCode}}</td>
                         <td>{{x.CompanyCurrencyRate}}</td>
                         <td class="text-right">{{x.Receivable | number:3}}</td>
@@ -241,7 +243,7 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="8" class="text-right">Total</td>
+                        <td colspan="9" class="text-right">Total</td>
                         <td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'Amount' | number:3}}</b></td>
                         <td></td>
                         <td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'ExchangeAmount' | number:3}}</b></td>

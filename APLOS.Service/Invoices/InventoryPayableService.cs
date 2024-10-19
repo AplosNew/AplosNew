@@ -667,7 +667,7 @@ namespace Library.Service.Invoices
 
                     if(voucherVM.OtherPartyId != null)
                     {
-                        InsertOtherVendorChargesPayable(receiveId,voucherVM, otherVendorChargesList);
+                        InsertOtherVendorChargesPayable(receiveId,receiveData,voucherVM, otherVendorChargesList);
                     }
                     _unitOfWork.SaveChanges();
                     //clsStaticInfo objApp = new clsStaticInfo();
@@ -1486,13 +1486,13 @@ namespace Library.Service.Invoices
             }
         }
 
-        private void InsertOtherVendorChargesPayable(string receiveId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        private void InsertOtherVendorChargesPayable(string receiveId,InventoryReceive receiveData, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
         {
             try
             {
                 #region Get Company Parallerl Currency Id
                 
-                    var receiveData = _inventoryReceiveRepository.Find(receiveId);
+                    //var receiveNewData = _inventoryReceiveRepository.Find(receiveId);
                     voucherVM.PostingDate = receiveData.GRNDate;
                     AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
                     _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
@@ -1562,11 +1562,13 @@ namespace Library.Service.Invoices
                         Narration = invoice.Narration,
                         PostingDate = receiveData.GRNDate,
                         SourceType = SourceType.InventoryPayable.ToString(),
-                        VoucherTypeId = voucherVM.VoucherTypeId,
+                        VoucherTypeId = voucherVM.VoucherTypeId
                     };
                     voucherOtherCharges.TransactionRefNo = DateTime.Now.Year.ToString().Substring(2) + voucherOtherCharges.Id;
                     _voucherService.InsertVoucher(voucherOtherCharges, voucherVM.FiscalYearPrefix);
-                    
+                //receiveNewData.OtherPartyVoucherId = voucherOtherCharges.Id;
+                receiveData.OtherPartyVoucherId = voucherOtherCharges.Id;
+                //_inventoryReceiveRepository.Update(receiveNewData);
                     invoice.InventoryReceiveId = receiveId;
                  
                     invoice.VoucherId = voucherOtherCharges.Id;

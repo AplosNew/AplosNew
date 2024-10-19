@@ -157,6 +157,9 @@ namespace Library.Model.Inventory
 
         public Voucher JWGRIRVoucher { get; set; }
         public string JWGRIRVoucherId { get; set; }
+
+        public Voucher OtherPartyVoucher { get; set; }
+        public string OtherPartyVoucherId { get; set; }
         public string OtherPartyId { get; set; }
         public string OtherPartyPlantId { get; set; }
 

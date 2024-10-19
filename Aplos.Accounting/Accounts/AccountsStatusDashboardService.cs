@@ -1540,10 +1540,11 @@ namespace Library.Accounting.Accounts
 															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '7.31-60'
 															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '8.60 Onward'
 															end
-										, ISNULL(VDC.CrAmount,0) AS Gross,ISNULL(IDND.DNAmount,0) DebitNoteSetOff,ISNULL(IWD.TaxAmount,0) TaxAmount, SetOff=ISNULL(IwV.SetOffBooksAmount, 0)
-                                        , ISNULL(ISNULL(VDC.CrAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0) AS Balance								
+										, ISNULL(VDC.CrAmount,0)+ISNULL(AID.AdditionalAmount,0) AS Gross,ISNULL(IDND.DNAmount,0) DebitNoteSetOff,ISNULL(IWD.TaxAmount,0) TaxAmount, SetOff=ISNULL(IwV.SetOffBooksAmount, 0)
+                                        , ISNULL(ISNULL(VDC.CrAmount,0)+ISNULL(AID.AdditionalAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0) AS Balance								
                                         FROM [TRN].[InvoiceDetail] AS IVD
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
+                                        LEFT JOIN (SELECT SUM(ISNULL(Amount,0)) AdditionalAmount,InvoiceDetailId FROM trn.AdditionalInvoiceDetail   GROUP BY InvoiceDetailId) AS AID ON AID.InvoiceDetailId=IVD.Id
 									    LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                                         LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
                                         LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
@@ -1587,7 +1588,7 @@ namespace Library.Accounting.Accounts
 
                                         WHERE IV.Archive=0  AND V.IsPark=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
                                         AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' " + searchDate + @" 
-                                        AND ISNULL(ISNULL(VDC.CrAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0)>0
+                                        AND ISNULL(ISNULL(VDC.CrAmount,0)+ISNULL(AID.AdditionalAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0)>0
                                         and IV.PartyId in(" + vendorIdLoop + @") 
 										--GROUP BY IV.PartyId, PP.UserName,P.UserName
 
@@ -1625,11 +1626,12 @@ namespace Library.Accounting.Accounts
 															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '7.31-60'
 															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '8.60 Onword'
 															end
-										, ISNULL(VDC.CrAmount,0) AS Gross,ISNULL(IDND.DNAmount,0) DebitNoteSetOff,ISNULL(IWD.TaxAmount,0) TaxAmount,SetOff=ISNULL(IwV.SetOffBooksAmount, 0)
-                                        , ISNULL(ISNULL(VDC.CrAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0) AS Balance
+										, ISNULL(VDC.CrAmount,0)+ISNULL(AID.AdditionalAmount,0) AS Gross,ISNULL(IDND.DNAmount,0) DebitNoteSetOff,ISNULL(IWD.TaxAmount,0) TaxAmount,SetOff=ISNULL(IwV.SetOffBooksAmount, 0)
+                                        , ISNULL(ISNULL(VDC.CrAmount,0)+ISNULL(AID.AdditionalAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0) AS Balance
 
                                         FROM [TRN].[InvoiceDetail] AS IVD
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
+                                        LEFT JOIN (SELECT SUM(ISNULL(Amount,0)) AdditionalAmount,InvoiceDetailId FROM trn.AdditionalInvoiceDetail   GROUP BY InvoiceDetailId) AS AID ON AID.InvoiceDetailId=IVD.Id
 										LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                                         LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
                                         LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
@@ -1672,7 +1674,7 @@ namespace Library.Accounting.Accounts
                                         WHERE IV.Archive=0 AND   V.IsPark=0  AND IV.SourceType in ('InventoryPayable','ServicePayable')
                                         AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' " + searchDate + @"
 										AND IR.PurchaseDocumentAcceptanceId IS NULL  and IV.PartyId in(" + vendorIdLoop + @")
-                                        AND ISNULL(ISNULL(VDC.CrAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0)>0
+                                        AND ISNULL(ISNULL(VDC.CrAmount,0)+ISNULL(AID.AdditionalAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0)>0
 
                                         UNION ALL
 				                        SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,EN.UserName Entity,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName

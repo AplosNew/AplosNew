@@ -1181,7 +1181,7 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                     DataSet YearFinding;
                     string YearId = "";
                     string date = Convert.ToDateTime(DateTime.Now).ToString("dd-MMM-yyyy");
-                    FindLeaveYear(date, out YearFinding, data.PlantID);
+                    FindLeaveYear(date, out YearFinding, para.PlantId);
                     if (YearFinding.Tables[0].Rows.Count > 0)
                     {
                         YearId = YearFinding.Tables[0].Rows[0][@"Id"].ToString();
@@ -1202,31 +1202,40 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                     #region Saving Logic 
 
                     DataSet dsRef, dsSource;
-                    var sqlx = @"select * from AnnualLeaveDataCurrent where PlantId='" + data.PlantID + "'and LeaveYearId='" + YearId + "'";
+                    var sqlx = @"select * from AnnualLeaveDataCurrent where PlantId='" + para.PlantId + "'and LeaveYearId='" + YearId + "' AND EmployeeId='" + data.SystemId + "'";
                     objCon.OpenDataSetThroughAdapter(sqlx, out dsRef, false, false, "", "1");
 
-                    LeaveSourceDataGeneration(From, To, out dsSource, data.PlantID, YearId, data.SystemId);
+                    string LvTypeId = "";
+                    LeaveSourceDataGeneration(From, To, out dsSource, para.PlantId, YearId, data.SystemId);
                     if (dsSource.Tables[0].Rows.Count > 0)
                     {
+                        clsGenID genid = new clsGenID();
+                        genid.GenID("AnnualLeaveDataCurrent", out string _Idx);
+
                         for (int i = 0; i < dsSource.Tables[0].Rows.Count; i++)
                         {
                             string EmpId = clsWebLib.RetValidLen(dsSource.Tables[0].Rows[i][@"EmpId"]).ToString();
                             string LvYearId = clsWebLib.RetValidLen(dsSource.Tables[0].Rows[i][@"LeaveYearId"]).ToString();
-                            string LvTypeId = clsWebLib.RetValidLen(dsSource.Tables[0].Rows[i][@"LeaveTypeId"]).ToString();
+                            LvTypeId = clsWebLib.RetValidLen(dsSource.Tables[0].Rows[i][@"LeaveTypeId"]).ToString();
                             decimal Availed = Convert.ToDecimal(clsWebLib.RetValidLen(dsSource.Tables[0].Rows[i][@"Availed"]).ToString());
                             decimal Earned = Convert.ToDecimal(clsWebLib.RetValidLen(dsSource.Tables[0].Rows[i][@"Earned"]).ToString());
 
                             dsRef.Tables[0].DefaultView.RowFilter = @"EmployeeId='" + EmpId + "' AND LeaveTypeId='" + LvTypeId + "' AND LeaveYearId='" + LvYearId + "'";
-                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            if (dsRef.Tables[0].DefaultView.Count == 0)
                             {
-                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                dr.BeginEdit();
-                                dr["Availed"] = Availed;
-                                dr["Earned"] = Earned;
-                                dr["UpdatedFromIp"] = "1";
-                                dr["UpdatedBy"] = "Schedule";
-                                dr["UpdatedDate"] = DateTime.Now.ToString();
-                                dr.EndEdit();
+                                DataRow drx = dsRef.Tables[0].NewRow();
+                                drx["Id"] = "AC" + _Idx + "-" + i;
+                                drx["EmployeeId"] = EmpId;
+                                drx["LeaveYearId"] = LvYearId;
+                                drx["PlantId"] = para.PlantId;
+                                drx["LeaveTypeId"] = LvTypeId;
+                                drx["Opening"] = 0;
+                                drx["Availed"] = Availed;
+                                drx["Earned"] = Earned;
+                                drx["AddedBy"] = para.AddedBy;
+                                drx["AddedDate"] = Convert.ToDateTime(DateTime.Now);
+                                drx["AddedFromIP"] = para.AddedFromIP;
+                                dsRef.Tables[0].Rows.Add(drx);
                             }
                         }
                         objApp.SaveDataSets(dsRef);
@@ -1291,7 +1300,7 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                 left join org.Plant p on p.Id=pc.PlantId
 				left join org.Company c on c.Id=p.CompanyId
                 left join org.CompanyGroup cg on cg.Id=c.CompanyGroupId
-                left join LeaveType lt on lt.CompanyGroupId=cg.Id 
+                left join LeaveType lt on lt.CompanyGroupId=cg.Id AND lt.LeaveType='Earn'
                 left join EmployeeInformation e on e.PlantId=p.Id
                 left join ManualLeaveData md on md.EmployeeId=e.SystemId
 				and md.LeaveYearId=ld.Id and 
@@ -2717,7 +2726,7 @@ Where EI.SystemId='" + empId + "'";
             {
                 strSQL = @"select D.Name,Relation=RS.UserName,Age=DATEDIFF(YEAR,D.DOB,GETDate()) from dbo.EmployeeDependantInfo D
 LEFT JOIN [SCS].[Relationship] RS ON RS.Id=D.RelationId
-Where EmpSystemId='"+ empId + "'";
+Where EmpSystemId='" + empId + "'";
 
                 return _sqlRepository.GetDataTable(strSQL);
             }
@@ -2857,7 +2866,7 @@ Where EmpSystemId='"+ empId + "'";
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Age");
             range.ApplyCharacterFormat(FontBold);
             int colAge = COL;
-            wTable.Rows[ROW].Cells[colAge].Width = 100; 
+            wTable.Rows[ROW].Cells[colAge].Width = 100;
 
 
             #endregion column headers
@@ -2976,7 +2985,7 @@ Where EmpSystemId='"+ empId + "'";
             #endregion column headers
 
             ROW++;
-           
+
             ROW++;
 
             #region paragrpath formats
@@ -2996,7 +3005,7 @@ Where EmpSystemId='"+ empId + "'";
             ROW = 0;
 
             ROW++;
-            
+
             #endregion merging section
 
             //TextBodyPart textBodyPart = new TextBodyPart(document);
