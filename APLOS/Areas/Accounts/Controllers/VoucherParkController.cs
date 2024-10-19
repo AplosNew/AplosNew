@@ -207,7 +207,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         throw new CustomException("Voucher Park Mode not allowed, SetOf Voucher No '" + dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
                     }
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    var bankJournalSql = @"UPDATE [TRN].Advance SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
+                    var bankJournalSql = @"UPDATE [TRN].Advance SET ISPark=1,IsPosted=0 WHERE VoucherId='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
                     rdBuilder.Append(bankJournalSql);
                 }
