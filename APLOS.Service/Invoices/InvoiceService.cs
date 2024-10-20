@@ -5240,15 +5240,15 @@ namespace Library.Service.Invoices
                     var invoiceTDS = _additionalTaxRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
 
                     var grnBuilder = new System.Text.StringBuilder();
-                    var buildergrnSql = @"UPDATE [TRN].InventoryReceive set VoucherId =NULL,Status=NULL WHERE Id='" + grnId + "'";
+                    //var buildergrnSql = @"UPDATE [TRN].InventoryReceive set VoucherId =NULL,Status=NULL WHERE Id='" + grnId + "'";
                     var buildergrnDetailSql = @"UPDATE [TRN].InventoryReceiveDetail set VoucherDetailId =NULL WHERE InventoryReceiveId='" + grnId + "'";
                     var buildergrnTaxSql = @"UPDATE [TRN].InventoryReceiveTax set DrVoucherDetailId =NULL,CrVoucherDetailId=NULL WHERE InventoryReceiveId='" + grnId + "'";
                     var buildergrnmapSql = @"delete trn.GRNAcceptanceMap  where InvoiceId='" + invoiceId + "'";
-                    grnBuilder.Append(buildergrnSql);
+                    //grnBuilder.Append(buildergrnSql);
                     grnBuilder.Append(buildergrnDetailSql);
                     grnBuilder.Append(buildergrnTaxSql);
                     grnBuilder.Append(buildergrnmapSql);
-                    //_sqlRepository.ExecuteSqlCommand(grnBuilder.ToString());
+                    _sqlRepository.ExecuteSqlCommand(grnBuilder.ToString());
 
                     if (otherVendorId != null)
                     {
@@ -5309,14 +5309,13 @@ namespace Library.Service.Invoices
                             _invoiceDetailRepository.Delete(item.Id);
                         }
                         var grnBuilderOtherVendor = new System.Text.StringBuilder();
-                        var buildergrnOtherVendorSql = @"UPDATE [TRN].InventoryReceive set OtherPartyVoucherId=NULL WHERE Id='" + grnId + "'";
+                        var buildergrnOtherVendorSql = @"UPDATE [TRN].InventoryReceive set OtherPartyVoucherId=NULL WHERE Id='" + grnId + @"' ";
                         grnBuilderOtherVendor.Append(buildergrnOtherVendorSql);
                         _sqlRepository.ExecuteSqlCommand(grnBuilderOtherVendor.ToString());
                         base.Delete(otherInvoice.Id);
                         _voucherService.DeleteVoucher(tempVoucherId);
 
                     }
-                    _sqlRepository.ExecuteSqlCommand(grnBuilder.ToString());
 
                     foreach (var item in voucherdetailcurrnecy)
                     {
@@ -5373,6 +5372,10 @@ namespace Library.Service.Invoices
                     {
                         _invoiceDetailRepository.Delete(item.Id);
                     }
+                    var grnBuilderGRN = new System.Text.StringBuilder();
+                    var buildergrnSqlGRN = @"UPDATE [TRN].InventoryReceive set VoucherId =NULL,Status=NULL WHERE Id='" + grnId + "'";
+                    grnBuilderGRN.Append(buildergrnSqlGRN);
+                    _sqlRepository.ExecuteSqlCommand(grnBuilderGRN.ToString());
                     base.Delete(invoiceId);
                     _voucherService.DeleteVoucher(voucher.Id);
                 }
