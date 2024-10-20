@@ -511,7 +511,7 @@ namespace Library.Accounting.Accounts
 								    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 								    WHERE CPC.ParallelCurrencyType='HardCurrency' AND CPC.CompanyId='" + companyId + @"'
 							    ) AS HC ON HC.VoucherDetailId=VD.Id
-                                WHERE AM.Archive=0 AND AM.IsPosted=1 AND AM.IsWrittenOff=0 AND AD.IsWrittenOff=0 AND AM.SourceType IN ('CustomerAdvance', 'CustomerReceipt')
+                                WHERE AM.Archive=0 AND AM.IsPosted=1 AND V.IsPark=0 AND AM.IsWrittenOff=0 AND AD.IsWrittenOff=0 AND AM.SourceType IN ('CustomerAdvance', 'CustomerReceipt')
                                 AND AM.CompanyGroupId='" + companyGroupId + "' AND AM.CompanyId='" + companyId + "' AND AM.PlantId='" + plantId + "'";
             return _sqlRepository.GetGridData(parameters);
         }
@@ -556,7 +556,7 @@ namespace Library.Accounting.Accounts
 								    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 								    WHERE CPC.ParallelCurrencyType='HardCurrency' AND CPC.CompanyId='" + companyId + @"'
 							    ) AS HC ON HC.VoucherDetailId=VD.Id
-                                WHERE AM.Archive=0 AND AM.IsPosted=1 AND AM.IsWrittenOff=0 AND AD.IsWrittenOff=0 AND AM.SourceType IN ('CustomerAdvance', 'CustomerReceipt')
+                                WHERE AM.Archive=0 AND AM.IsPosted=1 AND V.IsPark=0 AND AM.IsWrittenOff=0 AND AD.IsWrittenOff=0 AND AM.SourceType IN ('CustomerAdvance', 'CustomerReceipt')
                                 AND AM.CompanyGroupId='" + companyGroupId + "' AND AM.CompanyId='" + companyId + "' AND AM.PlantId='" + plantId + "' AND AM.PartyId='"+CustomerId+"'";
             return _sqlRepository.GetGridData(parameters);
         }
@@ -654,7 +654,7 @@ namespace Library.Accounting.Accounts
 								    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 								    WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
 							    ) AS CC ON CC.VoucherDetailId=VD.Id
-                                WHERE AM.Archive=0 AND AM.IsPosted=1 AND AM.IsWrittenOff=0 AND AD.IsWrittenOff=0 AND AM.SourceType='" + sourceType + @"'
+                                WHERE AM.Archive=0 AND AM.IsPosted=1 AND V.IsPark=0  AND AM.IsWrittenOff=0 AND AD.IsWrittenOff=0 AND AM.SourceType='" + sourceType + @"'
                                 AND AM.CompanyGroupId='" + companyGroupId + "' AND AM.CompanyId='" + companyId + "' AND AM.PlantId='" + plantId + "' AND AM.PartyId='"+ vendorId + @"'  ";
             return _sqlRepository.GetDataCollection(sql);
         }

@@ -290,12 +290,16 @@ namespace Aplos.Areas.Products.Controllers
                     {
                         throw new CustomException("Please Input The Current Qty !");
                     }
+                    else if (string.IsNullOrEmpty(item.ArticleId))
+                    {
+                        throw new CustomException("Please Input AritcleId  !!");
+                    }
 
                 }
             }
             else
             {
-                throw new CustomException("Please Select atlest one Materials !");
+                throw new CustomException("Please Select Atleast One Materials !!.");
             }
             if (chargesListPO != null)
             {
