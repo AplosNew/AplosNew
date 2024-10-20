@@ -5533,7 +5533,14 @@ namespace Library.MaterialManagement.Inventory
                             ,IR.CompanyGroupId
                             ,IR.CompanyId
                             ,Plant.GSTIN
-                            ,mo.BuyerReferenceNo 
+                            ,BuyerReferenceNo=STUFF(
+									(select distinct ','+Format(xpo.PODate,'dd-MMM-yyyy') from
+									trn.PurchaseOrder xpo
+									LEFT JOIN [dbo].[Contract] CNO ON CNO.Id = xpo.ContractId
+									 left join TRN.SalesOrder  SO on so.ContractId=CNO.Id
+									  LEFT JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
+									where xpo. Id=PO.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									
                             ,ir.PODepended
                             ,PO1.POId PONumber
 						    ,PO1.ContractNO ContractNO 
@@ -5684,10 +5691,6 @@ namespace Library.MaterialManagement.Inventory
                             	LEFT JOIN (select Distinct PDAA.Id,AcceptanceDate,AcceptanceNo,ACMAP.GRNId from TRN.GRNAcceptanceMap ACMAP 
 									left Join trn.PurchaseDocAcceptance  PDAA ON PDAA.Id=ACMAP.PurchaseDocumentAcceptanceId
 									)PDA ON PDA.GRNId=IR.Id
-							LEFT JOIN [dbo].[Contract] CNO ON CNO.Id = PO.ContractId
-                            left join TRN.SalesOrder  SO on so.ContractId=CNO.Id
-                           LEFT JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
-                           LEFT JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
 							LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id = PO.PurchaseLCId
 	                        --LEFT JOIN [HKP].[Bank] B ON B.Id = PLC.BenificiaryBankId
                             Left Join TRN.MaterialRequsitionDetails MRD ON MRD.Id=POD.RequisitionDetailId
@@ -5730,10 +5733,17 @@ namespace Library.MaterialManagement.Inventory
                             ,IR.CompanyGroupId
                             ,IR.CompanyId
                             ,Plant.GSTIN
-                            ,mo.BuyerReferenceNo 
+                            ,BuyerReferenceNo=STUFF(
+									(select distinct ','+Format(xpo.PODate,'dd-MMM-yyyy') from
+									trn.PurchaseOrder xpo
+									LEFT JOIN [dbo].[Contract] CNO ON CNO.Id = xpo.ContractId
+									 left join TRN.SalesOrder  SO on so.ContractId=CNO.Id
+									  LEFT JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
+									where xpo. Id=PO.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									
                             ,ir.PODepended
                             ,PO1.POId PONumber
-								,CNO.ContractNO ContractNO 
+						     ,'' ContractNO   
 							,PLC.LCRef LCNumber
 							,PLC.BenificiaryBank BeneficiaryBank
 							,PLC.BenificiaryBank OpeningBank
@@ -5865,10 +5875,6 @@ namespace Library.MaterialManagement.Inventory
                             LEFT JOIN (select Distinct PDAA.Id,AcceptanceDate,AcceptanceNo,ACMAP.GRNId from TRN.GRNAcceptanceMap ACMAP 
 									left Join trn.PurchaseDocAcceptance  PDAA ON PDAA.Id=ACMAP.PurchaseDocumentAcceptanceId
 									)PDA ON PDA.GRNId=IR.Id
-							LEFT JOIN [dbo].[Contract] CNO ON CNO.Id = PO.ContractId
-                            left join TRN.SalesOrder  SO on so.ContractId=CNO.Id
-                           LEFT JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
-                           LEFT JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
 							LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id = PO.PurchaseLCId
 	                        --LEFT JOIN [HKP].[Bank] B ON B.Id = PLC.BenificiaryBankId
                             Left Join TRN.MaterialRequsitionDetails MRD ON MRD.Id=POD.RequisitionDetailId
