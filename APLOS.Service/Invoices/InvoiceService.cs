@@ -5229,8 +5229,6 @@ namespace Library.Service.Invoices
                     var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
                     var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
 
-                   
-
                     var invoice = base.Find(invoiceId);
                     if (invoice.WrittenOffAmount > 0)
                         throw new CustomException("Please Delete Payment Voucher first ! ");
@@ -5240,15 +5238,26 @@ namespace Library.Service.Invoices
                     var invoiceTDS = _additionalTaxRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
 
                     var grnBuilder = new System.Text.StringBuilder();
-                    //var buildergrnSql = @"UPDATE [TRN].InventoryReceive set VoucherId =NULL,Status=NULL WHERE Id='" + grnId + "'";
+                    var buildergrnSql = @"UPDATE [TRN].InventoryReceive set VoucherId =NULL,Status=NULL,OtherPartyVoucherId=NULL WHERE Id='" + grnId + "'";
                     var buildergrnDetailSql = @"UPDATE [TRN].InventoryReceiveDetail set VoucherDetailId =NULL WHERE InventoryReceiveId='" + grnId + "'";
                     var buildergrnTaxSql = @"UPDATE [TRN].InventoryReceiveTax set DrVoucherDetailId =NULL,CrVoucherDetailId=NULL WHERE InventoryReceiveId='" + grnId + "'";
                     var buildergrnmapSql = @"delete trn.GRNAcceptanceMap  where InvoiceId='" + invoiceId + "'";
-                    //grnBuilder.Append(buildergrnSql);
+                    grnBuilder.Append(buildergrnSql);
                     grnBuilder.Append(buildergrnDetailSql);
                     grnBuilder.Append(buildergrnTaxSql);
                     grnBuilder.Append(buildergrnmapSql);
-                    _sqlRepository.ExecuteSqlCommand(grnBuilder.ToString());
+                    if (invoiceTax != null)
+                    {
+                        var builderTaxSql = @"UPDATE [TRN].InvoiceTax SET VoucherDetailId=NULL WHERE InvoiceId='" + invoiceId + "'";
+                        grnBuilder.Append(builderTaxSql);
+                    }
+                    if (invoiceTDS.Count > 0)
+                    {
+                        var builderinvoiceTDSDetailSql = @"DELETE from [TRN].AdditionalTaxDetail  WHERE AdditionalTaxId in ( select Id from [TRN].AdditionalTax WHERE InvoiceId='" + invoiceId + "' ) ";
+                        var builderinvoiceTDSSql = @"DELETE from [TRN].AdditionalTax WHERE InvoiceId='" + invoiceId + "'";
+                        grnBuilder.Append(builderinvoiceTDSDetailSql);
+                        grnBuilder.Append(builderinvoiceTDSSql);
+                    }
 
                     if (otherVendorId != null)
                     {
@@ -5262,20 +5271,24 @@ namespace Library.Service.Invoices
                         var othervoucherdetail = _voucherService.QueryVoucherDetail(tempVoucherId).Select().ToList();
                         var othervoucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(tempVoucherId).Select().ToList();
 
+                        if (otherInvoiceTax != null)
+                        {
+                            var builderOtherTaxSql = @"UPDATE [TRN].InvoiceTax SET VoucherDetailId=NULL WHERE InvoiceId='" + otherInvoice.Id + "'";
+                            grnBuilder.Append(builderOtherTaxSql);
+                            //foreach (var otherTX in otherInvoiceTax)
+                            //{
+                            //    var rdBuilder = new System.Text.StringBuilder();
+                            //    var builderSql = @"UPDATE [TRN].InvoiceTax SET VoucherDetailId=NULL WHERE Id='" + otherTX.Id + "'";
+                            //    rdBuilder.Append(builderSql);
+                            //    _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                            //}
+                        }
+
+                        _sqlRepository.ExecuteSqlCommand(grnBuilder.ToString());
 
                         foreach (var item in othervoucherdetailcurrnecy)
                         {
                             _voucherService.DeleteVoucherDetailCurrency(item.Id);
-                        }
-                        if (otherInvoiceTax != null)
-                        {
-                            foreach (var otherTX in otherInvoiceTax)
-                            {
-                                var rdBuilder = new System.Text.StringBuilder();
-                                var builderSql = @"UPDATE [TRN].InvoiceTax SET VoucherDetailId=NULL WHERE Id='" + otherTX.Id + "'";
-                                rdBuilder.Append(builderSql);
-                                _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
-                            }
                         }
 
                         foreach (var item in othervoucherdetail)
@@ -5308,39 +5321,42 @@ namespace Library.Service.Invoices
                         {
                             _invoiceDetailRepository.Delete(item.Id);
                         }
-                        var grnBuilderOtherVendor = new System.Text.StringBuilder();
-                        var buildergrnOtherVendorSql = @"UPDATE [TRN].InventoryReceive set OtherPartyVoucherId=NULL WHERE Id='" + grnId + @"' ";
-                        grnBuilderOtherVendor.Append(buildergrnOtherVendorSql);
-                        _sqlRepository.ExecuteSqlCommand(grnBuilderOtherVendor.ToString());
+                        //var grnBuilderOtherVendor = new System.Text.StringBuilder();
+                        //var buildergrnOtherVendorSql = @"UPDATE [TRN].InventoryReceive set OtherPartyVoucherId=NULL WHERE Id='" + grnId + @"' ";
+                        //grnBuilderOtherVendor.Append(buildergrnOtherVendorSql);
+                        //_sqlRepository.ExecuteSqlCommand(grnBuilderOtherVendor.ToString());
                         base.Delete(otherInvoice.Id);
                         _voucherService.DeleteVoucher(tempVoucherId);
 
                     }
-
+                    else
+                    {
+                        _sqlRepository.ExecuteSqlCommand(grnBuilder.ToString());
+                    }
+                    //if (invoiceTax != null)
+                    //{
+                    //    foreach (var item in invoiceTax)
+                    //    {
+                    //        var rdBuilder = new System.Text.StringBuilder();
+                    //        var builderSql = @"UPDATE [TRN].InvoiceTax SET VoucherDetailId=NULL WHERE Id='" + item.Id + "'";
+                    //        rdBuilder.Append(builderSql);
+                    //        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                    //    }
+                    //}
+                    //if (invoiceTDS.Count > 0)
+                    //{
+                    //    foreach (var item in invoiceTDS)
+                    //    {
+                    //        var rdBuilder = new System.Text.StringBuilder();
+                    //        var builderSql = @"DELETE [TRN].AdditionalTaxDetail  WHERE AdditionalTaxId='" + item.Id + "'";
+                    //        rdBuilder.Append(builderSql);
+                    //        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                    //        _additionalTaxRepository.Delete(item.Id);
+                    //    }
+                    //}
                     foreach (var item in voucherdetailcurrnecy)
                     {
                         _voucherService.DeleteVoucherDetailCurrency(item.Id);
-                    }
-                    if (invoiceTax != null)
-                    {
-                        foreach (var item in invoiceTax)
-                        {
-                            var rdBuilder = new System.Text.StringBuilder();
-                            var builderSql = @"UPDATE [TRN].InvoiceTax SET VoucherDetailId=NULL WHERE Id='" + item.Id + "'";
-                            rdBuilder.Append(builderSql);
-                            _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
-                        }
-                    }
-                    if (invoiceTDS.Count > 0)
-                    {
-                        foreach (var item in invoiceTDS)
-                        {
-                            var rdBuilder = new System.Text.StringBuilder();
-                            var builderSql = @"DELETE [TRN].AdditionalTaxDetail  WHERE AdditionalTaxId='" + item.Id + "'";
-                            rdBuilder.Append(builderSql);
-                            _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
-                            _additionalTaxRepository.Delete(item.Id);
-                        }
                     }
                     foreach (var item in voucherdetail)
                     {
@@ -5372,10 +5388,10 @@ namespace Library.Service.Invoices
                     {
                         _invoiceDetailRepository.Delete(item.Id);
                     }
-                    var grnBuilderGRN = new System.Text.StringBuilder();
-                    var buildergrnSqlGRN = @"UPDATE [TRN].InventoryReceive set VoucherId =NULL,Status=NULL WHERE Id='" + grnId + "'";
-                    grnBuilderGRN.Append(buildergrnSqlGRN);
-                    _sqlRepository.ExecuteSqlCommand(grnBuilderGRN.ToString());
+                    //var grnBuilderGRN = new System.Text.StringBuilder();
+                    //var buildergrnSqlGRN = @"UPDATE [TRN].InventoryReceive set VoucherId =NULL,Status=NULL WHERE Id='" + grnId + "'";
+                    //grnBuilderGRN.Append(buildergrnSqlGRN);
+                    //_sqlRepository.ExecuteSqlCommand(grnBuilderGRN.ToString());
                     base.Delete(invoiceId);
                     _voucherService.DeleteVoucher(voucher.Id);
                 }
