@@ -263,7 +263,7 @@
     </div>
     <div class="clearfix"></div>
     <div class="col-xs-12 col-sm-2 col-md-2" ng-show="voucher.PaymentSource=='@Library.Model.Payments.PaymentSource.GL.ToString()'">
-        <button ng-click="popUp();" class="btn single-btn" ng-disabled="voucher.InvoiceType=='LC'"><i class="glyphicon glyphicon-plus"></i> Add GL</button>
+        <button ng-click="popUp();" class="btn single-btn" ng-hide="companyConfig.IsInboundInvoiceServiceApplicable" ng-disabled="voucher.InvoiceType=='LC'"><i class="glyphicon glyphicon-plus"></i> Add GL</button>
         <button ng-click="getServiceDataList();" class="btn"><i class="glyphicon glyphicon-plus"></i> Add  Charges</button>
 
     </div>
