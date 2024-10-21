@@ -166,13 +166,17 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
         $scope.product.TaxApplicable = data.data.TaxApplicable;
         $scope.product.PostingDate = $filter("dateFiltering")(data.data.SalesReturnDate);
         $scope.product.InvoicingPartyPlantId = data.data.InvoicingPartyPlantId;
+        $scope.product.IsCreditNote = false;
         $scope.productNew = Object.assign({}, $scope.product);
         $scope.getvocherTypeSalesReturn();
         getSalesReturnDetailList();
-        getSalesReturnJV($scope.product.SalesReturnId, data.data.CustomerId, $scope.product.TaxApplicable);
+        getSalesReturnJV($scope.product.SalesReturnId, data.data.CustomerId, $scope.product.TaxApplicable, $scope.product.IsCreditNote);
         getSalesReturnDetailGLData($scope.product.SalesReturnId);
         $scope.Action = 'Save';
         $scope.closeSalesReturnPopUp();
+    };
+    $scope.getSalesReturnIsCreditNoteJV = function () {
+        getSalesReturnJV($scope.productNew.SalesReturnId, $scope.productNew.PartyId, $scope.productNew.TaxApplicable, $scope.productNew.IsCreditNote);
     };
 
 
@@ -222,8 +226,8 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
     $scope.salesReceiveDetailList = [];
     $scope.salesReturnJVList = [];
     $scope.newList = [];
-    function getSalesReturnJV(salesReturnId, customerId, taxApplicable) {
-        $http.get('SalesManagements/Sales/GetSalesReturnJournal?salesReturnId=' + salesReturnId + '&customerId=' + customerId + '&taxApplicable=' + taxApplicable)
+    function getSalesReturnJV(salesReturnId, customerId, taxApplicable, isCreditNote) {
+        $http.get('SalesManagements/Sales/GetSalesReturnJournal?salesReturnId=' + salesReturnId + '&customerId=' + customerId + '&taxApplicable=' + taxApplicable + '&isCreditNote=' + isCreditNote)
             .then(function (response) {
                 $scope.salesReceiveDetailList = [];
                 $scope.salesReturnJVList = [];
@@ -404,6 +408,7 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
                     , 'voucherDetailVMList': $scope.newList
                     , 'salesReturnDetailList': $scope.salesReturnDetailGLList
                     , 'tdsTaxList': $scope.TDSList
+                    , 'isCreditNote': $scope.productNew.IsCreditNote
                 }
                 , dataType: 'JSON'
             }).then(function (response) {

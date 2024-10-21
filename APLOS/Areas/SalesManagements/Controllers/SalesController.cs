@@ -963,11 +963,11 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
         }
         [Authorize, HttpGet]
-        public JsonResult GetSalesReturnJournal(string salesReturnId, string customerId, string taxApplicable)
+        public JsonResult GetSalesReturnJournal(string salesReturnId, string customerId, string taxApplicable, bool isCreditNote)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
-            return Json(accountsSalesService.GetSalesReturnJournalData(identity.CompanyId, identity.PlantId, salesReturnId, customerId, taxApplicable), JsonRequestBehavior.AllowGet);
+            return Json(accountsSalesService.GetSalesReturnJournalData(identity.CompanyId, identity.PlantId, salesReturnId, customerId, taxApplicable, isCreditNote), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
@@ -979,7 +979,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
         [HttpPost]
-        public JsonResult InsertSalesReturnCreditNote(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, List<Dictionary<string, object>> salesReturnDetailList, IEnumerable<InvoiceTaxViewModel> tdsTaxList)
+        public JsonResult InsertSalesReturnCreditNote(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, List<Dictionary<string, object>> salesReturnDetailList, IEnumerable<InvoiceTaxViewModel> tdsTaxList, bool isCreditNote)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -1004,9 +1004,9 @@ namespace Aplos.Areas.SalesManagements.Controllers
             else
                 throw new CustomException("No Journal");
             voucherVM.SourceType = SourceType.CreditNote.ToString();
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, PostSalesReturn(voucherVM, voucherDetailVMList, salesReturnDetailList, tdsTaxList)) });
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, PostSalesReturn(voucherVM, voucherDetailVMList, salesReturnDetailList, tdsTaxList, isCreditNote)) });
         }
-        public string PostSalesReturn(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, List<Dictionary<string, object>> salesReturnDetailList, IEnumerable<InvoiceTaxViewModel> additionalTaxList)
+        public string PostSalesReturn(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, List<Dictionary<string, object>> salesReturnDetailList, IEnumerable<InvoiceTaxViewModel> additionalTaxList, bool isCreditNote)
         {
             var flag = false;
             try
@@ -1128,6 +1128,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                     }
                     drmo.BeginEdit();
                     drmo["VoucherId"] = voucher.Id;
+                    drmo["IsCreditNote"] = isCreditNote;
                     drmo["UpdatedBy"] = voucher.AddedBy;
                     drmo["UpdatedFromIP"] = voucher.AddedFromIP;
                     drmo["UpdatedDate"] = DateTime.Now.ToString();
@@ -1138,6 +1139,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 var currentVoucherDetailId = 0;
                 decimal totalAmountDr = 0;
                 decimal totalAmountCr = 0;
+                string InvoiceWriteOffDetailId = null;
 
                 foreach (var voucherDetailVM in voucherDetailVMList)
                 {
@@ -1154,6 +1156,8 @@ namespace Aplos.Areas.SalesManagements.Controllers
                         };
                         _accountsCommonService.InsertAdjustmentNoteDetail(adjustmentNote, adjustmentNoteDetail, 1, ref _ajNDetailData);
 
+                    if(isCreditNote==false)
+                       {
                         var invoiceWriteOff = new InvoiceWriteOff
                         {
                             CompanyGroupId = voucherVM.CompanyGroupId,
@@ -1216,6 +1220,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             Narration = voucherVM.Narration
                         };
                         _accountsCommonService.InsertInvoiceWriteOffDetail(invoiceWriteOffDetail, 1, out _invoiceWriteOffDetailData);
+                        InvoiceWriteOffDetailId = invoiceWriteOffDetail.Id;
 
                         string invoicesql = "SELECT * FROM TRN.Invoice WHERE Id='" + voucherDetailVM.InvoiceId + "'";
                         string invoiceDetailsql = "SELECT * FROM TRN.InvoiceDetail WHERE Id='" + voucherDetailVM.InvoiceDetailId + "'";
@@ -1260,6 +1265,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
                         }
 
+                      }
                         var voucherDetail = new VoucherDetail
                         {
                             GLGeneralInfoId = adjustmentNoteDetail.GLGeneralInfoId,
@@ -1272,7 +1278,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             TrnNature = TransactionNature.CreditNote.ToString(),
                             AdjustmentNoteDetailId = adjustmentNoteDetail.Id,
                             CrAmount = voucherVM.Amount,
-                            InvoiceWriteOffDetailId = invoiceWriteOffDetail.Id
+                            InvoiceWriteOffDetailId = InvoiceWriteOffDetailId
                         };
                         totalAmountCr += voucherDetail.CrAmount;
                         currentVoucherDetailId++;
