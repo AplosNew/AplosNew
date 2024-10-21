@@ -11287,6 +11287,8 @@ AND OB.IsPark=1 AND OB.SourceType='" + sourceType + "' AND OB.CompanyGroupId='" 
         public string DeleteVendorPayableCutOffAfterPostingDateData(IEnumerable<VoucherDetailViewModel> voucherDetailVM)
         {
             var flag = false;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
             try
             {
                 foreach (var voucherVM in voucherDetailVM)
@@ -11303,7 +11305,7 @@ AND OB.IsPark=1 AND OB.SourceType='" + sourceType + "' AND OB.CompanyGroupId='" 
                         vendorAdWr.Append(vendorAdWrsql);
                         vendorAdWrsql = @"delete trn.GLTransactionDetail where VoucherDetailId in (select id from trn.voucherdetail where VoucherId in (select Id from trn.voucher where CompanyId='" + voucherVM.CompanyId + "' AND PlantId='" + voucherVM.PlantId + "' AND SourceType = '" + SourceType.VendorPayment.ToString() + "' AND Id = '" + voucherVM.VoucherId + "'))";
                         vendorAdWr.Append(vendorAdWrsql);
-                        vendorAdWrsql = @"update trn.VoucherDetail set InvoiceTaxDetailId=NULL  where voucherId in (select Id from trn.voucher where CompanyId='" + voucherVM.CompanyId + "' AND PlantId='" + voucherVM.PlantId + "' AND SourceType = '" + SourceType.VendorPayment.ToString() + "' AND Id = '" + voucherVM.VoucherId + "')";
+                        vendorAdWrsql = @"update trn.VoucherDetail set UpdatedBy='" + identity.UserId + @"',  InvoiceTaxDetailId=NULL  where voucherId in (select Id from trn.voucher where CompanyId='" + voucherVM.CompanyId + "' AND PlantId='" + voucherVM.PlantId + "' AND SourceType = '" + SourceType.VendorPayment.ToString() + "' AND Id = '" + voucherVM.VoucherId + "')";
                         vendorAdWr.Append(vendorAdWrsql);
                         vendorAdWrsql = @"update trn.InvoiceTax set VoucherDetailId=NULL where voucherId in (select Id from trn.voucher where CompanyId='" + voucherVM.CompanyId + "' AND PlantId='" + voucherVM.PlantId + "' AND SourceType = '" + SourceType.VendorPayment.ToString() + "' AND Id = '" + voucherVM.VoucherId + "')";
                         vendorAdWr.Append(vendorAdWrsql);
@@ -11512,6 +11514,8 @@ AND OB.IsPark=1 AND OB.SourceType='" + sourceType + "' AND OB.CompanyGroupId='" 
                     // Delete Loan
                     _unitOfWork.BeginTransaction();
                     flag = true;
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
                     var empAdvance = new System.Text.StringBuilder();
                     var empadsql = "";
 
@@ -11600,6 +11604,8 @@ AND OB.IsPark=1 AND OB.SourceType='" + sourceType + "' AND OB.CompanyGroupId='" 
                     // Delete Loan
                     _unitOfWork.BeginTransaction();
                     flag = true;
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
                     var vendorAdWr = new System.Text.StringBuilder();
                     var vendorAdWrsql = "";
 
@@ -11607,7 +11613,7 @@ AND OB.IsPark=1 AND OB.SourceType='" + sourceType + "' AND OB.CompanyGroupId='" 
                     vendorAdWr.Append(vendorAdWrsql);
                     vendorAdWrsql = @"delete trn.GLTransactionDetail where VoucherDetailId in (select id from trn.voucherdetail where VoucherId in (select Id from trn.voucher where CompanyId='" + voucherVM.CompanyId + "' AND PlantId='" + voucherVM.PlantId + "' AND SourceType = '" + SourceType.InterTransaction.ToString() + "' AND PostingDate < '" + voucherVM.PostingDate + "'))";
                     vendorAdWr.Append(vendorAdWrsql);
-                    vendorAdWrsql = @"update trn.VoucherDetail set InvoiceTaxDetailId=NULL  where voucherId in (select Id from trn.voucher where CompanyId='" + voucherVM.CompanyId + "' AND PlantId='" + voucherVM.PlantId + "' AND SourceType = '" + SourceType.InterTransaction.ToString() + "' AND PostingDate < '" + voucherVM.PostingDate + "')";
+                    vendorAdWrsql = @"update trn.VoucherDetail set UpdatedBy='" + identity.UserId + @"',  InvoiceTaxDetailId=NULL  where voucherId in (select Id from trn.voucher where CompanyId='" + voucherVM.CompanyId + "' AND PlantId='" + voucherVM.PlantId + "' AND SourceType = '" + SourceType.InterTransaction.ToString() + "' AND PostingDate < '" + voucherVM.PostingDate + "')";
                     vendorAdWr.Append(vendorAdWrsql);
                     vendorAdWrsql = @"update trn.InvoiceTax set VoucherDetailId=NULL where voucherId in (select Id from trn.voucher where CompanyId='" + voucherVM.CompanyId + "' AND PlantId='" + voucherVM.PlantId + "' AND SourceType = '" + SourceType.InterTransaction.ToString() + "' AND PostingDate < '" + voucherVM.PostingDate + "')";
                     vendorAdWr.Append(vendorAdWrsql);
@@ -11674,6 +11680,8 @@ AND OB.IsPark=1 AND OB.SourceType='" + sourceType + "' AND OB.CompanyGroupId='" 
                     // Delete Loan
                     _unitOfWork.BeginTransaction();
                     flag = true;
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
                     var vendorAdWr = new System.Text.StringBuilder();
                     var vendorAdWrsql = "";
 
@@ -11681,7 +11689,7 @@ AND OB.IsPark=1 AND OB.SourceType='" + sourceType + "' AND OB.CompanyGroupId='" 
                     vendorAdWr.Append(vendorAdWrsql);
                     vendorAdWrsql = @"delete trn.GLTransactionDetail where VoucherDetailId in (select id from trn.voucherdetail where VoucherId in (select Id from trn.voucher where CompanyId='" + voucherVM.CompanyId + "' AND PlantId='" + voucherVM.PlantId + "' AND SourceType = '" + SourceType.VendorAdvance.ToString() + "' AND PostingDate < '" + voucherVM.PostingDate + "'))";
                     vendorAdWr.Append(vendorAdWrsql);
-                    vendorAdWrsql = @"update trn.VoucherDetail set InvoiceTaxDetailId=NULL  where voucherId in (select Id from trn.voucher where CompanyId='" + voucherVM.CompanyId + "' AND PlantId='" + voucherVM.PlantId + "' AND SourceType = '" + SourceType.VendorAdvance.ToString() + "' AND PostingDate < '" + voucherVM.PostingDate + "')";
+                    vendorAdWrsql = @"update trn.VoucherDetail set UpdatedBy='" + identity.UserId + @"',  InvoiceTaxDetailId=NULL  where voucherId in (select Id from trn.voucher where CompanyId='" + voucherVM.CompanyId + "' AND PlantId='" + voucherVM.PlantId + "' AND SourceType = '" + SourceType.VendorAdvance.ToString() + "' AND PostingDate < '" + voucherVM.PostingDate + "')";
                     vendorAdWr.Append(vendorAdWrsql);
                     vendorAdWrsql = @"update trn.InvoiceTax set VoucherDetailId=NULL where voucherId in (select Id from trn.voucher where CompanyId='" + voucherVM.CompanyId + "' AND PlantId='" + voucherVM.PlantId + "' AND SourceType = '" + SourceType.VendorAdvance.ToString() + "' AND PostingDate < '" + voucherVM.PostingDate + "')";
                     vendorAdWr.Append(vendorAdWrsql);
@@ -11709,6 +11717,8 @@ AND OB.IsPark=1 AND OB.SourceType='" + sourceType + "' AND OB.CompanyGroupId='" 
                     // Delete Loan
                     _unitOfWork.BeginTransaction();
                     flag = true;
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
                     var vendorAdWr = new System.Text.StringBuilder();
                     var vendorAdWrsql = "";
 
@@ -11716,7 +11726,7 @@ AND OB.IsPark=1 AND OB.SourceType='" + sourceType + "' AND OB.CompanyGroupId='" 
                     vendorAdWr.Append(vendorAdWrsql);
                     vendorAdWrsql = @"delete trn.GLTransactionDetail where VoucherDetailId in (select id from trn.voucherdetail where VoucherId in (select Id from trn.voucher where CompanyId='" + voucherVM.CompanyId + "' AND PlantId='" + voucherVM.PlantId + "' AND SourceType = '" + SourceType.VendorPayment.ToString() + "' AND PostingDate < '" + voucherVM.PostingDate + "'))";
                     vendorAdWr.Append(vendorAdWrsql);
-                    vendorAdWrsql = @"update trn.VoucherDetail set InvoiceTaxDetailId=NULL  where voucherId in (select Id from trn.voucher where CompanyId='" + voucherVM.CompanyId + "' AND PlantId='" + voucherVM.PlantId + "' AND SourceType = '" + SourceType.VendorPayment.ToString() + "' AND PostingDate < '" + voucherVM.PostingDate + "')";
+                    vendorAdWrsql = @"update trn.VoucherDetail set UpdatedBy='" + identity.UserId + @"',  InvoiceTaxDetailId=NULL  where voucherId in (select Id from trn.voucher where CompanyId='" + voucherVM.CompanyId + "' AND PlantId='" + voucherVM.PlantId + "' AND SourceType = '" + SourceType.VendorPayment.ToString() + "' AND PostingDate < '" + voucherVM.PostingDate + "')";
                     vendorAdWr.Append(vendorAdWrsql);
                     vendorAdWrsql = @"update trn.InvoiceTax set VoucherDetailId=NULL where voucherId in (select Id from trn.voucher where CompanyId='" + voucherVM.CompanyId + "' AND PlantId='" + voucherVM.PlantId + "' AND SourceType = '" + SourceType.VendorPayment.ToString() + "' AND PostingDate < '" + voucherVM.PostingDate + "')";
                     vendorAdWr.Append(vendorAdWrsql);
@@ -11744,6 +11754,8 @@ AND OB.IsPark=1 AND OB.SourceType='" + sourceType + "' AND OB.CompanyGroupId='" 
                     // Delete Loan
                     _unitOfWork.BeginTransaction();
                     flag = true;
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
                     var vendorAdWr = new System.Text.StringBuilder();
                     var vendorAdWrsql = "";
 
@@ -11751,7 +11763,7 @@ AND OB.IsPark=1 AND OB.SourceType='" + sourceType + "' AND OB.CompanyGroupId='" 
                     vendorAdWr.Append(vendorAdWrsql);
                     vendorAdWrsql = @"delete trn.GLTransactionDetail where VoucherDetailId in (select id from trn.voucherdetail where VoucherId in (select Id from trn.voucher where CompanyId='" + voucherVM.CompanyId + "' AND PlantId='" + voucherVM.PlantId + "' AND SourceType = '" + SourceType.VendorInvoice.ToString() + "' AND PostingDate < '" + voucherVM.PostingDate + "'))";
                     vendorAdWr.Append(vendorAdWrsql);
-                    vendorAdWrsql = @"update trn.VoucherDetail set InvoiceTaxDetailId=NULL  where voucherId in (select Id from trn.voucher where CompanyId='" + voucherVM.CompanyId + "' AND PlantId='" + voucherVM.PlantId + "' AND SourceType = '" + SourceType.VendorInvoice.ToString() + "' AND PostingDate < '" + voucherVM.PostingDate + "')";
+                    vendorAdWrsql = @"update trn.VoucherDetail set UpdatedBy='" + identity.UserId + @"',  InvoiceTaxDetailId=NULL  where voucherId in (select Id from trn.voucher where CompanyId='" + voucherVM.CompanyId + "' AND PlantId='" + voucherVM.PlantId + "' AND SourceType = '" + SourceType.VendorInvoice.ToString() + "' AND PostingDate < '" + voucherVM.PostingDate + "')";
                     vendorAdWr.Append(vendorAdWrsql);
                     vendorAdWrsql = @"update trn.InvoiceTax set VoucherDetailId=NULL where voucherId in (select Id from trn.voucher where CompanyId='" + voucherVM.CompanyId + "' AND PlantId='" + voucherVM.PlantId + "' AND SourceType = '" + SourceType.VendorInvoice.ToString() + "' AND PostingDate < '" + voucherVM.PostingDate + "')";
                     vendorAdWr.Append(vendorAdWrsql);

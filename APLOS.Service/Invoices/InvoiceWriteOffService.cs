@@ -9158,6 +9158,8 @@ namespace Library.Service.Invoices
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
                 var invoiceWriteOffList = _invoiceWriteOffRepository.Query(r => r.InvoiceWriteOffGroupNo == invoiceWriteOffGroupNo && r.SourceType == sourceType.ToString()).Select().ToList();
                 if (invoiceWriteOffList != null)
                 {
@@ -9197,7 +9199,7 @@ namespace Library.Service.Invoices
                         vendorAdWr.Append(vendorAdWrsql);
                         vendorAdWrsql = @"delete trn.VoucherDetailCurrency where VoucherId  = '" + invwriteOff.VoucherId + "'";
                         vendorAdWr.Append(vendorAdWrsql);
-                        vendorAdWrsql = @"update trn.VoucherDetail SET BankChargeId=NULL where VoucherId  = '" + invwriteOff.VoucherId + "'";
+                        vendorAdWrsql = @"update trn.VoucherDetail set UpdatedBy='" + identity.UserId + @"',  BankChargeId=NULL where VoucherId  = '" + invwriteOff.VoucherId + "'";
                         vendorAdWr.Append(vendorAdWrsql);
                         vendorAdWrsql = @"delete trn.VoucherDetail where VoucherId  = '" + invwriteOff.VoucherId + "'";
                         vendorAdWr.Append(vendorAdWrsql);
