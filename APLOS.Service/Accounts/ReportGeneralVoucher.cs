@@ -4858,12 +4858,70 @@ UNION ALL
 					LEFT JOIN [HKP].[BudgetSubCategory] AS BSC ON BSC.Id=BM.BudgetSubCategoryId
                     LEFT JOIN [HKP].[BudgetCategory] AS BC ON BC.Id=BM.BudgetCategoryId
                     LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
+                    LEFT JOIN ORG.Entity E on V.EntityId=E.Id
                     LEFT JOIN [MST].[BudgetMasterActivity] AS BMA  on BMA.BudgetMasterId=BM.Id AND BMA.ActivityId=A.Id
                     WHERE act.IsBalanceSheet=0 AND v.PostingDate between @fromDate and @toDate 
 					AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId
-                     and V.EntityId=@entityId  and VDC.ParallelCurrencyId IN (@parallelCurrencyId) and v.IsPark=0 and  vd.OpeningBalanceDetailId IS NULL
+                    AND V.EntityId=@entityId AND V.SourceType NOT IN ('AdvanceJournalVoucher','JournalVoucher')
+					AND VDC.ParallelCurrencyId IN (@parallelCurrencyId) and v.IsPark=0 and  vd.OpeningBalanceDetailId IS NULL
                     group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode
-					,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId, BC.UserName,BSC.UserName,BUD.UserName ,VD.ActivityId, A.UserName,BMA.Id ";
+					,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId, BC.UserName,BSC.UserName,BUD.UserName ,VD.ActivityId, A.UserName,BMA.Id 
+
+					UNION ALL
+					 SELECT GL.Id AS AccountCodeId,VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,sum(VDC.DrAmount) as DrAmount,sum(VDC.CrAmount) as CrAmount,
+                    sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VD.ActivityId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative,
+                    sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VD.ActivityId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative,
+                    ACT.BalanceType,ACT.Id AS [MainHead],AG.UserName AS [Level],VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
+                    VD.BudgetMasterId, BC.UserName AS BudgetCategory,BSC.UserName AS BudgetSubCategory, BUD.UserName AS Budget,VD.ActivityId, A.UserName AS Activity,BMA.Id ControlId
+					,(ISNULL((SELECT CASE WHEN DRcumulative=0 THEN CRcumulative ELSE DRcumulative END ForTheDay FROM
+										(SELECT VD.ActivityId,  sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VD.ActivityId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative,
+										sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VD.ActivityId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative
+										FROM TRN.VoucherDetailCurrency AS VDC
+										INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
+										INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+										LEFT OUTER JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+										LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+										left outer join [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+										WHERE v.PostingDate = @toDate  
+										AND act.IsBalanceSheet=0  AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId
+										and V.EntityId=@entityId  and VDC.ParallelCurrencyId IN (@parallelCurrencyId) and v.IsPark=0 and  VD.OpeningBalanceDetailId IS NULL
+										GROUP BY ACT.BalanceType,GL.Id, VD.BudgetMasterId, VD.ActivityId, VDC.ParallelCurrencyId )T
+										WHERE ActivityId=VD.ActivityId),0))ForTheDay
+						,(ISNULL((SELECT CASE WHEN DRcumulative=0 THEN CRcumulative ELSE DRcumulative END ForTheFiscalYear FROM
+										(SELECT VDFY.ActivityId,  sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VDFY.BudgetMasterId, VDFY.ActivityId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative,
+										sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VDFY.BudgetMasterId, VDFY.ActivityId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative
+										FROM TRN.VoucherDetailCurrency AS VDC
+										INNER JOIN TRN.VoucherDetail AS VDFY ON VDFY.Id =VDC.VoucherDetailId
+										INNER JOIN TRN.Voucher AS V ON V.Id=VDFY.VoucherId
+										LEFT OUTER JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VDFY.GLGeneralInfoId
+										LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+										left outer join [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+										WHERE V.FiscalYearId IN (SELECT Id FROM [SCS].[FiscalYear] WHERE  @toDate between StartDate and EndDate) 
+										AND VDFY.ActivityId=VD.ActivityId
+										AND act.IsBalanceSheet=0  AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId
+										and V.EntityId=@entityId  and VDC.ParallelCurrencyId IN (@parallelCurrencyId) and v.IsPark=0 and  VDFY.OpeningBalanceDetailId IS NULL
+										GROUP BY ACT.BalanceType,GL.Id, VDFY.BudgetMasterId, VDFY.ActivityId, VDC.ParallelCurrencyId )T
+										),0))ForTheFiscalYear
+                    FROM TRN.VoucherDetailCurrency AS VDC
+                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
+                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+                    LEFT OUTER JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+                    LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+                    left outer join [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+                    LEFT OUTER JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
+                    LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
+                    LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id = BM.BudgetId
+					LEFT JOIN [HKP].[BudgetSubCategory] AS BSC ON BSC.Id=BM.BudgetSubCategoryId
+                    LEFT JOIN [HKP].[BudgetCategory] AS BC ON BC.Id=BM.BudgetCategoryId
+                    LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
+                    LEFT JOIN ORG.Entity EN on VD.EntityId=EN.Id
+                    LEFT JOIN [MST].[BudgetMasterActivity] AS BMA  on BMA.BudgetMasterId=BM.Id AND BMA.ActivityId=A.Id
+                    WHERE act.IsBalanceSheet=0 AND v.PostingDate between @fromDate and @toDate 
+					AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId
+                    AND VD.EntityId=@entityId AND V.SourceType  IN ('AdvanceJournalVoucher','JournalVoucher')
+					AND VDC.ParallelCurrencyId IN (@parallelCurrencyId) and v.IsPark=0 and  vd.OpeningBalanceDetailId IS NULL
+                    group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode
+					,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId, BC.UserName,BSC.UserName,BUD.UserName ,VD.ActivityId, A.UserName,BMA.Id  ";
 
                 return _sqlRepository.GetDataTable(strSql);
             }
