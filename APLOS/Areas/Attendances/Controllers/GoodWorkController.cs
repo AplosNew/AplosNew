@@ -146,7 +146,7 @@ namespace Aplos.Areas.Attendances.Controllers
                           AND ei.SystemId in (select EmpSystemID from dbo.AttdnProcessData where ShiftSystemId='" + shiftId + @"' and WorkDate='" + workDate + @"')  
                         AND ei.SystemId IN(Select EmployeeId From [dbo].[ExceptionGoodWorkEmployee] where GoodWorkSetUpId = '" + userGroupId + @"')
                         and EI.EmployeeStatus='Active' and EI.BudgetCode in (SELECT BudgetId FROM dbo.GoodWorkBudgetSetup where GoodWorkSetUpId = '" + userGroupId + @"')
-                        AND ei.SystemId NOT IN(select GWD.EmpSystemId  from GoodWork GW left join GoodworkDetail GWD on GW.Id=GWD.GoodWorkId where GW.WorkDate between '" + workDate + @"' AND '" + workDate + @"')
+                        AND ei.SystemId NOT IN(select EmpSystemId from dbo.GoodWorkDetail Where GoodWorkId IN(Select Id from dbo.GoodWork Where WorkDate= '" + workDate + @"'))
                          ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
             }
             catch (Exception ex)
