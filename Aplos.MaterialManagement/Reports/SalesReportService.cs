@@ -4707,10 +4707,11 @@ WHERE IRs.Id = IR.Id
                     WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
-
+,ISNULL(E.VATResistrationNo,Cmp.VATResistrationNo)VATResistrationNo
 FROM TRN.Sales IR
 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
 LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
+LEFT JOIN ORG.Entity E ON E.Id=IR.EntityId
 LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
 LEFT JOIN dbo.PostSalesInvoice PSI ON PSI.SalesId = IR.Id
 AND PSI.Id=(SELECT TOP 1 Id FROM dbo.PostSalesInvoice MR WHERE MR.SalesId=PSI.SalesId ORDER BY MR.UpdatedDate DESC)
@@ -8638,12 +8639,12 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
 								,IRD.BooksCurrencyTransactionAmount
 								,IRD.BooksCurrencyTaxAmount
 								,IRD.BooksCurrencyBaseRate
-								,IR.AddedBy CreatedBy
+								,IR.AddedBy CreatedBy,ISNULL(E.VATResistrationNo,Cmp.VATResistrationNo)VATResistrationNo
                         FROM TRN.Sales IR
                          LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                          LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
                          LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
-
+                         LEFT JOIN ORG.Entity E ON E.Id=IR.EntityId
 						 LEFT JOIN dbo.PostSalesInvoice PSI ON PSI.SalesId=IR.Id
 					     LEFT JOIN MST.[Port] as PL on PL.Id= PSI.PortOfLoadingId
 						 LEFT JOIN MST.[Port] as PD on PD.Id= PSI.PortOfDischargeId
@@ -9026,10 +9027,11 @@ AND PSI.Id=(SELECT TOP 1 Id FROM dbo.PostSalesInvoice MR WHERE MR.SalesId=PSI.Sa
                     FOR XML path('')
                         ,TYPE
                     ).value('.', 'VARCHAR(MAX)'), 1, 1, ''), '&amp;', '&'), 'amp;', '')
-,MO.BuyerReferenceNo,BB.IFSCCode		
+,MO.BuyerReferenceNo,BB.IFSCCode,ISNULL(E.VATResistrationNo,Cmp.VATResistrationNo)VATResistrationNo		
 FROM TRN.Sales IR
 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
 LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
+LEFT JOIN ORG.Entity E ON E.Id=IR.EntityId
 LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
 LEFT JOIN dbo.PostSalesInvoice PSI ON PSI.SalesId = IR.Id
 AND PSI.Id=(SELECT TOP 1 Id FROM dbo.PostSalesInvoice MR WHERE MR.SalesId=PSI.SalesId ORDER BY MR.UpdatedDate DESC)
@@ -9208,10 +9210,11 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
 						LEFT JOIN dbo.SalesPacking SP ON pla.ProductLibraryId = SP.ProductLibraryId
 						WHERE SP.SalesId=IR.Id
 						for XML PATH('')
-						) , 1, 2, '')) as ProdDetails,IR.AddedBy CreatedBy
+						) , 1, 2, '')) as ProdDetails,IR.AddedBy CreatedBy,ISNULL(E.VATResistrationNo,Cmp.VATResistrationNo)VATResistrationNo
                         FROM TRN.Sales IR
                          LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                          LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
+                         LEFT JOIN ORG.Entity E ON E.Id=IR.EntityId
                          LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
                          LEFT JOIN dbo.PostSalesInvoice PSI ON PSI.SalesId = IR.Id
 AND PSI.Id=(SELECT TOP 1 Id FROM dbo.PostSalesInvoice MR WHERE MR.SalesId=PSI.SalesId ORDER BY MR.UpdatedDate DESC)
@@ -9412,10 +9415,11 @@ LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id AND AA.MasterOrderItemID=MO
 					FOR XML PATH('')
 					), 1, 2, '')
 		) AS ProdDetails,IR.AddedBy CreatedBy 
-, LEFT(MO.[Type], 1) [Type]
+, LEFT(MO.[Type], 1) [Type],ISNULL(E.VATResistrationNo,Cmp.VATResistrationNo)VATResistrationNo
 FROM TRN.Sales IR
 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
 LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
+LEFT JOIN ORG.Entity E ON E.Id=IR.EntityId
 LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
 LEFT JOIN dbo.PostSalesInvoice PSI ON PSI.SalesId = IR.Id
 AND PSI.Id=(SELECT TOP 1 Id FROM dbo.PostSalesInvoice MR WHERE MR.SalesId=PSI.SalesId ORDER BY MR.UpdatedDate DESC)
@@ -9597,10 +9601,11 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
 						LEFT JOIN dbo.SalesPacking SP ON pla.ProductLibraryId = SP.ProductLibraryId
 						WHERE SP.SalesId=IR.Id
 						for XML PATH('')
-						) , 1, 2, '')) as ProdDetails,IR.AddedBy CreatedBy
+						) , 1, 2, '')) as ProdDetails,IR.AddedBy CreatedBy,ISNULL(E.VATResistrationNo,Cmp.VATResistrationNo)VATResistrationNo
                         FROM TRN.Sales IR
                          LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                          LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
+                         LEFT JOIN ORG.Entity E ON E.Id=IR.EntityId
                          LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
                          LEFT JOIN dbo.PostSalesInvoice PSI ON PSI.SalesId = IR.Id
 AND PSI.Id=(SELECT TOP 1 Id FROM dbo.PostSalesInvoice MR WHERE MR.SalesId=PSI.SalesId ORDER BY MR.UpdatedDate DESC)
