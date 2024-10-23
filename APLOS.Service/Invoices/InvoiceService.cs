@@ -65,6 +65,7 @@ namespace Library.Service.Invoices
         private readonly IRepositoryAsync<FinancingSubsequentTransaction> _loanInterestPayableRepository;
         private readonly IFinancingService _financingService;
         private readonly IPKGeneratorService _pkGeneratorService;
+        private readonly IRepositoryAsync<ServiceMasterParty> _serviceMasterPartyRepository;
         public InvoiceService(
               IRepositoryAsync<Invoice> repository
             , IRepositoryAsync<InvoiceDetail> invoiceDetailRepository
@@ -90,6 +91,7 @@ namespace Library.Service.Invoices
             , IRepositoryAsync<OtherInvoice> otherInvoiceRepository
             , IRepositoryAsync<FinancingSubsequentTransaction> loanInterestPayableRepository
             , IFinancingService financingService
+            , IRepositoryAsync<ServiceMasterParty> serviceMasterPartyRepository
             ) : base(repository, unitOfWork, pkGeneratorService)
         {
             _unitOfWork = unitOfWork;
@@ -115,6 +117,7 @@ namespace Library.Service.Invoices
             _financingService = financingService;
             _loanInterestPayableRepository = loanInterestPayableRepository;
             _pkGeneratorService = pkGeneratorService;
+            _serviceMasterPartyRepository = serviceMasterPartyRepository;
         }
 
         #endregion Constructor
@@ -222,7 +225,22 @@ namespace Library.Service.Invoices
                 return false;
             }
         }
-        
+        public bool CheckServiceMasterParty(string ServiceMasterId, string PartyId)
+        {
+            try
+            {
+                var sql = "IF EXISTS(SELECT * FROM(" +
+                        "SELECT ServiceMasterId, PartyId  " +
+                         "FROM [TRN].[ServiceMasterParty]  " +
+                         ") A WHERE ServiceMasterId = '" + ServiceMasterId + "' AND PartyId = '" + PartyId + @"') SELECT 1 ELSE SELECT 0 RETURN ";
+                return Convert.ToBoolean(_invoiceDetailRepository.SqlQuery<int>(sql).Single());
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         public Invoice FindInvoice(string Id)
         {
             return base.Find(Id);
@@ -2101,6 +2119,20 @@ namespace Library.Service.Invoices
                             currentVoucherDetailId++;
                             _voucherService.InsertVoucherDetail(voucher, voucherDetailDr, currentVoucherDetailId);
                             totalAmountDr += voucherDetailDr.DrAmount;
+                            if(voucherDetailVM.ServiceMasterId!=null)
+                            {
+                                if (CheckServiceMasterParty(voucherDetailVM.ServiceMasterId, voucherVM.PartyId) == false)
+                                {
+                                    var serviceMasterParties = new ServiceMasterParty
+                                    {
+                                        ServiceMasterId = voucherDetailVM.ServiceMasterId,
+                                        PartyId = voucherVM.PartyId
+                                    };
+                                    AuditService.AddedLog(serviceMasterParties);
+                                    _serviceMasterPartyRepository.Insert(serviceMasterParties);
+                                }
+                            }
+
                             if (null != voucherDetailVM.InvoiceTaxViewModel && voucherDetailVM.InvoiceTaxViewModel.Count > 0)
                             {
                                 taxDrAmount = 0;

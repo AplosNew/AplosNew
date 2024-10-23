@@ -143,6 +143,47 @@ namespace Aplos.Areas.Setups.Controllers
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
+
+        [HttpPost, Authorize]
+        public JsonResult GetServicePopUpPartyWiseList(string column, string value, string partyId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(GetServicePartyWiseList(column, value, identity.CompanyId, partyId), JsonRequestBehavior.AllowGet);
+        }
+        public IEnumerable<object> GetServicePartyWiseList(string column, string value, string companyId, string partyId)
+        {
+            try
+            {
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
+                        SELECT TOP 400 * FROM (SELECT ST.UserName ServiceType,SG.UserName ServiceGroup,SM.Id ServiceMasterId,SM.UserName ServiceName,GL.AccountCode GLGeneralInfoCode
+						,GL.UserName GLGeneralInfoName,B.UserName BudgetName,A.UserName ActivityName,BM.GLGeneralInfoId
+                        ,BMA.BudgetMasterId,BMA.ActivityId ,BM.RefNo,SMGL.DrControlId,A.IsOrderSpecific,ACT.Id AccountType,A.ActivityOrderType,A.ValueOfDistribution,SMGL.IsAssetApplicable,BMA.Id BudgetMasterActivityId
+                        FROM  HKP.ServiceMaster SM  
+                        LEFT JOIN HKP.ServiceGroup SG ON SG.Id=SM.ServiceGroupId
+                        LEFT JOIN HKP.ServiceType ST ON ST.Id=SG.ServiceTypeId
+                        JOIN HKP.ServiceMasterGL SMGL ON SMGL.ServiceMasterId=SM.Id
+                        LEFT JOIN MST.BudgetMasterActivity BMA ON BMA.Id=SMGL.DrControlId
+                        LEFT JOIN MST.BudgetMaster BM ON BM.Id=BMA.BudgetMasterId
+                        LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
+                        LEFT JOIN HKP.Activity A ON A.Id=BMA.ActivityId
+                        LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=BM.GLGeneralInfoId
+                        LEFT JOIN HKP.[AccountGroup]  AS AG ON AG.Id = GL.AccountGroupId
+                        LEFT JOIN HKP.[AccountType]  AS ACT ON ACT.Id = AG.AccountTypeId
+                        WHERE SMGL.ServiceMasterId IN (select ServiceMasterId from [TRN].[ServiceMasterParty] WHERE PartyId='" + partyId + @"')
+                        ) AS TEMP WHERE " + strkey + " order by ServiceName ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
         #endregion -- Operations
 
         #region Service Control
