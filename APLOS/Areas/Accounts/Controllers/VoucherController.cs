@@ -3835,7 +3835,7 @@ namespace Aplos.Areas.Accounts.Controllers
             var fileName = "EntityWiseExpenseAndEarning Report " + DateTime.Now.ToString("ddMMMyyyy") + ".xlsx";
             var workbook = _voucharReportService.EntityWiseExpenseAndEarningreportDateWiseActivityLevel(identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, entityId, entity, new JavaScriptSerializer().Deserialize<string[]>(parallelCurrency));
             workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.PromptDialog);
-            return null;
+            return null; 
         }
 
 

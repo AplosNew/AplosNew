@@ -2511,6 +2511,7 @@ namespace Library.Service.SalesManagements
                     PostingDate = voucherVM.PostingDate,
                     SourceType = SourceType.SalesInvoice.ToString(),
                     VoucherTypeId = voucherVM.VoucherTypeId,
+                    EntityId= voucherVM.EntityId
                 };
                 voucher.TransactionRefNo = DateTime.Now.Year.ToString().Substring(2) + voucher.Id;
                 _voucherService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix);
@@ -2656,7 +2657,8 @@ namespace Library.Service.SalesManagements
                                 PostingWithoutTaxAllow = invoice.IsExcludingTax,
                                 AddedBy = voucher.AddedBy,
                                 AddedDate = voucher.AddedDate,
-                                AddedFromIP = voucher.AddedFromIP
+                                AddedFromIP = voucher.AddedFromIP,
+                                EntityId= (voucherDetailVM.OtherName == "Sales")?voucherVM.EntityId:null
                             };
                             totalAmountCr += voucherCr.CrAmount;
                             currentVoucherDetaiRecord++;

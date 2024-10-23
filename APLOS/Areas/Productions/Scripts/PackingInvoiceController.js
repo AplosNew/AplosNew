@@ -1306,6 +1306,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         $scope.salesVM.BaseOnDueDate = $filter('dateFiltering')(new Date($scope.salesVM.BaseOnDueDate), 'dd-MM-yyyy');
         $scope.salesVM.EXPDate = $filter('dateFiltering')(new Date($scope.salesVM.EXPDate), 'dd-MM-yyyy');
         $scope.salesVM.AddedDate = $filter('dateFiltering')(new Date($scope.salesVM.AddedDate), 'dd-MM-yyyy');
+        $scope.salesVM.EXPDate = $filter('dateFiltering')(new Date($scope.salesVM.EXPDate), 'dd-MM-yyyy');
         $scope.ModelNew.Amount = data.Amount;
         getPartyPlantEditList($scope.salesVM.InvoicingPartyPlantId, $scope.salesVM.InvoicingByAddress, $scope.salesVM.DeliveryPartyPlantId, $scope.salesVM.DeliveryByAddress, $scope.salesVM.DeliveryState, $scope.salesVM.DeliveryGSTIN);
 

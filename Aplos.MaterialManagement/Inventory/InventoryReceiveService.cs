@@ -5662,10 +5662,11 @@ namespace Library.MaterialManagement.Inventory
 								when IR.CheckedByStatus Is null and IR.AuthorizedByStatus Is null Then 'Approved'
                             else ''
                             END
-							,IRD.LotNo , IRD.QualityStatus , IRD.GrossAmount ,IRD.DiscountAmount,IRD.AlternativeQty,('Other Vendor : '+OP.UserName) OtherParty,IR.OtherPartyPlantId
+							,IRD.LotNo , IRD.QualityStatus , IRD.GrossAmount ,IRD.DiscountAmount,IRD.AlternativeQty,('Other Vendor : '+OP.UserName) OtherParty,IR.OtherPartyPlantId,ISNULL(E.VATResistrationNo,Cmp.VATResistrationNo)VATResistrationNo
                             FROM TRN.InventoryReceive IR
                             LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                             LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
+                            LEFT JOIN ORG.Entity E ON E.Id=IR.EntityId
                             LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
                             LEFT JOIN SCS.Currency CRNC ON CRNC.Id = IR.CurrencyId
                             LEFT JOIN SCS.Currency BASECRNC ON BASECRNC.Id = IR.BaseCurrencyId
@@ -5859,9 +5860,11 @@ namespace Library.MaterialManagement.Inventory
                             else ''
                             END
 							,Null LotNo , Null QualityStatus , Null GrossAmount ,Null DiscountAmount,0 AlternativeQty,('Other Vendor : '+OP.UserName) OtherParty,IR.OtherPartyPlantId
+                            ,ISNULL(E.VATResistrationNo,Cmp.VATResistrationNo)VATResistrationNo
                             FROM TRN.InventoryReceive IR
                             LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                             LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
+                            LEFT JOIN ORG.Entity E ON E.Id=IR.EntityId
                             LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
                             LEFT JOIN SCS.Currency CRNC ON CRNC.Id = IR.CurrencyId
                             LEFT JOIN SCS.Currency BASECRNC ON BASECRNC.Id = IR.BaseCurrencyId
