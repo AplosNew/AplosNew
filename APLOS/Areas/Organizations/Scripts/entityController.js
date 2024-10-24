@@ -25,7 +25,8 @@ function entityController(cboService, commonMessage, $rootScope, $scope, baseSer
         IsProduction: false,
         FilePrefix: null,
         ThirdPartyBusinessArea: null,
-        ThirdPartyProfitCenter: null
+        ThirdPartyProfitCenter: null,
+        VATResistrationNo:null
     };
 
     cboService.getCboCompanyByCompanyGroup(null, function (result) {
@@ -211,24 +212,21 @@ function entityController(cboService, commonMessage, $rootScope, $scope, baseSer
                     $scope.left += '<div class="form-group" show-errors>' +
                         '<label class="col-sm-4 control-label">Entity Type<sup>*</sup></label>' +
                         '<div class="col-sm-8 show-message"><div class="select-style">' +
-                        '<select ng-disabled="isUsed" tabindex="8" ng-model="companyStructureSetup.EntityType" class="form-control" ng-options="item.Value as item.Text for item in entityTypeList" required name="Entitytype"><option value=""></option></select>' +
+                        '<select ng-disabled="isUsed" tabindex="1" ng-model="companyStructureSetup.EntityType" class="form-control" ng-options="item.Value as item.Text for item in entityTypeList" required name="Entitytype"><option value=""></option></select>' +
                         '</div></div></div>' +
                         '<div class="form-group" show-errors>' +
                         '<label class="col-sm-4 control-label">Code<sup>*</sup></label><div class="col-sm-8 show-message">' +
-                        '<input ng-disabled="isUsed" tabindex="10" required name="Code" type="text" maxlength="10" ng-model="companyStructureSetup.Code" class="form-control"></div></div>' +
+                        '<input ng-disabled="isUsed" tabindex="3" required name="Code" type="text" maxlength="10" ng-model="companyStructureSetup.Code" class="form-control"></div></div>' +
                         '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Effective Date</label>' +
                         '<div class="col-sm-8">' +
-                        '<input ng-disabled="isUsed" tabindex="12" type="text" class="form-control datepicker" datepicker ng-model="companyStructureSetup.EffectiveDate" name="EffectiveDate">' +
+                        '<input ng-disabled="isUsed" tabindex="5" type="text" class="form-control datepicker" datepicker ng-model="companyStructureSetup.EffectiveDate" name="EffectiveDate">' +
                         '</div></div>' +
                         '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">File Prefix</label>' +
                         '<div class="col-sm-8">' +
-                        '<input ng-disabled="isUsed" tabindex="14" type="text" maxlength="10" ng-model="companyStructureSetup.FilePrefix" class="form-control" name="File Prefix"></div></div>' +
+                        '<input ng-disabled="isUsed" tabindex="7" type="text" maxlength="10" ng-model="companyStructureSetup.FilePrefix" class="form-control" name="File Prefix"></div></div>' +
                         '<div class="form-group">' +
-                        '<label class="col-sm-4 control-label">Description</label>' +
-                        '<div class="col-sm-8">' +
-                        '<textarea ng-disabled="isUsed" tabindex="16" maxlength="250" class="form-control" Rows="3" ng-model="companyStructureSetup.Description"></textarea>' +
                         '</div></div>' +
                         '<div class="form-group" > ' +
                         '<label class="col-sm-4 control-label">Active</label>' +
@@ -239,29 +237,32 @@ function entityController(cboService, commonMessage, $rootScope, $scope, baseSer
                         '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Third Party Business Area</label>' +
                         '<div class="col-sm-8">' +
-                        '<input ng-disabled="isUsed" tabindex="14" type="text" maxlength="50" ng-model="companyStructureSetup.ThirdPartyBusinessArea" class="form-control" name="Third Party Business Area"></div></div>'
+                        '<input ng-disabled="isUsed" tabindex="9" type="text" maxlength="50" ng-model="companyStructureSetup.ThirdPartyBusinessArea" class="form-control" name="Third Party Business Area"></div></div>'
                         +
                         '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Trade Tax</label>' +
                         '<div class="col-sm-8">' +
-                        '<input tabindex="16" type="text" maxlength="30" ng-model="companyStructureSetup.TradeTax" class="form-control" name="Trade Tax"></div></div>'
+                        '<input tabindex="11" type="text" maxlength="30" ng-model="companyStructureSetup.TradeTax" class="form-control" name="Trade Tax"></div></div>' +
+                        '<label class="col-sm-4 control-label">Description</label>' +
+                        '<div class="col-sm-8">' +
+                        '<textarea ng-disabled="isUsed" tabindex="13" maxlength="250" class="form-control" Rows="3" ng-model="companyStructureSetup.Description"></textarea>'
                         ;
 
                     $scope.right += '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Old Ref Code</label><div class="col-sm-8">' +
-                        '<input tabindex="9" maxlength="10" type="text" ng-model="companyStructureSetup.OldRefCode" class="form-control"></div></div>' +
+                        '<input tabindex="2" maxlength="10" type="text" ng-model="companyStructureSetup.OldRefCode" class="form-control"></div></div>' +
                         '<div class="form-group" show-errors>' +
                         '<label class="col-sm-4 control-label">User Name<sup>*</sup></label>' +
                         '<div class="col-sm-8 show-message">' +
-                        '<input tabindex="11" type="text" maxlength="30" ng-model="companyStructureSetup.UserName" class="form-control" required name="User name"></div></div>' +
+                        '<input tabindex="4" type="text" maxlength="30" ng-model="companyStructureSetup.UserName" class="form-control" required name="User name"></div></div>' +
                         '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Effective Date UpTo</label><div class="col-sm-8">' +
-                        '<input ng-disabled="isUsed" tabindex="13" type="text" class="form-control datepicker" datepicker ng-model="companyStructureSetup.EffectiveDateUpTo" name="EffectiveDateUpTo">' +
+                        '<input ng-disabled="isUsed" tabindex="6" type="text" class="form-control datepicker" datepicker ng-model="companyStructureSetup.EffectiveDateUpTo" name="EffectiveDateUpTo">' +
                         '</div></div>' +
                         '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Responsible Person</label>' +
                         '<div class="col-sm-5 pdr3" style= "Width:260px;" > ' +
-                        '<input tabindex="15" type="text" ng-model="companyStructureSetup.EmployeeName" class="form-control" disabled>' +
+                        '<input tabindex="8" type="text" ng-model="companyStructureSetup.EmployeeName" class="form-control" disabled>' +
                         '</div>' +
                         '<div class="pdl3">' +
                         '<button name="Show" class="btn single-small-btn" ng-click="ShowEmployeeListPopUp()">' +
@@ -270,18 +271,22 @@ function entityController(cboService, commonMessage, $rootScope, $scope, baseSer
                         '<button class="btn single-small-btn" ng-click="employeeProfileClear()">' +
                         '<i class="cr-icon glyphicon glyphicon-refresh"></i>' +
                         '</button></div></div>' +
-                        '<div class="form-group"><label class="col-sm-4 control-label">Remarks</label>' +
-                        '<div class="col-sm-8"><textarea ng-disabled="isUsed" tabindex="17" maxlength="250" class="form-control" Rows="3" ng-model="companyStructureSetup.Remarks"></textarea></div></div>' +
                         '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Exception For Planning</label>' +
                         '<div class="col-sm-8">' +
                         '<div class="checkbox-site">' +
-                        '<label><input ng-disabled="isUsed" tabindex="19" type="checkbox" ng-model="companyStructureSetup.IsExceptionForPlanning" ng-checked="companyStructureSetup.IsExceptionForPlanning">' +
+                        '<label><input ng-disabled="isUsed" tabindex="10" type="checkbox" ng-model="companyStructureSetup.IsExceptionForPlanning" ng-checked="companyStructureSetup.IsExceptionForPlanning">' +
                         '<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span></label></div></div></div>' +
                         '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Third Party Profit Center</label>' +
                         '<div class="col-sm-8">' +
-                        '<input ng-disabled="isUsed" tabindex="14" type="text" maxlength="50" ng-model="companyStructureSetup.ThirdPartyProfitCenter" class="form-control" name="Third Party Profit Center"></div></div>'
+                        '<input ng-disabled="isUsed" tabindex="12" type="text" maxlength="50" ng-model="companyStructureSetup.ThirdPartyProfitCenter" class="form-control" name="Third Party Profit Center"></div></div>' +
+                        '<div class="form-group">' +
+                        '<label class="col-sm-4 control-label">VAT Resistration No</label>' +
+                        '<div class="col-sm-8">' +
+                        '<input tabindex="14" type="text" maxlength="20" ng-model="companyStructureSetup.VATResistrationNo" class="form-control" name="VATResistrationNo"></div></div>' +
+                        '<div class="form-group"><label class="col-sm-4 control-label">Remarks</label>' +
+                        '<div class="col-sm-8"><textarea ng-disabled="isUsed" tabindex="16" maxlength="250" class="form-control" Rows="3" ng-model="companyStructureSetup.Remarks"></textarea></div></div>'
                         ;
                 }
             });

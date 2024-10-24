@@ -69,6 +69,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Accounts\ServiceMasterParty.cs" />
     <Compile Include="Accounts\BalanceSheetSchedulingUploadedData.cs" />
     <Compile Include="Accounts\IncentiveReceivableMap.cs" />
     <Compile Include="Accounts\BankReconciliationMap.cs" />
@@ -105,6 +106,7 @@
     <Compile Include="Commercial\PurchaseLCTax.cs" />
     <Compile Include="Commercial\PurchaseLC.cs" />
     <Compile Include="Commercial\PurchaseLCCharges.cs" />
+    <Compile Include="Configurations\Accounts\ServiceMasterPartyConfiguration.cs" />
     <Compile Include="Configurations\Accounts\OtherInvoiceConfiguration.cs" />
     <Compile Include="Configurations\Accounts\InvoiceGRNDetailConfiguration.cs" />
     <Compile Include="Configurations\Accounts\MultiplePaymentDetailConfiguration.cs" />

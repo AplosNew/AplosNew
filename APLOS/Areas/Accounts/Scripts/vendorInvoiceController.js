@@ -2900,6 +2900,18 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         });
         angular.element(document.querySelector('#ServicePopUp')).modal('show');
     };
+    $scope.getServiceDataPartyWiseList = function () {
+        $scope.serviceLists = [];
+        $http({
+            method: 'POST',
+            url: 'SetUps/ServiceMaster/GetServicePopUpPartyWiseList',
+            data: { column: $scope.searchByService, value: $scope.searchService, partyId: $scope.voucher.PartyId },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.serviceLists = response.data;
+        });
+        angular.element(document.querySelector('#ServicePopUp')).modal('show');
+    };
     $scope.closeServiceDataPopUp = function () {
         angular.element(document.querySelector("#ServicePopUp")).modal("hide");
     };
