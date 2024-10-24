@@ -885,6 +885,9 @@ namespace Library.MaterialManagement.Inventory
                             item.TaxAmount = Math.Round(item.TaxAmount, 2);
                             AuditService.UpdatedLog(item);
                             _receiveTaxRepository.Update(item);
+                            var grndetail = _receiveDetailRepository.Find(item.InventoryReceiveDetailId);
+                            grndetail.TotalTaxAmount = taxCategoryList.Where(r => r.InventoryReceiveDetailId == item.InventoryReceiveDetailId).Sum(r => r.TaxAmount);
+                            _receiveDetailRepository.Update(grndetail);
                         }
                     }
                 }

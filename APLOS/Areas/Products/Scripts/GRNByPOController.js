@@ -2518,7 +2518,13 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
             data.BaseTaxAmount = 0;
             var TotalServiceAmount = Math.round($filter('sumByKey')($filter('filter')($scope.chargesListPO), 'Amount') * 100 + Number.EPSILON) / 100;
             var TotalTrnAmount = Math.round($filter('sumByKey')($filter('filter')($scope.inventoryMaterialListPO), 'TrnAmount') * 100 + Number.EPSILON) / 100;
-            var TotalServiceTaxAmount = Math.round($filter('sumByKey')($filter('filter')($scope.POServiceTaxList), 'TaxAmount') * 100 + Number.EPSILON) / 100;
+            //ToDo:MaterialTaxList
+            var TotalServiceTaxAmount = 0
+            if($scope.MaterialTaxList.length>0)
+                TotalServiceTaxAmount = Math.round($filter('sumByKey')($filter('filter')($scope.MaterialTaxList), 'TaxAmount') * 100 + Number.EPSILON) / 100;
+            else
+                TotalServiceTaxAmount = Math.round($filter('sumByKey')($filter('filter')($scope.POServiceTaxList), 'TaxAmount') * 100 + Number.EPSILON) / 100;
+
             var tempServiceAmount = 0;
             var tempServiceTaxAmount = 0;
             var newcount = 0;
