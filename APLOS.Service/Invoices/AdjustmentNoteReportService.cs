@@ -746,15 +746,17 @@ namespace Library.Service.Advances
             reportUtility.SetText(ref sheet, row, colDocDateValue, header["DocDate"].ToString());
             row++;
 
+            
             int colParty = colVoucherNo;
             int colPartyValue = colVoucherNoValue;
             reportUtility.SetMasterHeaderText(ref sheet, row, colParty, "Party:");
             reportUtility.SetText(ref sheet, row, colPartyValue, header["Party"].ToString());
 
-            int colDocRefNo = colVoucherDate;
-            int colDocRefNoValue = colVoucherDateValue;
-            reportUtility.SetMasterHeaderText(ref sheet, row, colDocRefNo, "Doc Ref");
-            reportUtility.SetText(ref sheet, row, colDocRefNoValue, header["DocRefNo"].ToString());
+            int colPatyType = colVoucherDate;
+            int colPartyTypeValue = colVoucherDateValue;
+            reportUtility.SetMasterHeaderText(ref sheet, row, colPatyType, "PartyType");
+            reportUtility.SetText(ref sheet, row, colPartyTypeValue, header["PartyType"].ToString());
+
             row++;
 
             int colFiscalYearName = colVoucherNo;
@@ -762,15 +764,20 @@ namespace Library.Service.Advances
             reportUtility.SetMasterHeaderText(ref sheet, row, colFiscalYearName, "Fiscal Year ");
             reportUtility.SetText(ref sheet, row, colFiscalYearNameValue, header["FiscalYearName"].ToString());
 
-            int colStatus = colDocRefNo;
-            int colStatusValue = colDocRefNoValue;
+            int colStatus = colVoucherDate;
+            int colStatusValue = colVoucherDateValue;
             reportUtility.SetMasterHeaderText(ref sheet, row, colStatus, "Status");
             reportUtility.SetText(ref sheet, row, colStatusValue, header["Status"].ToString());
 
             row++;
+            int colDocRefNo = colVoucherNo;
+            int colDocRefNoValue = colVoucherNoValue;
+            reportUtility.SetMasterHeaderText(ref sheet, row, colDocRefNo, "Doc Ref");
+            reportUtility.SetText(ref sheet, row, colDocRefNoValue, header["DocRefNo"].ToString());
+           
 
-            int colEntity = colDocRefNo;
-            int colEntityValue = colDocRefNoValue;
+            int colEntity = colVoucherDate;
+            int colEntityValue = colVoucherDateValue;
             reportUtility.SetMasterHeaderText(ref sheet, row, colEntity, "Entity");
             reportUtility.SetText(ref sheet, row, colEntityValue, header["EntityName"].ToString());
 
