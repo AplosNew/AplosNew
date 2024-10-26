@@ -262,7 +262,7 @@ namespace Aplos.Areas.IE.Controllers
 										    left join [HKP].[DetentionType] DT on DT.Id = DM.DetentionTypeId
 
                             where MMT.ProcessId in(" + parameters["ProcessId"] + @")
-                            AND MMT.DepartmentId in(" + parameters["DepartmentId"] + @")
+                            AND ISNULL(MMT.DepartmentId,'') in(" + parameters["DepartmentId"] + @")
                             AND MMT.DetentionId in(" + parameters["DetentionId"] + @")
                             AND MMT.ShiftId in(" + parameters["ShiftId"] + @")
                             AND MMT.ResponsiblePersonId in(" + parameters["ResponsiblePersonId"] + @")";
