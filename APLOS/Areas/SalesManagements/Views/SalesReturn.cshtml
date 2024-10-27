@@ -283,6 +283,95 @@
                             <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                         </ul>
                     </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <fieldset class="scheduler-border" ng-show="detailList.length>0">
+                                <legend class="scheduler-border">Additional Tax</legend>
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        <label class="col-sm-6 control-label">If Percentage Applicable</label>
+                                        <div class="col-sm-6">
+                                            <div class="radio">
+                                                <label>
+                                                    <input type="radio" name="TaxOptionAddiTax" ng-model="salesVM.TaxOptionAddiTax" value="Yes" ng-click="TaxOptionAdditax('Yes');"> @*ng-hide="HSNCode !=null"*@
+                                                    <span class="cr"><i class="cr-icon"></i></span>Yes
+                                                </label>
+                                                <label>
+                                                    <input type="radio" name="TaxOptionAddiTax" ng-model="salesVM.TaxOptionAddiTax" value="No" ng-click="TaxOptionAdditax('No');">@*ng-hide="HSNCode !=null"*@
+                                                    <span class="cr"><i class="cr-icon"></i></span>No
+                                                </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="clearfix"></div>
+                                <div class="table-responsive modal-table">
+                                    <table class="table table-responsive table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Input Tax</th>
+                                                <th>Percentage</th>
+                                                <th>Amount</th>
+                                                <th class="text-right">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td id="td_TaxCode">
+                                                    <div class="select-style show-message">
+                                                        <select name="TaxCodeId" ng-model="advanceTax.TaxCodeId" ng-change="selectadditionalTax(advanceTax.TaxCodeId)" class="col-sm-3 form-control"
+                                                                ng-options="item.Id as item.UserName for item in taxCodCboListWithhold">
+                                                            <option></option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div>
+                                                        <input type="text" n-decimals="4" class="form-control text-right" ng-disabled="salesVM.TaxOptionAddiTax==='No'" ng-model="advanceTax.ValueOfFixed" ng-keyup="calculateTaxAmountForAdditionalTax(advanceTax.ValueOfFixed);">
+                                                    </div>
+                                                </td>
+                                                <td id="td_TaxCodeAmount">
+                                                    <div class="show-message">
+                                                        <input type="text" n-decimals="2" class="form-control text-right" ng-model="advanceTax.Amount" ng-keyup="copyTaxesAmount();checkRowValidationSdditionalTax(advanceTax.Amount);" ng-disabled="salesVM.TaxOptionAddiTax==='Yes'">
+                                                    </div>
+                                                </td>
+                                                <td class="text-right">
+                                                    <a ng-click="additionalTax();"  class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></a>
+                                                </td>
+                                            </tr>
+                                            <tr ng-repeat="x in advanceTaxesList">
+                                                <td>{{x.TaxName}}</td>
+                                                <td>{{x.ValueOfFixed}}</td>
+                                                <td class="text-right">{{x.Amount | number:2 }}</td>
+                                                <td class="text-right">
+                                                    <button ng-click="removeTaxesRow(x.Id,$index)" data-toggle="modal" ng-disabled="x.AdvanceId || salesVM.RowState==='Posted'" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot ng-show="advanceTaxesList.length">
+                                            <tr>
+                                                <td colspan="2"><b>Sub Total</b></td>
+                                                <td class="text-right"><b>{{ advanceTaxesList | sumByKey : 'Amount'| setDecimal:2| number:2  }}</b></td>
+                                                <td></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                                <div class="common-btn">
+                                    <div class="form-group">
+                                        <label class="col-sm-6 control-label">Total Amount (Total Amount+Service Amount+Additional Tax)</label>
+                                        <div class="col-sm-2 show-message">
+                                            <input type="text" n-decimals="2" name="Total Amount" ng-model="advanceTax.TotalSumAfterTCSVal" class="form-control" tabindex="4" readonly>
+                                        </div>
+                                    </div>
+                                    @*<ul class="list-inline text-right">
+                                        <li><button ng-click="SaveAdditinalTax();" ng-disabled="salesVM.Id==null || salesVM.RowState==='Posted'" class="btn"><i class="glyphicon glyphicon-folder-close"></i>&nbsp;Save</button></li>
+
+                                    </ul>*@
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
                 </div>
 
             </div>
