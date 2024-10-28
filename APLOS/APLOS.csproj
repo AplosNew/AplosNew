@@ -5005,6 +5005,8 @@
     <Content Include="Areas\Accounts\Views\MultipleEmployeePayment.cshtml" />
     <Content Include="Areas\OrderManagements\Views\productionOrderSchedulingParametersType1\Type2.cshtml" />
     <Content Include="Areas\Outsourcing\Views\JobWorkEntry\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\_AssetDistributePopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\_MachineMasterAssetPopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
