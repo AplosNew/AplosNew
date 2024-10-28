@@ -611,7 +611,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         [HttpPost]
         public JsonResult SaveSalesReturn(Dictionary<string, object> data, List<Dictionary<string, object>> detaildataList
             , List<Dictionary<string, object>> taxList, List<Dictionary<string, object>> itemScanCildList, Dictionary<string, object> ItemScandata
-            , List<Dictionary<string, object>> itemScanCildNewList, List<Dictionary<string, object>> serviceDataList, List<Dictionary<string, object>> serviceTaxList)
+            , List<Dictionary<string, object>> itemScanCildNewList, List<Dictionary<string, object>> serviceDataList, List<Dictionary<string, object>> serviceTaxList, List<Dictionary<string, object>> additionalTaxList)
         {
             try
             {
@@ -625,7 +625,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                         item["ReturnNetWeight"] = 0;
                     }
                 }
-                string _id = InsertSalesReturn(data, detaildataList, taxList, itemScanCildList, ItemScandata, itemScanCildNewList, serviceDataList, serviceTaxList);
+                string _id = InsertSalesReturn(data, detaildataList, taxList, itemScanCildList, ItemScandata, itemScanCildNewList, serviceDataList, serviceTaxList, additionalTaxList);
                 return Json(new { Id = _id, Message = string.Format(AplosMessage.Success + " Sales Return No <b>" + _id + "</b>") });
             }
             catch (Exception ex)
@@ -635,12 +635,13 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
         private string InsertSalesReturn(Dictionary<string, object> data, List<Dictionary<string, object>> detaildataList, List<Dictionary<string, object>> taxList
             , List<Dictionary<string, object>> itemScanCildList, Dictionary<string, object> ItemScandata, List<Dictionary<string, object>> itemScanCildNewList
-            , List<Dictionary<string, object>> serviceDataList, List<Dictionary<string, object>> serviceTaxList)
+            , List<Dictionary<string, object>> serviceDataList, List<Dictionary<string, object>> serviceTaxList, List<Dictionary<string, object>>  additionalTaxList)
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsMaster;
             DataSet dsDetail;
             DataSet dstax;
+            DataSet dstcsx;
             DataSet dsitemscanChild;
             DataSet dsitemscanChildNew;
             DataSet dsitemscanNew;
@@ -654,6 +655,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 string sqlmaster = "SELECT * FROM [TRN].[SalesReturn] WHERE 1=2";
                 string sqlDetail = "SELECT * FROM [TRN].[SalesReturnDetail] WHERE 1=2";
                 string taxsql = "SELECT * FROM [TRN].[SalesReturnTax] WHERE 1=2";
+                string tcsxsql = "SELECT * FROM [TRN].[SalesReturnTax] WHERE 1=2";
                 string servicesql = "SELECT * FROM [TRN].[SalesReturnService] WHERE 1=2";
                 string itemScanChildsql = "SELECT * FROM dbo.ItemScanChild WHERE SalesId='" + data["SalesId"].ToString() + "'";
                 string itemScansql = "SELECT * FROM dbo.ItemScan WHERE 1=2";
@@ -661,6 +663,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 objCon.OpenDataSetThroughAdapter(sqlmaster, out dsMaster, false, "1");
                 objCon.OpenDataSetThroughAdapter(sqlDetail, out dsDetail, false, "1");
                 objCon.OpenDataSetThroughAdapter(taxsql, out dstax, false, "1");
+                objCon.OpenDataSetThroughAdapter(tcsxsql, out dstcsx, false, "1");
                 objCon.OpenDataSetThroughAdapter(itemScanChildsql, out dsitemscanChild, false, "1");
                 objCon.OpenDataSetThroughAdapter(itemScansql, out dsitemscanNew, false, "1");
                 objCon.OpenDataSetThroughAdapter(servicesql, out dsSerDetail, false, "1");
@@ -863,6 +866,27 @@ namespace Aplos.Areas.SalesManagements.Controllers
                     }
                 }
 
+                if (additionalTaxList != null)
+                {
+                    foreach (var addtx in additionalTaxList)
+                    {
+                        //DataView dvtcsx = new DataView(dstax.Tables[0]);
+                        //dvtcsx.RowFilter = "Id='" + addtx["Id"] + "'";
+                        if (addtx["Id"] == null)
+                        {
+                            taxcount++;
+                            string taxid = "T" + materialCommonService.MakePK(_Id, taxcount, 2);
+                            addtx["Id"] = taxid;
+                            addtx["SalesReturnId"] = _Id;
+                            addtx["SalesId"] = data["SalesId"];
+                            addtx["SalesReturnDetailId"] = null;
+                            addtx["AddedBy"] = identity.Name;
+                            addtx["AddedDate"] = DateTime.Now;
+                            addtx["AddedFromIP"] = identity.IPAddress;
+                            materialCommonService.AddNewRowD(dstax.Tables[0], addtx);
+                        }
+                    }
+                }
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dsMaster, dsDetail, dsSerDetail, dstax, dsitemscanChild, dsitemscanNew, dsitemscanChildNew);
                 return _Id;

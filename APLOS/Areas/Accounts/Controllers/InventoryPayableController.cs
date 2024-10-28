@@ -98,7 +98,7 @@ namespace Aplos.Areas.Accounts.Controllers
                                     ,IsShortagePost=CASE WHEN AN.VoucherId<>'' THEN 'ShortagePosted' WHEN  AN.InventoryReceiveId IS NULL THEN '' ELSE 'ShortageParked' end
                                     ,AN.VoucherId DebitNoteVoucherId
 									,VT.VoucherNo TDSVoucherNo,V.IsPark,IV.WrittenOffAmount
-                                    ,IR.OtherPartyId,IR.OtherPartyPlantId
+                                    ,IR.OtherPartyId,IR.OtherPartyPlantId,V.EntityId,EN.UserName Entity
 						FROM [TRN].[InventoryReceive] AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -125,6 +125,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         LEFT JOIN HKP.MaterialStorage MS ON MS.Id=IR.MaterialStorageId
                         LEFT JOIN TRN.AdditionalTax ADT ON ADT.InventoryReceiveId=IR.Id
 						LEFT JOIN TRN.Voucher VT ON VT.Id=ADT.VoucherId
+                        LEFT JOIN ORG.Entity EN ON EN.Id=V.EntityId
                         WHERE IR.PlantId=@plantId AND V.Archive=0 AND IR.[Status]='Posting' AND IR.IsPaymentHold=0 AND IR.PlantId=@plantId AND IR.FixedAssetOrInventory='Inventory' AND IR.OpeningBalanceId IS NULL
                         ) AS TEMP WHERE " + strkey + " order by PostingDate DESC";
                 return _sqlRepository.GetDataCollection(sql);

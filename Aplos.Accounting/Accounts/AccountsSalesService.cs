@@ -2903,7 +2903,7 @@ namespace Library.Accounting.Accounts
 					SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
 						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
 						, T.BudgetMasterId, T.BudgetCode, T.BudgetName , T.ActivityId, T.ActivityCode, T.ActivityName
-						, T.Dr Dr , T.Cr, T.Amount Amount, T.IsAsset,T.InventoryReceiveDetailId,T.SalesReturnId
+						, T.Dr Dr , T.Cr+ISNULL(TCS.TCSAmount,0) Cr, T.Amount+ISNULL(TCS.TCSAmount,0) Amount, T.IsAsset,T.InventoryReceiveDetailId,T.SalesReturnId
 					FROM (
 						SELECT  'Return' AS OtherName, 'Cr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId,NULL FixedAssetMasterId
 							,  MGGL.CreditNoteGLId  GLGeneralInfoId , GL.AccountCode  GLGeneralInfoCode  ,GL.UserName GLGeneralInfoName
@@ -2923,7 +2923,8 @@ namespace Library.Accounting.Accounts
 						, MGGL.CreditNoteActivityId, A.Code, A.UserName
 					    ,MM.IsAsset,MM.FixedAssetMasterId ,SRD.SalesReturnId
                     ) AS T
-					GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId
+					LEFT JOIN (SELECT SUM(Amount) TCSAmount,SalesReturnId From TRN.SalesReturnTax where SalesReturnDetailId IS NULL group by SalesReturnId) TCS ON TCS.SalesReturnId=T.SalesReturnId
+					GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId,TCS.TCSAmount
                     , T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount,T.SalesReturnId, T.OtherName, T.TrnType,T.TaxCategoryId,T.IsAsset, T.InventoryReceiveDetailId
 					)
 					R 
@@ -2947,7 +2948,25 @@ namespace Library.Accounting.Accounts
 					LEFT JOIN [HKP].[Activity] AS A ON ITD.ActivityId= A.Id
 					WHERE IRD.SalesReturnId=@receiveId  AND IRT.SalesReturnDetailId<>'' AND ITD.AType='Cr'
 					GROUP BY  IRT.TaxCategoryId, ITD.GLGeneralInfoId, GL.AccountCode, GL.UserName, ITD.BudgetMasterId, B.Code, B.UserName, ITD.ActivityId, A.Code, A.UserName
-                    ORDER BY T.TrnType DESC";
+                    
+					UNION ALL 
+					SELECT 'TCS' AS OtherName, 'Dr' AS TrnType, NULL MaterialGroupMasterId, IRT.TaxCategoryId
+						, ITD.GLGeneralInfoId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
+						, ITD.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName , ITD.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
+						, SUM(IRT.Amount) AS  Dr ,  NULL Cr , SUM(IRT.Amount) AS Amount
+                        , 0 IsAsset, NULL InventoryReceiveDetailId
+					FROM [TRN].[SalesReturnTax] AS IRT
+                    LEFT JOIN [TRN].[SalesReturn] AS PR ON IRT.SalesReturnId=PR.Id
+					LEFT JOIN TRN.[Sales] AS IR ON IR.Id=PR.SalesId
+					LEFT JOIN TRN.InvoiceTax IT ON IT.VoucherId=IR.VoucherId and IRT.TaxCategoryId=IT.TaxCategoryId
+					LEFT JOIN TRN.InvoiceTaxDetail ITD ON ITD.InvoiceTaxId=IT.Id 
+					LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON ITD.GLGeneralInfoId=GL.Id
+					LEFT JOIN [MST].[BudgetMaster] AS BM ON ITD.BudgetMasterId= BM.Id
+					LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+					LEFT JOIN [HKP].[Activity] AS A ON ITD.ActivityId= A.Id
+					WHERE IRT.SalesReturnId=@receiveId  AND IRT.SalesReturnDetailId IS NULL 
+					GROUP BY  IRT.TaxCategoryId, ITD.GLGeneralInfoId, GL.AccountCode, GL.UserName, ITD.BudgetMasterId, B.Code, B.UserName, ITD.ActivityId, A.Code, A.UserName
+ORDER BY T.TrnType DESC";
 						return _sqlRepository.GetDataCollection(sql);
 					}
 				}
@@ -3094,7 +3113,7 @@ namespace Library.Accounting.Accounts
 					SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
 						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
 						, T.BudgetMasterId, T.BudgetCode, T.BudgetName , T.ActivityId, T.ActivityCode, T.ActivityName
-						, T.Dr Dr , T.Cr, T.Amount Amount, T.IsAsset,T.InventoryReceiveDetailId,T.SalesReturnId,T.InvoiceId,T.InvoiceDetailId
+						, T.Dr Dr , T.Cr+ISNULL(TCS.TCSAmount,0) Cr, T.Amount+ISNULL(TCS.TCSAmount,0) Amount, T.IsAsset,T.InventoryReceiveDetailId,T.SalesReturnId,T.InvoiceId,T.InvoiceDetailId
 					FROM (
 						
 						SELECT  'Return' AS OtherName, 'Cr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId,NULL FixedAssetMasterId
@@ -3112,12 +3131,14 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN[MST].[BudgetMaster] AS BM ON VD.BudgetMasterId= BM.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 						LEFT JOIN [HKP].[Activity] AS A ON VD.ActivityId= A.Id
+						
 						WHERE SRD.SalesReturnId=@receiveId
 						GROUP BY MM.MaterialGroupMasterId, VD.GLGeneralInfoId, GL.AccountCode, GL.UserName, VD.BudgetMasterId, B.Code, B.UserName
 						, VD.ActivityId, A.Code, A.UserName
 					    ,MM.IsAsset,MM.FixedAssetMasterId ,SRD.SalesReturnId,IVD.InvoiceId,VD.InvoiceDetailId
                     ) AS T
-					GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId
+					LEFT JOIN (SELECT SUM(Amount) TCSAmount,SalesReturnId From TRN.SalesReturnTax where SalesReturnDetailId IS NULL group by SalesReturnId) TCS ON TCS.SalesReturnId=T.SalesReturnId
+					GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId,TCS.TCSAmount
                     , T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount,T.SalesReturnId, T.OtherName, T.TrnType,T.TaxCategoryId,T.IsAsset, T.InventoryReceiveDetailId,T.InvoiceId,T.InvoiceDetailId
 					)
 					R 
@@ -3141,7 +3162,25 @@ namespace Library.Accounting.Accounts
 					LEFT JOIN [HKP].[Activity] AS A ON ITD.ActivityId= A.Id
 					WHERE IRD.SalesReturnId=@receiveId  AND IRT.SalesReturnDetailId<>'' AND ITD.AType='Cr'
 					GROUP BY  IRT.TaxCategoryId, ITD.GLGeneralInfoId, GL.AccountCode, GL.UserName, ITD.BudgetMasterId, B.Code, B.UserName, ITD.ActivityId, A.Code, A.UserName
-                    ORDER BY T.TrnType DESC";
+                    
+					UNION ALL 
+					SELECT 'TCS' AS OtherName, 'Dr' AS TrnType, NULL MaterialGroupMasterId, IRT.TaxCategoryId
+						, ITD.GLGeneralInfoId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
+						, ITD.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName , ITD.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
+						, SUM(IRT.Amount) AS  Dr ,  NULL Cr , SUM(IRT.Amount) AS Amount
+                        , 0 IsAsset, NULL InventoryReceiveDetailId,NULL InvoiceId,NULL InvoiceDetailId
+					FROM [TRN].[SalesReturnTax] AS IRT
+                    LEFT JOIN [TRN].[SalesReturn] AS PR ON IRT.SalesReturnId=PR.Id
+					LEFT JOIN TRN.[Sales] AS IR ON IR.Id=PR.SalesId
+					LEFT JOIN TRN.InvoiceTax IT ON IT.VoucherId=IR.VoucherId and IRT.TaxCategoryId=IT.TaxCategoryId
+					LEFT JOIN TRN.InvoiceTaxDetail ITD ON ITD.InvoiceTaxId=IT.Id 
+					LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON ITD.GLGeneralInfoId=GL.Id
+					LEFT JOIN [MST].[BudgetMaster] AS BM ON ITD.BudgetMasterId= BM.Id
+					LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+					LEFT JOIN [HKP].[Activity] AS A ON ITD.ActivityId= A.Id
+					WHERE IRT.SalesReturnId=@receiveId  AND IRT.SalesReturnDetailId IS NULL 
+					GROUP BY  IRT.TaxCategoryId, ITD.GLGeneralInfoId, GL.AccountCode, GL.UserName, ITD.BudgetMasterId, B.Code, B.UserName, ITD.ActivityId, A.Code, A.UserName
+					ORDER BY T.TrnType DESC";
 						return _sqlRepository.GetDataCollection(sql);
 					}
 				}
