@@ -263,6 +263,20 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
                 if (!flag)
                     newList.push(list[i]);
             }
+            if (row.OtherName === 'TCS' && row.TrnType === 'Dr' && row.Dr > 0) {
+                var flag = false;
+                for (var t = 0; t < baseService.arrayLength(newList); t++) {
+                    if (row.OtherName === newList[t].OtherName && row.TrnType === newList[t].TrnType && row.GLGeneralInfoId === newList[t].GLGeneralInfoId && row.BudgetMasterId === newList[t].BudgetMasterId
+                        && row.ActivityId === newList[t].ActivityId) {
+                        newList[t].Dr += row.Dr;
+                        newList[t].Amount += row.Dr;
+                        flag = true;
+                        break;
+                    }
+                }
+                if (!flag)
+                    newList.push(list[i]);
+            }
             else if (row.OtherName === 'Tax' && row.TrnType === 'Cr' && row.Cr > 0) {
                 var has = false;
                 for (var a = 0; a < baseService.arrayLength(newList); a++) {
