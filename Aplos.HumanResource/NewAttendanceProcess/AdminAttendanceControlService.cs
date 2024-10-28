@@ -697,7 +697,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter(@"select  * , 
+                string sql = @"select  * , 
                             (
                             select SandwichFlag from AttdnProcessData where WorkDate = DATEADD(day, -1, ap.WorkDate)
                             and EmpSystemID = ap.EmpSystemID
@@ -707,7 +707,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                             select SandwichFlag from AttdnProcessData where WorkDate = DATEADD(day, +1, ap.WorkDate)
                             and EmpSystemID = ap.EmpSystemID
                             and PlantID = ap.PlantID
-                            )FutureDayFlag from " + TableName + " where ap.WorkDate between '" + FD + @"' and '" + TD + @"'AND ap.PlantID='" + PlId + @"' "+EmpSel+"", out dsMaster, false, "1");
+                            )FutureDayFlag from " + TableName + " where ap.WorkDate between '" + FD + @"' and '" + TD + @"'AND ap.PlantID='" + PlId + @"' " + EmpSel + "";
+                con.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
 
 
                 int KI = 0; 
@@ -718,6 +719,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     {
                         dsMaster.Tables[0].DefaultView.RowFilter = "RowId='" + data[i]["RowId"].ToString() + "'";
                         int j = dsMaster.Tables[0].DefaultView.Count;
+                        DateTime date = DateTime.Parse(data[i]["WorkDate"].ToString());
                         KI = 0; KO = 0;
                         if (dsMaster.Tables[0].DefaultView.Count > 0)
                         {
@@ -733,12 +735,15 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                                     //if (bplib.clsWebLib.IsDateOK(data[i]["InTime"].ToString()) == false)
                                     //    throw new Exception("Invalid in date - "+ i );
+                                   
+                                    DateTime intime = DateTime.Parse(data[i]["InTime"].ToString());
+                                    DateTime dateinttime = new DateTime(date.Year, date.Month, date.Day, intime.Hour, intime.Minute, intime.Second);
 
-                                    dsMaster.Tables[0].DefaultView[0]["InTime"] = Convert.ToDateTime(data[i]["InTime"].ToString());
-                                    dsMaster.Tables[0].DefaultView[0]["ManualInTime"] = Convert.ToDateTime(data[i]["InTime"].ToString());
+                                    dsMaster.Tables[0].DefaultView[0]["InTime"] = dateinttime;
+                                    dsMaster.Tables[0].DefaultView[0]["ManualInTime"] = dateinttime;
                                     dsMaster.Tables[0].DefaultView[0]["IsManualInTime"] = true;
-                                    dsMaster.Tables[0].DefaultView[0]["OriginalManualInTime"] = Convert.ToDateTime(data[i]["InTime"].ToString());
-                                    dsMaster.Tables[0].DefaultView[0]["ProcessIntime"] = Convert.ToDateTime(data[i]["InTime"].ToString());
+                                    dsMaster.Tables[0].DefaultView[0]["OriginalManualInTime"] = dateinttime;
+                                    dsMaster.Tables[0].DefaultView[0]["ProcessIntime"] = dateinttime;
 
                                     KI = 1;
 
@@ -775,13 +780,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 #endregion
 
                             }
-                            else
-                            {
-                                if (clsWebLib.RetValidLen(data[i]["InTime"]).ToString() != "")
-                                {
-                                    KI = 1;
-                                }
-                            }
+                           
 
                             if (clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0]["OutTime"]).ToString() != clsWebLib.RetValidLen(data[i]["OutTime"]).ToString())
                             {
@@ -793,11 +792,14 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     //if (bplib.clsWebLib.IsDateOK(data[i]["OutTime"].ToString()) == false)
                                     //    throw new Exception("Invalid Out Time - " + i);
 
-                                    dsMaster.Tables[0].DefaultView[0]["OutTime"] = Convert.ToDateTime(data[i]["OutTime"].ToString());
-                                    dsMaster.Tables[0].DefaultView[0]["ManualOutTime"] = Convert.ToDateTime(data[i]["OutTime"].ToString());
+                                    DateTime outtime = DateTime.Parse(data[i]["OutTime"].ToString());
+                                    DateTime dateoutttime = new DateTime(date.Year, date.Month, date.Day, outtime.Hour, outtime.Minute, outtime.Second);
+
+                                    dsMaster.Tables[0].DefaultView[0]["OutTime"] = dateoutttime;
+                                    dsMaster.Tables[0].DefaultView[0]["ManualOutTime"] = dateoutttime;
                                     dsMaster.Tables[0].DefaultView[0]["IsManualOutTime"] = true;
-                                    dsMaster.Tables[0].DefaultView[0]["OriginalManualOutTime"] = Convert.ToDateTime(data[i]["OutTime"].ToString());
-                                    dsMaster.Tables[0].DefaultView[0]["ProcessOuttime"] = Convert.ToDateTime(data[i]["OutTime"].ToString());
+                                    dsMaster.Tables[0].DefaultView[0]["OriginalManualOutTime"] = dateoutttime;
+                                    dsMaster.Tables[0].DefaultView[0]["ProcessOuttime"] = dateoutttime;
 
                                     KO = 1;
                                     //}
@@ -834,13 +836,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
 
                             }
-                            else
-                            {
-                                if (clsWebLib.RetValidLen(data[i]["OutTime"]).ToString() != "")
-                                {
-                                    KO = 1;
-                                }
-                            }
+                            
 
 
                             if (clsWebLib.RetValidLen(data[i]["ShiftSystemID"]).ToString() != "")
