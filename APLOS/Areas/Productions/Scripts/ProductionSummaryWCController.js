@@ -2698,6 +2698,9 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $scope.DetentionSaveList = [];
             for (var i = 0; i < $scope.ProcessDetentionLists.length; i++) {
                 //if ($scope.ProcessDetentionLists[i].Flag == true)
+                if (!baseService.isUndefinedOrNull($scope.ProcessDetentionLists[i].DepartmentId)) {
+                    throw "Department is required.";
+                }
                 if (!baseService.isUndefinedOrNull($scope.ProcessDetentionLists[i].Minute)) {
                     $scope.ProcessDetentionLists[i].ProductionSummaryId = $scope.productionSummaryNew.Id;
                     $scope.ProcessDetentionLists[i].EntityId = $scope.productionSummaryNew.EntityId;
