@@ -1,0 +1,59 @@
+﻿
+<div class="modal fade site-modal in" id="MachineMasterAssetPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Machine Master Asset</h4>
+            </div>
+            <div class="row text-right">
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="search-form">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="searchByMachineMasterAsset">
+                                        <option ng-repeat="option in searchByMachineMasterAssetList" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="searchMachineMasterAsset" ng-enter="showMachineMasterAssetPopUp()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="showMachineMasterAssetPopUp()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <div id="MachineMasterAssetGridPopUp" ng-init="chkinit()" ej-grid e-datasource="AvailableMachineMasterAssetList" e-load="loadGridEdit"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-template="#checkboxTemplateMaster" e-headertext="Check" e-textalign="center" e-width="2"></div>
+                            <div e-column e-field="MMAssetId" e-headertext="Machine Master Asset Id" e-width="2"></div>
+                            <div e-column e-field="MachineMasterId" e-headertext="Machine Master Id" e-width="2"></div>
+                            <div e-column e-field="MachineMaster" e-headertext="Machine Master" e-width="3"></div>
+                            <div e-column e-field="AssetName" e-headertext="Asset Name" e-width="3"></div>
+                            <div e-column e-field="Assetdetail" e-headertext="Asset detail" e-width="3"></div>
+                            <div e-column e-field="AssetCode" e-headertext="Asset Code" e-width="2"></div>
+                            <div e-column e-field="AssetReference" e-headertext="Asset Reference" e-width="3"></div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="checkboxTemplateMaster">
+                        <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                    </script>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="AddMachineMasterAsset();" class="btn"><i></i> Apply</button></li>
+                        <li> <button ng-click="hideMachineMasterAssetPopUp();" class="btn"><i class="glyphicon glyphicon-remove"></i> Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

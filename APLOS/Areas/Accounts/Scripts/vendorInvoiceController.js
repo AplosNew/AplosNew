@@ -1193,7 +1193,8 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
                         "taxDetailVMList": $scope.advanceTaxesList,
                         "tdsVMList": $scope.TDSList,
                         "invoiceDetailChargesList": $scope.invoiceDetailChargesList,
-                        "existingLoanList": $scope.ExistingLoanList
+                        "existingLoanList": $scope.ExistingLoanList,
+                        "machineMasterAssetSeviceDistributionList": $scope.checkedMachineMasterAssetList
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -1714,7 +1715,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
 
     $scope.checkedInvoiceList = [];
     $scope.VendorAvailableInvoiceList = [];
-    $scope.searchByVendor = "UserName"; $scope.searchVendor = "";
+    $scope.searchByVendor = "VoucherNo"; $scope.searchVendor = "";
     $scope.searchByVendorList = [{ value: 'VoucherNo', name: "VoucherNo" }, { value: 'EntityName', name: "Entity" }, { value: 'PartyPlantName', name: "Party" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'DocDate', name: "DocDate" }, { value: 'PostingDate', name: "Invoice Date" }, { value: 'DocRefNo', name: "Invoice No" }];
     $scope.showInvoicePopUp = function () {
         $http({
@@ -2982,4 +2983,123 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         }
         $scope.getTDSByServiceMasterId($filter("dateFiltering")(Date.now()));
     };
+
+    $scope.getAssetDistribute = function (index, item) {
+        $scope.activityOrderType = "";
+        $scope.TotalChargesAmount = 0;
+        $scope.GLGeneralInfoId = 0;
+        $scope.BudgetMasterId = 0;
+        $scope.ActivityId = 0;
+        $scope.activityOrderType = item.ActivityOrderType;
+        $scope.ValueOfDistribution = item.ValueOfDistribution;
+        $scope.TotalChargesAmount = item.Amount;
+        $scope.GLGeneralInfoId = item.GLGeneralInfoId;
+        $scope.BudgetMasterId = item.BudgetMasterId;
+        $scope.ActivityId = item.ActivityId;
+
+        $scope.isSet(1);
+
+        angular.element(document.querySelector("#AssetDistributePopUp")).modal("show");
+    };
+
+    $scope.closeAssetDistributePopUp = function () {
+        $scope.TotalDistributedAmountInBound = 0;
+        $scope.TotalDistributedAmountInBound = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedMachineMasterAssetList), "DistributedAmount"));
+
+        if (parseFloat($scope.TotalDistributedAmountInBound) !== parseFloat($scope.TotalChargesAmount)) {
+            ShowResult('Distributed Amount must be equal Taxable Amount.!', 'failure', 'AssetDistributePopUp');
+        }
+        else {
+            angular.element(document.querySelector("#AssetDistributePopUp")).modal("hide");
+        }
+
+    };
+
+    $scope.checkedMachineMasterAssetList = [];
+    $scope.AvailableMachineMasterAssetList = [];
+    $scope.searchByMachineMasterAsset = "AssetName"; $scope.searchMachineMasterAsset = "";
+    $scope.searchByMachineMasterAssetList = [{ value: 'MMAssetId', name: "MachineMasterAssetId" }, { value: 'MachineMasterId', name: "MachineMasterId" }, { value: 'MachineMaster', name: "MachineMaster" }, { value: 'AssetName', name: "AssetName" }, { value: 'Assetdetail', name: "Assetdetail" }, { value: 'AssetCode', name: "AssetCode" }, { value: 'AssetReference', name: "AssetReference" }];
+    $scope.showMachineMasterAssetPopUp = function () {
+        $http({
+            method: 'POST',
+            url: 'IE/MachineMasterUI/GetMachineMasterAssetList',
+            data: { column: $scope.searchByMachineMasterAsset, value: $scope.searchMachineMasterAsset },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.AvailableMachineMasterAssetList = response.data;
+
+            if (baseService.arrayLength($scope.checkedMachineMasterAssetList) > 0) {
+                for (var i = 0; i < baseService.arrayLength($scope.checkedMachineMasterAssetList); i++) {
+                    for (var j = 0; j < baseService.arrayLength($scope.AvailableMachineMasterAssetList); j++) {
+                        if ($scope.checkedMachineMasterAssetList[i].MachineMasterAssetId == $scope.AvailableMachineMasterAssetList[j].MMAssetId) {
+                            $scope.AvailableMachineMasterAssetList[j].Active = true;
+                        }
+                    }
+                }
+            }
+        });
+
+        angular.element(document.querySelector('#MachineMasterAssetPopUp')).modal('show');
+
+    };
+    function checkMachineMasterAssetxist(list, MachineMasterAssetId) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].MachineMasterAssetId === MachineMasterAssetId) {
+
+                return true;
+            }
+        }
+        return false;
+    }
+    $scope.hideMachineMasterAssetPopUp = function () {
+        angular.element(document.querySelector("#MachineMasterAssetPopUp")).modal("hide");
+    };
+    $scope.AddMachineMasterAsset = function () {
+        if (baseService.arrayLength($scope.AvailableMachineMasterAssetList) > 0) {
+            $scope.checkedMachineMasterAssetList = [];
+            angular.forEach($scope.AvailableMachineMasterAssetList, function (a) {
+                if (a.Active) {
+                    $scope.checkedMachineMasterAssetList.push({
+                        MachineMasterAssetId: a.MMAssetId
+                        , MachineMasterId: a.MachineMasterId
+                        , MachineMaster: a.MachineMaster
+                        , AssetName: a.AssetName
+                        , Assetdetail: a.Assetdetail 
+                        , DistributedAmount: 0
+                        , Active: true
+                        , AssetCode: a.AssetCode
+                        , AssetReference: a.AssetReference
+                        , GLGeneralInfoId: $scope.GLGeneralInfoId
+                        , BudgetMasterId: $scope.BudgetMasterId
+                        , ActivityId: $scope.ActivityId
+                    });
+                }
+            });
+        }
+
+        $scope.hideMachineMasterAssetPopUp();
+       
+    };
+
+    $scope.MachineMasterAssetId = "";
+    $scope.DeleteMachineMasterAssetConfirmation = function (MachineMasterAssetId) {
+        $scope.MachineMasterAssetId = MachineMasterAssetId;
+        $scope.message_conf = "Are you sure to Delete?";
+        angular.element(document.querySelector("#DeleteMachineMasterAssetConfirmationPopUp")).modal("show");
+    };
+    $scope.RemoveMachineMasterAsset = function () {
+        for (var i = 0; i < baseService.arrayLength($scope.checkedMachineMasterAssetList); i++) {
+            if ($scope.checkedMachineMasterAssetList[i].MachineMasterAssetId == $scope.MachineMasterAssetId)
+                $scope.checkedMachineMasterAssetList.splice(i, 1);
+        }
+    }
+    $scope.checkDistributedAmount = function myfunction(index, item) {
+        $scope.TotalDistributedAmounts = 0;
+        $scope.TotalDistributedAmounts = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedMachineMasterAssetList), "DistributedAmount"));
+
+        if (parseFloat($scope.TotalDistributedAmounts) > parseFloat($scope.TotalChargesAmount)) {
+            $scope.checkedMachineMasterAssetList[index].DistributedAmount = 0;
+            ShowResult('Distributed Amount must be equal Taxable Amount.!', 'failure', 'ExpenseDistributePopUp');
+        }
+    }
 }

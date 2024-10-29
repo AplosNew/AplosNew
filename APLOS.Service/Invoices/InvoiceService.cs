@@ -66,6 +66,7 @@ namespace Library.Service.Invoices
         private readonly IFinancingService _financingService;
         private readonly IPKGeneratorService _pkGeneratorService;
         private readonly IRepositoryAsync<ServiceMasterParty> _serviceMasterPartyRepository;
+        private readonly IRepositoryAsync<MachineMasterAssetSeviceDistribution> _machineMasterAssetSeviceDistributionRepository;
         public InvoiceService(
               IRepositoryAsync<Invoice> repository
             , IRepositoryAsync<InvoiceDetail> invoiceDetailRepository
@@ -92,6 +93,7 @@ namespace Library.Service.Invoices
             , IRepositoryAsync<FinancingSubsequentTransaction> loanInterestPayableRepository
             , IFinancingService financingService
             , IRepositoryAsync<ServiceMasterParty> serviceMasterPartyRepository
+            , IRepositoryAsync<MachineMasterAssetSeviceDistribution> machineMasterAssetSeviceDistributionRepository
             ) : base(repository, unitOfWork, pkGeneratorService)
         {
             _unitOfWork = unitOfWork;
@@ -118,6 +120,7 @@ namespace Library.Service.Invoices
             _loanInterestPayableRepository = loanInterestPayableRepository;
             _pkGeneratorService = pkGeneratorService;
             _serviceMasterPartyRepository = serviceMasterPartyRepository;
+            _machineMasterAssetSeviceDistributionRepository = machineMasterAssetSeviceDistributionRepository;
         }
 
         #endregion Constructor
@@ -218,6 +221,22 @@ namespace Library.Service.Invoices
                          "FROM trn.InvoiceDetailCHarges I  " +
                          "LEFT JOIN TRN.VoucherDetail VD ON VD.Id = I.VoucherDetailId  " +
                          ") A WHERE InvoiceDetailId = '" + InvoiceDetailId + "' AND ActivityId = '" + ActivityId + @"') SELECT 1 ELSE SELECT 0 RETURN ";
+                return Convert.ToBoolean(_invoiceDetailRepository.SqlQuery<int>(sql).Single());
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+        public bool CheckMachineMasterAssetActivity(string MachineMasterAssetId, string ActivityId)
+        {
+            try
+            {
+                var sql = "IF EXISTS(SELECT * FROM(" +
+                        "SELECT M.MachineMasterAssetId, VD.ActivityId " +
+                         "FROM trn.MachineMasterAssetSeviceDistribution M  " +
+                         "LEFT JOIN TRN.VoucherDetail VD ON VD.Id = M.VoucherDetailId  " +
+                         ") A WHERE MachineMasterAssetId = '" + MachineMasterAssetId + "' AND ActivityId = '" + ActivityId + @"') SELECT 1 ELSE SELECT 0 RETURN ";
                 return Convert.ToBoolean(_invoiceDetailRepository.SqlQuery<int>(sql).Single());
             }
             catch (Exception)
@@ -1491,7 +1510,7 @@ namespace Library.Service.Invoices
 
 
         private string InsertVendorInvoiceExcludeTax(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-            , IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<InvoiceTaxViewModel> tdsVMList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList)
+            , IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<InvoiceTaxViewModel> tdsVMList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList, IEnumerable<MachineMasterAssetSeviceDistribution> machineMasterAssetSeviceDistributionList)
         {
             var flag = false;
             try
@@ -1582,6 +1601,30 @@ namespace Library.Service.Invoices
                                     AuditService.UpdatedLog(invoiceCharges);
                                     _invoiceDetailChargesRepository.Update(invoiceCharges);
                                 }
+                            }
+                        }
+
+                        if (null != machineMasterAssetSeviceDistributionList && machineMasterAssetSeviceDistributionList.Count() > 0)
+                        {
+
+                            foreach (var item in machineMasterAssetSeviceDistributionList.Where(r => r.GLGeneralInfoId == voucherDetailVM.GLGeneralInfoId && r.BudgetMasterId == voucherDetailVM.BudgetMasterId && r.ActivityId == voucherDetailVM.ActivityId))
+                            {
+
+                                if (CheckMachineMasterAssetActivity(item.MachineMasterAssetId, item.ActivityId) == true)
+                                    throw new CustomException("MachineMasterAssetId " + item.MachineMasterAssetId + " and Activity " + voucherDetailVM.ActivityName + " already distributed!");
+
+                                var assetSeviceDistributions = new MachineMasterAssetSeviceDistribution
+                                {
+                                    MachineMasterAssetId = item.MachineMasterAssetId,
+                                    MachineMasterId = item.MachineMasterId,
+                                    ServiceMasterId = voucherDetailVM.ServiceMasterId,
+                                    VoucherDetailId = voucherDetailDr.Id,
+                                    DistributedAmount = item.DistributedAmount,
+                                    Amount = item.DistributedAmount
+
+                                };
+                                AuditService.AddedLog(assetSeviceDistributions);
+                                _machineMasterAssetSeviceDistributionRepository.Insert(assetSeviceDistributions);
                             }
                         }
 
@@ -2057,7 +2100,7 @@ namespace Library.Service.Invoices
             return _pkGeneratorService.GetAutoNumber("FinancingSubsequentTransaction", PKGeneratorEnum.Auto, null, DateTime.Now);
         }
         public string InsertVendorInvoice(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-            , IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<InvoiceTaxViewModel> tdsVMList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList, IEnumerable<VoucherViewModel> existingLoanList)
+            , IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<InvoiceTaxViewModel> tdsVMList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<MachineMasterAssetSeviceDistribution> machineMasterAssetSeviceDistributionList)
         {
             var flag = false;
             try
@@ -2352,7 +2395,30 @@ namespace Library.Service.Invoices
                                         }
                                     }
                             }
-                        
+                            if (null != machineMasterAssetSeviceDistributionList && machineMasterAssetSeviceDistributionList.Count() > 0)
+                            {
+
+                                foreach (var item in machineMasterAssetSeviceDistributionList.Where(r => r.GLGeneralInfoId == voucherDetailVM.GLGeneralInfoId && r.BudgetMasterId == voucherDetailVM.BudgetMasterId && r.ActivityId == voucherDetailVM.ActivityId))
+                                {
+
+                                    if (CheckMachineMasterAssetActivity(item.MachineMasterAssetId, item.ActivityId) == true)
+                                        throw new CustomException("MachineMasterAssetId " + item.MachineMasterAssetId + " and Activity " + voucherDetailVM.ActivityName + " already distributed!");
+
+                                        var assetSeviceDistributions = new MachineMasterAssetSeviceDistribution
+                                        {
+                                            MachineMasterAssetId = item.MachineMasterAssetId,
+                                            MachineMasterId = item.MachineMasterId,
+                                            ServiceMasterId = voucherDetailVM.ServiceMasterId,
+                                            VoucherDetailId = voucherDetailDr.Id,
+                                            DistributedAmount = item.DistributedAmount,
+                                            Amount = item.DistributedAmount
+                                            
+                                        };
+                                        AuditService.AddedLog(assetSeviceDistributions);
+                                    _machineMasterAssetSeviceDistributionRepository.Insert(assetSeviceDistributions);
+                                }
+                            }
+
                         }
                         
                     }
@@ -2956,7 +3022,7 @@ namespace Library.Service.Invoices
                     _unitOfWork.Commit();
                 }
                 else
-                    InsertVendorInvoiceExcludeTax(voucherVM, voucherDetailVMList, taxDetailVMList, tdsVMList, invoiceDetailChargesList);
+                    InsertVendorInvoiceExcludeTax(voucherVM, voucherDetailVMList, taxDetailVMList, tdsVMList, invoiceDetailChargesList, machineMasterAssetSeviceDistributionList);
 
                 return voucherVM.VoucherNo;
             }
@@ -4601,6 +4667,7 @@ namespace Library.Service.Invoices
                 {
                     var gltransaction = _voucherService.QueryGLTransactionDetail(item.Id).Select().ToList();
                     var invoiceDetailCharges = _invoiceDetailChargesRepository.Query(r=>r.VoucherDetailId== item.Id).Select().ToList();
+                    var machineMasterAssetSevices = _machineMasterAssetSeviceDistributionRepository.Query(r=>r.VoucherDetailId== item.Id).Select().ToList();
                     if (gltransaction.Count > 0)
                     {
                         foreach (var item1 in gltransaction)
@@ -4616,6 +4683,17 @@ namespace Library.Service.Invoices
                         {
                             var rdBuilder = new System.Text.StringBuilder();
                             var builderSql = @"DELETE [TRN].InvoiceDetailCharges  WHERE VoucherDetailId='" + invDeChar.VoucherDetailId + "'";
+                            rdBuilder.Append(builderSql);
+                            _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                        }
+
+                    }
+                    if (machineMasterAssetSevices.Count > 0)
+                    {
+                        foreach (var invDeChar in machineMasterAssetSevices)
+                        {
+                            var rdBuilder = new System.Text.StringBuilder();
+                            var builderSql = @"DELETE [TRN].[MachineMasterAssetSeviceDistribution]  WHERE VoucherDetailId='" + invDeChar.VoucherDetailId + "'";
                             rdBuilder.Append(builderSql);
                             _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                         }

@@ -322,7 +322,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         [HttpPost]
         public JsonResult InsertVendorInvoice(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-            , IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<InvoiceTaxViewModel> tdsVMList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList, IEnumerable<VoucherViewModel> existingLoanList)
+            , IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<InvoiceTaxViewModel> tdsVMList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<MachineMasterAssetSeviceDistribution> machineMasterAssetSeviceDistributionList)
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -363,7 +363,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 throw new CustomException(Resources.SelectBank);
             voucherVM.SourceType = SourceType.VendorInvoice.ToString();
             if (voucherVM.BeneficiaryType == NewBeneficiaryType.Vendor.ToString())
-                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceService.InsertVendorInvoice(voucherVM, voucherDetailVMList, taxDetailVMList, tdsVMList, invoiceDetailChargesList, existingLoanList)) });
+                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceService.InsertVendorInvoice(voucherVM, voucherDetailVMList, taxDetailVMList, tdsVMList, invoiceDetailChargesList, existingLoanList, machineMasterAssetSeviceDistributionList)) });
             else
                 return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceService.InsertVendorInvoiceBeneficiaryEmployee(voucherVM, voucherDetailVMList, taxDetailVMList, tdsVMList)) });
 

@@ -21,6 +21,8 @@ using Library.Service.Securites;
 using System.Data;
 using Library.Security.Core;
 using Library.Data.Sql;
+using Library.Service.Logs;
+using System.Reflection;
 
 namespace Aplos.Areas.IE.Controllers
 {
@@ -751,6 +753,34 @@ Where  MA.Active=1";
 
                 throw ex;
 
+            }
+        }
+        [HttpPost, Authorize]
+        public JsonResult GetMachineMasterAssetList(string column, string value)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(GetAllMachineMasterAssetList(identity.CompanyGroupId, identity.CompanyId, column, value), JsonRequestBehavior.AllowGet);
+        }
+        public List<Dictionary<string, object>> GetAllMachineMasterAssetList(string companyGroupId, string companyId, string column, string value)
+        {
+            try
+            {
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var sql = @"SELECT TOP 700 * from ( SELECT 0 Active, MMA.Id MMAssetId,MMA.MachineMasterId,MM.UserName MachineMaster,MMA.AssetName,MMA.Assetdetail
+                            ,MMA.AssetCode,MMA.AssetReference
+                            from [dbo].[MachineMasterAsset] MMA
+                            INNER JOIN [MST].[MachineMaster] MM ON MM.Id=MMA.MachineMasterId
+                            ) AS TEMP WHERE " + strkey + " order by MachineMaster ASC ";
+                return _sqlRepository.GetDataCollection(sql);
+
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
     }
