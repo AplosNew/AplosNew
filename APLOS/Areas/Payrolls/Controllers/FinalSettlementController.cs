@@ -2042,7 +2042,8 @@ WHERE  spc.EmpInfoSystemID= '" + empId + @"' AND PayableVoucherId<>'' AND sl.Dis
 --AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL 
 --AND SPC.EmpInfoSystemID='" + empId + @"'
 --UNION
-select BonusAmount= CASE WHEN EC.UserName='Staff' THEN cast(SUM(spc.DisbusmentAmount)AS decimal(18,0)) ELSE 0 END   from SalaryProcChild SPC
+--select BonusAmount= CASE WHEN EC.UserName='Staff' THEN cast(SUM(spc.DisbusmentAmount)AS decimal(18,0)) ELSE 0 END   from SalaryProcChild SPC
+select BonusAmount=  cast(SUM(spc.DisbusmentAmount)AS decimal(18,0)) from SalaryProcChild SPC
 left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
 JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID
 Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.YearNo AND sl.MonthNo=SPM.MonthNo
