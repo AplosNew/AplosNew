@@ -1511,7 +1511,7 @@ namespace Library.Service.Invoices
 
 
         private string InsertVendorInvoiceExcludeTax(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-            , IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<InvoiceTaxViewModel> tdsVMList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList)
+            , IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<InvoiceTaxViewModel> tdsVMList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList, IEnumerable<MachineMasterAssetSeviceDistribution> machineMasterAssetSeviceDistributionList)
         {
             var flag = false;
             try
@@ -1602,6 +1602,30 @@ namespace Library.Service.Invoices
                                     AuditService.UpdatedLog(invoiceCharges);
                                     _invoiceDetailChargesRepository.Update(invoiceCharges);
                                 }
+                            }
+                        }
+
+                        if (null != machineMasterAssetSeviceDistributionList && machineMasterAssetSeviceDistributionList.Count() > 0)
+                        {
+
+                            foreach (var item in machineMasterAssetSeviceDistributionList.Where(r => r.GLGeneralInfoId == voucherDetailVM.GLGeneralInfoId && r.BudgetMasterId == voucherDetailVM.BudgetMasterId && r.ActivityId == voucherDetailVM.ActivityId))
+                            {
+
+                                if (CheckMachineMasterAssetActivity(item.MachineMasterAssetId, item.ActivityId) == true)
+                                    throw new CustomException("MachineMasterAssetId " + item.MachineMasterAssetId + " and Activity " + voucherDetailVM.ActivityName + " already distributed!");
+
+                                var assetSeviceDistributions = new MachineMasterAssetSeviceDistribution
+                                {
+                                    MachineMasterAssetId = item.MachineMasterAssetId,
+                                    MachineMasterId = item.MachineMasterId,
+                                    ServiceMasterId = voucherDetailVM.ServiceMasterId,
+                                    VoucherDetailId = voucherDetailDr.Id,
+                                    DistributedAmount = item.DistributedAmount,
+                                    Amount = item.DistributedAmount
+
+                                };
+                                AuditService.AddedLog(assetSeviceDistributions);
+                                _machineMasterAssetSeviceDistributionRepository.Insert(assetSeviceDistributions);
                             }
                         }
 
@@ -2999,7 +3023,7 @@ namespace Library.Service.Invoices
                     _unitOfWork.Commit();
                 }
                 else
-                    InsertVendorInvoiceExcludeTax(voucherVM, voucherDetailVMList, taxDetailVMList, tdsVMList, invoiceDetailChargesList);
+                    InsertVendorInvoiceExcludeTax(voucherVM, voucherDetailVMList, taxDetailVMList, tdsVMList, invoiceDetailChargesList, machineMasterAssetSeviceDistributionList);
 
                 return voucherVM.VoucherNo;
             }
