@@ -525,6 +525,25 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
+        [HttpGet, Authorize]
+        public ActionResult ReportVendorInvoiceAssetDistribution(ReportFormat reportFormat, string voucherId)
+        {
+            AccountsInvoiceReportService accountsInvoiceReportService = new AccountsInvoiceReportService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = accountsInvoiceReportService.GetVendorInvoiceReportAssetDistribution(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+
         [HttpPost]
         public ActionResult DeleteInventoryPayable(string grnId, string voucherId, string invoiceId,string otherVendorId, string type, string tDSTaxVoucherId, string tDSVoucherNo, string deletedRemarks)
         {
