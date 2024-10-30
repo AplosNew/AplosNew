@@ -2481,7 +2481,7 @@ ORDER BY OL.Sequence";
 
                         drat.BeginEdit();
                         drat["EmployeeFinalSettlementId"] = _Id;
-                        drat["PastOTDisbursed"] = true;
+                        //drat["PastOTDisbursed"] = true;
                         drat["UpdatedBy"] = identity.Name;
                         drat["DateUpdated"] = DateTime.Now.ToString();
                         drat.EndEdit();
@@ -2504,7 +2504,7 @@ LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.YearNo AND sl.MonthNo=SPM.MonthNo
 LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
 left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 AND VD.AccountsGroupId=SL.AccountsGroupId 
-WHERE  spc.EmpInfoSystemID IN (" + empIds + @") AND sh.HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0 AND EC.UserName='Staff'
+WHERE  spc.EmpInfoSystemID IN (" + empIds + @") AND sh.HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
 AND sl.PayableVoucherId<>'' AND sl.BonusDisbursementVoucherId IS NULL AND sl.PastBonusDisbursed IS NULL))";
                 con.OpenDataSetThroughAdapter(elockBNsql, out dsEmpBN, false, "1");
 
