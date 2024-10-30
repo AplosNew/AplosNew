@@ -400,6 +400,10 @@ namespace Library.Service.SalesManagements
                 sales.MatureDate = voucherVM.MatureDate;
                 sales.Narration = voucherVM.Narration;
                 sales.TrancastionTypeId = voucherVM.TrancastionTypeId;
+                sales.DeliveryByAddress = voucherVM.DeliveryByAddress;
+                sales.InvoicingByAddress = voucherVM.InvoicingByAddress;
+                sales.InvoicingPartyPlantId = voucherVM.InvoicingPartyPlantId;
+                sales.DeliveryPartyPlantId = voucherVM.DeliveryPartyPlantId;
                 sales.ModelState = ModelState.Modified;
                 AuditService.UpdatedLog(sales);
                 _salesRepository.Update(sales);
