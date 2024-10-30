@@ -3605,7 +3605,7 @@ namespace Aplos.MaterialManagement
 					LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
 					LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
 					LEFT JOIN EmployeeInformation EI ON EI.SystemId=IR.EmployeeId
-                    left JOIN trn.Invoice as I ON I.InventoryReceiveId=IR.Id	
+                    left JOIN trn.Invoice as I ON I.InventoryReceiveId=IR.Id  AND I.Voucherid=IR.VoucherId		
                     left join org.Entity EN ON EN.Id=I.EntityId
 					left join trn.Voucher V on V.Id=I.VoucherId
                     left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
@@ -3616,7 +3616,48 @@ namespace Aplos.MaterialManagement
 
 					group by IR.PartyId,IR.GRNDate,IR.Id,IR.GateEntryNo,p.UserName,P.Code,PP.GSTIN,IRD.TotalMaterialTranAmount,IRD.TotalMaterialBooksCurrencyAmount,IRD.TotalTaxAmount,IRD.ChargesTaxTranAmount
 					,MaterialTranAmount,IR.EmployeeId,IR.EmployeeId,V.VoucherNo,V1.VoucherNo,ep.PostingDate,I.PostingDate,IR.DocRefNo,CU.Code,IR.PartyType,PAG.UserName
-					,PC.UserName,PSC.UserName,PG.UserName,IR.ToCurrencyRate,EI.EmployeeName,IR.DocDate,EN.UserName";
+					,PC.UserName,PSC.UserName,PG.UserName,IR.ToCurrencyRate,EI.EmployeeName,IR.DocDate,EN.UserName
+                    UNION ALL
+					SELECT   IR.PartyId,p.UserName AS PartyName,P.Code PartyCode,isnull(PP.GSTIN,'') TaxID,CU.Code Currency
+                    ,ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0),2)+ROUND(Isnull(IRD.ChargesTaxTranAmount,0),2)+ROUND(Isnull(IRD.TotalTaxAmount,0),2) TotalInvoiceAmount
+					,ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0),2) BaseAmount
+					,ROUND(Isnull(IRD.TotalTaxAmount,0),2)+ROUND(Isnull(IRD.ChargesTaxTranAmount,0),2) TotalTaxAmount
+                    ,SUM(ROUND(ISNULL(I.WrittenOffAmount*I.CompanyCurrencyRate,0),4)) as Payment
+                    ,( ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0)+Isnull(IRD.TotalTaxAmount,0)+Isnull(IRD.ChargesTaxTranAmount,0),2))-(SUM(ROUND(ISNULL(I.WrittenOffAmount*I.CompanyCurrencyRate,0),4))) as Balance
+                    ,IR.Id GRNNo,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate, IR.GateEntryNo
+                    ,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
+                    ,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
+                    ,IR.DocRefNo,IR.PartyType ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
+                    ,REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') DocRefDate,'' GrnDocDateDifference,'' GateName,EI.EmployeeName Employee,EN.UserName Entity
+					from [TRN].[InventoryReceive] AS IR
+					LEFT JOIN (select InventoryReceiveId,IsOtherVendor,0 TransactionQty,Sum(Amount)MaterialTranAmount
+						,Sum(Amount)TotalMaterialTranAmount,Sum(Amount)TotalMaterialBooksCurrencyAmount
+						,SUM(TotalTaxAmount) TotalTaxAmount,0 ChargesTaxTranAmount
+						FROM [TRN].[InventoryService] where IsOtherVendor=1
+					group by InventoryReceiveId,IsOtherVendor) AS IRD ON IR.Id=IRD.InventoryReceiveId 
+					left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+					LEFT JOIN HKP.Party AS P ON P.Id=IR.OtherPartyId 
+					LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+					LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+					LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
+					LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Vendor' AND cp.PlantId=IR.PlantId
+					LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Vendor'
+					LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.OtherPartyPlantId  
+					LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.OtherPartyPlantId
+					LEFT JOIN EmployeeInformation EI ON EI.SystemId=IR.EmployeeId
+                    left JOIN trn.Invoice as I ON I.InventoryReceiveId=IR.Id AND I.Voucherid=IR.OtherPartyVoucherId	
+                    left join org.Entity EN ON EN.Id=I.EntityId
+					left join trn.Voucher V on V.Id=I.VoucherId
+                    left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
+					left join trn.Voucher V1 on V1.Id=ep.VoucherId
+						
+					where  IR.PlantId='" + PlantId + @"' AND convert(Date,IR.GRNDate) BETWEEN   '" + FromDate + @"' AND '" + ToDate + @"' 
+                    AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')  and ird.IsOtherVendor=1  
+
+					group by IR.PartyId,IR.GRNDate,IR.Id,IR.GateEntryNo,p.UserName,P.Code,PP.GSTIN,IRD.TotalMaterialTranAmount,IRD.TotalMaterialBooksCurrencyAmount,IRD.TotalTaxAmount,IRD.ChargesTaxTranAmount
+					,MaterialTranAmount,IR.EmployeeId,IR.EmployeeId,V.VoucherNo,V1.VoucherNo,ep.PostingDate,I.PostingDate,IR.DocRefNo,CU.Code,IR.PartyType,PAG.UserName
+					,PC.UserName,PSC.UserName,PG.UserName,IR.ToCurrencyRate,EI.EmployeeName,IR.DocDate,EN.UserName
+";
 
                 if (isreport)
                 {
@@ -3764,7 +3805,7 @@ namespace Aplos.MaterialManagement
                     LEFT JOIN hkp.MaterialStorage AS MS ON MS.Id=IR.MaterialStorageId
 					LEFT JOIN EmployeeInformation EI1 ON EI1.SystemId=IR.CheckedBy
 					LEFT JOIN EmployeeInformation EI2 ON EI2.SystemId=IR.AuthorizedBy
-                    left JOIN trn.Invoice as I ON I.InventoryReceiveId=IR.Id
+                    left JOIN trn.Invoice as I ON I.InventoryReceiveId=IR.Id AND I.PartyId=IR.PartyId
                     left join org.Entity EN ON EN.Id=I.EntityId
 					left join trn.Voucher V on V.Id=I.VoucherId
 					left join trn.Voucher VN on VN.Id=IR.VoucherId
@@ -3947,8 +3988,122 @@ namespace Aplos.MaterialManagement
 			LEFT JOIN trn.GateEntry  GE ON GE.Id=Ir.GateEntryNo					
 			LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=GE.PlantWiseGateId
 			where  IR.PlantId='" + plantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'  --and IR.Id='20211740'
-			--AND IRT.InventoryServiceId is not null
-			--AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYPO' AND IR.GRNType<>'InventorySalesReturn'
+			AND ISs.IsOtherVendor=0 AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
+			
+            UNION ALL
+			SELECT 	  IR.PartyId,p.UserName AS PartyName,P.Code PartyCode,isnull(PP.GSTIN,'') TaxID,C.Code Currency
+			,ISs.Amount+ISs.TotalTaxAmount TotalInvoiceAmount,ISs.Amount BaseAmount,ISs.TotalTaxAmount ,ISs.Amount ServiceCharge,ISs.TotalTaxAmount ServiceTax,0 CGST,0 SGST,0 IGST,0 TDS,0 TCS
+			,IR.Id As GRNNo,NULL GRNRowId ,IR.GateEntryNo ,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate
+			,GRNType=CASE WHEN IR.EmployeeId <> '' Then 'Employee' else 'Vendor' END
+			,EI.EmployeeName ,IR.DocRefNo,   REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+			,DATEDIFF(day, IR.DocDate,IR.GRNDate) AS 'GrnInvoiceDateDifference'
+			, '' MaterialType  ,'' MaterialGroupMasterName ,'' MaterialMasterName ,'' MaterialCategory
+			, '' ArticleName, SM.UserName ServiceName , NULL FirstCharacteristicsValue , NULL SecondCharacteristicsValue
+			, HSNCode=case when TAxInfo.HSCode<>'' then TAxInfo.HSCode
+		    when TAxInfo1.HSCode<>'' then TAxInfo1.HSCode when TAxInfo2.HSCode<>'' then TAxInfo2.HSCode else '' end
+			,0 TransactionQty ,NULL AS UOM
+			,0 BaseQty,'' BaseUoM ,0 BaseIssueQty ,0 PurchaseReturnQty ,0 IssueReturnQty
+			,0 MaterialTranRate ,'No' IsAsset ,'No' GRNAsset ,MS.UserName as StorageLocation 
+			,0 ShortageQty ,0 ShortageValue ,0 RejectionQty ,0 RejectValue
+			,0 ApprovedQty ,IR.AddedBy
+            ,CASE  WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null  AND IR.AuthorizedByStatus = 'Approved' Then 'Approved'
+				   WHEN IR.CheckedBy is not null And IR.CheckedByStatus = 'ForChecked' AND IR.AuthorizedBy is null And IR.AuthorizedByStatus is null Then 'To be Checked'										
+				   WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null  Then 'To be approved'
+				   WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Hold' Then 'Checking Hold'
+				   WHEN IR.CheckedBy is not null AND IR.CheckedByStatus = 'Rejected' Then 'Checking Rejected'
+                   WHEN IR.CheckedBy is not null ANd IR.AuthorizedByStatus = 'Hold' Then 'Approving Hold'
+				   WHEN IR.CheckedBy is not null AND IR.AuthorizedByStatus = 'Rejected' Then 'Approving Rejected'	 
+				   END GRNCheckStatus
+             ,EI1.EmployeeName CheckedBY
+			,EI2.EmployeeName AuthorizedBy
+			,Posted=CASE WHEN IR.Status <>'' then 'Yes' else 'No' END						
+			,PostedBy=CASE WHEN IR.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,IR.EmployeeId
+			,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
+			,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
+			,'' GLCode ,'' AS GL ,'' BudgetrefNo ,'' AS Budget
+			,'' ActivityId ,'' Activity ,'' CGLCode
+             ,'' AS CGL ,'' CBudgetrefNo ,'' AS CBUdget ,'' CActivityId ,'' AS CActivity
+			,POId= STUFF((select distinct ','+PG.POId
+			             FROM TRN.POGGRNMap PG 
+                         LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
+			             WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+					,'' RefferenceNo ,'' PurchaseLCId ,'' ContractId ,'' ContractNo ,'' LCANo ,'' LCDate
+					,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
+					,RCM= CASE When IR.IsTaxApplicable=0 Then 'No' Else 'Yes' END
+					 ,NULL MaterialMasterId ,IsNULL(IR.IsNonCreditable,0) IsNonCreditable,EN.UserName Entity
+						
+			from trn.InventoryService AS ISs
+			LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
+			left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=ISs.InventoryReceiveId
+			LEFT JOIN HKP.Party AS P ON P.Id=IR.OtherPartyId
+			LEFT JOIN SCS.Currency AS C ON C.Id=IR.CurrencyId
+			LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Vendor' AND cp.PlantId=IR.PlantId
+			LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Vendor'
+			LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+			LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+			LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
+			LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.OtherPartyPlantId  
+			LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.OtherPartyPlantId
+			LEFT JOIN EmployeeInformation EI ON EI.SystemId=IR.EmployeeId
+			LEFT JOIN hkp.MaterialStorage AS MS ON MS.Id=IR.MaterialStorageId
+			LEFT JOIN EmployeeInformation EI1 ON EI1.SystemId=IR.CheckedBy
+			LEFT JOIN EmployeeInformation EI2 ON EI2.SystemId=IR.AuthorizedBy
+			left JOIN trn.Invoice as I ON I.InventoryReceiveId=IR.Id and IR.OtherPartyId=I.PartyId
+            left join org.Entity EN ON EN.Id=I.EntityId
+			left join trn.Voucher V on V.Id=I.VoucherId
+			left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
+			left join trn.Voucher V1 on V1.Id=ep.VoucherId
+			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
+						,A.TaxAmount TaxAmount,HS.Code HSCode 
+						FROM  [TRN].[InventoryReceiveTax] A
+						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+						left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+						WHERE B.Code='CGST'  
+						) TAxInfo	ON TAxInfo.InventoryServiceId=ISs.Id AND TAxInfo.InventoryServiceId IS NOT NULL
+			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount,HS.Code HSCode 
+			FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+						left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+						WHERE B.Code='IGST' and A.InventoryServiceId IS NOT NULL --Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
+						) TAxInfo1	ON TAxInfo1.InventoryServiceId=ISs.Id AND TAxInfo1.InventoryServiceId IS NOT NULL 
+			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount,HS.Code HSCode 
+			FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+						left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+						WHERE B.Code='SGST' and A.InventoryServiceId IS NOT NULL --Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
+						) TAxInfo2	ON TAxInfo2.InventoryServiceId=ISs.Id AND TAxInfo2.InventoryServiceId IS NOT NULL
+			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+						WHERE B.Code='TDS' and A.InventoryServiceId IS NOT NULL --Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
+						) TAxInfo3	ON TAxInfo3.InventoryServiceId=ISs.Id AND TAxInfo3.InventoryServiceId IS NOT NULL
+			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+						WHERE B.Code='VAT' and A.InventoryServiceId IS NOT NULL --Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
+			) TAxInfo4 ON TAxInfo4.InventoryServiceId=ISs.Id AND TAxInfo4.InventoryServiceId IS NOT NULL
+			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+						WHERE B.Code='AIT' and A.InventoryServiceId IS NOT NULL --Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
+			) TAxInfo5 ON TAxInfo5.InventoryServiceId=ISs.Id AND TAxInfo5.InventoryServiceId IS NOT NULL
+			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+						WHERE B.Code='TCS' and A.InventoryServiceId IS NOT NULL --Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
+			) TAxInfo6 ON TAxInfo6.InventoryServiceId=ISs.Id AND TAxInfo6.InventoryServiceId IS NOT NULL
+            LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+						WHERE B.Code='TCS' and A.InventoryServiceId IS NOT NULL  
+			) TAxInfo7 ON TAxInfo7.InventoryServiceId=ISs.Id AND TAxInfo7.InventoryServiceId IS NOT NULL
+			 LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+						WHERE B.Code='Mandi Tax' and A.InventoryServiceId IS NOT NULL  
+			) TAxInfo8 ON TAxInfo8.InventoryServiceId=ISs.Id AND TAxInfo8.InventoryServiceId IS NOT NULL
+			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+						WHERE B.Code='Nirasrit T' and A.InventoryServiceId IS NOT NULL 
+			) TAxInfo9 ON TAxInfo9.InventoryServiceId=ISs.Id AND TAxInfo9.InventoryServiceId IS NOT NULL
+			LEFT JOIN trn.GateEntry  GE ON GE.Id=Ir.GateEntryNo					
+			LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=GE.PlantWiseGateId
+			where  IR.PlantId='" + plantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' 
+			AND ISs.IsOtherVendor=1
 						AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
 			)x ";
 
@@ -5451,7 +5606,7 @@ namespace Aplos.MaterialManagement
         {
             try
             {
-                var str = @"  SELECT  ir.PartyId,PartyName=CASE WHEN ir.PartyId<>'' THEN p.UserName ELSE EI.EmployeeName END,P.Code PartyCode
+                var str = @" SELECT  ir.PartyId,PartyName=CASE WHEN ir.PartyId<>'' THEN p.UserName ELSE EI.EmployeeName END,P.Code PartyCode
 							,Beneficiary=CASE WHEN IR.PartyId<>'' THEN 'Vendor' ELSE 'Employee' END ,isnull(PP.GSTIN,'') TaxID,C.Code Currency 
 						                            
 													,CONVERT(DECIMAL(15,4),SUM(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate)+SUM(IRD.TotalTaxAmount)+sum(ird.ChargesTaxTranAmount)) TotalInvoiceAmount
@@ -5464,13 +5619,13 @@ namespace Aplos.MaterialManagement
 						                            JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
 						                            JOIN ORG.Company CO ON CO.Id=IR.CompanyId
 						                            JOIN SCS.Currency C ON C.Id=CO.BaseCurrencyId
-													left join trn.invoice iv on iv.inventoryreceiveid=ir.id
-													left join org.Entity EN ON EN.Id=Iv.EntityId
-						                            left join (select iv.InventoryReceiveId,iv.PartyId,sum(iv.Amount) Amount,sum((iwd.Amount*IV.CompanyCurrencyRate)) writtenOffAmount 
-													from  TRN.Invoice iv left join trn.InvoiceWriteOffDetail iwd on iwd.InvoiceId=iv.Id
-													left join trn.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId
-													where convert(Date,Iw.PostingDate) BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' and iv.InventoryReceiveId<>''
-													group by iv.InventoryReceiveId,iv.PartyId
+													LEFT JOIN trn.invoice iv on iv.inventoryreceiveid=ir.id and iv.VoucherId=Ir.VoucherId
+													LEFT JOIN org.Entity EN ON EN.Id=Iv.EntityId
+						                            LEFT JOIN (select iv.InventoryReceiveId,iv.PartyId,sum(iv.Amount) Amount,sum((iwd.Amount*IV.CompanyCurrencyRate)) writtenOffAmount 
+													FROM  TRN.Invoice iv left join trn.InvoiceWriteOffDetail iwd on iwd.InvoiceId=iv.Id
+													LEFT JOIN trn.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId
+													WHERE convert(Date,Iw.PostingDate) BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' and iv.InventoryReceiveId<>''
+													GROUP BY iv.InventoryReceiveId,iv.PartyId
 													) inv on inv.InventoryReceiveId=ir.Id and inv.PartyId=IR.PartyId
 													LEFT JOIN EmployeeInformation AS EI ON EI.SystemId=IR.EmployeeId
 						                            LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
@@ -5484,7 +5639,43 @@ namespace Aplos.MaterialManagement
 						                            WHERE   IR.PlantId='" + PlantId + @"' AND convert(Date,IR.GRNDate) BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' 
                                                     AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
 
-						                            GROUP BY  ir.PartyId,EI.EmployeeName,p.UserName,P.Code,PP.GSTIN,C.Code,PC.UserName,PSC.UserName,PG.UserName,CP.PartyType,PAG.UserName,EN.UserName ";
+						                            GROUP BY  ir.PartyId,EI.EmployeeName,p.UserName,P.Code,PP.GSTIN,C.Code,PC.UserName,PSC.UserName,PG.UserName,CP.PartyType,PAG.UserName,EN.UserName
+
+                                                    UNION ALL
+													SELECT  ir.PartyId,PartyName=CASE WHEN ir.PartyId<>'' THEN p.UserName ELSE EI.EmployeeName END,P.Code PartyCode
+													,Beneficiary=CASE WHEN IR.PartyId<>'' THEN 'Vendor' ELSE 'Employee' END ,isnull(PP.GSTIN,'') TaxID,C.Code Currency 
+						                            
+													,CONVERT(DECIMAL(15,4),SUM(IRD.Amount*IR.ToCurrencyRate)+SUM(IRD.TotalTaxAmount)) TotalInvoiceAmount
+						                            ,CONVERT(DECIMAL(15,4),SUM(IRD.Amount*IR.ToCurrencyRate)) BaseAmount
+													,CONVERT(DECIMAL(15,4),SUM(IRD.TotalTaxAmount*IR.ToCurrencyRate))  TotalTaxAmount
+													,CONVERT(DECIMAL(15,4),SUM(ISNULL(inv.WrittenOffAmount,0))) Payment
+													,Balance=CONVERT(DECIMAL(15,4),SUM(IRD.Amount*IR.ToCurrencyRate)+SUM((IRD.TotalTaxAmount)*IR.ToCurrencyRate)-SUM(ISNULL(inv.WrittenOffAmount,0)))
+						                              ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,CP.PartyType,PAG.UserName PartyAccountGroup,EN.UserName Entity
+						                            FROM [TRN].[InventoryService] IRD 
+						                            JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
+						                            JOIN ORG.Company CO ON CO.Id=IR.CompanyId
+						                            JOIN SCS.Currency C ON C.Id=CO.BaseCurrencyId
+													LEFT JOIN trn.invoice iv on iv.inventoryreceiveid=ir.id and iv.VoucherId=Ir.OtherPartyVoucherId
+													LEFT JOIN org.Entity EN ON EN.Id=Iv.EntityId
+						                            LEFT JOIN (select iv.InventoryReceiveId,iv.PartyId,sum(iv.Amount) Amount,sum((iwd.Amount*IV.CompanyCurrencyRate)) writtenOffAmount 
+													FROM  TRN.Invoice iv left join trn.InvoiceWriteOffDetail iwd on iwd.InvoiceId=iv.Id
+													LEFT JOIN trn.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId
+													WHERE convert(Date,Iw.PostingDate) BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'  and iv.InventoryReceiveId<>''
+													GROUP BY iv.InventoryReceiveId,iv.PartyId
+													) inv on inv.InventoryReceiveId=ir.Id and inv.PartyId=IR.OtherPartyId
+													LEFT JOIN EmployeeInformation AS EI ON EI.SystemId=IR.EmployeeId
+						                            LEFT JOIN HKP.Party AS P ON P.Id=IR.OtherPartyId
+						                            LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.OtherPartyPlantId  
+						                            LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.OtherPartyPlantId
+													LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+													LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+													LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
+													LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Vendor' AND CP.PlantId=IR.PlantId
+													LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Vendor'
+						                            WHERE   IR.PlantId='" + PlantId + @"' AND convert(Date,IR.GRNDate) BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'  
+                                                    AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN') and ird.IsOtherVendor=1
+                                                    GROUP BY  ir.PartyId,EI.EmployeeName,p.UserName,P.Code,PP.GSTIN,C.Code,PC.UserName,PSC.UserName,PG.UserName,CP.PartyType,PAG.UserName,EN.UserName
+";
 
                 if (isreport)
                 {
