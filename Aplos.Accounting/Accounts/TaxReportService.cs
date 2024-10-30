@@ -12787,7 +12787,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 				                   else 'GL' end
 				 ,Particular=case when v.SourceType='InventoryPayable' then TXC.UserName 
 								  WHEN v.SourceType='VendorInvoice' THEN A.UserName
-                                  WHEN v.SourceType='VendorPayment' THEN A.UserName
+                                  WHEN v.SourceType='VendorPayment' THEN AP.UserName
 				                  else '' end
 				  ,TaxableAmount=case when IWD.InventoryReceiveId<>'' then IRD.TotalMaterialTranAmount
 									when SAM.ServiceAcknowledgementMasterId<>'' then SAM.TotalMaterialTranAmount
@@ -12824,14 +12824,16 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 				GROUP BY D.VoucherId,D.ActivityId,D.InvoiceWriteOffDetailId
 				) VD ON VD.VoucherId=IT.VoucherId 
                 LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId 
-                LEFT JOIN (SELECT I.Id InvoiceId,I.InventoryReceiveId
+                LEFT JOIN (SELECT I.Id InvoiceId,IWD.ActivityId,I.InventoryReceiveId
 				, I.Amount Amount,SUM(VD.DrAmount) TaxableAmount
 				,V.VoucherNo,V.PostingDate,V.DocRefNo,V.DocDate
-				FROM  TRN.Invoice I 
+				FROM  TRN.InvoiceWriteOffDetail IWD 
+				JOIN TRN.Invoice I ON I.Id=IWD.InvoiceId
 							JOIN TRN.Voucher V ON V.Id=I.VoucherId
 							JOIN TRN.VoucherDetail VD ON VD.VoucherId=I.VoucherId AND VD.DrAmount>0 AND VD.InvoiceTaxDetailId IS NULL
-		                GROUP BY I.Id,V.VoucherNo,I.Amount,V.PostingDate,V.DocRefNo,V.DocDate,I.InventoryReceiveId
+		                GROUP BY I.Id,V.VoucherNo,I.Amount,V.PostingDate,V.DocRefNo,V.DocDate,I.InventoryReceiveId,IWD.ActivityId
 						) IWD ON IWD.InvoiceId=IT.InvoiceId
+				LEFT JOIN HKP.Activity AP ON AP.Id=IWD.ActivityId
 				LEFT JOIN (select InventoryReceiveId,sum(TotalMaterialTranAmount) TotalMaterialTranAmount from TRN.InventoryReceiveDetail group by InventoryReceiveId)IRD ON IWD.InventoryReceiveId=IRD.InventoryReceiveId
                 LEFT JOIN TRN.Invoice SIV ON SIV.VoucherId=V.Id
 				LEFT JOIN (select sad.ServiceAcknowledgementMasterId,sum(sad.Amount) TotalMaterialTranAmount 
