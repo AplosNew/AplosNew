@@ -2481,7 +2481,7 @@ ORDER BY OL.Sequence";
 
                         drat.BeginEdit();
                         drat["EmployeeFinalSettlementId"] = _Id;
-                        drat["PastOTDisbursed"] = true;
+                        //drat["PastOTDisbursed"] = true;
                         drat["UpdatedBy"] = identity.Name;
                         drat["DateUpdated"] = DateTime.Now.ToString();
                         drat.EndEdit();
