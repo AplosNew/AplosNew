@@ -1572,6 +1572,9 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
     $scope.ExpenseDistributionReport = function (reportFormat, voucherId) {
         $window.open('Accounts/Invoice/ReportVendorInvoiceExpenseDistribution?reportFormat=' + reportFormat + '&voucherId=' + voucherId, '_blank');
     }
+    $scope.AssetDistributionReport = function (reportFormat, voucherId) {
+        $window.open('Accounts/Invoice/ReportVendorInvoiceAssetDistribution?reportFormat=' + reportFormat + '&voucherId=' + voucherId, '_blank');
+    }
     $scope.voucherTypeListnew = [];
     $scope.additionalTaxVoucherTypeId = null;
     $scope.getPaymentVoucherType = function () {
