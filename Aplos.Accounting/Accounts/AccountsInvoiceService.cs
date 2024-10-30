@@ -530,6 +530,9 @@ namespace Library.Accounting.Accounts
                                         ,IsExpenseDistribution=CASE WHEN ISNULL((select COUNT(ID.Id) from TRN.InvoiceDetailCharges ID
 										INNER JOIN TRN.VoucherDetail VD ON VD.Id=ID.VoucherDetailId
 										WHERE VD.VoucherId=I.VoucherId),0)>0 THEN 1 ELSE 0 END,V.ApprovedByStatus,EIA.EmployeeName ApprovedBy,V.ApprovedById,V.ApprovedDate,V.Narration
+                                        ,IsAssetDistribution=CASE WHEN ISNULL((select COUNT(AD.Id) from TRN.MachineMasterAssetSeviceDistribution AD
+										        INNER JOIN TRN.VoucherDetail VD ON VD.Id=AD.VoucherDetailId
+										        WHERE VD.VoucherId=I.VoucherId),0)>0 THEN 1 ELSE 0 END
                                         FROM TRN.[Invoice] AS I
                                         JOIN [HKP].[Party] AS P ON P.Id=I.PartyId
                                         LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=I.PartyPlantId
@@ -551,6 +554,7 @@ namespace Library.Accounting.Accounts
                                         ,case when AV.ApprovedBystatus is null then 'To Be Checked' else  AV.ApprovedBystatus end CheckStatus
                                         ,AV.VoucherNo TDSVoucherNo,ADT.VoucherId TDSVoucherId,[Status]= case when I.IsPark=1 then 'Parked' else 'Posted' end
                                         ,NULL OtherInvoiceId,NULL OtherIsPark,NULL OtherInvoiceVoucherId,0 IsExpenseDistribution,V.ApprovedByStatus,EIA.EmployeeName ApprovedBy,V.ApprovedById,V.ApprovedDate,V.Narration
+                                        ,0 IsAssetDistribution
                                         FROM TRN.[EmployeePayable] AS I
                                        LEFT JOIN [HKP].[Party] AS P ON P.Id=I.PartyId
                                         LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=I.PartyPlantId

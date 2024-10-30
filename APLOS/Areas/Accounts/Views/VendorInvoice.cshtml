@@ -626,6 +626,7 @@
                         <li><a class="btn btn-action" ng-click="VendorInvoiceReport('Excel',x.VoucherId,x.BeneficiaryType)"><i class="fa fa-file-excel-o"></i></a></li>
                         <li ng-show="x.IsTDSTaxPost=='TDSPosted'"><a ng-click="TDSVouchereReport('Pdf',x.TDSVoucherId);" href="" class="btn btn-action tooltip-here">TDS Report</a></li>
                         <li ng-show="x.IsExpenseDistribution"><a ng-click="ExpenseDistributionReport('Excel',x.VoucherId);" class="btn btn-action" title="Expense Distribution Report"><i class="fa fa-file-excel-o"></i></a></li>
+                        <li ng-show="x.IsAssetDistribution"><a ng-click="AssetDistributionReport('Excel',x.VoucherId);" class="btn btn-action" title="Asset Distribution Report"><i class="fa fa-file-excel-o"></i></a></li>
 
                     </ul>
                 </td>
