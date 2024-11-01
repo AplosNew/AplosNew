@@ -12741,10 +12741,10 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                 ,TC.Code TaxCode ,TC.Sequence TCSequence,TC.TaxCategoryType,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM,TAXC.UserName TaxCodeName
                 ,0 IsExcludingTax,IsNULL(IR.IsTaxApplicable,0) IsTaxApplicable,TAXC.[Type],ValueOfFixedNew = TAXC.UserName +' - '+ convert(varchar,TAXC.ValueOfFixed),TAXC.ValueOfFixed
                 ,IsNULL(HSNP.[Percentage],0) Percentage  ,P.VATResistrationNo PanNo,TXC.UserName TDSPer,TXC.Code Section
-                from TRN.AdditionalTax IT 
-                 left join TRN.AdditionalTaxDetail ITD  ON IT.Id=ITD.AdditionalTaxId AND ITD.AType='Cr'
-                 left JOIN TRN.Voucher V ON V.Id=IT.VoucherId
-				left JOIN MST.TaxCode TXC ON TXC.Id=ITD.TaxCodeId
+                FROM TRN.AdditionalTax IT 
+                 LEFT JOIN TRN.AdditionalTaxDetail ITD  ON IT.Id=ITD.AdditionalTaxId AND ITD.AType='Cr'
+                 LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
+				LEFT JOIN MST.TaxCode TXC ON TXC.Id=ITD.TaxCodeId
                   JOIN TRN.adjustmentnote IV ON IV.Id=IT.Adjustmentnoteid
                 LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IT.InvoiceWriteOffId
                 LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
@@ -12769,7 +12769,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 							  and VD.InvoiceTaxdetailId IS NULL
 							  GROUP BY I.Id ,V.VoucherNo,I.Amount,V.PostingDate,V.DocRefNo,V.DocDate
 						) IWD ON IWD.Adjustmentnoteid=IT.Adjustmentnoteid
-				where TC.TaxCategoryType='TDS' AND ITD.AType='Cr' 
+				WHERE TC.TaxCategoryType='TDS' AND ITD.AType='Cr' 
 				AND V.PostingDate between '" + fromDate + "' AND '" + toDate + "' and V.PlantId = '" + plantId + @"' and V.IsPark=0
 
                 UNION ALL
@@ -12805,7 +12805,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                 ,IsNULL(HSNP.[Percentage],0) Percentage
                 ,P.VATResistrationNo PanNo,TXC.UserName TDSPer,TXC.Code Section
 
-                from TRN.AdditionalTax IT 
+                FROM TRN.AdditionalTax IT 
                 left join TRN.AdditionalTaxDetail ITD  ON IT.Id=ITD.AdditionalTaxId AND ITD.AType='Cr'
                 LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
 				LEFT JOIN MST.TaxCode TXC ON TXC.Id=ITD.TaxCodeId
@@ -12829,17 +12829,17 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 				,V.VoucherNo,V.PostingDate,V.DocRefNo,V.DocDate
 				FROM  TRN.InvoiceWriteOffDetail IWD 
 				JOIN TRN.Invoice I ON I.Id=IWD.InvoiceId
-							JOIN TRN.Voucher V ON V.Id=I.VoucherId
-							JOIN TRN.VoucherDetail VD ON VD.VoucherId=I.VoucherId AND VD.DrAmount>0 AND VD.InvoiceTaxDetailId IS NULL
+						JOIN TRN.Voucher V ON V.Id=I.VoucherId
+						JOIN TRN.VoucherDetail VD ON VD.VoucherId=I.VoucherId AND VD.DrAmount>0 AND VD.InvoiceTaxDetailId IS NULL
 		                GROUP BY I.Id,V.VoucherNo,I.Amount,V.PostingDate,V.DocRefNo,V.DocDate,I.InventoryReceiveId,IWD.ActivityId
 						) IWD ON IWD.InvoiceId=IT.InvoiceId
 				LEFT JOIN HKP.Activity AP ON AP.Id=IWD.ActivityId
 				LEFT JOIN (select InventoryReceiveId,sum(TotalMaterialTranAmount) TotalMaterialTranAmount from TRN.InventoryReceiveDetail group by InventoryReceiveId)IRD ON IWD.InventoryReceiveId=IRD.InventoryReceiveId
                 LEFT JOIN TRN.Invoice SIV ON SIV.VoucherId=V.Id
 				LEFT JOIN (select sad.ServiceAcknowledgementMasterId,sum(sad.Amount) TotalMaterialTranAmount 
-						from  TRN.ServiceAcknowledgementMaster sam 
-				join TRN.ServiceAcknowledgementDetail sad ON sad.ServiceAcknowledgementMasterId=sam.Id
-				group by sad.ServiceAcknowledgementMasterId)SAM ON IT.ServiceAcknowledgementMasterId=SAM.ServiceAcknowledgementMasterId
+						FROM  TRN.ServiceAcknowledgementMaster sam 
+				JOIN TRN.ServiceAcknowledgementDetail sad ON sad.ServiceAcknowledgementMasterId=sam.Id
+				GROUP BY sad.ServiceAcknowledgementMasterId)SAM ON IT.ServiceAcknowledgementMasterId=SAM.ServiceAcknowledgementMasterId
                 WHERE TC.TaxCategoryType='TDS' AND ITD.AType='Cr' 
 				AND V.PostingDate between  '" + fromDate + "' AND '" + toDate + "' and V.PlantId = '" + plantId + @"' and V.IsPark=0
                 
