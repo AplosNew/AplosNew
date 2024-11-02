@@ -25,6 +25,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
     $scope.isAdvance = false;
     $scope.currentDate = new Date(Date.now());
     $scope.grossTotal = 0;
+    $scope.MaterialTaxList = [];
     $scope.chargesList = [];
     $scope.chargesListPO = [];
     $scope.storageList = [];
