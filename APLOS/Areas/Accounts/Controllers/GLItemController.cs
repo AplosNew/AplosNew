@@ -402,7 +402,6 @@ namespace Aplos.Areas.Accounts.Controllers
         public JsonResult GetNonCreditableGL(GridParameter parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
             return Json(_glGeneralInfoService.GetExpensesGL(parameters, identity.CompanyGroupId, identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
 
