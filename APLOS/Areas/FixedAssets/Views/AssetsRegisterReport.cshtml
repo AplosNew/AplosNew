@@ -18,6 +18,19 @@
                     </div>
                 </div>
             </div>
+            <div class="col-xs-2 col-sm-2 col-md-2">
+                <div class="form-group" show-errors id="div_IsDynamic">
+                    <label class="col-sm-6 control-label">Is Dynamic</label>
+                    <div class="col-sm-6">
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="report.IsDynamic">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="col-xs-1 col-sm-1 col-md-1">
                 <div class="common-btn">
                     <ul class="list-inline text-right">
@@ -29,7 +42,39 @@
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row" ng-show="report.IsDynamic==true">
+        <div class="table-responsive modal-table aplos-grid-toggle">
+            <div class="content-container-fluid" style="color:black;overflow:scroll">
+                <div style="color:black;" id="GridFixedAssetRegisterDynamicReport" ej-grid e-datasource="FixedAssetRegisterDynamicList" e-recorddoubleclick="" e-templaterefresh="refreshTemplateDynamic"
+                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-summaryrows="TotalFARegisterDynamicSummaryAmount"
+                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowresizing="true" e-allowselection="false" e-allowsorting="true">
+                    <div e-columns>
+                        <div e-column e-type="text" e-field="CapitalizationMasterId" e-headertext="CM Id" e-width="20" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="CapitalizationChildId" e-headertext="CC Id" e-width="20" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="DepreciationRules" e-headertext="Depreciation Rule" e-width="30" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="FixedAssetMasterId" e-headertext="Asset Master Id" e-width="20" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="FixedAssetMaster" e-headertext="Asset Master" e-width="60" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="FixedAssetItemId" e-headertext="Asse tItem Id" e-width="20" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="FixedAssetItem" e-headertext="Asset Item" e-width="60" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="AssetRegisterId" e-headertext="Asset Register Id" e-width="40" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="UserReference" e-headertext="User Reference" e-width="20" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="CapitalizationDate" e-headertext="Capitalization Date" e-width="40" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="Factor" e-headertext="Factor" e-width="20" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="LifeTime" e-headertext="Life Time" e-width="20" style="height: 20px;"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OpeningAmount" e-headertext="Opening Amount" e-width="40" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="CapitalizedAmountFTP" e-headertext="Capitalized Amount FTP" e-width="40" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TotalAmount" e-headertext="Total Amount" e-width="40" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="DepreciationAmount" e-headertext="Depreciation Amount" e-width="40" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="NetAmount" e-headertext="Net Amount" e-width="40" e-textalign="right" style="height: 20px;"></div>
+
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+    <div class="row" ng-hide="report.IsDynamic==true">
         <div class="table-responsive modal-table aplos-grid-toggle">
             <div class="content-container-fluid" style="color:black;overflow:scroll">
                 <div style="color:black;" id="GridFixedAssetRegisterReportElasticSearch" ej-grid e-datasource="FixedAssetRegisterElasticSearchList" e-recorddoubleclick="getdata" e-templaterefresh="refreshTemplateEntityandDepartment"
@@ -55,6 +100,7 @@
                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TotalAmount" e-headertext="Total Amount" e-width="40" e-textalign="right" style="height: 20px;"></div>
                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="DepreciationAmount" e-headertext="Depreciation Amount" e-width="40" e-textalign="right" style="height: 20px;"></div>
                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="AdditionDepreciationAmount" e-headertext="Addition Depreciation Amount" e-width="40" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="AdjustmentDepreciationAmount" e-headertext="Adjustment Depreciation Amount" e-width="40" e-textalign="right" style="height: 20px;"></div>
                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TotalDepreciation" e-headertext="Total Depreciation" e-width="40" e-textalign="right" style="height: 20px;"></div>
                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="NetAmount" e-headertext="Net Amount" e-width="40" e-textalign="right" style="height: 20px;"></div>
 

@@ -276,7 +276,9 @@ namespace Library.Accounting.FixedAssets
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = column + " like '%" + value + "%'";
-            var sql = @"select top 300 * from (SELECT ARC.AssetRegisterId FixedAssetRegisterId,ARC.AssetRegisterId,SUM(ARC.Amount) AssetAmount,SUM(ISNULL(ARC.DepreciationAmount,0))DepreciationAmount,SUM(ARC.NetAmount)NetAmount
+            var sql = @"select top 300 * from (SELECT ARC.AssetRegisterId FixedAssetRegisterId,ARC.AssetRegisterId,SUM(ARC.Amount) AssetAmount
+                            ,(SUM(ISNULL(ARC.DepreciationAmount,0))+ SUM(ISNULL(ARC.AdjustmentDepreciationAmount,0))) DepreciationAmount
+                            ,(SUM(ARC.Amount)-(SUM(ISNULL(ARC.DepreciationAmount,0))+ SUM(ISNULL(ARC.AdjustmentDepreciationAmount,0)))) NetAmount
                             ,FAM.UserName FixedAssetMaster,FAI.UserName FixedAssetItem,AR.AssetSlNo, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks  
                             FROM TRN.AssetRegisterChild ARC
 							LEFT JOIN TRN.AssetRegister AR ON AR.Id=ARC.AssetRegisterId
@@ -3197,6 +3199,84 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
         #endregion
 
         #region Capitalize Asset Register Report
+        public List<Dictionary<string, object>> GetCapitalizeAssetRegisterDynamicDataList(string companyGroupId, string companyId, string plantId, string fromDate, string toDate)
+        {
+            var sql = @"DECLARE @fromDate varchar(50)='" + fromDate + @"',@toDate varchar(50)='" + toDate + @"', @companyGroupId varchar(10)='" + companyGroupId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"'
+
+SELECT CapitalizationMasterId,	CapitalizationChildId,	DepreciationRules
+,FixedAssetMasterId,FixedAssetMaster,FixedAssetItemId,FixedAssetItem,AssetRegisterId,UserReference,CapitalizationDate,Factor,LifeTime
+,(( AssetAmount +AdditionAssetAmount)-ISNULL((OpeningDepreciationAmount+AdjustmentDepreciationAmount),0)) OpeningAmount
+, (AdditionAssetAmountFTP)CapitalizedAmountFTP
+,(( AssetAmount +AdditionAssetAmount+AdditionAssetAmountFTP)-ISNULL((OpeningDepreciationAmount+AdjustmentDepreciationAmount),0)) TotalAmount
+,ISNULL((DepreciationAmountFTP),0)DepreciationAmount
+,(( AssetAmount +AdditionAssetAmount+AdditionAssetAmountFTP)-ISNULL((OpeningDepreciationAmount+AdjustmentDepreciationAmount+DepreciationAmountFTP),0)) NetAmount 	
+
+FROM(SELECT ARC.CapitalizationMasterId,ARC.CapitalizationChildId,FADR.DepreciationRules,ARC.Amount AssetAmount,ISNULL(ARC.AdjustmentDepreciationAmount,0)AdjustmentDepreciationAmount,ARC.NetAmount
+							,FAI.FixedAssetMasterId,FAM.UserName FixedAssetMaster,FAI.UserName FixedAssetItem, AR.FixedAssetItemId,ARC.AssetRegisterId,REPLACE(CONVERT(VARCHAR(11), CM.CapitalizationDate, 106), ' ', '-') CapitalizationDate
+							,AR.AssetSlNo, AR.RFId, AR.BarCode, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks  
+							,FADR.Factor,FADR.LifeTime
+								,ISNULL((SELECT (SUM(ARCA.Amount)-ISNULL(SUM(ISNULL(ARCA.AdjustmentDepreciationAmount,0)),0)) AdditionAssetAmount
+										FROM TRN.AssetRegisterChild ARCA
+										LEFT JOIN [TRN].[CapitalizationMaster] CM ON CM.Id=ARCA.CapitalizationMasterId
+										WHERE AssetRegisterId=ARC.AssetRegisterId  AND ARCA.CompanyGroupId=@companyGroupId AND ARCA.CompanyId=@companyId  AND ARCA.PlantId=@plantId  AND ARCA.VoucherDetailId is not null AND CM.Type='Addition'
+										AND convert(Date,CM.CapitalizationDate) <  @fromDate),0)AdditionAssetAmount
+								,ISNULL((SELECT (SUM(ARCA.Amount)-ISNULL(SUM(ISNULL(ARCA.AdjustmentDepreciationAmount,0)),0)) AdditionAssetAmount
+										FROM TRN.AssetRegisterChild ARCA
+										LEFT JOIN [TRN].[CapitalizationMaster] CM ON CM.Id=ARCA.CapitalizationMasterId
+										WHERE AssetRegisterId=ARC.AssetRegisterId  AND ARCA.CompanyGroupId=@companyGroupId AND ARCA.CompanyId=@companyId  AND ARCA.PlantId=@plantId  AND ARCA.VoucherDetailId is not null AND CM.Type='Addition'
+										AND convert(Date,CM.CapitalizationDate) BETWEEN  @fromDate AND @toDate),0)AdditionAssetAmountFTP
+								,ISNULL((SELECT SUM(DepreciationAmount)DepreciationAmount FROM  [TRN].[AssetDepreciation] AD
+									INNER JOIN [TRN].[AssetDepreciationDetail] ADDS ON ADDS.AssetDepreciationId=AD.Id
+									WHERE ADDS.AssetRegisterId=ARC.AssetRegisterId AND  AD.VoucherId IS NOT NULL AND AD.ProcessDate <  @fromDate ),0)OpeningDepreciationAmount
+								,ISNULL((SELECT SUM(DepreciationAmount)DepreciationAmount FROM  [TRN].[AssetDepreciation] AD
+									INNER JOIN [TRN].[AssetDepreciationDetail] ADDS ON ADDS.AssetDepreciationId=AD.Id
+									WHERE ADDS.AssetRegisterId=ARC.AssetRegisterId AND  AD.VoucherId IS NOT NULL AND AD.ProcessDate BETWEEN  @fromDate AND @toDate),0)DepreciationAmountFTP
+                            FROM TRN.AssetRegisterChild ARC
+							LEFT JOIN TRN.AssetRegister AR ON AR.Id=ARC.AssetRegisterId
+                            LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
+                            LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
+							LEFT JOIN [TRN].[CapitalizationMaster] CM ON CM.Id=ARC.CapitalizationMasterId
+							LEFT JOIN MST.CompanyFixedAssetDepreciationRule CFADR  ON  CFADR.FixedAssetMasterId = FAI.FixedAssetMasterId 
+							LEFT JOIN [MST].[FixedAssetDepreciationRule] FADR  ON  FADR.Id = CFADR.DepreciationRuleId 
+		                WHERE ARC.CompanyGroupId=@companyGroupId AND ARC.CompanyId=@companyId  AND ARC.PlantId=@plantId  AND ARC.VoucherDetailId is not null AND CM.Type='New'
+						AND ARC.AssetRegisterId NOT IN (SELECT AssetRegisterId FROM [TRN].[FixedAssetRegisterDisposedDetail])
+					    AND convert(Date,CM.CapitalizationDate) <  @fromDate ) T
+				        
+
+UNION ALL
+SELECT CapitalizationMasterId,	CapitalizationChildId,	DepreciationRules
+,FixedAssetMasterId,FixedAssetMaster,FixedAssetItemId,FixedAssetItem,AssetRegisterId,UserReference,CapitalizationDate,Factor,LifeTime
+,0 OpeningAmount, ( AssetAmount +AdditionAssetAmountFTP)CapitalizedAmountFTP, ( AssetAmount +AdditionAssetAmountFTP)TotalAmount
+,ISNULL((DepreciationAmountFTP+AdjustmentDepreciationAmount),0)DepreciationAmount
+,(( AssetAmount +AdditionAssetAmountFTP)-ISNULL((DepreciationAmountFTP+AdjustmentDepreciationAmount),0))NetAmount 	
+
+FROM(SELECT ARC.CapitalizationMasterId,ARC.CapitalizationChildId,FADR.DepreciationRules,ARC.Amount AssetAmount,ISNULL(ARC.AdjustmentDepreciationAmount,0)AdjustmentDepreciationAmount,ARC.NetAmount
+							,FAI.FixedAssetMasterId,FAM.UserName FixedAssetMaster,FAI.UserName FixedAssetItem, AR.FixedAssetItemId,ARC.AssetRegisterId,REPLACE(CONVERT(VARCHAR(11), CM.CapitalizationDate, 106), ' ', '-') CapitalizationDate
+							,AR.AssetSlNo, AR.RFId, AR.BarCode, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks 
+							,FADR.Factor,FADR.LifeTime
+							,ISNULL((SELECT (SUM(ARCA.Amount)-ISNULL(SUM(ISNULL(ARCA.AdjustmentDepreciationAmount,0)),0)) AdditionAssetAmount
+										FROM TRN.AssetRegisterChild ARCA
+										LEFT JOIN [TRN].[CapitalizationMaster] CM ON CM.Id=ARCA.CapitalizationMasterId
+										WHERE AssetRegisterId=ARC.AssetRegisterId  AND ARCA.CompanyGroupId=@companyGroupId AND ARCA.CompanyId=@companyId  AND ARCA.PlantId=@plantId  AND ARCA.VoucherDetailId is not null AND CM.Type='Addition'
+										AND convert(Date,CM.CapitalizationDate) BETWEEN  @fromDate AND @toDate),0)AdditionAssetAmountFTP
+							,ISNULL((SELECT SUM(DepreciationAmount)DepreciationAmount FROM  [TRN].[AssetDepreciation] AD
+									INNER JOIN [TRN].[AssetDepreciationDetail] ADDS ON ADDS.AssetDepreciationId=AD.Id
+									WHERE ADDS.AssetRegisterId=ARC.AssetRegisterId AND  AD.VoucherId IS NOT NULL AND AD.ProcessDate BETWEEN  @fromDate AND @toDate),0)DepreciationAmountFTP
+                            FROM TRN.AssetRegisterChild ARC
+							LEFT JOIN TRN.AssetRegister AR ON AR.Id=ARC.AssetRegisterId
+                            LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
+                            LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
+							LEFT JOIN [TRN].[CapitalizationMaster] CM ON CM.Id=ARC.CapitalizationMasterId
+							LEFT JOIN MST.CompanyFixedAssetDepreciationRule CFADR  ON  CFADR.FixedAssetMasterId = FAI.FixedAssetMasterId 
+							LEFT JOIN [MST].[FixedAssetDepreciationRule] FADR  ON  FADR.Id = CFADR.DepreciationRuleId 
+		                WHERE ARC.CompanyGroupId=@companyGroupId AND ARC.CompanyId=@companyId  AND ARC.PlantId=@plantId  AND ARC.VoucherDetailId is not null AND CM.Type='New'
+						AND ARC.AssetRegisterId NOT IN (SELECT AssetRegisterId FROM [TRN].[FixedAssetRegisterDisposedDetail])
+					    AND convert(Date,CM.CapitalizationDate) BETWEEN  @fromDate AND @toDate) T
+				        ORDER BY FixedAssetMaster,FixedAssetItem  ";
+            return _sqlRepository.GetDataCollection(sql);
+
+        }
+
         public List<Dictionary<string, object>> GetAssetRegisterElasticSearchDataList(string companyGroupId, string companyId, string plantId, string fromDate, string toDate)
         {
             var sql = @"DECLARE @fromDate varchar(50)='" + fromDate + @"',@toDate varchar(50)='" + toDate + @"', @companyGroupId varchar(10)='" + companyGroupId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"'
@@ -3204,10 +3284,10 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
 SELECT CapitalizationMasterId,	CapitalizationChildId,	DepreciationRules,Factor,LifeTime,SalvageValue,Description
 ,FixedAssetMasterId,FixedAssetMaster,FixedAssetItemId,FixedAssetItem,AssetRegisterId,UserReference,CapitalizationDate
 ,AssetAmount,AdditionAssetAmount, ( AssetAmount +AdditionAssetAmount)TotalAmount
-,ISNULL(DepreciationAmount,0)DepreciationAmount,AdditionDepreciationAmount,ISNULL((DepreciationAmount+AdditionDepreciationAmount),0)TotalDepreciation
-,(( AssetAmount +AdditionAssetAmount)-ISNULL((DepreciationAmount+AdditionDepreciationAmount),0))NetAmount 	
+,ISNULL(DepreciationAmount,0)DepreciationAmount,AdditionDepreciationAmount,AdjustmentDepreciationAmount,ISNULL((DepreciationAmount+AdditionDepreciationAmount+AdjustmentDepreciationAmount),0)TotalDepreciation
+,(( AssetAmount +AdditionAssetAmount)-ISNULL((DepreciationAmount+AdditionDepreciationAmount+AdjustmentDepreciationAmount),0))NetAmount 	
 
-FROM(SELECT ARC.CapitalizationMasterId,ARC.CapitalizationChildId,FADR.DepreciationRules,ARC.Amount AssetAmount,ARC.DepreciationAmount,ARC.NetAmount
+FROM(SELECT ARC.CapitalizationMasterId,ARC.CapitalizationChildId,FADR.DepreciationRules,ARC.Amount AssetAmount,ARC.DepreciationAmount,ISNULL(ARC.AdjustmentDepreciationAmount,0)AdjustmentDepreciationAmount,ARC.NetAmount
 							,FAI.FixedAssetMasterId,FAM.UserName FixedAssetMaster,FAI.UserName FixedAssetItem, AR.FixedAssetItemId,ARC.AssetRegisterId,REPLACE(CONVERT(VARCHAR(11), CM.CapitalizationDate, 106), ' ', '-') CapitalizationDate
 							,AR.AssetSlNo, AR.RFId, AR.BarCode, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks  ,AR.AdditionalInfoUpdateId
 							,FADR.Factor,FADR.LifeTime,FADR.SalvageValue,FADR.Description
@@ -3236,7 +3316,7 @@ FROM(SELECT ARC.CapitalizationMasterId,ARC.CapitalizationChildId,FADR.Depreciati
 		                WHERE ARC.CompanyGroupId=@companyGroupId AND ARC.CompanyId=@companyId  AND ARC.PlantId=@plantId  AND ARC.VoucherDetailId is not null AND CM.Type='New'
 						AND ARC.AssetRegisterId NOT IN (SELECT AssetRegisterId FROM [TRN].[FixedAssetRegisterDisposedDetail])
 					    AND convert(Date,CM.CapitalizationDate) BETWEEN  @fromDate AND @toDate) T
-				        ORDER BY FixedAssetMaster,FixedAssetItem ";
+				        ORDER BY FixedAssetMaster,FixedAssetItem  ";
             return _sqlRepository.GetDataCollection(sql);
 
         }
