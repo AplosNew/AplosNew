@@ -70,7 +70,9 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
         DocRefNo: null,
         Amount: 0,
         Narration: null,
-        CompanyCurrencyRate:1
+        CompanyCurrencyRate: 1,
+        IsProvision: 0,
+        ProvisionVoucherDate: $filter("dateFiltering")(Date.now())
     };
 
     $scope.voucherDetail = {
