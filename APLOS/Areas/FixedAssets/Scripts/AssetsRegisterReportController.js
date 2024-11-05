@@ -8,7 +8,8 @@ function AssetsRegisterReportController(commonMessage, $scope, $rootScope, $filt
     
     $scope.report = {
         FromDate: $filter("dateFiltering")(Date.now()),
-        ToDate: $filter("dateFiltering")(Date.now())
+        ToDate: $filter("dateFiltering")(Date.now()),
+        IsDynamic:true
     };
 
     $scope.invalidDocDate = false;
@@ -51,12 +52,23 @@ function AssetsRegisterReportController(commonMessage, $scope, $rootScope, $filt
         $scope.ToDatevalidation()
         if ($scope.form0.$valid && !$scope.invalidFromDate && !$scope.invalidDocDate) {
             var dataList = [];
-            var g = $("#GridFixedAssetRegisterReportElasticSearch").data("ejGrid");
-            dataList = g.getFilteredRecords();
+            if ($scope.report.IsDynamic === true) {
+                var g = $("#GridFixedAssetRegisterDynamicReport").data("ejGrid");
+                dataList = g.getFilteredRecords();
 
-            if (dataList.length == 0) {
-                dataList = $scope.FixedAssetRegisterElasticSearchList;
+                if (dataList.length == 0) {
+                    dataList = $scope.FixedAssetRegisterDynamicList;
+                }
             }
+            else {
+                var g = $("#GridFixedAssetRegisterReportElasticSearch").data("ejGrid");
+                dataList = g.getFilteredRecords();
+
+                if (dataList.length == 0) {
+                    dataList = $scope.FixedAssetRegisterElasticSearchList;
+                }
+            }
+            
 
             $scope.fileName = 'CapitalizeAssetRegisterReport';
             $http({
@@ -81,12 +93,22 @@ function AssetsRegisterReportController(commonMessage, $scope, $rootScope, $filt
     }
 
     //for elastic search
+    $scope.FixedAssetRegisterDynamicList = [];
     $scope.FixedAssetRegisterElasticSearchList = [];
+    $scope.pathReporturl = "";
     $scope.GetFixedAssetRegisterElasticSearchData = function () {
+        $scope.FixedAssetRegisterDynamicList = [];
+        $scope.FixedAssetRegisterElasticSearchList = [];
         try {
+            if ($scope.report.IsDynamic === true) {
+                $scope.pathReporturl = $scope.path + "GetCapitalizeAssetRegisterDynamicDataList";
+            }
+            else {
+                $scope.pathReporturl = $scope.path + "GetAssetRegisterElasticSearchDataList";
+            }
             $http({
                 method: 'POST',
-                url: $scope.path + "GetAssetRegisterElasticSearchDataList",
+                url: $scope.pathReporturl,
                 data: { 
                     fromDate: $scope.report.FromDate,
                     toDate: $scope.report.ToDate
@@ -94,8 +116,12 @@ function AssetsRegisterReportController(commonMessage, $scope, $rootScope, $filt
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {
-
-                $scope.FixedAssetRegisterElasticSearchList = response.data.DATA;
+                if ($scope.report.IsDynamic === true) {
+                    $scope.FixedAssetRegisterDynamicList = response.data.DATA;
+                }
+                else {
+                    $scope.FixedAssetRegisterElasticSearchList = response.data.DATA;
+                }
             }),
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -105,7 +131,7 @@ function AssetsRegisterReportController(commonMessage, $scope, $rootScope, $filt
 
         }
     }
-    $scope.GetFixedAssetRegisterElasticSearchData();
+    //$scope.GetFixedAssetRegisterElasticSearchData();
 
 
     $scope.TotalFARegisterSummaryAmount = [{
@@ -115,7 +141,19 @@ function AssetsRegisterReportController(commonMessage, $scope, $rootScope, $filt
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalAmount", dataMember: "TotalAmount", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "DepreciationAmount", dataMember: "DepreciationAmount", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AdditionDepreciationAmount", dataMember: "AdditionDepreciationAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AdjustmentDepreciationAmount", dataMember: "AdjustmentDepreciationAmount", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalDepreciation", dataMember: "TotalDepreciation", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "NetAmount", dataMember: "NetAmount", format: "{0:N2}" }
+        ],
+        showCaptionSummary: true
+    }];
+
+    $scope.TotalFARegisterDynamicSummaryAmount = [{
+        title: "Total", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "OpeningAmount", dataMember: "OpeningAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "CapitalizedAmountFTP", dataMember: "CapitalizedAmountFTP", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalAmount", dataMember: "TotalAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "DepreciationAmount", dataMember: "DepreciationAmount", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "NetAmount", dataMember: "NetAmount", format: "{0:N2}" }
         ],
         showCaptionSummary: true
