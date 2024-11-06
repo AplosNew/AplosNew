@@ -12828,9 +12828,11 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 				, I.Amount Amount,SUM(VD.DrAmount) TaxableAmount
 				,V.VoucherNo,V.PostingDate,V.DocRefNo,V.DocDate
 				FROM  TRN.InvoiceWriteOffDetail IWD 
+                JOIN TRN.InvoiceWriteOff IW ON IW.Id=IWD.InvoiceWriteOffId
 				JOIN TRN.Invoice I ON I.Id=IWD.InvoiceId
 						JOIN TRN.Voucher V ON V.Id=I.VoucherId
 						JOIN TRN.VoucherDetail VD ON VD.VoucherId=I.VoucherId AND VD.DrAmount>0 AND VD.InvoiceTaxDetailId IS NULL
+                WHERE IW.PaymentSource='Tax'
 		                GROUP BY I.Id,V.VoucherNo,I.Amount,V.PostingDate,V.DocRefNo,V.DocDate,I.InventoryReceiveId,IWD.ActivityId
 						) IWD ON IWD.InvoiceId=IT.InvoiceId
 				LEFT JOIN HKP.Activity AP ON AP.Id=IWD.ActivityId
