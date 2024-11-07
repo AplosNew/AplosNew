@@ -1868,6 +1868,17 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             return View("~/Areas/FixedAssets/Views/AssetsRegisterReport.cshtml");
         }
+
+        [HttpPost, Authorize]
+        public ActionResult GetCapitalizeAssetRegisterDynamicDataList(string fromDate, string toDate)
+        {
+            FixedAssetQueryService fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            JsonResult json = Json(new { DATA = fixedAssetQueryService.GetCapitalizeAssetRegisterDynamicDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate) }, JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
         [HttpPost, Authorize]
         public ActionResult GetAssetRegisterElasticSearchDataList( string fromDate, string toDate)
         {
@@ -1877,6 +1888,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
+       
         #endregion
 
         #region Capitalize Asset Depreciation Report

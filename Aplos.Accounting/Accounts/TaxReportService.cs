@@ -12170,10 +12170,6 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                 sheet1.Range[xlsRow - 1, 4, xlsRow - 1, 11].BorderAround(ExcelLineStyle.Thin);
                 sheet1.Range[xlsRow - 1, 9].CellStyle.Font.Bold = true;
 
-                //int iPostingDate = xlsCol;
-                //sheet1.Range[xlsRow, xlsCol].Text = "Date";
-                //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-
                 int colSLNO = xlsCol;
                 sheet1[xlsRow, xlsCol].Text = "SL. No";
                 sheet1[xlsRow, xlsCol].ColumnWidth = 7;
@@ -12283,20 +12279,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 
 
                 dtRCMPayable.DefaultView.Sort = "TCSequence";
-                //dtTaxCode = dtRCMPayable.DefaultView.ToTable(true, "TaxCode");
-                //dtTaxCode.Columns.Add("ColumnNumber", typeof(String));
-                //dtTaxCode.Columns.Add("ColumnFormula", typeof(String));
-
-                //if (dtTaxCode.Rows.Count > 0)
-                //{
-                //    for (int i = 0; i < dtTaxCode.Rows.Count; i++)
-                //    {
-                //        xlsCol++;
-                //        //sheet1.Range[xlsRow, xlsCol].Text = dtTaxCode.Rows[i]["TaxCode"].ToString();
-                //        sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                //        //dtTaxCode.Rows[i]["ColumnNumber"] = xlsCol.ToString();
-                //    }
-                //}
+               
                 endXlsCol = xlsCol;
 
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
@@ -12363,17 +12346,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                                 formula = "SUM(" + clsStaticInfo.GetxlsCol(iTaxableAmount) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTaxableAmount) + (xlsRow - 1) + ")";
 
                                 formula2 = "SUM(" + clsStaticInfo.GetxlsCol(CrAmount) + perStartRow + ":" + clsStaticInfo.GetxlsCol(CrAmount) + (xlsRow - 1) + ")";
-                                //if (dtTaxCode.Rows.Count > 0)
-                                //{
-                                //    for (int j = 0; j < dtTaxCode.Rows.Count; j++)
-                                //    {
-                                //       // sheet1[perStartRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"]), xlsRow - 1, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].BorderAround(ExcelLineStyle.Hair);
-                                //        //formula2 = "SUM(" + clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + perStartRow + ":" + clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + (xlsRow - 1) + ")";
-                                //        //sheet1[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"]), xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].Formula = formula2;
-
-                                //       // dtTaxCode.Rows[j]["ColumnFormula"] += (clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + xlsRow).ToString() + " + ";
-                                //    }
-                                //}
+                               
                                 sheet1.Range[xlsRow, 1, xlsRow, 1].Text = "Total";
 
                                 sheet1[xlsRow, iTaxableAmount, xlsRow, iTaxableAmount].Formula = formula;
@@ -12435,27 +12408,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                         sheet1.Range[xlsRow, iTaxableAmount].NumberFormat = reportUtility.NumberFormatDecimalTwo();
                         dtRCMPayable.DefaultView.RowFilter = "VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "'";
 
-                        //if (dtTaxCode.Rows.Count > 0)
-                        //{
-                        //    for (int j = 0; j < dtTaxCode.Rows.Count; j++)
-                        //    {
-                        //        //dtRCMPayable.DefaultView.RowFilter = "TaxCode = '" + dtTaxCode.Rows[j]["TaxCode"].ToString() + "' and VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "'";
-                        //        if (dtRCMPayable.DefaultView.Count > 0)
-                        //        {
-
-                        //            sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].Number = clsStaticInfo.dbl(dtRCMPayable.DefaultView[0]["CrAmount"].ToString());
-                        //            sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                        //        }
-                        //        else
-                        //        {
-                        //            sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].Text = "-";
-                        //            sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-
-                        //        }
-                        //    }
-                        //}
-
+                       
 
                         Percentage = dtRCMPayable.Rows[i][lineItemPercentageType].ToString();
                         xlsRow++;
@@ -12828,9 +12781,11 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 				, I.Amount Amount,SUM(VD.DrAmount) TaxableAmount
 				,V.VoucherNo,V.PostingDate,V.DocRefNo,V.DocDate
 				FROM  TRN.InvoiceWriteOffDetail IWD 
+                JOIN TRN.InvoiceWriteOff IW ON IW.Id=IWD.InvoiceWriteOffId
 				JOIN TRN.Invoice I ON I.Id=IWD.InvoiceId
 						JOIN TRN.Voucher V ON V.Id=I.VoucherId
 						JOIN TRN.VoucherDetail VD ON VD.VoucherId=I.VoucherId AND VD.DrAmount>0 AND VD.InvoiceTaxDetailId IS NULL
+                WHERE IW.PaymentSource='Tax'
 		                GROUP BY I.Id,V.VoucherNo,I.Amount,V.PostingDate,V.DocRefNo,V.DocDate,I.InventoryReceiveId,IWD.ActivityId
 						) IWD ON IWD.InvoiceId=IT.InvoiceId
 				LEFT JOIN HKP.Activity AP ON AP.Id=IWD.ActivityId

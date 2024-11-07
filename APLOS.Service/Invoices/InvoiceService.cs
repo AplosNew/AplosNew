@@ -210,7 +210,7 @@ namespace Library.Service.Invoices
 
         private void Check(Invoice entity)
         {
-            CheckUniqueColumn(UniqueColumnName.DocRefNo, entity.DocRefNo, r => r.Id != entity.Id && r.PartyId == entity.PartyId && r.DocRefNo == entity.DocRefNo && r.FiscalYearId==entity.FiscalYearId);
+            CheckUniqueColumn(UniqueColumnName.DocRefNo, entity.DocRefNo, r => r.Id != entity.Id && r.PartyId == entity.PartyId && r.DocRefNo == entity.DocRefNo && r.FiscalYearId==entity.FiscalYearId && r.PartyType==entity.PartyType);
         }
         public bool CheckInvoiceDetailActivity(string InvoiceDetailId, string ActivityId)
         {
