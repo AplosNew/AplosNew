@@ -42,7 +42,10 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
 
     $controller('partyBaseController', { $scope: $scope, $http: $http });
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
+    baseService.getCompanyConfiguration(function (result) {
+        $scope.companyConfig = result;
 
+    });
 
     $scope.NotificationSettingStatus = function () {
         //debugger;
@@ -109,21 +112,37 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
 
     };
 
-
+    $scope.searchByService = "ServiceName"; $scope.searchService = "";
+    $scope.searchByServiceList = [{ value: 'ServiceName', name: "Service" }, { value: 'ServiceType', name: "Service Type" }, { value: 'ServiceGroup', name: "Service Group" }, { value: 'GLCode', name: "GL Code" }
+        , { value: 'GL', name: "GL" }, { value: 'Budget', name: "Budget" }, { value: 'Activity', name: "Activity" }];
+    $scope.serviceLists = [];
     $scope.ServiceMasterList = [];
     $scope.getServiceMasterPopUpData = function () {
-        $http({
-            method: 'GET',
-            url: 'Products/PurchaseOrder/GetServiceMasterServiceControlData',
-        }).then(function successCallback(response) {
-            $scope.ServiceMasterList = response.data;
-        });
-        angular.element(document.querySelector('#ServiceMasterpopUp')).modal('show');
+        if ($scope.companyConfig.IsInboundInvoiceServiceApplicable) {
+            $scope.ServiceMurl = 'SetUps/ServiceMaster/GetServicePopUpList'
 
+        } else {
+            $scope.ServiceMurl= 'Products/PurchaseOrder/GetServiceMasterServiceControlData'
+        }
+        $http({
+            method: 'POST',
+            url: $scope.ServiceMurl,
+            //
+        }).then(function successCallback(response) {
+            $scope.serviceLists = response.data;
+        });
+            angular.element(document.querySelector('#ServicePopUp')).modal('show');
+        //if ($scope.companyConfig.IsInboundInvoiceServiceApplicable) {
+        //} else {
+        //    angular.element(document.querySelector('#ServiceMasterpopUp')).modal('show');
+        //}
     };
     $scope.closeServicePopUP = function () {
-        angular.element(document.querySelector('#ServiceMasterpopUp')).modal('hide');
-
+        if ($scope.companyConfig.IsInboundInvoiceServiceApplicable) {
+            angular.element(document.querySelector('#ServicePopUp')).modal('show');
+        } else {
+            angular.element(document.querySelector('#ServiceMasterpopUp')).modal('show');
+        }
     }
     $scope.selectServiceMaster = function () {
         var gridObj = $("#ServiceMasterGrid").data("ejGrid");
@@ -230,7 +249,7 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
         //debugger;
         $http({
             method: 'GET',
-            url: 'Products/PurchaseOrder/ServicePOAcknowledgementCheckedBy'
+            url: 'Products/PurchaseOrder/GetServiceAcknowledgementCheckedBy'
         }).then(function successCallback(response) {
             $scope.checkedByList = response.data;
         });

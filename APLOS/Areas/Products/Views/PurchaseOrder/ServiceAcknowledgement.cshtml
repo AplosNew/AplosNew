@@ -391,7 +391,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td  class="text-right"><strong>Total : </strong></td>
+                                <td class="text-right"><strong>Total : </strong></td>
                                 <td class="text-left"><strong>{{chargesList | sumByKey : 'CurrentQty'| setDecimal:currencyPrecision| number }}</strong></td>
                                 <td class="text-right"></td>
                                 <td class="text-right"></td>
@@ -1563,7 +1563,7 @@
                         <div class="col-sm-8 show-message">
                             <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
                                 <input type="text" name="Amount" n-decimals="{{2}}" ng-model="serviceModel.TransactionAmount" class="form-control text-right" placeholder=""
-                                       ng-keyup="calculateRate();"  />
+                                       ng-keyup="calculateRate();" />
                             </div>
                             <div class="col-sm-4" style="padding-left:0px;padding-right:0px;">
                                 <input type="text" ng-model="serviceModel.CurrencyName" class="form-control" disabled />
@@ -1574,7 +1574,7 @@
                         <label class="col-sm-4 control-label" data-placement="top" title="Cost and Manufacture">Rate<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <input type="text" name="Rate" n-decimals="{{4}}" ng-model="serviceModel.Rate" class="form-control text-right" placeholder=""
-                                  ng-disabled="true"  />
+                                   ng-disabled="true" />
                         </div>
 
 
@@ -1637,7 +1637,7 @@
         </div>
     </div>
 </div>
-
+@Html.Partial("~/Areas/SetUps/Views/ServiceMaster/_ServiceMasterPopUpNew.cshtml")
 @Html.Partial("~/Areas/Products/Views/PurchaseOrder/_ServiceControlServiceMasterPopUp.cshtml")
 
 <confirm-archive-generic modalid="serviceDetailDeletePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="DeleteServiceAckRow(tempServiceDetailId);"></confirm-archive-generic>
