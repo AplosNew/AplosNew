@@ -1,0 +1,63 @@
+﻿<div class="modal fade site-modal in" id="budgetMasterWithServiceMasterPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Budget Master</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="budgetMasterParameters.searchBy">
+                                            <option ng-repeat="option in searchByBudgetMasterList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="budgetMasterParameters.search" ng-enter="GetBudgetMasterWithServiceMasterList()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="GetBudgetMasterWithServiceMasterList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>GL</th>
+                                <th>Budget Group</th>
+                                <th>Budget Category</th>
+                                <th>Budget Subcategory</th>
+                                <th>Budget</th>
+                                <th>RefNo</th>
+                                <th>Level</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in budgetMasterList|itemsPerPage:budgetMasterParameters.pageSize" pagination-id="metaData.name + 'budgetMasterList'" total-items="budgetMasterParameters.total_count" ng-dblclick="setSelected(x, $index)">
+                                <td>{{x.GLGeneralInfoCode}} - {{x.GLGeneralInfoName}}</td>
+                                <td>{{x.BudgetGroup}}</td>
+                                <td>{{x.BudgetCategory}}</td>
+                                <td>{{x.BudgetSubCategory}}</td>
+                                <td>{{x.BudgetName}}</td>
+                                <td>{{x.RefNo}}</td>
+                                <td>{{x.MappingLevel}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'budgetMasterList'" direction-links="true" boundary-links="true" on-page-change="GetBudgetMasterWithServiceMasterListData(newPageNumber)"></dir-pagination-controls>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn btn-default" ng-click="closeBudgetMasterPopUp()">Select</button>
+            </div>
+        </div>
+    </div>
+</div>
