@@ -407,6 +407,7 @@
     <Compile Include="Areas\Administration\Controllers\VehicleMovementLocationsController.cs" />
     <Compile Include="Areas\Administration\Controllers\ServicesApprovingAuthorityController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AdditionalPayDayController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\SpecialDutyController.cs" />
     <Compile Include="Areas\Attendances\Controllers\EOTController.cs" />
     <Compile Include="Areas\Attendances\Controllers\GoodWorkSetupController.cs" />
     <Compile Include="Areas\Attendances\Controllers\MultipleEmployeeIndividualLockController.cs" />
@@ -1958,6 +1959,7 @@
     <Content Include="Areas\Administration\Scripts\GeneralApprovedApplicationController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralContractApprovedController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralApprovedController.js" />
+    <Content Include="Areas\Attendances\Scripts\SpecialDutyController.js" />
     <Content Include="Areas\Attendances\Scripts\GoodWorkCheckedController.js" />
     <Content Include="Areas\Attendances\Scripts\GoodWorkApproveController.js" />
     <Content Include="Areas\Attendances\Scripts\GoodWorkDateChangeController.js" />
@@ -5008,6 +5010,7 @@
     <Content Include="Areas\Accounts\Views\_AssetDistributePopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\_MachineMasterAssetPopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\ExpenseBooking\_BudgetMasterWithServiceMasterPopUp.cshtml" />
+    <Content Include="Areas\Attendances\Views\SpecialDuty\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

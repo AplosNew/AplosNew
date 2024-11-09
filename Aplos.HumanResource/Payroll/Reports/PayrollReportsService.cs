@@ -16784,7 +16784,7 @@ AND e.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where m
 																LEFT JOIN (
 																			SELECT MAX(EffectiveDate) EffectiveDate, LegalSalaryGradeId, EmployeeLocationId 
 																				FROM MST.LegalSalaryStructure 
-																				WHERE EffectiveDate <= '" + effectiveDate + @"'
+																				--WHERE EffectiveDate <= '" + effectiveDate + @"'
 																			GROUP BY LegalSalaryGradeId, EmployeeLocationId 
 																		  ) S ON S.LegalSalaryGradeId = GD.LegalSalaryGradeId AND S.EmployeeLocationId = B.EmployeeLocationId
 																LEFT JOIN MST.LegalSalaryStructure SS ON SS.LegalSalaryGradeId = S.LegalSalaryGradeId 
@@ -16816,7 +16816,7 @@ AND e.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where m
 					,SIB.AmtDefinitionCurrencyID AmtDefinitionCurrencyID, SIB.AmtDefinitionRate, SBM.SalaryRuleMasterSystemID,SBM.EffectiveDate from SalaryInfoBack SIB
 					INNER JOIN SalaryInfoBackMaster SBM ON SIB.SalaryID = SBM.SystemID 
 					left outer join SalaryHead SH ON SH.SalaryHeadID = SIB.SalaryHeadID
-					    )dd where EffectiveDate <= '" + effectiveDate + @"' 					
+					    )dd --where EffectiveDate <= '" + effectiveDate + @"' 					
 
 					GROUP BY EmpInfoSystemID) effDateSalary
 
@@ -16836,7 +16836,8 @@ AND e.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where m
 					,SIB.AmtDefinitionCurrencyID AmtDefinitionCurrencyID, SIB.AmtDefinitionRate, SBM.SalaryRuleMasterSystemID,SBM.EffectiveDate from SalaryInfoBack SIB
 					INNER JOIN SalaryInfoBackMaster SBM ON SIB.SalaryID = SBM.SystemID 
 					left outer join SalaryHead SH ON SH.SalaryHeadID = SIB.SalaryHeadID
-				)dd where EffectiveDate <= '" + effectiveDate + @"'  ) SalaryDetails ON effDateSalary.EffectiveDate= SalaryDetails.EffectiveDate and effDateSalary.EmpInfoSystemID = SalaryDetails.EmpInfoSystemID
+				)dd --where EffectiveDate <= '" + effectiveDate + @"'  
+) SalaryDetails ON effDateSalary.EffectiveDate= SalaryDetails.EffectiveDate and effDateSalary.EmpInfoSystemID = SalaryDetails.EmpInfoSystemID
 
 
 
@@ -16852,8 +16853,9 @@ AND e.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where m
                                         LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = SH.SalaryHeadID
 
                                         
-                         ) A  where  ISNULL(EmpInfoSystemID,'')<>'' AND PlantID = '" + plantId + @"' AND
-                            Convert(date ,DOJ) <='" + effectiveDate + @"' AND (DOS IS NULL OR DOS >='" + effectiveDate + @"') ";
+                         ) A  where  ISNULL(EmpInfoSystemID,'')<>'' AND PlantID = '" + plantId + @"' 
+                          --  AND Convert(date ,DOJ) <='" + effectiveDate + @"' AND (DOS IS NULL OR DOS >='" + effectiveDate + @"') 
+";
 
                 if (parameters.Count > 0)
                 {
