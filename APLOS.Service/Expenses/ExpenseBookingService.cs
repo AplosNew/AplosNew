@@ -399,6 +399,7 @@ namespace Library.Service.Expenses
                                         B.UserName AS BudgetName, A.UserName AS ActivityName, NULL TrnType, EBD.Id AS ExpenseBookingDetailId,
 										CPC.CurrencyId AS ToCurrencyCode, CPC.CurrencyId AS companyCurrencyId, CU.Code AS companyCurrencyName, CPC.CurrencyId AS ToCurrencyId, 1 ToCurrencyRate, CPC.CurrencyId AS FromCurrencyId
 										,FixedAsset=CASE WHEN EBD.MaterialMasterId IS NOT NULL THEN MM.UserName ELSE (CASE WHEN EBD.MaterialMasterId IS NOT NULL THEN FAR.SerialNo ELSE NULL END) END
+                                        ,EBD.ServiceMasterId
                                         FROM [TRN].[ExpenseBookingDetail] AS EBD
                                         LEFT JOIN [TRN].[ExpenseBooking] AS EB ON EB.Id=EBD.ExpenseBookingId
                                         LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=EB.EmployeeId
@@ -1186,6 +1187,7 @@ namespace Library.Service.Expenses
                             DocDate = voucher.DocDate,
                             DocRefNo = voucher.DocRefNo,
                             Narration = voucherDetailVM.Narration,
+                            ServiceMasterId = voucherDetailVM.ServiceMasterId,
                         };
                         currentVoucherDetailId++;
                         _voucherService.InsertVoucherDetail(voucher, voucherDr, currentVoucherDetailId);

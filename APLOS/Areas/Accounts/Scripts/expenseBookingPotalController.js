@@ -504,6 +504,7 @@ function expenseBookingPotalController(cboService, commonMessage, $scope, $rootS
         $scope.budgetTransactionDetail.BudgetName = x.BudgetName;
         $scope.budgetTransactionDetail.GLGeneralInfoId = x.GLGeneralInfoId;
         $scope.budgetTransactionDetail.GL = x.GL;
+        $scope.budgetTransactionDetail.ServiceMasterId = x.ServiceMasterId;
         $scope.selectedBudgetMasterId = x.Id;
         $scope.getCboEmployeeBudgetActivityList(x.Id, x.MappingLevel, null);
         if ($scope.rowSelected !== null) {
@@ -532,6 +533,7 @@ function expenseBookingPotalController(cboService, commonMessage, $scope, $rootS
                     DocDate: $scope.budgetTransactionMaster.InvoiceDate,
                     BudgetName: $scope.budgetTransactionDetail.BudgetName,
                     ActivityName: $scope.ActivityName,
+                    ServiceMasterId: $scope.budgetTransactionDetail.ServiceMasterId,
                     GLGeneralInfoId: $scope.budgetTransactionDetail.GLGeneralInfoId,
                     BudgetId: $scope.budgetTransactionDetail.BudgetId,
                     BudgetMasterId: $scope.selectedBudgetMasterId,
