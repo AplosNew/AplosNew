@@ -473,6 +473,7 @@ function expenseBookingApprovedController(cboService, commonMessage, $scope, $ro
         $scope.expensesBookingDetailList[$scope.indexGL].BudgetName = data.BudgetName;
         $scope.expensesBookingDetailList[$scope.indexGL].ActivityId = data.ActivityId;
         $scope.expensesBookingDetailList[$scope.indexGL].ActivityName = data.ActivityName;
+        $scope.expensesBookingDetailList[$scope.indexGL].ServiceMasterId = data.ServiceMasterId;
         $scope.closeCOAICodeListPopUp();
     };
 }
