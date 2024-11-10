@@ -46,7 +46,9 @@ namespace Aplos.Areas.Attendances.Controllers
         {
 
             string sql = @"Select ISNULL(SD.IsApproved,0)IsApproved,SD.Id,E.SystemId EmpSystemId,E.EmployeeCode,E.EmployeeName,FORMAT(SD.WorkDate,'dd-MMM-yyyy')WorkDate,CONVERT(varchar(15),CAST(SD.Intime AS TIME),100) InTime
-,CONVERT(varchar(15),CAST(SD.OutTime AS TIME),100) OutTime,ROUND(cast(DATEDIFF(MINUTE, cast(SD.InTime as time ), cast(SD.OutTime as time ))as float)/60,0) ApprovedHour
+,CONVERT(varchar(15),CAST(SD.OutTime AS TIME),100) OutTime,ISNULL(SD.InputMinute,0)InputMinute
+,ABS(DATEDIFF(MINUTE, SD.InTime, SD.OutTime)) AS CalculatedMinute
+,ApprovedMinute=CASE WHEN ISNULL(SD.InputMinute,0)<ABS(DATEDIFF(MINUTE, SD.InTime, SD.OutTime)) THEN ISNULL(SD.InputMinute,0) ELSE ABS(DATEDIFF(MINUTE, SD.InTime, SD.OutTime)) END
 ,LD.UserName LegalDesignation,DEPT.UserName AS Department ,DV.UserName AS Division,SC.UserName AS Section,SS.UserName SubSection
  ,FORMAT(E.DOJ,'dd-MMM-yyyy') DOJ,EC.UserName EmployeeCategory
 ,E.EmployeeStatus
@@ -63,9 +65,6 @@ LEFT JOIN HKP.LegalDesignation LD ON E.LegalDesignationId = LD.Id
 LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
 LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
 Where WorkDate='" + workDate + @"' AND ISNULL(SD.IsApproved,0)=0";
-
-
-
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -74,7 +73,7 @@ Where WorkDate='" + workDate + @"' AND ISNULL(SD.IsApproved,0)=0";
         {
 
             string sql = @"Select ISNULL(SD.IsApproved,0)IsApproved,SD.Id,E.SystemId EmpSystemId,E.EmployeeCode,E.EmployeeName,FORMAT(SD.WorkDate,'dd-MMM-yyyy')WorkDate,CONVERT(varchar(15),CAST(SD.Intime AS TIME),100) InTime
-,CONVERT(varchar(15),CAST(SD.OutTime AS TIME),100) OutTime,ROUND(cast(DATEDIFF(MINUTE, cast(SD.InTime as time ), cast(SD.OutTime as time ))as float)/60,0) ApprovedHour
+,CONVERT(varchar(15),CAST(SD.OutTime AS TIME),100) OutTime,ISNULL(SD.InputMinute,0)InputMinute,SD.CalculatedMinute,SD.ApprovedMinute
 ,LD.UserName LegalDesignation,DEPT.UserName AS Department ,DV.UserName AS Division,SC.UserName AS Section,SS.UserName SubSection
  ,FORMAT(E.DOJ,'dd-MMM-yyyy') DOJ,EC.UserName EmployeeCategory
 ,E.EmployeeStatus
@@ -91,9 +90,6 @@ LEFT JOIN HKP.LegalDesignation LD ON E.LegalDesignationId = LD.Id
 LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
 LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
 Where WorkDate='" + workDate + @"' AND ISNULL(SD.IsApproved,0)=1";
-
-
-
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
