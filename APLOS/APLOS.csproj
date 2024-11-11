@@ -1959,6 +1959,7 @@
     <Content Include="Areas\Administration\Scripts\GeneralApprovedApplicationController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralContractApprovedController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralApprovedController.js" />
+    <Content Include="Areas\Attendances\Scripts\SpecialDutyReportController.js" />
     <Content Include="Areas\Attendances\Scripts\SpecialDutyController.js" />
     <Content Include="Areas\Attendances\Scripts\GoodWorkCheckedController.js" />
     <Content Include="Areas\Attendances\Scripts\GoodWorkApproveController.js" />
@@ -5011,6 +5012,7 @@
     <Content Include="Areas\Accounts\Views\_MachineMasterAssetPopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\ExpenseBooking\_BudgetMasterWithServiceMasterPopUp.cshtml" />
     <Content Include="Areas\Attendances\Views\SpecialDuty\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\SpecialDuty\Report.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
