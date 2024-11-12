@@ -155,6 +155,27 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
         $scope.closeServicePopUP();
     }
 
+    $scope.ServiceGLSelect = function (obj) {
+        $scope.model = obj.data;
+        $scope.serviceModel.BudgetMasterId = $scope.model.BudgetMasterId;
+        $scope.serviceModel.ServiceMasterId = $scope.model.ServiceMasterId;
+        $scope.serviceModel.ServiceName = $scope.model.ServiceName;
+        $scope.serviceModel.BudgetName = $scope.model.BudgetName;
+        $scope.serviceModel.ActivityId = $scope.model.ActivityId;
+        $scope.serviceModel.ActivityName = $scope.model.ActivityName;
+        $scope.serviceModel.IsOrderSpecific = $scope.model.IsOrderSpecific;
+        $scope.serviceModel.ActivityOrderType = $scope.model.ActivityOrderType;
+        $scope.serviceModel.ValueOfDistribution = $scope.model.ValueOfDistribution;
+        $scope.serviceModel.AccountType = $scope.model.AccountType;
+        $scope.serviceModel.IsAssetApplicable = $scope.model.IsAssetApplicable;
+        $scope.serviceModel.BudgetMasterActivityId = $scope.model.BudgetMasterActivityId;
+        getTaxCategoryList($scope.model.HSNCodeId, $scope.model.HSNCode);
+        $scope.closeServiceDataPopUp();
+    };
+    $scope.closeServiceDataPopUp = function () {
+        angular.element(document.querySelector('#ServicePopUp')).modal('hide');
+    }
+
     $scope.taxCategoryList = [];
     function getTaxCategoryList(hsnCodeId, HSNCode) {
         $scope.taxCategoryList = [];
