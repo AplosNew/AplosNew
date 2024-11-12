@@ -264,8 +264,8 @@
     <div class="clearfix"></div>
     <div class="col-xs-12 col-sm-2 col-md-2" ng-show="voucher.PaymentSource=='@Library.Model.Payments.PaymentSource.GL.ToString()'">
         <button ng-click="popUp();" class="btn single-btn" ng-hide="companyConfig.IsInboundInvoiceServiceApplicable" ng-disabled="voucher.InvoiceType=='LC'"><i class="glyphicon glyphicon-plus"></i> Add GL</button>
-        <button ng-click="getServiceDataList();" class="btn" ng-hide="companyConfig.IsInboundInvoiceServiceApplicable==0"><i class="glyphicon glyphicon-plus"></i> Add  Charges</button>
-        <button ng-click="getServiceDataPartyWiseList();" class="btn" ng-hide="voucher.PartyId==null || companyConfig.IsInboundInvoiceServiceApplicable==0"><i class="glyphicon glyphicon-plus"></i> Add Party Wise Charges</button>
+        <button ng-click="getServiceDataList();" class="btn" ng-hide="companyConfig.IsInboundInvoiceServiceApplicable==false"><i class="glyphicon glyphicon-plus"></i> Add  Charges</button>
+        <button ng-click="getServiceDataPartyWiseList();" class="btn" ng-hide="voucher.PartyId==null || companyConfig.IsInboundInvoiceServiceApplicable==false"><i class="glyphicon glyphicon-plus"></i> Add Party Wise Charges</button>
 
     </div>
     <div class="col-xs-12 col-sm-2 col-md-2" ng-show="voucher.PaymentSource=='@Library.Model.Payments.PaymentSource.Loan.ToString()'">

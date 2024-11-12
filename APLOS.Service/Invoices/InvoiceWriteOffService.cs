@@ -4064,6 +4064,9 @@ namespace Library.Service.Invoices
                             totalAmountDr += invoiceTaxVM.TaxAmount;
                             _invoiceTaxService.InsertInvoiceTax(invoiceWriteOff, invoiceTax, invoiceTaxPk);
 
+                            if (taxCode.IsCreditable && string.IsNullOrEmpty(taxCodeGL["CreditableGLId"].ToString()))
+                                throw new CustomException("CreditableGLId is not found.");
+
                             // Insert Into Customer Invoice Tax Detail (Withhold GL)
                             withholdgl = taxCode.IsCreditable;
                             if (taxCode.IsCreditable && !string.IsNullOrEmpty(taxCodeGL["CreditableGLId"].ToString()))

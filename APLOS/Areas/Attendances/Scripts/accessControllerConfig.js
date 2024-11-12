@@ -470,5 +470,13 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/GoodWork/GWReport',
             controller: 'GoodWorkReportController'
         })
+        .when('/sd-approve', {
+            templateUrl: 'Attendances/SpecialDuty/Aplos',
+            controller: 'SpecialDutyController'
+        })
+        .when('/sd-reoprt', {
+            templateUrl: 'Attendances/SpecialDuty/Report',
+            controller: 'SpecialDutyReportController'
+        })
         ;
 } 

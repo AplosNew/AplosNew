@@ -1293,6 +1293,8 @@ upanelApp.controller("DebitCreditNoteProcessControlController", DebitCreditNoteP
 upanelApp.controller("SalaryAdviceController", SalaryAdviceController)
 upanelApp.controller("AssignControlSetupController", AssignControlSetupController)
 upanelApp.controller("JobWorkEntryController", JobWorkEntryController)
+upanelApp.controller("SpecialDutyController", SpecialDutyController)
+upanelApp.controller("SpecialDutyReportController", SpecialDutyReportController)
 
 
 

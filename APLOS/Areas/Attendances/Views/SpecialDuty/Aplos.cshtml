@@ -1,0 +1,115 @@
+﻿<h3 class="site-heading">{{title}}</h3>
+<div class="form-elements form-horizontal">
+    <div class="row" ng-form name="ModelNewForm">
+        <div class="col-xs-12 col-sm-8 col-md-8">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Work Date<sup>*</sup></label>
+                <div class="col-sm-6 show-message">
+                    <input type="text" name="Work Date" ng-model="OTManual.WorkDate" datepicker class="form-control datepicker" placeholder="dd-MMM-yyyy" required tabindex="1">
+                </div>
+                <div class="col-sm-2">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li><button ng-click="GetSDData();" class="btn"><i class="glyphicon glyphicon-send" tabindex="9"></i> Go</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+<div class="tab-design">
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);" href="" aria-controls="Pending" role="tab" data-toggle="tab">Pending</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);GetSDApprovedData();" href="" aria-controls="Approved" role="tab" data-toggle="tab">Approved</a></li>
+        </ul>
+    </div>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }" ng-form="tabForm1" id="Sales">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            @*<li><button ng-click="DownloadOTData('pending');" class="btn"><i class="glyphicon glyphicon-download" tabindex="9"></i> DownLoad</button></li>*@
+                            <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Save</button></li>
+                        </ul>
+                    </div>
+                    <div style="color:black;" id="GridEmployeeInfoList" ej-grid e-datasource="sdApproveList"
+                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-templaterefresh="refreshTemplateemployee4"
+                         e-allowsorting="true" e-allowselection="true" e-pagesettings-pagesize="25" e-filtersettings-filterType="excel" e-allowtouch="true">
+                        <div e-columns>
+                            <div e-column e-headertext="All" e-headertemplateid="#headerTemplate4" e-template="#checkboxTemplate4" e-textalign="center" e-width="30"></div>
+                            <div e-column e-field="EmpSystemId" e-headertext="EmpSystemId" e-width="70"></div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="70"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
+                            <div e-column e-field="WorkDate" e-headertext="Work Date" e-width="70"></div>
+                            <div e-column e-field="InTime" e-headertext="InTime" e-width="80"></div>
+                            <div e-column e-field="OutTime" e-headertext="OutTime" e-width="80"></div>
+                            <div e-column e-field="InputMinute" e-headertext="InputMinute" e-width="80"></div>
+                            <div e-column e-field="CalculatedMinute" e-headertext="CalculatedMinute" e-width="80"></div>
+                            <div e-column e-headertext="ApprovedMinute" e-template="#ApprovedHour" e-textalign="right" e-type="number" e-width="80"></div>
+                            <div e-column e-field="DOJ" e-headertext="DOJ" e-width="70"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="100"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Division" e-headertext="Division" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="130"></div>
+                            <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-width="80"></div>
+                            <div e-column e-field="EmployeeStatus" e-headertext="Employee Status" e-width="80"></div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="checkboxTemplate4">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsApproved" />
+                    </script>
+                    <script type="text/x-jsrender" id="headerTemplate4">
+                        <input type="checkbox" id="headchk4" />
+                    </script>
+                    <script type="text/template" id="ApprovedHour">
+                        <input type="text" ng-model="data.ApprovedMinute" class="form-control" style="color:black; text-align:right" />
+                    </script>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Save</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-form="tabForm2" id="Purchase">
+            <div class="row">
+                @*<div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="DownloadOTData('approved');" class="btn"><i class="glyphicon glyphicon-download" tabindex="9"></i> DownLoad</button></li>
+                    </ul>
+                </div>*@
+                <div style="color:black;" id="GridOA" ej-grid e-datasource="sdApprovedList"
+                     e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true"
+                     e-allowsorting="true" e-allowselection="true" e-pagesettings-pagesize="25" e-filtersettings-filterType="excel" e-allowtouch="true">
+                    <div e-columns>
+                        <div e-column e-field="EmpSystemId" e-headertext="EmpSystemId" e-width="70"></div>
+                        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="70"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
+                        <div e-column e-field="WorkDate" e-headertext="WorkDate" e-width="70"></div>
+                        <div e-column e-field="InTime" e-headertext="InTime" e-width="80"></div>
+                        <div e-column e-field="OutTime" e-headertext="OutTime" e-width="80"></div>
+                        <div e-column e-field="InputMinute" e-headertext="InputMinute" e-width="80"></div>
+                        <div e-column e-field="CalculatedMinute" e-headertext="CalculatedMinute" e-width="80"></div>
+                        <div e-column e-field="ApprovedMinute" e-headertext="ApprovedMinute" e-width="80"></div>
+                        <div e-column e-field="DOJ" e-headertext="DOJ" e-width="70"></div>
+                        <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="100"></div>
+                        <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                        <div e-column e-field="Division" e-headertext="Division" e-width="80"></div>
+                        <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                        <div e-column e-field="SubSection" e-headertext="SubSection" e-width="130"></div>
+                        <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-width="80"></div>
+                        <div e-column e-field="EmployeeStatus" e-headertext="Employee Status" e-width="80"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
