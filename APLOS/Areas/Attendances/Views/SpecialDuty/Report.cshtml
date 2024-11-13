@@ -1,0 +1,60 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{title}}
+</h3>
+<div class="row">
+    <div class="col-xs-12">
+        <div class="row form-elements form-horizontal">
+            <div class="col-xs-4 col-sm-4 col-md-4" style="margin-top:20px;">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="From Date" ng-model="FromDate" datepicker class="form-control" tabindex="4">
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4" style="margin-top:20px;">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="To Date" ng-model="ToDate" datepicker class="form-control" tabindex="4">
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4" style="margin-top:20px;">
+                <div class="common-btn" style="margin-top:10px;">
+                    <ul class="list-inline text-left">
+                        <li> <button ng-click="GetSDData();" class="btn"><i class="glyphicon glyphicon-eye-open"></i> View </button></li>
+                        <li> <button ng-click="SpecialDutyReport();" class="btn"><i class="glyphicon glyphicon-download"></i> Report </button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="col-xs-12">
+        <div class="content-container-fluid" style="color:black;">
+            <div style="color:black;" id="GridEmp" ej-grid e-datasource="SDlist" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                  e-allowselection="true" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="70"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
+                    <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
+                    <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                    <div e-column e-field="Division" e-headertext="Division" e-width="80"></div>
+                    <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                    <div e-column e-field="SubSection" e-headertext="SubSection" e-width="130"></div>
+                    <div e-column e-field="DOJ" e-headertext="DOJ" e-width="70"></div>
+                    <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-width="80"></div>
+                    <div e-column e-field="EmployeeStatus" e-headertext="Employee Status" e-width="80"></div>
+                    <div e-column e-field="EarnedDays" e-headertext="EarnedDays" e-width="80"></div>
+                    <div e-column e-field="AvailedDays" e-headertext="AvailedDays" e-width="80"></div>
+                    <div e-column e-field="Balance" e-headertext="Balance" e-width="80"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+

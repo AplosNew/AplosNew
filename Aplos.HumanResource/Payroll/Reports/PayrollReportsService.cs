@@ -18202,7 +18202,7 @@ INNER JOIN
 
             try
             {
-                strSQL = @"SELECT EmpBasic.*,MMDSA.*,ISNULL(MW.Grade,'') Grade,ISNULL(MW.SalaryHeadValue,0) MinimumWage,SL.DisbursementVoucherId,SL.VoucherNo
+                strSQL = @"SELECT EmpBasic.*,MMDSA.*,ISNULL(MW.Grade,'') Grade,ISNULL(MW.SalaryHeadValue,0) MinimumWage,SL.PayableVoucherId,SL.DisbursementVoucherId,SL.VoucherNo,SL.Entity
                             FROM
                                     (
 									SELECT DISTINCT E.SystemID EmpSystemId, isnull(E.VendorId,'') as Vendor , isnull(p.UserName,'') as Contractor ,ISNULL(EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EmployeeCodeNumeric,0) EmployeeCodeNumeric,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
@@ -18225,7 +18225,6 @@ INNER JOIN
                                     ,ISNULL(spld.IFSCCode,'') IFSCCode
                                     ,CASE WHEN ISNULL(PO.IsDirect,0) = 0 THEN 'No' ELSE 'Yes' END IsDirect
                                     ,CASE WHEN ISNULL(PO.DirectManpowerCost,0) = 0 THEN 'No' ELSE 'Yes' END DirectManpowerCost
-                                    ,ENT.UserName Entity
                                      FROM EmployeeInformation E
                                      left join hkp.Party p on p.Id = E.VendorId
                                           Left JOIN (
@@ -18234,13 +18233,13 @@ INNER JOIN
                                     JOIN SalaryProcMaster m on m.SystemID=c.SlrProcMstSystemID
                                     WHERE SlrProcMstSystemID IN(" + salaryProcessId + @") 
                                     ) SPM ON spm.EmpInfoSystemID=e.SystemId
-									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '"+plantId+@"' 
+									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '"+plantId+ @"' 
                          
 									 			LEFT JOIN ORG.Plant F ON F.Id= E.PlantId
 												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
 												LEFT JOIN hkp.LegalDesignation LDS ON SPLD.LegalDesignationId = LDS.Id
-								LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = SPLD.BudgetCode
+																LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = SPLD.BudgetCode
 								LEFT OUTER JOIN [ORG].[Position] AS PO ON PO.Id = MB.PositionId
                                 LEFT OUTER JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
 
@@ -18296,8 +18295,10 @@ INNER JOIN
 										  FROM SalaryProceAttdnData MMDSA where MMDSA.MonthNo = MONTH('" + fromDate + @"') AND
 						                               MMDSA.YearNo = YEAR('" + fromDate + @"') --AND MMDSA.PlantID = '" + plantId + @"' 
 											) MMDSA ON EmpBasic.EmpSystemID = MMDSA.EmpSystemID 
-                                        LEFT JOIN (select SL.DisbursementVoucherId,V.VoucherNo,SL.EmpSystemId from dbo.SalaryLock SL
+                                        LEFT JOIN (select SL.PayableVoucherId,SL.DisbursementVoucherId,V.VoucherNo,SL.EmpSystemId,ENT.UserName Entity from dbo.SalaryLock SL
 											LEFT JOIN TRN.Voucher V ON V.Id=SL.DisbursementVoucherId
+											LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = SL.BudgetId
+                                LEFT OUTER JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
 											where  SL.MonthNo=MONTH('" + fromDate + @"') and SL.YearNo=year('" + fromDate + @"'))SL ON SL.EmpSystemId=EmpBasic.EmpSystemID
                                             WHERE EmpBasic.PlantId IN (" + plantId + @") " + wcEmpStatus + @"";
                 try

@@ -1,7 +1,7 @@
 ﻿'use strict';
 SpecialDutyController.$inject = ['$window','cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function SpecialDutyController($window,cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Special Duty';
+    $rootScope.title = 'Special Duty Approve';
     $scope.path = 'Attendances/SpecialDuty/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.tab = 1;

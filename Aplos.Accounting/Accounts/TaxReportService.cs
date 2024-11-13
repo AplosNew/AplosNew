@@ -13489,7 +13489,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                 GSTDetailReportSQL(FromDate, ToDate, out data);
 
                 int ROW = 5; int COL = 1;
-
+                
                 #region columns
                 sheet[ROW, COL].Text = "Voucher Type";
                 sheet[ROW, COL].ColumnWidth = 10;
@@ -13600,11 +13600,17 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                 sheet[ROW, COL].ColumnWidth = 12;
                 int ColSGST = COL;
                 COL++;
-
-                sheet[ROW, COL].Text = "TCS";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int ColTCS = COL;
-                COL++;
+                int ColTCS = 0;
+                DataView dv = new DataView(data);
+                dv.RowFilter = "TaxCategoryType='" + "TCS" + "'";
+                if (dv.Count > 0)
+                {
+                    sheet[ROW, COL].Text = "TCS";
+                    sheet[ROW, COL].ColumnWidth = 12;
+                     ColTCS = COL;
+                    COL++;
+                }
+                
 
                 sheet[ROW, COL].Text = "Total Tax";
                 sheet[ROW, COL].ColumnWidth = 15;
@@ -13627,6 +13633,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 
                 ROW++;
                 int startRow = ROW;
+                var TotalTax = 0.00;
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
                     sheet[ROW, ColVoucherType].Text = data.Rows[i]["SourceType"].ToString();
@@ -13657,11 +13664,21 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                     sheet[ROW, ColCGST].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                     sheet[ROW, ColSGST].Number = clsStaticInfo.dbl(data.Rows[i]["SGST"].ToString());
                     sheet[ROW, ColSGST].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    if (dv.Count > 0)
+                    {
+                        sheet[ROW, ColTCS].Number = clsStaticInfo.dbl(data.Rows[i]["TCS"].ToString());
+                        sheet[ROW, ColTCS].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    }
+                   
+                    if (dv.Count > 0)
+                    {
+                         TotalTax = clsStaticInfo.dbl(data.Rows[i]["IGST"].ToString()) + clsStaticInfo.dbl(data.Rows[i]["CGST"].ToString()) + clsStaticInfo.dbl(data.Rows[i]["SGST"].ToString()) + clsStaticInfo.dbl(data.Rows[i]["TCS"].ToString());
+                    }
+                    else
+                    {
+                         TotalTax = clsStaticInfo.dbl(data.Rows[i]["IGST"].ToString()) + clsStaticInfo.dbl(data.Rows[i]["CGST"].ToString()) + clsStaticInfo.dbl(data.Rows[i]["SGST"].ToString());
 
-                    sheet[ROW, ColTCS].Number = clsStaticInfo.dbl(data.Rows[i]["TCS"].ToString());
-                    sheet[ROW, ColTCS].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-
-                    var TotalTax = clsStaticInfo.dbl(data.Rows[i]["IGST"].ToString()) + clsStaticInfo.dbl(data.Rows[i]["CGST"].ToString()) + clsStaticInfo.dbl(data.Rows[i]["SGST"].ToString()) + clsStaticInfo.dbl(data.Rows[i]["TCS"].ToString());
+                    }
                     var GrossAmn = TotalTax + clsStaticInfo.dbl(data.Rows[i]["TaxableAmount"].ToString());
 
                     sheet[ROW, ColTotalTax].Number = TotalTax;

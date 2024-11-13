@@ -48,7 +48,9 @@
                             <div e-column e-field="WorkDate" e-headertext="Work Date" e-width="70"></div>
                             <div e-column e-field="InTime" e-headertext="InTime" e-width="80"></div>
                             <div e-column e-field="OutTime" e-headertext="OutTime" e-width="80"></div>
-                            <div e-column e-headertext="ApprovedHour" e-template="#ApprovedHour" e-textalign="right" e-type="number" e-width="80"></div>
+                            <div e-column e-field="InputMinute" e-headertext="InputMinute" e-width="80"></div>
+                            <div e-column e-field="CalculatedMinute" e-headertext="CalculatedMinute" e-width="80"></div>
+                            <div e-column e-headertext="ApprovedMinute" e-template="#ApprovedHour" e-textalign="right" e-type="number" e-width="80"></div>
                             <div e-column e-field="DOJ" e-headertext="DOJ" e-width="70"></div>
                             <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="100"></div>
                             <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
@@ -66,7 +68,7 @@
                         <input type="checkbox" id="headchk4" />
                     </script>
                     <script type="text/template" id="ApprovedHour">
-                        <input type="text" ng-model="data.ApprovedHour" class="form-control" style="color:black; text-align:right" />
+                        <input type="text" ng-model="data.ApprovedMinute" class="form-control" style="color:black; text-align:right" />
                     </script>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
@@ -93,7 +95,9 @@
                         <div e-column e-field="WorkDate" e-headertext="WorkDate" e-width="70"></div>
                         <div e-column e-field="InTime" e-headertext="InTime" e-width="80"></div>
                         <div e-column e-field="OutTime" e-headertext="OutTime" e-width="80"></div>
-                        <div e-column e-field="ApprovedHour" e-headertext="ApprovedHour" e-width="80"></div>
+                        <div e-column e-field="InputMinute" e-headertext="InputMinute" e-width="80"></div>
+                        <div e-column e-field="CalculatedMinute" e-headertext="CalculatedMinute" e-width="80"></div>
+                        <div e-column e-field="ApprovedMinute" e-headertext="ApprovedMinute" e-width="80"></div>
                         <div e-column e-field="DOJ" e-headertext="DOJ" e-width="70"></div>
                         <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="100"></div>
                         <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>

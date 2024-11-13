@@ -1341,8 +1341,7 @@ namespace Library.Service.SalaryDisbursement
                                     select sl.Id     from [dbo].[SalaryLock] sl 
                          left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
 						 left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
-                                    left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						            left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+						            left join MST.ManpowerBudget MPB on MPB.Id=sl.BudgetId
 						            left join ORG.Position PO on PO.Id=MPB.PositionId
                                     where sl.YearNo='" + yearNo + "' and sl.MonthNo='" + monthNo + @"' AND MPB.EntityId='" + voucherVM.EntityId + @"'   
                                     and  PO.DirectManpowerCost=1 AND  spd.PlantId='" + voucherVM.PlantId + "' and sl.PayableVoucherId IS NULL)";
@@ -1362,8 +1361,7 @@ namespace Library.Service.SalaryDisbursement
                                     select sl.Id     from [dbo].[SalaryLock] sl 
                          left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
 						 left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
-                                    left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						            left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+						            left join MST.ManpowerBudget MPB on MPB.Id=sl.BudgetId
 						            left join ORG.Position PO on PO.Id=MPB.PositionId
                                     where sl.YearNo='" + yearNo + "' and sl.MonthNo='" + monthNo + @"' AND MPB.EntityId='" + voucherVM.EntityId + @"'  
                                     and  PO.DirectManpowerCost=0 AND  spd.PlantId='" + voucherVM.PlantId + "' and sl.PayableVoucherId IS NULL)";

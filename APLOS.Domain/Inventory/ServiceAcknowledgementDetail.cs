@@ -70,6 +70,11 @@ namespace Library.Model.Inventory
         public string PostCrBudgetMasterId { get; set; }
 
         public string PostCrActivityId { get; set; }
+
+        public string  BudgetMasterId { get; set; }
+
+        public string  ActivityId { get; set; }
+
         #endregion
     }
 }

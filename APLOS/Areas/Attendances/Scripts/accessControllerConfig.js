@@ -474,5 +474,9 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/SpecialDuty/Aplos',
             controller: 'SpecialDutyController'
         })
+        .when('/sd-reoprt', {
+            templateUrl: 'Attendances/SpecialDuty/Report',
+            controller: 'SpecialDutyReportController'
+        })
         ;
 } 
