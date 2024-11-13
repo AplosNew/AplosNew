@@ -1050,8 +1050,8 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 DataSet _invTaxDetailData = null;
                 DataSet _invTaxDetailCrData = null; 
                 DataSet _adTaxDetailCrData = null;
-                DataSet _drvDetailData = null;
-                DataSet _drvDetailCurrencyData = null;
+                //DataSet _drvDetailData = null;
+                //DataSet _drvDetailCurrencyData = null;
                 DataSet _crvDetailData = null;
                 DataSet _crvDetailCurrencyData = null;
                 DataSet _salesReturnData = null;
@@ -1544,7 +1544,15 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 if (totalAmountDr != totalAmountCr)
                     throw new CustomException("Dr and Cr amount is not equal.");
                 clsStaticInfo objApp = new clsStaticInfo();
-                objApp.SaveDataSets(_vdataset, _ANdataset, _ajNDetailData, _invoiceWriteOffData, _invoiceWriteOffDetailData, _invoiceData, _invoiceDetailData, _crvDetailData, _crvDetailCurrencyData, _iTaxDrdataset, _invTaxDetailData, _drvDetailData, _drvDetailCurrencyData, _iTaxCrdataset, _invTaxDetailCrData, _salesReturnData, dsitemscanChild, _aTaxCrdataset, _adTaxDetailCrData);
+                if (isCreditNote == false)
+                {
+                    objApp.SaveDataSets(_vdataset, _ANdataset, _ajNDetailData, _invoiceWriteOffData, _invoiceWriteOffDetailData, _invoiceData, _invoiceDetailData, _crvDetailData, _crvDetailCurrencyData, _iTaxDrdataset, _invTaxDetailData, _iTaxCrdataset, _invTaxDetailCrData, _salesReturnData, dsitemscanChild, _aTaxCrdataset, _adTaxDetailCrData);
+                }
+                else
+                {
+                    objApp.SaveDataSets(_vdataset, _ANdataset, _ajNDetailData, _crvDetailData, _crvDetailCurrencyData, _iTaxDrdataset, _invTaxDetailData, _iTaxCrdataset, _invTaxDetailCrData, _salesReturnData, dsitemscanChild, _aTaxCrdataset, _adTaxDetailCrData);
+                }
+                    
                 
                 return voucher.VoucherNo;
             }
