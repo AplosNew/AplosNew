@@ -144,16 +144,6 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
             angular.element(document.querySelector('#ServiceMasterpopUp')).modal('show');
         }
     }
-    $scope.selectServiceMaster = function () {
-        var gridObj = $("#ServiceMasterGrid").data("ejGrid");
-        var $event = gridObj.getSelectedRecords()[0];
-        var x = $event;
-        $scope.serviceModel.ServiceName = x.ServiceMaster;
-        $scope.serviceModel.ServiceMasterId = x.ServiceMasterId;
-        $scope.serviceModel.TransactionUoMId = x.TransactionUoMId;
-        getTaxCategoryList(x.HSNCodeId, x.HSNCode);
-        $scope.closeServicePopUP();
-    }
 
     $scope.ServiceGLSelect = function (obj) {
         $scope.model = obj.data;

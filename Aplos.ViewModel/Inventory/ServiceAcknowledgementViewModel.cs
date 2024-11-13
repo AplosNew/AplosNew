@@ -22,8 +22,10 @@ namespace Library.ViewModel.Inventory
         public bool check { get; set; }
         public decimal TotalAmount { get; set; }
         public string MapId { get; set; }
-        public string ServicePoDelId { get; set; } 
-        
+        public string ServicePoDelId { get; set; }
+        public string BudgetMasterId { get; set; }
+
+        public string ActivityId { get; set; }
 
         #endregion Scalar Properties
 
