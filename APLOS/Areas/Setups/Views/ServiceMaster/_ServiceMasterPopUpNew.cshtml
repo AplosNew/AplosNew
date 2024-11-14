@@ -1,5 +1,10 @@
-﻿<div class="modal fade site-modal in" id="ServicePopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg ">
+﻿<style>
+    .modellgModify1 {
+        width: 1300px;
+    }
+</style>
+<div class="modal fade site-modal in" id="ServicePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify1">
         <div class="modal-content">
             <div class="modal-header"> Service List <button type="button" class="close" ng-click="closeServiceDataPopUp();">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
@@ -31,13 +36,13 @@
                              e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
                             <div e-columns>
                                 <div e-column e-field="ServiceType" e-headertext="ServiceType" e-width="50" e-filter="false"></div>
-                                <div e-column e-field="ServiceGroup" e-headertext="ServiceGroup" e-width="130"></div>
+                                <div e-column e-field="ServiceGroup" e-headertext="ServiceGroup" e-width="80"></div>
                                 <div e-column e-field="ServiceName" e-headertext="ServiceName" e-width="130"></div>
                                 <div e-column e-field="GLGeneralInfoCode" e-headertext="GLCode" e-width="50"></div>
-                                <div e-column e-field="GLGeneralInfoName" e-headertext="GL" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="GLGeneralInfoName" e-headertext="GL" e-width="130" textAlign='Right'></div>
                                 <div e-column e-field="BudgetName" e-headertext="Budget" e-width="80" textAlign='Right'></div>
-                                <div e-column e-field="ActivityName" e-headertext="Activity" e-width="80" textAlign='Right'></div>
-                                <div e-column e-field="RefNo" e-headertext="RefNo" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="ActivityName" e-headertext="Activity" e-width="130" textAlign='Right'></div>
+                                <div e-column e-field="RefNo" e-headertext="RefNo" e-width="130" textAlign='Right'></div>
                             </div>
                         </div>
                     </div>

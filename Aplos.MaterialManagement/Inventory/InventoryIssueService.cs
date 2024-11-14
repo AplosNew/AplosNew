@@ -6526,7 +6526,7 @@ namespace Library.MaterialManagement.Inventory
                     _unitOfWork.BeginTransaction();
                     flag = true;
                     var _pk = GetPK3();
-                    var inventoryMaterialList = _inventoryMaterialService.GetInventoryMaterialListByUpToSkuSales(entities, inventoryIssue.CompanyId, inventoryIssue.PlantId);
+                    var inventoryMaterialList = entities;// _inventoryMaterialService.GetInventoryMaterialListByUpToSkuSales(entities, inventoryIssue.CompanyId, inventoryIssue.PlantId);
                     //var currencyId = _companyRepository.Find(inventoryIssue.CompanyId).BaseCurrencyId;
                     foreach (var item in entities)// update view model (inventory material field)
                     {
