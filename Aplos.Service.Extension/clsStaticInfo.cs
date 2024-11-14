@@ -1403,7 +1403,7 @@ namespace Library.Service.Extension
                 objCon.CommitTransaction();
                 IsTransactionStarted = false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 try
                 {
