@@ -637,15 +637,16 @@ function salaryPayableController(cboService, commonMessage, $scope, $rootScope, 
 
     function ClearFields() {
         $scope.Action = "Save";
-        $scope.voucher = {};
+        //$scope.voucher = {};
         $scope.voucher.EmployeeId = null;
         $scope.getCboVoucherTypeSalaryPayableList();
         $scope.voucher.Active = true;
-        $scope.voucher.IsActive = false;
-        $scope.voucher.IsMaternity = false;
-        $scope.voucher.IsSeperated = false;
+        //$scope.voucher.IsActive = false;
+        //$scope.voucher.IsMaternity = false;
+        //$scope.voucher.IsSeperated = false;
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.voucher.DocRefNo = null;
+        $scope.voucher.EntityId = null;
         $scope.takeAwaylist = [];
         $scope.salaryLockPayableData = [];
         $scope.cTClist = [];
