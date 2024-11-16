@@ -9878,9 +9878,9 @@ namespace Library.Service.Advances
                 vendorAdWrsql = @"delete trn.GLTransactionDetail where VoucherDetailId in (select id from trn.voucherdetail where VoucherId in (select Id from trn.voucher where  Id = '" + voucherId + "'))";
                 vendorAdWr.Append(vendorAdWrsql);
                
-                vendorAdWrsql = @"delete trn.EmployeeAdvanceDetail  where voucherId in (select Id from trn.voucher where  Id = '" + voucherId + "')";
-                vendorAdWr.Append(vendorAdWrsql);
-                vendorAdWrsql = @"delete trn.EmployeeSubsequentTransaction  where voucherId in (select Id from trn.voucher where Id = '" + voucherId + "')";
+                vendorAdWrsql = @"delete from dbo.AdvanceReqSchedule where EmployeeAdvanceDetailId in (select Id from trn.EmployeeAdvanceDetail  where voucherId in (select Id from trn.voucher where  Id = '" + voucherId + @"'))
+                                  delete trn.EmployeeSubsequentTransaction  where voucherId in (select Id from trn.voucher where Id = '" + voucherId + @"')
+                                  delete trn.EmployeeAdvanceDetail  where voucherId in (select Id from trn.voucher where  Id = '" + voucherId + @"')";
                 vendorAdWr.Append(vendorAdWrsql);
                 vendorAdWrsql = @"update trn.VoucherDetail set UpdatedBy='" + identity.UserId + @"',  InvoiceTaxDetailId=NULL  where voucherId in (select Id from trn.voucher where  Id = '" + voucherId + "')";
                 vendorAdWr.Append(vendorAdWrsql);
