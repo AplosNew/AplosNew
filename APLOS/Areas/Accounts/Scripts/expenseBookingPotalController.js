@@ -83,6 +83,21 @@ function expenseBookingPotalController(cboService, commonMessage, $scope, $rootS
         });
     };
 
+    $scope.getCboEmployeeBudgetActivityWithServiceMasterList = function (budgetId, level, employeeId) {
+        cboService.GetBudgetMasterActivityLevelWithServiceMasterPotalCbo(budgetId, level, employeeId, function (result) {
+            $scope.activityList = result;
+            if ($scope.activityList.length === 1) {
+                $scope.budgetTransactionDetail.ActivityId = $scope.activityList[0].ActivityId;
+
+                $scope.IsOrderSpecific = "";
+                $scope.ActivityOrderType = "";
+
+                $scope.IsOrderSpecific = $scope.activityList[0].IsOrderSpecific;
+                $scope.ActivityOrderType = $scope.activityList[0].ActivityOrderType;
+            }
+        });
+    };
+
     $scope.phoneList = [];
     $scope.getCboActivityPhoneByEmployeeActivity = function (budgetId, activityId) {
         cboService.getCboActivityPhoneByEmployeeActivity("", budgetId, activityId, function (result) {
@@ -435,16 +450,40 @@ function expenseBookingPotalController(cboService, commonMessage, $scope, $rootS
 
     $scope.closeBudgetMasterPopUp = function () {
         angular.element(document.querySelector("#budgetMasterPopUp")).modal("hide");
+        angular.element(document.querySelector("#budgetMasterWithServiceMasterPopUp")).modal("hide");
     };
 
     $scope.closeBudgetMasterPopUpSelected = function () {
         if ($scope.setSelected !== null) {
             angular.element(document.querySelector("#budgetMasterPopUp")).modal("hide");
+            angular.element(document.querySelector("#budgetMasterWithServiceMasterPopUp")).modal("hide");
         } else {
             angular.element(document.querySelector("#cancelPopUp")).modal("show");
         }
     };
 
+    $scope.GetBudgetMasterWithServiceMasterList = function () {
+        $scope.budgetTransactionDetail = {};
+        $scope.faMasterList = [];
+        $scope.FALinked = null;
+        $scope.GLUrl1 = "SetUps/ServiceMaster/GetCboEmployeeBudgetWithServiceMasterPopUpList";
+        $scope.GetBudgetMasterWithServiceMasterListData = function (pageno) {
+            baseService.paginationBase($scope.GLUrl1, pageno, $scope.budgetMasterParameters)
+                .then(function (result) {
+                    $scope.budgetMasterList = result.Rows;
+                    $scope.budgetMasterParameters.total_count = result.Total;
+                },
+                    function () {
+                        ShowResult(commonMessage.NetworkError, "failure");
+                    }).finally(function () {
+                    });
+        };
+        angular.element(document.querySelector("#budgetMasterWithServiceMasterPopUp")).modal("show");
+        $scope.modalShow = true;
+        $scope.GetBudgetMasterWithServiceMasterListData();
+    };
+
+   
     $scope.closeResponsiblePersonPopUp = function () {
         if ($scope.responsiblePersonIndex !== -1) {
             var employee = $scope.employeeList[$scope.responsiblePersonIndex];
@@ -506,9 +545,16 @@ function expenseBookingPotalController(cboService, commonMessage, $scope, $rootS
         $scope.budgetTransactionDetail.GL = x.GL;
         $scope.budgetTransactionDetail.ServiceMasterId = x.ServiceMasterId;
         $scope.selectedBudgetMasterId = x.Id;
-        $scope.getCboEmployeeBudgetActivityList(x.Id, x.MappingLevel, null);
+        if ($scope.companyConfig.IsInboundInvoiceServiceApplicable === true) {
+            $scope.getCboEmployeeBudgetActivityWithServiceMasterList(x.Id, x.MappingLevel, null);
+        }
+        else {
+            $scope.getCboEmployeeBudgetActivityList(x.Id, x.MappingLevel, null);
+        }
+        
         if ($scope.rowSelected !== null) {
             angular.element(document.querySelector("#budgetMasterPopUp")).modal("hide");
+            angular.element(document.querySelector("#budgetMasterWithServiceMasterPopUp")).modal("hide");
         } else {
             angular.element(document.querySelector("#cancelPopUp")).modal("show");
         }

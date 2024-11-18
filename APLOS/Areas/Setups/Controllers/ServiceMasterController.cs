@@ -77,12 +77,24 @@ namespace Aplos.Areas.Setups.Controllers
         [HttpGet, Authorize]
         public JsonResult GetCboEmployeeBudgetWithServiceMasterPopUpListByEmployeeId(GridParameter parameters, string employeeId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_serviceMasterService.GetCboEmployeeBudgetWithServiceMasterPopUpList(parameters, employeeId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public JsonResult GetCboEmployeeBudgetWithServiceMasterPopUpList(GridParameter parameters)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_serviceMasterService.GetCboEmployeeBudgetWithServiceMasterPopUpList(parameters, identity.EmployeeId), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public ActionResult GetBudgetMasterActivityLevelWithServiceMasterEmployeeCbo(string budgetMasterId, string level, string employeeId)
         {
+            return Json(_serviceMasterService.GetBudgetMasterActivityWithServiceMasterCbo(budgetMasterId, level, employeeId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetBudgetMasterActivityLevelWithServiceMasterPotalCbo(string budgetMasterId, string level, string employeeId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                employeeId = identity.EmployeeId;
             return Json(_serviceMasterService.GetBudgetMasterActivityWithServiceMasterCbo(budgetMasterId, level, employeeId), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
