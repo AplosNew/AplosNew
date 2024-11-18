@@ -30,6 +30,7 @@ namespace OTSBD
             DataSet dsSeparationType = null;
             DataSet dsSeparationTypeDetails = null;
             DataSet dsTenure = null;
+            DataSet dsExtraDays = null;
             DataSet dsMLVinfo = null;
             bool isFixedDayAmountApplicable = false;
             bool isGratuityApplicable = false;
@@ -79,6 +80,33 @@ namespace OTSBD
 
                 GetTenureByEmpId(sEmpSystemId, out dsTenure);
                 TotalTenureDays = Convert.ToDecimal(dsTenure.Tables[0].Rows[0]["TenureInDays"].ToString());
+                var nd = 0;
+                var ExtraDays = 0;
+                var monthName = "";
+                var doj = Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOJ"]).ToString("dd-MMM-yyyy");
+                DateTime edoj = Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOJ"]);
+                nd = Convert.ToDateTime(doj).Day;
+                monthName = Convert.ToDateTime(doj).ToString("MMM");
+               var monthNo = Convert.ToDateTime(doj).ToString("MM");
+                var yearNo = Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).ToString("yyyy");
+                if (monthNo=="12")
+                {
+                    yearNo = Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).AddYears(-1).ToString("yyyy");
+                }
+                DateTime lastDay = new DateTime(edoj.Year, edoj.Month, 1).AddMonths(1).AddDays(-1);
+                var ld = Convert.ToDateTime(lastDay).Day;
+                if (nd == ld)
+                {
+                    DateTime nxtM = new DateTime(edoj.AddMonths(1).Year, edoj.AddMonths(1).Month, 1);
+                    nd = Convert.ToDateTime(nxtM).Day;
+                    monthName = Convert.ToDateTime(nxtM).ToString("MMM");
+                }
+                var fromDate = Convert.ToDateTime(nd + monthName + yearNo).AddDays(1).ToString("dd-MMM-yyyy");
+                GetExtraDaysforServicePeriod(sEmpSystemId, fromDate.ToString(), Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).ToString("dd-MMM-yyyy"), out dsExtraDays);
+                if (dsExtraDays.Tables[0].Rows.Count>0)
+                {
+                    ExtraDays =Convert.ToInt32(dsExtraDays.Tables[0].Rows[0]["PresentDays"].ToString());
+                }
                 //all head and Salary info
                 GetSalaryHead(out dsSalHd);
                 dtSlrHd = dsSalHd.Tables[0];
@@ -212,7 +240,9 @@ namespace OTSBD
                         }
                     }
                     // calculate total
-                    sTotalAmount = (Convert.ToDecimal(string.Format("{0:F2}", sFormulaResult))) * NumberOfDays * NumberOfYears;
+                    var totaldays = (NumberOfDays * NumberOfYears) + ExtraDays;
+                    //sTotalAmount = (Convert.ToDecimal(string.Format("{0:F2}", sFormulaResult))) * NumberOfDays * NumberOfYears;
+                    sTotalAmount = (Convert.ToDecimal(string.Format("{0:F2}", sFormulaResult))) * totaldays;
 
 
 
@@ -1126,6 +1156,43 @@ namespace OTSBD
                 objCon = null;
             }
         }//End Function
+
+        public void GetExtraDaysforServicePeriod(string EmployeeId, string fromDate,string toDate, out System.Data.DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"SELECT COUNT(A.EmpSystemID)PD,PresentDays=
+									CASE WHEN DATEDIFF(Year,E.DOJ,E.DOS)<9.9 THEN
+									(CASE 
+									WHEN COUNT(A.EmpSystemID) between 120 AND 240 THEN 7 
+									WHEN COUNT(A.EmpSystemID)>240 THEN 14 
+									ELSE 0 END) 
+									ELSE 
+									(CASE 
+									WHEN COUNT(A.EmpSystemID) between 120 AND 240 THEN 15 
+									WHEN COUNT(A.EmpSystemID)>240 THEN 30 
+									ELSE 0 END) END
+									from dbo.AttdnProcessData A
+									LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=A.EmpSystemID
+									Where A.EmpSystemID="+ EmployeeId + @" AND A.DayStatus !='A' 
+									AND A.WorkDate between '"+ fromDate + @"' AND '"+ toDate + @"'
+									GROUP BY E.DOJ,E.DOS";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+
         public void GetLastMonthSalaryInfoByEmpId(string EmployeeId, string dos, out System.Data.DataSet dsRef)
         {
             string strSQL;
