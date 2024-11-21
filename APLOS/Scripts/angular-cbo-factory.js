@@ -38,6 +38,7 @@ function cboService($http, $window, $rootScope, baseService) {
         , GetBudgetMasterActivityLevelEmployeeCbo: GetBudgetMasterActivityLevelEmployeeCbo
         , GetBudgetMasterActivityLevelWithServiceMasterEmployeeCbo: GetBudgetMasterActivityLevelWithServiceMasterEmployeeCbo
         , GetBudgetMasterActivityLevelPotalCbo: GetBudgetMasterActivityLevelPotalCbo
+        , GetBudgetMasterActivityLevelWithServiceMasterPotalCbo: GetBudgetMasterActivityLevelWithServiceMasterPotalCbo
         , GetBudgetMasterActivityLevelCbo: GetBudgetMasterActivityLevelCbo
         , getBudgetMasterCboByCOAAndGLId: getBudgetMasterCboByCOAAndGLId
         , getCboBudgetForSetup: getCboBudgetForSetup
@@ -1270,6 +1271,9 @@ function cboService($http, $window, $rootScope, baseService) {
     }
     function GetBudgetMasterActivityLevelPotalCbo(budgetMasterId, level, employeeId, callback) {
         base('accounts/BudgetMaster/GetBudgetMasterActivityLevelPotalCbo?budgetMasterId=' + budgetMasterId + '&level=' + level + '&employeeId=' + employeeId, callback);
+    }
+    function GetBudgetMasterActivityLevelWithServiceMasterPotalCbo(budgetMasterId, level, employeeId, callback) {
+        base('SetUps/ServiceMaster/GetBudgetMasterActivityLevelWithServiceMasterPotalCbo?budgetMasterId=' + budgetMasterId + '&level=' + level + '&employeeId=' + employeeId, callback);
     }
     function GetBudgetMasterActivityLevelCbo(budgetMasterId, level, callback) {
         base('accounts/BudgetMaster/GetBudgetMasterActivityLevelCbo?budgetMasterId=' + budgetMasterId + '&level=' + level, callback);

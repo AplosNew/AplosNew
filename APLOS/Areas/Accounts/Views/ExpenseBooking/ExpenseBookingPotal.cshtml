@@ -124,7 +124,8 @@
             <div class="col-xs-12 col-sm-2 col-md-2 form-horizontal">
                 <div class="common-btn">
                     <ul class="list-inline text-left">
-                        <li><button ng-click="GetBudgetMasterList();" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i> Select Budget</button></li>
+                        <li><button ng-click="GetBudgetMasterList();" class="btn" tabindex="5" ng-hide="companyConfig.IsInboundInvoiceServiceApplicable"><i class="glyphicon glyphicon-plus-sign"></i> Select Budget</button></li>
+                        <li><button ng-click="GetBudgetMasterWithServiceMasterList();" class="btn" tabindex="5" ng-hide="companyConfig.IsInboundInvoiceServiceApplicable==false"><i class="glyphicon glyphicon-plus-sign"></i> Select Budget</button></li>
                     </ul>
                 </div>
             </div>
@@ -268,8 +269,8 @@
                         </td>
                         <td class="text-right">
                             @*<button ng-click="getExpenseDistribute($index,x)" ng-show="x.IsOrderSpecific" ng-disabled="x.Amount == 0 || TotalChargesAmount == 0 " class="btn btn-action tooltip-here" data-placement="top" title="Expense Distribute">
-                                <i>Distribute</i>
-                            </button>*@
+                                    <i>Distribute</i>
+                                </button>*@
                             <button ng-click="confirmRemoveRow($index,x)" ng-disabled="x.Id" class="btn-action tooltip-here" data-placement="top" title="Remove">
                                 <i class="glyphicon glyphicon-remove"></i>
                             </button>
@@ -594,6 +595,7 @@
 <confirm-modal></confirm-modal>
 @Html.Partial("~/Areas/Employees/Views/Shared/_ResponsiblePersonPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/ExpenseBooking/_BudgetMasterPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/ExpenseBooking/_BudgetMasterWithServiceMasterPopUp.cshtml")
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
 @*@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")*@
 @Html.Partial("~/Areas/FixedAssets/Views/_FixedAssetRegisterExpensesBookingPopUp.cshtml")

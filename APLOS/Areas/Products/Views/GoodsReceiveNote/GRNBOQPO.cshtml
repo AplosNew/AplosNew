@@ -1800,13 +1800,17 @@
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-lg-12">
                     <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <div style="color:black;" id="itemPopUp" ej-grid e-datasource="itemList"
-                             e-templaterefresh="refreshTemplateMasterOrderOperation"
-                             e-recorddoubleclick=""
-                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                        @*<div style="color:black;" id="itemPopUp" ej-grid e-datasource="itemList"
+        e-templaterefresh="refreshItemListTemplate"
+        e-recorddoubleclick=""
+        e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+        e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">*@
+                        <div id="Griditem" ej-grid e-datasource="itemList" e-templaterefresh="refreshItemListTemplate"
+                             e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="false"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-allowResizing="true">
                             <div e-columns>
-                                <div e-column e-template="#checkboxList" e-textalign="center" e-width="30"></div>
+                                <div e-column e-headertext="" e-headertemplateid="#headerTemplateIL" e-template="#checkboxTemplateIL" e-textalign="center" e-width="30"></div>
+                                @*<div e-column e-template="#checkboxList" e-textalign="center" e-width="30"></div>*@
                                 <div e-column e-field="MaterialName" e-headertext="Material" e-width="200"></div>
                                 <div e-column e-field="ArticleName" e-headertext="Article" e-width="200"></div>
                                 <div e-column e-field="VendorRefNo" e-headertext="Vendor Ref No" e-width="150"></div>
@@ -1815,9 +1819,15 @@
                             </div>
 
                         </div>
-                        <script type="text/template" id="checkboxList">
-                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                        <script type="text/template" id="checkboxTemplateIL">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Active" />
                         </script>
+                        <script type="text/x-jsrender" id="headerTemplateIL">
+                            <input type="checkbox" id="headchkIL" />
+                        </script>
+                        @*<script type="text/template" id="checkboxList">
+            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+        </script>*@
                     </div>
                 </div>
                 <div class="clearfix"></div>

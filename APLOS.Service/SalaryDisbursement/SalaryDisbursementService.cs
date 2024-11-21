@@ -2948,40 +2948,14 @@ namespace Library.Service.SalaryDisbursement
                 {
                     var direct = new System.Text.StringBuilder();
                     var directsql = "";
-                    directsql = @"update [dbo].[SalaryLock] set BonusDisbursementVoucherId='" + directVoucherId + @"' where Id in (
-                        select sl.Id
-                        from [dbo].[SalaryLock] sl 
-                        left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
-                        left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
-						left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
-                        left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-						left join ORG.Position PO on PO.Id=MPB.PositionId
-						left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-						left join hkp.Designation d on d.Id=spd.DesignationId
-						left join hkp.Bank b on spd.BankSystemID=b.Id
-						left join trn.Voucher v on v.Id=sl.PayableVoucherId
-                        where sl.PayableVoucherId<>'' AND sl.BonusDisbursementVoucherId IS NULL and sl.IsBonusDisbursed=1  
-                        and sl.Id IN (" + empSystemIds + @") and sl.BonusDisbursementAdviceId='" + disbursementAdviceId + @"'
-                        and spc.DisbusmentAmount!=0  
-						and ISNULL(SH.HeadCategory, '')  in ('Monthly Bonus Retain') )";
+                    directsql = @"update [dbo].[SalaryLock] set BonusDisbursementVoucherId='" + directVoucherId + @"' where PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL and IsBonusDisbursed=1  
+                        and Id IN (" + empSystemIds + @") and BonusDisbursementAdviceId='" + disbursementAdviceId + @"' ";
                     direct.Append(directsql);
                     directsql = @"
                         UPDATE  [dbo].[BonusDisbursementAdvice] SET Status=CASE WHEN (select COUNT(sl.Id)Id
                         from [dbo].[SalaryLock] sl 
-                        left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
-                        left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
-						left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
-                        left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-						left join ORG.Position PO on PO.Id=MPB.PositionId
-						left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-						left join hkp.Designation d on d.Id=spd.DesignationId
-						left join hkp.Bank b on spd.BankSystemID=b.Id
-						left join trn.Voucher v on v.Id=sl.PayableVoucherId
                         where sl.PayableVoucherId<>'' AND sl.BonusDisbursementVoucherId IS NULL and sl.IsBonusDisbursed=1 
-                        and sl.BonusDisbursementAdviceId='" + disbursementAdviceId + @"'
-                        and spc.DisbusmentAmount!=0 and ISNULL(SH.HeadCategory, '')  in ('Monthly Bonus Retain') )>0
+                        and sl.BonusDisbursementAdviceId='" + disbursementAdviceId + @"' )>0
                         THEN 'InProgress' ELSE 'Close' END WHERE Id='" + disbursementAdviceId + @"'";
                     direct.Append(directsql);
                     _sqlRepository.ExecuteSqlCommand(direct.ToString());
@@ -3029,14 +3003,7 @@ namespace Library.Service.SalaryDisbursement
                               where sl.BonusDisbursementVoucherId='" + voucherId + @"' ";
                 direct.Append(directsql);
                 directsql = @"
-                                update [dbo].[SalaryLock] set BonusDisbursementVoucherId=NULL where Id in (
-                                select sl.Id     from [dbo].[SalaryLock] sl 
-						        left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
-						        left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
-                                left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						        left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-						        left join ORG.Position PO on PO.Id=MPB.PositionId
-                                where spd.PlantId='" + plantId + @"'  and sl.BonusDisbursementVoucherId='" + voucherId + @"' )";
+                                update [dbo].[SalaryLock] set BonusDisbursementVoucherId=NULL where BonusDisbursementVoucherId='" + voucherId + @"' ";
                 direct.Append(directsql);
                 _sqlRepository.ExecuteSqlCommand(direct.ToString());
                 _unitOfWork.SaveChanges();

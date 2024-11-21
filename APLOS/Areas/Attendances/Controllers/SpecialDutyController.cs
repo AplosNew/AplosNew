@@ -185,7 +185,7 @@ LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
 LEFT JOIN HKP.LegalDesignation LD ON E.LegalDesignationId = LD.Id
 LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
 LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
-Where SD.WorkDate between '" + fromDate + @"' AND '" + fromDate + @"' AND SD.IsApproved=1 Group By SD.EmpSystemId
+Where SD.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND SD.IsApproved=1 Group By SD.EmpSystemId
 ,E.EmployeeCode,E.EmployeeName,LD.UserName,DEPT.UserName,DV.UserName,SC.UserName
 ,SS.UserName,FORMAT(E.DOJ,'dd-MMM-yyyy'),EC.UserName,E.EmployeeStatus";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
