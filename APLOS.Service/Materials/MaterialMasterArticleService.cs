@@ -55,11 +55,13 @@ namespace Library.Service.Materials
             {
                 var _sql = @"SELECT MMA.Id, MMA.MaterialMasterId, MMA.Code, MMA.ShortName, MMA.StandardName, MMA.UserName,HC.Code as HSNCode,MMA.HSNCodeId,MMA.RPM,           MMA.MachineAllowance,MMA.StitchCodeId,MMA.MachineMasterId,MM.UserName MachineMaster,MMA.OrderLevel
                             ,MMA.IsMachineApplicable
-							,MMA.IsWorkCenterApplicable,MMA.Active
+							,MMA.IsWorkCenterApplicable,MMA.Active,MMA.ProductionGroupingId,MMA.ProcessSetId, PS.[Description]
 
 		                    FROM MST.MaterialMasterArticle MMA
                            LEFT JOIN [MST].[MachineMaster] MM ON MM.Id=MMA.MachineMasterId
 						   LEFT JOIN [HKP].[HSNCode] HC ON HC.id=MMA.HSNCodeId
+						   LEFT JOIN [HKP].ProductionGrouping PG ON PG.id=MMA.ProductionGroupingId
+						   LEFT JOIN [HKP].ProcessSet PS ON PS.id=MMA.ProcessSetId
                             WHERE MaterialMasterId='" + materialMasterId + "'";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
@@ -329,6 +331,8 @@ namespace Library.Service.Materials
                         art.UserName = item.UserName;
                         art.Active = item.Active;
                         art.HSNCodeId = item.HSNCodeId;
+                        art.ProductionGroupingId = item.ProductionGroupingId;
+                        art.ProcessSetId = item.ProcessSetId;
                         art.UpdatedBy = item.UpdatedBy;
                         art.UpdatedDate = item.UpdatedDate;
                         art.UpdatedFromIP = item.UpdatedFromIP;

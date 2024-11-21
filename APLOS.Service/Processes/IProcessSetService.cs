@@ -17,6 +17,7 @@ namespace Library.Service.Processes
 		GridModel Query(GridParameter parameters, string companyGroupId);
 
         GridModel QueryByCompany(GridParameter parameters, string companyId, string entityId);
+        GridModel GetProcessSetListByCompany(GridParameter parameters, string companyId);
 
         void InsertGraph(ProcessSet entity, IEnumerable<ProcessSetDetail> processSetDetail);
 

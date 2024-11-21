@@ -1,6 +1,6 @@
 ﻿'use strict';
-materialMasterArticleController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService', '$controller'];
-function materialMasterArticleController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService, $controller) {
+materialMasterArticleController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService', '$controller','$window'];
+function materialMasterArticleController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService, $controller, $window) {
     $rootScope.title = "Material Master Article";
     $scope.Action = 'Save';
     $scope.index = -1;
@@ -9,10 +9,21 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
     $scope.path = 'Materials/materialmasterarticle/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
+    $scope.savePGUrl = $scope.path + 'CreateProductionGrouping';
+    $scope.deletePGUrl = $scope.path + 'DeleteProductionGrouping/';
     $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.getSeqUrl = $scope.path + 'GetAutoSequence/';
+
     $scope.partyType = "Party";
     $controller("partyBaseController", { $scope: $scope, $http: $http });
 
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
 
     $scope.model = {
         Id: null
@@ -167,6 +178,8 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         , IsWorkCenterApplicable: false
         , IsMachineApplicable: false
         , OrderLevel: null
+        , ProductionGroupingId: null
+        , ProcessSetId: null
     };
     $scope.articleNew = Object.assign({}, $scope.article);
 
@@ -210,7 +223,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         angular.element(document.querySelector('#articlePoUp')).modal('hide');
         CloseModalShowResult('articlePoUp');
     };
-    $scope.id =null
+    $scope.id = null
     $scope.AddArticle = function () {
         try {
 
@@ -501,6 +514,9 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         $scope.articleNew.IsWorkCenterApplicable = data.IsWorkCenterApplicable;
         $scope.articleNew.IsMachineApplicable = data.IsMachineApplicable;
         $scope.articleNew.OrderLevel = data.OrderLevel;
+        $scope.articleNew.ProductionGroupingId = data.ProductionGroupingId;
+        $scope.articleNew.Description = data.Description;
+        $scope.articleNew.ProcessSetId = data.ProcessSetId;
         if (baseService.isUndefinedOrNull(data.HSNCodeId))
             $scope.articleNew.HSNCodeId = $scope.MaterialHSNCodeId;
         else
@@ -552,6 +568,9 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
             $scope.articleList[$scope.index].UserName = $scope.articleNew.UserName;
             $scope.articleList[$scope.index].HSNCodeId = $scope.articleNew.HSNCodeId;
             $scope.articleList[$scope.index].Active = $scope.articleNew.Active;
+            $scope.articleList[$scope.index].ProductionGroupingId = $scope.articleNew.ProductionGroupingId;
+            $scope.articleList[$scope.index].Description = $scope.articleNew.Description;
+            $scope.articleList[$scope.index].ProcessSetId = $scope.articleNew.ProcessSetId;
 
             for (var i = 0; i < $scope.attributeList.length; i++) {
                 var _invalid = $scope.IsMandatoryButNull($scope.attributeList[i].IsMandatory, $scope.attributeList[i].MaterialAttributeValueFreeText);
@@ -1000,4 +1019,163 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
     }
     $scope.getEnum();
     // #endregion get Define Enum
+
+
+    $scope.processPetParameters = {
+        limit: 10
+        , offset: 0
+        , order: 'asc'
+        , sort: 'Entity,ProcessCategory,ProcessCriteria,Code,Description'
+        , searchBy: "Code"
+        , pageSize: 10
+        , total_count: 0
+        , search: null
+        , serverPagination: true
+    };
+    $scope.processSetPopUp = function () {
+
+        $scope.popUpList = [];
+        $scope.popUpUrl = 'Processes/ProcessSet/GetProcessSetListByCompany';
+        baseService.setCurrentPage('dataList');
+        $scope.processPetParameters.companyId = $window.companyId;
+        $scope.getProcessSetList = function (pageno) {
+            baseService.paginationBase($scope.popUpUrl, pageno, $scope.processPetParameters)
+                .then(function (result) {
+                    $scope.processSetList = result.Rows;
+                    $scope.processPetParameters.total_count = result.Total;
+                    if (baseService.arrayLength($scope.popUpList) === 0) {
+                        baseService.getDDLSearchColumn(result.Rows, $scope.popUpList);
+                    }
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure', 'processSetPopUp');
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector('#processSetPopUp')).modal('show');
+        $scope.getProcessSetList();
+    };
+
+    $scope.selectProcessSet = function (data) {
+        $scope.articleNew.ProcessSet = data.Description;
+        $scope.articleNew.ProcessSetId = data.Id;
+        angular.element(document.querySelector('#processSetPopUp')).modal('hide');
+    };
+
+
+    //#region ProductionGrouping
+    $scope.searchBy = "UserName"; $scope.search = "";
+    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
+    $scope.PGModelList = [];
+
+    $scope.getProductionGroupingData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetPGList",
+            data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.PGModelList = response.data;
+            $scope.GetSequence();
+        });
+    }
+    $scope.getProductionGroupingData();
+
+    $scope.ModelTemp = {
+        Id: null,
+        Sequence: 0,
+        Code: null,
+        ShortName: null,
+        StandardName: null,
+        UserName: null,
+        Description: null,
+        Remarks: null,
+        Active: true
+    };
+    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
+    $scope.GetSequence = function () {
+        cboService.getSequence($scope.getSeqUrl, function (data) {
+            $scope.ModelTemp.Sequence = data;
+            $scope.ModelNew.Sequence = data;
+        });
+    };
+    $scope.GetSequence();
+
+    $scope.GetProductionGrouping = function (args) {
+        $scope.ModelNew = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.SaveProductionGrouping = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.ModelNewForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.savePGUrl,
+                data: { 'data': $scope.ModelNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearPGFields(response.data.Sequence);
+                    $scope.getProductionGroupingData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+    $scope.ProductionGroupingCboList = [];
+    $scope.GetProductionGroupingCbo = function () {
+        $http.get('Materials/materialmasterarticle/GetProductionGroupingCbo')
+            .then(function (response) {
+                $scope.ProductionGroupingCboList = response.data;
+            });
+    };
+    $scope.GetProductionGroupingCbo();
+
+
+    $scope.DeleteProductionGrouping = function () {
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.deletePGUrl + $scope.ModelNew.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearPGFields(response.data.Sequence);
+                    $scope.getProductionGroupingData();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
+    $scope.ClearPG = function () {
+        ClearPGFields($scope.GetSequence());
+        return true;
+    };
+
+    function ClearPGFields(seq) {
+        $scope.Action = 'Save';
+        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+        $scope.ModelNew.Sequence = seq;
+    }
+    //#endregion
+
+
 }

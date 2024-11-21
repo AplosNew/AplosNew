@@ -135,6 +135,10 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colSalesOrderStatus = COL;
                 COL++;
+                sheet[ROW, COL].Text = "Customer PO";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colCustomerPO = COL;
+                COL++;
                 sheet[ROW, COL].Text = "Production Order Id";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int colProductionOrderId = COL;
@@ -318,6 +322,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     sheet[ROW, colSalesOrderStatus].Text = dtOrder.Rows[i]["SalseOrderStatus"].ToString();
                     sheet[ROW, colProductionOrderId].Text = dtOrder.Rows[i]["ProductionOrderID"].ToString();
                     sheet[ROW, colProductionStatus].Text = dtOrder.Rows[i]["ProductionStatus"].ToString();
+                    sheet[ROW, colCustomerPO].Text = dtOrder.Rows[i]["PONumber"].ToString();
                     sheet[ROW, colLSD].Text = dtOrder.Rows[i]["SOLSD"].ToString();
                     sheet[ROW, colMainrawMaterialDate].Text = dtOrder.Rows[i]["SOMainRawMaterialInhouseDate"].ToString();
                     sheet[ROW, colOtherRawMaterialDate].Text = dtOrder.Rows[i]["SOOtherRawMaterialInhouseDate"].ToString();
@@ -458,6 +463,10 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 sheet[ROW, COL].ColumnWidth = 16;
                  colSalesOrderStatus = COL;
                 COL++;
+                sheet[ROW, COL].Text = "Customer PO";
+                sheet[ROW, COL].ColumnWidth = 12;
+                 colCustomerPO = COL;
+                COL++;
                 sheet[ROW, COL].Text = "Production Order Id";
                 sheet[ROW, COL].ColumnWidth = 12;
                  colProductionOrderId = COL;
@@ -583,7 +592,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     sheet[ROW, colCommitmentDate].Text = dtOrder.Rows[i]["CommitmentDate"].ToString();
                     sheet[ROW, colBuyerRefNo].Text = dtOrder.Rows[i]["BuyerReferenceNo"].ToString();
                     sheet[ROW, colArticle].Text = dtOrder.Rows[i]["Article"].ToString();
-
+                    sheet[ROW, colCustomerPO].Text = dtOrder.Rows[i]["PONumber"].ToString();
                     sheet[ROW, colDeliveryDate].Text = dtOrder.Rows[i]["DeliveryDate"].ToString();
                     sheet[ROW, colPlanExFactoryDate].Text = dtOrder.Rows[i]["PlanExFactoryDate"].ToString();
                     sheet[ROW, colSalesOrderId].Text = dtOrder.Rows[i]["SalesOrderId"].ToString();
@@ -688,6 +697,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 pivotTable.Fields[colPlanExFactoryDate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colSalesOrderId - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colSalesOrderStatus - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colCustomerPO - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colProductionOrderId - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colProductionStatus - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colProductionStartDate - 1].Axis = PivotAxisTypes.Row;
@@ -756,7 +766,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 for (int i = 0; i < pivotTable.Fields.Count; i++)
                 {
                     if (i == colPlant - 1 || i == colEntity - 1 || i == colResponsiblePerson - 1 || i == colCustomer - 1 || i == colBuyer - 1|| i == colCommitmentDate - 1 || i == colBuyerRefNo - 1 || i == colArticle - 1 || i == colDeliveryDate - 1 || i == colPlanExFactoryDate - 1
-                        || i == colRate - 1 || i == colSalesOrderStatus - 1 || i == colProductionOrderId - 1 || i == colProductionStatus - 1 || i == colProductionStartDate - 1 || i == colProductionOrderCategory - 1 || i == colCM - 1 || i == colSOQty - 1 || i == colPlan - 1 || i == colToPlan - 1)
+                        || i == colRate - 1 || i == colSalesOrderStatus - 1 || i == colProductionOrderId - 1 || i == colProductionStatus - 1 || i == colProductionStartDate - 1 || i == colProductionOrderCategory - 1 || i == colCM - 1 || i == colSOQty - 1 || i == colPlan - 1 || i == colToPlan - 1||i==colCustomerPO)
                     pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
                 }
 
