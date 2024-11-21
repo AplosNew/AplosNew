@@ -11180,7 +11180,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                             ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,0 IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
                             ,[Percentage]= case when v.SourceType='CustomerInvoice' then taxc.ValueOfFixed else 0 end,NULL HSNCodeId,NULL Material
 							,TaxPercentage= case when v.SourceType='CustomerInvoice' then taxc.ValueOfFixed else 0 end
-												 ,TA.UserName ActivityName,NULL InventoryReceiveDetailId,NULL InventoryServiceId
+												 ,TA.UserName ActivityName,NULL InventoryReceiveDetailId,NULL InventoryServiceId,EN.UserName Entity
                             from TRN.InvoiceTax IT
                             left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Cr'
                             LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
@@ -11189,6 +11189,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                             LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
 							Left join hkp.PartyPlant PP on PP.Id=IT.PartyPlantId
                             LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
+                            LEFT JOIN ORG.Entity EN ON EN.Id=V.EntityId
                             LEFT JOIN( select TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC
                             LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
                             LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @")) TAXC ON TAXC.Id=IT.TaxCodeId
@@ -11220,7 +11221,8 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                             ,IRT.[Percentage],NULL HSNCodeId,null Material
 							,TaxPercentage= case  when v.SourceType='InventorySales' AND IRT.[Percentage]>0 THEN IRT.[Percentage]
 												 else 0 end
-												 ,TA.UserName ActivityName,IRT.InventoryReceiveDetailId,IRT.InventorySalesServiceId
+												 ,TA.UserName ActivityName,IRT.InventoryReceiveDetailId
+                            ,IRT.InventorySalesServiceId,EN.UserName Entity
                             from TRN.InvoiceTax IT
                             left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Cr'
                             LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
@@ -11228,7 +11230,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                             --LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IT.InvoiceWriteOffId
                             LEFT JOIN HKP.Activity TA ON TA.Id=ITD.ActivityId
                             LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
-							
+							LEFT JOIN ORG.Entity EN ON EN.Id=V.EntityId
                             LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
                             LEFT JOIN( select TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC
                             LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
@@ -11266,7 +11268,8 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                             ,IRT.[Percentage],NULL HSNCodeId,null Material
 							,TaxPercentage= case  when v.SourceType='Sales' AND IRT.[Percentage]>0 THEN IRT.[Percentage]
 												 else 0 end
-												 ,TA.UserName ActivityName,IRT.SalesMaterialId InventoryReceiveDetailId,IRT.SalesServiceId InventorySalesServiceId
+												 ,TA.UserName ActivityName,IRT.SalesMaterialId InventoryReceiveDetailId
+                            ,IRT.SalesServiceId InventorySalesServiceId,EN.UserName Entity
                             from TRN.InvoiceTax IT
                             left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Cr'
                             LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
@@ -11274,7 +11277,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                             --LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IT.InvoiceWriteOffId
                             LEFT JOIN HKP.Activity TA ON TA.Id=ITD.ActivityId
                             LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
-							
+							LEFT JOIN ORG.Entity EN ON EN.Id=V.EntityId
                             LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
                             LEFT JOIN( select TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC
                             LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
@@ -11312,7 +11315,8 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                             ,IRT.[Percentage],NULL HSNCodeId,null Material
 							,TaxPercentage= case  when v.SourceType='Sales' AND IRT.[Percentage]>0 THEN IRT.[Percentage]
 												 else 0 end
-												 ,TA.UserName ActivityName,IRT.SalesMaterialId InventoryReceiveDetailId,IRT.SalesServiceId InventorySalesServiceId
+												 ,TA.UserName ActivityName,IRT.SalesMaterialId InventoryReceiveDetailId
+                            ,IRT.SalesServiceId InventorySalesServiceId,EN.UserName Entity
                             from TRN.InvoiceTax IT
                             left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Cr'
                             LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
@@ -11320,7 +11324,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                             --LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IT.InvoiceWriteOffId
                             LEFT JOIN HKP.Activity TA ON TA.Id=ITD.ActivityId
                             LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
-							
+							LEFT JOIN ORG.Entity EN ON EN.Id=V.EntityId
                             LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
                             LEFT JOIN( select TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC
                             LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
