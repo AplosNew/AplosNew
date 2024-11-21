@@ -315,6 +315,35 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         angular.element(document.querySelector('#itemPopUp')).modal('show');
     };
 
+    // #region checkbox all
+
+    $scope.refreshItemListTemplate = function (args) {
+        $("#headchkIL").ejCheckBox({ "change": CheckBoxSelectAllData });
+    };
+
+    function CheckBoxSelectAllData(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#Griditem").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.itemList.length; i++) {
+                $scope.itemList[i].Active = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#Griditem").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    // #endregion checkbox all
+
     $scope.closeItemPopUp = function () {
         angular.element(document.querySelector('#itemPopUp')).modal('hide');
     };
