@@ -10,6 +10,7 @@ using Library.Service.Extension.Accounts;
 using Library.Service.Vouchers;
 using Library.ViewModel.Vouchers;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Web.Mvc;
@@ -65,6 +66,22 @@ namespace Aplos.Areas.Accounts.Controllers
             AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
             var voucher = _voucherService.FindVoucher(voucherDetailVMList.FirstOrDefault().VoucherId);
             _accountsCommonService.CheckingFiscalYearClose(voucher);
+
+            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+            foreach (var voucherDetailVM in voucherDetailVMList)
+            {
+                if (voucherDetailVM.DrAmount > 0)
+                {
+                    DataSet dsCapitalizationMaster = null;
+                    string capitalizationMastersql = @"SELECT * FROM [TRN].[CapitalizationMasterDetail] where VoucherDetailId = '" + voucherDetailVM.Id + "' ";
+                    con.OpenDataSetThroughAdapter(capitalizationMastersql, out dsCapitalizationMaster, false, "1");
+                    if (dsCapitalizationMaster.Tables[0].Rows.Count > 0)
+                    {
+                        throw new CustomException("Voucher GL update not allowed, Voucher No. '" + voucher.VoucherNo + "'  Activity: '" + voucherDetailVM.ActivityName + "' already Capitalized!");
+                    }
+                }
+            }
+
             accountsCommonService.UpdateVoucherGl(voucherDetailVMList);
 
             return Json(new { Message = AplosMessage.Updated });
