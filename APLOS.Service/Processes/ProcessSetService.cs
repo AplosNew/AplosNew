@@ -119,6 +119,30 @@ namespace Library.Service.Processes
             }
         }
 
+
+        public GridModel GetProcessSetListByCompany(GridParameter parameters, string companyId)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT PS.Id, PS.CompanyGroupId, PS.CompanyId, PS.EntityId, E.UserName AS Entity
+										, PS.ProcessCategoryId, PCAT.UserName AS ProcessCategory
+										, PS.ProcessCriteriaId, PCRI.UserName AS ProcessCriteria
+										, PS.Code, PS.[Description]
+										, PS.RequiredTimeUnit
+								FROM [HKP].[ProcessSet] AS PS
+								LEFT OUTER JOIN [ORG].[Entity] AS E ON PS.EntityId=E.Id
+								LEFT OUTER JOIN [HKP].[ProcessCategory] AS PCAT ON PS.ProcessCategoryId=PCAT.Id
+								LEFT OUTER JOIN [HKP].[ProcessCriteria] AS PCRI ON PS.ProcessCriteriaId=PCRI.Id
+								WHERE PS.CompanyId='" + companyId + "'";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Process.ToString()));
+            }
+        }
         private string GetPK()
         {
             return GetAutoNumber(nameof(ProcessSet), PKGeneratorEnum.Yearly, null, DateTime.Now);

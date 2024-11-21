@@ -64,6 +64,12 @@ namespace Aplos.Areas.Processes.Controllers
         {
             return Json(_processSetService.QueryByCompany(parameters, companyId, entityId), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet, Authorize]
+        public JsonResult GetProcessSetListByCompany(GridParameter parameters, string companyId)
+        {
+            return Json(_processSetService.GetProcessSetListByCompany(parameters, companyId), JsonRequestBehavior.AllowGet);
+        }
         /// <summary>
         /// Get Process set detail by process set id.
         /// </summary>

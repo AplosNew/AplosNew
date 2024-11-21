@@ -159,10 +159,19 @@
                 </div>
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Active</label>
-                    <div class="col-sm-8">
+                    <div class="col-sm-3">
                         <div class="checkbox-site">
                             <label>
                                 <input type="checkbox" ng-model="ModelNew.Active" tabindex="8">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                    <label class="col-sm-2 control-label">IsDefault</label>
+                    <div class="col-sm-3">
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="ModelNew.IsDefault" tabindex="8">
                                 <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                             </label>
                         </div>
@@ -384,7 +393,7 @@
                                 <label class="col-sm-4 control-label">Process Set<sup>*</sup></label>
                                 <div class="col-sm-8">
                                     <div class="input-group">
-                                        <input type="text" name="Process Set" ng-model="articleNew.ProcessSet" class="form-control" readonly>
+                                        <input type="text" name="Process Set" ng-model="articleNew.Description" class="form-control" readonly>
                                         <span class="input-group-btn">
                                             <button ng-click="processSetPopUp();" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
                                         </span>
