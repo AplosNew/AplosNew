@@ -8,6 +8,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
+    $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
     $scope.Action = 'Save';
     $scope.searchBy = "UserName"; $scope.searchBySO = "MasterOrderId"; $scope.searchSO = ''; $scope.search = "";
 
@@ -19,6 +20,19 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     $scope.CostingSummaryDataMain = { BuyerTotal: 0, QuickCostingValue: 0, OrderCostingValue: 0, ProcurementCostingValue: 0, ProfitQuickCosting: 0, ProfitOrderCosting: 0, ProfitProcurementCosting: 0 };
     $scope.CostingSummaryDataNew = Object.assign({}, $scope.CostingSummaryDataMain);
 
+    $scope.getArticlePopUp = function () {
+        $scope.getMaterialMasterWithArticle(null);
+    }
+    $scope.setInputeMaterialArticleData = function (ob) {
+        try {
+            $scope.ModelNew.ArticleId = ob.data.Id;
+            $scope.ModelNew.Article = ob.data.StandardName;
+            angular.element(document.querySelector('#materialarticleNewPopUp')).modal('hide');
+
+        } catch (e) {
+            ShowResult(e, '', 'articleSearchPop');
+        }
+    };
     $scope.CostingStage = '';
     $scope.tranCurrencyList = [];
     cboService.getCboTransactionCurrencyByCompany("", function (result) {
