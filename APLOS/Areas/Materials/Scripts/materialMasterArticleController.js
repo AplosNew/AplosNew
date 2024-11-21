@@ -1,6 +1,6 @@
 ﻿'use strict';
-materialMasterArticleController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService', '$controller'];
-function materialMasterArticleController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService, $controller) {
+materialMasterArticleController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService', '$controller','$window'];
+function materialMasterArticleController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService, $controller, $window) {
     $rootScope.title = "Material Master Article";
     $scope.Action = 'Save';
     $scope.index = -1;
@@ -514,6 +514,9 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         $scope.articleNew.IsWorkCenterApplicable = data.IsWorkCenterApplicable;
         $scope.articleNew.IsMachineApplicable = data.IsMachineApplicable;
         $scope.articleNew.OrderLevel = data.OrderLevel;
+        $scope.articleNew.ProductionGroupingId = data.ProductionGroupingId;
+        $scope.articleNew.Description = data.Description;
+        $scope.articleNew.ProcessSetId = data.ProcessSetId;
         if (baseService.isUndefinedOrNull(data.HSNCodeId))
             $scope.articleNew.HSNCodeId = $scope.MaterialHSNCodeId;
         else
@@ -566,7 +569,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
             $scope.articleList[$scope.index].HSNCodeId = $scope.articleNew.HSNCodeId;
             $scope.articleList[$scope.index].Active = $scope.articleNew.Active;
             $scope.articleList[$scope.index].ProductionGroupingId = $scope.articleNew.ProductionGroupingId;
-            $scope.articleList[$scope.index].ProcessSet = $scope.articleNew.ProcessSet;
+            $scope.articleList[$scope.index].Description = $scope.articleNew.Description;
             $scope.articleList[$scope.index].ProcessSetId = $scope.articleNew.ProcessSetId;
 
             for (var i = 0; i < $scope.attributeList.length; i++) {
@@ -1032,10 +1035,9 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
     $scope.processSetPopUp = function () {
 
         $scope.popUpList = [];
-        $scope.popUpUrl = 'Processes/ProcessSet/GetListByCompany';
+        $scope.popUpUrl = 'Processes/ProcessSet/GetProcessSetListByCompany';
         baseService.setCurrentPage('dataList');
         $scope.processPetParameters.companyId = $window.companyId;
-        $scope.processPetParameters.entityId = $scope.model.EntityId;
         $scope.getProcessSetList = function (pageno) {
             baseService.paginationBase($scope.popUpUrl, pageno, $scope.processPetParameters)
                 .then(function (result) {
@@ -1054,7 +1056,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
     };
 
     $scope.selectProcessSet = function (data) {
-        $scope.articleNew.ProcessSet = data.UserName;
+        $scope.articleNew.ProcessSet = data.Description;
         $scope.articleNew.ProcessSetId = data.Id;
         angular.element(document.querySelector('#processSetPopUp')).modal('hide');
     };
