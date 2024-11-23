@@ -1094,6 +1094,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             $scope.itemList[$scope.itemIndex].MaterialMasterId = ob.data.MaterialMasterId;
             $scope.itemList[$scope.itemIndex].MaterialMasterName = ob.data.MaterialMasterName;
             $scope.itemList[$scope.itemIndex].ArticleId = ob.data.Id;
+            $scope.itemList[$scope.itemIndex].IsDefault = ob.data.IsDefault;
+            $scope.itemList[$scope.itemIndex].ProductionGrouping = ob.data.ProductionGrouping;
             $scope.ArticleId = ob.data.Id;
             $scope.itemList[$scope.itemIndex].ArticleName = ob.data.StandardName;
             angular.element(document.querySelector('#materialarticleNewPopUp')).modal('hide');

@@ -30,8 +30,8 @@
                 <div class="col-xs-12 col-sm-12 col-md-10">
                     <h3 class="site-heading">
                         <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>  Product Information
-                    </h3> 
-                    <div class="row"> 
+                    </h3>
+                    <div class="row">
                         <div class="col-sm-2 ">
                             Product Master
                             <div class="select-style">
@@ -53,19 +53,19 @@
                             Cost.Type
                             <input type="text" name="User Name"
                                    disabled ng-model="ModelNew.CostingTypeName" class="form-control">
-                        </div> 
+                        </div>
                         <div class="col-sm-2">
                             Costing Id
                             <input type="text" name="Id" readonly ng-model="ModelNew.Id" class="form-control">
-                        </div> 
+                        </div>
                         <div class="col-sm-2">
                             Costing Stage
                             <div class="select-style">
                                 <select ng-disabled="true" class="form-control" ng-model="ModelNew.CostingStage"
                                         name="ProductMasterId" ng-options="item.value as item.name for item in CostingStageList">
                                 </select>
-                            </div> 
-                        </div> 
+                            </div>
+                        </div>
                     </div>
                     <h3 class="site-heading"></h3>
                     <div class="row">
@@ -167,802 +167,779 @@
                                                         <option value="SPT">SPT</option>
                                                         <option value="TARGET">Tgt/Hr</option>
                                                     </select>
-                                                </div> 
-                                            </div> 
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="col-xs-12 col-sm-2 col-md-2" style="padding-left:20px!important">
-                                            @*Std Cost for WC / day<sup>*</sup>*@
-                                        </div>
-                                        <div class="col-xs-12 col-sm-2 col-md-2">
-
-                                        </div>
-                                        <div class="col-xs-12 col-sm-2 col-md-2" style="padding-left:20px!important">
-                                            Direct Approval
+                                            <div class="form-group">
+                                                <label class="control-label">Article<sup>*</sup></label>
+                                            </div>
                                         </div>
                                         <div class="col-xs-12 col-sm-2 col-md-2">
                                             <div class="form-group">
-
-                                                <div class="">
-                                                    <div class="checkbox-site">
-                                                        <label>
-                                                            <input type="checkbox" ng-model="ModelNew.isDirectApproval">
-                                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                        </label>
-                                                    </div>
+                                                <div class="input-group">
+                                                    <input type="text" name="Article" ng-model="ModelNew.Article" class="form-control" readonly>
+                                                    <span class="input-group-btn">
+                                                        <button ng-click="getArticlePopUp();" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="width:100%;text-align:left;">
-
-                                        <div class="col-xs-12 col-sm-2 col-md-2">
-                                            SPT<sup>*</sup>
-                                        </div>
-                                        <div class="col-xs-12 col-sm-2 col-md-2">
-                                            <div class="form-group" show-errors>
-
-                                                <div class=" show-message">
-                                                    <input type="text" name="SPT" ng-disabled="ModelNew.TargetOrSPT!='SPT'" ng-change="calculateSPT();" ng-model="ModelNew.SPT" class="form-control" autocomplete="off" required maxlength="10">
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-xs-12 col-sm-2 col-md-2" style="padding-left:20px!important">
-                                            Target / Hour<sup>*</sup>
-                                        </div>
-                                        <div class="col-xs-12 col-sm-2 col-md-2">
-                                            <div class="form-group" show-errors>
-
-                                                <div class=" show-message">
-                                                    <input type="text" name="Target / Hour" ng-disabled="ModelNew.TargetOrSPT=='SPT'" ng-change="calculateSPT();" ng-model="ModelNew.MKTTargetPerHour" class="form-control" autocomplete="off" required maxlength="10">
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-xs-12 col-sm-2 col-md-2" style="padding-left:20px!important">
-                                            No Of WS<sup>*</sup>
-                                        </div>
-                                        <div class="col-xs-12 col-sm-2 col-md-2">
-                                            <div class="form-group" show-errors>
-
-                                                <div class=" show-message">
-                                                    <input type="text" name="No Of WS" ng-change="calculateSPT();" ng-model="ModelNew.NoOfWorkstation" class="form-control" autocomplete="off" required maxlength="10">
-                                                </div>
-                                            </div>
-                                        </div> 
-                                    </td> 
-                                </tr>
-                                <tr>
-                                    <td style="width:100%;text-align:left;">
-                                        <div class="col-xs-12 col-sm-2 col-md-2">
-                                            Standard/Plan Hours<sup>*</sup>
-                                        </div>
-                                        <div class="col-xs-12 col-sm-2 col-md-2">
-                                            <div class="col-xs-12 col-sm-6 col-md-6">
-                                                <div class="form-group" show-errors>
-
-                                                    <div class=" show-message">
-                                                        <input type="text" ng-disabled="true" name="Std. Work. Hours" ng-change="calculateSPT();" ng-model="ModelNew.StandardWorkingHoursForProduct" class="form-control" autocomplete="off" required maxlength="10">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-6">
-                                                <div class="form-group" show-errors>
-
-                                                    <div class=" show-message">
-                                                        <input type="text" name="Std. Work. Hours" ng-change="calculateSPT();" ng-model="ModelNew.StandardWorkingHours" class="form-control" autocomplete="off" required maxlength="10">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-xs-12 col-sm-2 col-md-2" style="padding-left:20px!important">
-                                            Efficiency %<sup>*</sup>
-                                        </div>
-                                        <div class="col-xs-12 col-sm-2 col-md-2">
-                                            <div class="form-group" show-errors>
-
-                                                <div class=" show-message">
-                                                    <input type="text" name="Efficiency %" ng-change="calculateSPT();" ng-model="ModelNew.EfficiencyPercentage" class="form-control" autocomplete="off" required maxlength="10">
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-xs-12 col-sm-2 col-md-2" style="padding-left:20px!important">
-                                            WC Target / Day
-                                        </div>
-                                        <div class="col-xs-12 col-sm-2 col-md-2">
-                                            <div class="form-group" show-errors>
-
-                                                <div class=" show-message">
-                                                    <input type="text" ng-disabled="true" name="WC Target / Day" ng-model="ModelNew.WorkCenterTargetPerDay" class="form-control" autocomplete="off" required maxlength="10">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
                         </div>
-                    </div>
+                        <div class="col-xs-12 col-sm-2 col-md-2" style="padding-left:20px!important">
+                            Direct Approval
+                        </div>
+                        <div class="col-xs-12 col-sm-2 col-md-2">
+                            <div class="form-group">
 
-                    <div style="padding:6px"></div>
-                </div>
-
-                <div class="col-xs-12 col-sm-12 col-md-2">
-                    <table>
+                                <div class="">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="ModelNew.isDirectApproval">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        </td>
+                        </tr>
                         <tr>
-                            <td style="width:100%;"></td>
-                            <td class="text-right" style="width:120px;">
-                                <div>
-                                    <img id="uploadImageSrc" ng-src="{{imageSrc}}" style="border: 1px solid; height: 150px; width: 140px;" />
+                            <td style="width:100%;text-align:left;">
+
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    SPT<sup>*</sup>
                                 </div>
-                                <div class="row text-center">
-                                    <label class="fileUpload">
-                                        <input id="uploadImage" ng-file-select="onFileSelect($files)" style="width:250px;" type="file" name="uploadFile" class="upload" accept=".png,.jpg" />
-                                        <span class="uploadBtn"><i class="fa fa-paperclip" aria-hidden="true"> Upload Image</i></span>
-                                    </label>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <div class="form-group" show-errors>
+
+                                        <div class=" show-message">
+                                            <input type="text" name="SPT" ng-disabled="ModelNew.TargetOrSPT!='SPT'" ng-change="calculateSPT();" ng-model="ModelNew.SPT" class="form-control" autocomplete="off" required maxlength="10">
+                                        </div>
+                                    </div>
                                 </div>
-                                <i>Max. 2MB, File name less than 50 char.</i>
+
+                                <div class="col-xs-12 col-sm-2 col-md-2" style="padding-left:20px!important">
+                                    Target / Hour<sup>*</sup>
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <div class="form-group" show-errors>
+
+                                        <div class=" show-message">
+                                            <input type="text" name="Target / Hour" ng-disabled="ModelNew.TargetOrSPT=='SPT'" ng-change="calculateSPT();" ng-model="ModelNew.MKTTargetPerHour" class="form-control" autocomplete="off" required maxlength="10">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-12 col-sm-2 col-md-2" style="padding-left:20px!important">
+                                    No Of WS<sup>*</sup>
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <div class="form-group" show-errors>
+
+                                        <div class=" show-message">
+                                            <input type="text" name="No Of WS" ng-change="calculateSPT();" ng-model="ModelNew.NoOfWorkstation" class="form-control" autocomplete="off" required maxlength="10">
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
-                    </table>
+                        <tr>
+                            <td style="width:100%;text-align:left;">
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    Standard/Plan Hours<sup>*</sup>
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group" show-errors>
 
+                                            <div class=" show-message">
+                                                <input type="text" ng-disabled="true" name="Std. Work. Hours" ng-change="calculateSPT();" ng-model="ModelNew.StandardWorkingHoursForProduct" class="form-control" autocomplete="off" required maxlength="10">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group" show-errors>
+
+                                            <div class=" show-message">
+                                                <input type="text" name="Std. Work. Hours" ng-change="calculateSPT();" ng-model="ModelNew.StandardWorkingHours" class="form-control" autocomplete="off" required maxlength="10">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-12 col-sm-2 col-md-2" style="padding-left:20px!important">
+                                    Efficiency %<sup>*</sup>
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <div class="form-group" show-errors>
+
+                                        <div class=" show-message">
+                                            <input type="text" name="Efficiency %" ng-change="calculateSPT();" ng-model="ModelNew.EfficiencyPercentage" class="form-control" autocomplete="off" required maxlength="10">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-12 col-sm-2 col-md-2" style="padding-left:20px!important">
+                                    WC Target / Day
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <div class="form-group" show-errors>
+
+                                        <div class=" show-message">
+                                            <input type="text" ng-disabled="true" name="WC Target / Day" ng-model="ModelNew.WorkCenterTargetPerDay" class="form-control" autocomplete="off" required maxlength="10">
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        </table>
+                    </div>
                 </div>
-                <div class="col-xs-12 col-sm-7 col-md-7">
-                    <div class="tab-design">
-                        <div class="row site-tab">
-                            <ul class="nav nav-tabs" role="tablist">
-                                <li role="presentation" ng-class="{ active: 1 }"><a ng-click="" href="" aria-controls="general" role="tab" data-toggle="tab">General Information</a></li>
 
-                            </ul>
-                        </div>
+                <div style="padding:6px"></div>
+            </div>
 
-                        <div class="tab-content" style="border:none;padding:0px;">
-                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':1, active: 1 }">
-                                <div class="col-xs-12">
-                                    <table>
-                                        <tr>
-                                            <td style="width:50%;text-align:left;">
-                                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    Prd. Avl. Days
-                                                </div>
-                                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    <div class="form-group">
+            <div class="col-xs-12 col-sm-12 col-md-2">
+                <table>
+                    <tr>
+                        <td style="width:100%;"></td>
+                        <td class="text-right" style="width:120px;">
+                            <div>
+                                <img id="uploadImageSrc" ng-src="{{imageSrc}}" style="border: 1px solid; height: 150px; width: 140px;" />
+                            </div>
+                            <div class="row text-center">
+                                <label class="fileUpload">
+                                    <input id="uploadImage" ng-file-select="onFileSelect($files)" style="width:250px;" type="file" name="uploadFile" class="upload" accept=".png,.jpg" />
+                                    <span class="uploadBtn"><i class="fa fa-paperclip" aria-hidden="true"> Upload Image</i></span>
+                                </label>
+                            </div>
+                            <i>Max. 2MB, File name less than 50 char.</i>
+                        </td>
+                    </tr>
+                </table>
 
-                                                        <div class="">
-                                                            <input type="number" name="ProductionAvailableDays" autocomplete="off" ng-model="ModelNew.ProductionAvailableDays" class="form-control">
-                                                        </div>
+            </div>
+            <div class="col-xs-12 col-sm-7 col-md-7">
+                <div class="tab-design">
+                    <div class="row site-tab">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" ng-class="{ active: 1 }"><a ng-click="" href="" aria-controls="general" role="tab" data-toggle="tab">General Information</a></li>
+
+                        </ul>
+                    </div>
+
+                    <div class="tab-content" style="border:none;padding:0px;">
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':1, active: 1 }">
+                            <div class="col-xs-12">
+                                <table>
+                                    <tr>
+                                        <td style="width:50%;text-align:left;">
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                Prd. Avl. Days
+                                            </div>
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                <div class="form-group">
+
+                                                    <div class="">
+                                                        <input type="number" name="ProductionAvailableDays" autocomplete="off" ng-model="ModelNew.ProductionAvailableDays" class="form-control">
                                                     </div>
                                                 </div>
+                                            </div>
 
-                                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    Excess%
-                                                </div>
-                                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    <div class="form-group">
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                Excess%
+                                            </div>
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                <div class="form-group">
 
-                                                        <div class="">
-                                                            <input type="text" name="ExcessShipmentPer" autocomplete="off" n-decimals="2" ng-model="ModelNew.ExcessShipmentPer" class="form-control text-right">
-                                                        </div>
+                                                    <div class="">
+                                                        <input type="text" name="ExcessShipmentPer" autocomplete="off" n-decimals="2" ng-model="ModelNew.ExcessShipmentPer" class="form-control text-right">
                                                     </div>
                                                 </div>
-                                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    Critical Level<sup>*</sup>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                Critical Level<sup>*</sup>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                <div class="form-group show-message" show-errors>
+                                                    <div class="select-style">
+                                                        <select class="form-control" name="Critical Level" ng-model="ModelNew.CriticalLevel" required>
+                                                            <option value="Basic">Basic</option>
+                                                            <option value="SemiCritical">Semi Critical</option>
+                                                            <option value="Critical">Critical</option>
+                                                            <option value="HighlyCritical">Highly Critical</option>
+                                                        </select>
+                                                    </div>
                                                 </div>
-                                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    <div class="form-group show-message" show-errors>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                Packing Type
+                                            </div>
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                <div class="form-group">
+
+                                                    <div class="">
                                                         <div class="select-style">
-                                                            <select class="form-control" name="Critical Level" ng-model="ModelNew.CriticalLevel" required>
-                                                                <option value="Basic">Basic</option>
-                                                                <option value="SemiCritical">Semi Critical</option>
-                                                                <option value="Critical">Critical</option>
-                                                                <option value="HighlyCritical">Highly Critical</option>
+                                                            <select class="form-control" ng-model="ModelNew.PackingType" name="PackingType" ng-options="item.Value as item.Text for item in PackingTypeList ">
+                                                                <option value=""></option>
                                                             </select>
                                                         </div>
                                                     </div>
-                                                </div> 
-                                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    Packing Type
                                                 </div>
-                                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    <div class="form-group">
+                                            </div>
 
-                                                        <div class="">
-                                                            <div class="select-style">
-                                                                <select class="form-control" ng-model="ModelNew.PackingType" name="PackingType" ng-options="item.Value as item.Text for item in PackingTypeList ">
-                                                                    <option value=""></option>
-                                                                </select>
-                                                            </div>
-                                                        </div>
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                Tgt Sel. Price<sup>*</sup>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                <div class="form-group" show-errors>
+
+                                                    <div class=" show-message">
+                                                        <input type="text" ng-change="CalculateProfit();SumNetProfitOfSelling();" name="Target Selling Price" autocomplete="off" n-decimals="2" ng-model="ModelNew.TargetSellingPrice" class="form-control text-right" required>
                                                     </div>
                                                 </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                Specific To<sup>*</sup>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                <div class="form-group" show-errors>
 
+                                                    <div class=" show-message">
+                                                        <div class="select-style">
+                                                            <select class="form-control" ng-change="CheckeSpecifyTo()" ng-model="ModelNew.SpecifyTo" name="SpecifyTo" ng-options="item.Value as item.Text for item in SpecifyToList " required>
+                                                                <option value=""></option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xs-12" ng-show="IsCustomer">
                                                 <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    Tgt Sel. Price<sup>*</sup>
+                                                    Customer<sup>*</sup>
                                                 </div>
                                                 <div class="col-xs-12 col-sm-6 col-md-6">
                                                     <div class="form-group" show-errors>
 
-                                                        <div class=" show-message">
-                                                            <input type="text" ng-change="CalculateProfit();SumNetProfitOfSelling();" name="Target Selling Price" autocomplete="off" n-decimals="2" ng-model="ModelNew.TargetSellingPrice" class="form-control text-right" required>
-                                                        </div>
-                                                    </div> 
-                                                </div> 
-                                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    Specific To<sup>*</sup>
-                                                </div>
-                                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    <div class="form-group" show-errors>
-
-                                                        <div class=" show-message">
-                                                            <div class="select-style">
-                                                                <select class="form-control" ng-change="CheckeSpecifyTo()" ng-model="ModelNew.SpecifyTo" name="SpecifyTo" ng-options="item.Value as item.Text for item in SpecifyToList " required>
-                                                                    <option value=""></option>
-                                                                </select>
-                                                            </div>
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-xs-12" ng-show="IsCustomer">
-                                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                                        Customer<sup>*</sup>
-                                                    </div>
-                                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                                        <div class="form-group" show-errors>
-
-                                                            <div class=" col-md-12 show-message">
-                                                                <div class="input-group">
-                                                                    <input type="text" name="Customer" ng-model="ModelNew.Customer" autocomplete="off" class="form-control" readonly>
-                                                                    <span class="input-group-btn">
-                                                                        <button ng-click="showPartyPopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                                                        <button class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                                                    </span>
-                                                                </div>
+                                                        <div class=" col-md-12 show-message">
+                                                            <div class="input-group">
+                                                                <input type="text" name="Customer" ng-model="ModelNew.Customer" autocomplete="off" class="form-control" readonly>
+                                                                <span class="input-group-btn">
+                                                                    <button ng-click="showPartyPopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                                    <button class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                                </span>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    UOM
-                                                </div>
-                                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    <div class="form-group" show-errors>
-                                                        <div class="show-message">
-                                                            <div class="select-style">
-                                                                <select class="form-control" ng-change="CheckeSpecifyTo()" ng-model="ModelNew.UOM" name="UOM" ng-options="item.Value as item.Text for item in ProductUOM " required>
-                                                                    <option value=""></option>
-                                                                </select>
-                                                                @*<select id="CurrencyId" class="form-control" name="Currency" ng-model="ModelNew.UOM" required>
-                                                                        <option value="">--Select--</option>
-                                                                        <option ng-repeat="option in ProductUOM" value="{{option.Value}}">{{option.Text}}</option>
-                                                                    </select>*@
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                @*<div class="col-xs-12 col-sm-6 col-md-6">
-                                                        Is Approval Applicable
-                                                    </div>
-                                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                                        <div class="col-md-2">
-                                                            <div class="form-group">
-                                                                <div class="checkbox-site">
-                                                                    <label>
-                                                                        <input type="checkbox" ng-model="ModelNew.IsApprovalApplicable" tabindex="8" ng-change="checkApprovalApplicable();">
-                                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                                    </label>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-10">
-                                                            <div class="form-group">
-                                                                <div class="select-style">
-                                                                    <select class="form-control" ng-disabled="ModelNew.IsApprovalApplicable===false" ng-model="ModelNew.ApproveByWhomId" name="ApproveBy Whom" ng-options="item.Value as item.Text for item in approveByWhomList">
-                                                                        <option value=""></option>
-                                                                    </select>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                    </div>*@
-                                            </td>
-                                            <td style="width:50%;text-align:left;padding-left:30px!important;">
-                                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    Payment Days
-                                                </div>
-                                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    <div class="form-group">
-
-                                                        <div class="">
-                                                            <input type="text" name="PaymentDays" autocomplete="off" n-decimals="2" ng-model="ModelNew.PaymentDays" min="1" class="form-control text-right">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    Order Size<sup>*</sup>
-                                                </div>
-                                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    <div class="form-group" show-errors>
-
-                                                        <div class=" show-message">
-                                                            <input type="text" name="OrderSize" n-decimals="2" ng-model="ModelNew.OrderSize" class="form-control text-right" autocomplete="off" min="1" required>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    Target CM<sup>*</sup>
-                                                </div>
-                                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    <div class="form-group" show-errors>
-
-                                                        <div class=" show-message">
-                                                            <input type="text" name="Target CM" n-decimals="2" ng-model="ModelNew.TargetCM" class="form-control text-right" autocomplete="off" min="1" required>
-                                                        </div>
-                                                    </div>
-                                                </div> 
-
-                                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    Est.NoOf Pag List
-                                                </div>
-                                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    <div class="form-group">
-
-                                                        <div class=" show-message">
-                                                            <input type="number" name="EstNoOfPackingList" autocomplete="off" ng-model="ModelNew.EstNoOfPackingList" class="form-control">
-                                                        </div>
-                                                    </div>
-
-                                                </div>
-                                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    Remarks
-                                                </div>
-                                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    <div class="form-group"> 
-                                                        <div class="">
-                                                            <textarea class="form-control" rows="1" ng-model="ModelNew.Remarks" maxlength="250"></textarea>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    Currency
-                                                </div>
-                                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    <div class="form-group" show-errors>
-                                                        <div class="show-message">
-                                                            <div class="select-style">
-                                                                <select id="CurrencyId" class="form-control" name="Currency" ng-model="ModelNew.CurrencyId">
+                                            </div>
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                UOM
+                                            </div>
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                <div class="form-group" show-errors>
+                                                    <div class="show-message">
+                                                        <div class="select-style">
+                                                            <select class="form-control" ng-change="CheckeSpecifyTo()" ng-model="ModelNew.UOM" name="UOM" ng-options="item.Value as item.Text for item in ProductUOM " required>
+                                                                <option value=""></option>
+                                                            </select>
+                                                            @*<select id="CurrencyId" class="form-control" name="Currency" ng-model="ModelNew.UOM" required>
                                                                     <option value="">--Select--</option>
-                                                                    <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
+                                                                    <option ng-repeat="option in ProductUOM" value="{{option.Value}}">{{option.Text}}</option>
+                                                                </select>*@
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @*<div class="col-xs-12 col-sm-6 col-md-6">
+                                                    Is Approval Applicable
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                                    <div class="col-md-2">
+                                                        <div class="form-group">
+                                                            <div class="checkbox-site">
+                                                                <label>
+                                                                    <input type="checkbox" ng-model="ModelNew.IsApprovalApplicable" tabindex="8" ng-change="checkApprovalApplicable();">
+                                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-10">
+                                                        <div class="form-group">
+                                                            <div class="select-style">
+                                                                <select class="form-control" ng-disabled="ModelNew.IsApprovalApplicable===false" ng-model="ModelNew.ApproveByWhomId" name="ApproveBy Whom" ng-options="item.Value as item.Text for item in approveByWhomList">
+                                                                    <option value=""></option>
                                                                 </select>
                                                             </div>
                                                         </div>
                                                     </div>
+
+                                                </div>*@
+                                        </td>
+                                        <td style="width:50%;text-align:left;padding-left:30px!important;">
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                Payment Days
+                                            </div>
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                <div class="form-group">
+
+                                                    <div class="">
+                                                        <input type="text" name="PaymentDays" autocomplete="off" n-decimals="2" ng-model="ModelNew.PaymentDays" min="1" class="form-control text-right">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                Order Size<sup>*</sup>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                <div class="form-group" show-errors>
+
+                                                    <div class=" show-message">
+                                                        <input type="text" name="OrderSize" n-decimals="2" ng-model="ModelNew.OrderSize" class="form-control text-right" autocomplete="off" min="1" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                Target CM<sup>*</sup>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                <div class="form-group" show-errors>
+
+                                                    <div class=" show-message">
+                                                        <input type="text" name="Target CM" n-decimals="2" ng-model="ModelNew.TargetCM" class="form-control text-right" autocomplete="off" min="1" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                Est.NoOf Pag List
+                                            </div>
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                <div class="form-group">
+
+                                                    <div class=" show-message">
+                                                        <input type="number" name="EstNoOfPackingList" autocomplete="off" ng-model="ModelNew.EstNoOfPackingList" class="form-control">
+                                                    </div>
                                                 </div>
 
-                                            </td>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                Remarks
+                                            </div>
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                <div class="form-group">
+                                                    <div class="">
+                                                        <textarea class="form-control" rows="1" ng-model="ModelNew.Remarks" maxlength="250"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                Currency
+                                            </div>
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                <div class="form-group" show-errors>
+                                                    <div class="show-message">
+                                                        <div class="select-style">
+                                                            <select id="CurrencyId" class="form-control" name="Currency" ng-model="ModelNew.CurrencyId">
+                                                                <option value="">--Select--</option>
+                                                                <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                                    </table>
-                                </div>
+                                        </td>
 
-                                <div class="common-btn" style="padding-top:20px!important;">
-                                    <ul class="list-inline text-left">
-                                        <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                                        <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                                        <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                                    </ul>
-                                </div>
+                                </table>
+                            </div>
+
+                            <div class="common-btn" style="padding-top:20px!important;">
+                                <ul class="list-inline text-left">
+                                    <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                    <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                                    <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                </ul>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-xs-12 col-sm-5 col-md-5" style="padding-left:20px;">
-                    <div class="tab-design">
-                        <div class="row site-tab">
-                            <ul class="nav nav-tabs" role="tablist">
-                                <li role="presentation" ng-class="{ active: isSetQ(1) }"><a ng-click="setTabQ(1);" href="" aria-controls="general" role="tab" data-toggle="tab">Quick Costing</a></li>
-                                <li role="presentation" ng-class="{ active: isSetQ(2) }"><a ng-click="setTabQ(2);" href="" aria-controls="general" role="tab" data-toggle="tab">Segment </a></li>
-                                <li role="presentation" ng-class="{ active: isSetQ(3) }"><a ng-click="setTabQ(3);" href="" aria-controls="general" role="tab" data-toggle="tab">View </a></li>
-                            </ul>
-                        </div>
+            </div>
+            <div class="col-xs-12 col-sm-5 col-md-5" style="padding-left:20px;">
+                <div class="tab-design">
+                    <div class="row site-tab">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" ng-class="{ active: isSetQ(1) }"><a ng-click="setTabQ(1);" href="" aria-controls="general" role="tab" data-toggle="tab">Quick Costing</a></li>
+                            <li role="presentation" ng-class="{ active: isSetQ(2) }"><a ng-click="setTabQ(2);" href="" aria-controls="general" role="tab" data-toggle="tab">Segment </a></li>
+                            <li role="presentation" ng-class="{ active: isSetQ(3) }"><a ng-click="setTabQ(3);" href="" aria-controls="general" role="tab" data-toggle="tab">View </a></li>
+                        </ul>
+                    </div>
 
-                        <div class="tab-content" style="border:none;padding:0px;">
-                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetQ(1), active: isSetQ(1) }">
-                                <div class="row" style="padding:0px;margin:0px;">
-                                    <style type="text/css">
-                                        /*    inner-content {
+                    <div class="tab-content" style="border:none;padding:0px;">
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetQ(1), active: isSetQ(1) }">
+                            <div class="row" style="padding:0px;margin:0px;">
+                                <style type="text/css">
+                                    /*    inner-content {
                                             font-family: 'Arial Narrow', Arial, 'Franklin Gothic Medium', sans-serif !important;
                                             font-size: 2.0vh !important;
                                         }*/
 
 
-                                        tr {
+                                    tr {
+                                        padding: 0px !important;
+                                        margin: 0px !important;
+                                        font-size: 2.0vh !important;
+                                        border: none !important;
+                                        vertical-align: top !important;
+                                    }
+
+                                    td {
+                                        padding: 0px !important;
+                                        margin: 0px !important;
+                                        font-size: 2.0vh !important;
+                                        vertical-align: middle !important;
+                                    }
+
+                                        td .form-group {
                                             padding: 0px !important;
                                             margin: 0px !important;
-                                            font-size: 2.0vh !important;
-                                            border: none !important;
-                                            vertical-align: top !important;
                                         }
 
-                                        td {
+                                        td input {
+                                            height: 100%;
+                                            font-size: 2.0vh !important;
+                                        }
+
+                                        td textarea {
+                                            height: 100%;
+                                            font-size: 2.0vh !important;
+                                        }
+
+                                        td .select-style select {
+                                            font-size: 2.0vh !important;
+                                        }
+
+                                        td div {
+                                            padding: 0px !important;
+                                        }
+
+                                        td .text-center {
                                             padding: 0px !important;
                                             margin: 0px !important;
-                                            font-size: 2.0vh !important;
-                                            vertical-align: middle !important;
+                                            vertical-align: central;
                                         }
 
-                                            td .form-group {
-                                                padding: 0px !important;
-                                                margin: 0px !important;
-                                            }
+                                        td .btn {
+                                            padding: 0px !important;
+                                            margin: 0px !important;
+                                        }
 
-                                            td input {
-                                                height: 100%;
-                                                font-size: 2.0vh !important;
-                                            }
-
-                                            td textarea {
-                                                height: 100%;
-                                                font-size: 2.0vh !important;
-                                            }
-
-                                            td .select-style select {
-                                                font-size: 2.0vh !important;
-                                            }
-
-                                            td div {
-                                                padding: 0px !important;
-                                            }
-
-                                            td .text-center {
-                                                padding: 0px !important;
-                                                margin: 0px !important;
-                                                vertical-align: central;
-                                            }
-
-                                            td .btn {
-                                                padding: 0px !important;
-                                                margin: 0px !important;
-                                            }
-
-                                            td .select-style {
-                                                padding-top: 10px !important;
-                                                padding: 0px !important;
-                                                margin: 0px !important;
-                                                height: 100% !important;
-                                            }
+                                        td .select-style {
+                                            padding-top: 10px !important;
+                                            padding: 0px !important;
+                                            margin: 0px !important;
+                                            height: 100% !important;
+                                        }
 
 
-                                            td .input-group {
-                                                padding: 0px !important;
-                                                margin: 0px !important;
-                                                height: 100% !important;
-                                            }
+                                        td .input-group {
+                                            padding: 0px !important;
+                                            margin: 0px !important;
+                                            height: 100% !important;
+                                        }
 
-                                        .cellBorder {
-                                            font-size: 2.0vh !important;
+                                    .cellBorder {
+                                        font-size: 2.0vh !important;
+                                        padding: 0px 2px 0px 0px !important;
+                                        margin: 0px !important;
+                                        border: none !important;
+                                    }
+
+                                        .cellBorder td {
+                                            padding: 0px 2px 0px 0px !important;
+                                            margin: 0px !important;
+                                            border: 1px solid #dcdcdc !important;
+                                        }
+
+                                        .cellBorder th {
                                             padding: 0px 2px 0px 0px !important;
                                             margin: 0px !important;
                                             border: none !important;
                                         }
+                                </style>
+                                <table class="row" style="border:1px solid #dcdcdc">
+                                    <tr style="font-size:2.5vh!important;font-weight:bold;background-color:black;color:white;">
 
-                                            .cellBorder td {
-                                                padding: 0px 2px 0px 0px !important;
-                                                margin: 0px !important;
-                                                border: 1px solid #dcdcdc !important;
-                                            }
+                                        <td>Costing Component</td>
+                                        <td class="text-right cellBorder" style="width:15%;">Buyer Costing(A)</td>
+                                        <td class="text-right cellBorder" style="width:15%;">Quick Costing(B)</td>
+                                        <td style="display:{{ModelNew.CostingStage=='PreCosting' || ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};width:15%;" class="text-right cellBorder">Pre Costing(C)</td>
+                                        <td style="display:{{ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};width:15%;" class="text-right cellBorder">Proc. Costing(D)</td>
+                                    </tr>
+                                    <tr ng-repeat="x in OrderCostingDetailList" style="background-color:{{x.isToBeDeleted=='DELETE'?'red':''}}; color:blue">
 
-                                            .cellBorder th {
-                                                padding: 0px 2px 0px 0px !important;
-                                                margin: 0px !important;
-                                                border: none !important;
-                                            }
-                                    </style>
-                                    <table class="row" style="border:1px solid #dcdcdc">
-                                        <tr style="font-size:2.5vh!important;font-weight:bold;background-color:black;color:white;">
+                                        <td class="cellBorder" style="cursor:pointer;" ng-click="ModelNew.CostingStage=='PreCosting' || ModelNew.CostingStage=='ProcurementCosting'?NavigateToOrderCosting(x):null;">
 
-                                            <td>Costing Component</td>
-                                            <td class="text-right cellBorder" style="width:15%;">Buyer Costing(A)</td>
-                                            <td class="text-right cellBorder" style="width:15%;">Quick Costing(B)</td>
-                                            <td style="display:{{ModelNew.CostingStage=='PreCosting' || ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};width:15%;" class="text-right cellBorder">Pre Costing(C)</td>
-                                            <td style="display:{{ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};width:15%;" class="text-right cellBorder">Proc. Costing(D)</td>
-                                        </tr>
-                                        <tr ng-repeat="x in OrderCostingDetailList" style="background-color:{{x.isToBeDeleted=='DELETE'?'red':''}}; color:blue">
+                                            <label style="color:blue;cursor:pointer; font-weight:inherit;">{{x.UserName}}</label>
 
-                                            <td class="cellBorder" style="cursor:pointer;" ng-click="ModelNew.CostingStage=='PreCosting' || ModelNew.CostingStage=='ProcurementCosting'?NavigateToOrderCosting(x):null;">
+                                        </td>
 
-                                                <label style="color:blue;cursor:pointer; font-weight:inherit;">{{x.UserName}}</label>
+                                        <td>
+                                            <input type="text" n-decimals="2" min="0" class="form-control text-right" ng-change="SumCostingValue()" ng-model="x.BuyerTarget" ng-disabled="x.Status">
+                                        </td>
+                                        <td>
+                                            <input type="text" n-decimals="2" min="0" class="form-control text-right" ng-model="x.CostingValue" ng-change="SumCostingValue()" ng-disabled="x.Status">
+                                        </td>
 
-                                            </td>
+                                        <td class="text-right cellBorder" style="display:{{ModelNew.CostingStage=='PreCosting' || ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};background-color:#dcdcdc;color:black;">
+                                            {{x.TotalGrossAmount!=0?(x.TotalGrossAmount|number:4):'-'}}
+                                        </td>
+                                        <td class="text-right cellBorder" style="display:{{ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};background-color:#dcdcdc;color:black;">
+                                            {{x.TotalProcurementGrossAmount!=0?(x.TotalProcurementGrossAmount|number:4):'-'}}
+                                        </td>
 
-                                            <td>
-                                                <input type="text" n-decimals="2" min="0" class="form-control text-right" ng-change="SumCostingValue()" ng-model="x.BuyerTarget" ng-disabled="x.Status">
-                                            </td>
-                                            <td>
-                                                <input type="text" n-decimals="2" min="0" class="form-control text-right" ng-model="x.CostingValue" ng-change="SumCostingValue()" ng-disabled="x.Status">
-                                            </td>
+                                    </tr>
+                                    <tr style="background-color:#dcdcdc;" ng-show="OrderCostingDetailList.length > 0">
+                                        <td style="color:#470078"><b>FOB</b></td>
 
-                                            <td class="text-right cellBorder" style="display:{{ModelNew.CostingStage=='PreCosting' || ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};background-color:#dcdcdc;color:black;">
-                                                {{x.TotalGrossAmount!=0?(x.TotalGrossAmount|number:4):'-'}}
-                                            </td>
-                                            <td class="text-right cellBorder" style="display:{{ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};background-color:#dcdcdc;color:black;">
-                                                {{x.TotalProcurementGrossAmount!=0?(x.TotalProcurementGrossAmount|number:4):'-'}}
-                                            </td>
+                                        <td style="color:#470078;" class="text-right "><b>{{OrderCostingDetailList | sumByKey : 'BuyerTarget'|  number:4 }}</b></td>
+                                        <td style="color:#470078;" class="text-right "><b>{{OrderCostingDetailList | sumByKey : 'CostingValue'|  number:4 }}</b></td>
+                                        <td style="display:{{ModelNew.CostingStage=='PreCosting' || ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};color:#470078;" class="text-right "><b>{{OrderCostingDetailList | sumByKey : 'TotalGrossAmount'|  number:4 }}</b></td>
+                                        <td style="display:{{ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};color:#470078;" class="text-right "><b>{{OrderCostingDetailList | sumByKey : 'TotalProcurementGrossAmount'|  number:4 }}</b></td>
 
-                                        </tr>
-                                        <tr style="background-color:#dcdcdc;" ng-show="OrderCostingDetailList.length > 0">
-                                            <td style="color:#470078"><b>FOB</b></td>
+                                        @*<td class=""></td>*@
+                                    </tr>
 
-                                            <td style="color:#470078;" class="text-right "><b>{{OrderCostingDetailList | sumByKey : 'BuyerTarget'|  number:4 }}</b></td>
-                                            <td style="color:#470078;" class="text-right "><b>{{OrderCostingDetailList | sumByKey : 'CostingValue'|  number:4 }}</b></td>
-                                            <td style="display:{{ModelNew.CostingStage=='PreCosting' || ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};color:#470078;" class="text-right "><b>{{OrderCostingDetailList | sumByKey : 'TotalGrossAmount'|  number:4 }}</b></td>
-                                            <td style="display:{{ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};color:#470078;" class="text-right "><b>{{OrderCostingDetailList | sumByKey : 'TotalProcurementGrossAmount'|  number:4 }}</b></td>
+                                </table>
+                                <br />
+                                <table class="row" style="background-color:#dcdcdc;">
+                                    <tr style="background-color:black;color:white;font-size:2.5vh!important;font-weight:bold;">
+                                        <td style="width:60%;">
+                                            Costing Summary
+                                        </td>
+                                        <td style="padding-right:4px!important;text-align:right;width:20%;">
+                                            Value(Quick Costing)
+                                        </td>
+                                        <td style="display:{{ModelNew.CostingStage=='PreCosting' || ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;width:20%;">
+                                            Value(Pre Costing)
+                                        </td>
+                                        <td style="display:{{ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;width:20%;">
+                                            Value(Proc. Costing)
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Cost
+                                        </td>
+                                        <td style="padding-right:4px!important;text-align:right;">
+                                            {{CostingSummaryDataNew.QuickCostingValue | number:4}}
+                                        </td>
+                                        <td style="display:{{ModelNew.CostingStage=='PreCosting' || ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;">
+                                            {{CostingSummaryDataNew.OrderCostingValue | number:4}}
+                                        </td>
+                                        <td style="display:{{ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;">
+                                            {{CostingSummaryDataNew.ProcurementCostingValue | number:4}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Profit
+                                        </td>
+                                        <td style="padding-right:4px!important;text-align:right;">
+                                            {{CostingSummaryDataNew.ProfitQuickCosting | number:4}}
+                                        </td>
+                                        <td style="display:{{ModelNew.CostingStage=='PreCosting' || ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;">
+                                            {{CostingSummaryDataNew.ProfitOrderCosting | number:4}}
+                                        </td>
+                                        <td style="display:{{ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;">
+                                            {{CostingSummaryDataNew.ProfitProcurementCosting | number:4}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Derived Selling Price
+                                        </td>
+                                        <td style="padding-right:4px!important;text-align:right;">
+                                            {{CostingSummaryDataNew.QuickCostingValue+CostingSummaryDataNew.ProfitQuickCosting  | number:4}}
+                                        </td>
+                                        <td style="display:{{ModelNew.CostingStage=='PreCosting' || ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;">
+                                            {{CostingSummaryDataNew.OrderCostingValue+CostingSummaryDataNew.ProfitOrderCosting  | number:4}}
+                                        </td>
+                                        <td style="display:{{ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;">
+                                            {{CostingSummaryDataNew.ProcurementCostingValue+CostingSummaryDataNew.ProfitProcurementCosting  | number:4}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Target Selling Price
+                                        </td>
+                                        <td style="padding-right:4px!important;text-align:right;">
+                                            {{ModelNew.TargetSellingPrice | number:4}}
+                                        </td>
+                                        <td style="display:{{ModelNew.CostingStage=='PreCosting' || ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;">
+                                            {{ModelNew.TargetSellingPrice | number:4}}
+                                        </td>
+                                        <td style="display:{{ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;">
+                                            {{ModelNew.TargetSellingPrice | number:4}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Marketing Gain/Loss
+                                        </td>
+                                        <td style="padding-right:4px!important;text-align:right;">
+                                            {{(ModelNew.TargetSellingPrice-(CostingSummaryDataNew.QuickCostingValue+CostingSummaryDataNew.ProfitQuickCosting))|number:4}}
+                                        </td>
+                                        <td style="display:{{ModelNew.CostingStage=='PreCosting' || ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;">
+                                            {{(ModelNew.TargetSellingPrice-(CostingSummaryDataNew.OrderCostingValue+CostingSummaryDataNew.ProfitOrderCosting))|number:4}}
+                                        </td>
+                                        <td style="display:{{ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;">
+                                            {{(ModelNew.TargetSellingPrice-(CostingSummaryDataNew.OrderCostingValue+CostingSummaryDataNew.ProfitProcurementCosting))|number:4}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Net Profit
+                                        </td>
+                                        <td style="padding-right:4px!important;text-align:right;">
 
-                                            @*<td class=""></td>*@
-                                        </tr>
+                                            <div style="color:{{CostingSummaryDataNew.ProfitQuickCosting+(ModelNew.TargetSellingPrice-(CostingSummaryDataNew.QuickCostingValue+CostingSummaryDataNew.ProfitQuickCosting))<0?'red':'green'}};">{{CostingSummaryDataNew.ProfitQuickCosting+(ModelNew.TargetSellingPrice-(CostingSummaryDataNew.QuickCostingValue+CostingSummaryDataNew.ProfitQuickCosting)) | number:4}}</div>
+                                        </td>
+                                        <td style="display:{{ModelNew.CostingStage=='PreCosting' || ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;">
 
-                                    </table>
-                                    <br />
-                                    <table class="row" style="background-color:#dcdcdc;">
-                                        <tr style="background-color:black;color:white;font-size:2.5vh!important;font-weight:bold;">
-                                            <td style="width:60%;">
-                                                Costing Summary
-                                            </td>
-                                            <td style="padding-right:4px!important;text-align:right;width:20%;">
-                                                Value(Quick Costing)
-                                            </td>
-                                            <td style="display:{{ModelNew.CostingStage=='PreCosting' || ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;width:20%;">
-                                                Value(Pre Costing)
-                                            </td>
-                                            <td style="display:{{ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;width:20%;">
-                                                Value(Proc. Costing)
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                Cost
-                                            </td>
-                                            <td style="padding-right:4px!important;text-align:right;">
-                                                {{CostingSummaryDataNew.QuickCostingValue | number:4}}
-                                            </td>
-                                            <td style="display:{{ModelNew.CostingStage=='PreCosting' || ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;">
-                                                {{CostingSummaryDataNew.OrderCostingValue | number:4}}
-                                            </td>
-                                            <td style="display:{{ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;">
-                                                {{CostingSummaryDataNew.ProcurementCostingValue | number:4}}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                Profit
-                                            </td>
-                                            <td style="padding-right:4px!important;text-align:right;">
-                                                {{CostingSummaryDataNew.ProfitQuickCosting | number:4}}
-                                            </td>
-                                            <td style="display:{{ModelNew.CostingStage=='PreCosting' || ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;">
-                                                {{CostingSummaryDataNew.ProfitOrderCosting | number:4}}
-                                            </td>
-                                            <td style="display:{{ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;">
-                                                {{CostingSummaryDataNew.ProfitProcurementCosting | number:4}}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                Derived Selling Price
-                                            </td>
-                                            <td style="padding-right:4px!important;text-align:right;">
-                                                {{CostingSummaryDataNew.QuickCostingValue+CostingSummaryDataNew.ProfitQuickCosting  | number:4}}
-                                            </td>
-                                            <td style="display:{{ModelNew.CostingStage=='PreCosting' || ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;">
-                                                {{CostingSummaryDataNew.OrderCostingValue+CostingSummaryDataNew.ProfitOrderCosting  | number:4}}
-                                            </td>
-                                            <td style="display:{{ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;">
-                                                {{CostingSummaryDataNew.ProcurementCostingValue+CostingSummaryDataNew.ProfitProcurementCosting  | number:4}}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                Target Selling Price
-                                            </td>
-                                            <td style="padding-right:4px!important;text-align:right;">
-                                                {{ModelNew.TargetSellingPrice | number:4}}
-                                            </td>
-                                            <td style="display:{{ModelNew.CostingStage=='PreCosting' || ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;">
-                                                {{ModelNew.TargetSellingPrice | number:4}}
-                                            </td>
-                                            <td style="display:{{ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;">
-                                                {{ModelNew.TargetSellingPrice | number:4}}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                Marketing Gain/Loss
-                                            </td>
-                                            <td style="padding-right:4px!important;text-align:right;">
-                                                {{(ModelNew.TargetSellingPrice-(CostingSummaryDataNew.QuickCostingValue+CostingSummaryDataNew.ProfitQuickCosting))|number:4}}
-                                            </td>
-                                            <td style="display:{{ModelNew.CostingStage=='PreCosting' || ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;">
-                                                {{(ModelNew.TargetSellingPrice-(CostingSummaryDataNew.OrderCostingValue+CostingSummaryDataNew.ProfitOrderCosting))|number:4}}
-                                            </td>
-                                            <td style="display:{{ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;">
-                                                {{(ModelNew.TargetSellingPrice-(CostingSummaryDataNew.OrderCostingValue+CostingSummaryDataNew.ProfitProcurementCosting))|number:4}}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                Net Profit
-                                            </td>
-                                            <td style="padding-right:4px!important;text-align:right;">
+                                            <div style="color:{{CostingSummaryDataNew.ProfitOrderCosting+(ModelNew.TargetSellingPrice-(CostingSummaryDataNew.OrderCostingValue+CostingSummaryDataNew.ProfitOrderCosting))<0?'red':'green'}};">{{CostingSummaryDataNew.ProfitOrderCosting+(ModelNew.TargetSellingPrice-(CostingSummaryDataNew.OrderCostingValue+CostingSummaryDataNew.ProfitOrderCosting)) | number:4}}</div>
+                                        </td>
+                                        <td style="display:{{ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;">
 
-                                                <div style="color:{{CostingSummaryDataNew.ProfitQuickCosting+(ModelNew.TargetSellingPrice-(CostingSummaryDataNew.QuickCostingValue+CostingSummaryDataNew.ProfitQuickCosting))<0?'red':'green'}};">{{CostingSummaryDataNew.ProfitQuickCosting+(ModelNew.TargetSellingPrice-(CostingSummaryDataNew.QuickCostingValue+CostingSummaryDataNew.ProfitQuickCosting)) | number:4}}</div>
-                                            </td>
-                                            <td style="display:{{ModelNew.CostingStage=='PreCosting' || ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;">
+                                            <div style="color:{{CostingSummaryDataNew.ProfitProcurementCosting+(ModelNew.TargetSellingPrice-(CostingSummaryDataNew.ProcurementCostingValue+CostingSummaryDataNew.ProfitProcurementCosting))<0?'red':'green'}};">{{CostingSummaryDataNew.ProfitProcurementCosting+(ModelNew.TargetSellingPrice-(CostingSummaryDataNew.ProcurementCostingValue+CostingSummaryDataNew.ProfitProcurementCosting)) | number:4}}</div>
+                                        </td>
+                                    </tr>
+                                </table>
 
-                                                <div style="color:{{CostingSummaryDataNew.ProfitOrderCosting+(ModelNew.TargetSellingPrice-(CostingSummaryDataNew.OrderCostingValue+CostingSummaryDataNew.ProfitOrderCosting))<0?'red':'green'}};">{{CostingSummaryDataNew.ProfitOrderCosting+(ModelNew.TargetSellingPrice-(CostingSummaryDataNew.OrderCostingValue+CostingSummaryDataNew.ProfitOrderCosting)) | number:4}}</div>
-                                            </td>
-                                            <td style="display:{{ModelNew.CostingStage=='ProcurementCosting'?'':'none'}};padding-right:4px!important;text-align:right;">
-
-                                                <div style="color:{{CostingSummaryDataNew.ProfitProcurementCosting+(ModelNew.TargetSellingPrice-(CostingSummaryDataNew.ProcurementCostingValue+CostingSummaryDataNew.ProfitProcurementCosting))<0?'red':'green'}};">{{CostingSummaryDataNew.ProfitProcurementCosting+(ModelNew.TargetSellingPrice-(CostingSummaryDataNew.ProcurementCostingValue+CostingSummaryDataNew.ProfitProcurementCosting)) | number:4}}</div>
-                                            </td>
-                                        </tr>
-                                    </table>
-
-                                </div>
                             </div>
-                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetQ(2), active: isSetQ(2) }">
-                                <div class="row">
-                                    <div style="color:black;" e-summaryrows="GridSummaryBySegmentSummaryRows" id="GridSummaryBySegment" ej-grid e-datasource="SummaryBySegmentList" e-gridlines="both"
-                                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                                         e-pageSettings-pageSize="10" e-allowselection="true" e-filtersettings-filterType="excel">
+                        </div>
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetQ(2), active: isSetQ(2) }">
+                            <div class="row">
+                                <div style="color:black;" e-summaryrows="GridSummaryBySegmentSummaryRows" id="GridSummaryBySegment" ej-grid e-datasource="SummaryBySegmentList" e-gridlines="both"
+                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                     e-pageSettings-pageSize="10" e-allowselection="true" e-filtersettings-filterType="excel">
 
-                                        <div e-columns>
-                                            <div e-column e-type="string" e-format="{0:N2}" e-field="Segment" e-headertext="Segment" e-width="120"></div>
-                                            <div e-column e-type="numeric" e-format="{0:N2}" e-textalign="right" e-field="BuyerTarget" e-headertext="Buyer Target" e-width="60"></div>
-                                            <div e-column e-type="numeric" e-format="{0:N2}" e-textalign="right" e-field="CostingValue" e-headertext="Costing Value" e-width="60"></div>
-                                            <div e-column e-type="numeric" e-format="{0:N2}" e-textalign="right" e-field="TotalGrossAmount" e-headertext="Pre-Costing" e-width="60"></div>
-                                            <div e-column e-type="numeric" e-format="{0:N2}" e-textalign="right" e-field="TotalProcurementGrossAmount" e-headertext="Proc-Costing" e-width="60"></div>
+                                    <div e-columns>
+                                        <div e-column e-type="string" e-format="{0:N2}" e-field="Segment" e-headertext="Segment" e-width="120"></div>
+                                        <div e-column e-type="numeric" e-format="{0:N2}" e-textalign="right" e-field="BuyerTarget" e-headertext="Buyer Target" e-width="60"></div>
+                                        <div e-column e-type="numeric" e-format="{0:N2}" e-textalign="right" e-field="CostingValue" e-headertext="Costing Value" e-width="60"></div>
+                                        <div e-column e-type="numeric" e-format="{0:N2}" e-textalign="right" e-field="TotalGrossAmount" e-headertext="Pre-Costing" e-width="60"></div>
+                                        <div e-column e-type="numeric" e-format="{0:N2}" e-textalign="right" e-field="TotalProcurementGrossAmount" e-headertext="Proc-Costing" e-width="60"></div>
 
-                                        </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetQ(3), active: isSetQ(3) }">
-                                <div class="row">
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetQ(3), active: isSetQ(3) }">
+                            <div class="row">
 
-                                    <div id="graphdiv" style="position:relative;overflow:scroll;height:380px; width:400px!important;display:{{OrderCostingDetailList.length>0?'inherit':'none';}}">
-                                        <div id="graphdivComparison" ej-chart e-isresponsive="true" style="width:400px;"
-                                             e-primaryxaxis-title-text="Costing Component"
-                                             e-load=onchartload e-size-height="300px" e-size-width="400px"
-                                             e-legend-visible="true" e-legend-position="bottom"
-                                             e-title-text="Costing Comparison"
-                                             e-commonseriesoptions-type="column"
-                                             e-primaryxaxis-labelIntersectAction="rotate90"
-                                             e-commonseriesoptions-enableanimation="true" e-commonseriesoptions-tooltip-visible="true"
-                                             e-commonseriesoptions-tooltip-format="#point.x# : #point.y#">
+                                <div id="graphdiv" style="position:relative;overflow:scroll;height:380px; width:400px!important;display:{{OrderCostingDetailList.length>0?'inherit':'none';}}">
+                                    <div id="graphdivComparison" ej-chart e-isresponsive="true" style="width:400px;"
+                                         e-primaryxaxis-title-text="Costing Component"
+                                         e-load=onchartload e-size-height="300px" e-size-width="400px"
+                                         e-legend-visible="true" e-legend-position="bottom"
+                                         e-title-text="Costing Comparison"
+                                         e-commonseriesoptions-type="column"
+                                         e-primaryxaxis-labelIntersectAction="rotate90"
+                                         e-commonseriesoptions-enableanimation="true" e-commonseriesoptions-tooltip-visible="true"
+                                         e-commonseriesoptions-tooltip-format="#point.x# : #point.y#">
 
-                                            <e-series>
-                                                <e-series e-name="Buyer Target" e-datasource=OrderCostingDetailList e-xname="UserName" e-yname="BuyerTarget" e-fill="rgba(255,50,50,1)">
-                                                </e-series>
-                                                <e-series e-name="Quick Costing" e-datasource=OrderCostingDetailList e-xname="UserName" e-yname="CostingValue" e-fill="rgba(0,255,0,0.7)">
-                                                </e-series>
-                                                <e-series e-name="Pre Costing" e-datasource=OrderCostingDetailList e-xname="UserName" e-yname="TotalGrossAmount" e-fill="rgba(0,0,255,1)">
-                                                </e-series>
-                                                <e-series e-name="Proc. Costing" e-datasource=OrderCostingDetailList e-xname="UserName" e-yname="TotalProcurementGrossAmount" e-fill="rgba(155,155,0,1)">
-                                                </e-series>
+                                        <e-series>
+                                            <e-series e-name="Buyer Target" e-datasource=OrderCostingDetailList e-xname="UserName" e-yname="BuyerTarget" e-fill="rgba(255,50,50,1)">
                                             </e-series>
-
-                                        </div>
-                                        <div id="graphdivBuyerTarget" ej-chart e-isresponsive="true" style="width:400px;"
-                                             e-primaryxaxis-title-text="Costing Component"
-                                             e-load=onchartload e-size-height="300px" e-size-width="400px"
-                                             e-legend-visible="true" e-legend-position="bottom"
-                                             e-title-text="Buyer Target Allocation"
-                                             e-displaytextrendering="displayTextRendering"
-                                             e-commonseriesoptions-type="pie" e-emptypointsettings-visible="false"
-                                             e-commonseriesoptions-enableanimation="true" e-commonseriesoptions-tooltip-visible="true"
-                                             e-commonseriesoptions-tooltip-format="#point.x# : #point.y#">
-
-                                            <e-series>
-                                                <e-series e-name="Buyer Target"
-                                                          e-marker-dataLabel-visible="true"
-                                                          e-marker-dataLabel-verticaltextalignment="near"
-                                                          e-enableAnimation="true" e-marker-dataLabel-enablecontrastcolor="true" e-datasource=OrderCostingDetailList e-xname="UserName" e-yname="BuyerTarget" e-labelPosition="outsideExtended" e-enablesmartlabels="true" e-startangle="145">
-                                                </e-series>
+                                            <e-series e-name="Quick Costing" e-datasource=OrderCostingDetailList e-xname="UserName" e-yname="CostingValue" e-fill="rgba(0,255,0,0.7)">
                                             </e-series>
-                                        </div>
-
-
-                                        <div id="graphdivOrderCosting" ej-chart e-isresponsive="true" style="width:400px;"
-                                             e-primaryxaxis-title-text="Costing Component"
-                                             e-load=onchartload e-size-height="300px" e-size-width="400px"
-                                             e-legend-visible="true" e-legend-position="bottom"
-                                             e-title-text="Quick Costing Allocation"
-                                             e-displaytextrendering="displayTextRendering"
-                                             e-commonseriesoptions-type="pie" e-emptypointsettings-visible="false"
-                                             e-commonseriesoptions-enableanimation="true" e-commonseriesoptions-tooltip-visible="true"
-                                             e-commonseriesoptions-tooltip-format="#point.x# : #point.y#">
-
-                                            <e-series>
-                                                <e-series e-name="Buyer Target"
-                                                          e-marker-dataLabel-visible="true"
-                                                          e-enableAnimation="true" e-marker-dataLabel-enablecontrastcolor="true" e-datasource=OrderCostingDetailList e-xname="UserName" e-yname="CostingValue" e-labelPosition="outsideExtended" e-enablesmartlabels="true" e-startangle="145">
-                                                </e-series>
+                                            <e-series e-name="Pre Costing" e-datasource=OrderCostingDetailList e-xname="UserName" e-yname="TotalGrossAmount" e-fill="rgba(0,0,255,1)">
                                             </e-series>
-                                        </div>
-
-                                        <div id="graphdivOrderCosting" ej-chart e-isresponsive="true" style="width:400px;"
-                                             e-primaryxaxis-title-text="Costing Component"
-                                             e-load=onchartload e-size-height="300px" e-size-width="400px"
-                                             e-legend-visible="true" e-legend-position="bottom"
-                                             e-title-text="Pre Costing Allocation"
-                                             e-displaytextrendering="displayTextRendering"
-                                             e-commonseriesoptions-type="pie" e-emptypointsettings-visible="false"
-                                             e-commonseriesoptions-enableanimation="true" e-commonseriesoptions-tooltip-visible="true"
-                                             e-commonseriesoptions-tooltip-format="#point.x# : #point.y#">
-
-                                            <e-series>
-                                                <e-series e-name="Buyer Target"
-                                                          e-marker-dataLabel-visible="true"
-                                                          e-enableAnimation="true" e-marker-dataLabel-enablecontrastcolor="true" e-datasource=OrderCostingDetailList e-xname="UserName" e-yname="TotalGrossAmount" e-labelPosition="outsideExtended" e-enablesmartlabels="true" e-startangle="145">
-                                                </e-series>
+                                            <e-series e-name="Proc. Costing" e-datasource=OrderCostingDetailList e-xname="UserName" e-yname="TotalProcurementGrossAmount" e-fill="rgba(155,155,0,1)">
                                             </e-series>
-                                        </div>
-                                        <div id="graphdivProcurementCosting" ej-chart e-isresponsive="true" style="width:400px;"
-                                             e-primaryxaxis-title-text="Costing Component"
-                                             e-load=onchartload e-size-height="300px" e-size-width="400px"
-                                             e-legend-visible="true" e-legend-position="bottom"
-                                             e-title-text="Procurement Costing Allocation"
-                                             e-displaytextrendering="displayTextRendering"
-                                             e-commonseriesoptions-type="pie" e-emptypointsettings-visible="false"
-                                             e-commonseriesoptions-enableanimation="true" e-commonseriesoptions-tooltip-visible="true"
-                                             e-commonseriesoptions-tooltip-format="#point.x# : #point.y#">
+                                        </e-series>
 
-                                            <e-series>
-                                                <e-series e-name="Procurement Costing"
-                                                          e-marker-dataLabel-visible="true"
-                                                          e-enableAnimation="true" e-marker-dataLabel-enablecontrastcolor="true" e-datasource=OrderCostingDetailList e-xname="UserName" e-yname="TotalProcurementGrossAmount" e-labelPosition="outsideExtended" e-enablesmartlabels="true" e-startangle="145">
-                                                </e-series>
+                                    </div>
+                                    <div id="graphdivBuyerTarget" ej-chart e-isresponsive="true" style="width:400px;"
+                                         e-primaryxaxis-title-text="Costing Component"
+                                         e-load=onchartload e-size-height="300px" e-size-width="400px"
+                                         e-legend-visible="true" e-legend-position="bottom"
+                                         e-title-text="Buyer Target Allocation"
+                                         e-displaytextrendering="displayTextRendering"
+                                         e-commonseriesoptions-type="pie" e-emptypointsettings-visible="false"
+                                         e-commonseriesoptions-enableanimation="true" e-commonseriesoptions-tooltip-visible="true"
+                                         e-commonseriesoptions-tooltip-format="#point.x# : #point.y#">
+
+                                        <e-series>
+                                            <e-series e-name="Buyer Target"
+                                                      e-marker-dataLabel-visible="true"
+                                                      e-marker-dataLabel-verticaltextalignment="near"
+                                                      e-enableAnimation="true" e-marker-dataLabel-enablecontrastcolor="true" e-datasource=OrderCostingDetailList e-xname="UserName" e-yname="BuyerTarget" e-labelPosition="outsideExtended" e-enablesmartlabels="true" e-startangle="145">
                                             </e-series>
-                                        </div> 
+                                        </e-series>
+                                    </div>
+
+
+                                    <div id="graphdivOrderCosting" ej-chart e-isresponsive="true" style="width:400px;"
+                                         e-primaryxaxis-title-text="Costing Component"
+                                         e-load=onchartload e-size-height="300px" e-size-width="400px"
+                                         e-legend-visible="true" e-legend-position="bottom"
+                                         e-title-text="Quick Costing Allocation"
+                                         e-displaytextrendering="displayTextRendering"
+                                         e-commonseriesoptions-type="pie" e-emptypointsettings-visible="false"
+                                         e-commonseriesoptions-enableanimation="true" e-commonseriesoptions-tooltip-visible="true"
+                                         e-commonseriesoptions-tooltip-format="#point.x# : #point.y#">
+
+                                        <e-series>
+                                            <e-series e-name="Buyer Target"
+                                                      e-marker-dataLabel-visible="true"
+                                                      e-enableAnimation="true" e-marker-dataLabel-enablecontrastcolor="true" e-datasource=OrderCostingDetailList e-xname="UserName" e-yname="CostingValue" e-labelPosition="outsideExtended" e-enablesmartlabels="true" e-startangle="145">
+                                            </e-series>
+                                        </e-series>
+                                    </div>
+
+                                    <div id="graphdivOrderCosting" ej-chart e-isresponsive="true" style="width:400px;"
+                                         e-primaryxaxis-title-text="Costing Component"
+                                         e-load=onchartload e-size-height="300px" e-size-width="400px"
+                                         e-legend-visible="true" e-legend-position="bottom"
+                                         e-title-text="Pre Costing Allocation"
+                                         e-displaytextrendering="displayTextRendering"
+                                         e-commonseriesoptions-type="pie" e-emptypointsettings-visible="false"
+                                         e-commonseriesoptions-enableanimation="true" e-commonseriesoptions-tooltip-visible="true"
+                                         e-commonseriesoptions-tooltip-format="#point.x# : #point.y#">
+
+                                        <e-series>
+                                            <e-series e-name="Buyer Target"
+                                                      e-marker-dataLabel-visible="true"
+                                                      e-enableAnimation="true" e-marker-dataLabel-enablecontrastcolor="true" e-datasource=OrderCostingDetailList e-xname="UserName" e-yname="TotalGrossAmount" e-labelPosition="outsideExtended" e-enablesmartlabels="true" e-startangle="145">
+                                            </e-series>
+                                        </e-series>
+                                    </div>
+                                    <div id="graphdivProcurementCosting" ej-chart e-isresponsive="true" style="width:400px;"
+                                         e-primaryxaxis-title-text="Costing Component"
+                                         e-load=onchartload e-size-height="300px" e-size-width="400px"
+                                         e-legend-visible="true" e-legend-position="bottom"
+                                         e-title-text="Procurement Costing Allocation"
+                                         e-displaytextrendering="displayTextRendering"
+                                         e-commonseriesoptions-type="pie" e-emptypointsettings-visible="false"
+                                         e-commonseriesoptions-enableanimation="true" e-commonseriesoptions-tooltip-visible="true"
+                                         e-commonseriesoptions-tooltip-format="#point.x# : #point.y#">
+
+                                        <e-series>
+                                            <e-series e-name="Procurement Costing"
+                                                      e-marker-dataLabel-visible="true"
+                                                      e-enableAnimation="true" e-marker-dataLabel-enablecontrastcolor="true" e-datasource=OrderCostingDetailList e-xname="UserName" e-yname="TotalProcurementGrossAmount" e-labelPosition="outsideExtended" e-enablesmartlabels="true" e-startangle="145">
+                                            </e-series>
+                                        </e-series>
                                     </div>
                                 </div>
-                            </div> 
-                        </div>
-                    </div>
-
-                </div>
-
-
-                <div class="col-sm-12" style="border-top:2px solid #d4d4d4!important;margin-top:5px!important;"></div>
-
-                <div class="row" id="CostingItemsEntry">
-
-                    <div class="col-md-12" ng-hide="Segment=='' || Segment==null">
-
-                        <h3 class="site-heading">
-                            <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>  {{SelectedOrderCostingComponent.UserName}}({{SelectedOrderCostingComponent.CostingSegment}})
-                        </h3>
-                        <div class="site-tab">
-                            <ul class="nav nav-tabs" role="tablist">
-                                <li role="presentation" ng-class="{ active: isSetCosting(1) }"><a ng-click="setTabCosting(1)" href="" data-toggle="tab">Pre Costing</a></li>
-                                <li role="presentation" ng-show="ModelNew.CostingStage=='ProcurementCosting'" ng-class="{ active: isSetCosting(2) }"><a ng-click="setTabCosting(2)" href="" data-toggle="tab">Procurement Costing</a></li>
-                                <li role="presentation" ng-class="{ active: isSetCosting(3) }"><a ng-click="setTabCosting(3)" href="" data-toggle="tab">Order Budget</a></li>
-                            </ul>
-                        </div>
-                        <div class="tab-content">
-                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetCosting(1), active: isSetCosting(1) }">
-                                @Html.Partial("~/Areas/Costings/Views/OrderCosting/PreCostingEntry.cshtml")
-                            </div>
-                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetCosting(2), active: isSetCosting(2) }">
-                                @Html.Partial("~/Areas/Costings/Views/OrderCosting/ProcurementCostingEntry.cshtml")
-                            </div>
-                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetCosting(3), active: isSetCosting(3) }">
-                                @Html.Partial("~/Areas/Costings/Views/OrderCosting/OrderBudget.cshtml")
                             </div>
                         </div>
                     </div>
@@ -970,56 +947,89 @@
 
             </div>
 
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                <div class="row">
 
-                    <div class="col-sm-12 col-sm-12 col-md-12">
-                        <div class="common-btn">
-                            <ul class="list-inline text-left">
-                                <li><button ng-click="showSalesOrderTagPopUp();" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
-                            </ul>
+            <div class="col-sm-12" style="border-top:2px solid #d4d4d4!important;margin-top:5px!important;"></div>
+
+            <div class="row" id="CostingItemsEntry">
+
+                <div class="col-md-12" ng-hide="Segment=='' || Segment==null">
+
+                    <h3 class="site-heading">
+                        <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>  {{SelectedOrderCostingComponent.UserName}}({{SelectedOrderCostingComponent.CostingSegment}})
+                    </h3>
+                    <div class="site-tab">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" ng-class="{ active: isSetCosting(1) }"><a ng-click="setTabCosting(1)" href="" data-toggle="tab">Pre Costing</a></li>
+                            <li role="presentation" ng-show="ModelNew.CostingStage=='ProcurementCosting'" ng-class="{ active: isSetCosting(2) }"><a ng-click="setTabCosting(2)" href="" data-toggle="tab">Procurement Costing</a></li>
+                            <li role="presentation" ng-class="{ active: isSetCosting(3) }"><a ng-click="setTabCosting(3)" href="" data-toggle="tab">Order Budget</a></li>
+                        </ul>
+                    </div>
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetCosting(1), active: isSetCosting(1) }">
+                            @Html.Partial("~/Areas/Costings/Views/OrderCosting/PreCostingEntry.cshtml")
                         </div>
-                        <div class="content-container-fluid" style="color:black;">
-                            <div style="color:black;" id="GridTemplateSOList" ej-grid e-datasource="SOTemplateList" e-gridlines="both" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                                 e-allowselection="false" e-filtersettings-filterType="excel">
-                                <div e-columns>
-
-                                    <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order" e-width="80"></div>
-                                    <div e-column e-type="string" e-field="MasterOrderItemId" e-headertext="Master Order Item" e-width="80"></div>
-                                    <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
-                                    <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="140"></div>
-                                    <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="140"></div>
-                                    <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="140"></div>
-                                    <div e-column e-type="string" e-field="BuyerReferenceNo" e-headertext="Buyer Reference No" e-width="120"></div>
-                                    <div e-column e-type="string" e-field="OwnReferenceNo" e-headertext="Own Reference No" e-width="120"></div>
-                                    <div e-column e-type="string" e-field="ProductionGrouping" e-headertext="Production Grouping" e-width="120"></div>
-                                    <div e-column e-type="string" e-field="ProductLibrary" e-headertext="Product Library" e-width="120"></div>
-                                    <div e-column e-type="string" e-field="CustomerArticle" e-headertext="Customer Article" e-width="120"></div>
-                                    <div e-column e-type="string" e-field="TotalQty" e-headertext="Total Qty" e-width="120"></div>
-                                    @*<div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="DeliveryDate" e-headertext="Delivery Date" e-width="80"></div>*@
-                                    <div e-column e-template="#deleteTemplateSO" e-width="32" e-textalign="center"></div>
-
-                                </div>
-                            </div>
-                            <script type="text/template" id="deleteTemplateSO">
-                                <div class="common-btn" style="padding:0px;margin:0px;">
-                                    <ul class="list-inline " style="padding:0px;margin:0px;">
-                                        <li ng-click="$parent.DeleteSalesOrderConfirm(this);" style="padding:0px;margin:0px;">
-                                            <button style="color: #f3f3ec;background-color: #1c1f32;padding:0px;margin:0px;" class="btn"><i class="glyphicon glyphicon-trash" style="margin: 2px;"></i></button>
-                                        </li>
-                                    </ul>
-
-                                </div>
-
-                            </script>
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetCosting(2), active: isSetCosting(2) }">
+                            @Html.Partial("~/Areas/Costings/Views/OrderCosting/ProcurementCostingEntry.cshtml")
+                        </div>
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetCosting(3), active: isSetCosting(3) }">
+                            @Html.Partial("~/Areas/Costings/Views/OrderCosting/OrderBudget.cshtml")
                         </div>
                     </div>
                 </div>
             </div>
 
         </div>
-        <div class="clearfix"></div>
+
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <div class="row">
+
+                <div class="col-sm-12 col-sm-12 col-md-12">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li><button ng-click="showSalesOrderTagPopUp();" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                        </ul>
+                    </div>
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="GridTemplateSOList" ej-grid e-datasource="SOTemplateList" e-gridlines="both" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-allowselection="false" e-filtersettings-filterType="excel">
+                            <div e-columns>
+
+                                <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order" e-width="80"></div>
+                                <div e-column e-type="string" e-field="MasterOrderItemId" e-headertext="Master Order Item" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="140"></div>
+                                <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="140"></div>
+                                <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="140"></div>
+                                <div e-column e-type="string" e-field="BuyerReferenceNo" e-headertext="Buyer Reference No" e-width="120"></div>
+                                <div e-column e-type="string" e-field="OwnReferenceNo" e-headertext="Own Reference No" e-width="120"></div>
+                                <div e-column e-type="string" e-field="ProductionGrouping" e-headertext="Production Grouping" e-width="120"></div>
+                                <div e-column e-type="string" e-field="ProductLibrary" e-headertext="Product Library" e-width="120"></div>
+                                <div e-column e-type="string" e-field="CustomerArticle" e-headertext="Customer Article" e-width="120"></div>
+                                <div e-column e-type="string" e-field="TotalQty" e-headertext="Total Qty" e-width="120"></div>
+                                @*<div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="DeliveryDate" e-headertext="Delivery Date" e-width="80"></div>*@
+                                <div e-column e-template="#deleteTemplateSO" e-width="32" e-textalign="center"></div>
+
+                            </div>
+                        </div>
+                        <script type="text/template" id="deleteTemplateSO">
+                            <div class="common-btn" style="padding:0px;margin:0px;">
+                                <ul class="list-inline " style="padding:0px;margin:0px;">
+                                    <li ng-click="$parent.DeleteSalesOrderConfirm(this);" style="padding:0px;margin:0px;">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;padding:0px;margin:0px;" class="btn"><i class="glyphicon glyphicon-trash" style="margin: 2px;"></i></button>
+                                    </li>
+                                </ul>
+
+                            </div>
+
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
+    <div class="clearfix"></div>
+</div>
 
 </div>
 
@@ -1078,7 +1088,7 @@
         <div class="modal-content">
             <div class="modal-header">Costing Items for {{SelectedOrderCostingComponent.UserName}} <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body">
-                <div class="col-xs-12 col-sm-12 col-md-12"> 
+                <div class="col-xs-12 col-sm-12 col-md-12">
                     <div id="GridItemListForOperations" ej-grid e-datasource="CostingItemList" e-gridlines="vertical"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                          e-allowselection="true" e-filtersettings-filterType="excel">
@@ -1173,7 +1183,7 @@
                             </tbody>
                         </table>
 
-                    </div> 
+                    </div>
                 </div>
             </div>
             <div class="modal-footer common-btn">
@@ -1251,8 +1261,8 @@
 
                                 </tr>
                             </tbody>
-                        </table> 
-                    </div> 
+                        </table>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer common-btn">
@@ -1641,7 +1651,7 @@
 </div>
 
 <ej-dialog id="InquiryItemPopUp" title="Inquiry Item List" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#costingMain"
-           e-close="onDialogClose" e-minwidth="1000" e-minheight="200" e-open="enableBtn"> 
+           e-close="onDialogClose" e-minwidth="1000" e-minheight="200" e-open="enableBtn">
     <div class="col-xs-12 col-sm-12 col-sm-12">
         <div class="content-container-fluid" style="color:black;">
             <div style="color: black;" id="InquiryItemGrid" ej-grid e-datasource="ModelListInquiryItem" e-gridlines="vertical"
@@ -1793,8 +1803,8 @@
                                         <button ng-click="SaveSalesOrder();" class="btn"><i class=""></i> Save</button>
                                         <button ng-click="closePopup('SalesOrderTagPopUp');" class="btn"><i class=""></i> Close</button>
                                     </li>
-                                </ul> 
-                            </div> 
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1841,7 +1851,7 @@
                                 <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="140"></div>
                                 <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="140"></div>
                                 <div e-column e-type="string" e-field="SalesOrder" e-headertext="Sales Order" e-width="80"></div>
-                                <div e-column e-field="DeliveryDate" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="Delivery Date" e-width="80"></div> 
+                                <div e-column e-field="DeliveryDate" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="Delivery Date" e-width="80"></div>
                             </div>
                         </div>
                         <script type="text/template" id="checkedSOItemAddNew">
@@ -1856,8 +1866,8 @@
                                         <button ng-click="CreateNewPopUpSO();" class="btn"><i class=""></i> Apply</button>
                                         <button ng-click="closePopup('SalesOrderTagPopUpAddNew');" class="btn"><i class=""></i> Cancel</button>
                                     </li>
-                                </ul> 
-                            </div> 
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1884,7 +1894,7 @@
                         @*<div e-column e-type="numeric" e-field="Version" e-headertext="Version" e-width="4"></div>*@
                     </div>
                 </div>
-                 
+
                 <div style="color:black;display:{{CopySource=='ORDER'?'inherit':'none'}};" id="GridCost" ej-grid e-datasource="ModelList2" e-gridlines="vertical"
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                      e-allowselection="false" e-filtersettings-filterType="excel">
@@ -2086,7 +2096,7 @@
                 <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
                 <div e-column e-type="string" e-field="ShortName" e-headertext="ShortName" e-width="100"></div>
                 <div e-column e-type="string" e-field="StandardName" e-headertext="StandardName" e-width="80"></div>
-                <div e-column e-type="string" e-field="UserName" e-headertext="UserName" e-width="80"></div> 
+                <div e-column e-type="string" e-field="UserName" e-headertext="UserName" e-width="80"></div>
             </div>
         </div>
     </div>
@@ -2268,6 +2278,7 @@
             </div>
         </div>
     </div>*@
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialArticleNewPopUp.cshtml")
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterByTypePopUp.cshtml")
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
 @Html.Partial("~/Areas/Costings/Views/OrderCosting/ItemToolTip.cshtml")

@@ -32,6 +32,7 @@ namespace Library.Model.Costings
         public string UpdatedFromIP { get; set; }
         public decimal ExcessShipmentPer { get; set; }
         public string CurrencyId { get; set; }
+        public string ArticleId { get; set; }
         
     
 
