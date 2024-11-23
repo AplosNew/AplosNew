@@ -175,6 +175,21 @@
 
                                         </div>
                                         <div class="col-xs-12 col-sm-2 col-md-2" style="padding-left:20px!important">
+                                            <div class="form-group">
+                                                <label class="control-label">Article<sup>*</sup></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-2 col-md-2">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <input type="text" name="Article" ng-model="ModelNew.Article" class="form-control" readonly>
+                                                    <span class="input-group-btn">
+                                                        <button ng-click="getArticlePopUp();" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-2 col-md-2" style="padding-left:20px!important">
                                             @*Std Cost for WC / day<sup>*</sup>*@
                                         </div>
                                         <div class="col-xs-12 col-sm-2 col-md-2">
@@ -2394,6 +2409,7 @@
         </div>
     </div>
 </ej-dialog>
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialArticleNewPopUp.cshtml")
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterByTypePopUp.cshtml")
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
 
