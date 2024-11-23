@@ -981,7 +981,7 @@ where x.TrnType='"+ trnType + @"'
                                     LEFT JOIN [HKP].[GLAccountType] AS GLTY ON GLTY.GLGeneralInfoId=GLGI.Id
                                     LEFT JOIN [HKP].[AccountGroup] AS AG ON AG.Id=GLGI.AccountGroupId
                                     LEFT JOIN [HKP].[AccountType] AS ACT ON ACT.Id=AG.AccountTypeId
-                                    WHERE GLGI.Archive=0 AND GLGI.Active=1 AND GLCG.CompanyGroupId='" + companyGroupId + "' AND GLCI.CompanyId='" + companyId + "' AND ACT.Id='" + accountTypeEnum + @"'
+                                    WHERE GLGI.Archive=0 AND GLGI.Active=1 AND BMA.Active=1 AND GLCG.CompanyGroupId='" + companyGroupId + "' AND GLCI.CompanyId='" + companyId + "' AND ACT.Id='" + accountTypeEnum + @"'
                                     UNION ALL
                                     SELECT AG.UserName AS AccountGroupName, GLGI.Id AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
                                     , BMA.BudgetMasterId, BM.RefNo, B.Code BudgetCode, B.UserName BudgetName, BMA.ActivityId, A.Code ActivityCode, A.UserName ActivityName, GLTY.AccountType
@@ -996,7 +996,7 @@ where x.TrnType='"+ trnType + @"'
                                     LEFT JOIN [HKP].[GLAccountType] AS GLTY ON GLTY.GLGeneralInfoId=GLGI.Id
                                     LEFT JOIN [HKP].[AccountGroup] AS AG ON AG.Id=GLGI.AccountGroupId
                                     LEFT JOIN [HKP].[AccountType] AS ACT ON ACT.Id=AG.AccountTypeId
-                                    WHERE GLGI.Archive=0 AND GLGI.Active=1 AND GLCG.CompanyGroupId='" + companyGroupId + "' AND GLCI.CompanyId='" + companyId + @"' AND GLTY.AccountType='Material'
+                                    WHERE GLGI.Archive=0 AND GLGI.Active=1 AND BMA.Active=1 AND GLCG.CompanyGroupId='" + companyGroupId + "' AND GLCI.CompanyId='" + companyId + @"' AND GLTY.AccountType='Material'
 ";
                 return _sqlRepository.GetGridData(parameters);
             }
