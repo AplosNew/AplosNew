@@ -1787,6 +1787,32 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
             ShowResult(e, "failure");
         }
     };
+
+    $scope.refreshPOTemplate = function (args) {
+        $("#headchk1").ejCheckBox({ "change": CheckBoxAllSelectedPO });
+    };
+
+    function CheckBoxAllSelectedPO(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+        var filtered = $("#GriddataSelecteds").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.PopUpList.length; i++) {
+                $scope.PopUpList[i].IsActives = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].IsActives = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GriddataSelecteds").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+
     $scope.PopUpList = [];
     $scope.getBoqFilter = function () {
         $http({

@@ -2668,6 +2668,7 @@ namespace Aplos.Areas.Products.Controllers
                             	,ISNULL(PO.ContractId, '') ContractId
                             	,ISNULL(mo.Id, '') MasterOrderId
                             	,ISNULL(cbi.SalesOrderId, '') SalesOrderId
+								,ISNULL(CPO.PONumber,'') CustomerPONumber
                             	,ISNULL(boq.RMCustomerSpec, '') CustomerRefNo
                             	,ISNULL(boq.RMVendorSpec, '') VendorRefNo
                             	,ISNULL(boq.OwnReferenceNo, '') OwnReferenceNo
@@ -2685,6 +2686,7 @@ namespace Aplos.Areas.Products.Controllers
 							LEFT JOIN CostingBOQMaster cboqm on cboqm.Id=boq.CostingBOQMasterId
 							LEFT JOIN CostingBOQItems cbi on cbi.CostingBOQMasterId=cboqm.Id
 							LEFT JOIN TRN.SalesOrder SO ON SO.Id=cbi.SalesOrderId
+							LEFT OUTER JOIN [TRN].[CustomerPO] CPO ON CPO.Id=SO.CustomerPOId
 							LEFT JOIN TRN.ProductionOrderDetail PROD ON PROD.SalesOrderId=SO.Id
                             JOIN TRN.POBOQMAP pomap ON pomap.BOQDetailId = boq.Id
                             LEFT JOIN HKP.Party P ON P.Id = mo.PartyId

@@ -746,30 +746,34 @@
            e-showoninit="false"
            e-target="#MainDivId"
            e-close="onDialogClose"
-           e-width="1070"
+           e-width="1150"
            e-minheight="470"
            e-open="enableBtn">
     <fieldset class="scheduler-border form-group form-elements">
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div style="color:black;" id="GriddataSelecteds" ej-grid e-datasource="PopUpList"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"  e-templaterefresh="refreshPOTemplate"
                  e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
                 <div e-columns>
-                    <div e-column e-template="#select" e-headertext="Select" e-width="40"></div>
-                    <div e-column e-type="string" e-field="POId" e-headertext="PO No" e-width="60"></div>
-                    <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="200"></div>
+                    @*<div e-column e-template="#select" e-headertext="Select" e-width="40"></div>*@
+                    <div e-column e-headertext="" e-headertemplateid="#headerTemplate1" e-template="#checkboxTemplate1" e-textalign="center" e-width="30"></div>
+                    <div e-column e-type="string" e-field="POId" e-headertext="PO No" e-width="40"></div>
+                    <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="180"></div>
                     <div e-column e-type="string" e-field="ContractId" e-headertext="ContractId" e-width="60"></div>
                     <div e-column e-type="string" e-field="MasterOrderId" e-headertext="MasterOrderId" e-width="60"></div>
                     <div e-column e-type="string" e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="80"></div>
-                    @*<div e-column e-type="string" e-field="CustomerRefNo" e-headertext="Customer Ref. No" e-width="80"></div>
-                    <div e-column e-type="string" e-field="VendorRefNo" e-headertext="Vendor Ref. No" e-width="80"></div>*@
+                    <div e-column e-type="string" e-field="CustomerPONumber" e-headertext="CustomerPONumber" e-width="100"></div>
+                    @*<div e-column e-type="string" e-field="VendorRefNo" e-headertext="Vendor Ref. No" e-width="80"></div>*@
                     <div e-column e-type="string" e-field="OwnReferenceNo" e-headertext="Own Ref. No" e-width="80"></div>
                     <div e-column e-type="string" e-field="BuyerOrderReferenceNo" e-headertext="Style" e-width="80"></div>
                     <div e-column e-type="string" e-field="VendorName" e-headertext="Vendor" e-width="150"></div>
                 </div>
             </div>
-            <script type="text/template" id="select">
+            <script type="text/template" id="checkboxTemplate1">
                 <input type="checkbox" ej-checkbox class="nodetext" e-value="data.IsActives" e-checked="data.IsActives" />
+            </script>
+            <script type="text/x-jsrender" id="headerTemplate1">
+                <input type="checkbox" id="headchk1" />
             </script>
         </div>
     </fieldset>
@@ -788,7 +792,7 @@
            e-showoninit="false"
            e-target="#MainDivId"
            e-close="onDialogClose"
-           e-width="1070"
+           e-width="1200"
            e-minheight="470"
            e-open="enableBtn">
     <fieldset class="scheduler-border form-group form-elements">
@@ -800,18 +804,16 @@
                     <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
                     @*<div e-column e-template="#select" e-headertext="Select" e-width="30"></div>*@
                     <div e-column e-type="string" e-field="MaterialCode" e-headertext="Code" e-width="30"></div>
-                    <div e-column e-type="string" e-field="MaterialMasterName" e-headertext="Material" e-width="100"></div>
-                    <div e-column e-type="string" e-field="ArticleName" e-headertext="Article" e-width="140"></div>
+                    <div e-column e-type="string" e-field="MaterialMasterName" e-headertext="Material" e-width="80"></div>
+                    <div e-column e-type="string" e-field="ArticleName" e-headertext="Article" e-width="120"></div>
                     <div e-column e-type="string" e-field="MaterialGroup" e-headertext="Material Group" e-width="60"></div>
                     <div e-column e-type="string" e-field="MaterialType" e-headertext="Material Type" e-width="80"></div>
+                    <div e-column e-type="string" e-field="PONo" e-headertext="PONo" e-width="150"></div>
                 </div>
             </div>
             <script type="text/template" id="checkboxTemplate">
                 <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsSelect" />
             </script>
-            @*<script type="text/template" id="select">
-                <input type="checkbox" ej-checkbox class="nodetext" e-value="data.IsSelect" e-checked="data.IsSelect" />
-            </script>*@
             <script type="text/x-jsrender" id="headerTemplate">
                 <input type="checkbox" id="headchk" />
             </script>
