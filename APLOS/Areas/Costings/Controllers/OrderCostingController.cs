@@ -245,7 +245,9 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
 								                             where moi.OrderCostingMasterTemplateId=qcm.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,OwnReferenceNo=STUFF((select distinct ','+moi.OwnReferenceNo from   trn.MasterOrderItem MOI 
 								                             where moi.OrderCostingMasterTemplateId=qcm.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                            ,MMA.StandardName Article
 							from OrderCostingMasterTemplate qcm 
+                            LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=qcm.ArticleId
                             left join [HKP].[Party] p ON p.Id = qcm.CustomerId
                             left join scs.Currency CUR on CUR.Id=qcm.CurrencyId
                             left join [MST].[ProductMaster] pm ON pm.Id = qcm.ProductMasterId
@@ -398,9 +400,9 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
             string sql = @"select qcm.*, p.UserName as Customer, pm.UserName as ProductMaster 
 							,pc.UserName as ProductCategory
 							,psc.UserName as ProductSubCategory,ct.UserName AS CostingTypeName
-                             ,pm.CostingType,eff.StandardWorkingHours AS StandardWorkingHoursForProduct
+                             ,pm.CostingType,eff.StandardWorkingHours AS StandardWorkingHoursForProduct,MMA.StandardName Article
 							from OrderCostingMasterTemplate qcm 
-							
+							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=qcm.ArticleId
                             left join [HKP].[Party] p ON p.Id = qcm.CustomerId
                             left join [MST].[ProductMaster] pm ON pm.Id = qcm.ProductMasterId
 							left join [HKP].[ProductCategory] as pc on pc.Id = pm.ProductCategoryId
@@ -2046,6 +2048,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
             dr["TargetCM"] = sourceData.TargetCM;
             dr["TargetProfit"] = sourceData.TargetProfit;
             dr["IsPercentage"] = sourceData.IsPercentage;
+            dr["ArticleId"] = sourceData.ArticleId;
             //dr["IsApprovalApplicable"] = sourceData.IsApprovalApplicable;
             //dr["ApproveByWhomId"] = sourceData.ApproveByWhomId;
 
@@ -6788,6 +6791,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
 
         public string InquiryItemId { get; set; }
         public string MasterOrderItemId { get; set; }
+        public string ArticleId { get; set; }
 
         public decimal SPT { get; set; }
         public int NoOfWorkstation { get; set; }

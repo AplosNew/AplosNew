@@ -10,6 +10,7 @@ function quickCostingMasterController(cboService, commonMessage, $scope, $rootSc
     baseService.init($scope.getListUrl);
     $scope.Action = 'Save';
     $scope.searchBy = "UserName"; $scope.search = "";
+    $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
     $controller('partyBaseController', { $scope: $scope, $http: $http });
     $scope.partyType = 'Customer';
     $scope.piemarker = { dataLabel: { visible: true, shape: 'none', connectorLine: { type: 'bezier', color: 'black' }, font: { size: '14px' } } };
@@ -51,6 +52,20 @@ function quickCostingMasterController(cboService, commonMessage, $scope, $rootSc
     }
     $scope.getData();
 
+
+    $scope.getArticlePopUp = function () {
+        $scope.getMaterialMasterWithArticle(null);
+    }
+    $scope.setInputeMaterialArticleData = function (ob) {
+        try {
+            $scope.ModelNew.ArticleId = ob.data.Id;
+            $scope.ModelNew.Article = ob.data.StandardName;
+            angular.element(document.querySelector('#materialarticleNewPopUp')).modal('hide');
+
+        } catch (e) {
+            ShowResult(e, '', 'articleSearchPop');
+        }
+    };
 
     $scope.ProductUOM = [];
     //cboService.getUnitOfMeasurementCbo(function (response) {

@@ -150,9 +150,9 @@ namespace Aplos.Areas.Costings.Controllers
             string sql = @"select qcm.*, p.UserName as Customer, pm.UserName as ProductMaster 
 							,pc.UserName as ProductCategory,ct.UserName AS CostingTypeName
 							,psc.UserName as ProductSubCategory
-                             ,pm.CostingType,eff.StandardWorkingHours AS StandardWorkingHoursForProduct
+                             ,pm.CostingType,eff.StandardWorkingHours AS StandardWorkingHoursForProduct,MMA.StandardName Article
 							from CostingMasterTemplate qcm 
-							
+							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=qcm.ArticleId
                             left join [HKP].[Party] p ON p.Id = qcm.CustomerId
                             left join [MST].[ProductMaster] pm ON pm.Id = qcm.ProductMasterId
 							left join [HKP].[ProductCategory] as pc on pc.Id = pm.ProductCategoryId
@@ -1393,6 +1393,7 @@ namespace Aplos.Areas.Costings.Controllers
             dr["TargetCM"] = sourceData.TargetCM;
             dr["TargetProfit"] = sourceData.TargetProfit;
             dr["IsPercentage"] = sourceData.IsPercentage;
+            dr["ArticleId"] = sourceData.ArticleId;
 
             dr["UpdatedBy"] = identity.Name;
             dr["UpdatedDate"] = System.DateTime.Now.ToString();
