@@ -128,7 +128,7 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">User Defined Name<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
+                        <input type="text" name="User Name" ng-model="ModelNew.UserName"  ng-keyup="CheckSpecialCharecter();" class="form-control" required tabindex="5" maxlength="50">
                     </div>
                 </div>
                 <div class="form-group">
