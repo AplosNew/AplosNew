@@ -65,7 +65,8 @@ namespace Library.Model.Inventory
         #endregion Audit Properties
 
         #region Navigation Properties
-
+        public string BudgetMasterId { get; set; }
+        public string ActivityId { get; set; }
         #endregion Navigation Properties
     }
 }

@@ -526,7 +526,7 @@
             </div>
 
             <div class="clearfix"></div>
-           
+
             <div class="col-xs-12 col-sm-4 col-md-4" ng-show="productNew.OrderSpecific==='Yes'">
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Master LC Ref No</label>
@@ -1984,11 +1984,11 @@
                         <div class="form-group" id="div_svc">
                             <label class="col-sm-4 col-md-4 control-label">Service<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select name="Service" ng-model="serviceModel.ServiceMasterId" class="col-sm-3 form-control"
-                                            ng-options="item.Value as item.Text for item in serviceList" ng-change="changeService();">
-                                        <option value=""></option>
-                                    </select>
+                                <div class="input-group">
+                                    <input type="text" ng-model="serviceModel.ServiceName" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button tabindex="1" ng-click="getServiceMasterPopUpData();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -2112,7 +2112,8 @@
             </div>
         </div>
     </div>
-    @*end service tax add*@
+    @Html.Partial("~/Areas/SetUps/Views/ServiceMaster/_ServiceMasterPopUpNew.cshtml")
+    @Html.Partial("~/Areas/Products/Views/PurchaseOrder/_ServiceControlServiceMasterPopUp.cshtml")
 
 
 

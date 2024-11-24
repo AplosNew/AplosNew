@@ -26,6 +26,9 @@ namespace Library.ViewModel.Inventory
         public string ServiceRequsitionDetailId { get; set; }
 
         public string ServiceReqMasterId { get; set; }
+        public string BudgetMasterId { get; set; }
+        public string ActivityId { get; set; }
+
         #region Audit Properties
 
         /// <summary>

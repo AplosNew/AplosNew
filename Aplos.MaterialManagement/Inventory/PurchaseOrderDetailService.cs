@@ -1766,6 +1766,8 @@ namespace Library.MaterialManagement.Inventory
                             Id = ServicePOId + currentId,
                             ServicePOMasterId = ServicePoMasterId,
                             ServiceMasterId = entity.ServiceMasterId,
+                            BudgetMasterId = entity.BudgetMasterId,
+                            ActivityId = entity.ActivityId,
                             Qty = entity.Qty,
                             Rate = Math.Round(entity.Rate, 4),
                             Amount = Math.Round(entity.Amount, 2),
