@@ -1545,34 +1545,30 @@ namespace Library.MaterialManagement.InventoryManagements
             }
         }
 
-        public IEnumerable<object> PurchaseOrderRegisterData(string fromDate, string toDate, string Type)
+        public IEnumerable<object> PurchaseOrderRegisterData(string fromDate, string toDate, string Type,bool isClose)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var tempQuery = " ";
+            if (isClose)
+            {
+                tempQuery = " AND IR.IsClosed=1 ";
+            }
             try
             {
                 var _sql = @"SELECT --ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo,
 							IR.Id PONo
                             ,POType= CASE WHEN IR.POType='PO' Then 'Individual PO' ELSE 'Requisition Based PO' END
 							, HSNCode=case when TAxInfo.HSCode<>'' then TAxInfo.HSCode
-													when TAxInfo1.HSCode<>'' then TAxInfo1.HSCode
-													when TAxInfo2.HSCode<>'' then TAxInfo2.HSCode
-													else '' end
+													WHEN TAxInfo1.HSCode<>'' then TAxInfo1.HSCode
+													WHEN TAxInfo2.HSCode<>'' then TAxInfo2.HSCode ELSE '' END
 						,IM.InventoryReceiveId AS PORowId
-						,REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
-						,IR.DocRefNo
-						,REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-						,p.UserName AS PartyName
+						,REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate ,ISNULL(IR.DocRefNo,'') DocRefNo
+						,REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate ,p.UserName AS PartyName
 						,IR.PartyId ,IR.InvoicingPartyPlantId,PP.UserName InvoicingPartyPlant
 						,IR.DeliveryPartyPlantId,PPD.UserName DeliveryPartyPlant
-						,MT.UserName MaterialType
-						,MGM.UserName AS MaterialGroupMasterName
-						,IM.InventoryMaterialId MaterialMasterId
-						,MM.UserName MaterialMasterName
-						, ART.StandardName ArticleName
-						, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
-						, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
-						, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue
-						,TUoM.UserName AS UOM
+						,MT.UserName MaterialType ,MGM.UserName AS MaterialGroupMasterName ,IM.InventoryMaterialId MaterialMasterId
+						,MM.UserName MaterialMasterName , ART.StandardName ArticleName , ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
+						, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue , ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue ,TUoM.UserName AS UOM
 						,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
 						,IM.TransactionQty,Isnull(GRN.GRNQty,0) ReceiptQty,0 RejectionQty
 						,(IM.TransactionQty-Isnull(GRN.GRNQty,0)) BalanceQty,IM.Tolerance
@@ -1581,29 +1577,23 @@ namespace Library.MaterialManagement.InventoryManagements
 						,ROUND(Isnull(IM.TotalTaxAmount,0),2) TotalTaxAmount
 						,ROUND(Isnull(IM.ChargesAmount,0),2) ServiceCharge
                         ,Isnull(servicetax.TaxAmount,0) ServiceChargeTax
-						,ROUND(Isnull(IM.BaseAmount,0),2) BaseAmount
-						,IR.AddedBy
-						,CASE
-						WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null AND IR.AuthorizedByStatus = 'Approved' Then 'Approved'
+						,ROUND(Isnull(IM.BaseAmount,0),2) BaseAmount ,IR.AddedBy
+						,CASE WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null AND IR.AuthorizedByStatus = 'Approved' Then 'Approved'
 						WHEN IR.CheckedBy is not null And IR.CheckedByStatus = 'ForChecked' AND IR.AuthorizedBy is null And IR.AuthorizedByStatus is null Then 'To be Checked'
 						WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null Then 'To be approved'
-
-
 						WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Hold' Then 'Checking Hold'
 						WHEN IR.CheckedBy is not null AND IR.CheckedByStatus = 'Rejected' Then 'Checking Rejected'
 						WHEN IR.CheckedBy is not null ANd IR.AuthorizedByStatus = 'Hold' Then 'Approving Hold'
-						WHEN IR.CheckedBy is not null AND IR.AuthorizedByStatus = 'Rejected' Then 'Approving Rejected'
-						END GRNCheckStatus
-
-						,EI1.EmployeeName CheckedBY
-						,EI2.EmployeeName AuthorizedBy
-						,round(isnull(TAxInfo.TaxAmount,0),2) CGST,isnull(TAxInfo.Percentage,0) CGSTTaxPercentage--MaterialTaxPer
-						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,isnull(TAxInfo2.Percentage,0) SGSTTaxPercentage
-						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,isnull(TAxInfo1.Percentage,0) IGSTTaxPercentage
-						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,isnull(TAxInfo3.Percentage,0) TDSTaxPercentage
-						,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,isnull(TAxInfo6.Percentage,0) TCSTaxPercentage
+						WHEN IR.CheckedBy is not null AND IR.AuthorizedByStatus = 'Rejected' Then 'Approving Rejected' END GRNCheckStatus
+						,ISNULL(EI1.EmployeeName,'') CheckedBY ,EI2.EmployeeName AuthorizedBy
+						,ROUND(ISNULL(TAxInfo.TaxAmount,0),2) CGST,isnull(TAxInfo.Percentage,0) CGSTTaxPercentage--MaterialTaxPer
+						,ROUND(ISNULL(TAxInfo2.TaxAmount,0),2) SGST,isnull(TAxInfo2.Percentage,0) SGSTTaxPercentage
+						,ROUND(ISNULL(TAxInfo1.TaxAmount,0),2) IGST,isnull(TAxInfo1.Percentage,0) IGSTTaxPercentage
+						,ROUND(ISNULL(TAxInfo3.TaxAmount,0),2) TDS,isnull(TAxInfo3.Percentage,0) TDSTaxPercentage
+						,ROUND(ISNULL(TAxInfo6.TaxAmount,0),2) TCS,isnull(TAxInfo6.Percentage,0) TCSTaxPercentage
                         ,isnull(PLC.LCANo,'') LCANo,isnull(PLC.LCRef,'')LCRef,isnull(IR.ContractId,'')ContractId,isnull(IM.RefferenceNo,'')RefferenceNo
-						from TRN.PurchaseOrderDetail AS IM
+                        ,IsClosed=case when IR.IsClosed=0 then 'NO' Else 'YES' END
+						FROM TRN.PurchaseOrderDetail AS IM
 						LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
 						left JOIN MST.MaterialMaster AS MM ON ART.MaterialMasterId=MM.Id
 						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
@@ -1624,7 +1614,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN EmployeeInformation EI1 ON EI1.SystemId=IR.CheckedBy
 						LEFT JOIN EmployeeInformation EI2 ON EI2.SystemId=IR.AuthorizedBy
                         LEFT JOIN dbo.[Contract] C ON C.Id=IR.ContractId
-						left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
+						LEFT JOIN dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
 
 						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount,hs.Code HSCode
 						FROM [TRN].[PurchaseOrderTax] A
@@ -1640,98 +1630,70 @@ namespace Library.MaterialManagement.InventoryManagements
 						WHERE B.Code='IGST' and A.InventoryServiceId IS NULL
 						--Group By A.InventoryReceiveDetailId, B.UserName ,B.Code ,A.Percentage
 						) TAxInfo1 ON TAxInfo1.InventoryReceiveDetailId=IM.Id
-
 						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount,hs.Code HSCode
 						FROM [TRN].[PurchaseOrderTax] A
 						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 						left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 						WHERE B.Code='SGST' and A.InventoryServiceId IS NULL
-
 						) TAxInfo2 ON TAxInfo2.InventoryReceiveDetailId=IM.Id
-
 						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount
 						FROM [TRN].[PurchaseOrderTax] A
 						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 						WHERE B.Code='TDS' and A.InventoryServiceId IS NULL
-
 						) TAxInfo3 ON TAxInfo3.InventoryReceiveDetailId=IM.Id
 						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount
 						FROM [TRN].[PurchaseOrderTax] A
 						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 						WHERE B.Code='VAT' and A.InventoryServiceId IS NULL
-
 						) TAxInfo4 ON TAxInfo4.InventoryReceiveDetailId=IM.Id
 						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount
 						FROM [TRN].[PurchaseOrderTax] A
 						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 						WHERE B.Code='AIT' and A.InventoryServiceId IS NULL
-
 						) TAxInfo5 ON TAxInfo5.InventoryReceiveDetailId=IM.Id
 						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount
 						FROM [TRN].[PurchaseOrderTax] A
 						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 						WHERE B.Code='TCS' and A.InventoryServiceId IS NULL
 						) TAxInfo6 ON TAxInfo6.InventoryReceiveDetailId=IM.Id
-
-					left join(select InventoryReceiveId,sum(TaxAmount) TaxAmount from trn.purchaseOrderTax where inventoryReceiveDetailId is null
+					LEFT JOIN(select InventoryReceiveId,sum(TaxAmount) TaxAmount from trn.purchaseOrderTax where inventoryReceiveDetailId is null
 											group By InventoryReceiveId
 											)servicetax ON servicetax.InventoryReceiveId=IM.InventoryReceiveId
 					
-			where  IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.PODate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
+			WHERE  IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.PODate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' "+ tempQuery + @"
 			UNION ALL
 			SELECT --ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo
-					'ServicePO' POType
-					,IR.Id POId
+					'ServicePO' POType ,IR.Id POId
 					 , HSNCode=case when TAxInfo.HSCode<>'' then TAxInfo.HSCode
 					 when TAxInfo1.HSCode<>'' then TAxInfo1.HSCode
-					 when TAxInfo2.HSCode<>'' then TAxInfo2.HSCode
-					 else '' end
-					,IM.Id AS PORowId
-					,REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
-					,IR.DocRefNo
-					,REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-					,p.UserName AS PartyName
-					,IR.PartyId ,IR.InvoicingPartyPlantId,PP.UserName InvoicingPartyPlant
+					 when TAxInfo2.HSCode<>'' then TAxInfo2.HSCode else '' end
+					,IM.Id AS PORowId ,REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
+					,ISNULL(IR.DocRefNo,'') DocRefNo ,REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+					,p.UserName AS PartyName ,IR.PartyId ,IR.InvoicingPartyPlantId,PP.UserName InvoicingPartyPlant
 					,IR.DeliveryPartyPlantId,PPD.UserName DeliveryPartyPlant
-					,'' MaterialType
-					,'' AS MaterialGroupMasterName
-					,'' MaterialMasterId
-				,SM.UserName MaterialMasterName
-					,'' ArticleName
-					, '' FirstCharacteristicsValue
-					, '' SecondCharacteristicsValue
-					, '' ThirdCharacteristicsValue
-					,'' UOM
+					,'' MaterialType ,'' AS MaterialGroupMasterName
+					,'' MaterialMasterId ,SM.UserName MaterialMasterName
+					,'' ArticleName , '' FirstCharacteristicsValue , '' SecondCharacteristicsValue , '' ThirdCharacteristicsValue ,'' UOM
 					,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
 					,0 TransactionQty,0 ReceiptQty,0 RejectionQty
-					,0 BalanceQty,0 Tolerance
-					,0 TransactionRate
-					,IM.Amount TransactionAmount
+					,0 BalanceQty,0 Tolerance ,0 TransactionRate ,IM.Amount TransactionAmount
 					,ROUND(Isnull(servicetax.TaxAmount,0),2) TotalTaxAmount
-					,0 ServiceCharge
-					,0 ServiceChargeTax
-					,0 BaseAmount
-					,IR.AddedBy
-					,CASE
-					WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.ApprovedBy is NOT null AND IR.ApprovedBy = 'Approved' Then 'Approved'
+					,0 ServiceCharge ,0 ServiceChargeTax ,0 BaseAmount ,IR.AddedBy
+					,CASE WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.ApprovedBy is NOT null AND IR.ApprovedBy = 'Approved' Then 'Approved'
 					WHEN IR.CheckedBy is not null And IR.CheckedByStatus = 'ForChecked' AND IR.ApprovedBy is null And IR.ApprovedByStatus is null Then 'To be Checked'
 					WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.ApprovedBy is NOT null Then 'To be approved'
-
-
 					WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Hold' Then 'Checking Hold'
 					WHEN IR.CheckedBy is not null AND IR.CheckedByStatus = 'Rejected' Then 'Checking Rejected'
 					WHEN IR.CheckedBy is not null ANd IR.ApprovedByStatus = 'Hold' Then 'Approving Hold'
 					WHEN IR.CheckedBy is not null AND IR.ApprovedByStatus = 'Rejected' Then 'Approving Rejected'
 					END GRNCheckStatus
-
-					,EI1.EmployeeName CheckedBY
-					,EI2.EmployeeName AuthorizedBy
-					,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer
-					,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
-					,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
-					,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
-					,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
-                    ,'' LCANo,'' LCRef,'' ContractId,'' RefferenceNo
+					,ISNULL(EI1.EmployeeName,'') CheckedBY ,EI2.EmployeeName AuthorizedBy
+					,ROUND(ISNULL(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer
+					,ROUND(ISNULL(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
+					,ROUND(ISNULL(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
+					,ROUND(ISNULL(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
+					,ROUND(ISNULL(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
+                    ,'' LCANo,'' LCRef,'' ContractId,'' RefferenceNo,IsClosed=case when IR.IsClosed=0 then 'NO' Else 'YES' END
 					from TRN.ServicePODetail AS IM
 					left JOIN hkp.ServiceMaster SM ON SM.Id=IM.ServiceMasterId
 					left jOIN [TRN].ServicePOMaster AS IR ON IR.Id=IM.ServicePOMasterId
@@ -1742,60 +1704,48 @@ namespace Library.MaterialManagement.InventoryManagements
 					LEFT JOIN EmployeeInformation EI1 ON EI1.SystemId=IR.CheckedBy
 					LEFT JOIN EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 
-
 					LEFT JOIN (SELECT A.ServicePODetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount,hs.Code HSCode
 					FROM [TRN].[ServicePOTax] A
 					LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 					left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 					WHERE B.Code='CGST'
-
 					) TAxInfo ON TAxInfo.ServicePODetailId=IM.Id
 					LEFT JOIN (SELECT A.ServicePODetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount,hs.Code HSCode
 					FROM [TRN].[ServicePOTax] A
 					LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 					left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 					WHERE B.Code='IGST'
-
 					) TAxInfo1 ON TAxInfo1.ServicePODetailId=IM.Id
-
 					LEFT JOIN (SELECT A.ServicePODetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount,hs.Code HSCode
 					FROM [TRN].[ServicePOTax] A
 					LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 					left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 					WHERE B.Code='SGST'
-
 					) TAxInfo2 ON TAxInfo2.ServicePODetailId=IM.Id
-
 					LEFT JOIN (SELECT A.ServicePODetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount
 					FROM [TRN].[ServicePOTax] A
 					LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 					WHERE B.Code='TDS'
-
 					) TAxInfo3 ON TAxInfo3.ServicePODetailId=IM.Id
-
 					LEFT JOIN (SELECT A.ServicePODetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount
 					FROM [TRN].[ServicePOTax] A
 					LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 					WHERE B.Code='VAT' and A.ServicePODetailId IS NULL
-
 					) TAxInfo4 ON TAxInfo4.ServicePODetailId=IM.Id
 					LEFT JOIN (SELECT A.ServicePODetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount
 					FROM [TRN].[ServicePOTax] A
 					LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 					WHERE B.Code='AIT'
 					) TAxInfo5 ON TAxInfo5.ServicePODetailId=IM.Id
-
 					LEFT JOIN (SELECT A.ServicePODetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount
 					FROM [TRN].[ServicePOTax] A
 					LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 					WHERE B.Code='TCS'
 					) TAxInfo6 ON TAxInfo6.ServicePODetailId=IM.Id
-
 					left join(select ServicePOMasterId,sum(TaxAmount) TaxAmount from trn.[ServicePOTax] where ServicePOMasterId is null
 					group By ServicePOMasterId
 					)servicetax ON servicetax.ServicePOMasterId=IM.ServicePOMasterId
-					where  IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.PODate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
-
+					WHERE  IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.PODate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'  " + tempQuery + @"";
                 return _sqlRepository.GetDataCollection(_sql);
             }
             catch (Exception ex)
