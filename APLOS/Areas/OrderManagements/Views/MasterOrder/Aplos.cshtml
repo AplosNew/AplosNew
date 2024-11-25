@@ -536,7 +536,7 @@
                                             <input type="text" ng-model=" x.OwnReferenceNo" class="form-control" style="width: 105px;" ng-maxlength="50" ng-keyup="SetProductionRef($index);">
                                         </td>
                                         <td>
-                                            <input type="text" ng-model=" x.ProductionGrouping" class="form-control" ng-keyup="CheckSpecialCharecter($index);">
+                                            <input type="text" ng-model=" x.ProductionGrouping" ng-disabled="x.IsDefault==true" class="form-control" ng-keyup="CheckSpecialCharecter($index);">
                                         </td>
                                         <td>
                                             <input type="text" n-decimals="2" ng-model=" x.OrderWastagePercentage" class="form-control text-right">

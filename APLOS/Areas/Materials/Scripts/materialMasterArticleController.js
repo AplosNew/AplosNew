@@ -1109,6 +1109,22 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         }
     };
 
+    function containsSpecialChars(str) {
+        const specialChars = /[`!@#$%^&*()_+\=\[\]{};':"\\|,.<>\/?~]/;
+        return specialChars.test(str);
+    }
+
+    $scope.CheckSpecialCharecter = function () {
+        try {
+            if (containsSpecialChars($scope.ModelNew.UserName)) {
+                $scope.ModelNew.UserName = $scope.ModelNew.UserName.substring(0, $scope.ModelNew.UserName.length - 1);
+                throw "No special characters allowed for Production Group User Name.";
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
     $scope.SaveProductionGrouping = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
@@ -1125,7 +1141,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
                     ShowResult(response.data.Message, 'success');
                     ClearPGFields(response.data.Sequence);
                     $scope.getProductionGroupingData();
-
+                    $scope.GetProductionGroupingCbo();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -1157,6 +1173,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
                     ShowResult(response.data.Message, 'success');
                     ClearPGFields(response.data.Sequence);
                     $scope.getProductionGroupingData();
+                    $scope.GetProductionGroupingCbo();
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');

@@ -20922,7 +20922,11 @@ SELECT --ROW_NUMBER() Over(Order by  MM.Id) As[S.N],
                 sheet[ROW, COL].Text = "Refference No";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int ColRefferenceNo = COL;
-                 
+                COL++;
+
+                sheet[ROW, COL].Text = "IsClose";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColIsClose = COL;
                 #endregion columns
                 int endCol = COL;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
@@ -21050,6 +21054,7 @@ SELECT --ROW_NUMBER() Over(Order by  MM.Id) As[S.N],
                     sheet[ROW, ColLCRef].Text = data[i]["LCRef"].ToString();
                     sheet[ROW, ColContractId].Text = data[i]["ContractId"].ToString();
                     sheet[ROW, ColRefferenceNo].Text = data[i]["RefferenceNo"].ToString();
+                    sheet[ROW, ColIsClose].Text = data[i]["IsClosed"].ToString();
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);

@@ -73,7 +73,8 @@ function purchaseorderRegisterController(fileReader, commonMessage, $scope, $roo
 
 	
 	
-	$scope.productNew = {
+    $scope.productNew = {
+        IsClose: false,
         Type: null,
         WithStock: true,
         WithoutStock: false
@@ -134,18 +135,16 @@ function purchaseorderRegisterController(fileReader, commonMessage, $scope, $roo
 			data: {
 				fromDate: $scope.report.FromDate,
 				toDate: $scope.report.ToDate,
-				Type: $scope.productNew.Type
+				Type: $scope.productNew.Type,
+                isClose: $scope.productNew.IsClose
 			},
 			dataType: 'JSON'
 		}).then(function successCallback(response) {
 			$scope.PurchaseRegisterLst = response.data;
-
 			for (var i = 0; i < $scope.PurchaseRegisterLst.length; i++) {
 				response.data[i].GRNEntryDate = new Date($scope.PurchaseRegisterLst[i].GRNEntryDate);
 			}
-
 		});
-
     };
 
 	$scope.getPurchaseRegisterReport = function () {

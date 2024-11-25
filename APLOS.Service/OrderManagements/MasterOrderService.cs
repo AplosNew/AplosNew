@@ -602,10 +602,11 @@ namespace Library.Service.OrderManagements
                             ,MOI.ProductLibraryId,MOI.FileName,MOI.Remark,MOI.OrderStatusId,MOI.UOMId
                             ,BOQNo=(Select COUNT(Id) from [dbo].[QuickBOQ] Where MasterOrderItemId=MOI.Id)
                             ,SONo=(Select COUNT(Id) from TRN.SalesOrder Where MasterOrderItemId=MOI.Id)
-                            ,MOI.Consignment,MOI.OrderCostingMasterTemplateId,'' TempList,PM.Id ProductMasterId,CAST(1 as bit) ByDefault,PL.UserName ProductLibrary,OCT.UserName OrderCostingMasterTemplate,MOI.Rate,ISNULL(AA.ArticlePartyName,P.UserName) CustomerArticle
+                            ,MOI.Consignment,MOI.OrderCostingMasterTemplateId,'' TempList,PM.Id ProductMasterId,CAST(1 as bit) ByDefault,PL.UserName ProductLibrary,OCT.UserName OrderCostingMasterTemplate,MOI.Rate,ISNULL(AA.ArticlePartyName,P.UserName) CustomerArticle,ISNULL(PG.IsDefault,0)IsDefault
                         FROM TRN.MasterOrderItem AS MOI
                         JOIN MST.MaterialMaster AS MM ON MOI.MaterialMasterId=MM.Id
                         LEFT JOIN MST.MaterialMasterArticle AS ART ON MOI.ArticleId=ART.Id
+                        LEFT JOIN HKP.ProductionGrouping PG ON PG.Id=ART.ProductionGroupingId
 						LEFT JOIN (SELECT AttributeSetLength=CASE WHEN COUNT(MaterialMasterId)>0 THEN COUNT(MaterialMasterId) ELSE 0 END
                                                 , HasAttribute=CASE WHEN COUNT(MaterialMasterId)>0 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END, MaterialMasterId
                                             FROM MST.MaterialMasterAttribute GROUP BY MaterialMasterId) AS HART ON HART.MaterialMasterId=MM.Id

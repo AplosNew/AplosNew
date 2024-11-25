@@ -13311,6 +13311,8 @@ ORDER BY IR.ID DESC";
                                     Id = NewId + currentId,
                                     ServiceAcknowledgementMasterId = entity.Id,
                                     ServiceMasterId = itemDetail.ServiceMasterId,
+                                    BudgetMasterId = itemDetail.BudgetMasterId,
+                                    ActivityId = itemDetail.ActivityId,
                                     ServicePOMasterId = itemDetail.ServicePOMasterId,
                                     ServicePODetailId = itemDetail.ServicePODetailId,
                                     Amount = Math.Round(itemDetail.Amount, 2),

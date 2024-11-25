@@ -875,7 +875,7 @@ namespace Aplos.Areas.Materials.Controllers
         #endregion
 
         #region Purchase Order Register
-        public JsonResult GetPurchaseOrderRegister(string fromDate, string toDate, string Type)
+        public JsonResult GetPurchaseOrderRegister(string fromDate, string toDate, string Type, bool isClose)
         {
             try
             {
@@ -893,7 +893,7 @@ namespace Aplos.Areas.Materials.Controllers
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService();
-                var jsondata = Json(obj.PurchaseOrderRegisterData(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
+                var jsondata = Json(obj.PurchaseOrderRegisterData(fromDate, toDate, Type, isClose), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
                 return jsondata;
             }

@@ -228,7 +228,12 @@ namespace Aplos.MaterialManagement.MaterialQuery
         {
             try
             {
-                var sql = @"SELECT  distinct IM.MaterialMasterId ,MT.UserName MaterialType,MMG.UserName MaterialGroup,MM.Code MaterialCode,MM.UserName MaterialMasterName
+                var sql = @"SELECT X.*, PONo=STUFF((select distinct ','+XSO.Id
+		                                         from    trn.PurchaseOrder XSO 	 
+												 JOIN [TRN].[PurchaseOrderDetail] AS XIRD ON XSO.Id=XIRD.InventoryReceiveId
+									                where XIRD.InventoryMaterialId=X.MaterialMasterId AND XIRD.ArticleId=X.ArticleId AND XSO.IsClosed=0	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								 
+FROM (SELECT  distinct IM.MaterialMasterId ,MT.UserName MaterialType,MMG.UserName MaterialGroup,MM.Code MaterialCode,MM.UserName MaterialMasterName
 						,IM.ArticleId ,MMA.StandardName ArticleName,0 IsSelect
                     FROM TRN.GRNPORequisitionAllocation grnmap
 					JOIN [TRN].[InventoryReceiveDetail] AS IRD  on grnmap.InventoryReceiveDetailId=ird.Id
@@ -244,10 +249,11 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								 GROUP BY IHB.InventoryReceiveDetailId ,IHB.BOQDetailId
 								 ) II ON II.InventoryReceiveDetailId=grnmap.InventoryReceiveDetailId  
                     WHERE  IM.CompanyId='" + companyId + @"' AND IM.PlantId='"+ plantId + "' AND IRD.MaterialStorageId='"+ materialStorageId + @"'
+                    	AND IRD.POId<>'' AND grnmap.BOQDetailId<>''
                     AND IR.[Status]='Posting' AND IR.IsFOC=0 AND IRD.BaseQty !=ISNULL(II.IssueQty,0) 
                     AND MM.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
                         LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
-                        WHERE BP.BusinessProcessName='BOM')";
+                        WHERE BP.BusinessProcessName='BOM'))X";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
