@@ -2224,7 +2224,6 @@ SELECT ROW_NUMBER()  OVER(ORDER BY  SPOM.Id) AS SiNo, SPOM.Id
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
                 if (identity.EmployeeId == entity.CheckedBy)
                 {
                     throw new CustomException("Please select another employee for Check by.");
