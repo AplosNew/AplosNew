@@ -149,10 +149,9 @@
     <div class="clearfix"></div>
     <div class="col-xs-12 col-sm-6 col-md-6">
         <ul class="common-btn list-inline text-left">
-            <li><button ng-click="SearchMaterialPopup();" class="btn" ng-disabled="ispostDisable">Search Material</button></li>
-            <li><button ng-click="SearchPopup();" class="btn" ng-disabled="ispostDisable">Search PO</button></li>
+            <li><button ng-click="SearchMaterialPopup();" class="btn" ng-disabled="detailList.length">Search Material</button></li>
+            <li><button ng-click="SearchPopup();"  class="btn" ng-disabled="detailList.length">Search PO</button></li>
         </ul>
-        
     </div>
     <div class="clearfix"></div>
     <div class="col-xs-12 col-sm-8 col-md-8" ng-show="selectedSearchDataList.length">

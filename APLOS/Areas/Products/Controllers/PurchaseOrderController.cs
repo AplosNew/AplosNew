@@ -2224,7 +2224,6 @@ SELECT ROW_NUMBER()  OVER(ORDER BY  SPOM.Id) AS SiNo, SPOM.Id
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
                 if (identity.EmployeeId == entity.CheckedBy)
                 {
                     throw new CustomException("Please select another employee for Check by.");
@@ -3221,17 +3220,12 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"Select 
-                a.Id ServicePODetailId,a.ServicePOMasterId
-                ,b.Id ServiceMasterId
-                ,b.UserName ServiceMasterName
-                , a.Amount 
-                ,c.TaxAmount TotalTaxAmount
-                ,0 [check]
-                ,d.IsNonCreditable
+                var sql = @"Select  a.Id ServicePODetailId,a.ServicePOMasterId
+                ,b.Id ServiceMasterId ,b.UserName ServiceMasterName
+                , a.Amount  ,c.TaxAmount TotalTaxAmount
+                ,0 [check] ,d.IsNonCreditable
                 ,TotalAmount=CASE WHEN d.IsNonCreditable=1 then (a.Amount + c.TaxAmount) Else a.Amount  END
-				,a.Qty
-				,a.Rate
+				,a.Qty ,a.Rate,a.BudgetMasterId,a.ActivityId
 				,UOM.Username UoM,null CurrentQty,A.TransactionUoMId,Mapdata.Qty OtherReceived,Balance=Isnull(a.Qty,0)-ISNULL(Mapdata.Qty,0)
                 FROM trn. ServicePODetail a
                 LEFT join trn.ServicePOMaster d on d.id=a.ServicePOMasterId

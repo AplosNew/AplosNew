@@ -1748,16 +1748,11 @@ namespace Library.MaterialManagement.Inventory
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
-                //var currentId = _ServicePODetail.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(substring(Id, CHARINDEX('-',id)+1,len(Id))    AS INT)), 0) Id FROM[TRN].[ServicePODetail] WHERE  ServiceMasterId = '{ServicePoMasterId}'").First();
                 var currentId = _ServicePODetail.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(substring(Id, CHARINDEX('-',id)+1,len(Id))    AS INT)), 0) Id FROM[TRN].[ServicePODetail] WHERE  ServicePOMasterId = '{ServicePoMasterId}'").First();
-
 
                 if (entity != null)
                 {
                     var ServicePOId = ServicePoMasterId + "-";
-                    //foreach (var ServiceitemDetail in entity)
-
-                    //{
                     currentId++;
                     if (entity.Id == null)
                     {
