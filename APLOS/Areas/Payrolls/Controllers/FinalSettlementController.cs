@@ -42,8 +42,6 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
         #endregion
 
-
-
         #region Aplos
         [Authorize]
         public ActionResult Aplos()
@@ -55,7 +53,6 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             return View();
         }
-
 
         public ActionResult Approve()
         {
@@ -79,7 +76,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             try
             {
                 string sql = @"SELECT A.Id,A.EmpSystemId,OL.Id EmployeeSeperationItemId,OL.SandardName,OL.UserName,OL.Formula,OL.FormulaId,A.Value,OL.EntryState
-,FieldDisable=CAST(CASE WHEN OL.EntryState IN('Auto','Calculate') AND OL.UserName='EarnLeave' THEN 0 WHEN OL.EntryState IN('Auto','Calculate') THEN 1 ELSE 0 END AS BIT)
+,FieldDisable=CAST(CASE WHEN OL.EntryState IN('Auto','Calculate') AND OL.UserName='EarnLeave' THEN 0 WHEN OL.EntryState IN('Auto','Calculate') THEN 1 ELSE 0 END AS BIT),A.Remarks
                             FROM EmployeeSeperationItem AS OL
                             OUTER APPLY (SELECT * FROM dbo.EmployeeFullAndFinalSettlementItem WHERE EmployeeSeperationItemId=OL.Id AND ISNULL(EmpSystemId,'" + EmpSystemId + @"')='" + EmpSystemId + @"') A
 							Where OL.EmployeeSeperationSetupId=(select EmployeeSeperationSetupId from [dbo].[EmpSeperationDesignationGroup] where DesignationGroupId=(select DesignationGroupId from [dbo].EmployeeInformation Where SystemId='" + EmpSystemId + @"'))
@@ -107,8 +104,6 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
             }
         }
 
-
-
         [HttpGet, Authorize]
         public ActionResult GetSeparationTypelist()
         {
@@ -119,7 +114,6 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
 
             return Json(data, JsonRequestBehavior.AllowGet);
         }
-
 
         [HttpGet]
         public ActionResult GetEmployeeFinalSettlementlist()
@@ -166,7 +160,6 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
 
             return Json(data, JsonRequestBehavior.AllowGet);
         }
-
 
         [HttpGet, Authorize]
         public ActionResult LoadEmployeelist()
@@ -275,8 +268,6 @@ LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 
             //return Json(data, JsonRequestBehavior.AllowGet);
         }
-
-
 
         [HttpGet, Authorize]
         public ActionResult SeparationTypeSelectedChange(string EmpSystemId)
@@ -473,7 +464,6 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
 
             return Json(new { data, FinalSettlementDeduction, FinalSettlementEarning, FinalSettlementRetainedHead }, JsonRequestBehavior.AllowGet);
         }
-
 
         [HttpPost]
         public JsonResult SaveFinalSettlement(EmployeeFinalSettlement FinalSettlementData, List<DeductionModel> DeductionData, List<DeductionModel> EarningData, List<FinalSettlementRetainedHeadModel> FinalSettlementRetainedHead)
@@ -1034,7 +1024,6 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
 
             return Json(new { Message = AplosMessage.Success });
         }
-
 
         [HttpPost]
         public JsonResult SaveFinalSettlementNew(EmployeeFinalSettlement FinalSettlementData, List<DeductionModel> DeductionData, List<DeductionModel> EarningData, List<FinalSettlementRetainedHeadModel> FinalSettlementRetainedHead, List<Dictionary<string, object>> UndisbursedEarningList)
@@ -1770,7 +1759,6 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
-
         [HttpGet, Authorize]
         public ActionResult GetFNFMasterData()
         {
@@ -1860,7 +1848,6 @@ where E.VoucherId IS NULL AND FinalSettlementId='" + masterId + "'";
             return Json(new { Message = AplosMessage.Deleted });
         }
 
-
         public void DeleteEmployeeSepItemData(string empId)
         {
             string strSQL, strSQLItem;
@@ -1896,7 +1883,6 @@ where E.VoucherId IS NULL AND FinalSettlementId='" + masterId + "'";
                 objCon = null;
             }
         }//End of function
-
 
         [HttpGet, Authorize]
         public JsonResult GetAutoSequence()
@@ -2540,7 +2526,6 @@ AND sl.PayableVoucherId<>'' AND sl.BonusDisbursementVoucherId IS NULL AND sl.Pas
             }
         }
 
-
         [HttpPost, Authorize]
         public JsonResult UpdateItemData(IEnumerable<OpenHeadModelNew> datalist)
         {
@@ -2635,6 +2620,7 @@ AND sl.PayableVoucherId<>'' AND sl.BonusDisbursementVoucherId IS NULL AND sl.Pas
                         drmo.BeginEdit();
 
                         drmo["Value"] = item["Value"];
+                        drmo["Remarks"] = item["Remarks"];
                         drmo["UpdatedBy"] = identity.Name;
                         drmo["UpdatedDate"] = DateTime.Now.ToString();
                         drmo["UpdatedFromIP"] = identity.IPAddress;
@@ -2968,7 +2954,6 @@ AND sl.PayableVoucherId<>'' AND sl.BonusDisbursementVoucherId IS NULL AND sl.Pas
             return Json(new { Message = AplosMessage.Deleted });
         }
 
-
         [HttpGet, Authorize]
         public ActionResult GetEmpSepItemReportPdf(ReportFormat reportFormat, string empId)
         {
@@ -3037,7 +3022,7 @@ AND sl.PayableVoucherId<>'' AND sl.BonusDisbursementVoucherId IS NULL AND sl.Pas
                 sheet = workbook.Worksheets[0];
                 DataTable dtOrder = null;
 
-                string sql = @"SELECT EI.EmpSystemId,EM.EmployeeCode,EM.EmployeeName,FORMAT(EM.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EM.DOS,'dd-MMM-yyyy')DOS,FORMAT(R.ResignationDate,'dd-MMM-yyyy')ResignationDate,ESI.SandardName ItemName,EI.Value,ESI.EntryState 
+                string sql = @"SELECT EI.EmpSystemId,EM.EmployeeCode,EM.EmployeeName,FORMAT(EM.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EM.DOS,'dd-MMM-yyyy')DOS,FORMAT(R.ResignationDate,'dd-MMM-yyyy')ResignationDate,ESI.SandardName ItemName,EI.Value,EI.Remarks,ESI.EntryState 
 ,EM.FatherName,DP.UserName Department,S.UserName Section,LD.UserName Designation,EI.AddedBy,AEM.EmployeeName ApproveBy,EM.PaymentMode,ApproveStatus=CASE WHEN  M.IsApproved=1 THEN 'Approved' ELSE 'Pending' END, M.IsApproved,EB.BankAccNo,B.UserName Bank,EB.IFSCCode
 FROM dbo.EmployeeFullAndFinalSettlementItem  EI
 LEFT JOIN dbo.EmployeeSeperationItem ESI ON ESI.Id=EI.EmployeeSeperationItemId
@@ -3122,7 +3107,7 @@ Order By ESI.Sequence";
                     cnt++;
                     sheet[ROW, colSL].Number = Library.Service.Extension.clsStaticInfo.dbl(cnt.ToString());
                     sheet[ROW, colIN].Text = dtOrder.Rows[i]["ItemName"].ToString();
-                    sheet[ROW, colPackingType].Text = dtOrder.Rows[i]["Value"].ToString();
+                    sheet[ROW, colPackingType].Text = dtOrder.Rows[i]["Value"].ToString()+" - " + dtOrder.Rows[i]["Remarks"].ToString();
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -3206,7 +3191,6 @@ Order By ESI.Sequence";
                 throw ex;
             }
         }
-
        
         [HttpPost, Authorize]
         public ActionResult GetFNFReport(string reportFileName, string fromDate, string toDate)
@@ -3222,7 +3206,6 @@ Order By ESI.Sequence";
                 throw ex;
             }
         }
-
 
         public string GetFNFWorkbook(string ReportHeader, string reportFileName, string fromDate, string toDate)
         {
@@ -3393,9 +3376,6 @@ where M.AddedDate between '" + fromDate+@"' AND '"+toDate+"'";
         }
         #endregion
 
-
-
-
     }
     public class OpenHeadModelNew
     {
@@ -3407,6 +3387,7 @@ where M.AddedDate between '" + fromDate+@"' AND '"+toDate+"'";
         public string FormulaId { get; set; }
         public string Value { get; set; }
         public string EntryState { get; set; }
+        public string Remarks { get; set; }
 
     }
 

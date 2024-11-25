@@ -164,7 +164,7 @@ Where WorkDate='" + workDate + @"' AND ISNULL(SD.IsApproved,0)=1";
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
-
+        [Authorize]
         public ActionResult GetSDDataInDateRange(string fromDate, string toDate)
         {
             try
