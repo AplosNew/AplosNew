@@ -79,7 +79,8 @@ namespace Aplos.Areas.Payrolls.Controllers
 ,FieldDisable=CAST(CASE WHEN OL.EntryState IN('Auto','Calculate') AND OL.UserName='EarnLeave' THEN 0 WHEN OL.EntryState IN('Auto','Calculate') THEN 1 ELSE 0 END AS BIT),A.Remarks
                             FROM EmployeeSeperationItem AS OL
                             OUTER APPLY (SELECT * FROM dbo.EmployeeFullAndFinalSettlementItem WHERE EmployeeSeperationItemId=OL.Id AND ISNULL(EmpSystemId,'" + EmpSystemId + @"')='" + EmpSystemId + @"') A
-							Where OL.EmployeeSeperationSetupId=(select EmployeeSeperationSetupId from [dbo].[EmpSeperationDesignationGroup] where DesignationGroupId=(select DesignationGroupId from [dbo].EmployeeInformation Where SystemId='" + EmpSystemId + @"'))
+							Where OL.EmployeeSeperationSetupId=(select EmployeeSeperationSetupId from [dbo].[EmpSeperationDesignationGroup] where DesignationGroupId=(select DM.DesignationGroupId from [dbo].EmployeeInformation EI
+							LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId Where SystemId='" + EmpSystemId + @"'))
                             ORDER BY OL.Sequence";
                 var SeperationItem = _sqlRepository.GetDataCollection(sql);
 
