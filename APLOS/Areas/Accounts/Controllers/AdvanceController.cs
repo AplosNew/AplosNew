@@ -2374,6 +2374,13 @@ namespace Aplos.Areas.Accounts.Controllers
                 throw new CustomException(" Please Select Transaction Type");
             if (voucherDetailVMList == null && voucherVM.JournalType == AdvanceType.Salary.ToString())
                 throw new CustomException(" Please Select GL");
+            if (advanceSalarySchedulelist != null && voucherVM.JournalType == AdvanceType.Salary.ToString())
+            {
+                if (voucherVM.Amount != advanceSalarySchedulelist.Sum(x => x.InstallmentAmount))
+                {
+                    throw new CustomException("Advance Amount and Advance Schedule Amount Should be same!");
+                }
+            }
             foreach (var advanceDetailVM in voucherDetailVMList)
             {
                 advanceDetailVM.Amount = voucherVM.Amount;
@@ -2401,7 +2408,15 @@ namespace Aplos.Areas.Accounts.Controllers
                 throw new CustomException(Resources.SelectCash);
             if (voucherVM.EmployeeTransactionTypeId == null && voucherVM.JournalType != AdvanceType.Salary.ToString())
                 throw new CustomException(" Please Select Transaction Type");
-            
+            if (advanceSalarySchedulelist != null && voucherVM.JournalType == AdvanceType.Salary.ToString())
+            {
+                if(voucherVM.Amount!= advanceSalarySchedulelist.Sum(x=> x.InstallmentAmount))
+                {
+                    throw new CustomException("Advance Amount and Advance Schedule Amount Should be same!");
+                }
+            }
+                
+
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceService.CreateEmployeeAdvanceHRPark(voucherVM, data, advanceDetail, advanceSalarySchedulelist)) });
         }
 
