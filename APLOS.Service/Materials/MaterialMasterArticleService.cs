@@ -55,7 +55,7 @@ namespace Library.Service.Materials
             {
                 var _sql = @"SELECT MMA.Id, MMA.MaterialMasterId, MMA.Code, MMA.ShortName, MMA.StandardName, MMA.UserName,HC.Code as HSNCode,MMA.HSNCodeId,MMA.RPM,           MMA.MachineAllowance,MMA.StitchCodeId,MMA.MachineMasterId,MM.UserName MachineMaster,MMA.OrderLevel
                             ,MMA.IsMachineApplicable
-							,MMA.IsWorkCenterApplicable,MMA.Active,MMA.ProductionGroupingId,MMA.ProcessSetId, PS.[Description]
+							,MMA.IsWorkCenterApplicable,MMA.Active,MMA.ProductionGroupingId,MMA.ProcessSetId, PS.[Description] ProcessSet
 
 		                    FROM MST.MaterialMasterArticle MMA
                            LEFT JOIN [MST].[MachineMaster] MM ON MM.Id=MMA.MachineMasterId

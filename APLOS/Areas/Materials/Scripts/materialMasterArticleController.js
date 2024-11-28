@@ -180,6 +180,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         , OrderLevel: null
         , ProductionGroupingId: null
         , ProcessSetId: null
+        , IsDefaultProductionGrouping :false, IsDefaultProcessSet:false
     };
     $scope.articleNew = Object.assign({}, $scope.article);
 
@@ -515,8 +516,10 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         $scope.articleNew.IsMachineApplicable = data.IsMachineApplicable;
         $scope.articleNew.OrderLevel = data.OrderLevel;
         $scope.articleNew.ProductionGroupingId = data.ProductionGroupingId;
-        $scope.articleNew.Description = data.Description;
+        $scope.articleNew.ProcessSet = data.ProcessSet;
         $scope.articleNew.ProcessSetId = data.ProcessSetId;
+        $scope.articleNew.IsDefaultProductionGrouping = data.IsDefaultProductionGrouping;
+        $scope.articleNew.IsDefaultProcessSet = data.IsDefaultProcessSet;
         if (baseService.isUndefinedOrNull(data.HSNCodeId))
             $scope.articleNew.HSNCodeId = $scope.MaterialHSNCodeId;
         else
@@ -569,8 +572,10 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
             $scope.articleList[$scope.index].HSNCodeId = $scope.articleNew.HSNCodeId;
             $scope.articleList[$scope.index].Active = $scope.articleNew.Active;
             $scope.articleList[$scope.index].ProductionGroupingId = $scope.articleNew.ProductionGroupingId;
-            $scope.articleList[$scope.index].Description = $scope.articleNew.Description;
+            $scope.articleList[$scope.index].ProcessSet = $scope.articleNew.ProcessSet;
             $scope.articleList[$scope.index].ProcessSetId = $scope.articleNew.ProcessSetId;
+            $scope.articleList[$scope.index].IsDefaultProductionGrouping = $scope.articleNew.IsDefaultProductionGrouping;
+            $scope.articleList[$scope.index].IsDefaultProcessSet = $scope.articleNew.IsDefaultProcessSet;
 
             for (var i = 0; i < $scope.attributeList.length; i++) {
                 var _invalid = $scope.IsMandatoryButNull($scope.attributeList[i].IsMandatory, $scope.attributeList[i].MaterialAttributeValueFreeText);
