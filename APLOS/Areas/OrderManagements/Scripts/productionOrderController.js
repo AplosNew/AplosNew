@@ -148,7 +148,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             $scope.entityList = response.data;
         });
     }
-   
+
 
     $scope.planningTypeProcessList = [];
     $scope.GetPlanningTypeProcess = function () {
@@ -407,7 +407,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         , IsWorkCenterValidateApplicable: true
         , UserDefineLotNo: null
         , UsedInPB: false
-        , PlanningTypeProcessId:null
+        , PlanningTypeProcessId: null
     };
     $scope.model = Object.assign({}, $scope.model);
 
@@ -441,7 +441,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         if (baseService.isUndefinedOrNull($scope.model.UserDefineLotNo)) {
             $scope.model.UserDefineLotNo = $scope.model.Id;
         }
-     
+
         getProductionRecipeMaterialList();
 
         //$scope.GetBulletinTamplate2ndIndexReport(Row.data.Id);
@@ -997,7 +997,9 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                     $scope.IsDefaultProcessSet = $scope.recipeMaterialList[i].IsDefaultProcessSet;
                 }
             }
-            getProcessSetList(processSetId);
+            if (!baseService.isUndefinedOrNull(processSetId)) {
+                getProcessSetList(processSetId);
+            }
             if (baseService.isUndefinedOrNull($scope.message_DiffArticleconfirmation)) {
                 $scope.CloseRecipeMaterialPopUp();
             }
@@ -1267,7 +1269,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             }
             else if (i === index) {
                 $scope.prdProcessSetList[i].IsProductionVerification = true;
-              
+
             }
         }
     };
@@ -1483,7 +1485,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                 }).finally(function () {
                 });
         };
-       
+
         $scope.index = index;
 
         var jobWorkType = $scope.prdProcessSetList[index].JobWorkType;
