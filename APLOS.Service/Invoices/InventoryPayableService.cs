@@ -5083,13 +5083,17 @@ namespace Library.Service.Invoices
 
                             if (serviceDetailGLList != null)
                             {
-                                foreach (var item in serviceDetailGLList.Where(r => r.GLGeneralInfoId == voucherDr.GLGeneralInfoId && r.BudgetMasterId == voucherDr.BudgetMasterId
-                                && r.ActivityId == voucherDr.ActivityId && r.OtherName == "Svc"))
+                                //foreach (var item in serviceDetailGLList.Where(r => r.GLGeneralInfoId == voucherDr.GLGeneralInfoId && r.BudgetMasterId == voucherDr.BudgetMasterId
+                                //&& r.ActivityId == voucherDr.ActivityId && r.OtherName == "Svc"))
+                                foreach (var item in serviceDetailGLList.Where(r => r.OtherName == "Svc" && voucherDetailVM.OtherName == "Svc" 
+                                && r.ServiceAcknowledgementDetailId == voucherDetailVM.ServiceAcknowledgementDetailId))
                                 {
                                     var serviceDetail = _serviceAcknowledgementDetailRepository.Find(item.ServiceAcknowledgementDetailId);
                                     serviceDetail.PostDrGLGeneralInfoId = voucherDr.GLGeneralInfoId;
                                     serviceDetail.PostDrBudgetMasterId = voucherDr.BudgetMasterId;
                                     serviceDetail.PostDrActivityId = voucherDr.ActivityId;
+                                    serviceDetail.BudgetMasterId = voucherDr.BudgetMasterId;
+                                    serviceDetail.ActivityId = voucherDr.ActivityId;
                                     serviceDetail.ModelState = ModelState.Modified;
                                     AuditService.UpdatedLog(serviceDetail);
                                     _serviceAcknowledgementDetailRepository.Update(serviceDetail);
@@ -5466,13 +5470,17 @@ namespace Library.Service.Invoices
 
                         if (serviceDetailGLList != null)
                         {
-                            foreach (var item in serviceDetailGLList.Where(r => r.GLGeneralInfoId == voucherDr.GLGeneralInfoId && r.BudgetMasterId == voucherDr.BudgetMasterId
-                            && r.ActivityId == voucherDr.ActivityId && r.OtherName == "Svc"))
+                            //foreach (var item in serviceDetailGLList.Where(r => r.GLGeneralInfoId == voucherDr.GLGeneralInfoId && r.BudgetMasterId == voucherDr.BudgetMasterId
+                            //&& r.ActivityId == voucherDr.ActivityId && r.OtherName == "Svc"))
+                            foreach (var item in serviceDetailGLList.Where(r => r.OtherName == "Svc" && voucherDetailVM.OtherName == "Svc"
+                                && r.ServiceAcknowledgementDetailId == voucherDetailVM.ServiceAcknowledgementDetailId))
                             {
                                 var serviceDetail = _serviceAcknowledgementDetailRepository.Find(item.ServiceAcknowledgementDetailId);
                                 serviceDetail.PostDrGLGeneralInfoId = voucherDr.GLGeneralInfoId;
                                 serviceDetail.PostDrBudgetMasterId = voucherDr.BudgetMasterId;
                                 serviceDetail.PostDrActivityId = voucherDr.ActivityId;
+                                serviceDetail.BudgetMasterId = voucherDr.BudgetMasterId;
+                                serviceDetail.ActivityId = voucherDr.ActivityId;
                                 serviceDetail.ModelState = ModelState.Modified;
                                 AuditService.UpdatedLog(serviceDetail);
                                 _serviceAcknowledgementDetailRepository.Update(serviceDetail);

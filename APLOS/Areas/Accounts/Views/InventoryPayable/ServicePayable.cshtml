@@ -287,20 +287,28 @@
                                 <th>GL</th>
                                 <th>Budget</th>
                                 <th>Activity</th>
+                                <th>Change GL</th>
                                 <th>Dr</th>
                                 <th>Cr</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="x in newList| orderBy:'Dr'| groupBy: 'MaterialGroupMasterId'">
+                            <tr ng-repeat="x in newList| groupBy: 'MaterialGroupMasterId'">
                                 <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
                                 <td>{{x.BudgetName}}</td>
                                 <td>{{x.ActivityName}}</td>
+                                <td>
+                                    <div class="input-group" style="margin-top: -7px;margin-bottom: -7px;">
+                                        <span class="input-group-btn">
+                                            <button class="btn single-small-btn" ng-hide="x.ServiceMasterId==''" ng-click="getServiceDataList($index,x);"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                        </span>
+                                    </div>
+                                </td>
                                 <td class="text-right">{{x.Dr | number| setDecimal:2}}</td>
                                 <td class="text-right">{{x.Cr | number| setDecimal:2}}</td>
                             </tr>
                             <tr>
-                                <td colspan="3"></td>
+                                <td colspan="4"></td>
                                 <td class="text-right"><strong>{{newList | sumByKey : 'Dr' | number| setDecimal:2}}</strong></td>
                                 <td class="text-right"><strong>{{newList | sumByKey : 'Cr' | number| setDecimal:2}}</strong></td>
                             </tr>
@@ -487,6 +495,7 @@
 
 @Html.Partial("~/Areas/Accounts/Views/InventoryPayable/_ApprovedServiceAcKnowledgeDetailPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_AdditionalTaxPopUp.cshtml")
+@Html.Partial("~/Areas/SetUps/Views/ServiceMaster/_ServiceMasterPopUpNew.cshtml")
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(ServiceAckId,VoucherId,InvoiceId,TDSTaxVoucherId,TDSVoucherNo)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmTDSDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="deleteAdditionalTax(AdditionalTaxId,TDSTaxVoucherId)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmTDSPostDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="deletePostAdditionalTax(TDSTaxVoucherId,ServiceAckId,InvoiceWriteOffId)"></confirm-archive-generic>
