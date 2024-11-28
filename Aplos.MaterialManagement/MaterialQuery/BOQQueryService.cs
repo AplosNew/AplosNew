@@ -143,7 +143,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						 ,Round(ISNULL(IRD.BooksCurrencyBaseRate,0),4) BaseCurrencyRate
 						, grnmap.TransactionQty, grnmap.BaseQty,grnmap.BaseQty GRNBOQQty
 						,ISNULL(grnmap.BaseQty,0) - ISNULL(II.IssueQty, 0) StockQty
-						, ISNULL(II.IssueQty,0) IssueQty, ISNULL(II.IssueQty,0) BaseIssueQty
+						, ISNULL(II.IssueQty,0)  IssueQty, ISNULL(II.IssueQty,0)  BaseIssueQty
 						, ISNULL(IRD.PurchaseReturnQty,0) PurchaseReturnQty,ISNULL(IRD.IssueReturnQty,0) IssueReturnQty,ISNULL(IRD.ReductionByAdjustmentQty,0) ReductionByAdjustmentQty,ISNULL(IRD.InventorySalesQty,0) InventorySalesQty,ISNULL(IRD.InventoryScrapQty,0) InventoryScrapQty,ISNULL(IRD.InventoryTransferQty,0) InventoryTransferQty
 						 ,((((((ISNULL(grnmap.BaseQty,0) - ISNULL(II.IssueQty, 0)-ISNULL(IRD.PurchaseReturnQty,0))+ISNULL(IRD.IssueReturnQty,0))-ISNULL(IRD.ReductionByAdjustmentQty,0))-ISNULL(IRD.InventorySalesQty,0))-ISNULL(IRD.InventoryScrapQty,0))-ISNULL(IRD.InventoryTransferQty,0)) AS BalanceStock
                         ,((((((ISNULL(IRD.BaseQty,0) - ISNULL(IIH.ActualIssueQty, 0)-ISNULL(IRD.PurchaseReturnQty,0))+ISNULL(IRD.IssueReturnQty,0))-ISNULL(IRD.ReductionByAdjustmentQty,0))-ISNULL(IRD.InventorySalesQty,0))-ISNULL(IRD.InventoryScrapQty,0))-ISNULL(IRD.InventoryTransferQty,0)) AS ActualBalanceStock
@@ -173,7 +173,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
                         ,TempTrasactopmUomQty=(((ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0))*BaseUoMFactor)/BaseUoMFactor) 
 						,IRD.BaseUOMId IssueTransactionUoMId,IRD.MaterialStorageId,MS.UserName MaterialStorage
 						,'' IssueTransactionUoM,ISNULL(IRD.LotNumber,'') LotNumber
-                    FROM TRN.GRNPORequisitionAllocation grnmap
+                     FROM TRN.GRNPORequisitionAllocation grnmap
 					join [TRN].[InventoryReceiveDetail] AS IRD  on grnmap.InventoryReceiveDetailId=ird.Id
                     left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
                     LEFT JOIN HKP.CharacteristicsValue FC ON FC.Id=IM.FirstCharacteristicsValueId
@@ -210,7 +210,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 					AND IRD.MaterialStorageId='"+ materialStorageId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
 					AND (IRD.POId IN ("+POId+ @") OR IRD.POId IN (''))
-					AND IRD.BaseQty !=ISNULL(II.IssueQty,0)
+					 AND grnmap.BaseQty !=ISNULL(II.IssueQty,0)  
                     AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) 
 					) x";
                

@@ -7204,9 +7204,6 @@ namespace Library.Service.Expenses
 								where " + paramters + " group by CompanyGroupId,GroupName,CompanyId,ColumnName,Category,SI order by t.SI ASC";
 
                 }
-
-
-
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
