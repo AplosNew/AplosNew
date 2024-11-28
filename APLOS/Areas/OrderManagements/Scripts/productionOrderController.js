@@ -853,7 +853,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         },
         {
             'name': 'Article',
-            'value': 'Article'
+            'value': 'ArticleName'
         },
         {
             'name': 'Customer',
@@ -928,10 +928,12 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
 
     }
 
+    $scope.IsDefaultProcessSet = false;
     $scope.recipeMaterialListSelected = [];
     $scope.addRecipeMaterial = function () {
 
         try {
+            var processSetId = "";
             var id = "";
             var productid = "";
             var groupid = "";
@@ -991,9 +993,11 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             for (var i = 0; i < $scope.recipeMaterialList.length; i++) {
                 if ($scope.recipeMaterialList[i].Checked == true) {
                     $scope.recipeMaterialListSelected.push($scope.recipeMaterialList[i]);
+                    processSetId = $scope.recipeMaterialList[i].ProcessSetId;
+                    $scope.IsDefaultProcessSet = $scope.recipeMaterialList[i].IsDefaultProcessSet;
                 }
             }
-
+            getProcessSetList(processSetId);
             if (baseService.isUndefinedOrNull($scope.message_DiffArticleconfirmation)) {
                 $scope.CloseRecipeMaterialPopUp();
             }
@@ -2557,6 +2561,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
 
 
     //#endregion Operatoin Thread Consumption
+
     // #region  ProductionBulletin     
 
     // #region Cbo
@@ -4069,7 +4074,6 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
 
     // #endregion  ProductionBulletin
 
-
     // #region checkbox all for delete multi Operation
 
     $scope.refreshTemplateDelOperation = function (args) {
@@ -4472,11 +4476,6 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             ShowResult(e, "failure");
         }
     };
-
-
-
-
-
 
 
 }

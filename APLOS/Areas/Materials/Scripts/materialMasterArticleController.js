@@ -1061,7 +1061,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
     };
 
     $scope.selectProcessSet = function (data) {
-        $scope.articleNew.ProcessSet = data.Description;
+        $scope.articleNew.ProcessSet = data.ProcessCriteria;
         $scope.articleNew.ProcessSetId = data.Id;
         angular.element(document.querySelector('#processSetPopUp')).modal('hide');
     };
