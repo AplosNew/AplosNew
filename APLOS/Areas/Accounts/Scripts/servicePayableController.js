@@ -1125,4 +1125,39 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
         angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
     };
 
+    $scope.searchByService = "Activity"; $scope.searchService = "";
+    $scope.searchByServiceList = [{ value: 'ServiceName', name: "Service" }, { value: 'ServiceType', name: "Service Type" }, { value: 'ServiceGroup', name: "Service Group" }, { value: 'GLCode', name: "GL Code" }
+        , { value: 'GL', name: "GL" }, { value: 'Budget', name: "Budget" }, { value: 'Activity', name: "Activity" }];
+
+    $scope.serviceLists = [];
+
+    $scope.indexGL = "";
+    $scope.getServiceDataList = function (index, data) {
+        $scope.indexGL = index;
+        $scope.serviceLists = [];
+        $http({
+            method: 'POST',
+            url: 'SetUps/ServiceMaster/GetServicePopUpListByServiceMasterId',
+            data: { column: $scope.searchByService, value: $scope.searchService, serviceMasterId: data.ServiceMasterId },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.serviceLists = response.data;
+        });
+        angular.element(document.querySelector('#ServicePopUp')).modal('show');
+    };
+    $scope.closeServiceDataPopUp = function () {
+        angular.element(document.querySelector("#ServicePopUp")).modal("hide");
+    };
+
+    $scope.ServiceGLSelect = function (obj) {
+        $scope.newList[$scope.indexGL].GLGeneralInfoId = obj.data.GLGeneralInfoId;
+        $scope.newList[$scope.indexGL].GLGeneralInfoCode = obj.data.GLGeneralInfoCode;
+        $scope.newList[$scope.indexGL].GLGeneralInfoName = obj.data.GLGeneralInfoName;
+        $scope.newList[$scope.indexGL].BudgetMasterId = obj.data.BudgetMasterId;
+        $scope.newList[$scope.indexGL].BudgetName = obj.data.BudgetName;
+        $scope.newList[$scope.indexGL].ActivityId = obj.data.ActivityId;
+        $scope.newList[$scope.indexGL].ActivityName = obj.data.ActivityName;
+        $scope.closeServiceDataPopUp();
+    };
+
 }
