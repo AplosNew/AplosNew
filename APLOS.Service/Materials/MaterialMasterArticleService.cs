@@ -55,13 +55,14 @@ namespace Library.Service.Materials
             {
                 var _sql = @"SELECT MMA.Id, MMA.MaterialMasterId, MMA.Code, MMA.ShortName, MMA.StandardName, MMA.UserName,HC.Code as HSNCode,MMA.HSNCodeId,MMA.RPM,           MMA.MachineAllowance,MMA.StitchCodeId,MMA.MachineMasterId,MM.UserName MachineMaster,MMA.OrderLevel
                             ,MMA.IsMachineApplicable
-							,MMA.IsWorkCenterApplicable,MMA.Active,MMA.ProductionGroupingId,MMA.ProcessSetId, PS.[Description] ProcessSet
+							,MMA.IsWorkCenterApplicable,MMA.Active,MMA.ProductionGroupingId,MMA.ProcessSetId, PCRI.UserName ProcessSet,MMA.IsDefaultProductionGrouping,MMA.IsDefaultProcessSet
 
 		                    FROM MST.MaterialMasterArticle MMA
                            LEFT JOIN [MST].[MachineMaster] MM ON MM.Id=MMA.MachineMasterId
 						   LEFT JOIN [HKP].[HSNCode] HC ON HC.id=MMA.HSNCodeId
 						   LEFT JOIN [HKP].ProductionGrouping PG ON PG.id=MMA.ProductionGroupingId
 						   LEFT JOIN [HKP].ProcessSet PS ON PS.id=MMA.ProcessSetId
+                            LEFT OUTER JOIN [HKP].[ProcessCriteria] AS PCRI ON PS.ProcessCriteriaId=PCRI.Id
                             WHERE MaterialMasterId='" + materialMasterId + "'";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
@@ -333,6 +334,8 @@ namespace Library.Service.Materials
                         art.HSNCodeId = item.HSNCodeId;
                         art.ProductionGroupingId = item.ProductionGroupingId;
                         art.ProcessSetId = item.ProcessSetId;
+                        art.IsDefaultProcessSet = item.IsDefaultProcessSet;
+                        art.IsDefaultProductionGrouping = item.IsDefaultProductionGrouping;
                         art.UpdatedBy = item.UpdatedBy;
                         art.UpdatedDate = item.UpdatedDate;
                         art.UpdatedFromIP = item.UpdatedFromIP;

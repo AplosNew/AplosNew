@@ -205,7 +205,7 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
 	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
 	                            , SO.Qty, SO.Rate,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
 	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END
-								,ST.POStatus,ST.POEntity,''ProcessEntity
+								,ST.POStatus,ST.POEntity,''ProcessEntity,ART.ProcessSetId,ART.IsDefaultProcessSet
                        FROM [TRN].[SalesOrder] AS SO 
                        JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
                        JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
@@ -248,7 +248,7 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
 	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
 	                            , SO.Qty, SO.Rate,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
 	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END
-								,S.UserName POStatus,PE.UserName POEntity,POS.ProcessEntity
+								,S.UserName POStatus,PE.UserName POEntity,POS.ProcessEntity,ART.ProcessSetId,ART.IsDefaultProcessSet
                        FROM [TRN].[SalesOrder] AS SO 
                         left outer join [TRN].[ProductionOrderDetail] POD on POD.SalesOrderId=SO.Id and POD.ProductionOrderID='" + productionorderid + @"'
                        INNER JOIN TRN.ProductionOrder PR ON POD.ProductionOrderId=PR.Id
@@ -283,7 +283,7 @@ SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Checked,null AS
 	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
 	                            , SO.Qty, SO.Rate,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
 	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END
-								,ST.POStatus,ST.POEntity,''ProcessEntity
+								,ST.POStatus,ST.POEntity,''ProcessEntity,ART.ProcessSetId,ART.IsDefaultProcessSet
                        FROM [TRN].[SalesOrder] AS SO 
                        JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
                        JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
@@ -329,7 +329,7 @@ Where PT.EntityId='" + EntityId + @"' AND PT.BaseProcessId='" + ProcessId + @"'
 	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
 	                            , SO.Qty, SO.Rate,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
 	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END
-								,S.UserName POStatus,PE.UserName POEntity,POS.ProcessEntity
+								,S.UserName POStatus,PE.UserName POEntity,POS.ProcessEntity,ART.ProcessSetId,ART.IsDefaultProcessSet
                        FROM [TRN].[SalesOrder] AS SO 
                         left outer join [TRN].[ProductionOrderDetail] POD on POD.SalesOrderId=SO.Id and POD.ProductionOrderID='" + productionorderid + @"'
                        INNER JOIN TRN.ProductionOrder PR ON POD.ProductionOrderId=PR.Id
