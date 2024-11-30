@@ -277,9 +277,9 @@ namespace Library.Accounting.Accounts
 							        where EmployeeId=AD.EmployeeId)BudgetMasterId,  (select TOP 1 ActivityId from [TRN].[AdvanceDetail] 
 							        where EmployeeId=AD.EmployeeId)ActivityId
 								, SUM(AD.Amount) AS Receivable, ISNULL((select SUM(Amount)WrittenOffAmount 
-								from TRN.EmployeeSubsequentTransaction where SourceType='EmployeeAdvanceWriteOff' AND  EmployeeId=AD.EmployeeId AND ISNULL(JournalType,'')<>'Salary'),0)  AS Received
+								from TRN.EmployeeSubsequentTransaction where SourceType in ('EmployeeAdvanceWriteOff','VendorPayment') AND  EmployeeId=AD.EmployeeId AND ISNULL(JournalType,'')<>'Salary'),0)  AS Received
                                 , SUM(AD.Amount)-ISNULL((select SUM(Amount)WrittenOffAmount 
-								from TRN.EmployeeSubsequentTransaction where SourceType='EmployeeAdvanceWriteOff' AND  EmployeeId=AD.EmployeeId AND ISNULL(JournalType,'')<>'Salary'),0) AS Balance
+								from TRN.EmployeeSubsequentTransaction where SourceType in ('EmployeeAdvanceWriteOff','VendorPayment') AND  EmployeeId=AD.EmployeeId AND ISNULL(JournalType,'')<>'Salary'),0) AS Balance
                                 FROM TRN.EmployeeSubsequentTransaction AS AD
                                 INNER JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=AD.EmployeeId
                                 LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
@@ -288,7 +288,7 @@ namespace Library.Accounting.Accounts
 								 LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=AD.CurrencyId
                                 WHERE  AD.CompanyGroupId='" + companyGroupId + @"' AND AD.CompanyId='" + companyId + @"' AND AD.PlantId='" + plantId + @"' AND AD.EmployeeId='" + employeeId + @"' AND ISNULL(AD.AdvanceId,'') <>'' 
-                                AND AD.SourceType in ('EmployeeAdvance', 'InterTransaction') AND ISNULL(AD.JournalType,'')<>'Salary'
+                                AND AD.SourceType in ('EmployeeAdvance', 'InterTransaction','FixedAssetDisposeJournal') AND ISNULL(AD.JournalType,'')<>'Salary'
                                 GROUP BY AD.CompanyId, AD.PlantId, AD.CurrencyId, C.Code , AD.EmployeeId, EI.EmployeeCode, EI.EmployeeName, DP.UserName,DSG.UserName)X
                                 WHERE X.Balance > 0 ";
 
