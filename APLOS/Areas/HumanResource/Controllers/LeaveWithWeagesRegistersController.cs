@@ -1412,7 +1412,10 @@ namespace Aplos.Areas.HumanResource.Controllers
         public ActionResult GetEmployeeInformation(string fromDate, string toDate, string criteria)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_AttendanceManagementService.GetEmpInfo(identity.CompanyGroupId, identity.PlantId, fromDate, toDate, criteria), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(_AttendanceManagementService.GetEmpInfo(identity.CompanyGroupId, identity.PlantId, fromDate, toDate, criteria), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+
         }
         #endregion
     }
