@@ -1873,7 +1873,7 @@ LEFT JOIN (
                 
                 if (string.IsNullOrEmpty(entity.SalesOrderId))
 				{
-					sql = @"select * from(
+					sql = @"select top(500) * from(
                          SELECT IRD.InventoryReceiveId, IRD.POId, IRD.PODetailsId, IRD.Id AS InventoryReceiveDetailId, IRD.InventoryMaterialId, P.Code AS PartyCode, P.UserName AS PartyName
 	                     , IsPosting=CASE WHEN IR.[Status] IS NULL THEN 0 else 1 END
 						, IsApproved=CASE WHEN IR.IsApproved= 0 THEN 0 else 1 END
@@ -2114,7 +2114,7 @@ LEFT JOIN (
                     --AND ISNULL(IRD.IssueQty, 1)>0 
 					AND IRD.BaseQty !=IRD.BaseIssueQty
                     AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) AND IRD.Id NOT IN (SELECT ISNULL(InventoryReceiveDetailId,'') FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL))x WHERE x.BalanceStock>0 
-                    
+                    order by x.GRNDate desc
 					";
 				}
                 else
