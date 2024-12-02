@@ -148,7 +148,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             $scope.entityList = response.data;
         });
     }
-   
+
 
     $scope.planningTypeProcessList = [];
     $scope.GetPlanningTypeProcess = function () {
@@ -407,7 +407,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         , IsWorkCenterValidateApplicable: true
         , UserDefineLotNo: null
         , UsedInPB: false
-        , PlanningTypeProcessId:null
+        , PlanningTypeProcessId: null
     };
     $scope.model = Object.assign({}, $scope.model);
 
@@ -441,7 +441,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         if (baseService.isUndefinedOrNull($scope.model.UserDefineLotNo)) {
             $scope.model.UserDefineLotNo = $scope.model.Id;
         }
-     
+
         getProductionRecipeMaterialList();
 
         //$scope.GetBulletinTamplate2ndIndexReport(Row.data.Id);
@@ -853,7 +853,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         },
         {
             'name': 'Article',
-            'value': 'Article'
+            'value': 'ArticleName'
         },
         {
             'name': 'Customer',
@@ -928,10 +928,12 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
 
     }
 
+    $scope.IsDefaultProcessSet = false;
     $scope.recipeMaterialListSelected = [];
     $scope.addRecipeMaterial = function () {
 
         try {
+            var processSetId = "";
             var id = "";
             var productid = "";
             var groupid = "";
@@ -991,9 +993,13 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             for (var i = 0; i < $scope.recipeMaterialList.length; i++) {
                 if ($scope.recipeMaterialList[i].Checked == true) {
                     $scope.recipeMaterialListSelected.push($scope.recipeMaterialList[i]);
+                    processSetId = $scope.recipeMaterialList[i].ProcessSetId;
+                    $scope.IsDefaultProcessSet = $scope.recipeMaterialList[i].IsDefaultProcessSet;
                 }
             }
-
+            if (!baseService.isUndefinedOrNull(processSetId)) {
+                getProcessSetList(processSetId);
+            }
             if (baseService.isUndefinedOrNull($scope.message_DiffArticleconfirmation)) {
                 $scope.CloseRecipeMaterialPopUp();
             }
@@ -1263,7 +1269,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             }
             else if (i === index) {
                 $scope.prdProcessSetList[i].IsProductionVerification = true;
-              
+
             }
         }
     };
@@ -1479,7 +1485,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                 }).finally(function () {
                 });
         };
-       
+
         $scope.index = index;
 
         var jobWorkType = $scope.prdProcessSetList[index].JobWorkType;
@@ -2557,6 +2563,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
 
 
     //#endregion Operatoin Thread Consumption
+
     // #region  ProductionBulletin     
 
     // #region Cbo
@@ -4069,7 +4076,6 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
 
     // #endregion  ProductionBulletin
 
-
     // #region checkbox all for delete multi Operation
 
     $scope.refreshTemplateDelOperation = function (args) {
@@ -4472,11 +4478,6 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             ShowResult(e, "failure");
         }
     };
-
-
-
-
-
 
 
 }

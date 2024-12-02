@@ -247,7 +247,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 							, OS.UserName AS OurStyleName, M.WithSKU, ISNULL(ART.HasAttribute,CAST(0 AS BIT)) AS HasAttribute
 							, hasInventory=CASE WHEN IM.MaterialMasterId<>'' THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END
 							, M.IsOriginApplicable,M.IsAsset
-                            ,M.IsReplacement,Replacement=case when M.IsReplacement=1 then 'Yes' else 'No' end,BPM.BusinessProcessName,PG.UserName ProductionGrouping,ISNULL(PG.IsDefault,0)IsDefault
+                            ,M.IsReplacement,Replacement=case when M.IsReplacement=1 then 'Yes' else 'No' end,BPM.BusinessProcessName,PG.UserName ProductionGrouping,ISNULL(MMA.IsDefaultProductionGrouping,0)IsDefault
 		                    FROM MST.MaterialMasterArticle MMA
 							LEFT JOIN [MST].[MaterialMaster] M ON M.Id=MMA.MaterialMasterId
 							 LEFT JOIN [MST].[MachineMaster] MM ON MM.Id=MMA.MachineMasterId

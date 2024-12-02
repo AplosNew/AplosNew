@@ -62,7 +62,7 @@
             <div class="col-sm-8 show-message">
                 <div class="select-style">
                     <select name="Planning Type Process" ng-model="model.PlanningTypeProcessId" class="col-sm-3 form-control"
-                            ng-options="item.Id as item.UserName for item in planningTypeProcessList" ng-change="GetPlanningTypeEntiy();" tabindex="2" required>
+                            ng-options="item.Id as item.UserName for item in planningTypeProcessList" ng-change="GetPlanningTypeEntiy();" tabindex="1" required>
                         <option value=""></option>
                     </select>
                 </div>
@@ -105,7 +105,7 @@
             <div class="col-sm-8 show-message">
                 <div class="select-style">
                     <select name="Entity" ng-model="model.EntityId" class="col-sm-3 form-control"
-                            ng-options="item.Id as item.UserName for item in entityList" tabindex="1" required>
+                            ng-options="item.Id as item.UserName for item in entityList" tabindex="2" required>
                         <option value=""></option>
                     </select>
                 </div>
@@ -116,7 +116,7 @@
             <div class="col-sm-8">
                 <div class="select-style">
                     <select name="Production Status" class="form-control" ng-model="model.ProductionStatusId"
-                            ng-options="item.Value as item.Text for item in productionStatusList" tabindex="2">
+                            ng-options="item.Value as item.Text for item in productionStatusList" tabindex="4">
                         <option value=""></option>
                     </select>
                 </div>
@@ -353,7 +353,7 @@
                                 <td>
                                     <ul class="list-inline action-list">
                                         <li>
-                                            <button ng-click="valuePassInDelModal(x, $index)" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                                            <button ng-click="valuePassInDelModal(x, $index)" ng-disabled="IsDefaultProcessSet" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
                                                 <i class="glyphicon glyphicon-remove"></i>
                                             </button>
                                         </li>
