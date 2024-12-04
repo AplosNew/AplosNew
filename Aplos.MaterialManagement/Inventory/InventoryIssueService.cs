@@ -1679,7 +1679,7 @@ namespace Library.MaterialManagement.Inventory
                                             Id = history.Id +"_"+ BOQcount,
                                             InventoryIssueHistoryId = history.Id,
                                             InventoryReceiveDetailId = boqItem.InventoryReceiveDetailId,
-                                            Qty = Math.Round(boqItem.RequisitionQty, 4),
+                                            Qty = Math.Round(boqItem.Qty, 4),
                                             Rate = Math.Round((boqItem.Rate), 4),
                                             BOQDetailId=boqItem.BOQDetailId
                                         };
