@@ -149,7 +149,7 @@ namespace Library.Service.Materials
         {
             if (string.IsNullOrEmpty(employeeId)) return null;
             var employee = _EmployeeInformationRepository.Find(employeeId);
-            parameters.CmdText = @"SELECT BM.*, RP.MappingLevel, BC.UserName AS BudgetCategory, BSC.UserName AS BudgetSubCategory, B.UserName AS BudgetName, BG.UserName AS BudgetGroup, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName,SM.ServiceMasterId
+            parameters.CmdText = @"SELECT distinct BM.*, RP.MappingLevel, BC.UserName AS BudgetCategory, BSC.UserName AS BudgetSubCategory, B.UserName AS BudgetName, BG.UserName AS BudgetGroup, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName,SM.ServiceMasterId,SMU.UserName ServiceMaster
                                         FROM [MST].[EmployeeResponsiblePerson] AS RP
                                         JOIN [MST].[BudgetMaster] AS BM ON BM.Id=RP.BudgetMasterId
                                         JOIN (SELECT SMGL.ServiceMasterId,BMA.BudgetMasterId
@@ -160,9 +160,10 @@ namespace Library.Service.Materials
 							            LEFT JOIN [HKP].[BudgetCategory] AS BC ON BC.Id=BM.BudgetCategoryId
 							            LEFT JOIN [HKP].[BudgetSubCategory] AS BSC ON BSC.Id=BM.BudgetSubCategoryId
                                         LEFT JOIN [HKP].[BudgetGroup] AS bg on BM.BudgetGroupId = bg.Id
+                                        LEFT JOIN [HKP].[ServiceMaster] AS SMU on SMU.Id = SM.ServiceMasterId
                                         WHERE RP.EmployeeId='" + employee.SystemId + @"' AND RP.SourceType='" + ResponsiblePersonSourceType.BudgetMaster + @"'
                                         UNION
-                                        SELECT BM.*, NULL MappingLevel, BC.UserName AS BudgetCategory, BSC.UserName AS BudgetSubCategory, B.UserName AS BudgetName, BG.UserName AS BudgetGroup,GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName,SM.ServiceMasterId
+                                        SELECT distinct BM.*, NULL MappingLevel, BC.UserName AS BudgetCategory, BSC.UserName AS BudgetSubCategory, B.UserName AS BudgetName, BG.UserName AS BudgetGroup,GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName,SM.ServiceMasterId,SMU.UserName ServiceMaster
                                         FROM [MST].[ManpowerBudgetResponsiblePerson] AS RP
                                         JOIN [MST].[BudgetMaster] AS BM ON BM.Id=RP.BudgetMasterId
                                         JOIN (SELECT SMGL.ServiceMasterId,BMA.BudgetMasterId
@@ -173,9 +174,10 @@ namespace Library.Service.Materials
 							            LEFT JOIN [HKP].[BudgetCategory] AS BC ON BC.Id=BM.BudgetCategoryId
 							            LEFT JOIN [HKP].[BudgetSubCategory] AS BSC ON BSC.Id=BM.BudgetSubCategoryId
 										LEFT JOIN [HKP].[BudgetGroup] AS bg on BM.BudgetGroupId = bg.Id
+                                        LEFT JOIN [HKP].[ServiceMaster] AS SMU on SMU.Id = SM.ServiceMasterId
                                         WHERE RP.ManpowerBudgetId='" + employee.BudgetCode + @"' AND RP.SourceType='" + ResponsiblePersonSourceType.BudgetMaster + @"'
                                         UNION
-                                       SELECT BM.*, NULL MappingLevel, BC.UserName AS BudgetCategory, BSC.UserName AS BudgetSubCategory, B.UserName AS BudgetName, BG.UserName AS BudgetGroup,GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName,SM.ServiceMasterId
+                                       SELECT distinct BM.*, NULL MappingLevel, BC.UserName AS BudgetCategory, BSC.UserName AS BudgetSubCategory, B.UserName AS BudgetName, BG.UserName AS BudgetGroup,GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName,SM.ServiceMasterId,SMU.UserName ServiceMaster
                                         FROM [ORG].[PositionResponsiblePerson] AS RP
                                         JOIN [MST].[BudgetMaster] AS BM ON BM.Id=RP.BudgetMasterId
                                         JOIN (SELECT SMGL.ServiceMasterId,BMA.BudgetMasterId
@@ -186,6 +188,7 @@ namespace Library.Service.Materials
 							            LEFT JOIN [HKP].[BudgetCategory] AS BC ON BC.Id=BM.BudgetCategoryId
 							            LEFT JOIN [HKP].[BudgetSubCategory] AS BSC ON BSC.Id=BM.BudgetSubCategoryId
 										LEFT JOIN [HKP].[BudgetGroup] AS bg on BM.BudgetGroupId = bg.Id
+                                        LEFT JOIN [HKP].[ServiceMaster] AS SMU on SMU.Id = SM.ServiceMasterId
                                         WHERE RP.PositionId='" + employee.BudgetCode + @"' AND RP.SourceType='" + ResponsiblePersonSourceType.BudgetMaster + "'";
             return _sqlRepository.GetGridData(parameters);
         }
@@ -193,20 +196,22 @@ namespace Library.Service.Materials
         {
             if (level == "Activity")
             {
-                var sql = @"SELECT DISTINCT BMA.BudgetMasterId, BMA.ActivityId, A.UserName AS ActivityName, A.FALinked, A.ActivityType,A.IsOrderSpecific,BMA.IsServiceApplicable,BMA.ActivityOrderType
+                var sql = @"SELECT DISTINCT BMA.BudgetMasterId, BMA.ActivityId, A.UserName AS ActivityName, A.FALinked, A.ActivityType,A.IsOrderSpecific,BMA.IsServiceApplicable,BMA.ActivityOrderType,SMU.UserName ServiceMaster
                         FROM [MST].[BudgetMasterActivity] AS BMA
                         JOIN [HKP].[ServiceMasterGL] AS SMGL ON BMA.Id=SMGL.DrControlId
                         JOIN [HKP].[Activity] AS A ON A.Id=BMA.ActivityId
                         JOIN [MST].[EmployeeResponsiblePerson] AS ERP ON ERP.BudgetMasterActivityId=BMA.Id
+                        LEFT JOIN [HKP].[ServiceMaster] AS SMU on SMU.Id = SMGL.ServiceMasterId
                         WHERE BMA.Active=1 AND BMA.BudgetMasterId='" + budgetMasterId + "' AND ERP.EmployeeId='" + employeeId + @"'"; 
                 return _sqlRepository.GetDataCollection(sql);
             }
             else
             {
-                var sql = @"SELECT BMA.BudgetMasterId, BMA.ActivityId, A.UserName AS ActivityName, A.FALinked, A.ActivityType,A.IsOrderSpecific,BMA.ActivityOrderType,BMA.IsServiceApplicable
+                var sql = @"SELECT BMA.BudgetMasterId, BMA.ActivityId, A.UserName AS ActivityName, A.FALinked, A.ActivityType,A.IsOrderSpecific,BMA.ActivityOrderType,BMA.IsServiceApplicable,SMU.UserName ServiceMaster
                         FROM [MST].[BudgetMasterActivity] AS BMA
                         JOIN [HKP].[ServiceMasterGL] AS SMGL ON BMA.Id=SMGL.DrControlId
                         JOIN [HKP].[Activity] AS A ON A.Id=BMA.ActivityId
+                        LEFT JOIN [HKP].[ServiceMaster] AS SMU on SMU.Id = SMGL.ServiceMasterId
                         WHERE BMA.Active=1 AND BMA.BudgetMasterId='" + budgetMasterId + "' ORDER BY A.Code, A.UserName";
                 return _sqlRepository.GetDataCollection(sql);
             }
