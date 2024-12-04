@@ -27102,111 +27102,6 @@ namespace Library.Service.HumanResources
         {
             try
             {
-                CreateFinalSettlement(companyGroupId, companyId, plantId, SystemId, LanguageId, UserName);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-
-
-
-        public string cnDgt(string input, string lng)
-        {
-            if (lng == "Bengali")
-            {
-                return input.Replace('0', '০')
-                    .Replace('1', '১')
-                    .Replace('2', '২')
-                    .Replace('3', '৩')
-                    .Replace('4', '৪')
-                    .Replace('5', '৫')
-                    .Replace('6', '৬')
-                    .Replace('7', '৭')
-                    .Replace('8', '৮')
-                    .Replace('9', '৯');
-            }
-            else if (lng == "Hindi")
-            {
-                return input.Replace('0', '०')
-                    .Replace('1', '१')
-                    .Replace('2', '२')
-                    .Replace('3', '३')
-                    .Replace('4', '४')
-                    .Replace('5', '५')
-                    .Replace('6', '६')
-                    .Replace('7', '७')
-                    .Replace('8', '८')
-                    .Replace('9', '९');
-            }
-            else if (lng == "English")
-            {
-                return input.Replace('0', '0')
-                    .Replace('1', '1')
-                    .Replace('2', '2')
-                    .Replace('3', '3')
-                    .Replace('4', '4')
-                    .Replace('5', '5')
-                    .Replace('6', '6')
-                    .Replace('7', '7')
-                    .Replace('8', '8')
-                    .Replace('9', '9');
-            }
-            return input;
-        }
-
-        public string GetFormatedDate(string date, string lng)
-        {
-            var formateDate = string.Empty;
-            var day = cnDgt(date.Substring(0, 2), lng);
-            var mon = ChangeMonth(date.Substring(3, 3), lng);
-            var year = cnDgt(date.Substring(7, 4), lng);
-            return formateDate = day + "-" + mon + "-" + year;
-        }
-
-        public string ChangeMonth(string input, string lng)
-        {
-            if (lng == "Bengali")
-            {
-                return input
-                    .Replace("Jan", "জানুয়ারি")
-                    .Replace("Feb", "ফেব্রুয়ারি")
-                    .Replace("Mar", "মার্চ")
-                    .Replace("Apr", "এপ্রিল")
-                    .Replace("May", "মে")
-                    .Replace("Jun", "জুন")
-                    .Replace("Jul", "জুলাই")
-                    .Replace("Aug", "আগস্ট")
-                    .Replace("Sep", "সেপ্টেম্বর")
-                    .Replace("Oct", "অক্টোবর")
-                    .Replace("Nov", "নভেম্বর")
-                    .Replace("Dec", "ডিসেম্বর");
-            }
-            else if (lng == "Hindi")
-            {
-                return input
-                    .Replace("Jan", "जनवरी")
-                    .Replace("Feb", "फरवरी")
-                    .Replace("Mar", "मार्च")
-                    .Replace("Apr", "अप्रैल")
-                    .Replace("May", "मई")
-                    .Replace("Jun", "जून")
-                    .Replace("Jul", "जुलाई")
-                    .Replace("Aug", "अगस्त")
-                    .Replace("Sep", "सितम्बर")
-                    .Replace("Oct", "अक्तूबर")
-                    .Replace("Nov", "नवम्बर")
-                    .Replace("Dec", "दिसम्बर");
-            }
-            return input;
-        }
-
-        private void XCreateFinalSettlement(string companyGroupId, string companyId, string plantId, string SystemId, string LanguageId, string UserName)
-        {
-            try
-            {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ReportUtility oRU = new ReportUtility();
                 cFinalSettlement ob = new cFinalSettlement(_sqlRepository);
@@ -27232,222 +27127,32 @@ namespace Library.Service.HumanResources
                 WordDocument document = new WordDocument(DocFile.FullName);
 
                 DataTable dtEmpInformation = ob.GetEmpInformationforfinalsettlement(plantId, SystemId, LanguageId, UserName);
-                DataTable dtFinalSettlementData = ob.GetFinalSettlementData(plantId, SystemId, LanguageId, UserName);
 
-
-
-
-                TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
-                Dictionary<string, int> replaced = new Dictionary<string, int>();
-
-                string value = "";
-                foreach (TextSelection item in allresult)
+                var nd = 0;
+                var ExtraDays = 0;
+                var monthName = "";
+                var doj = Convert.ToDateTime(dtEmpInformation.Rows[0]["DOJ"]).ToString("dd-MMM-yyyy");
+                DateTime edoj = Convert.ToDateTime(dtEmpInformation.Rows[0]["DOJ"]);
+                nd = Convert.ToDateTime(doj).Day;
+                monthName = Convert.ToDateTime(doj).ToString("MMM");
+                var monthNo = Convert.ToDateTime(doj).ToString("MM");
+                var yearNo = Convert.ToDateTime(dtEmpInformation.Rows[0]["DOS"]).ToString("yyyy");
+                if (monthNo == "12")
                 {
-                    string foundText = item.SelectedText;
-                    if (foundText == "Gratuity")
-                    {
-
-                    }
-                    if (replaced.ContainsKey(foundText) == false)
-                        replaced.Add(foundText, 0);
-
-                    //for fixed info
-                    string colName = foundText.Trim().Replace("{", "").Replace("}", "");
-
-                    if (dtEmpInformation.Columns.Contains(colName))
-                    {
-
-                        ///=====
-                        value = dtEmpInformation.Rows[0][dtEmpInformation.Columns[colName].ColumnName].ToString();
-
-                        if (bplib.clsWebLib.IsNumeric(value))
-                        {
-                            replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
-                        }
-                        else if (bplib.clsWebLib.IsDateOK(value))
-                            replaced[foundText] = document.Replace(foundText, GetFormatedDate(value, UserName), false, true);
-                        else
-                            replaced[foundText] = document.Replace(foundText, value, false, true);
-                    }
-                    if (dtFinalSettlementData.Columns.Contains(colName))
-                    {
-
-                        ///=====
-                        value = dtFinalSettlementData.Rows[0][dtFinalSettlementData.Columns[colName].ColumnName].ToString();
-
-                        if (bplib.clsWebLib.IsNumeric(value))
-                        {
-                            if (colName == "LvEncashmentDayNo")
-                            {
-                                replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
-
-                            }
-                            if (colName == "TotalPayDay")
-                            {
-                                replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
-
-                            }
-                            else if (colName == "LvEncashmentRateAmount")
-                            {
-                                replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
-
-                            }
-                            else if (colName == "SalRate")
-                            {
-                                replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
-
-                            }
-                            else if (colName == "OTRate")
-                            {
-                                replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
-
-                            }
-                            else
-                            {
-                                replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString("N2"), UserName), false, true);
-
-                            }
-                        }
-                        else if (bplib.clsWebLib.IsDateOK(value))
-                            replaced[foundText] = document.Replace(foundText, GetFormatedDate(value, UserName), false, true);
-                        else
-                            replaced[foundText] = document.Replace(foundText, value, false, true);
-                    }
+                    yearNo = Convert.ToDateTime(dtEmpInformation.Rows[0]["DOS"]).AddYears(-1).ToString("yyyy");
                 }
-
-
-
-                WSection section = document.Sections[0];
-                WTable table1 = (WTable)section.Body.Tables[1];
-
-
-                DataTable dtFinalSettlementDedutionData = null;
-                DataTable dtFinalSettlementEarningData = null;
-                decimal TotalEarning = 0;
-                decimal SeparationTypeAmount = 0;
-                decimal LvEncashmentAmount = 0;
-                decimal LeaveEncash = 0;
-                decimal LastMonthNetPayAmount = 0;
-                decimal FinalSettlementEarningData = 0;
-                decimal SepTypeAmount = 0;
-                if (dtFinalSettlementData.Rows.Count > 0)
+                DateTime lastDay = new DateTime(edoj.Year, edoj.Month, 1).AddMonths(1).AddDays(-1);
+                var ld = Convert.ToDateTime(lastDay).Day;
+                if (nd == ld)
                 {
-                    dtFinalSettlementDedutionData = ob.GetFinalSettlementDeductionData(dtFinalSettlementData.Rows[0]["Id"].ToString(), LanguageId);
-                    dtFinalSettlementEarningData = ob.GetFinalSettlementEarningData(dtFinalSettlementData.Rows[0]["Id"].ToString(), LanguageId);
+                    DateTime nxtM = new DateTime(edoj.AddMonths(1).Year, edoj.AddMonths(1).Month, 1);
+                    nd = Convert.ToDateTime(nxtM).Day;
+                    monthName = Convert.ToDateTime(nxtM).ToString("MMM");
                 }
-
-                if (dtFinalSettlementEarningData.Rows.Count > 0)
-                {
-                    ob.GetFinalSettlementHeadWiseData("{EarningPart}", document, dtFinalSettlementEarningData, UserName);
-
-                }
-
-                if (dtFinalSettlementDedutionData.Rows.Count > 0)
-                {
-                    ob.GetFinalSettlementHeadWiseData("{DedutionPart}", document, dtFinalSettlementDedutionData, UserName);
-                }
+                var fromDate = Convert.ToDateTime(nd + monthName + yearNo).AddDays(1).ToString("dd-MMM-yyyy");
 
 
-                if (dtFinalSettlementData.Rows.Count > 0)
-                {
-                    if (dtFinalSettlementData.Rows[0]["SeparationTypeAmount"].ToString() != "N/A")
-                        SepTypeAmount = Convert.ToDecimal(dtFinalSettlementData.Rows[0]["SeparationTypeAmount"].ToString());
-
-                    SeparationTypeAmount = SepTypeAmount;
-                    LvEncashmentAmount = Convert.ToDecimal(dtFinalSettlementData.Rows[0]["LvEncashmentAmount"].ToString());
-                    LeaveEncash = Convert.ToDecimal(dtFinalSettlementData.Rows[0]["LeaveEncash"].ToString());
-                    LastMonthNetPayAmount = Convert.ToDecimal(dtFinalSettlementData.Rows[0]["LastMonthNetPayAmount"].ToString());
-                    FinalSettlementEarningData = dtFinalSettlementEarningData.Rows.Count > 0 ? Convert.ToDecimal(dtFinalSettlementEarningData.Compute("SUM(Amount)", string.Empty)) : 0;
-                    TotalEarning = SeparationTypeAmount + LeaveEncash + LastMonthNetPayAmount + FinalSettlementEarningData;
-
-                    decimal TotalDeduction = dtFinalSettlementDedutionData.Rows.Count > 0 ? Convert.ToDecimal(dtFinalSettlementDedutionData.Compute("SUM(Amount)", string.Empty)) : 0;
-                    decimal Payable = TotalEarning - TotalDeduction;
-                    document.Replace("{TotalEarning}", cnDgt(TotalEarning.ToString("N0"), UserName), false, true);
-                    document.Replace("{TotalDeduction}", cnDgt(TotalDeduction.ToString("N0"), UserName), false, true);
-                    document.Replace("{Payable}", cnDgt(Payable.ToString("N0"), UserName), false, true);
-
-                }
-
-                #region Total In Word
-                if (UserName.ToUpper() == "BANGLA")
-                {
-
-                    //strnumberToString(string numberToConvert)
-                    numberToString.numberToStringBuilder bangla = new numberToString.numberToStringBuilder();
-                    document.Replace("{TotalInWords}", bangla.strnumberToString(dtFinalSettlementData.Rows[0]["NetPayAmount"].ToString()), true, true);
-
-                    // document.Replace("{TotalInWords}", ru.InWord((materialTotal + serviceTotal), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
-
-
-                }
-                else
-                {
-                    document.Replace("{TotalInWords}", oRU.InWord(Convert.ToDouble(dtFinalSettlementData.Rows[0]["NetPayAmount"].ToString()), ""), true, true);
-                }
-
-                #endregion Total In Word
-
-
-                foreach (string item in replaced.Keys)
-                {
-                    if (replaced[item] == 0)
-                        document.Replace(item, "", false, true);
-
-                }
-
-                string fileNames = string.Empty;
-                if (dtEmpInformation.Rows.Count > 0)
-                {
-                    fileNames = dtEmpInformation.Rows[0]["EmployeeCode"] + "-FinalSettlement.docx";
-                }
-                else
-                {
-                    fileNames = "FinalSettlement.docx";
-                }
-
-                document.Save(fileNames, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
-                document.Close();
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-
-        }
-
-        private void CreateFinalSettlement(string companyGroupId, string companyId, string plantId, string SystemId, string LanguageId, string UserName)
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                ReportUtility oRU = new ReportUtility();
-                cFinalSettlement ob = new cFinalSettlement(_sqlRepository);
-                string strPath = "";
-                string filepath = "";
-                string File = "Fs" + plantId + UserName + ".docx";
-                strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/File);
-                if (System.IO.File.Exists(strPath) && UserName != "English")
-                {
-                    filepath = strPath;
-                }
-                else
-                {
-                    File = "FsPSLEnglish.docx";
-                    filepath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), File);
-                }
-
-                FileInfo DocFile = new FileInfo(strPath);
-                if (DocFile.Exists == false)
-                {
-                    throw new Exception("File Not Found");
-                }
-                WordDocument document = new WordDocument(DocFile.FullName);
-
-                DataTable dtEmpInformation = ob.GetEmpInformationforfinalsettlement(plantId, SystemId, LanguageId, UserName);
-                DataTable dtFinalSettlementData = ob.GetFinalSettlementData(plantId, SystemId, LanguageId, UserName);
-
-
-
+                DataTable dtFinalSettlementData = ob.GetFinalSettlementData(plantId, SystemId, LanguageId, UserName, fromDate.ToString(), Convert.ToDateTime(dtEmpInformation.Rows[0]["DOS"]).ToString("dd-MMM-yyyy"));
 
                 TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
                 Dictionary<string, int> replaced = new Dictionary<string, int>();
@@ -27638,9 +27343,101 @@ namespace Library.Service.HumanResources
             {
                 throw ex;
             }
-
         }
 
+
+
+
+        public string cnDgt(string input, string lng)
+        {
+            if (lng == "Bengali")
+            {
+                return input.Replace('0', '০')
+                    .Replace('1', '১')
+                    .Replace('2', '২')
+                    .Replace('3', '৩')
+                    .Replace('4', '৪')
+                    .Replace('5', '৫')
+                    .Replace('6', '৬')
+                    .Replace('7', '৭')
+                    .Replace('8', '৮')
+                    .Replace('9', '৯');
+            }
+            else if (lng == "Hindi")
+            {
+                return input.Replace('0', '०')
+                    .Replace('1', '१')
+                    .Replace('2', '२')
+                    .Replace('3', '३')
+                    .Replace('4', '४')
+                    .Replace('5', '५')
+                    .Replace('6', '६')
+                    .Replace('7', '७')
+                    .Replace('8', '८')
+                    .Replace('9', '९');
+            }
+            else if (lng == "English")
+            {
+                return input.Replace('0', '0')
+                    .Replace('1', '1')
+                    .Replace('2', '2')
+                    .Replace('3', '3')
+                    .Replace('4', '4')
+                    .Replace('5', '5')
+                    .Replace('6', '6')
+                    .Replace('7', '7')
+                    .Replace('8', '8')
+                    .Replace('9', '9');
+            }
+            return input;
+        }
+
+        public string GetFormatedDate(string date, string lng)
+        {
+            var formateDate = string.Empty;
+            var day = cnDgt(date.Substring(0, 2), lng);
+            var mon = ChangeMonth(date.Substring(3, 3), lng);
+            var year = cnDgt(date.Substring(7, 4), lng);
+            return formateDate = day + "-" + mon + "-" + year;
+        }
+
+        public string ChangeMonth(string input, string lng)
+        {
+            if (lng == "Bengali")
+            {
+                return input
+                    .Replace("Jan", "জানুয়ারি")
+                    .Replace("Feb", "ফেব্রুয়ারি")
+                    .Replace("Mar", "মার্চ")
+                    .Replace("Apr", "এপ্রিল")
+                    .Replace("May", "মে")
+                    .Replace("Jun", "জুন")
+                    .Replace("Jul", "জুলাই")
+                    .Replace("Aug", "আগস্ট")
+                    .Replace("Sep", "সেপ্টেম্বর")
+                    .Replace("Oct", "অক্টোবর")
+                    .Replace("Nov", "নভেম্বর")
+                    .Replace("Dec", "ডিসেম্বর");
+            }
+            else if (lng == "Hindi")
+            {
+                return input
+                    .Replace("Jan", "जनवरी")
+                    .Replace("Feb", "फरवरी")
+                    .Replace("Mar", "मार्च")
+                    .Replace("Apr", "अप्रैल")
+                    .Replace("May", "मई")
+                    .Replace("Jun", "जून")
+                    .Replace("Jul", "जुलाई")
+                    .Replace("Aug", "अगस्त")
+                    .Replace("Sep", "सितम्बर")
+                    .Replace("Oct", "अक्तूबर")
+                    .Replace("Nov", "नवम्बर")
+                    .Replace("Dec", "दिसम्बर");
+            }
+            return input;
+        }
+       
         #endregion
 
         #region Salary Certificate Report
@@ -27688,7 +27485,31 @@ namespace Library.Service.HumanResources
                 WordDocument document = new WordDocument(DocFile.FullName);
 
                 DataTable dtEmpInformation = ob.GetEmpInformationforfinalsettlement(plantId, SystemId, LanguageId, UserName);
-                DataTable dtFinalSettlementData = ob.GetFinalSettlementData(plantId, SystemId, LanguageId, UserName);
+                var nd = 0;
+                var ExtraDays = 0;
+                var monthName = "";
+                var doj = Convert.ToDateTime(dtEmpInformation.Rows[0]["DOJ"]).ToString("dd-MMM-yyyy");
+                DateTime edoj = Convert.ToDateTime(dtEmpInformation.Rows[0]["DOJ"]);
+                nd = Convert.ToDateTime(doj).Day;
+                monthName = Convert.ToDateTime(doj).ToString("MMM");
+                var monthNo = Convert.ToDateTime(doj).ToString("MM");
+                var yearNo = Convert.ToDateTime(dtEmpInformation.Rows[0]["DOS"]).ToString("yyyy");
+                if (monthNo == "12")
+                {
+                    yearNo = Convert.ToDateTime(dtEmpInformation.Rows[0]["DOS"]).AddYears(-1).ToString("yyyy");
+                }
+                DateTime lastDay = new DateTime(edoj.Year, edoj.Month, 1).AddMonths(1).AddDays(-1);
+                var ld = Convert.ToDateTime(lastDay).Day;
+                if (nd == ld)
+                {
+                    DateTime nxtM = new DateTime(edoj.AddMonths(1).Year, edoj.AddMonths(1).Month, 1);
+                    nd = Convert.ToDateTime(nxtM).Day;
+                    monthName = Convert.ToDateTime(nxtM).ToString("MMM");
+                }
+                var fromDate = Convert.ToDateTime(nd + monthName + yearNo).AddDays(1).ToString("dd-MMM-yyyy");
+
+
+                DataTable dtFinalSettlementData = ob.GetFinalSettlementData(plantId, SystemId, LanguageId, UserName, fromDate.ToString(), Convert.ToDateTime(dtEmpInformation.Rows[0]["DOS"]).ToString("dd-MMM-yyyy"));
 
                 TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
                 Dictionary<string, int> replaced = new Dictionary<string, int>();

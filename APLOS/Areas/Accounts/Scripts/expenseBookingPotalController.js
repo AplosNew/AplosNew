@@ -544,6 +544,7 @@ function expenseBookingPotalController(cboService, commonMessage, $scope, $rootS
         $scope.budgetTransactionDetail.GLGeneralInfoId = x.GLGeneralInfoId;
         $scope.budgetTransactionDetail.GL = x.GL;
         $scope.budgetTransactionDetail.ServiceMasterId = x.ServiceMasterId;
+        $scope.budgetTransactionDetail.ServiceMaster = x.ServiceMaster;
         $scope.selectedBudgetMasterId = x.Id;
         if ($scope.companyConfig.IsInboundInvoiceServiceApplicable === true) {
             $scope.getCboEmployeeBudgetActivityWithServiceMasterList(x.Id, x.MappingLevel, null);

@@ -108,8 +108,7 @@ Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.
 LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
 left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 AND VD.AccountsGroupId=SL.AccountsGroupId 
 Where HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
-AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL AND ISNULL(sl.PastBonusDisbursed,0) = 0 AND BonusDisbursementAdviceId<>'' 
-AND SPC.EmpInfoSystemID="+ EmpSystemId + "";
+AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND ISNULL(sl.PastBonusDisbursed,0) = 0 AND SPC.EmpInfoSystemID="+ EmpSystemId + "";
                 var FinalSettlementUndisbursedBonus = _sqlRepository.GetDataCollection(sqlundisbursedbonus);
 
                 return Json(new { SeperationItem, FinalSettlementUndisbursedEarning, FinalSettlementUndisbursedBonus }, JsonRequestBehavior.AllowGet);
@@ -2052,7 +2051,7 @@ AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.Empl
 			 ) AS varchar(100))
 
 WHEN OL.UserName='GoodWork' THEN CAST((
-Select cast(((sum(gd.Minute)/60)*OLS.OTreductionFactor) *(B.Basic/104) AS decimal(18,0)) from dbo.GoodWorkDetail GD
+Select cast(((sum(gd.Minute)/60)*(B.Basic/104)) AS decimal(18,0)) from dbo.GoodWorkDetail GD
 left join EmployeeInformation ei on ei.SystemId=GD.EmpSystemId
 left join (Select top 1* from [dbo].[OTLimitSetting])OLS ON OLS.PlantID=ei.PlantId
 LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = GD.EmpSystemId
@@ -2069,7 +2068,7 @@ Group By OLS.OTreductionFactor,B.Basic
  ) AS varchar(100))
 
  WHEN OL.UserName='OverTime' THEN CAST((
-Select CAST(((sum(gd.AdditionalOT)/60)*OLS.OTreductionFactor) *(B.Basic/104) AS decimal(18,0)) from dbo.AttdnProcessData GD
+Select CAST(((sum(gd.AdditionalOT)/60)*(B.Basic/104)) AS decimal(18,0)) from dbo.AttdnProcessData GD
 left join EmployeeInformation ei on ei.SystemId=GD.EmpSystemId
 left join (Select top 1* from [dbo].[OTLimitSetting])OLS ON OLS.PlantID=ei.PlantId
 LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = GD.EmpSystemId
