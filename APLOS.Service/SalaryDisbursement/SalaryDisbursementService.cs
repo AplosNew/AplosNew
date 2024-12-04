@@ -1928,7 +1928,9 @@ namespace Library.Service.SalaryDisbursement
                 {
                     var direct = new System.Text.StringBuilder();
                     var directsql = "";
-                    directsql = @"update [dbo].[SalaryLock] set IsDisbursed=1, IsBonusDisbursed=1, FNFSettlementVoucherId='" + directVoucherId + @"' ,DisbursementVoucherId='" + directVoucherId + @"' ,BonusDisbursementVoucherId='" + directVoucherId + @"' where EmployeeFinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId IN (" + goodWorkPaymentAdviseDetailIds + @") ";
+                    directsql = @"update [dbo].[SalaryLock] set IsDisbursed=1, DisbursementVoucherId='" + directVoucherId + @"'  where EmployeeFinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId IN (" + goodWorkPaymentAdviseDetailIds + @") AND DisbursementVoucherId IS NULL
+                                  update [dbo].[SalaryLock] set IsBonusDisbursed=1, BonusDisbursementVoucherId='" + directVoucherId + @"' where EmployeeFinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId IN (" + goodWorkPaymentAdviseDetailIds + @") AND BonusDisbursementVoucherId IS NULL
+                                  update [dbo].[SalaryLock] set FNFSettlementVoucherId='" + directVoucherId + @"'  where EmployeeFinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId IN (" + goodWorkPaymentAdviseDetailIds + @") ";
                     direct.Append(directsql);
                     directsql = @"
                         UPDATE  [dbo].[EmployeeFullAndFinalSettlement] SET VoucherId='" + directVoucherId + @"' WHERE EmpSystemId IN (" + goodWorkPaymentAdviseDetailIds + @") 
@@ -3587,7 +3589,9 @@ namespace Library.Service.SalaryDisbursement
                 }
 
                 directsql = @"UPDATE [dbo].[EmployeeFullAndFinalSettlement] SET VoucherId=NULL where VoucherId='" + voucherId + @"' 
-                              UPDATE [dbo].[SalaryLock] set FNFSettlementVoucherId=NULL,DisbursementVoucherId=NULL,BonusDisbursementVoucherId=NULL,IsDisbursed=0,IsBonusDisbursed=0  where FNFSettlementVoucherId='" + voucherId + @"' ";
+                              UPDATE [dbo].[SalaryLock] set DisbursementVoucherId=NULL,IsDisbursed=0  where FNFSettlementVoucherId='" + voucherId + @"' AND DisbursementVoucherId='" + voucherId + @"'
+                              UPDATE [dbo].[SalaryLock] set BonusDisbursementVoucherId=NULL,IsBonusDisbursed=0  where FNFSettlementVoucherId='" + voucherId + @"'  AND BonusDisbursementVoucherId='" + voucherId + @"'
+                              UPDATE [dbo].[SalaryLock] set FNFSettlementVoucherId=NULL  where FNFSettlementVoucherId='" + voucherId + @"' ";
                 direct.Append(directsql);
                 _sqlRepository.ExecuteSqlCommand(direct.ToString());
                 _unitOfWork.SaveChanges();
