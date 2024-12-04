@@ -212,7 +212,7 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
             angular.element(document.querySelector('#confirmPopUp')).modal('show');
         }
         else {
-            ShowResult("Final Settlement is Approved",'failure');
+            ShowResult("Final Settlement is Approved", 'failure');
         }
     }
 
@@ -343,6 +343,7 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
     $scope.EmpSysId = null;
     $scope.FormulaList = [];
     $scope.FinalSettlementUndisbursedEarningList = [];
+    $scope.bonusList = [];
     $scope.GetEmployeeItems = function (obj) {
         $scope.FormulaList = [];
         $scope.EmpSysId = obj.data.EmpSystemId;
@@ -355,10 +356,25 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
             } else {
                 $scope.FormulaList = response.data.SeperationItem;
                 $scope.FinalSettlementUndisbursedEarningList = response.data.FinalSettlementUndisbursedEarning;
-                
+                $scope.bonusList = response.data.FinalSettlementUndisbursedBonus;
+
                 angular.element(document.querySelector('#FormulaInfo')).modal('show');
             }
         });
+    }
+
+    $scope.showBonus = function (data) {
+        if (data.SandardName == "Bonus" && data.Value != "0") {
+            $("#BonusInfo").ejDialog("setTitle", "Bonus");
+            var eDialog = $("#BonusInfo").data("ejDialog");
+            eDialog.open();
+        }
+        /*angular.element(document.querySelector('#BonusInfo')).modal('show');*/
+    }
+    $scope.closeBonus = function () {
+        // angular.element(document.querySelector('#BonusInfo')).modal('hide');
+        var eDialog = $("#BonusInfo").data("ejDialog");
+        eDialog.close();
     }
 
     $scope.GetSavedEmployeeItems = function () {
