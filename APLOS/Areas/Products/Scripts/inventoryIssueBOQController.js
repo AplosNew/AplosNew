@@ -1914,6 +1914,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
         $scope.specificStockList = [];
         var BOqList = [];
         for (var i = 0; i < $scope.materialStockList.length; i++) {
+            $scope.materialStockList[i].Qty = $scope.materialStockList[i].RequisitionQty;
             BOqList.push(Object.assign({}, $scope.materialStockList[i]));
         }
         try {
@@ -1968,8 +1969,10 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
                     for (var x = 0; x < $scope.specificStockList.length; x++) {
                         if ($scope.specificStockList[x].InventoryReceiveDetailId == nRow.InventoryReceiveDetailId) {
                             var Qty = nRow.RequisitionQty;
+                            var balstockQty = nRow.BalanceStock;
                             $scope.specificStockList[x].RequisitionQty = $scope.specificStockList[x].RequisitionQty + parseFloat(Qty);
-                            Qty = 0;
+                            $scope.specificStockList[x].StockQty = $scope.specificStockList[x].StockQty + parseFloat(balstockQty);
+                            Qty = 0; balstockQty = 0;
                         }
                     }
                 }
