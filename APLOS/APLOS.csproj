@@ -1978,6 +1978,7 @@
     <Content Include="Areas\HumanResource\Scripts\LeaveTransectionController.js" />
     <Content Include="Areas\HumanResource\Scripts\otApproveController.js" />
     <Content Include="Areas\Materials\Scripts\BarcodeGeneratorSettingController.js" />
+    <Content Include="Areas\Materials\Scripts\ProcessConstraintController.js" />
     <Content Include="Areas\OrderManagements\Scripts\masterOrderApproveByController.js" />
     <Content Include="Areas\OrderManagements\Scripts\masterOrderCheckByController.js" />
     <Content Include="Areas\OrderManagements\Scripts\productionOrderSchedulingParametersType2Controller.js" />
@@ -5015,6 +5016,7 @@
     <Content Include="Areas\Accounts\Views\ExpenseBooking\_BudgetMasterWithServiceMasterPopUp.cshtml" />
     <Content Include="Areas\Attendances\Views\SpecialDuty\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\SpecialDuty\Report.cshtml" />
+    <Content Include="Areas\Materials\Views\MaterialMasterArticle\ProcessConstraint.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

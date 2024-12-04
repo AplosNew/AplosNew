@@ -665,11 +665,11 @@ UNION ALL
  ,a.SystemID,A.LTSystemID,A.EmployeeId EmployeeID,A.LeaveName, A.LeaveDescription,ltd.SystemID LvPolDetailsSystemID,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear
  ,DaysCanBeSanctioned=ISNULL(CAST (B.CarryForward AS decimal(18,2)),0)
  ,CurrentAllocationDCBS=CAST (B.CarryForward AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal
- ,CurrentAllocation=CASE WHEN Masterx.LeaveType='Earn' THEN(select ((SELECT DATEDIFF(day,  cast(YEAR('" + _FromDate + @"') as char(4)),  cast(YEAR('" + _FromDate + @"')+1 as char(4))))-COUNT(d.OffDayDate))/ltd.EncashWorkingDaysQty
+ ,CurrentAllocation=ISNULL(CASE WHEN Masterx.LeaveType='Earn' THEN(select ((SELECT DATEDIFF(day,  cast(YEAR('" + _FromDate + @"') as char(4)),  cast(YEAR('" + _FromDate + @"')+1 as char(4))))-COUNT(d.OffDayDate))/ltd.EncashWorkingDaysQty
 		                                from scs.OffDayDetail d
 		                                inner join scs.OffDayMaster m on d.offdaymasterid=m.id and OffDayType in ('H','W') and m.PlantId='" + sPlantID + @"'
 		                                where d.PlantId='" + sPlantID + @"'
-		                                and d.OffDayDate between '" + _FromDate + @"' AND '" + _ToDate + @"')ELSE ltd.LeaveDays END  
+		                                and d.OffDayDate between '" + _FromDate + @"' AND '" + _ToDate + @"')ELSE ltd.LeaveDays END,0)  
 ,CAST (0 AS decimal(18,2)) PreviousYearCarryForward
  --,BroughtForward=CASE WHEN A.Opening>B.CarryForward THEN A.Opening WHEN B.BroughtForward>B.CarryForward THEN B.BroughtForward ELSE B.CarryForward END
  ,BroughtForward=CAST (A.Opening AS decimal(18,2))
@@ -897,11 +897,11 @@ UNION ALL
  ,a.SystemID,A.LTSystemID,A.EmployeeId EmployeeID,A.LeaveName, A.LeaveDescription,ltd.SystemID LvPolDetailsSystemID,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear
  ,DaysCanBeSanctioned=ISNULL(CAST (B.CarryForward AS decimal(18,2)),0)
  ,CurrentAllocationDCBS=CAST (B.CarryForward AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal
- ,CurrentAllocation=CASE WHEN Masterx.LeaveType='Earn' THEN (select ((SELECT DATEDIFF(day,  cast(YEAR('" + _FromDate + @"') as char(4)),  cast(YEAR('" + _FromDate + @"')+1 as char(4))))-COUNT(d.OffDayDate))/ltd.EncashWorkingDaysQty
+ ,CurrentAllocation=ISNULL(CASE WHEN Masterx.LeaveType='Earn' THEN (select ((SELECT DATEDIFF(day,  cast(YEAR('" + _FromDate + @"') as char(4)),  cast(YEAR('" + _FromDate + @"')+1 as char(4))))-COUNT(d.OffDayDate))/ltd.EncashWorkingDaysQty
 		                                from scs.OffDayDetail d
 		                                inner join scs.OffDayMaster m on d.offdaymasterid=m.id and OffDayType in ('H','W') and m.PlantId='" + sPlantID + @"'
 		                                where d.PlantId='" + sPlantID + @"'
-		                                and d.OffDayDate between '" + _FromDate + @"' AND '" + _ToDate + @"') ELSE ltd.LeaveDays END
+		                                and d.OffDayDate between '" + _FromDate + @"' AND '" + _ToDate + @"') ELSE ltd.LeaveDays END,0)
 ,CAST (0 AS decimal(18,2)) PreviousYearCarryForward
  --,BroughtForward=CASE WHEN A.Opening>B.CarryForward THEN A.Opening WHEN B.BroughtForward>B.CarryForward THEN B.BroughtForward ELSE B.CarryForward END
  ,BroughtForward=CAST (A.Opening AS decimal(18,2))
