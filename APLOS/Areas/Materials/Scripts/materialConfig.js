@@ -364,4 +364,8 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'materials/BarcodeGeneratorSetting/Aplos',
             controller: 'BarcodeGeneratorSettingController'
         })
+        .when('/process-constraint', {
+            templateUrl: 'materials/MaterialMasterArticle/ProcessConstraint',
+            controller: 'ProcessConstraintController'
+        })
 };
