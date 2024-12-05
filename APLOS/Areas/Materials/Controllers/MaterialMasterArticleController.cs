@@ -42,6 +42,12 @@ namespace Aplos.Areas.Materials.Controllers
             return View();
         }
 
+        public ActionResult ProcessConstraint()
+        {
+            return View();
+        }
+
+
         #endregion Pages
 
         #region List
@@ -466,6 +472,10 @@ namespace Aplos.Areas.Materials.Controllers
 
             return 1;
         }
+        #endregion
+
+        #region ProcessConstraint
+
         #endregion
     }
 }
