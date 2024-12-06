@@ -13275,6 +13275,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 				                   when v.SourceType='SalesInvoice' then 'GL'
 				                   when v.SourceType='VendorPayment' then 'GL'
 				                   when v.SourceType='CreditNoteSetOff' then 'GL'
+                                   when v.SourceType='CreditNote' then 'GL'
 				                   else '' end
 				                   ,Particular=TAXC.UserName
 				  ,TaxableAmount=iv.Amount-it.taxAmount
