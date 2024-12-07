@@ -196,22 +196,20 @@ namespace Library.Service.Materials
         {
             if (level == "Activity")
             {
-                var sql = @"SELECT DISTINCT BMA.BudgetMasterId, BMA.ActivityId, A.UserName AS ActivityName, A.FALinked, A.ActivityType,A.IsOrderSpecific,BMA.IsServiceApplicable,BMA.ActivityOrderType,SMU.UserName ServiceMaster
+                var sql = @"SELECT DISTINCT BMA.BudgetMasterId, BMA.ActivityId, A.UserName AS ActivityName, A.FALinked, A.ActivityType,A.IsOrderSpecific,BMA.IsServiceApplicable,BMA.ActivityOrderType
                         FROM [MST].[BudgetMasterActivity] AS BMA
                         JOIN [HKP].[ServiceMasterGL] AS SMGL ON BMA.Id=SMGL.DrControlId
                         JOIN [HKP].[Activity] AS A ON A.Id=BMA.ActivityId
                         JOIN [MST].[EmployeeResponsiblePerson] AS ERP ON ERP.BudgetMasterActivityId=BMA.Id
-                        LEFT JOIN [HKP].[ServiceMaster] AS SMU on SMU.Id = SMGL.ServiceMasterId
                         WHERE BMA.Active=1 AND BMA.BudgetMasterId='" + budgetMasterId + "' AND ERP.EmployeeId='" + employeeId + @"'"; 
                 return _sqlRepository.GetDataCollection(sql);
             }
             else
             {
-                var sql = @"SELECT BMA.BudgetMasterId, BMA.ActivityId, A.UserName AS ActivityName, A.FALinked, A.ActivityType,A.IsOrderSpecific,BMA.ActivityOrderType,BMA.IsServiceApplicable,SMU.UserName ServiceMaster
+                var sql = @"SELECT BMA.BudgetMasterId, BMA.ActivityId, A.UserName AS ActivityName, A.FALinked, A.ActivityType,A.IsOrderSpecific,BMA.ActivityOrderType,BMA.IsServiceApplicable
                         FROM [MST].[BudgetMasterActivity] AS BMA
                         JOIN [HKP].[ServiceMasterGL] AS SMGL ON BMA.Id=SMGL.DrControlId
                         JOIN [HKP].[Activity] AS A ON A.Id=BMA.ActivityId
-                        LEFT JOIN [HKP].[ServiceMaster] AS SMU on SMU.Id = SMGL.ServiceMasterId
                         WHERE BMA.Active=1 AND BMA.BudgetMasterId='" + budgetMasterId + "' ORDER BY A.Code, A.UserName";
                 return _sqlRepository.GetDataCollection(sql);
             }
