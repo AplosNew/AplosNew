@@ -2741,7 +2741,7 @@ ORDER BY IR.ID DESC";
                 var poApprovedStatus = "";
 
 
-                document.Replace("{Remarks}", dsOrderMaster.Rows[0]["Remarks"].ToString(), false, false);
+                document.Replace("{Reason}", dsOrderMaster.Rows[0]["Remarks"].ToString(), false, false);
                 document.Replace("{AddedBy}", dsOrderMaster.Rows[0]["AddedBy"].ToString(), false, false);
                 document.Replace("{CheckedBy}", dsOrderMaster.Rows[0]["CheckedBy"].ToString(), false, false);
                 document.Replace("{AuthorizedBy}", dsOrderMaster.Rows[0]["AuthorizedBy"].ToString(), false, false);
@@ -3533,20 +3533,20 @@ ORDER BY IR.ID DESC";
 	           
                            SELECT
 
-		                   SRD. Id
-                          ,SRD. ServiceRequisitionMasterID
-                          ,SRD. CurrencyId
-                          ,SRD. Rate
-                          ,SRD. ServiceMasterId
-                    ,ROUND(SRD. TotalServiceTranAmount, 2) TotalServiceTranAmount
-                    ,ROUND(SRD. TotalServiceBooksCurrencyAmount, 2) TotalServiceBooksCurrencyAmount
-                          ,SRD. AddedBy
-                          ,SRD. AddedDate
-                          ,SRD. AddedFromIP
-                          ,SRD. UpdatedBy
-                          ,SRD. UpdatedDate
-                          ,SRD. UpdatedFromIP
-                          ,SRD. Remarks
+		                   SRD.Id
+                          ,SRD.ServiceRequisitionMasterID
+                          ,SRD.CurrencyId
+                          ,SRD.Rate
+                          ,SRD.ServiceMasterId
+                    ,ROUND(SRD.TotalServiceTranAmount, 2) TotalServiceTranAmount
+                    ,ROUND(SRD.TotalServiceBooksCurrencyAmount, 2) TotalServiceBooksCurrencyAmount
+                          ,SRD.AddedBy
+                          ,SRD.AddedDate
+                          ,SRD.AddedFromIP
+                          ,SRD.UpdatedBy
+                          ,SRD.UpdatedDate
+                          ,SRD.UpdatedFromIP
+                          ,SRM.Remarks
                           ,SM.StandardName ServiceMasterName
 	                      ,CR.Code CurrencyName
                            ,SRD.Description

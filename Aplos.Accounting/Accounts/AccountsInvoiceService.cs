@@ -1294,7 +1294,7 @@ namespace Library.Accounting.Accounts
                 parameters.CmdText = @" SELECT IVD.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, IVD.BudgetMasterId, B.UserName AS BudgetName, IVD.ActivityId, EN.UserName AS EntityName, A.UserName AS ActivityName,
                                         V.VoucherNo, Replace(CONVERT(VARCHAR(11), IV.DocDate, 106), ' ', '-') DocDate ,Replace(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') PostingDate, IV.DocRefNo, IV.Narration, IV.Id AS InvoiceId,VD.EntityId,VD.PlantId, IVD.Id AS InvoiceDetailId, IV.VoucherId,
                                         VD.Id AS VoucherDetailId, IV.CurrencyId, C.Code AS CurrencyCode, IV.PartyId, IVD.Amount AS Receivable,V.ExchangeType, 0 ExchangeAmount,
-                                        ISNULL(IWD.WrittenOffAmount,0) + ISNULL(ITWLC.LCTaggedAmount,0)  AS Received,IVD.AdditionalAmount ,ISNULL(ITWLC.LCTaggedAmount,0) LCTaggedAmount,((IVD.Amount+ISNULL(IVD.AdditionalAmount,0))- ISNULL(IWD.WrittenOffAmount,0) - ISNULL(ITWLC.LCTaggedAmount,0) ) AS Balance, IV.PartyPlantId, PP.UserName AS PartyPlantName,
+                                        ISNULL(IWD.WrittenOffAmount,0) + ISNULL(ITWLC.LCTaggedAmount,0)  AS Received,IVD.AdditionalAmount ,ISNULL(ITWLC.LCTaggedAmount,0) LCTaggedAmount,((IVD.Amount+ISNULL(IVD.AdditionalAmount,0))- ISNULL(IWD.WrittenOffAmount,0) - ISNULL(ITWLC.LCTaggedAmount,0) ) AS Balance, IV.PartyPlantId, PP.UserName AS PartyPlantName,'' GRNNo,
 										CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, CC.CompanyCurrencyConversion,
 										GC.CompanyGroupCurrencyId, GC.CompanyGroupFromCurrencyId, GC.CompanyGroupCurrencyRate, GC.CompanyGroupCurrencyConversion,
 										HC.HardCurrencyId, HC.HardFromCurrencyId, HC.HardCurrencyRate, HC.HardCurrencyConversion
@@ -1333,9 +1333,14 @@ namespace Library.Accounting.Accounts
 										LEFT JOIN dbo.MasterLC MLC ON MLC.Id=XC.MasterLCId
 										LEFT JOIN TRN.Voucher XV ON XV.Id=XPDA.VoucherId
 										where XV.Id=V.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),IV.FileName
+                                        ,PONo=STUFF((select distinct ','+ XLC.Id from
+										trn.PurchaseOrder  XLC JOIN TRN.InventoryReceiveDetail XPDA  ON XPDA.POId=XLC.Id
+										where XPDA.InventoryReceiveId=IV.InventoryReceiveId   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                        ,PT.PaymentMode
                                         FROM [TRN].[InvoiceDetail] AS IVD
                                         LEFT JOIN (SELECT SUM(Amount)WrittenOffAmount,InvoiceDetailId FROM trn.InvoiceWriteOffDetail   GROUP BY InvoiceDetailId) AS IWD ON IWD.InvoiceDetailId=IVD.Id
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
+                                        LEFT JOIN [MST].[PaymentTerm] AS PT ON PT.Id=IV.PaymentTermId
 									    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
                                         LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
                                         LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
@@ -1377,7 +1382,7 @@ namespace Library.Accounting.Accounts
                                     SELECT IVD.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, IVD.BudgetMasterId, B.UserName AS BudgetName, IVD.ActivityId, EN.UserName AS EntityName, A.UserName AS ActivityName,
                                         V.VoucherNo, Replace(CONVERT(VARCHAR(11), IV.DocDate, 106), ' ', '-') DocDate ,Replace(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') PostingDate, IV.DocRefNo, IV.Narration, IV.Id AS InvoiceId,VD.EntityId,VD.PlantId, IVD.Id AS InvoiceDetailId, IV.VoucherId,
                                         VD.Id AS VoucherDetailId, IV.CurrencyId, C.Code AS CurrencyCode, IV.PartyId, IVD.NetAmount AS Receivable,V.ExchangeType, 0 ExchangeAmount,
-                                        ISNULL(IWD.WrittenOffAmount,0) + ISNULL(ITWLC.LCTaggedAmount,0) AS Received,IVD.AdditionalAmount,ISNULL(ITWLC.LCTaggedAmount,0) LCTaggedAmount, ((IVD.NetAmount+ISNULL(IVD.AdditionalAmount,0))-ISNULL(IWD.WrittenOffAmount,0)-ISNULL(ITWLC.LCTaggedAmount,0)) AS Balance, IV.PartyPlantId, PP.UserName AS PartyPlantName,
+                                        ISNULL(IWD.WrittenOffAmount,0) + ISNULL(ITWLC.LCTaggedAmount,0) AS Received,IVD.AdditionalAmount,ISNULL(ITWLC.LCTaggedAmount,0) LCTaggedAmount, ((IVD.NetAmount+ISNULL(IVD.AdditionalAmount,0))-ISNULL(IWD.WrittenOffAmount,0)-ISNULL(ITWLC.LCTaggedAmount,0)) AS Balance, IV.PartyPlantId, PP.UserName AS PartyPlantName,IV.InventoryReceiveId GRNNo,
 										CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, CC.CompanyCurrencyConversion,
 										GC.CompanyGroupCurrencyId, GC.CompanyGroupFromCurrencyId, GC.CompanyGroupCurrencyRate, GC.CompanyGroupCurrencyConversion,
 										HC.HardCurrencyId, HC.HardFromCurrencyId, HC.HardCurrencyRate, HC.HardCurrencyConversion
@@ -1387,11 +1392,20 @@ namespace Library.Accounting.Accounts
 											INNER JOin TRN.VoucherDetail xPDAMAP on xpo.id=xPDAMAP.ActivityId
 											WHERE VD.ActivityId!=xPDAMAP.ActivityId and xPDAMAP.VoucherId=V.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 										,'&amp;','&'), 'amp;', '')
-                                        ,NULL AcceptanceNo ,NULL LCRef,NULL ContractNo,NULL Customer, NULL MasterLCNo,IV.FileName
+                                        ,NULL AcceptanceNo , LCRef= STUFF((select distinct ','+ plc.LCRef from dbo.PurchaseLC plc 
+										left join trn.PurchaseOrder  XLC on XLC.PurchaseLCId=plc.Id
+										JOIN TRN.InventoryReceiveDetail XPDA  ON XPDA.POId=XLC.Id
+										where XPDA.InventoryReceiveId=IV.InventoryReceiveId   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
+										,NULL ContractNo,NULL Customer, NULL MasterLCNo,IV.FileName
+										,PONo=STUFF((select distinct ','+ XLC.Id from
+										trn.PurchaseOrder  XLC JOIN TRN.InventoryReceiveDetail XPDA  ON XPDA.POId=XLC.Id
+										where XPDA.InventoryReceiveId=IV.InventoryReceiveId   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                        ,PT.PaymentMode
                                         FROM [TRN].[InvoiceDetail] AS IVD
                                         LEFT JOIN (SELECT SUM(Amount)WrittenOffAmount,InvoiceDetailId FROM trn.InvoiceWriteOffDetail   GROUP BY InvoiceDetailId) AS IWD ON IWD.InvoiceDetailId=IVD.Id
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
+                                        LEFT JOIN [MST].[PaymentTerm] AS PT ON PT.Id=IV.PaymentTermId
 									    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
                                         LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
                                         LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId

@@ -120,11 +120,14 @@
                                 </td>
                                 <td>
                                     {{x.LCRef}}
-                                    <button ng-click="getSavedData($index)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="getSavedData($index)" data-toggle="modal" class="btn-action tooltip-here" title="LC Ref" data-placement="top"><i class="glyphicon glyphicon-search"></i></button>
                                 </td>
                                 <td>{{x.OpeningBank}}</td>
                                 <td>{{x.LCDate}}</td>
-                                <td>{{x.BalanceLCAmount}}</td>
+                                <td>
+                                    {{x.BalanceLCAmount}}
+                                    <button ng-click="getLCBalanceAmountDetailData($index)" data-toggle="modal" class="btn-action tooltip-here" title="LC Tagged History" data-placement="top"><i class="glyphicon glyphicon-search"></i></button>
+                                </td>
                                 <td class="text-right">
                                     <button ng-click="removeSelectedInvoiceRow($index)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
                                 </td>
@@ -279,6 +282,32 @@
         </div>
     </div>
 </div>
-
+<div class="modal fade site-modal in" id="LCSetOffDetailPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Purchase LC <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div style="color:black;" id="GridPurchaseLC" ej-grid e-datasource="purchaseLCBalanceList"  
+                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                    <div e-columns>
+                        <div e-column e-type="string" e-field="VoucherNo" e-headertext="Id" e-width="20" e-visible="false"></div>
+                        <div e-column e-field="PostingDate" e-headertext="PostingDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="40"></div>
+                        <div e-column e-type="string" e-field="DocRefNo" e-headertext="Invoice No" e-width="60"></div>
+                        <div e-column e-type="string" e-field="GRNNo" e-headertext="GRNNo" e-width="20"></div>
+                        <div e-column e-type="string" e-field="PONo" e-headertext="PONo" e-width="20"></div>
+                        <div e-column e-type="string" e-field="LC" e-headertext="LC RefNo" e-width="20"></div>
+                        <div e-column e-type="number" e-field="Amount" e-headertext="LoanAmount" e-width="40" e-textalign="right"></div>
+                        <div e-column e-type="number" e-field="POAmount" e-headertext="POAmount" e-width="40" e-textalign="right"></div>
+                        <div e-column e-type="number" e-field="LCAmount" e-headertext="LCAmount" e-width="40" e-textalign="right"></div>
+                        <div e-column e-field="LoanCreatedDate" e-headertext="LoanCreatedDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="40"></div>
+                        <div e-column e-type="string" e-field="LoanCreatedBy" e-headertext="LoanCreatedBy" e-width="20"></div>
+                        <div e-column e-type="string" e-field="OpeningBank" e-headertext="OpeningBank" e-width="20"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <confirm-archive-generic modalid="confirmUntagPopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="UntagInvoiceWithLC()"></confirm-archive-generic>
 
