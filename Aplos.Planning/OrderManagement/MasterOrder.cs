@@ -1786,12 +1786,20 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
 
         public IEnumerable<object> GetCheckByList(string companyId, string column, string value, string empId)
         {
-            string strkey = "1=1";
-            if (string.IsNullOrEmpty(column) == false)
-                strkey = column + " like '%" + value + "%'";
-
-
-            string sql = @"select * from (SELECT A.Id, A.CompanyId, A.CommitmentId, A.PlantId, A.EntityId, EN.UserName Entity,FORMAT(A.AddedDate,'dd-MMM-yyyy') AS CreationDate,a.AddedBy AS CreatedBy
+            try
+            {
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false)
+                    strkey = column + " like '%" + value + "%'";
+                string ca = @"select E.SystemId from dbo.AuthorizationConfig A 
+                          Inner Join dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where  A.ActionStatus='SalesOrderCheckedBy' AND E.EmployeeStatus='Active' AND E.SystemId=" + empId + "";
+                var dt = _sqlRepository.GetDataTable(ca);
+                if (dt.Rows.Count == 0)
+                {
+                    throw new Exception("This employee is not authorize for checking.");
+                }
+                string sql = @"select * from (SELECT A.Id, A.CompanyId, A.CommitmentId, A.PlantId, A.EntityId, EN.UserName Entity,FORMAT(A.AddedDate,'dd-MMM-yyyy') AS CreationDate,a.AddedBy AS CreatedBy
                                     , A.OrderType, A.PartyId, P.Code CustomerCode, P.UserName AS CustomerName, A.BuyerId,B.UserName Buyer
                                     , A.BuyerBrandId, A.BuyerDivisionId, A.TestingStandardId, A.MasterOrderNo, A.OrderStatusId	
                                     , A.OrderCategoryId,OC.UserName AS OrderCategory, A.SeasonId, A.OrderYear, A.CurrencyId, A.TotalQty	
@@ -1845,9 +1853,15 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
                             WHERE A.CompanyId='" + companyId + @"' AND A.Id IN(Select distinct MOI.MasterOrderId from  TRN.SalesOrder SO
 LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId
 LEFT JOIN TRN.MasterOrder MO ON MO.Id = MOI.MasterOrderId
-Where SO.CheckByStatus = 'To Be Check' AND SO.ResponsiblePersonId='"+empId+@"')) AS TEMP WHERE " + strkey + " ORDER BY AddedDate Desc";
+Where SO.CheckByStatus = 'To Be Check')) AS TEMP WHERE " + strkey + " ORDER BY AddedDate Desc";
 
-            return _sqlRepository.GetDataCollection(sql, null);
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch ( Exception ex)
+            {
+
+                throw ex;
+            }
         }
 
         public IEnumerable<object> GetMasterItemForCheckList(string masterOrderId, string empId)
@@ -1900,7 +1914,7 @@ Where SO.CheckByStatus = 'To Be Check' AND SO.ResponsiblePersonId='"+empId+@"'))
                         LEFT JOIN dbo.ProductLibrary PL ON PL.Id=MOI.ProductLibraryId
                         LEFT JOIN dbo.OrderCostingMasterTemplate OCT ON OCT.Id=MOI.OrderCostingMasterTemplateId
                         WHERE MOI.MasterOrderId='" + masterOrderId + @"' AND MOI.Id IN(Select distinct SO.MasterOrderItemId from  TRN.SalesOrder SO
-Where SO.CheckByStatus = 'To Be Check' AND SO.ResponsiblePersonId = '" + empId + "')";
+Where SO.CheckByStatus = 'To Be Check')";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

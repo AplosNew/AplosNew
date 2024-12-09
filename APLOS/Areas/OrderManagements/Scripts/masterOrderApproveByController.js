@@ -830,101 +830,7 @@ function masterOrderApproveByController(accountService, $window, cboService, com
         $scope.RemarksControlmodel = { Id: null, MasterOrderId: null, RemarkControlId: null, RemarksControl: null, UserRemarks: null };
     }
 
-    // #region
-    //$scope.partySearchByList = [
-    //    {
-    //        'name': $scope.partyType + ' Code',
-    //        'value': 'Code'
-    //    },
-    //    {
-    //        'name': $scope.partyType + ' Name',
-    //        'value': 'PartyName'
-    //    },
-    //    {
-    //        'name': 'Account Group',
-    //        'value': 'PartyAccountGroupName'
-    //    },
-    //    {
-    //        'name': 'Country',
-    //        'value': 'CountryName'
-    //    },
-    //    {
-    //        'name': 'State',
-    //        'value': 'StateName'
-    //    },
-    //    {
-    //        'name': 'Currency',
-    //        'value': 'CurrencyCode'
-    //    }
-    //];
-    //$scope.partyParameters = {
-    //    limit: 10
-    //    , offset: 0
-    //    , order: 'ASC'
-    //    , sort: 'PartyName, PartyAccountGroupName'
-    //    , searchBy: 'PartyName'
-    //    , pageSize: 10
-    //    , total_count: 0
-    //    , search: null
-    //    , serverPagination: true
-    //};
-    //$scope.showPartyPopUp = function () {
-    //    if (baseService.isUndefinedOrNull($scope.fileNew.CompanyId)) {
-    //        ShowResult('Select Company', 'failure');
-    //        return false;
-    //    }
-    //    if (baseService.isUndefinedOrNull($scope.fileNew.PlantId)) {
-    //        ShowResult('Select Plant', 'failure');
-    //        return false;
-    //    }
-    //    baseService.setCurrentPage('partyList');
-    //    $scope.getPartyList = function (pageno) {
-    //        $scope.partyUrl = $scope.path + 'GetCompanyPartyDataList?companyId=' + $scope.fileNew.CompanyId + '&plantId=' + $scope.fileNew.PlantId + '&partyType=' + $scope.partyType;
-    //        baseService.paginationBase($scope.partyUrl, pageno, $scope.partyParameters)
-    //            .then(function (result) {
-    //                $scope.partyList = result.Rows;
-    //                $scope.partyParameters.total_count = result.Total;
-    //            }, function () {
-    //                ShowResult(commonMessage.NetworkError, 'failure');
-    //            }).finally(function () {
-    //            });
-    //    };
-    //    angular.element(document.querySelector('#partyPopUp')).modal('show');
-    //    $scope.getPartyList();
-    //};
-
-    //$scope.selectPartyPopUpRow = function (index, id) {
-    //    $scope.partyIndex = index;
-    //    $scope.selectedParty = id;
-    //};
-
-    //$scope.selectCustomerPopUp = function (index, id) {
-    //    $scope.partyIndex = index;
-    //    $scope.selectedCustomer = id;
-    //};
-
-    //$scope.closePartyPopUp = function (x) {
-    //    var party = x.data;
-    //    $scope.fileNew.PartyCode = party.Code;
-    //    $scope.fileNew.CustomerName = party.UserName;
-    //    $scope.fileNew.PartyId = party.Id;
-    //    $scope.fileNew.CurrencyId = party.CurrencyId;
-    //    $scope.fileNew.PartyAccountGroupId = party.PartyAccountGroupId;
-
-    //    $scope.fileNew.IsPaymentTermChangeable = '';
-    //    $scope.fileNew.PaymentTermId = '';
-
-    //    $scope.fileNew.PaymentTermId = party.PaymentTermId;
-    //    $scope.fileNew.IsPaymentTermChangeable = party.IsPaymentTermChangeable;
-
-    //    $scope.changePaymentTerm($scope.fileNew.PaymentTermId);
-    //    $scope.personList = [];
-    //    getPartyPlantList();
-    //    //GetDepartmentPersonCbo();
-    //    $scope.hidePartyPopUp();
-    //};
-
-    // #endregion
+    
 
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
 
@@ -1010,46 +916,7 @@ function masterOrderApproveByController(accountService, $window, cboService, com
         $scope.packingTypeList = response.data;
     });
 
-    //#region ResponsiblePerson
-    //$scope.GetResponsiblePersonList = function () {
-    //    $scope.personList = [];
-    //    $http.get($scope.path + "GetResponsiblePersonList?masterId=" + $scope.fileNew.Id)
-    //        .then(function (response) {
-    //            $scope.personList = response.data;
-    //            if ($scope.fileNew.PlantId !== null && ($scope.personList === null || $scope.personList.length <= 0)) {
-    //                $scope.popUpUrl = $scope.path + "GetDepartmentPersonList?plantId=" + $scope.fileNew.PlantId + '&partyAccountGroupId=' + $scope.fileNew.PartyAccountGroupId + '&partyId=' + $scope.fileNew.PartyId + '&flag=' + false;
-    //                $scope.getPopUpData = function (pageno) {
-    //                    baseService.paginationBase($scope.popUpUrl, pageno, $scope.popUpParameters)
-    //                        .then(function (result) {
-    //                            if (baseService.arrayLength(result) !== 0) {
-    //                                for (var i = 0; i < result.length; i++) {
-    //                                    var obj = result[i];
-    //                                    $scope.personList.push({
-    //                                        Id: obj.Id
-    //                                        , MasterOrderId: $scope.fileNew
-    //                                        , CustomerDivisionId: obj.CustomerDivisionId
-    //                                        , OrderResponsibleDepartmentId: obj.OrderResponsibleDepartmentId
-    //                                        , Department: obj.Department
-    //                                        , OurRespnsiblePersonId: obj.OurRespnsiblePersonId
-    //                                        , EmployeeCode: obj.EmployeeCode
-    //                                        , EmployeeName: obj.EmployeeName
-    //                                        , PartyRespnsiblePersonId: obj.PartyRespnsiblePersonId
-    //                                        , PartyRespnsiblePerson: obj.PartyRespnsiblePerson
-    //                                    });
-    //                                }
-    //                                GetDepartmentPersonCbo();
-    //                            }
-    //                        }, function () {
-    //                            ShowResult(commonMessage.NetworkError, 'failure', 'popUpId');
-    //                        }).finally(function () {
-    //                        });
-    //                };
-    //                $scope.getPopUpData();
-    //            }
-    //        });
-    //};
-    //#endregion
-
+    
     $scope.commitmentList = [];
 
     $scope.showCommitmentPopUp = function () {
@@ -1208,25 +1075,7 @@ function masterOrderApproveByController(accountService, $window, cboService, com
         $scope.getPopUpData();
     };
 
-    //$scope.selectDoubleClick = function (obj) {
-    //    if (baseService.valueCheckInList($scope.personList, 'OrderResponsibleDepartmentId', obj.OrderResponsibleDepartmentId))
-    //        return ShowResult(obj.Department + ' already taken.', '', 'popUpId');
-    //    $scope.personList.push({
-    //        Id: obj.Id
-    //        , MasterOrderId: $scope.fileNew
-    //        , CustomerDivisionId: obj.CustomerDivisionId
-    //        , OrderResponsibleDepartmentId: obj.OrderResponsibleDepartmentId
-    //        , Department: obj.Department
-    //        , OurRespnsiblePersonId: obj.OurRespnsiblePersonId
-    //        , EmployeeCode: obj.EmployeeCode
-    //        , EmployeeName: obj.EmployeeName
-    //        , PartyRespnsiblePersonId: obj.PartyRespnsiblePersonId
-    //        , PartyRespnsiblePerson: obj.PartyRespnsiblePerson
-    //    });
-    //    //GetDepartmentPersonCbo();
-    //    angular.element(document.querySelector('#popUpId')).modal('hide');
-    //};
-
+    
     $scope.removeRowModal = function (ob, index) {
         try {
             $scope.message_confirmation = "Are you sure want to permanent delete [" + ob.Submaterial + "] ";
@@ -1550,70 +1399,72 @@ function masterOrderApproveByController(accountService, $window, cboService, com
         $http.get($scope.path + "GetMasterItemForApproveList?masterOrderId=" + $scope.fileNew.Id)
             .then(function (response) {
                 $scope.itemList = response.data;
-                $scope.mitemList = response.data;
-                var obj = { MasterOrderItemId: null, MaterialMasterId: null };
-                if (baseService.arrayLength($scope.itemList) > 0) {
-                    for (var i = 0; i < $scope.itemList.length; i++) {
-                        $scope.itemList[i].TempList = [];
+                if ($scope.itemList.length > 0) {
+                    $scope.mitemList = response.data;
+                    var obj = { MasterOrderItemId: null, MaterialMasterId: null };
+                    if (baseService.arrayLength($scope.itemList) > 0) {
+                        for (var i = 0; i < $scope.itemList.length; i++) {
+                            $scope.itemList[i].TempList = [];
 
-                        if ($scope.itemList[i].Type == 'JobWork' || $scope.itemList[i].Type == 'OutSource') {
-                            $scope.enableJobOrOutSource = false;
-                        } else {
-                            $scope.enableJobOrOutSource = true;
-                        }
+                            if ($scope.itemList[i].Type == 'JobWork' || $scope.itemList[i].Type == 'OutSource') {
+                                $scope.enableJobOrOutSource = false;
+                            } else {
+                                $scope.enableJobOrOutSource = true;
+                            }
 
-                        for (var j = 0; j < $scope.mitemList.length; j++) {
-                            if ($scope.mitemList[j].Id != $scope.itemList[i].Id) {
-                                obj.MasterOrderItemId = $scope.mitemList[j].Id;
-                                obj.MaterialMasterId = $scope.mitemList[j].MaterialMasterId;
-                                obj.TotalQty = $scope.mitemList[j].TotalQty;
-                                $scope.itemList[i].TempList.push(obj);
-                                obj = {};
+                            for (var j = 0; j < $scope.mitemList.length; j++) {
+                                if ($scope.mitemList[j].Id != $scope.itemList[i].Id) {
+                                    obj.MasterOrderItemId = $scope.mitemList[j].Id;
+                                    obj.MaterialMasterId = $scope.mitemList[j].MaterialMasterId;
+                                    obj.TotalQty = $scope.mitemList[j].TotalQty;
+                                    $scope.itemList[i].TempList.push(obj);
+                                    obj = {};
+                                }
                             }
                         }
                     }
-                }
 
-                if (baseService.arrayLength($scope.itemList) === 0) {
-                    for (var i = 0; i < parseInt($scope.fileNew.NoOfLineItem); i++) {
-                        $scope.itemList.push({
-                            Id: null,
-                            MasterOrderId: $scope.fileNew.Id == null ? null : $scope.fileNew.Id,
-                            InquiryItemId: null,
-                            SampleItemId: null,
-                            MaterialMasterId: null,
-                            MaterialMasterName: null,
-                            ArticleId: null,
-                            ArticleName: null,
-                            BuyerReferenceNo: null,
-                            OwnReferenceNo: null,
-                            TotalQty: null,
-                            AddedBy: null,
-                            AddedDate: null,
-                            AddedFromIP: null,
-                            UpdatedBy: null,
-                            UpdatedDate: null,
-                            UpdatedFromIP: null,
-                            OrderWastagePercentage: $scope.fileNew.OrderWastagePercent,
-                            ExtraOrderPercentage: $scope.fileNew.ExtraOrderPercentage,
-                            ProductionGrouping: null,
-                            TestingStandardId: $scope.fileNew.TestingStandardId,
-                            IsRepeat: false,
-                            Consignment: false,
-                            Type: $scope.fileNew.Type,
-                            ContractId: $scope.modelNew.Id == null ? null : $scope.modelNew.Id,
-                            BuyerItemDescription: null,
-                            MainRawMaterialDescription: null,
-                            JobWorkType: null,
-                            EntityIdWithinCompany: null,
-                            EntityIdWithinGroup: null,
-                            PartyId: null,
-                            ProductLibraryId: null,
-                            FileName: null,
-                            Remark: null,
-                            OrderStatusId: null,
-                            UOMId: $scope.fileNew.TotalQtyUOMId
-                        });
+                    if (baseService.arrayLength($scope.itemList) === 0) {
+                        for (var i = 0; i < parseInt($scope.fileNew.NoOfLineItem); i++) {
+                            $scope.itemList.push({
+                                Id: null,
+                                MasterOrderId: $scope.fileNew.Id == null ? null : $scope.fileNew.Id,
+                                InquiryItemId: null,
+                                SampleItemId: null,
+                                MaterialMasterId: null,
+                                MaterialMasterName: null,
+                                ArticleId: null,
+                                ArticleName: null,
+                                BuyerReferenceNo: null,
+                                OwnReferenceNo: null,
+                                TotalQty: null,
+                                AddedBy: null,
+                                AddedDate: null,
+                                AddedFromIP: null,
+                                UpdatedBy: null,
+                                UpdatedDate: null,
+                                UpdatedFromIP: null,
+                                OrderWastagePercentage: $scope.fileNew.OrderWastagePercent,
+                                ExtraOrderPercentage: $scope.fileNew.ExtraOrderPercentage,
+                                ProductionGrouping: null,
+                                TestingStandardId: $scope.fileNew.TestingStandardId,
+                                IsRepeat: false,
+                                Consignment: false,
+                                Type: $scope.fileNew.Type,
+                                ContractId: $scope.modelNew.Id == null ? null : $scope.modelNew.Id,
+                                BuyerItemDescription: null,
+                                MainRawMaterialDescription: null,
+                                JobWorkType: null,
+                                EntityIdWithinCompany: null,
+                                EntityIdWithinGroup: null,
+                                PartyId: null,
+                                ProductLibraryId: null,
+                                FileName: null,
+                                Remark: null,
+                                OrderStatusId: null,
+                                UOMId: $scope.fileNew.TotalQtyUOMId
+                            });
+                        }
                     }
                 }
             });
@@ -4832,13 +4683,7 @@ function masterOrderApproveByController(accountService, $window, cboService, com
         angular.element(document.querySelector('#SOPopUpData')).modal('show');
     }
 
-    //$scope.GetDetailChild = function (obj) {
-    //    $scope.modelNewPD = obj.data;
-    //    $scope.ModelSO.LineItemId = obj.data.MasterOrderItemId;
-    //    $scope.GetSavedSOData($scope.modelNewPD.Id);
-    //    angular.element(document.querySelector('#DetailChildPopUp')).modal('show');
-    //}
-
+   
     $scope.SODataList = [];
     $scope.GetSavedSOData = function (packingDetailId) {
         $scope.SODataList = [];
@@ -5147,42 +4992,7 @@ function masterOrderApproveByController(accountService, $window, cboService, com
         });
     }
 
-    //$scope.ModelSku = {
-    //    Id: null,
-    //    PackingTypeId: $scope.PackingTypeId,
-    //    FGFirstCharacteristicsId: null,
-    //    FirstCharacteristics: null,
-    //    FGSecondCharacteristicsId: null,
-    //    SecondCharacteristics: null,
-    //    Quantity: null,
-    //    Plan: null
-    //};
-    //$scope.ModelSKUDNew = Object.assign({}, $scope.ModelSku);
-
-    //$scope.ClearSKUD = function () {
-    //    $scope.ModelSKUDNew = Object.assign({}, $scope.ModelSku);
-    //    $scope.ModelSKUDNew.PackingTypeId = $scope.PackingTypeId;
-    //}
-
-    //$scope.sku1List = [];
-    //$scope.sku1 = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'OrderManagements/MasterOrder/GetSKU1List?SOId=' + $scope.sqlInStatement
-    //    }).then(function successCallback(response) {
-    //        $scope.sku1List = response.data;
-    //    })
-    //};
-
-    //$scope.sku2List = [];
-    //$scope.sku2 = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'OrderManagements/MasterOrder/GetSKU2List?SOId=' + $scope.sqlInStatement
-    //    }).then(function successCallback(response) {
-    //        $scope.sku2List = response.data;
-    //    })
-    //};
+    
     $scope.PackingTypeId = null;
     $scope.SaveSKUDetail = function () {
         try {

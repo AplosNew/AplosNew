@@ -232,8 +232,7 @@ namespace Library.Service.Enums
         SalesChalanApproveBy,
         [Description("Multiple Vendor Payment")]
         MultipleVendorPayment,
-        [Description("Sales Order ApproveBy")]
-        SalesOrderApproveBy,
+        
         [Description("Journal ApproveBy")]
         JournalApproveBy,
         [Description("Full And Final ApproveBy")]
@@ -242,5 +241,9 @@ namespace Library.Service.Enums
         InputCreditCheckedBy,
         [Description("Input Credit ApproveBy")]
         InputCreditApproveBy,
+        [Description("Sales Order CheckedBy")]
+        SalesOrderCheckedBy,
+        [Description("Sales Order ApproveBy")]
+        SalesOrderApproveBy
     }
 }
