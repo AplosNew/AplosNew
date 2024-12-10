@@ -1,106 +1,335 @@
-﻿<togglable name="{{title}}"></togglable>
-<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
-    <input type="hidden" ng-model="ModelNew.Id">
-    <div class="col-xs-12 col-sm-6 col-md-6">
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="ModelNew.Sequence" e-width="100" required />
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Short Name" ng-model="ModelNew.ShortName" class="form-control" maxlength="15" required tabindex="3">
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">User Defined Name<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Description</label>
-            <div class="col-sm-8">
-                <textarea class="form-control" rows="3" ng-model="ModelNew.Description" tabindex="7" maxlength="250"></textarea>
-            </div>
-        </div>
-    </div>
-    <div class="col-xs-12 col-sm-6 col-md-6">
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required tabindex="2" maxlength="10">
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Remarks</label>
-            <div class="col-sm-8">
-                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Active</label>
-            <div class="col-sm-8">
-                <div class="checkbox-site">
-                    <label>
-                        <input type="checkbox" ng-model="ModelNew.Active" tabindex="8">
-                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                    </label>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="common-btn">
-        <ul class="list-inline text-right">
-            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-        </ul>
-    </div>
+﻿<div class="site-tab">
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">Porcess Constraint</a></li>
+        <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Tagg with Article</a></li>
+    </ul>
 </div>
-<div class="row text-right aplos-grid-toggle">
-    <div class="col-xs-12 col-sm-12 col-sm-12">
-        <div class="search-form">
-            <div class="row">
-                <div class="col-xs-12 col-sm-3 col-md-3">
-                    <div class="select-style">
-                        <select ng-model="searchBy">
-                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-                        </select>
+<div class="tab-content">
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+        @*<togglable name="{{title}}"></togglable>*@
+        <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+            <input type="hidden" ng-model="processConstraintNew.Id">
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div id="div_attr_1" class="form-group">
+                    <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="number" name="Sequence" ng-model="processConstraintNew.Sequence" class="form-control" tabindex="51">
                     </div>
                 </div>
-                <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                @*<div id="div_attrjs_1" class="form-group">
+                        <label class="col-sm-4 control-label">Joining Sequence<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="number" name="Joining Sequence" ng-model="processConstraintNew.JoiningSequence" class="form-control" tabindex="51">
+                        </div>
+                    </div>*@
+                <div id="div_attr_3" class="form-group">
+                    <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Short Name" maxlength="15" ng-model="processConstraintNew.ShortName" class="form-control" tabindex="53">
+                    </div>
                 </div>
-                <div class="col-xs-12 col-sm-2 col-md-2">
-                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                <div id="div_attr_5" class="form-group">
+                    <label class="col-sm-4 control-label">User Define Name<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="User Name" maxlength="50" ng-model="processConstraintNew.UserName" class="form-control" tabindex="55">
+                    </div>
+                </div>
+                <div class="form-group" style="border: 1px solid #d8d7d7;margin-right: 0px;">
+                    <label class="col-sm-2 control-label">Free Field</label>
+                    <div class="col-sm-1">
+                        <div class="checkbox-site">
+                            <label class="control-label">
+                                <input type="checkbox" ng-model="processConstraintNew.IsFreeField">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                    <label class="col-sm-3 control-label">Pre-Defined Field</label>
+                    <div class="col-sm-1">
+                        <div class="checkbox-site">
+                            <label class="control-label">
+                                <input type="checkbox" ng-model="processConstraintNew.IsPreDefinedField">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                    <label class="col-sm-2 control-label">Mandatory</label>
+                    <div class="col-sm-1">
+                        <div class="checkbox-site">
+                            <label class="control-label">
+                                <input type="checkbox" ng-model="processConstraintNew.IsMandatory">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" style="border: 1px solid #d8d7d7;margin-right: 0px;" ng-show="processConstraintNew.AttributeProperty=='Alphanumeric'">
+                    <label class="col-sm-4 control-label">Fixed (No Of Character)</label>
+                    <div class="col-sm-1">
+                        <div class="checkbox-site">
+                            <label class="control-label">
+                                <input type="checkbox" ng-model="processConstraintNew.IsFixedNoOfCharacter">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                    <label class="col-sm-3 control-label">No. of Character<sup>*</sup></label>
+                    <div class="col-sm-3 show-message">
+                        <input type="text" name="NoOfCharacter" only-numbers ng-model="processConstraintNew.NoOfCharacter" class="form-control text-right" ng-required="processConstraintNew.AttributeProperty=='Alphanumeric'" tabindex="58">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Base Process(Production)</label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <select submit-="true" ng-model="processConstraintNew.ProcessId" class="form-control" name="Process"
+                                    ng-options="item.Value as item.Text for item in processList" tabindex="10">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Description</label>
+                    <div class="col-sm-8">
+                        <textarea class="form-control" rows="2" ng-model="processConstraintNew.Description" name="Description" maxlength="250" tabindex="59" ng-trim="false"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div id="div_attr_2" class="form-group">
+                    <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Code" maxlength="10" ng-model="processConstraintNew.Code" class="form-control" tabindex="52">
+                    </div>
+                </div>
+                @*<div class="form-group">
+                        <label class="col-sm-4 control-label">Joining Parameter</label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select name="Type" class="form-control" ng-model="processConstraintNew.JoiningParameter"
+                                        ng-options="item.Value as item.Text for item in joiningParameterList">
+                                    <option value="">--Select--</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>*@
+                <div id="div_attr_4" class="form-group">
+                    <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Standard Name" maxlength="50" ng-model="processConstraintNew.StandardName" class="form-control" ng-keyup="manualValidationAddRemove('div_attr_4','Standard Name', processConstraintNew);" tabindex="54">
+                    </div>
+                </div>
+
+                <div id="div_attr_6" class="form-group">
+                    <label class="col-sm-4 control-label">Property<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select ng-model="processConstraintNew.AttributeProperty" class="form-control" name="Property"
+                                    ng-options="item.Value as item.Text for item in attributePropertyList" tabindex="56"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Active</label>
+                    <div class="col-sm-8">
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="processConstraintNew.Active">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Remarks</label>
+                    <div class="col-sm-8">
+                        <textarea class="form-control" rows="2" ng-model="processConstraintNew.Remarks" name="Remarks" maxlength="250" tabindex="58" ng-trim="false"></textarea>
+                    </div>
+                </div>
+
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                    <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                    <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
+            </div>
+        </div>
+        @*<div class="row text-right aplos-grid-toggle">
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="search-form">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="searchBy">
+                                        <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>*@
+        <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
+                @*<div e-column e-field="AddedDate" e-format="{0:dd-MMM-yyyy}"  e-type="date" e-headertext="Date Added" e-width="2"></div>*@
+                <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
+                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+                <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+                <div e-column e-headertext="Actions" e-template="#ShowValueAction" e-width="2"></div>
+            </div>
+        </div>
+        <script type="text/template" id="ShowValueAction">
+            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Detail" class="btn"><i class="glyphicon glyphicon-th-list" ng-click="$parent.GetValueDetail(this);" style="margin: -6px;"></i></button>
+        </script>
+        @*<div class="table-responsive aplos-grid-toggle">
+
+            </div>*@
+    </div>
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+        <div id="GridPC" ej-grid e-datasource="PCList"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
+                <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
+                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+                <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="valueDetailPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content row">
+            <div class="modal-header">{{attributeName}} Value <button type="button" class="close" ng-click="CloseValue();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div id="div_1" class="form-group">
+                        <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" n-decimals="2" name="Sequence" ng-model="materialValueNew.Sequence" class="form-control text-right" tabindex="41" ng-keyup="manualValidationAddRemove('div_1','Sequence',materialValueNew);">
+                        </div>
+                    </div>
+                    <div id="div_3" class="form-group">
+                        <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Short Name" maxlength="15" ng-model="materialValueNew.ShortName" class="form-control" tabindex="43" ng-keyup="manualValidationAddRemove('div_3','ShortName',materialValueNew);">
+                        </div>
+                    </div>
+                    <div id="div_5" class="form-group">
+                        <label class="col-sm-4 control-label">User Define Name<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="User Name" maxlength="50" ng-model="materialValueNew.UserName" class="form-control" tabindex="45" ng-keyup="manualValidationAddRemove('div_5','UserName',materialValueNew);">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Remarks</label>
+                        <div class="col-sm-8">
+                            <textarea class="form-control" rows="2" ng-model="materialValueNew.Remarks" name="Remarks" maxlength="250" tabindex="47"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div id="div_2" class="form-group">
+                        <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Code" maxlength="10" ng-model="materialValueNew.Code" class="form-control" tabindex="42" ng-keyup="manualValidationAddRemove('div_2','Code',materialValueNew);">
+                        </div>
+                    </div>
+                    <div id="div_4" class="form-group">
+                        <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Standard Name" maxlength="50" ng-model="materialValueNew.StandardName" class="form-control" tabindex="44" ng-keyup="manualValidationAddRemove('div_4','StandardName',materialValueNew);">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Description</label>
+                        <div class="col-sm-8">
+                            <textarea type="text" maxlength="250" rows="2" ng-model="materialValueNew.Description" class="form-control" tabindex="46"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Is Default</label>
+                        <div class="col-sm-2">
+                            <div class="checkbox-site">
+                                <label class="control-label">
+                                    <input type="checkbox" ng-model="materialValueNew.IsDefault">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                        <label class="col-sm-3 control-label">Active</label>
+                        <div class="col-sm-2">
+                            <div class="checkbox-site">
+                                <label class="control-label">
+                                    <input type="checkbox" ng-model="materialValueNew.Active">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="addMasterAttributeValue();" class="btn" tabindex="48"><i class="glyphicon glyphicon-plus"></i> {{materialValueAction}}</button></li>
+                        <li><button ng-click="clearMasterAttributeValue();" class="btn" tabindex="49"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        <li><button ng-click="CloseMaterialMasterAttributeValue();" class="btn" tabindex="50"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                    </ul>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Sequence</th>
+                                <th>Code</th>
+                                <th>Short Name</th>
+                                <th>Standard Name</th>
+                                <th>User Define Name</th>
+                                <th>Default</th>
+                                <th>Active</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in materialValues|filter:{'MaterialAttributeId':charId}">
+                                <td>
+                                    <ul class="list-inline action-list">
+                                        <li><button ng-click="GetMaterialMasterAttributeValue(x.Id, $index)" class="btn btn-action tooltip-here" data-placement="top" title="Edit"><i class="glyphicon glyphicon-edit"></i></button></li>
+                                        <li><button ng-disabled="mvindex!=-1" ng-click="removeAttrValueRow(x.Id, x.UserName, 'materialValues');" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                    </ul>
+                                </td>
+                                <td>{{x.Sequence}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.IsDefault?'Yes':'No'}}</td>
+                                <td>{{x.Active?'Yes':'No'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<div class="table-responsive aplos-grid-toggle">
-    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
-         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-        <div e-columns>
-            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
-            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
-            @*<div e-column e-field="AddedDate" e-format="{0:dd-MMM-yyyy}"  e-type="date" e-headertext="Date Added" e-width="2"></div>*@
-            <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
-            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
-            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
-            <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
-            <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
-        </div>
-    </div>
-</div>
+
 <confirm-modal></confirm-modal>

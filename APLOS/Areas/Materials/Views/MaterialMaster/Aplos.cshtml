@@ -1264,3 +1264,60 @@
 <confirm-archive-generic modalid="confirmValueRemovePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="attrValueRemoveRow();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmDocDelete" title="Confirmation" data-ng-click-left-button="confirmCloseDocDelete()" message={{message_confirmation}} data-ng-click-right-button="removeDoc()"></confirm-archive-generic>
 <!-- #endregion -->
+<div class="modal fade site-modal in" id="MOAddInfoPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Line Item Additional Info<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="">
+                    <div class="row">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Select</th>
+                                        <th>User Name</th>
+                                        <th>Value</th>
+                                        <th>Remark</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in MOAdditionalInfoList">
+                                        <td class="text-right table-td">
+                                            <div class="checkbox-site">
+                                                <label>
+                                                    <input type="checkbox" ng-model="x.Flag" tabindex="8">
+                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td>{{x.UserName}}</td>
+                                        <td>
+                                            <div class="col-sm-10" style="padding:0px; width:100%;" ng-hide="x.datepic == 'datepicker'">
+                                                <input type="text" name="Value" ng-model="x.Value" class="form-control">
+                                            </div>
+                                            <div class="col-sm-10" style="padding:0px; width:100%;" ng-hide="x.datepic != 'datepicker'">
+                                                <input type="text" name="Value" placeholder="dd-MMM-yyyy" ng-model="x.Value" class="form-control">
+                                            </div>
+                                        </td>
+                                        <td><input type="text" ng-model="x.Remarks" ng-maxlength="250" style="color:black;" class="form-control" /></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="SaveAddInfo();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button type="button" class="btn btn-default" ng-click="closeProcessPopUp();">Cancel</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

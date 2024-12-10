@@ -449,6 +449,7 @@
                                         <th>Attachment</th>
                                         <th>Order Status</th>
                                         <th>Copy SO</th>
+                                        <th>Additional Info</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -656,6 +657,9 @@
                                                     <button ng-click="ShowSKUMapPopUp(x,MasterOrderItemId);" ng-disabled="x.SONo!=0" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Copy SO">Copy SO</button>
                                                 </span>
                                             </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <button ng-click="GetMOAdditionalInfoPopup($index,x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Addtional Info">Addtional Info</button>
                                         </td>
                                         <td class="text-center">
                                             <button ng-click="ReportPopUp(x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Costing Report">Costing</button>
@@ -1447,7 +1451,12 @@
                                 <input type="text" datepicker name="Delivery Date" ng-model="soModel.DeliveryDate" class="form-control" required tabindex="106">
                             </div>
                         </div>
-
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Delivery Group</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="DeliveryGroup" style="text-align:left" ng-model="soModel.DeliveryGroup" class="form-control text-right" tabindex="107">
+                            </div>
+                        </div>
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Shipment Mode<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
@@ -1484,35 +1493,35 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label" title="Destination Description">Destination Description</label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" name="DestinationDescription" ng-model="soModel.DestinationDescription" rows="3" maxlength="250" tabindex="119"></textarea>
+                                <textarea class="form-control" name="DestinationDescription" ng-model="soModel.DestinationDescription" rows="1" maxlength="250" tabindex="119"></textarea>
                             </div>
                         </div>
 
                         @*<div class="form-group">
-                                <label class="col-sm-4 control-label">Discount</label>
-                                <div class="col-sm-8">
-                                    <input type="text" n-decimals="2" name="Discount" ng-model="soModel.Discount" class="form-control text-right" tabindex="112">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Net Sales Realization</label>
-                                <div class="col-sm-8">
-                                    <input type="text" n-decimals="2" name="NetSalesRealization" disabled ng-model="soModel.NetSalesRealization" class="form-control text-right" tabindex="113">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">CM</label>
-                                <div class="col-sm-8">
-                                    <input type="text" n-decimals="4" name="CM" ng-model="soModel.CM" class="form-control text-right" tabindex="113">
-                                </div>
-                            </div>
+            <label class="col-sm-4 control-label">Discount</label>
+            <div class="col-sm-8">
+                <input type="text" n-decimals="2" name="Discount" ng-model="soModel.Discount" class="form-control text-right" tabindex="112">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Net Sales Realization</label>
+            <div class="col-sm-8">
+                <input type="text" n-decimals="2" name="NetSalesRealization" disabled ng-model="soModel.NetSalesRealization" class="form-control text-right" tabindex="113">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">CM</label>
+            <div class="col-sm-8">
+                <input type="text" n-decimals="4" name="CM" ng-model="soModel.CM" class="form-control text-right" tabindex="113">
+            </div>
+        </div>
 
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Up Charge</label>
-                                <div class="col-sm-8">
-                                    <input type="text" n-decimals="2" name="UpCharge" ng-model="soModel.UpCharge" class="form-control text-right" tabindex="113">
-                                </div>
-                            </div>*@
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Up Charge</label>
+            <div class="col-sm-8">
+                <input type="text" n-decimals="2" name="UpCharge" ng-model="soModel.UpCharge" class="form-control text-right" tabindex="113">
+            </div>
+        </div>*@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">LSD<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
@@ -1530,10 +1539,10 @@
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
                                     @*<select name="Shipment From Stock" class="form-control" ng-model="soModel.ShipmentFromStock" tabindex="102">
-                                            <option value="">--Select--</option>
-                                            <option value="1">Yes</option>
-                                            <option value="0">No</option>
-                                        </select>*@
+                        <option value="">--Select--</option>
+                        <option value="1">Yes</option>
+                        <option value="0">No</option>
+                    </select>*@
                                     <div class="select-style">
                                         <select name="Shipment From Stock" class="form-control" ng-model="soModel.ShipmentFromStock" ng-options="item.Value as item.Text for item in ShipmentFromStocklist" required tabindex="102">
                                             <option value="">--Select--</option>
@@ -1656,6 +1665,9 @@
                                             </li>
                                             <li>
                                                 <button ng-click="CopySO(x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Copy">Copy</button>
+                                            </li>
+                                            <li>
+                                                <button ng-click="GetSOAdditionalInfoPopup(x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="SO Additional Info"><i class="glyphicon glyphicon-info-sign"></i></button>
                                             </li>
                                             <li>
                                                 <button ng-click="removeSOItemList($index, x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
@@ -2424,6 +2436,12 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="col-sm-4 control-label">Delivery Group</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="DeliveryGroup" style="text-align:left" ng-model="soSplitModel.DeliveryGroup" class="form-control text-right" tabindex="107">
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">Plan Ex-Factory Date</label>
                             <div class="col-sm-8">
                                 <input type="text" datepicker name="Plan Ex-Factory Date" ng-model="soSplitModel.PlanExFactoryDate" class="form-control" tabindex="108">
@@ -2452,21 +2470,21 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label" title="Destination Description">Destination Description</label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" name="DestinationDescription" ng-model="soSplitModel.DestinationDescription" rows="3" maxlength="250" tabindex="119"></textarea>
+                                <textarea class="form-control" name="DestinationDescription" ng-model="soSplitModel.DestinationDescription" rows="1" maxlength="250" tabindex="119"></textarea>
                             </div>
                         </div>
                         @*<div class="form-group">
-                                <label class="col-sm-4 control-label">Discount</label>
-                                <div class="col-sm-8">
-                                    <input type="text" n-decimals="2" name="Discount" ng-model="soSplitModel.Discount" class="form-control text-right" tabindex="112">
-                                </div>
-                            </div>*@
+            <label class="col-sm-4 control-label">Discount</label>
+            <div class="col-sm-8">
+                <input type="text" n-decimals="2" name="Discount" ng-model="soSplitModel.Discount" class="form-control text-right" tabindex="112">
+            </div>
+        </div>*@
                         @*<div class="form-group">
-                                <label class="col-sm-4 control-label">CM</label>
-                                <div class="col-sm-8">
-                                    <input type="text" n-decimals="4" name="CM" ng-model="soSplitModel.CM" class="form-control text-right" tabindex="113">
-                                </div>
-                            </div>*@
+            <label class="col-sm-4 control-label">CM</label>
+            <div class="col-sm-8">
+                <input type="text" n-decimals="4" name="CM" ng-model="soSplitModel.CM" class="form-control text-right" tabindex="113">
+            </div>
+        </div>*@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">LSD<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
@@ -2970,7 +2988,6 @@
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
-                                        <th>Select</th>
                                         <th>User Name</th>
                                         <th>Value</th>
                                         <th>Remark</th>
@@ -2978,14 +2995,6 @@
                                 </thead>
                                 <tbody>
                                     <tr ng-repeat="x in MOAdditionalInfoList">
-                                        <td class="text-right table-td">
-                                            <div class="checkbox-site">
-                                                <label>
-                                                    <input type="checkbox" ng-model="x.Flag" tabindex="8">
-                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                </label>
-                                            </div>
-                                        </td>
                                         <td>{{x.UserName}}</td>
                                         <td>
                                             <div class="col-sm-10" style="padding:0px; width:100%;" ng-hide="x.datepic == 'datepicker'">
@@ -4598,6 +4607,56 @@
         </div>
 </div>-->
 
+<div class="modal fade site-modal in" id="SOAddInfoPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <i class="glyphicon glyphicon-info-sign"></i> SO Add Info
+                </h4>
+            </div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row" ng-form name="MOItemAddInfoform">
+                    <div class="col-xs-12">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>User Name</th>
+                                        <th>Value</th>
+                                        <th>Remark</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in SOAdditionalInfoList">
+                                       
+                                        <td>{{x.UserName}}</td>
+                                        <td>
+                                            <div class="col-sm-10" style="padding:0px; width:100%;" ng-hide="x.datepic == 'datepicker'">
+                                                <input type="text" name="Value" ng-model="x.Value" class="form-control">
+                                            </div>
+                                            <div class="col-sm-10" style="padding:0px; width:100%;" ng-hide="x.datepic != 'datepicker'">
+                                                <input type="text" name="Value" placeholder="dd-MMM-yyyy" ng-model="x.Value" class="form-control">
+                                            </div>
+                                        </td>
+                                        <td><input type="text" ng-model="x.Remarks" ng-maxlength="250" style="color:black;" class="form-control" /></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="SaveSOAddInfo();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 <confirm-archive-generic modalid="confirmChildSOPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteChildSO();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmChildPackingTypePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeletePackingType();"></confirm-archive-generic>

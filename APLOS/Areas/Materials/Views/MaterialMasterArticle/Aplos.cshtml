@@ -368,6 +368,16 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label" title="Process Constraint">Process Constraint<sup>*</sup></label>
+                                <div class="col-sm-7">
+                                    <div class="select-style">
+                                        <select name="Production Grouping" class="form-control" ng-model="articleNew.ProcessConstraint" ng-options="item.Value as item.Text for item in ProductionGroupingCboList" tabindex="6">
+                                            <option value="">--Select--</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-4 form-element-ctrl form-horizontal" style="padding-left:0px;">
                             <div class="form-group">
