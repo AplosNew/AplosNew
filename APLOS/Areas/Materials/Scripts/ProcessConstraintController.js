@@ -144,4 +144,50 @@ function ProcessConstraintController(cboService, commonMessage, $scope, $rootSco
         $scope.processConstraintNew = Object.assign({}, $scope.processConstraint);
         $scope.processConstraintNew.Sequence = seq;
     }
+
+    $scope.processConstraintId = null;
+    $scope.GetValueDetail = function (obj) {
+        $scope.processConstraintId = obj.data.Id;
+
+        angular.element(document.querySelector('#valueDetailPopUp')).modal('show');
+    }
+
+    $scope.CloseValue = function () {
+        angular.element(document.querySelector('#valueDetailPopUp')).modal('hide');
+    }
+    $scope.materialValue = {
+        Id: null
+        , ProcessConstraintId: $scope.processConstraintId
+        , Sequence: null
+        , Code: null
+        , ShortName: null
+        , StandardName: null
+        , UserName: null
+        , Description: null
+        , Remarks: null
+        , IsDefault: false
+        , Active: true
+    };
+    $scope.materialValueNew = angular.copy($scope.materialValue);
+
+    $scope.materialValueAction = 'Add Row';
+
+    function ClearValueFields(seq) {
+        $scope.materialValueAction = 'Add Row';
+        $scope.materialValue = {};
+        $scope.materialValueNew = {
+            Id: null
+            , ProcessConstraintId: $scope.processConstraintId
+            , Sequence: null
+            , Code: null
+            , ShortName: null
+            , StandardName: null
+            , UserName: null
+            , Description: null
+            , Remarks: null
+            , IsDefault: false
+            , Active: true
+        };
+    }
+
 }

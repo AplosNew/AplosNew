@@ -97,6 +97,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetSOAdditionalInfoData(string SalesOrderId)
+        {
+            return Json(MasterOrder.GetSOAdditionalInfoData(SalesOrderId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetUoMCboByProductMaster()
         {
             try
@@ -2387,6 +2393,49 @@ namespace Aplos.Areas.OrderManagements.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public JsonResult CreateSOAdditionalInfo(List<Dictionary<string, object>> data, string SOId)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsChild;
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[SalesAdditionalInfo] where  SalesOrderId='" + SOId + "'", out dsChild, false, "1");
+                int count = 0;
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            count++;
+                            item["Id"] = SOId + "-" + count;
+                            item["SalesOrderId"] = SOId;
+                            AddNewRow(dsChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsChild);
+                }
+
+
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+        }
     }
 
     public class OpenHeadModelNew

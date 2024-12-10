@@ -2099,17 +2099,32 @@ Where SO.CheckByStatus = 'Checked' AND ApprovedStatus='To Be Approve' AND SO.App
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
-
         public IEnumerable<object> GetLineItemAdditionalInfoData(string lineItemId)
         {
             try
             {
                 string sql = @"SELECT Flag=CAST(CASE WHEN SA.Id IS NULL THEN 0 ELSE 1 END AS bit),A.UserName,SA.Id,SA.LineItemId
-,A.Id AdditionalInfoId,SA.Value,SA.Remarks,A.CharecterType,'' CharType,''datepic
+,A.Id AdditionalInfoId,SA.Value,SA.Remarks,A.CharecterType,'' CharType,''datepic,A.Mandatory
 FROM [HKP].[AdditionalInfo] A
 OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.Id AND LineItemId='" + lineItemId + @"') SA
 Where A.Category='LineItem'
 Order By A.sequence";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetSOAdditionalInfoData(string SalesOrderId)
+        {
+            try
+            {
+                string sql = @"SELECT Flag=CAST(CASE WHEN SA.Id IS NULL THEN 0 ELSE 1 END AS bit),A.UserName,SA.Id,SA.SalesOrderId
+,A.Id AdditionalInfoId,SA.Value,SA.Remarks,A.CharecterType,'' CharType,''datepic,A.Mandatory
+FROM [HKP].[AdditionalInfo] A
+OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.Id AND SalesOrderId='" + SalesOrderId + @"') SA  Where A.Category='SalesOrder' Order By A.sequence";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

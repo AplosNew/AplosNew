@@ -449,6 +449,7 @@
                                         <th>Attachment</th>
                                         <th>Order Status</th>
                                         <th>Copy SO</th>
+                                        <th>Additional Info</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -656,6 +657,9 @@
                                                     <button ng-click="ShowSKUMapPopUp(x,MasterOrderItemId);" ng-disabled="x.SONo!=0" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Copy SO">Copy SO</button>
                                                 </span>
                                             </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <button ng-click="GetMOAdditionalInfoPopup($index,x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Addtional Info">Addtional Info</button>
                                         </td>
                                         <td class="text-center">
                                             <button ng-click="ReportPopUp(x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Costing Report">Costing</button>
@@ -1661,6 +1665,9 @@
                                             </li>
                                             <li>
                                                 <button ng-click="CopySO(x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Copy">Copy</button>
+                                            </li>
+                                            <li>
+                                                <button ng-click="GetSOAdditionalInfoPopup(x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="SO Additional Info"><i class="glyphicon glyphicon-info-sign"></i></button>
                                             </li>
                                             <li>
                                                 <button ng-click="removeSOItemList($index, x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
@@ -2981,7 +2988,6 @@
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
-                                        <th>Select</th>
                                         <th>User Name</th>
                                         <th>Value</th>
                                         <th>Remark</th>
@@ -2989,14 +2995,6 @@
                                 </thead>
                                 <tbody>
                                     <tr ng-repeat="x in MOAdditionalInfoList">
-                                        <td class="text-right table-td">
-                                            <div class="checkbox-site">
-                                                <label>
-                                                    <input type="checkbox" ng-model="x.Flag" tabindex="8">
-                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                </label>
-                                            </div>
-                                        </td>
                                         <td>{{x.UserName}}</td>
                                         <td>
                                             <div class="col-sm-10" style="padding:0px; width:100%;" ng-hide="x.datepic == 'datepicker'">
@@ -4609,6 +4607,56 @@
         </div>
 </div>-->
 
+<div class="modal fade site-modal in" id="SOAddInfoPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <i class="glyphicon glyphicon-info-sign"></i> SO Add Info
+                </h4>
+            </div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row" ng-form name="MOItemAddInfoform">
+                    <div class="col-xs-12">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>User Name</th>
+                                        <th>Value</th>
+                                        <th>Remark</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in SOAdditionalInfoList">
+                                       
+                                        <td>{{x.UserName}}</td>
+                                        <td>
+                                            <div class="col-sm-10" style="padding:0px; width:100%;" ng-hide="x.datepic == 'datepicker'">
+                                                <input type="text" name="Value" ng-model="x.Value" class="form-control">
+                                            </div>
+                                            <div class="col-sm-10" style="padding:0px; width:100%;" ng-hide="x.datepic != 'datepicker'">
+                                                <input type="text" name="Value" placeholder="dd-MMM-yyyy" ng-model="x.Value" class="form-control">
+                                            </div>
+                                        </td>
+                                        <td><input type="text" ng-model="x.Remarks" ng-maxlength="250" style="color:black;" class="form-control" /></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="SaveSOAddInfo();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 <confirm-archive-generic modalid="confirmChildSOPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteChildSO();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmChildPackingTypePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeletePackingType();"></confirm-archive-generic>
