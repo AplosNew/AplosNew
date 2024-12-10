@@ -68,7 +68,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         #region -- Pages
 
         public ActionResult Aplos()
-        {
+        { 
             return View();
         }
         public ActionResult CheckBy()

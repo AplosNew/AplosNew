@@ -2000,7 +2000,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 , PackingTypeId: null
                 , ContractId: null
                 , ContractNo: null
-                , CheckByDate: null, CheckByStatus: null, ApproveBy: null, ApproveByDate: null, ApprovedStatus: null
+                , CheckByDate: null, CheckByStatus: null, ApproveBy: null, ApproveByDate: null, ApprovedStatus: null, DeliveryGroup:null
             };
             getSalesOrderList();
             $scope.getDestination();
@@ -2465,7 +2465,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , PackingTypeId: null
             , ContractId: null
             , ContractNo: null
-            , CheckByDate: null, CheckByStatus: null, ApproveBy: null, ApproveByDate: null, ApprovedStatus: null
+            , CheckByDate: null, CheckByStatus: null, ApproveBy: null, ApproveByDate: null, ApprovedStatus: null, DeliveryGroup: null
         };
     }
 
@@ -2529,6 +2529,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         , PackingTypeId: null
         , ContractId: null
         , ContractNo: null
+        , CheckByDate: null, CheckByStatus: null, ApproveBy: null, ApproveByDate: null, ApprovedStatus: null, DeliveryGroup: null
     };
 
     $scope.SplitSO = function (data) {
@@ -2576,6 +2577,12 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.soSplitModel.OrderStatusChangedFromIP = data.OrderStatusChangedFromIP;
         $scope.soSplitModel.ContractId = data.ContractId;
         $scope.soSplitModel.ContractNo = data.ContractNo;
+        $scope.soSplitModel.CheckByDate = data.CheckByDate;
+        $scope.soSplitModel.CheckByStatus = data.CheckByStatus;
+        $scope.soSplitModel.ApproveBy = data.ApproveBy;
+        $scope.soSplitModel.ApproveByDate = data.ApproveByDate;
+        $scope.soSplitModel.ApprovedStatus = data.ApprovedStatus;
+        $scope.soSplitModel.DeliveryGroup = data.DeliveryGroup;
         angular.element(document.querySelector('#soSplitPoUp')).modal('show');
     }
 

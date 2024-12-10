@@ -1447,7 +1447,12 @@
                                 <input type="text" datepicker name="Delivery Date" ng-model="soModel.DeliveryDate" class="form-control" required tabindex="106">
                             </div>
                         </div>
-
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Delivery Group</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="DeliveryGroup" style="text-align:left" ng-model="soModel.DeliveryGroup" class="form-control text-right" tabindex="107">
+                            </div>
+                        </div>
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Shipment Mode<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
@@ -1484,35 +1489,35 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label" title="Destination Description">Destination Description</label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" name="DestinationDescription" ng-model="soModel.DestinationDescription" rows="3" maxlength="250" tabindex="119"></textarea>
+                                <textarea class="form-control" name="DestinationDescription" ng-model="soModel.DestinationDescription" rows="1" maxlength="250" tabindex="119"></textarea>
                             </div>
                         </div>
 
                         @*<div class="form-group">
-                                <label class="col-sm-4 control-label">Discount</label>
-                                <div class="col-sm-8">
-                                    <input type="text" n-decimals="2" name="Discount" ng-model="soModel.Discount" class="form-control text-right" tabindex="112">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Net Sales Realization</label>
-                                <div class="col-sm-8">
-                                    <input type="text" n-decimals="2" name="NetSalesRealization" disabled ng-model="soModel.NetSalesRealization" class="form-control text-right" tabindex="113">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">CM</label>
-                                <div class="col-sm-8">
-                                    <input type="text" n-decimals="4" name="CM" ng-model="soModel.CM" class="form-control text-right" tabindex="113">
-                                </div>
-                            </div>
+            <label class="col-sm-4 control-label">Discount</label>
+            <div class="col-sm-8">
+                <input type="text" n-decimals="2" name="Discount" ng-model="soModel.Discount" class="form-control text-right" tabindex="112">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Net Sales Realization</label>
+            <div class="col-sm-8">
+                <input type="text" n-decimals="2" name="NetSalesRealization" disabled ng-model="soModel.NetSalesRealization" class="form-control text-right" tabindex="113">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">CM</label>
+            <div class="col-sm-8">
+                <input type="text" n-decimals="4" name="CM" ng-model="soModel.CM" class="form-control text-right" tabindex="113">
+            </div>
+        </div>
 
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Up Charge</label>
-                                <div class="col-sm-8">
-                                    <input type="text" n-decimals="2" name="UpCharge" ng-model="soModel.UpCharge" class="form-control text-right" tabindex="113">
-                                </div>
-                            </div>*@
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Up Charge</label>
+            <div class="col-sm-8">
+                <input type="text" n-decimals="2" name="UpCharge" ng-model="soModel.UpCharge" class="form-control text-right" tabindex="113">
+            </div>
+        </div>*@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">LSD<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
@@ -1530,10 +1535,10 @@
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
                                     @*<select name="Shipment From Stock" class="form-control" ng-model="soModel.ShipmentFromStock" tabindex="102">
-                                            <option value="">--Select--</option>
-                                            <option value="1">Yes</option>
-                                            <option value="0">No</option>
-                                        </select>*@
+                        <option value="">--Select--</option>
+                        <option value="1">Yes</option>
+                        <option value="0">No</option>
+                    </select>*@
                                     <div class="select-style">
                                         <select name="Shipment From Stock" class="form-control" ng-model="soModel.ShipmentFromStock" ng-options="item.Value as item.Text for item in ShipmentFromStocklist" required tabindex="102">
                                             <option value="">--Select--</option>
@@ -2424,6 +2429,12 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="col-sm-4 control-label">Delivery Group</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="DeliveryGroup" style="text-align:left" ng-model="soSplitModel.DeliveryGroup" class="form-control text-right" tabindex="107">
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">Plan Ex-Factory Date</label>
                             <div class="col-sm-8">
                                 <input type="text" datepicker name="Plan Ex-Factory Date" ng-model="soSplitModel.PlanExFactoryDate" class="form-control" tabindex="108">
@@ -2452,21 +2463,21 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label" title="Destination Description">Destination Description</label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" name="DestinationDescription" ng-model="soSplitModel.DestinationDescription" rows="3" maxlength="250" tabindex="119"></textarea>
+                                <textarea class="form-control" name="DestinationDescription" ng-model="soSplitModel.DestinationDescription" rows="1" maxlength="250" tabindex="119"></textarea>
                             </div>
                         </div>
                         @*<div class="form-group">
-                                <label class="col-sm-4 control-label">Discount</label>
-                                <div class="col-sm-8">
-                                    <input type="text" n-decimals="2" name="Discount" ng-model="soSplitModel.Discount" class="form-control text-right" tabindex="112">
-                                </div>
-                            </div>*@
+            <label class="col-sm-4 control-label">Discount</label>
+            <div class="col-sm-8">
+                <input type="text" n-decimals="2" name="Discount" ng-model="soSplitModel.Discount" class="form-control text-right" tabindex="112">
+            </div>
+        </div>*@
                         @*<div class="form-group">
-                                <label class="col-sm-4 control-label">CM</label>
-                                <div class="col-sm-8">
-                                    <input type="text" n-decimals="4" name="CM" ng-model="soSplitModel.CM" class="form-control text-right" tabindex="113">
-                                </div>
-                            </div>*@
+            <label class="col-sm-4 control-label">CM</label>
+            <div class="col-sm-8">
+                <input type="text" n-decimals="4" name="CM" ng-model="soSplitModel.CM" class="form-control text-right" tabindex="113">
+            </div>
+        </div>*@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">LSD<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
