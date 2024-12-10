@@ -1,4 +1,9 @@
 ﻿<togglable name=" {{FormTitle}}"></togglable>
+<style>
+    .modellgModify {
+        width: 1200px;
+    }
+</style>
 <div class="form-horizontal" ng-form name="AutoLoanForm">
     <div class="form-elements">
         <div class="col-xs-12 col-sm-3 col-md-3">
@@ -126,7 +131,7 @@
                                 <td>{{x.LCDate}}</td>
                                 <td>
                                     {{x.BalanceLCAmount}}
-                                    <button ng-click="getLCBalanceAmountDetailData($index)" data-toggle="modal" class="btn-action tooltip-here" title="LC Tagged History" data-placement="top"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="getLCBalanceAmountDetailData($index,x)" data-toggle="modal" class="btn-action tooltip-here" title="LC Tagged History" data-placement="top"><i class="glyphicon glyphicon-search"></i></button>
                                 </td>
                                 <td class="text-right">
                                     <button ng-click="removeSelectedInvoiceRow($index)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
@@ -283,26 +288,26 @@
     </div>
 </div>
 <div class="modal fade site-modal in" id="LCSetOffDetailPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
-            <div class="modal-header"> Purchase LC <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-header"> Purchase LC SetOff Detail <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body">
                 <div style="color:black;" id="GridPurchaseLC" ej-grid e-datasource="purchaseLCBalanceList"  
                      e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
                      e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                     <div e-columns>
-                        <div e-column e-type="string" e-field="VoucherNo" e-headertext="Id" e-width="20" e-visible="false"></div>
-                        <div e-column e-field="PostingDate" e-headertext="PostingDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="40"></div>
-                        <div e-column e-type="string" e-field="DocRefNo" e-headertext="Invoice No" e-width="60"></div>
-                        <div e-column e-type="string" e-field="GRNNo" e-headertext="GRNNo" e-width="20"></div>
-                        <div e-column e-type="string" e-field="PONo" e-headertext="PONo" e-width="20"></div>
-                        <div e-column e-type="string" e-field="LC" e-headertext="LC RefNo" e-width="20"></div>
-                        <div e-column e-type="number" e-field="Amount" e-headertext="LoanAmount" e-width="40" e-textalign="right"></div>
+                        <div e-column e-type="string" e-field="VoucherNo" e-headertext="VoucherNo" e-width="40" ></div>
+                        <div e-column e-type="date" e-field="PostingDate" e-headertext="PostingDate"  e-format="{0:dd-MMM-yyyy}"  e-width="40"></div>
+                        <div e-column e-type="string" e-field="DocRefNo" e-headertext="Invoice No" e-width="40"></div>
+                        <div e-column e-type="string" e-field="GRNNo" e-headertext="GRNNo" e-width="25"></div>
+                        <div e-column e-type="string" e-field="PONo" e-headertext="PONo" e-width="25"></div>
+                        <div e-column e-type="string" e-field="LC" e-headertext="LC RefNo" e-width="30"></div>
+                        <div e-column e-type="number" e-field="LoanAmount" e-headertext="LoanAmount" e-width="40" e-textalign="right"></div>
                         <div e-column e-type="number" e-field="POAmount" e-headertext="POAmount" e-width="40" e-textalign="right"></div>
                         <div e-column e-type="number" e-field="LCAmount" e-headertext="LCAmount" e-width="40" e-textalign="right"></div>
-                        <div e-column e-field="LoanCreatedDate" e-headertext="LoanCreatedDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="40"></div>
-                        <div e-column e-type="string" e-field="LoanCreatedBy" e-headertext="LoanCreatedBy" e-width="20"></div>
-                        <div e-column e-type="string" e-field="OpeningBank" e-headertext="OpeningBank" e-width="20"></div>
+                        <div e-column e-field="LoanCreatedDate" e-headertext="LoanCreatedDate"   e-width="40"></div>
+                        <div e-column e-type="string" e-field="LoanCreatedBy" e-headertext="LoanCreatedBy" e-width="25"></div>
+                        <div e-column e-type="string" e-field="OpeningBank" e-headertext="OpeningBank" e-width="25"></div>
                     </div>
                 </div>
             </div>
