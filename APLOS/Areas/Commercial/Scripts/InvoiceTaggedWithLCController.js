@@ -130,9 +130,9 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
     };
     
 
-    $scope.getLCBalanceAmountDetailData = function (index) {
+    $scope.getLCBalanceAmountDetailData = function (index,x) {
         $scope.lcIndex = index;
-        $scope.getLCBalanceAmountDetailByLCIdData();
+        $scope.getLCBalanceAmountDetailByLCIdData(x.PurchaseLcId);
         angular.element(document.querySelector("#LCSetOffDetailPopUp")).modal("show");
     }
 
