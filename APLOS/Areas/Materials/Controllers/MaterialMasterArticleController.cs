@@ -513,6 +513,9 @@ namespace Aplos.Areas.Materials.Controllers
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same User Name already exists!!!");
 
+                con.OpenDataSetThroughAdapter("select * from " + TableName1 + " where ProcessId='" + data["ProcessId"] + "' AND  Id<>'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Process already exists!!!");
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName1 + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
@@ -522,7 +525,7 @@ namespace Aplos.Areas.Materials.Controllers
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID(TableName, out _Id);
+                    genid.GenID(TableName1, out _Id);
 
                     data["Id"] = _Id;
                     AddNewRow(dsMaster.Tables[0], data);
@@ -585,6 +588,107 @@ namespace Aplos.Areas.Materials.Controllers
 
         #endregion
 
+        #region ProcessConstraintValue
+        string TableName2 = "[HKP].[ProcessConstraintValue]";
 
+        [HttpPost,Authorize]
+        public ActionResult GetPCVList(string masterId)
+        {
+            string sql = @"SELECT * FROM " + TableName2 + "  Where ProcessConstraintId='"+ masterId + "' order by sequence";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetAutoPCVSequence(string masterId)
+        {
+            return Json(GetPCVSequence(masterId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult CreateProcessConstraintValue(Dictionary<string, object> data,string masterId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName2 + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "' AND ProcessConstraintId='"+masterId+"'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Code already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName2 + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "' AND ProcessConstraintId='" + masterId + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same User Name already exists!!!");
+
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName2 + " where Id='" + data["Id"] + "' AND ProcessConstraintId='" + masterId + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName2, out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Sequence = GetPCVSequence(masterId), Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        public ActionResult DeleteProcessConstraintValue(string id,string masterId)
+        {
+            string sql = @"select * from '" + TableName2 + "' where Id = '" + id + "'";
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName2 + " where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Sequence = GetPCVSequence(masterId), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+
+        private double GetPCVSequence(string masterId)
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName2 + " Where ProcessConstraintId='"+masterId+"'");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+
+        #endregion
     }
 }

@@ -8,8 +8,11 @@ function ProcessConstraintController(cboService, commonMessage, $scope, $rootSco
     $scope.path = 'Materials/MaterialMasterArticle/';
     $scope.getListUrl = $scope.path + 'GetPCList';
     $scope.getSeqUrl = $scope.path + 'GetAutoPCSequence';
+    $scope.getVSeqUrl = $scope.path + 'GetAutoPCVSequence';
     $scope.saveUrl = $scope.path + 'CreateProcessConstraint';
+    $scope.saveValueUrl = $scope.path + 'CreateProcessConstraintValue';
     $scope.deleteUrl = $scope.path + 'DeleteProcessConstraint/';
+    $scope.deleteValueUrl = $scope.path + 'DeleteProcessConstraintValue/';
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -148,7 +151,8 @@ function ProcessConstraintController(cboService, commonMessage, $scope, $rootSco
     $scope.processConstraintId = null;
     $scope.GetValueDetail = function (obj) {
         $scope.processConstraintId = obj.data.Id;
-
+        $scope.getValueData();
+        $scope.GetValueSequence();
         angular.element(document.querySelector('#valueDetailPopUp')).modal('show');
     }
 
@@ -170,10 +174,82 @@ function ProcessConstraintController(cboService, commonMessage, $scope, $rootSco
     };
     $scope.materialValueNew = angular.copy($scope.materialValue);
 
-    $scope.materialValueAction = 'Add Row';
+    $scope.materialValueAction = 'Save';
+
+    $scope.GetValueSequence = function () {
+        cboService.getSequence('Materials/MaterialMasterArticle/GetAutoPCVSequence?masterId=' + $scope.processConstraintId, function (data) {
+            $scope.materialValueNew.Sequence = data;
+        });
+    };
+
+    $scope.ModelValueList = [];
+    $scope.getValueData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetPCVList",
+            data: { 'masterId': $scope.processConstraintId},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelValueList = response.data;
+        });
+    }
+
+    $scope.SaveValue = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.ValueNewForm.$valid) {
+            $scope.materialValueNew.ProcessConstraintId = $scope.processConstraintId;
+            $http({
+                method: 'POST',
+                url: $scope.saveValueUrl,
+                data: { 'data': $scope.materialValueNew, 'masterId': $scope.processConstraintId},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ClearValue();
+                    $scope.getValueData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+    $scope.DeleteValue = function () {
+        if (!baseService.isUndefinedOrNull($scope.materialValueNew.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.deleteValueUrl,
+                data: { 'id': $scope.materialValueNew.Id, 'masterId': $scope.processConstraintId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ClearValue();
+                    $scope.getValueData();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
+    $scope.ClearValue = function () {
+        ClearValueFields($scope.GetValueSequence());
+        return true;
+    }
 
     function ClearValueFields(seq) {
-        $scope.materialValueAction = 'Add Row';
+        $scope.materialValueAction = 'Save';
         $scope.materialValue = {};
         $scope.materialValueNew = {
             Id: null
@@ -189,5 +265,7 @@ function ProcessConstraintController(cboService, commonMessage, $scope, $rootSco
             , Active: true
         };
     }
+
+   
 
 }
