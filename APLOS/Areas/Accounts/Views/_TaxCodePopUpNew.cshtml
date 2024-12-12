@@ -1,0 +1,52 @@
+﻿<style>
+    .modellgModify1 {
+        width: 1300px;
+    }
+</style>
+<div class="modal fade site-modal in" id="TaxCodePopUpNew" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify1">
+        <div class="modal-content">
+            <div class="modal-header"> TaxCode List <button type="button" class="close" ng-click="closeTaxCodeDataPopUp();">&times;</button></div>
+            <div class="modal-body">
+            <div class="row text-right">
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="search-form">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="searchByTaxCode">
+                                        <option ng-repeat="option in searchByTaxCodeList" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="searchTaxCode" ng-enter="getTaxCodeDataList()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="getTaxCodeDataList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="content-container-fluid">
+                    <div style="color:black;" id="TaxCodeGrid" ej-grid e-datasource="taxCodeLists" e-recorddoubleclick="TaxCodeSelect"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                        <div e-columns>
+                            <div e-column e-field="Code" e-headertext="Code" e-width="50" e-filter="false"></div>
+                            <div e-column e-field="UserName" e-headertext="Tax Code" e-width="80"></div>
+                            <div e-column e-field="BaseGrossOrNet" e-headertext="Base Gross Or Net" e-width="50"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <ul class="common-btn list-inline text-right">
+                <li><button ng-click="closeTaxCodeDataPopUp();" class="btn"> Close</button></li>
+            </ul>
+
+        </div>
+        </div>
+    </div>
+</div>

@@ -6,7 +6,6 @@
             <div class="col-sm-8 show-message">
                 <div class="select-style">
                     <select class="form-control" name="Country" ng-model="taxCode.CountryId" required tabindex="1"
-                            ng-change="onCountryChange(taxCode.CountryId);"
                             ng-options="item.Value as item.Text for item in countryList">
                         <option></option>
                     </select>
@@ -18,13 +17,19 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">TaxCode<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select class="form-control" name="TaxCode" ng-model="taxCode.TaxCodeId" required tabindex="1"
-                            ng-change="onTaxCodeChange(taxCode.TaxCodeId,taxCode.CountryId);getTaxCode(taxCode.TaxCodeId);"
-                            ng-options="item.Value as item.Text for item in TaxCodecboList">
-                        <option></option>
-                    </select>
+                <div class="input-group">
+                    <input type="text" ng-model="taxCode.TaxCodeName" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="getTaxCodeDataList();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
                 </div>
+                @*<div class="select-style">
+                        <select class="form-control" name="TaxCode" ng-model="taxCode.TaxCodeId" required tabindex="1"
+                                ng-change="onTaxCodeChange(taxCode.TaxCodeId,taxCode.CountryId);getTaxCode(taxCode.TaxCodeId);"
+                                ng-options="item.Value as item.Text for item in TaxCodecboList">
+                            <option></option>
+                        </select>
+                    </div>*@
             </div>
         </div>
     </div>
@@ -234,7 +239,7 @@
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search"  ng-enter="getData()">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
                 </div>
                 <div class="col-xs-12 col-sm-2 col-md-2">
                     <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
@@ -264,5 +269,10 @@
     <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'test'" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)">
     </dir-pagination-controls>
 </div>
+
+@Html.Partial("~/Areas/Accounts/Views/_TaxCodePopUpNew.cshtml")
 <confirm-archive-generic modalid="confirmgenericPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeTaxCodeRow()"></confirm-archive-generic>
 <confirm-modal></confirm-modal>
+
+
+

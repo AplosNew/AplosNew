@@ -220,7 +220,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content row">
             <div class="modal-header">{{attributeName}} Value <button type="button" class="close" ng-click="CloseValue();">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
+            <div class="modal-body form-elements form-horizontal" ng-form="ValueNewForm">
                 <div class="col-xs-12 col-sm-6 col-md-6">
                     <div id="div_1" class="form-group">
                         <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
@@ -289,44 +289,44 @@
                 </div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li><button ng-click="addMasterAttributeValue();" class="btn" tabindex="48"><i class="glyphicon glyphicon-plus"></i> {{materialValueAction}}</button></li>
-                        <li><button ng-click="clearMasterAttributeValue();" class="btn" tabindex="49"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                        <li><button ng-click="CloseMaterialMasterAttributeValue();" class="btn" tabindex="50"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                        <li><button ng-click="SaveValue();" class="btn" tabindex="48"><i class="glyphicon glyphicon-plus"></i> {{materialValueAction}}</button></li>
+                        <li><button ng-click="ClearValue();" class="btn" tabindex="49"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        <li><button ng-click="CloseValue();" class="btn" tabindex="50"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
                     </ul>
                 </div>
-                <div class="table-responsive modal-table">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th>Sequence</th>
-                                <th>Code</th>
-                                <th>Short Name</th>
-                                <th>Standard Name</th>
-                                <th>User Define Name</th>
-                                <th>Default</th>
-                                <th>Active</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="x in materialValues|filter:{'MaterialAttributeId':charId}">
-                                <td>
-                                    <ul class="list-inline action-list">
-                                        <li><button ng-click="GetMaterialMasterAttributeValue(x.Id, $index)" class="btn btn-action tooltip-here" data-placement="top" title="Edit"><i class="glyphicon glyphicon-edit"></i></button></li>
-                                        <li><button ng-disabled="mvindex!=-1" ng-click="removeAttrValueRow(x.Id, x.UserName, 'materialValues');" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
-                                    </ul>
-                                </td>
-                                <td>{{x.Sequence}}</td>
-                                <td>{{x.Code}}</td>
-                                <td>{{x.ShortName}}</td>
-                                <td>{{x.StandardName}}</td>
-                                <td>{{x.UserName}}</td>
-                                <td>{{x.IsDefault?'Yes':'No'}}</td>
-                                <td>{{x.Active?'Yes':'No'}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            </div>
+            <div class="table-responsive modal-table">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Sequence</th>
+                            <th>Code</th>
+                            <th>Short Name</th>
+                            <th>Standard Name</th>
+                            <th>User Define Name</th>
+                            <th>Default</th>
+                            <th>Active</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in ModelValueList">
+                            <td>
+                                <ul class="list-inline action-list">
+                                    <li><button ng-click="GetMaterialMasterAttributeValue(x.Id, $index)" class="btn btn-action tooltip-here" data-placement="top" title="Edit"><i class="glyphicon glyphicon-edit"></i></button></li>
+                                    <li><button ng-disabled="mvindex!=-1" ng-click="removeAttrValueRow(x.Id, x.UserName, 'materialValues');" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                </ul>
+                            </td>
+                            <td>{{x.Sequence}}</td>
+                            <td>{{x.Code}}</td>
+                            <td>{{x.ShortName}}</td>
+                            <td>{{x.StandardName}}</td>
+                            <td>{{x.UserName}}</td>
+                            <td>{{x.IsDefault?'Yes':'No'}}</td>
+                            <td>{{x.Active?'Yes':'No'}}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
