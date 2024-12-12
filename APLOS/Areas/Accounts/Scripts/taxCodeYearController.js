@@ -29,6 +29,7 @@ function TaxCodeYearController(addressService, commonMessage, $scope, $rootScope
     $scope.taxCode = {
         Id: null,
         TaxCodeId: null,
+        TaxCodeName: null,
         Code: null,
         COAId: null,
         CountryId: null,
@@ -130,6 +131,7 @@ function TaxCodeYearController(addressService, commonMessage, $scope, $rootScope
             $scope.TaxCodeList = response.data;
             $scope.taxCode = $scope.TaxCodeList;
             $scope.taxCode.TaxCodeId = $scope.TaxCodeList.Id;
+            $scope.taxCode.TaxCodeName = $scope.TaxCodeList.UserName;
             $scope.IsTaxYearDisable = false;
             $scope.Action = 'Save';
         });
@@ -530,5 +532,33 @@ function TaxCodeYearController(addressService, commonMessage, $scope, $rootScope
     };
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
+    };
+
+    $scope.searchByTaxCode = "UserName"; $scope.searchTaxCode = "";
+    $scope.searchByTaxCodeList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: "Tax Code" }, { value: 'BaseGrossOrNet', name: "Base Gross Or Net" }];
+
+    $scope.taxCodeLists = [];
+    $scope.getTaxCodeDataList = function () {
+        $http({
+            method: 'POST',
+            url: 'accounts/taxcode/GetTaxCodeDataPopUpList',
+            data: { column: $scope.searchByTaxCode, value: $scope.searchTaxCode, countryId: $scope.taxCode.CountryId },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.taxCodeLists = response.data;
+        });
+        angular.element(document.querySelector('#TaxCodePopUpNew')).modal('show');
+    };
+    $scope.closeTaxCodeDataPopUp = function () {
+        angular.element(document.querySelector("#TaxCodePopUpNew")).modal("hide");
+    };
+
+    $scope.TaxCodeSelect = function (obj) {
+        $scope.model = obj.data;
+        $scope.taxCode.TaxCodeId = $scope.model.Id;
+        $scope.taxCode.TaxCodeName = $scope.model.UserName;
+        $scope.onTaxCodeChange($scope.taxCode.TaxCodeId, $scope.taxCode.CountryId);
+        $scope.getTaxCode($scope.taxCode.TaxCodeId);
+        $scope.closeTaxCodeDataPopUp();
     };
 }

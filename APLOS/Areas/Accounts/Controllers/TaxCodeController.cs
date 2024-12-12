@@ -6,9 +6,12 @@ using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.Model.Taxations;
+using Library.Service.Enums;
+using Library.Service.Logs;
 using Library.Service.Taxations;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -374,6 +377,30 @@ namespace Aplos.Areas.Accounts.Controllers
             if (string.IsNullOrEmpty(id)) throw new CustomException(Resources.IdNotFound);
             _taxCodeGLService.Delete(id);
             return Json(new { Message = AplosMessage.Deleted });
+        }
+        [HttpPost, Authorize]
+        public JsonResult GetTaxCodeDataPopUpList(string column, string value, string countryId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(GetTaxCodeDataList(column, value, countryId), JsonRequestBehavior.AllowGet);
+        }
+        public IEnumerable<object> GetTaxCodeDataList(string column, string value, string countryId)
+        {
+            try
+            {
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var sql = @"DECLARE @countryId VARCHAR(100)='" + countryId + @"';
+                        SELECT TOP 400 * FROM (SELECT * FROM [MST].[TaxCode]  WHERE Active=1 and Archive=0 and CountryId=@countryId ) AS TEMP WHERE " + strkey + " order by UserName ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
         }
     }
 }
