@@ -1395,7 +1395,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             var invoiceTax = new InvoiceTax
                             {
                                 Archive = false,
-                                VoucherDetailId = voucherDetailDr.Id,//voucherDetailDrId,
+                                //VoucherDetailId = voucherDetailDr.Id,//voucherDetailDrId,
                                 VoucherId = voucher.Id,
                                 TaxYearId = voucher.TaxYearId,
                                 TaxYearPeriodId = voucher.TaxYearPeriodId,
@@ -1424,6 +1424,16 @@ namespace Aplos.Areas.SalesManagements.Controllers
                                 AddedFromIP = invoiceTax.AddedFromIP
                             };
                             _accountsCommonService.InsertInvoiceTaxDetail(invoiceTax, invoiceTaxDetail, ref _invTaxDetailData);
+                            DataView taxvd = new DataView(_crvDetailData.Tables[0]);
+                            taxvd.RowFilter = "Id='" + voucherDetailDr.Id + "'";
+                            if (taxvd.Count > 0)
+                            {
+                                DataRow drmo = taxvd[0].Row;
+                                drmo.BeginEdit();
+                                drmo["InvoiceTaxDetailId"] = invoiceTaxDetail.Id;
+                                drmo.EndEdit();
+                            }
+
                         }
 
                     }
@@ -1550,7 +1560,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 }
                 else
                 {
-                    objApp.SaveDataSets(_vdataset, _ANdataset, _ajNDetailData, _crvDetailData, _crvDetailCurrencyData, _iTaxDrdataset, _invTaxDetailData, _iTaxCrdataset, _invTaxDetailCrData, _salesReturnData, dsitemscanChild, _aTaxCrdataset, _adTaxDetailCrData);
+                    objApp.SaveDataSets(_vdataset, _ANdataset, _ajNDetailData, _iTaxDrdataset, _invTaxDetailData, _crvDetailData, _crvDetailCurrencyData, _iTaxCrdataset, _invTaxDetailCrData, _salesReturnData, dsitemscanChild, _aTaxCrdataset, _adTaxDetailCrData);
                 }
                     
                 

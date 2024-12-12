@@ -105,12 +105,35 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
                     ShowResult(response, 'failure');
                 });
     };
-    $scope.getpurchaseLCListData();
+   // $scope.getpurchaseLCListData();
 
     $scope.getSavedData = function (index) {
         $scope.lcIndex = index;
         $scope.getpurchaseLCListData();
         angular.element(document.querySelector("#PurchaseLCPopUp")).modal("show");
+    }
+
+
+    $scope.purchaseLCBalanceList = [];
+    $scope.getLCBalanceAmountDetailByLCIdData = function (purchaseLCId) {
+        $scope.purchaseLCBalanceList = [];
+        $http.get("Commercial/InvoiceTaggedWithLC/GetLCSetOffDetailByInvoiceList?purchaseLCId=" + purchaseLCId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.purchaseLCBalanceList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
+    
+
+    $scope.getLCBalanceAmountDetailData = function (index,x) {
+        $scope.lcIndex = index;
+        $scope.getLCBalanceAmountDetailByLCIdData(x.PurchaseLcId);
+        angular.element(document.querySelector("#LCSetOffDetailPopUp")).modal("show");
     }
 
     $scope.LcModel = { LoanAmount: 0, IsLoan: 'true'};

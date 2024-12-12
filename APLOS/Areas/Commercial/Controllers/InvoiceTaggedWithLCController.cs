@@ -567,6 +567,40 @@ namespace Aplos.Areas.Commercial.Controllers
 			}
 		}
 
+
+		[HttpGet, Authorize]
+		public ActionResult GetLCSetOffDetailByInvoiceList( string purchaseLCId)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+				string sql = @"
+                        SELECT V.VoucherNo,IV.DocRefNo,IV.InventoryReceiveId GRNNo,IRD.POId PONo,IRD.POAmount
+						,Replace(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') PostingDate,PLC.Amount LCAmount,ITLC.Amount LoanAmount
+						,ITLC.AddedBy LoanCreatedBy
+						,Replace(CONVERT(VARCHAR(11), ITLC.AddedDate, 106), ' ', '-') LoanCreatedDate,PLC.LCREF LC,OBM.AccountTitle OpeningBank
+						FROM InvoiceTaggingWithLCDetail ITLC
+						LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=ITLC.PurchaseLCId
+						LEFT JOIN [TRN].[Invoice] IV ON IV.Id=ITLC.InvoiceId
+						LEFT JOIN [TRN].[Voucher] V ON V.Id=IV.VoucherId
+						LEFT JOIN [MST].[BankMaster] OBM ON OBM.Id=ITLC.OpeningBankMasterId
+						LEFT JOIN (SELECT DISTINCT RD.POId,pod.POAmount,RD.InventoryReceiveId FROM TRN.InventoryReceiveDetail RD 
+									LEFT JOIN (SELECT InventoryReceiveId,SUM(TransactionAmount) POAmount FROM  TRN.PurchaseOrderDetail group by InventoryReceiveId) pod on pod.InventoryReceiveId=RD.POId
+						
+						) IRD ON IRD.InventoryReceiveId=IV.InventoryReceiveId
+						WHERE ITLC.PurchaseLCId='" + purchaseLCId + @"' ";
+				var jsondata = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+				jsondata.MaxJsonLength = int.MaxValue;
+				return jsondata;
+
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
 		public JsonResult Create(List<Dictionary<string,object>> DataList, Dictionary<string, object> LcData)
         {
             try
