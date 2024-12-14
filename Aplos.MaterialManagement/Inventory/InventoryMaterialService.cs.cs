@@ -1941,7 +1941,11 @@ LEFT JOIN (
 					AND IRD.BaseQty !=(ISNULL(II.IssueQty,0))
                     AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE)
                     AND IRD.Id NOT IN (SELECT ISNULL(InventoryReceiveDetailId,'') FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL)
-                    AND IRD.PODetailsId not in (select podetailId from trn.poboqmap)
+                    AND IRD.PODetailsId not in (SELECT PODetailId FROM TRN.POBOQMAP  pbmap 
+                                    LEFT JOIN DBO.BOQ boq on boq.Id=pbmap.BOQDetailId
+                                    LEFT JOIN [DBO].[CostingBOQItems] cboqI on cboqI.CostingBOQMasterId=boq.CostingBOQMasterId
+                                    LEFT JOIN [TRN].[SalesOrder] SO ON SO.Id=cboqI.SalesOrderId
+                                    WHERE SO.OrderStatusId='Active')
                     UNION ALL
 
                     SELECT IRD.InventoryReceiveId, IRD.POId, IRD.PODetailsId, IRD.Id AS InventoryReceiveDetailId, IRD.InventoryMaterialId, P.Code AS PartyCode, P.UserName AS PartyName

@@ -2693,7 +2693,7 @@ namespace Aplos.Areas.Products.Controllers
                             LEFT JOIN HKP.Party V ON V.Id = boq.VendorId
                             LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id = pomap.PODetailId
                             LEFT JOIN TRN.PurchaseOrder PO ON PO.Id = POD.InventoryReceiveId
-							WHERE IR.[Status]='Posting' AND IRD.MaterialStorageId='" + materialStorageId + "' and IR.PlantId='" + identity.PlantId + @"'
+							WHERE IR.[Status]='Posting' AND   SO.OrderStatusId='Active' AND IRD.MaterialStorageId='" + materialStorageId + "' and IR.PlantId='" + identity.PlantId + @"'
                           "+ tempQuery + @"   ";
 
                 var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
