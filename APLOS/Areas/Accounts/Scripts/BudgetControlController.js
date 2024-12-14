@@ -339,36 +339,47 @@ function BudgetControlController(commonMessage, $scope, $rootScope, baseService,
             return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
         });
     }
-
+    $scope.selectedEntityList = [];
+    $scope.SelectEntity = function () {
+        for (var i = 0; i < $scope.EntityList.length; i++) {
+            if ($scope.EntityList[i].Flag == true) {
+                var ob = {};
+                ob.Id = $scope.EntityList[i].Id;
+                $scope.selectedEntityList.push(ob);
+                ob = {};
+            }
+        }
+        angular.element(document.querySelector('#EntityPopUp')).modal('hide');
+    }
 
     $scope.entityids = "";
     $scope.GetSampleFile = function () {
+        try {
 
-        $scope.tempList = [];
-        for (var di = 0; di < $scope.selectedMasterOrderList.length; di++) {
-            if ($scope.selectedMasterOrderList[di].Active) {
-                $scope.tempList.push($scope.selectedMasterOrderList[di]);
+            $scope.tempList = [];
+            for (var di = 0; di < $scope.selectedEntityList.length; di++) {
+                $scope.tempList.push($scope.selectedEntityList[di]);
             }
 
-        }
-
-        if ($scope.tempList==0) {
-            ShowResult("Please Select Entity.", 'failure');
-        }
-        else {
-            var uniqueId = removeDuplicates($scope.tempList, 'Id');
-            var ids = "";
-            if (uniqueId.length > 0) {
-                ids = "IN(";
-                ids += Array.prototype.map.call(uniqueId, function (item) { return "'" + item.Id + "'"; }).join(",") + ")";
+            if ($scope.tempList == 0) {
+                throw "Please Select Entity.";
             }
-            $scope.entityids = ids;
+            else {
+                var uniqueId = removeDuplicates($scope.tempList, 'Id');
+                var ids = "";
+                if (uniqueId.length > 0) {
+                    ids = "IN(";
+                    ids += Array.prototype.map.call(uniqueId, function (item) { return "'" + item.Id + "'"; }).join(",") + ")";
+                }
+                $scope.entityids = ids;
+            }
 
+            var ReportFormat = 'Excel';
+            location.href = 'accounts/BudgetMaster/GetSampleFile?reportFormat=' + ReportFormat + '' + $scope.entityids;
+            $scope.selectedEntityList = [];
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
-
-
-        var ReportFormat = 'Excel';
-        location.href = 'accounts/BudgetMaster/GetSampleFile?reportFormat=' + ReportFormat + '' + $scope.entityids;
     };
 
     $scope.picdata = null;
@@ -468,5 +479,5 @@ function BudgetControlController(commonMessage, $scope, $rootScope, baseService,
         });
     };
 
-  
+
 }
