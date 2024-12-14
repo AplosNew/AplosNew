@@ -3521,6 +3521,7 @@ LEFT JOIN HKP.BudgetGroup BG ON BG.Id=BM.BudgetGroupId
 LEFT JOIN HKP.BudgetCategory BC ON BC.Id=BM.BudgetCategoryId
 LEFT JOIN HKP.BudgetSubCategory BSC ON BSC.Id=BM.BudgetSubCategoryId
 LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
+Where BMA.Active=1
 Order  by B.UserName";
             return _sqlRepository.GetDataTable(cmdText);
 

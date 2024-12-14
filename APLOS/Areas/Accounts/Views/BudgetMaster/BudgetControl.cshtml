@@ -134,34 +134,37 @@
                         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(1), active: isSet2(1) }">
                             <div class="row">
                                 <div class="form-elements form-horizontal row" ng-form name="ModelNewForm">
-                                    <div class="col-md-10">
-                                        <div class="inputBtnSection common-btn">
-                                            <label class="fileUpload col-sm-4 ">
-                                                <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
-                                            </label>
-                                            <input type="button" value="Import Data" class="btn btn-success"  ng-disabled="ModelNew.Id==null"
-                                                   ng-click="ImportData()" />
+                                    <div class="col-xs-12">
+                                        <div class="col-md-6">
+                                            <div class="inputBtnSection common-btn">
+                                                <label class="fileUpload col-sm-4 ">
+                                                    <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                                                </label>
+                                                <input type="button" value="Import Data" class="btn btn-success" ng-disabled="ModelNew.Id==null"
+                                                       ng-click="ImportData()" />
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <div class="common-btn">
-                                            <ul class="list-inline text-right">
-                                                <li> <button ng-click="GetSampleFile();" ng-disabled="ModelNew.Id==null" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File Download</button></li>
-                                            </ul>
+                                        <div class="col-md-6">
+                                            <div class="common-btn">
+                                                <ul class="list-inline text-right">
+                                                    <li> <button ng-click="GetEntity();" ng-disabled="ModelNew.Id==null" class="btn"><i class="glyphicon glyphicon-file"></i> Select Entity</button></li>
+                                                    <li> <button ng-click="GetSampleFile();" ng-disabled="ModelNew.Id==null" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File Download</button></li>
+                                                </ul>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
+                                @*</div>
+                                    <div class="row">*@
                                 <div class="col-sm-12">
                                     <div id="GridWorkCenterProduct"
-                                         ng-init="chkinit()" ej-grid e-datasource="BudgetControlChildList"e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-allowscrolling="true" e-pagesettings-pagesize="25" e-filtersettings-filterType="excel">
+                                         ng-init="chkinit()" ej-grid e-datasource="BudgetControlChildList" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-allowscrolling="true" e-pagesettings-pagesize="25" e-filtersettings-filterType="excel">
                                         <div e-columns>
                                             <div e-column e-field="BudgetMasterActivityId" e-headertext="ControlId" e-width="50"></div>
                                             <div e-column e-field="IsLinear" e-headertext="IsLinear" e-width="50"></div>
                                             <div e-column e-field="CurrentValue" e-headertext="CurrentValue" e-width="100"></div>
                                             <div e-column e-field="LastValue" e-headertext="LastValue" e-width="100"></div>
-                                            <div e-column e-field="UoMId" e-headertext="UoMId" e-width="50"></div>                                          
+                                            <div e-column e-field="UoMId" e-headertext="UoMId" e-width="50"></div>
                                         </div>
                                     </div>
                                 </div>
