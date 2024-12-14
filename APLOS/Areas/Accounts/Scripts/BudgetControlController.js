@@ -290,9 +290,85 @@ function BudgetControlController(commonMessage, $scope, $rootScope, baseService,
         $scope.BudgetControlChildList = [];
     }
 
+    $scope.EntityList = [];
+    $scope.GetEntity = function () {
+        $http({
+            method: 'GET',
+            url: "Accounts/BudgetMaster/GetEntityList",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.EntityList = response.data;
+        });
+        angular.element(document.querySelector('#EntityPopUp')).modal('show');
+    };
+
+    $scope.closeEntityPopUp = function () {
+        angular.element(document.querySelector('#EntityPopUp')).modal('hide');
+    }
+
+    // #region checkbox all
+
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+    };
+
+    function CheckBoxSelectAllEmolyeeWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridEntityPopUp").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.EntityList.length; i++) {
+                $scope.EntityList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridEntityPopUp").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    // #endregion checkbox all
+    function removeDuplicates(myArr, prop) {
+        return myArr.filter((obj, pos, arr) => {
+            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
+        });
+    }
+
+
+    $scope.entityids = "";
     $scope.GetSampleFile = function () {
+
+        $scope.tempList = [];
+        for (var di = 0; di < $scope.selectedMasterOrderList.length; di++) {
+            if ($scope.selectedMasterOrderList[di].Active) {
+                $scope.tempList.push($scope.selectedMasterOrderList[di]);
+            }
+
+        }
+
+        if ($scope.tempList==0) {
+            ShowResult("Please Select Entity.", 'failure');
+        }
+        else {
+            var uniqueId = removeDuplicates($scope.tempList, 'Id');
+            var ids = "";
+            if (uniqueId.length > 0) {
+                ids = "IN(";
+                ids += Array.prototype.map.call(uniqueId, function (item) { return "'" + item.Id + "'"; }).join(",") + ")";
+            }
+            $scope.entityids = ids;
+
+        }
+
+
         var ReportFormat = 'Excel';
-        location.href =  'accounts/BudgetMaster/GetSampleFile?reportFormat=' + ReportFormat;
+        location.href = 'accounts/BudgetMaster/GetSampleFile?reportFormat=' + ReportFormat + '' + $scope.entityids;
     };
 
     $scope.picdata = null;
@@ -383,7 +459,7 @@ function BudgetControlController(commonMessage, $scope, $rootScope, baseService,
 
     $scope.BudgetControlChildList = [];
     $scope.GetBudgetControlChildList = function () {
-       
+
         $http({
             method: 'GET',
             url: 'accounts/BudgetMaster/GetBudgetControlChildList?headerId=' + $scope.ModelNew.Id
@@ -392,4 +468,5 @@ function BudgetControlController(commonMessage, $scope, $rootScope, baseService,
         });
     };
 
+  
 }

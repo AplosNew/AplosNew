@@ -226,7 +226,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <disv class="content-container-fluid" style="color:black;">
+                <div class="content-container-fluid" style="color:black;">
                     <div style="color:black;" id="GridPopUp" ej-grid e-datasource="popUpDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                          e-recorddoubleclick="SelectEmployee" e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
@@ -242,7 +242,7 @@
                             <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
                         </div>
                     </div>
-                </disv>
+                </div>
             </div>
             <div class="modal-footer">
                 <ul class="common-btn list-inline text-right" style="padding: 20px;">
@@ -254,4 +254,38 @@
     <script type="text/x-jsrender" id="empimage">
         <img src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:48px;width:48px;" />
     </script>
+</div>
+
+<div class="modal fade site-modal in" id="EntityPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Entity Info <button type="button" class="close">&times;</button> </div>
+            <div class="modal-body">
+                <div style="color:black;" id="GridEntityPopUp" ej-grid e-datasource="EntityList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                      e-templaterefresh="refreshTemplateemployee" e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                        <div e-column e-field="EntityName" e-headertext="Entity Name" e-width="80"></div>
+                        <div e-column e-field="Plant" e-headertext="Plant" e-width="80"></div>
+                        <div e-column e-field="Division" e-headertext="Division" e-width="80"></div>
+                        <div e-column e-field="SubDivision" e-headertext="SubDivision" e-width="80"></div>
+                        <div e-column e-field="Unit" e-headertext="Unit" e-width="80"></div>
+                        <div e-column e-field="EffectiveDate" e-headertext="EffectiveDate" e-width="80"></div>
+                    </div>
+                </div>
+                <script type="text/template" id="checkboxTemplate">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                </script>
+                <script type="text/x-jsrender" id="headerTemplate">
+                    <input type="checkbox" id="headchk" />
+                </script>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="selectByButton()" class="btn">Select</button></li>
+                        <li> <button ng-click="closeEntityPopUp()" class="btn">Cancel</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
