@@ -128,18 +128,15 @@ namespace Aplos.MaterialManagement.MaterialQuery
             try
             {
                 var sql = "";
-               
                     sql = @"select * from(
                         SELECT IRD.InventoryReceiveId, IRD.POId, IRD.PODetailsId, IRD.Id AS InventoryReceiveDetailId,grnmap.BOQDetailId
- , IRD.InventoryMaterialId, P.Code AS PartyCode, P.UserName AS PartyName
+                        , IRD.InventoryMaterialId, P.Code AS PartyCode, P.UserName AS PartyName
 	                     , IsPosting=CASE WHEN IR.[Status] IS NULL THEN 0 else 1 END
 						, IsApproved=CASE WHEN IR.IsApproved= 0 THEN 0 else 1 END
 						, IR.Id AS GRNNo, IRD.POId AS PONo, TUoM.UserName AS TUoM, BUoM.UserName AS BUoM, IRD.TransactionUoMId,  IRD.BaseUOMId, IRD.BaseUoMFactor,IRD.BaseUoMFactor GRNBaseUoMFactor, 1 TempBaseUoMFactor
                         , round(IRD.MaterialTranRate,4) MaterialTranRate, round(IRD.MaterialTranRate,4) Rate,  TCU.Code AS TCurrency, BCU.Code AS BCurrency, IRD.MaterialTranAmount
-                        --, BaseRate=CASE WHEN IRD.TransactionUoMId<>IRD.BaseUOMId THEN IRD.MaterialTranAmount/IRD.BaseQty ELSE IRD.BooksCurrencyBaseRate END
 						, IRD.TrnCurrencyBaseRate BaseRate
                         , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, REPLACE(CONVERT(CHAR(11), IR.AddedDate, 106),' ','-') AS ReceiveDate, 0 AS RequisitionQty, 0 AS Qty
-                        --,Round((IRD.MaterialTranRate * IR.ToCurrencyRate),4) 
 						 ,Round(ISNULL(IRD.BooksCurrencyBaseRate,0),4) BaseCurrencyRate
 						, grnmap.TransactionQty, grnmap.BaseQty,grnmap.BaseQty GRNBOQQty
 						,ISNULL(grnmap.BaseQty,0) - ISNULL(II.IssueQty, 0) StockQty
@@ -151,24 +148,14 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						 ,ISNULL(IRD.TotalMaterialBooksCurrencyAmount,0) TotalMaterialBooksCurrencyAmount
 						 ,Round(ISNULL(IRD.BooksCurrencyBaseRate,0),4) BooksCurrencyBaseRate
 						 ,round(ISNULL(IRD.TrnCurrencyBaseRate,0),4) TrnCurrencyBaseRate
-                        --,round(ISNULL(II.IssueAmount,0),4) TotalIssueAmount
                          ,IsOpeningBalance=CASE WHEN IR.OpeningBalanceId IS NOT NULL THEN 'Yes' ELSE 'No' END
                         ,C.Id CountryId,C.UserName CountryName--,null AS [Flag] 
-                        ,0 SalesRate
-						,0 TotalAmount
-                        ,IM.MaterialMasterId
-						,MM.UserName MaterialMasterName
-						,IM.ArticleId
-						,MMA.StandardName ArticleName
-                        ,IM.FirstCharacteristicsValueId
-						,FC.UserName SKU1
-						,IM.SecondCharacteristicsValueId
-						,SC.UserName SKU2
-						,IM.ThirdCharacteristicsValueId
-						
-						,IM.FirstCharacteristicsId
-						,IM.SecondCharacteristicsId
-						,IM.ThirdCharacteristicsId,IssueByUoM=CASE WHEN MM.IssueByUoM=0 THEN 'No' ELSE 'Yes' END
+                        ,0 SalesRate ,0 TotalAmount ,IM.MaterialMasterId
+						,MM.UserName MaterialMasterName ,IM.ArticleId
+						,MMA.StandardName ArticleName ,IM.FirstCharacteristicsValueId
+						,FC.UserName SKU1 ,IM.SecondCharacteristicsValueId ,SC.UserName SKU2
+						,IM.ThirdCharacteristicsValueId ,IM.FirstCharacteristicsId
+						,IM.SecondCharacteristicsId ,IM.ThirdCharacteristicsId,IssueByUoM=CASE WHEN MM.IssueByUoM=0 THEN 'No' ELSE 'Yes' END
                         ,TrasactopmUomQty=(((ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0))*BaseUoMFactor)/BaseUoMFactor) 
                         ,TempTrasactopmUomQty=(((ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0))*BaseUoMFactor)/BaseUoMFactor) 
 						,IRD.BaseUOMId IssueTransactionUoMId,IRD.MaterialStorageId,MS.UserName MaterialStorage
@@ -187,6 +174,9 @@ namespace Aplos.MaterialManagement.MaterialQuery
                     left JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
                     left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
                     left JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
+                    LEFT JOIN dbo.BOQ boq on boq.Id=grnmap.BOQDetailId
+					LEFT JOIN (select distinct CostingBOQMasterId,SalesOrderId from [dbo].[CostingBOQItems] ) cboqI on cboqI.CostingBOQMasterId=boq.CostingBOQMasterId
+					LEFT JOIN [TRN].[SalesOrder] SO ON SO.Id=cboqI.SalesOrderId
 					LEFT JOIN (
 									    select IHB.InventoryReceiveDetailId
                                         , Sum(ISNULL(IHB.Qty,0)) IssueQty 
@@ -205,11 +195,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
                     left JOIN SCS.Country C On C.Id=IM.CountryId
                     WHERE  IM.CompanyId='" + companyId + "' AND IM.PlantId='"+plantId+@"'
                     AND IR.[Status]='Posting' AND IR.IsFOC=0
-                    ----AND ISNULL(IM.ArticleId,'')='5777' AND ISNULL(IM.FirstCharacteristicsValueId,'')='423' AND  ISNULL(IM.SecondCharacteristicsValueId,'')=''
-                    --AND ISNULL(IM.ThirdCharacteristicsValueId,'')='' AND ISNULL(IM.CountryId,'')='' 
 					AND IRD.MaterialStorageId='"+ materialStorageId + @"' 
-                    --AND ISNULL(IRD.IssueQty, 1)>0 
-					AND (IRD.POId IN ("+POId+ @") OR IRD.POId IN (''))
+					AND (IRD.POId IN ("+POId+ @") OR IRD.POId IN (''))  AND   SO.OrderStatusId='Active'
 					 AND grnmap.BaseQty !=ISNULL(II.IssueQty,0)  
                     AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) 
 					) x";
@@ -243,13 +230,16 @@ FROM (SELECT  distinct IM.MaterialMasterId ,MT.UserName MaterialType,MMG.UserNam
 					LEFT JOIN Mst.MaterialGroupMaster MMG ON MMG.Id=MM.MaterialGroupMasterId
 					LEFT JOIN HKP.MaterialType MT ON MT.Id=MMG.MaterialTypeId
                     LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
+                LEFT JOIN dbo.BOQ boq on boq.Id=grnmap.BOQDetailId
+					LEFT JOIN [dbo].[CostingBOQItems] cboqI on cboqI.CostingBOQMasterId=boq.CostingBOQMasterId
+					LEFT JOIN [TRN].[SalesOrder] SO ON SO.Id=cboqI.SalesOrderId
 					LEFT JOIN (
 								 SELECT IHB.InventoryReceiveDetailId, SUM(ISNULL(IHB.Qty,0)) IssueQty ,IHB.BOQDetailId
 								 FROM TRN.InventoryIssueHistoryBOQ IHB 
 								 GROUP BY IHB.InventoryReceiveDetailId ,IHB.BOQDetailId
 								 ) II ON II.InventoryReceiveDetailId=grnmap.InventoryReceiveDetailId  
                     WHERE  IM.CompanyId='" + companyId + @"' AND IM.PlantId='"+ plantId + "' AND IRD.MaterialStorageId='"+ materialStorageId + @"'
-                    	AND IRD.POId<>'' AND grnmap.BOQDetailId<>''
+                    	AND IRD.POId<>'' AND grnmap.BOQDetailId<>''  AND   SO.OrderStatusId='Active'
                     AND IR.[Status]='Posting' AND IR.IsFOC=0 AND IRD.BaseQty !=ISNULL(II.IssueQty,0) 
                     AND MM.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
                         LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
