@@ -375,7 +375,7 @@ function BudgetControlController(commonMessage, $scope, $rootScope, baseService,
             }
 
             var ReportFormat = 'Excel';
-            location.href = 'accounts/BudgetMaster/GetSampleFile?reportFormat=' + ReportFormat + '' + $scope.entityids;
+            location.href = 'accounts/BudgetMaster/GetSampleFile?reportFormat=' + ReportFormat + '&entityids=' + $scope.entityids;
             $scope.selectedEntityList = [];
         } catch (e) {
             ShowResult(e, 'failure');
