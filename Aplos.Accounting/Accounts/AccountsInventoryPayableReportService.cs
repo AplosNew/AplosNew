@@ -3520,10 +3520,14 @@ namespace Library.Accounting.Accounts
 
         public DataTable GetBudgetMasterActivityData(string entityids)
         {
-            var cmdText = @"Select X.*,E.Id EntityId,E.UserName EntityName From(Select NULL Id,BG.Sequence BudgetGroupSequence,BG.UserName BudgetGroup,BC.Sequence BudgetCategorySequence
+            var cmdText = @"Select X.Id,X.BudgetGroupSequence,X.BudgetGroup,X.BudgetCategorySequence,X.BudgetCategory,X.BudgetSubCategorySequence,X.BudgetSubCategory
+,X.BudgetSequence,X.Budget,X.BudgetMasterId,X.ActivityId,X.BudgetMasterActivityId,X.UserGroup,X.UserCategory,X.UserSubCategory,X.UserItem
+,X.UserReport,ISNULL(BCC.IsLinear,0)IsLinear,ISNULL(BCC.CurrentValue,0)CurrentValue,ISNULL(BCC.LastValue,0)LastValue,ISNULL(BCC.UoMId,NULL)UoMId
+,ISNULL(BCC.ResponsiblePersonId,NULL)ResponsiblePersonId,ISNULL(BCC.ActionById,NULL)ActionById,ISNULL(BCC.Remarks,NULL)Remarks,E.Id EntityId 
+From(Select NULL Id,BG.Sequence BudgetGroupSequence,BG.UserName BudgetGroup,BC.Sequence BudgetCategorySequence
 ,BC.UserName BudgetCategory,BSC.Sequence BudgetSubCategorySequence,BSC.UserName BudgetSubCategory
 ,B.Sequence BudgetSequence,B.UserName Budget,BMA.BudgetMasterId,BMA.ActivityId,BMA.Id BudgetMasterActivityId
-,BMA.UserGroup,BMA.UserCategory,BMA.UserSubCategory,BMA.UserItem,BMA.UserReport,0 IsLinear,0 CurrentValue,BCC.LastValue,NULL UoMId
+,BMA.UserGroup,BMA.UserCategory,BMA.UserSubCategory,BMA.UserItem,BMA.UserReport,0 IsLinear,0 CurrentValue,0 LastValue,NULL UoMId
 ,NULL ResponsiblePersonId,NULL ActionById,NULL Remarks
 FROM MST.BudgetMasterActivity BMA
 LEFT JOIN MST.BudgetMaster BM ON BM.Id=BMA.BudgetMasterId
@@ -3531,11 +3535,10 @@ LEFT JOIN HKP.BudgetGroup BG ON BG.Id=BM.BudgetGroupId
 LEFT JOIN HKP.BudgetCategory BC ON BC.Id=BM.BudgetCategoryId
 LEFT JOIN HKP.BudgetSubCategory BSC ON BSC.Id=BM.BudgetSubCategoryId
 LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
-LEFT JOIN dbo.BudgetControlChild BCC ON  BCC.BudgetMasterActivityId=BMA.Id
 Where BMA.Active=1
 )X
 OUTER APPLY (SELECT * FROM ORG.Entity Where Id " + entityids + @") E 
-
+LEFT JOIN dbo.BudgetControlChild BCC ON BCC.BudgetMasterActivityId=X.BudgetMasterActivityId AND E.Id=BCC.EntityId
 ORDER BY X.ActivityId,E.Id";
             return _sqlRepository.GetDataTable(cmdText);
 
