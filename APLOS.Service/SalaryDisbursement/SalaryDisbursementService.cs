@@ -1427,7 +1427,6 @@ namespace Library.Service.SalaryDisbursement
                 if (directJVList != null)
                 {
                     voucherVM.DocRefNo = disbursementAdviceId;
-                    voucherVM.Narration = "";
                     var voucher = _voucherService.InsertVoucher(voucherVM);
                     directVoucherId = voucher.Id;
                     var currentVoucherDetailId = 0;
