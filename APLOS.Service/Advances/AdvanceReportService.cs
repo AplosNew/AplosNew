@@ -522,8 +522,6 @@ namespace Library.Service.Advances
             sheet.Range[row, colNaration].VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[row, colNarationValue].VerticalAlignment = ExcelVAlign.VAlignTop;
 
-            
-
             int colStatus = colVoucherDate;
             reportUtility.SetMasterHeaderText(ref sheet, row, colStatus, "Status");
             int colStatusValue = colVoucherDateValue;
@@ -531,6 +529,12 @@ namespace Library.Service.Advances
             sheet.Range[row, colStatus].VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[row, colStatusValue].VerticalAlignment = ExcelVAlign.VAlignTop;
             row++;
+
+
+            int colEntity = colVoucherNo;
+            int colEntityValue = colVoucherNoValue;
+            reportUtility.SetMasterHeaderText(ref sheet, row, colEntity, "Entity");
+            reportUtility.SetText(ref sheet, row, colEntityValue, header["EntityName"].ToString());
 
             int colPONo = colVoucherDate;
             reportUtility.SetMasterHeaderText(ref sheet, row, colPONo, "PO No");

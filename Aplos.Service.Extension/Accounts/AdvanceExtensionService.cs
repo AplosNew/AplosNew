@@ -35,6 +35,7 @@ namespace Library.Service.Extension.Accounts
                             ,BJ.POId PONo
 							, AddedBy =case when u.FullName<>'' then u.FullName else v.AddedBy end
 						   ,PostedBy = case when up.FullName<>'' then up.FullName else v.PostedBy end
+                           ,E.UserName EntityName
                             FROM [TRN].[Advance] AS BJ
                             LEFT JOIN [TRN].[Voucher] AS V ON V.Id=BJ.VoucherId
                             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
@@ -52,6 +53,7 @@ namespace Library.Service.Extension.Accounts
 							LEFT JOIN TRN.CheckLotDetail CLD1 ON CLD1.Id=CLH.CheckLotDetailId
 							left join [sec].[User] U on U.UserId=v.AddedBy
 							left join sec.[User] up on up.UserId=v.PostedBy
+                            LEFT JOIN [ORG].[Entity] E on E.Id=BJ.EntityId
                             WHERE BJ.Archive=0 AND BJ.CompanyGroupId='" + companyGroupId + "' AND BJ.CompanyId='" + companyId + "' AND BJ.PlantId='" + plantId + "' AND BJ.VoucherId='" + voucherId + "' AND BJ.SourceType='" + sourceType + "'";
             return _sqlRepository.GetData(cmdText);
         }
