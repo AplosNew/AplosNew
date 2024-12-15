@@ -128,7 +128,7 @@
                 <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select id="entityId" class="form-control" name="Entity" ng-model="modelNew.EntityId" tabindex="7" required>
+                        <select id="entityId" class="form-control" name="Entity" ng-model="modelNew.EntityId" ng-change="entityChanges(modelNew.EntityId)" tabindex="7" required>
                             <option value="">--Select--</option>
                             <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
                         </select>
@@ -287,6 +287,7 @@
                                 <th>GL</th>
                                 <th>Budget</th>
                                 <th>Activity</th>
+                                <th>Entity</th>
                                 <th>Change GL</th>
                                 <th>Dr</th>
                                 <th>Cr</th>
@@ -297,6 +298,7 @@
                                 <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
                                 <td>{{x.BudgetName}}</td>
                                 <td>{{x.ActivityName}}</td>
+                                <td>{{x.EntityName}}</td>
                                 <td>
                                     <div class="input-group" style="margin-top: -7px;margin-bottom: -7px;">
                                         <span class="input-group-btn">
@@ -308,7 +310,7 @@
                                 <td class="text-right">{{x.Cr | number| setDecimal:2}}</td>
                             </tr>
                             <tr>
-                                <td colspan="4"></td>
+                                <td colspan="5"></td>
                                 <td class="text-right"><strong>{{newList | sumByKey : 'Dr' | number| setDecimal:2}}</strong></td>
                                 <td class="text-right"><strong>{{newList | sumByKey : 'Cr' | number| setDecimal:2}}</strong></td>
                             </tr>

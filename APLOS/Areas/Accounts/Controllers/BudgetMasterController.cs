@@ -557,11 +557,11 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=B.ApproveById) AS TEMP WHERE "
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetSampleFile(ReportFormat reportFormat)
+        public ActionResult GetSampleFile(ReportFormat reportFormat,string entityids)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsInventoryPayableReportService accountsInventoryPayableReportService = new AccountsInventoryPayableReportService(_sqlRepository);
-            IWorkbook workbook = accountsInventoryPayableReportService.GetSampleFileBudgetControlChild(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName);
+            IWorkbook workbook = accountsInventoryPayableReportService.GetSampleFileBudgetControlChild(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName, entityids);
             var reportFileName = "Budget Control Data upload Sample File";
 
             switch (reportFormat)
@@ -607,7 +607,26 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=B.ApproveById) AS TEMP WHERE "
                             count++;
                             item["Id"] = headerId + "-" + count;
                             item["BudgetControlId"] = headerId;
-
+                            if (string.IsNullOrEmpty(item["ResponsiblePersonId"].ToString()))
+                            {
+                                item["ResponsiblePersonId"] = DBNull.Value;
+                            }
+                            if (string.IsNullOrEmpty(item["ActionById"].ToString()))
+                            {
+                                item["ActionById"] = DBNull.Value;
+                            }
+                            if (string.IsNullOrEmpty(item["UoMId"].ToString()))
+                            {
+                                item["UoMId"] = DBNull.Value;
+                            }
+                            if (string.IsNullOrEmpty(item["IsLinear"].ToString()))
+                            {
+                                item["IsLinear"] = "0";
+                            }
+                            else
+                            {
+                                item["IsLinear"] = "1";
+                            }
                             AddNewRow(dsMaster.Tables[0], item);
                         }
                         else
@@ -705,14 +724,15 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=B.ApproveById) AS TEMP WHERE "
                                 BudgetControlChildTemplate vm = new BudgetControlChildTemplate();
 
                                 
-                                vm.BudgetMasterActivityId = dsExcel.Tables[0].Rows[i][10].ToString().Trim();
-                                vm.IsLinear = dsExcel.Tables[0].Rows[i][16].ToString();
-                                vm.CurrentValue =Convert.ToDecimal(dsExcel.Tables[0].Rows[i][17].ToString().Trim());
-                                vm.LastValue = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][18].ToString().Trim());
-                                vm.UoMId = dsExcel.Tables[0].Rows[i][19].ToString().Trim();
-                                vm.ResponsiblePersonId = dsExcel.Tables[0].Rows[i][20].ToString().Trim();
-                                vm.ActionById = dsExcel.Tables[0].Rows[i][21].ToString().Trim();
-                                vm.Remarks = dsExcel.Tables[0].Rows[i][22].ToString().Trim();
+                                vm.EntityId = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
+                                vm.BudgetMasterActivityId = dsExcel.Tables[0].Rows[i][12].ToString().Trim();
+                                vm.IsLinear = dsExcel.Tables[0].Rows[i][18].ToString();
+                                vm.CurrentValue =Convert.ToDecimal(dsExcel.Tables[0].Rows[i][19].ToString().Trim());
+                                vm.LastValue = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][20].ToString().Trim());
+                                vm.UoMId = dsExcel.Tables[0].Rows[i][21].ToString().Trim();
+                                vm.ResponsiblePersonId = dsExcel.Tables[0].Rows[i][22].ToString().Trim();
+                                vm.ActionById = dsExcel.Tables[0].Rows[i][23].ToString().Trim();
+                                vm.Remarks = dsExcel.Tables[0].Rows[i][24].ToString().Trim();
                                
                                 data.Add(vm);
 
@@ -758,6 +778,14 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=B.ApproveById) AS TEMP WHERE "
         {
             return Json(_sqlRepository.GetDataCollection(@"SELECT * FROM[dbo].[BudgetControlChild] Where BudgetControlId = '"+headerId+"'", null), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet, Authorize]
+        public ActionResult GetEntityList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_sqlRepository.GetDataCollection(@"SELECT CAST(0 as bit) Flag,Id, rd.UserName AS [EntityName], PlantId, (SELECT UserName FROM  [ORG].[Plant] WHERE Id=rd.PlantId) AS [Plant], DivisionId, (SELECT UserName FROM  [ORG].[Division] WHERE Id=rd.DivisionId) AS [Division], SubDivisionId, (SELECT UserName FROM  [ORG].[SubDivision] WHERE Id=rd.SubDivisionId) AS [SubDivision], UnitId, (SELECT UserName FROM  [ORG].[Unit] WHERE Id=rd.UnitId) AS [Unit], REPLACE(CONVERT(CHAR(11), EffectiveDate, 106),' ','-') AS [EffectiveDate], REPLACE(CONVERT(CHAR(11), EffectiveDateUpTo, 106),' ','-') AS [EffectiveDate UpTo] FROM  [ORG].[Entity] as rd WHERE Archive=0 AND rd.Active=1 AND CompanyId='" + identity.CompanyId+ @"' 
+ORDER BY [EntityName], [Plant], [Division], [SubDivision], [Unit] asc", null), JsonRequestBehavior.AllowGet);
+        }
         #endregion BudgetControl
 
     }
@@ -774,6 +802,7 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=B.ApproveById) AS TEMP WHERE "
         public string ActionById { get; set; }
         public string UoMId { get; set; }
         public string Remarks { get; set; }
+        public string EntityId { get; set; }
  
     }
 }

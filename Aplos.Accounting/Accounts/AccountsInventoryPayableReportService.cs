@@ -3321,7 +3321,7 @@ namespace Library.Accounting.Accounts
             }
         }
 
-        public IWorkbook GetSampleFileBudgetControlChild(string Name, string CompanyGroupId, string PlantId, string CompanyId, string PlantName)
+        public IWorkbook GetSampleFileBudgetControlChild(string Name, string CompanyGroupId, string PlantId, string CompanyId, string PlantName, string entityids)
         {
             #region declare
             clsReport objRpt = null;
@@ -3355,9 +3355,11 @@ namespace Library.Accounting.Accounts
                 IWorksheet sheetSource = null;
                 sheetSource = workbook.Worksheets[1];
                 xlsRow = 1;
-                DataTable dtData = GetBudgetMasterActivityData();
+                DataTable dtData = GetBudgetMasterActivityData(entityids);
                 #region ------------------Column Header------------------
 
+                sheet[xlsRow, xlsCol].Text = "EntityId"; sheet[xlsRow, xlsCol].ColumnWidth = 18; int colEntityId = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "EntityName"; sheet[xlsRow, xlsCol].ColumnWidth = 18; int colEntityName = xlsCol; xlsCol++;
                 sheet[xlsRow, xlsCol].Text = "Budget Group Seq"; sheet[xlsRow, xlsCol].ColumnWidth = 18; int colBG = xlsCol; xlsCol++;
                 sheet[xlsRow, xlsCol].Text = "Budget Group"; sheet[xlsRow, xlsCol].ColumnWidth = 15; int colBGU = xlsCol; xlsCol++;
                 sheet[xlsRow, xlsCol].Text = "Budget Category Seq"; sheet[xlsRow, xlsCol].ColumnWidth = 21; int colBC = xlsCol; xlsCol++;
@@ -3400,6 +3402,14 @@ namespace Library.Accounting.Accounts
 
                 for (int i = 0; i < dtData.Rows.Count; i++)
                 {
+                    sheet[xlsRow, colEntityId].Text = dtData.Rows[i]["EntityId"].ToString();
+                    sheet.Range[xlsRow, colEntityId].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colEntityId].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                    sheet[xlsRow, colEntityName].Text = dtData.Rows[i]["EntityName"].ToString();
+                    sheet.Range[xlsRow, colEntityName].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colEntityName].VerticalAlignment = ExcelVAlign.VAlignTop;
+
                     sheet[xlsRow, colBG].Text = dtData.Rows[i]["BudgetGroupSequence"].ToString();
                     sheet.Range[xlsRow, colBG].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet.Range[xlsRow, colBG].VerticalAlignment = ExcelVAlign.VAlignTop;
@@ -3508,12 +3518,12 @@ namespace Library.Accounting.Accounts
             }
         }
 
-        public DataTable GetBudgetMasterActivityData()
+        public DataTable GetBudgetMasterActivityData(string entityids)
         {
-            var cmdText = @"Select NULL Id,BG.Sequence BudgetGroupSequence,BG.UserName BudgetGroup,BC.Sequence BudgetCategorySequence
+            var cmdText = @"Select X.*,E.Id EntityId,E.UserName EntityName From(Select NULL Id,BG.Sequence BudgetGroupSequence,BG.UserName BudgetGroup,BC.Sequence BudgetCategorySequence
 ,BC.UserName BudgetCategory,BSC.Sequence BudgetSubCategorySequence,BSC.UserName BudgetSubCategory
 ,B.Sequence BudgetSequence,B.UserName Budget,BMA.BudgetMasterId,BMA.ActivityId,BMA.Id BudgetMasterActivityId
-,BMA.UserGroup,BMA.UserCategory,BMA.UserSubCategory,BMA.UserItem,BMA.UserReport,0 IsLinear,0 CurrentValue,0 LastValue,NULL UoMId
+,BMA.UserGroup,BMA.UserCategory,BMA.UserSubCategory,BMA.UserItem,BMA.UserReport,0 IsLinear,0 CurrentValue,BCC.LastValue,NULL UoMId
 ,NULL ResponsiblePersonId,NULL ActionById,NULL Remarks
 FROM MST.BudgetMasterActivity BMA
 LEFT JOIN MST.BudgetMaster BM ON BM.Id=BMA.BudgetMasterId
@@ -3521,7 +3531,12 @@ LEFT JOIN HKP.BudgetGroup BG ON BG.Id=BM.BudgetGroupId
 LEFT JOIN HKP.BudgetCategory BC ON BC.Id=BM.BudgetCategoryId
 LEFT JOIN HKP.BudgetSubCategory BSC ON BSC.Id=BM.BudgetSubCategoryId
 LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
-Order  by B.UserName";
+LEFT JOIN dbo.BudgetControlChild BCC ON  BCC.BudgetMasterActivityId=BMA.Id
+Where BMA.Active=1
+)X
+OUTER APPLY (SELECT * FROM ORG.Entity Where Id " + entityids + @") E 
+
+ORDER BY X.ActivityId,E.Id";
             return _sqlRepository.GetDataTable(cmdText);
 
 

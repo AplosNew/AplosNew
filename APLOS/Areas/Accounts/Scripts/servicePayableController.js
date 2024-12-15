@@ -204,9 +204,12 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
         getRecievedList();
 
         getInventoryMaterialList(data.data.Id, data.data.EmployeeId, data.data.IsTaxApplicable);
+
         factoryService.getCurrencyPrecision(data.data.BaseCurrencyId);
         GetCurrencyExchangeRateList();
         $scope.TDSList = [];
+        
+        
         $scope.closeGRNPopUp();
     };
 
@@ -220,6 +223,20 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
                 $scope.inventoryPayableList = [];
                 $scope.inventoryPayableList = response.data;
             });
+    }
+
+    $scope.entityChanges = function (id) {
+        var tempEntityName = $.grep($scope.entityList, function (item) {
+            return item.Value === id;
+        })[0].Text;
+
+        for (var i = 0; i < $scope.newList.length; i++) {
+            if ($scope.newList[i].EntityId == null && $scope.newList[i].OtherName == 'Svc') {
+                $scope.newList[i].EntityId = id;
+                $scope.newList[i].EntityName = tempEntityName;
+            }
+        }
+
     }
     function getInventoryMaterialList(inveReveiveId, employeeId, isReversCharge) {
         $http.get('Accounts/InventoryPayable/GetServicePayable?serviceAcknowledgementMasterId=' + inveReveiveId)
@@ -240,6 +257,7 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
 
                 getServiceDetailGL(inveReveiveId);
             });
+       
     }
     function getServiceDetailGL(inveReveiveId) {
         $http.get('Accounts/InventoryPayable/GetServiceDetailGL?serviceAcknowledgementMasterId=' + inveReveiveId)
@@ -376,6 +394,13 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
             //else newList.push(list[i]);
         }
         getInventoryTaxList($scope.modelNew.Id);
+        var tempEntityList = ($filter('filter')($scope.newList, { OtherName: 'Svc' }, true));
+        $scope.tempEntityId = tempEntityList[0].EntityId;
+        if ($scope.tempEntityId) {
+            $scope.modelNew.EntityId = $scope.tempEntityId;
+            $scope.entityChanges($scope.modelNew.EntityId);
+            $scope.tempEntityId = null;
+        }
     }
     function distributeTCSAmount() {
         var vendorList = ($filter('filter')($scope.newList, { OtherName: 'Vendor' }, true));
@@ -556,6 +581,13 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
             //    if(row.OtherName !== 'Material')
             //    newList.push(list[i]);
             //else newList.push(list[i]);
+        }
+        var tempEntityList = ($filter('filter')($scope.newList, { OtherName: 'Svc' }, true));
+        $scope.tempEntityId = tempEntityList[0].EntityId;
+        if ($scope.tempEntityId) {
+            $scope.modelNew.EntityId = $scope.tempEntityId;
+            $scope.entityChanges($scope.modelNew.EntityId);
+            $scope.tempEntityId = null;
         }
     }
 
