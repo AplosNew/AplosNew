@@ -607,7 +607,26 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=B.ApproveById) AS TEMP WHERE "
                             count++;
                             item["Id"] = headerId + "-" + count;
                             item["BudgetControlId"] = headerId;
-
+                            if (string.IsNullOrEmpty(item["ResponsiblePersonId"].ToString()))
+                            {
+                                item["ResponsiblePersonId"] = DBNull.Value;
+                            }
+                            if (string.IsNullOrEmpty(item["ActionById"].ToString()))
+                            {
+                                item["ActionById"] = DBNull.Value;
+                            }
+                            if (string.IsNullOrEmpty(item["UoMId"].ToString()))
+                            {
+                                item["UoMId"] = DBNull.Value;
+                            }
+                            if (string.IsNullOrEmpty(item["IsLinear"].ToString()))
+                            {
+                                item["IsLinear"] = "0";
+                            }
+                            else
+                            {
+                                item["IsLinear"] = "1";
+                            }
                             AddNewRow(dsMaster.Tables[0], item);
                         }
                         else
@@ -705,14 +724,15 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=B.ApproveById) AS TEMP WHERE "
                                 BudgetControlChildTemplate vm = new BudgetControlChildTemplate();
 
                                 
-                                vm.BudgetMasterActivityId = dsExcel.Tables[0].Rows[i][10].ToString().Trim();
-                                vm.IsLinear = dsExcel.Tables[0].Rows[i][16].ToString();
-                                vm.CurrentValue =Convert.ToDecimal(dsExcel.Tables[0].Rows[i][17].ToString().Trim());
-                                vm.LastValue = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][18].ToString().Trim());
-                                vm.UoMId = dsExcel.Tables[0].Rows[i][19].ToString().Trim();
-                                vm.ResponsiblePersonId = dsExcel.Tables[0].Rows[i][20].ToString().Trim();
-                                vm.ActionById = dsExcel.Tables[0].Rows[i][21].ToString().Trim();
-                                vm.Remarks = dsExcel.Tables[0].Rows[i][22].ToString().Trim();
+                                vm.EntityId = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
+                                vm.BudgetMasterActivityId = dsExcel.Tables[0].Rows[i][12].ToString().Trim();
+                                vm.IsLinear = dsExcel.Tables[0].Rows[i][18].ToString();
+                                vm.CurrentValue =Convert.ToDecimal(dsExcel.Tables[0].Rows[i][19].ToString().Trim());
+                                vm.LastValue = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][20].ToString().Trim());
+                                vm.UoMId = dsExcel.Tables[0].Rows[i][21].ToString().Trim();
+                                vm.ResponsiblePersonId = dsExcel.Tables[0].Rows[i][22].ToString().Trim();
+                                vm.ActionById = dsExcel.Tables[0].Rows[i][23].ToString().Trim();
+                                vm.Remarks = dsExcel.Tables[0].Rows[i][24].ToString().Trim();
                                
                                 data.Add(vm);
 
@@ -782,6 +802,7 @@ ORDER BY [EntityName], [Plant], [Division], [SubDivision], [Unit] asc", null), J
         public string ActionById { get; set; }
         public string UoMId { get; set; }
         public string Remarks { get; set; }
+        public string EntityId { get; set; }
  
     }
 }
