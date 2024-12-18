@@ -92,6 +92,40 @@ function invoiceReviseMaturedateController(commonMessage, $scope, $rootScope, ba
         }
     };
 
+    $scope.GetInvoiceData = function () {
+        $scope.InvoiceDataList = [];
+        if (angular.isUndefinedOrNull($scope.invoice.PartyType)) {
+            ShowResult("Select PartyType", 'failure');
+        }
+        else if (baseService.isUndefinedOrNull($scope.invoice.FromDate)) {
+            manualValidation("div_FromDate", true, "From Date is required.");
+        }
+        else if (baseService.isUndefinedOrNull($scope.invoice.ToDate)) {
+            manualValidation("div_ToDate", true, "To Date is required.");
+        }
+        else if (new Date($scope.invoice.FromDate) > new Date($scope.invoice.ToDate)) {
+            manualValidation("div_FromDate", true, "From date must be below or equal to To Date");
+        }
+        else if (new Date($scope.invoice.ToDate) < new Date($scope.invoice.FromDate)) {
+            manualValidation("div_ToDate", true, "To date must be above or equal to From Date.");
+        }
+        else {
+            if ($scope.invoice.FromDate != null && $scope.invoice.FromDate != null) { $scope.invoice.DateRange = true; } else { $scope.invoice.DateRange = false; }
+            var parameters = { 'fromDate': $scope.invoice.FromDate, 'toDate': $scope.invoice.ToDate, 'partyType': $scope.invoice.PartyType, 'DateRange': $scope.invoice.DateRange };
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                url: 'Accounts/Invoice/GetInvoiceReviseMatureDateList',
+                data: parameters
+            }).then(function successCallback(response) {
+                $scope.InvoiceDataList = response.data ;
+                var gridObj = $("#InvoiceGrid").data("ejGrid");
+                gridObj.windowonresize();
+                gridObj.refreshContent(true);
+            });
+        }
+    };
+
     $scope.BonusUnDisbursement = function () {
         try {
             var EmployeeListBonusUndisbursedNew = [];
