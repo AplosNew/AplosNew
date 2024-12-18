@@ -26,6 +26,8 @@ namespace Library.Model.OrderManagements
         public string OrderStatusId { get; set; }
         public string PaymentTermId { get; set; }
         public int PaymentTermDays { get; set; }
+        public DateTime? BaseOnDueDate { get; set; }
+        public DateTime? MatureDate { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties

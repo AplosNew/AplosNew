@@ -278,7 +278,115 @@ JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id WHERE BP.Bus
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
             }
         }
-       
+
+        public IEnumerable<object> GetMaterialMasterWithArticleForProcessConstraintPopUpData(string column, string value, string materialGroupId, string type)
+        {
+            try
+            {
+                var ctype = "";
+                if (!string.IsNullOrEmpty(type) && type != "null")
+                    ctype = @"AND M.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+                        LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+                        WHERE BP.BusinessProcessName ='" + type + "')";
+
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var sql = @"DECLARE @materialGroupId VARCHAR(10)='" + materialGroupId + @"';
+                        select  * from (SELECT CAST(0 as BIT) Flag,MMA.Id, MGP.UserName AS MaterialGroupMasterName,MT.UserName MaterialTypeName,M.Code MaterialCode,MMA.MaterialMasterId,M.UserName MaterialMasterName
+                           , MMA.Code, MMA.StandardName,HSNCode=CASE WHEN HC.Code<>'' THEN ISNULL(HC.Code,NULL) ELSE ISNULL(MHC.Code,NULL) END 
+,                           HSNCodeId=CASE WHEN ISNULL(MMA.HSNCodeId,'')<>'' THEN ISNULL(MMA.HSNCodeId,NULL) ELSE ISNULL(MMA.HSNCodeId,NULL) END
+                            ,MMA.RPM, MMA.MachineAllowance,MMA.StitchCodeId,MMA.MachineMasterId,MM.UserName MachineMaster,MMA.OrderLevel
+                            ,MMA.IsMachineApplicable,MMA.IsWorkCenterApplicable
+							, OS.UserName AS OurStyleName, M.WithSKU, ISNULL(ART.HasAttribute,CAST(0 AS BIT)) AS HasAttribute
+							, hasInventory=CASE WHEN IM.MaterialMasterId<>'' THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END
+							, M.IsOriginApplicable,M.IsAsset
+                            ,M.IsReplacement,Replacement=case when M.IsReplacement=1 then 'Yes' else 'No' end,BPM.BusinessProcessName,PG.UserName ProductionGrouping,ISNULL(MMA.IsDefaultProductionGrouping,0)IsDefault
+		                    FROM MST.MaterialMasterArticle MMA
+							LEFT JOIN [MST].[MaterialMaster] M ON M.Id=MMA.MaterialMasterId
+							 LEFT JOIN [MST].[MachineMaster] MM ON MM.Id=MMA.MachineMasterId
+							 LEFT JOIN [HKP].[HSNCode] HC ON HC.id=MMA.HSNCodeId
+							 LEFT JOIN [HKP].[HSNCode] MHC ON MHC.id=M.HSNCodeId
+							 LEFT JOIN [MST].[MaterialGroupMaster] AS MGP ON M.MaterialGroupMasterId = MGP.Id
+							 LEFT JOIN[HKP].[MaterialType] AS MT ON MGP.MaterialTypeId = MT.Id
+							 LEFT JOIN [TRN].ProductDefinition AS PD ON PD.MaterialMasterId= M.Id
+							 LEFT JOIN [MST].[ProductMaster] AS PM ON PD.ProductMasterId = PM.Id
+							 LEFT JOIN hkp.ProductCategory pc on pc.Id=pm.ProductCategoryId
+							 LEFT JOIN hkp.ProductSubCategory psc on psc.Id=pm.ProductSubCategoryId
+							 LEFT JOIN [SCS].[UnitOfMeasurement] AS UOMB ON M.BaseUOMId = UOMB.Id
+							 LEFT JOIN [HKP].OurStyle AS OS ON PD.OurStyleId= OS.Id
+                             LEFT JOIN HKP.ProductionGrouping PG ON PG.Id=MMA.ProductionGroupingId
+							 LEFT JOIN (SELECT AttributeSetLength=CASE WHEN COUNT(MaterialMasterId)>0THEN COUNT(MaterialMasterId) ELSE 0 END
+									, HasAttribute=CASE WHEN COUNT(MaterialMasterId)>0 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END, MaterialMasterId
+								FROM MST.MaterialMasterAttribute GROUP BY MaterialMasterId) AS ART ON ART.MaterialMasterId=M.Id
+								LEFT JOIN (SELECT distinct MaterialMasterId FROM TRN.InventoryMaterial) AS IM ON IM.MaterialMasterId=M.Id
+LEFT JOIN (SELECT distinct MBP.MaterialMasterId, BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id WHERE BP.BusinessProcessName ='ProductDefinition') BPM ON BPM.MaterialMasterId=M.Id
+								WHERE MMA.ProcessConstraintId IS NULL AND MMA.Active=1 AND M.Archive=0 AND M.Active=1 and M.CompanyGroupId=@materialGroupId " + ctype + ") AS TEMP WHERE " + strkey + " ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
+            }
+        }
+
+        public IEnumerable<object> GetSavedMaterialMasterWithArticlerProcessConstraintPopUpData(string column, string value, string materialGroupId, string type,string processConstraintId)
+        {
+            try
+            {
+                var ctype = "";
+                if (!string.IsNullOrEmpty(type) && type != "null")
+                    ctype = @"AND M.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+                        LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+                        WHERE BP.BusinessProcessName ='" + type + "')";
+
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var sql = @"DECLARE @materialGroupId VARCHAR(10)='" + materialGroupId + @"';
+                        select  * from (SELECT CAST(0 as BIT) Flag,MMA.Id, MGP.UserName AS MaterialGroupMasterName,MT.UserName MaterialTypeName,M.Code MaterialCode,MMA.MaterialMasterId,M.UserName MaterialMasterName
+                           , MMA.Code, MMA.StandardName,HSNCode=CASE WHEN HC.Code<>'' THEN ISNULL(HC.Code,NULL) ELSE ISNULL(MHC.Code,NULL) END 
+,                           HSNCodeId=CASE WHEN ISNULL(MMA.HSNCodeId,'')<>'' THEN ISNULL(MMA.HSNCodeId,NULL) ELSE ISNULL(MMA.HSNCodeId,NULL) END
+                            ,MMA.RPM, MMA.MachineAllowance,MMA.StitchCodeId,MMA.MachineMasterId,MM.UserName MachineMaster,MMA.OrderLevel
+                            ,MMA.IsMachineApplicable,MMA.IsWorkCenterApplicable
+							, OS.UserName AS OurStyleName, M.WithSKU, ISNULL(ART.HasAttribute,CAST(0 AS BIT)) AS HasAttribute
+							, hasInventory=CASE WHEN IM.MaterialMasterId<>'' THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END
+							, M.IsOriginApplicable,M.IsAsset
+                            ,M.IsReplacement,Replacement=case when M.IsReplacement=1 then 'Yes' else 'No' end,BPM.BusinessProcessName,PG.UserName ProductionGrouping,ISNULL(MMA.IsDefaultProductionGrouping,0)IsDefault
+		                    FROM MST.MaterialMasterArticle MMA
+							LEFT JOIN [MST].[MaterialMaster] M ON M.Id=MMA.MaterialMasterId
+							 LEFT JOIN [MST].[MachineMaster] MM ON MM.Id=MMA.MachineMasterId
+							 LEFT JOIN [HKP].[HSNCode] HC ON HC.id=MMA.HSNCodeId
+							 LEFT JOIN [HKP].[HSNCode] MHC ON MHC.id=M.HSNCodeId
+							 LEFT JOIN [MST].[MaterialGroupMaster] AS MGP ON M.MaterialGroupMasterId = MGP.Id
+							 LEFT JOIN[HKP].[MaterialType] AS MT ON MGP.MaterialTypeId = MT.Id
+							 LEFT JOIN [TRN].ProductDefinition AS PD ON PD.MaterialMasterId= M.Id
+							 LEFT JOIN [MST].[ProductMaster] AS PM ON PD.ProductMasterId = PM.Id
+							 LEFT JOIN hkp.ProductCategory pc on pc.Id=pm.ProductCategoryId
+							 LEFT JOIN hkp.ProductSubCategory psc on psc.Id=pm.ProductSubCategoryId
+							 LEFT JOIN [SCS].[UnitOfMeasurement] AS UOMB ON M.BaseUOMId = UOMB.Id
+							 LEFT JOIN [HKP].OurStyle AS OS ON PD.OurStyleId= OS.Id
+                             LEFT JOIN HKP.ProductionGrouping PG ON PG.Id=MMA.ProductionGroupingId
+							 LEFT JOIN (SELECT AttributeSetLength=CASE WHEN COUNT(MaterialMasterId)>0THEN COUNT(MaterialMasterId) ELSE 0 END
+									, HasAttribute=CASE WHEN COUNT(MaterialMasterId)>0 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END, MaterialMasterId
+								FROM MST.MaterialMasterAttribute GROUP BY MaterialMasterId) AS ART ON ART.MaterialMasterId=M.Id
+								LEFT JOIN (SELECT distinct MaterialMasterId FROM TRN.InventoryMaterial) AS IM ON IM.MaterialMasterId=M.Id
+LEFT JOIN (SELECT distinct MBP.MaterialMasterId, BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id WHERE BP.BusinessProcessName ='ProductDefinition') BPM ON BPM.MaterialMasterId=M.Id
+								WHERE MMA.ProcessConstraintId='"+ processConstraintId + @"' AND MMA.Active=1 AND M.Archive=0 AND M.Active=1 and M.CompanyGroupId=@materialGroupId " + ctype + ") AS TEMP WHERE " + strkey + " ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
+            }
+        }
+
         public IEnumerable<object> GetMaterialArticlePopUpData(string column, string value)
         {
             try

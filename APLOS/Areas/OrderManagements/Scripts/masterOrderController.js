@@ -118,6 +118,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         , ExceptionalSubProcessId: null
         , DefaultPaymentTermId: null
         , IsPaymentTermChangeable: false
+        , AddedDate: $filter("dateFiltering")(Date.now())
     };
     $scope.fileNew = Object.assign({}, $scope.file);
     $scope.isBuyerApplicable = false;
@@ -954,13 +955,13 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.searchParty = '';
     }
 
-    $scope.changePaymentTerm = function () {
-        if (!baseService.isUndefinedOrNull($scope.fileNew.PaymentTermId)) {
-            var paymentTerm = $.grep($scope.paymentTermList, function (item) { return item.Value === $scope.fileNew.PaymentTermId; })[0];
-            $scope.fileNew.PaymentTermDays = paymentTerm.NoOfDay;
+    //$scope.changePaymentTerm = function () {
+    //    if (!baseService.isUndefinedOrNull($scope.fileNew.PaymentTermId)) {
+    //        var paymentTerm = $.grep($scope.paymentTermList, function (item) { return item.Value === $scope.fileNew.PaymentTermId; })[0];
+    //        $scope.fileNew.PaymentTermDays = paymentTerm.NoOfDay;
 
-        }
-    };
+    //    }
+    //};
 
     $scope.paymentTermList = [];
     $http({
@@ -978,45 +979,39 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.packingTypeList = response.data;
     });
 
-    //#region ResponsiblePerson
-    //$scope.GetResponsiblePersonList = function () {
-    //    $scope.personList = [];
-    //    $http.get($scope.path + "GetResponsiblePersonList?masterId=" + $scope.fileNew.Id)
-    //        .then(function (response) {
-    //            $scope.personList = response.data;
-    //            if ($scope.fileNew.PlantId !== null && ($scope.personList === null || $scope.personList.length <= 0)) {
-    //                $scope.popUpUrl = $scope.path + "GetDepartmentPersonList?plantId=" + $scope.fileNew.PlantId + '&partyAccountGroupId=' + $scope.fileNew.PartyAccountGroupId + '&partyId=' + $scope.fileNew.PartyId + '&flag=' + false;
-    //                $scope.getPopUpData = function (pageno) {
-    //                    baseService.paginationBase($scope.popUpUrl, pageno, $scope.popUpParameters)
-    //                        .then(function (result) {
-    //                            if (baseService.arrayLength(result) !== 0) {
-    //                                for (var i = 0; i < result.length; i++) {
-    //                                    var obj = result[i];
-    //                                    $scope.personList.push({
-    //                                        Id: obj.Id
-    //                                        , MasterOrderId: $scope.fileNew
-    //                                        , CustomerDivisionId: obj.CustomerDivisionId
-    //                                        , OrderResponsibleDepartmentId: obj.OrderResponsibleDepartmentId
-    //                                        , Department: obj.Department
-    //                                        , OurRespnsiblePersonId: obj.OurRespnsiblePersonId
-    //                                        , EmployeeCode: obj.EmployeeCode
-    //                                        , EmployeeName: obj.EmployeeName
-    //                                        , PartyRespnsiblePersonId: obj.PartyRespnsiblePersonId
-    //                                        , PartyRespnsiblePerson: obj.PartyRespnsiblePerson
-    //                                    });
-    //                                }
-    //                                GetDepartmentPersonCbo();
-    //                            }
-    //                        }, function () {
-    //                            ShowResult(commonMessage.NetworkError, 'failure', 'popUpId');
-    //                        }).finally(function () {
-    //                        });
-    //                };
-    //                $scope.getPopUpData();
-    //            }
-    //        });
-    //};
-    //#endregion
+    $scope.changePaymentTerm = function () {
+        if (!baseService.isUndefinedOrNull($scope.fileNew.PaymentTermId)) {
+            var paymentTerm = $.grep($scope.paymentTermList, function (item) { return item.Value === $scope.fileNew.PaymentTermId; })[0];
+            $scope.fileNew.PaymentTermCode = paymentTerm.PaymentTermCode;
+            $scope.fileNew.PaymentTermDays = paymentTerm.NoOfDay;
+            $scope.BaseLineDate = paymentTerm.BaseLineDate;
+            if (paymentTerm.BaseLineDate !== null)
+                if (paymentTerm.BaseLineDate === 'documentdate') {
+                    $scope.fileNew.BaseOnDueDate = $filter('dateFiltering')($scope.fileNew.AddedDate);
+                    $scope.IsBaseOnDueDateEnable = false;
+                }
+                else if (paymentTerm.BaseLineDate === 'postingdate') {
+                    $scope.fileNew.BaseOnDueDate = $filter('dateFiltering')($scope.fileNew.AddedDate);
+                    $scope.fileNew.BaseOnDueDate = null;
+                    $scope.fileNew.PaymentTermDays = null;
+                    $scope.fileNew.MatureDate = null;
+                    $scope.IsBaseOnDueDateEnable = false;
+                }
+
+                else {
+                    $scope.fileNew.BaseOnDueDate = null;
+                    $scope.IsBaseOnDueDateEnable = true;
+                }
+
+            $scope.getMatureDate($scope.fileNew.BaseOnDueDate, $scope.fileNew.PaymentTermDays);
+        }
+    };
+    $scope.getMatureDate = function (date, days) {
+        if (baseService.isUndefinedOrNull(date)) return $scope.fileNew.MatureDate = null;
+        date = new Date(date);
+        date.setDate(date.getDate() + days);
+        $scope.fileNew.MatureDate = $filter('date')(date, 'dd-MMM-yyyy');
+    };
 
     $scope.commitmentList = [];
 
