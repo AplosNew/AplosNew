@@ -239,7 +239,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
                 var sql = @"DECLARE @materialGroupId VARCHAR(10)='" + materialGroupId + @"';
-                        select  * from (SELECT MMA.Id, MGP.UserName AS MaterialGroupMasterName,MT.UserName MaterialTypeName,M.Code MaterialCode,MMA.MaterialMasterId,M.UserName MaterialMasterName
+                        select  * from (SELECT CAST(0 as BIT) Flag,MMA.Id, MGP.UserName AS MaterialGroupMasterName,MT.UserName MaterialTypeName,M.Code MaterialCode,MMA.MaterialMasterId,M.UserName MaterialMasterName
                            , MMA.Code, MMA.StandardName,HSNCode=CASE WHEN HC.Code<>'' THEN ISNULL(HC.Code,NULL) ELSE ISNULL(MHC.Code,NULL) END 
 ,                           HSNCodeId=CASE WHEN ISNULL(MMA.HSNCodeId,'')<>'' THEN ISNULL(MMA.HSNCodeId,NULL) ELSE ISNULL(MMA.HSNCodeId,NULL) END
                             ,MMA.RPM, MMA.MachineAllowance,MMA.StitchCodeId,MMA.MachineMasterId,MM.UserName MachineMaster,MMA.OrderLevel

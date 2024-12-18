@@ -689,6 +689,53 @@ namespace Aplos.Areas.Materials.Controllers
             return 1;
         }
 
+        [HttpPost,Authorize]
+        public JsonResult UpdateArticle(List<Dictionary<string, object>> data, string masterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsArticle;
+            string id = "";
+            try
+            {
+                foreach (var item in data)
+                {
+                    if (id == "")
+                        id = "'" + item["Id"] + "'";
+                    else
+                        id = id + ",'" + item["Id"] + "'";
+                }
+
+                    objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("Select * From MST.MaterialMasterArticle Where Id IN ("+id+")", out dsArticle, false, "1");
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsArticle.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        
+                        if (dv.Count > 0)
+                        {
+                            
+                            DataRow drmo = dv[0].Row;
+                            item["ProcessConstraintId"] = masterId;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsArticle);
+                return Json(new { Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
         #endregion
     }
 }

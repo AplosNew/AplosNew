@@ -2532,6 +2532,11 @@ namespace Library.Accounting.Accounts
 								WHEN BM.AccountTitle<>'' THEN BM.AccountTitle
 								WHEN CM.UserName<>'' THEN CM.UserName
 								WHEN VD.EmployeeId<>'' THEN  VD.TrnNature +' ( '+ISNULL(EI.EmployeeName,'')+' ) '
+                                WHEN V.SourceType='FinalSettlementJournal' AND (BM.AccountTitle IS NULL OR CM.UserName IS NULL) THEN  STUFF((select distinct ','+ E.EmployeeCode +'-'+E.EmployeeName from
+														dbo.EmployeeFullAndFinalSettlement EFS 
+														JOIN dbo.EmployeeInformation AS E ON E.SystemId=EFS.EmpSystemId
+														WHERE EFS.VoucherId=VD.VoucherId
+														for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 								ELSE VD.TrnNature	END
                             FROM [TRN].[VoucherDetailCurrency] AS VDC
                             INNER JOIN [TRN].[VoucherDetail] AS VD ON VD.Id =VDC.VoucherDetailId

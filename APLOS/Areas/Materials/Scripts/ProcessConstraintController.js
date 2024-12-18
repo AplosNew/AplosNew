@@ -13,7 +13,6 @@ function ProcessConstraintController(cboService, commonMessage, $scope, $rootSco
     $scope.saveValueUrl = $scope.path + 'CreateProcessConstraintValue';
     $scope.deleteUrl = $scope.path + 'DeleteProcessConstraint/';
     $scope.deleteValueUrl = $scope.path + 'DeleteProcessConstraintValue/';
-
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -187,7 +186,7 @@ function ProcessConstraintController(cboService, commonMessage, $scope, $rootSco
         $http({
             method: 'POST',
             url: $scope.path + "GetPCVList",
-            data: { 'masterId': $scope.processConstraintId},
+            data: { 'masterId': $scope.processConstraintId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelValueList = response.data;
@@ -201,7 +200,7 @@ function ProcessConstraintController(cboService, commonMessage, $scope, $rootSco
             $http({
                 method: 'POST',
                 url: $scope.saveValueUrl,
-                data: { 'data': $scope.materialValueNew, 'masterId': $scope.processConstraintId},
+                data: { 'data': $scope.materialValueNew, 'masterId': $scope.processConstraintId },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -266,6 +265,91 @@ function ProcessConstraintController(cboService, commonMessage, $scope, $rootSco
         };
     }
 
-   
+    $scope.getArticle = function (obj) {
+        $scope.processConstraintId = obj.data.Id;
+        $scope.getMaterialMasterWithArticle(null);
+    };
+    $scope.materialType = 'ProductDefinition';
+    $scope.searchByMaterial = "MaterialMasterName"; $scope.search = "";
+    $scope.searchByMaterialList = [{ value: 'MaterialMasterName', name: "Material" }, { value: 'StandardName', name: "Article" }, { value: 'MaterialTypeName', name: "MaterialType" }
+        , { value: 'MaterialGroupMasterName', name: "MaterialGroup" }, { value: 'HSNCode', name: "HSNCode" }, { value: 'BusinessProcessName', name: "Business Process" }];
+
+    $scope.materialArticleList = [];
+    $scope.InputMaterialArticlelistData = {};
+    $scope.getMaterialMasterWithArticle = function (data) {
+        $http({
+            method: 'POST',
+            url: 'Materials/MaterialMasterArticle/GetMaterialMasterWithArticlePopUpData?type=' + $scope.materialType,
+            data: { column: $scope.searchByMaterial, value: $scope.search },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.materialArticleList = response.data;
+        });
+        angular.element(document.querySelector('#materialarticlePopUp')).modal('show');
+
+    };
+
+    // #region checkbox all
+
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+    };
+
+    function CheckBoxSelectAllEmolyeeWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#MAGrid").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.materialArticleList.length; i++) {
+                $scope.materialArticleList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#MAGrid").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    // #endregion checkbox all
+
+    function removeDuplicates(myArr, prop) {
+        return myArr.filter((obj, pos, arr) => {
+            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
+        });
+    }
+    $scope.updateArticleUrl = "Materials/MaterialMasterArticle/UpdateArticle";
+    $scope.selectedmaterialArticleList = [];
+    $scope.UpdateArticle = function () {
+        for (var i = 0; i < $scope.materialArticleList.length; i++) {
+            if ($scope.materialArticleList[i].Flag == true) {
+                $scope.selectedmaterialArticleList.push($scope.materialArticleList[i]);
+            }
+        }
+
+        if (baseService.arrayLength($scope.selectedmaterialArticleList) > 0) {
+            $http({
+                method: 'POST',
+                url: $scope.updateArticleUrl,
+                data: { 'data': $scope.selectedmaterialArticleList, 'masterId': $scope.processConstraintId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+        angular.element(document.querySelector('#materialarticlePopUp')).modal('hide');
+    }
 
 }

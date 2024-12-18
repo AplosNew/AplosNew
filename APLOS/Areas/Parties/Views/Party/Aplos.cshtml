@@ -606,6 +606,7 @@
                                 <th>Payment Term Changeable</th>
                                 <th>Tax Applicable</th>
                                 <th>Tax App.Changeable</th>
+                                <th>Is Bill Discounting Days</th>
                                 <th>Transit Days</th>
                                 <th>GL</th>
                                 <th>Bank</th>
@@ -659,6 +660,14 @@
                                     <div class="checkbox-site">
                                         <label>
                                             <input type="checkbox" ng-model="c.IsTaxApplicableChangeable" checked="{{c.IsTaxApplicableChangeable}}" ng-disabled="!c.Active">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="c.IsBillDiscountingDays" checked="{{c.IsBillDiscountingDays}}" ng-disabled="!c.Active">
                                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                         </label>
                                     </div>
