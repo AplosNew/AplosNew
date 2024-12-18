@@ -2085,5 +2085,31 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         #endregion Multiple Vendor Payment End
+
+        #region InvoiceReviseMatureDate
+        public ActionResult InvoiceReviseMatureDate()
+        {
+            return View("~/Areas/Accounts/Views/InvoiceReviseMatureDate.cshtml");
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetInvoiceReviseMatureDateList(string partyType,string FromDate, string ToDate, bool DateRange)
+        {
+            try
+            {
+                AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var jsondata = Json(_accountsInvoiceService.InvoiceReviseMatureDateList(identity.CompanyGroupId, identity.CompanyId, partyType, FromDate, ToDate, DateRange), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        #endregion
+
     }
 }
