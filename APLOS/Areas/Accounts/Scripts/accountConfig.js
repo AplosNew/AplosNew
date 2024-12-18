@@ -1090,5 +1090,10 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/AdjustmentNote/DebitCreditNoteProcessControl",
             controller: "DebitCreditNoteProcessControlController"
         })
+
+        .when("/invoicerevise-Maturedate", {
+            templateUrl: "Accounts/Invoice/InvoiceReviseMatureDate",
+            controller: "invoiceReviseMaturedateController"
+        })
         ;
 } 
