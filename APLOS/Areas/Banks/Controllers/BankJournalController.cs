@@ -122,8 +122,16 @@ namespace Aplos.Areas.Banks.Controllers
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _commonAccountsSetOffService.InsertExpenseToBankReconcil(voucherVM, voucherDetailVMList)) });
         }
         [HttpPost]
-        public JsonResult PostBankJournal(string id)
+        public JsonResult PostBankJournal(string id, string entityId, string voucherId)
         {
+            var inDirect = new System.Text.StringBuilder();
+            var inDirectsql = "";
+
+            inDirectsql = @"update [TRN].[Voucher] set EntityId='" + entityId + @"' where Id='" + voucherId + @"'
+                            update [TRN].[VoucherDetail]  set EntityId='" + entityId + @"' where VoucherId='" + voucherId + @"' 
+                            update [TRN].[BankJournal]  set EntityId='" + entityId + @"' where VoucherId='" + voucherId + @"' ";
+            inDirect.Append(inDirectsql);
+            _sqlRepository.ExecuteSqlCommand(inDirect.ToString());
             _bankJournalService.PostBankJournal(id);
             return Json(new { Message = AplosMessage.Posted });
         }
