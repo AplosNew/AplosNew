@@ -371,10 +371,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             try
             {
-
                 SaveSOCostingConfirmData(data, lineId);
-
-
                 return Json(new { Message = AplosMessage.Insert });
             }
             catch (Exception ex)

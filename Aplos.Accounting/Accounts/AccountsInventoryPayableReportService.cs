@@ -3101,6 +3101,7 @@ namespace Library.Accounting.Accounts
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "User Category Sequence"); int colUserCategorySequence = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "User SubCategory Sequence"); int colUserSubCategorySequence = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "User Item Sequence"); int colUserItemSequence = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "UserCashFlowGroup"); int colUserCashFlowGroup = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remark"); int colRemark = xlsCol;
 
                 endXlsCol = xlsCol;
@@ -3146,6 +3147,7 @@ namespace Library.Accounting.Accounts
                     sheet1[xlsRow, colUserCategorySequence].Text = dtBudgetMaster.Rows[i]["UserCategorySequence"].ToString();
                     sheet1[xlsRow, colUserSubCategorySequence].Text = dtBudgetMaster.Rows[i]["UserSubCategorySequence"].ToString();
                     sheet1[xlsRow, colUserItemSequence].Text = dtBudgetMaster.Rows[i]["UserItemSequence"].ToString();
+                    sheet1[xlsRow, colUserCashFlowGroup].Text = dtBudgetMaster.Rows[i]["UserCashFlowGroup"].ToString();
                     sheet1[xlsRow, colRemark].Text = dtBudgetMaster.Rows[i]["Remark"].ToString();
                     xlsRow++;
                 }
@@ -3192,7 +3194,7 @@ namespace Library.Accounting.Accounts
 							, BC.UserName AS BudgetCategory,BSC.UserName AS BudgetSubCategory, B.UserName AS Budget, BM.RefNo
 							,A.UserName AS Activity, R.UserName AS Register,BMA.BalanceSheetSchedulingId,ISNULL(BMA.TaxApplicable,'No')TaxApplicable
 							,BMA.TaxType,BMA.UserCategory,BMA.UserSubCategory,BMA.UserItem,ISNULL(BMA.UserReport,'No')UserReport
-                            ,ISNULL(BMA.IsAllowed,'No')IsAllowed,ISNULL(BMA.AllowedDays,0) AllowedDays,ISNULL(BMA.MonthDay,0) MonthDay,BMA.UserGroup,ISNULL(BMA.Sequence,0) Sequence,ISNULL(BMA.UserCategorySequence,0) UserCategorySequence,ISNULL(BMA.UserSubCategorySequence,0) UserSubCategorySequence,ISNULL(BMA.UserItemSequence,0) UserItemSequence,ISNULL(BMA.Remark,'') Remark
+                            ,ISNULL(BMA.IsAllowed,'No')IsAllowed,ISNULL(BMA.AllowedDays,0) AllowedDays,ISNULL(BMA.MonthDay,0) MonthDay,BMA.UserGroup,ISNULL(BMA.Sequence,0) Sequence,ISNULL(BMA.UserCategorySequence,0) UserCategorySequence,ISNULL(BMA.UserSubCategorySequence,0) UserSubCategorySequence,ISNULL(BMA.UserItemSequence,0) UserItemSequence,ISNULL(BMA.Remark,'') Remark,BMA.UserCashFlowGroup
                             FROM  [MST].[BudgetMasterActivity] AS BMA
 							LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=BMA.BudgetMasterId
 							LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
@@ -3523,7 +3525,7 @@ namespace Library.Accounting.Accounts
             var cmdText = @"Select X.Id,X.BudgetGroupSequence,X.BudgetGroup,X.BudgetCategorySequence,X.BudgetCategory,X.BudgetSubCategorySequence,X.BudgetSubCategory
 ,X.BudgetSequence,X.Budget,X.BudgetMasterId,X.ActivityId,X.BudgetMasterActivityId,X.UserGroup,X.UserCategory,X.UserSubCategory,X.UserItem
 ,X.UserReport,ISNULL(BCC.IsLinear,0)IsLinear,ISNULL(BCC.CurrentValue,0)CurrentValue,ISNULL(BCC.LastValue,0)LastValue,ISNULL(BCC.UoMId,NULL)UoMId
-,ISNULL(BCC.ResponsiblePersonId,NULL)ResponsiblePersonId,ISNULL(BCC.ActionById,NULL)ActionById,ISNULL(BCC.Remarks,NULL)Remarks,E.Id EntityId 
+,ISNULL(BCC.ResponsiblePersonId,NULL)ResponsiblePersonId,ISNULL(BCC.ActionById,NULL)ActionById,ISNULL(BCC.Remarks,NULL)Remarks,E.Id EntityId,E.UserName EntityName 
 From(Select NULL Id,BG.Sequence BudgetGroupSequence,BG.UserName BudgetGroup,BC.Sequence BudgetCategorySequence
 ,BC.UserName BudgetCategory,BSC.Sequence BudgetSubCategorySequence,BSC.UserName BudgetSubCategory
 ,B.Sequence BudgetSequence,B.UserName Budget,BMA.BudgetMasterId,BMA.ActivityId,BMA.Id BudgetMasterActivityId

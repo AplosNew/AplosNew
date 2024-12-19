@@ -110,9 +110,30 @@ namespace Aplos.Areas.Materials.Controllers
         {
             MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-           // return Json(materialCommonService.GetMaterialMasterWithArticlePopUpData(column, value, identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
 
             var jsondata = Json(materialCommonService.GetMaterialMasterWithArticlePopUpData(column, value, identity.CompanyGroupId, type), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult GetMaterialMasterWithArticleForProcessConstraintPopUpData(string column, string value, string type)
+        {
+            MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var jsondata = Json(materialCommonService.GetMaterialMasterWithArticleForProcessConstraintPopUpData(column, value, identity.CompanyGroupId, type), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult GetSavedMaterialMasterWithArticlerProcessConstraintPopUpData(string column, string value, string type,string processConstraintId)
+        {
+            MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var jsondata = Json(materialCommonService.GetSavedMaterialMasterWithArticlerProcessConstraintPopUpData(column, value, identity.CompanyGroupId, type, processConstraintId), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }

@@ -443,25 +443,39 @@ function bankJournalController(bankService, accountService, cboService, commonMe
     };
 
     $scope.advanceId = null;
+    $scope.EntityId_Post = null;
+    $scope.voucherId = null;
     $scope.confirmPost = function (advanceId, data) {
         if (data.ApprovedByStatus == 'ToBeApproved' || data.ApprovedByStatus == 'Hold' || data.ApprovedByStatus == 'Reject') {
             ShowResult("Before Post, Please Approve First. Mr." + data.ApprovedBy + " is responsible for Approve", "failure");
         }
         $scope.advanceId = advanceId;
         $scope.ApprovedByStatus = data.ApprovedByStatus;
-        $scope.message_confirmation = "Are you sure to Post?";
-        angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
+        $scope.EntityId_Post = data.EntityId;
+        $scope.voucherId = data.VoucherId;
+        angular.element(document.querySelector('#PostPopUp')).modal('show');
+        //$scope.message_confirmation = "Are you sure to Post?";
+        //angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
     };
 
-    $scope.post = function (id) {
+    $scope.closePostPopUp = function () {
+        angular.element(document.querySelector("#PostPopUp")).modal("hide");
+    };
+
+    $scope.post = function () {
         if ($scope.ApprovedByStatus == 'ToBeApproved' || $scope.ApprovedByStatus == 'Hold' || $scope.ApprovedByStatus == 'Reject') {
             ShowResult("Before Post, Please Approve First!!", "failure");
-        } else {
+        } else if ($scope.EntityId_Post == null || $scope.EntityId_Post == "" || $scope.EntityId_Post == undefined) {
+            ShowResult("Please select Entity First!!", "failure");
+        }
+        else {
             $http({
                 method: "POST",
                 url: $scope.postUrl,
                 data: {
-                    "id": id
+                    "id": $scope.advanceId,
+                    "entityId": $scope.EntityId_Post,
+                    "voucherId": $scope.voucherId
                 },
                 dataType: "JSON"
             }).then(function successCallback(response) {
@@ -472,6 +486,7 @@ function bankJournalController(bankService, accountService, cboService, commonMe
                     ShowResult(response.data.Message, "success");
                     $scope.getData();
                     $scope.clear();
+                    $scope.closePostPopUp();
                 }
             }, function errorCallback(response) {
                 ShowResult(response.status.Message, "failure");

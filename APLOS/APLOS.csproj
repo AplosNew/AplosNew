@@ -5019,6 +5019,7 @@
     <Content Include="Areas\Attendances\Views\SpecialDuty\Report.cshtml" />
     <Content Include="Areas\Materials\Views\MaterialMasterArticle\ProcessConstraint.cshtml" />
     <Content Include="Areas\Accounts\Views\_TaxCodePopUpNew.cshtml" />
+    <Content Include="Areas\Accounts\Views\_PostPopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\InvoiceReviseMatureDate.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />

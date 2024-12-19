@@ -1061,9 +1061,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
 				from dbo.EmployeeProfileShift es
 				where EffectiveDate <= '"+Date+@"') as Tablex on Tablex.EmpSystemId=e.SystemId
 				left join ShiftDefination sdmaster on sdmaster.SystemID=Tablex.ShiftId
-                where e.EmpType!='Guest' and e.PlantId='"+PlantId+@"' and
-				E.DOJ <= '"+Date+@"' AND (E.DOS >= '"+Date+@"' OR ISNULL(E.DOS,'') = '' 
-				OR E.DOS = '01/01/1901')";
+                where e.EmpType!='Guest' and e.PlantId='"+PlantId+@"' 
+and	E.DOJ <= '"+Date+@"' AND (E.DOS >= '"+Date+ @"' OR ISNULL(E.DOS,'') = '' OR E.DOS = '01/01/1901')
+";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");

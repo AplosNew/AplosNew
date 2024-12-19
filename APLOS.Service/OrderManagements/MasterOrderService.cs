@@ -282,10 +282,10 @@ namespace Library.Service.OrderManagements
 															INNER JOIN trn.SalesOrder XSO  ON XSO.ContractId=CNT.Id	  
 															INNER JOIN trn.MasterOrderItem XMOI  ON XMOI.Id=XSO.MasterOrderItemId
 															LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CNT.MasterLCId	  
-							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),CP.PaymentTermId DefaultPaymentTermId,RC.Process RemarksControl,URC.RemarkControlId
+							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),CP.PaymentTermId DefaultPaymentTermId,RC.Process RemarksControl,URC.RemarkControlId,FORMAT(A.BaseOnDueDate,'dd-MMM-yyyy')BaseOnDueDate,FORMAT(A.MatureDate,'dd-MMM-yyyy')MatureDate
                             FROM [TRN].[MasterOrder] AS A
                             JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
-                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=A.PartyId AND CP.PartyType='Customer'  AND CP.PlantId=A.PlantId
+                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=A.PartyId AND CP.PartyType='Customer' AND CP.PlantId=A.PlantId
                             LEFT JOIN ORG.Plant AS PL ON A.PlantId=PL.Id
                             LEFT JOIN [HKP].[PartyPlant] AS InvPP ON A.InvoicingPartyPlantId=InvPP.Id
                             LEFT JOIN [HKP].[PartyPlant] AS DeliPP ON A.DeliveryPartyPlantId=DeliPP.Id
