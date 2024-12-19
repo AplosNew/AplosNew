@@ -55,20 +55,23 @@ function invoiceReviseMaturedateController(commonMessage, $scope, $rootScope, ba
  
  
     $scope.saveBtnDisable = false;
-    $scope.UpdateReviseDate = function () {
+    $scope.UpdateInvoiceReviseDate = function () {
         try {
-            var EmployeeListNew = [];
-
+            $scope.InvoiceCheckedDataList = [];
             if ($scope.invoice.PartyType == null) {
                 throw "Please Select PartyType.";
             }
-            
+
+            for (var i = 0; i < $scope.InvoiceDataList.length; i++) {
+                if ($scope.InvoiceDataList[i].CheckBoxSelect == true) { $scope.InvoiceCheckedDataList.push($scope.InvoiceDataList[i]); }
+            }
+
             $scope.$broadcast('show-errors-check-validity');
             $scope.saveBtnDisable = true;
             $http({
                 method: 'POST',
-                url: $scope.SaveSalaryDisbursementUrl,
-                data: { 'DisbursementAdvice': $scope.invoice, 'EmployeeList': EmployeeListNew },
+                url: 'Accounts/Invoice/UpdateInvoiceReviseDate',
+                data: { 'reviseDate': $scope.invoice.UpdatedReviseDate, 'invoiceList': $scope.InvoiceCheckedDataList },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
