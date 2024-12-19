@@ -12956,6 +12956,123 @@ where EmpSystemID = '" + EmpSysId + @"' and ComplianceDocumentId = '31'
             }
         }
         #endregion PaySlip
+
+        #region AddInfo
+
+        public void GetSoParty(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Distinct PT.Id Value, PT.UserName Name from trn.MasterOrder MO
+Left join trn.MasterOrderItem MOI on MOI.Masterorderid = MO.Id
+left join trn.salesorder So on SO.MasterOrderItemId = MOI.Id
+left join hkp.Party PT on PT.Id = MO.PartyId";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetSO(out List<Default2> DataList, string PartyId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            string strSQLJoin = "";
+            DataList = new List<Default2>();
+            if (PartyId != "" || PartyId != null || PartyId != "null")
+            {
+                strSQLJoin = "where PT.Id = '" + PartyId + "'";
+            }
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Distinct So.Id Value, SO.Id Name from trn.MasterOrder MO
+Left join trn.MasterOrderItem MOI on MOI.Masterorderid = MO.Id
+left join trn.salesorder So on SO.MasterOrderItemId = MOI.Id
+left join hkp.Party PT on PT.Id = MO.PartyId" + strSQLJoin;
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetAddInfoFiled(out List<Default3> DataList, string Category)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default3>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select AI.StandardName Name ,  '' Value,'' SystemId from hkp.AdditionalInfo  AI
+                            where AI.Category = '" + Category + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default3
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+                        SystemId = dsRef.Tables[0].Rows[i]["SystemId"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        #endregion AddInfo
     }
 
 

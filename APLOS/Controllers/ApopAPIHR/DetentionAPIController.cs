@@ -1674,5 +1674,26 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
         #endregion Payslip
+
+        #region Addinfo
+        public List<Default2> GetSoParty()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetSoParty(out List<Default2> activelists);
+            return activelists;
+        }
+        public List<Default2> GetSO(string PartyId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetSO(out List<Default2> activelists, PartyId);
+            return activelists;
+        }
+        public List<Default3> GetAddInfoFiled(string Category)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetAddInfoFiled(out List<Default3> activelists, Category);
+            return activelists;
+        }
+        #endregion Addinfo
     }
 }
