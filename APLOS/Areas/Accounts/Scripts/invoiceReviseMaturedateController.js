@@ -55,11 +55,11 @@ function invoiceReviseMaturedateController(commonMessage, $scope, $rootScope, ba
  
  
     $scope.saveBtnDisable = false;
-    $scope.SalaryDisbursement = function () {
+    $scope.UpdateReviseDate = function () {
         try {
             var EmployeeListNew = [];
 
-            if (invoice.PartyType == null) {
+            if ($scope.invoice.PartyType == null) {
                 throw "Please Select PartyType.";
             }
             
@@ -127,46 +127,6 @@ function invoiceReviseMaturedateController(commonMessage, $scope, $rootScope, ba
         }
     };
 
-    $scope.BonusUnDisbursement = function () {
-        try {
-            var EmployeeListBonusUndisbursedNew = [];
-            for (var i = 0; i < $scope.EmployeeListTemp.length; i++) {
-                if ($scope.EmployeeListTemp[i].CheckBoxSelect) {
-                    EmployeeListBonusUndisbursedNew.push($scope.EmployeeListTemp[i]);
-                }
-            }
-
-            if (EmployeeListBonusUndisbursedNew.length == 0) {
-                throw "Please Select Employee.";
-            }
-
-            $scope.$broadcast('show-errors-check-validity');
-            $scope.saveBtnDisable = true;
-            $http({
-                method: 'POST',
-                url: $scope.path + 'SaveBonusUnDisbursed',
-                data: { 'EmployeeList': EmployeeListBonusUndisbursedNew },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    $scope.saveBtnDisable = false;
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.GetEmployeeInformation();
-                    $scope.saveBtnDisable = false;
-                    
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
-
    
     // #region TAB CHANGE
     $scope.tab = 1;
@@ -179,67 +139,20 @@ function invoiceReviseMaturedateController(commonMessage, $scope, $rootScope, ba
     };
     // #endregion TAB CHANGE
 
-    $scope.BonusUnDisburseList = [];
-    $scope.GetSalaryUnDisbursed = function () {
-        $scope.BonusUnDisburseList = [];
-        if (angular.isUndefinedOrNull($scope.invoice.PaymentMode)) {
-            ShowResult("Select Payment Mode", 'failure');
-        }
-        else if (baseService.isUndefinedOrNull($scope.invoice.FromDate)) {
-            manualValidation("div_FromDate", true, "From Date is required.");
-        }
-        else if (baseService.isUndefinedOrNull($scope.invoice.ToDate)) {
-            manualValidation("div_ToDate", true, "To Date is required.");
-        }
-        else if (new Date($scope.invoice.FromDate) > new Date($scope.invoice.ToDate)) {
-            manualValidation("div_FromDate", true, "From date must be below or equal to To Date");
-        }
-        else if (new Date($scope.invoice.ToDate) < new Date($scope.invoice.FromDate)) {
-            manualValidation("div_ToDate", true, "To date must be above or equal to From Date.");
-        }
-        else {
-
-            var parameters = {
-                'fromDate': $scope.invoice.FromDate, 'toDate': $scope.invoice.ToDate, 'salaryProcessId': $scope.salaryProcessId, 'isActive': $scope.isActive,
-                'isSeperated': $scope.isSeperated, 'isMaternity': $scope.isMaternity, 'paymentMode': $scope.invoice.PaymentMode
-
-            };
-            $http({
-                method: "POST",
-                dataType: 'JSON',
-                url: 'Accounts/SalaryDisbursement/GetBonusUnDisbursed',
-                data: parameters
-            }).then(function successCallback(response) {
-                if (response.data.length > 0) {
-                    $scope.BonusUnDisburseList = response.data;
-                    $scope.saveBtnDisable = false;
-                    $scope.empGrid = true;
-                }
-                else {
-                    $scope.empGrid = false;
-                    ShowResult("No Data Found", 'failure');
-                   
-                }
-                var gridObj = $("#empInfoGrid").data("ejGrid");
-                gridObj.windowonresize();
-                gridObj.refreshContent(true);
-            });
-        }
+   
+    $scope.refreshTemplateInvoiceList = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectInvoice });
     };
 
-    $scope.refreshTemplateSalaryUnDisbursed = function (args) {
-        $("#headchk").ejCheckBox({ "change": CheckBoxSelectSalaryUnDisbursed });
-    };
-
-    function CheckBoxSelectSalaryUnDisbursed(e) {
+    function CheckBoxSelectInvoice(e) {
         var ChkOrUnchk = false;
         if (e.model.checkState === "check") {
             ChkOrUnchk = true;
         }
-        var filtered = $("#empInfoGridSalaryUnDisbursed").data("ejGrid").getFilteredRecords();
+        var filtered = $("#InvoiceGrid").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.BonusUnDisburseList.length; i++) {
-                $scope.BonusUnDisburseList[i].CheckBoxSelect = ChkOrUnchk;
+            for (var i = 0; i < $scope.InvoiceDataList.length; i++) {
+                $scope.InvoiceDataList[i].CheckBoxSelect = ChkOrUnchk;
             }
         }
         else {
@@ -247,7 +160,7 @@ function invoiceReviseMaturedateController(commonMessage, $scope, $rootScope, ba
                 filtered[j].CheckBoxSelect = ChkOrUnchk;
             }
         }
-        var gridObj = $("#empInfoGridSalaryUnDisbursed").data("ejGrid");
+        var gridObj = $("#InvoiceGrid").data("ejGrid");
         gridObj.refreshContent();
     };
 
