@@ -5021,6 +5021,7 @@
     <Content Include="Areas\Accounts\Views\_TaxCodePopUpNew.cshtml" />
     <Content Include="Areas\Accounts\Views\_PostPopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\InvoiceReviseMatureDate.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionSummary\CuttingBooking.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
