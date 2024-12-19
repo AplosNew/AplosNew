@@ -336,6 +336,9 @@ namespace Library.Service.Materials
                         art.ProcessSetId = item.ProcessSetId;
                         art.IsDefaultProcessSet = item.IsDefaultProcessSet;
                         art.IsDefaultProductionGrouping = item.IsDefaultProductionGrouping;
+                        art.NetWeight = item.NetWeight;
+                        art.GrossWeight = item.GrossWeight;
+                        art.CFT = item.CFT;
                         art.UpdatedBy = item.UpdatedBy;
                         art.UpdatedDate = item.UpdatedDate;
                         art.UpdatedFromIP = item.UpdatedFromIP;
