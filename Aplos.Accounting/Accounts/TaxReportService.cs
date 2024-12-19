@@ -13462,6 +13462,11 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                 int ColVoucherNo = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "Entity";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColEntity = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Entry Date";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int ColEntryDate = COL;
@@ -13555,6 +13560,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                     sheet[ROW, ColParticulars].Text = data.Rows[i]["Narration"].ToString();
                     sheet[ROW, ColHSN].Text = data.Rows[i]["HSNCode"].ToString();
                     sheet[ROW, ColVoucherNo].Text = data.Rows[i]["VoucherNo"].ToString();
+                    sheet[ROW, ColEntity].Text = data.Rows[i]["EntityName"].ToString();
                     sheet[ROW, ColEntryDate].Text = data.Rows[i]["EntryDate"].ToString();
                     sheet[ROW, ColPostingDate].Text = data.Rows[i]["PostingDate"].ToString();
                     sheet[ROW, ColDocRefNo].Text = data.Rows[i]["DocRefNo"].ToString();
@@ -13648,19 +13654,19 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                 string strSQL = @"select  SourceType,
                         VoucherNo,VoucherDate,PostingDate,DocRefNo,DocDate,PartyId,PartyName,PartyPlantName,PartyCategory,PartySubCategory
                         ,PartyNature,PartyType,Material,Article,HSNCode,GSTIN , TaxCategoryType
-                        , TaxCode , TaxableAmount, ISNULL(DrAmount,0) DrAmount, CrAmount ,EntryDate,GRNNo,Narration
+                        , TaxCode , TaxableAmount, ISNULL(DrAmount,0) DrAmount, CrAmount ,EntryDate,GRNNo,Narration,EntityName
                         into #tempOT from
                         (
                         SELECT	x.SourceType,x.VoucherNo,x.VoucherDate,x.PostingDate,x.DocRefNo,x.DocDate,x.PartyId,x.PartyName,x.PartyPlantName,X.PartyCategory,X.PartySubCategory
                         ,X.PartyNature,X.PartyType,X.Material,X.Article,X.HSNCode,x.GSTIN
 		                        ,x.TaxCategoryType,x.TaxCode--,x.TaxPercentage
 		                        ,SUM(x.TaxableAmount) TaxableAmount,SUM(x.DrAmount) DrAmount,SUM(x.CrAmount) CrAmount
-		                        ,x.TCSequence,x.EntryDate,x.GRNNo,X.Narration
+		                        ,x.TCSequence,x.EntryDate,x.GRNNo,X.Narration,X.EntityName
 		                        FROM 
 
                         (
                         SELECT 
-						'Expenses' SourceType
+						'Expenses' SourceType,EN.UserName EntityName
                             ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate
 							,P.Id PartyId,P.UserName PartyName,PP.GSTIN
 							,NULL GRNNo,pp.UserName PartyPlantName,P.PartyNature,IV.PartyType,NULL Material,NULL Article,PC.UserName PartyCategory,PSC.UserName PartySubCategory
@@ -13683,6 +13689,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                             from TRN.InvoiceTax IT
                             left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Dr'
                             LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
+                            LEFT JOIN ORG.Entity EN ON EN.Id=V.EntityId
                             LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
                             LEFT JOIN HKP.Activity TA ON TA.Id=ITD.ActivityId
                             LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
@@ -13705,7 +13712,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                             
                             UNION all
 
-							SELECT 'GRN' SourceType
+							SELECT 'GRN' SourceType,EN.UserName EntityName
                             ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate,P.Id PartyId,P.UserName PartyName,PP.GSTIN
 							, IRD.InventoryReceiveId GRNNo,pp.UserName PartyPlantName,P.PartyNature,IV.PartyType,MM.UserName Material,MMA.StandardName Article
 							,PC.UserName PartyCategory,PSC.UserName PartySubCategory
@@ -13728,6 +13735,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                             from TRN.InvoiceTax IT
                             left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Dr'
                             LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
+                            LEFT JOIN ORG.Entity EN ON EN.Id=V.EntityId
                             LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
                             LEFT JOIN HKP.Activity TA ON TA.Id=ITD.ActivityId
                             LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
@@ -13758,14 +13766,14 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                             , v.SourceType
                             ,v.VoucherDate,IRD.TotalMaterialTranAmount
                             ,TC.TaxCategoryType,TC.Code ,TC.Sequence ,TC.UserName,TC.Code
-							,IsNULL(TAXC.IsRCM,0) ,V.Narration
+							,IsNULL(TAXC.IsRCM,0) ,V.Narration,EN.UserName
                             ,IsNULL(IV.IsExcludingTax,0) ,IsNULL(IR.IsTaxApplicable,0) 
 							,TAXC.[Type],TAXC.ValueOfFixed,ITD.AType,PC.UserName,PSC.UserName
                             ,IRT.[Percentage],IRT.[Percentage] ,it.AddedDate,P.PartyNature,IV.PartyType ,MM.UserName,MMA.StandardName
                             ,HC.Code 
 
                              UNION all
-                            SELECT 'GRN' SourceType
+                            SELECT 'GRN' SourceType,EN.UserName EntityName
                             ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate,P.Id PartyId,P.UserName PartyName,PP.GSTIN
 							, IRD.InventoryReceiveId GRNNo,pp.UserName PartyPlantName,P.PartyNature,IV.PartyType,NULL Material,NULL Article
 							,PC.UserName PartyCategory,PSC.UserName PartySubCategory
@@ -13789,6 +13797,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                             from TRN.InvoiceTax IT
                             left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Dr'
                             LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
+                            LEFT JOIN ORG.Entity EN ON EN.Id=V.EntityId
                             LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
                             LEFT JOIN HKP.Activity TA ON TA.Id=ITD.ActivityId
                             LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
@@ -13814,7 +13823,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                             GROUP BY 
 							V.VoucherNo,V.PostingDate, V.DocRefNo,V.DocDate,P.Id,P.UserName ,PP.GSTIN
 							, IRD.InventoryReceiveId ,pp.UserName 
-                            , v.SourceType
+                            , v.SourceType,EN.UserName
                             ,v.VoucherDate,V.Narration
                             ,TC.TaxCategoryType,TC.Code ,TC.Sequence ,TC.UserName,TC.Code
 							,IsNULL(TAXC.IsRCM,0) 
@@ -13825,7 +13834,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 							UNION ALL
 
 							--****************TCS*********************************
-                            SELECT 'GRN' SourceType
+                            SELECT 'GRN' SourceType,EN.UserName EntityName
                             ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate,P.Id PartyId,P.UserName PartyName,PP.GSTIN
 							, IRD.InventoryReceiveId GRNNo,pp.UserName PartyPlantName,P.PartyNature,IV.PartyType,NULL Material,NULL Article
 							,PC.UserName PartyCategory,PSC.UserName PartySubCategory
@@ -13848,6 +13857,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                             from TRN.InvoiceTax IT
                             left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Dr'
                             LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
+                            LEFT JOIN ORG.Entity EN ON EN.Id=V.EntityId
                             LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
                             --LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IT.InvoiceWriteOffId
                             LEFT JOIN HKP.Activity TA ON TA.Id=ITD.ActivityId
@@ -13873,7 +13883,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                             GROUP BY 
 							V.VoucherNo,V.PostingDate, V.DocRefNo,V.DocDate,P.Id,P.UserName ,PP.GSTIN
 							, IRD.InventoryReceiveId ,pp.UserName 
-                            , v.SourceType
+                            , v.SourceType,EN.UserName
                             ,v.VoucherDate,V.Narration
                             ,TC.TaxCategoryType,TC.Code ,TC.Sequence ,TC.UserName,TC.Code
 							,IsNULL(TAXC.IsRCM,0) 
@@ -13882,7 +13892,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                            ,it.AddedDate ,P.PartyNature,IV.PartyType,PC.UserName,PSC.UserName
 
 			                UNION	ALL			
-                            SELECT 'Service' SourceType
+                            SELECT 'Service' SourceType,EN.UserName EntityName
                             ,V.VoucherNo,format(V.PostingDate, 'dd-MMM-yyyy')PostingDate, V.DocRefNo,format(V.DocDate, 'dd-MMM-yyyy')DocDate,P.Id PartyId,P.UserName PartyName, PP.GSTIN
 							, IRD.ServiceAcknowledgementMasterId GRNNo,pp.UserName PartyPlantName,P.PartyNature,IV.PartyType,NULL Material,NULL Article
 							,PC.UserName PartyCategory,PSC.UserName PartySubCategory
@@ -13904,6 +13914,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                             left
                             join TRN.InvoiceTaxDetail ITD ON IT.Id = ITD.InvoiceTaxId AND ITD.AType = 'Dr'
                             LEFT JOIN TRN.Voucher V ON V.Id = IT.VoucherId
+                            LEFT JOIN ORG.Entity EN ON EN.Id=V.EntityId
                             LEFT JOIN TRN.Invoice IV ON IV.Id = IT.InvoiceId
                             LEFT JOIN HKP.Activity TA ON TA.Id = ITD.ActivityId
                             LEFT JOIN HKP.Party P ON P.Id = IT.PartyId
@@ -13932,10 +13943,8 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                             AND v.SourceType = 'ServicePayable' 
                             ) x
 
-							
-
-							group by x.VoucherNo,x.VoucherDate,x.PostingDate,x.DocRefNo,x.DocDate,x.PartyId,x.PartyName
-							,x.TCSequence,x.PartyPlantName,x.GSTIN,x.SourceType,X.HSNCode,X.Narration
+							GROUP BY x.VoucherNo,x.VoucherDate,x.PostingDate,x.DocRefNo,x.DocDate,x.PartyId,x.PartyName
+							,x.TCSequence,x.PartyPlantName,x.GSTIN,x.SourceType,X.HSNCode,X.Narration,X.EntityName
 							,x.TaxCategoryType,x.EntryDate,x.TaxCode,x.GRNNo,X.PartyNature,X.PartyType,X.Material,X.Article,X.PartyCategory,X.PartySubCategory --,x.TaxPercentage
 							--ORDER BY 1,2,4
 							)B
