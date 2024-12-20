@@ -13002,9 +13002,9 @@ left join hkp.Party PT on PT.Id = MO.PartyId";
             string strSQL = "";
             string strSQLJoin = "";
             DataList = new List<Default2>();
-            if (PartyId != "" || PartyId != null || PartyId != "null")
+            if (PartyId != null)
             {
-                strSQLJoin = "where PT.Id = '" + PartyId + "'";
+                strSQLJoin = " where PT.Id = '" + PartyId + "'";
             }
             System.Data.DataSet dsRef;
             try
