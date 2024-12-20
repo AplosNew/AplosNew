@@ -180,7 +180,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         , OrderLevel: null
         , ProductionGroupingId: null
         , ProcessSetId: null
-        , IsDefaultProductionGrouping :false, IsDefaultProcessSet:false
+        , IsDefaultProductionGrouping: false, IsDefaultProcessSet: false, CFT: 0, GrossWeight: 0, NetWeight:0
     };
     $scope.articleNew = Object.assign({}, $scope.article);
 
@@ -520,6 +520,9 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         $scope.articleNew.ProcessSetId = data.ProcessSetId;
         $scope.articleNew.IsDefaultProductionGrouping = data.IsDefaultProductionGrouping;
         $scope.articleNew.IsDefaultProcessSet = data.IsDefaultProcessSet;
+        $scope.articleNew.CFT = data.CFT;
+        $scope.articleNew.GrossWeight = data.GrossWeight;
+        $scope.articleNew.NetWeight = data.NetWeight;
         if (baseService.isUndefinedOrNull(data.HSNCodeId))
             $scope.articleNew.HSNCodeId = $scope.MaterialHSNCodeId;
         else
@@ -576,6 +579,9 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
             $scope.articleList[$scope.index].ProcessSetId = $scope.articleNew.ProcessSetId;
             $scope.articleList[$scope.index].IsDefaultProductionGrouping = $scope.articleNew.IsDefaultProductionGrouping;
             $scope.articleList[$scope.index].IsDefaultProcessSet = $scope.articleNew.IsDefaultProcessSet;
+            $scope.articleList[$scope.index].CFT = $scope.articleNew.CFT;
+            $scope.articleList[$scope.index].GrossWeight = $scope.articleNew.GrossWeight;
+            $scope.articleList[$scope.index].NetWeight = $scope.articleNew.NetWeight;
 
             for (var i = 0; i < $scope.attributeList.length; i++) {
                 var _invalid = $scope.IsMandatoryButNull($scope.attributeList[i].IsMandatory, $scope.attributeList[i].MaterialAttributeValueFreeText);

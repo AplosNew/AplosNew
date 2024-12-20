@@ -2108,6 +2108,37 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
+        [HttpPost]
+        public void UpdateInvoiceReviseDate(string reviseDate,List<Invoice> invoiceList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                string IdLoop = "";
+                foreach (var item in invoiceList)
+                {
+                    if (IdLoop == "")
+                    {
+                        IdLoop = "'" + item.Id + "'"; ;
+                    }
+                    else
+                    {
+                        IdLoop += ",'" + item.Id + "'";
+
+                    }
+                }
+
+                var vendorAdWr = new System.Text.StringBuilder();
+                var vendorAdWrsql = "";
+                vendorAdWrsql = @"update [TRN].[Invoice] set RevisedDueDate='"+ reviseDate + "', UpdatedBy='" + identity.Name + "', UpdatedDate='" + DateTime.Now + "', UpdatedFromIP='" + identity.IPAddress + "' where Id IN (" + IdLoop + @") ";
+                vendorAdWr.Append(vendorAdWrsql);
+                _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         #endregion
 

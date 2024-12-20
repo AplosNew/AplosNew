@@ -334,17 +334,17 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="col-sm-8 control-label">Active</label>
-                                <div class="col-sm-4">
-                                    <div class="checkbox-site">
-                                        <label class="control-label">
-                                            <input type="checkbox" ng-model="articleNew.Active" tabindex="8">
-                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
+                            @*<div class="form-group">
+                    <label class="col-sm-8 control-label">Active</label>
+                    <div class="col-sm-4">
+                        <div class="checkbox-site">
+                            <label class="control-label">
+                                <input type="checkbox" ng-model="articleNew.Active" tabindex="8">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>*@
                         </div>
                         <div class="col-md-2 form-element-ctrl form-horizontal" style="padding-left:0px;">
                             <div class="form-group">
@@ -358,26 +358,17 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="col-sm-5 control-label" title="Production Grouping">PrO Grouping<sup>*</sup></label>
-                                <div class="col-sm-7">
-                                    <div class="select-style">
-                                        <select name="Production Grouping" class="form-control" ng-model="articleNew.ProductionGroupingId" ng-options="item.Value as item.Text for item in ProductionGroupingCboList" tabindex="6">
-                                            <option value="">--Select--</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-5 control-label" title="Process Constraint">Process Constraint<sup>*</sup></label>
-                                <div class="col-sm-7">
-                                    <div class="select-style">
-                                        <select name="Production Grouping" class="form-control" ng-model="articleNew.ProcessConstraint" ng-options="item.Value as item.Text for item in ProductionGroupingCboList" tabindex="6">
-                                            <option value="">--Select--</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
+                            @*<div class="form-group">
+                    <label class="col-sm-5 control-label" title="Production Grouping">PrO Grouping<sup>*</sup></label>
+                    <div class="col-sm-7">
+                        <div class="select-style">
+                            <select name="Production Grouping" class="form-control" ng-model="articleNew.ProductionGroupingId" ng-options="item.Value as item.Text for item in ProductionGroupingCboList" tabindex="6">
+                                <option value="">--Select--</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>*@
+
                         </div>
                         <div class="col-md-4 form-element-ctrl form-horizontal" style="padding-left:0px;">
                             <div class="form-group">
@@ -391,6 +382,88 @@
                                     </div>
                                 </div>
                             </div>
+                            @*<div class="form-group">
+                    <label class="col-sm-4 control-label">Process Set<sup>*</sup></label>
+                    <div class="col-sm-8">
+                        <div class="input-group">
+                            <input type="text" name="Process Set" ng-model="articleNew.ProcessSet" class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <button ng-click="processSetPopUp();" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>*@
+                        </div>
+                        <div class="col-md-4 form-element-ctrl form-horizontal" style="padding-left:0px;">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">HSN Code</label>
+                                <div class="col-sm-7">
+                                    <input ej-dropdownlist e-enablefiltersearch="true" e-name="$index" e-datasource="hsnCodeList" e-value="articleNew.HSNCodeId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                                </div>
+                            </div>
+                        </div>
+
+
+                        
+                    </div>
+                    <div class="col-xs-12 form-element-ctrl form-horizontal" style="padding-left:0px;">
+                        <div class="col-md-3 form-element-ctrl form-horizontal" style="padding-left:0px;">
+                            <div class="form-group">
+                                <label class="col-sm-9 control-label">Is Default Production Grouping</label>
+                                <div class="col-sm-3">
+                                    <div class="checkbox-site">
+                                        <label class="control-label">
+                                            <input type="checkbox" ng-model="articleNew.IsDefaultProductionGrouping" tabindex="8">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 form-element-ctrl form-horizontal" style="padding-left:0px;">
+                            <div class="form-group">
+                                <label class="col-sm-8 control-label">Is Default ProcessSet</label>
+                                <div class="col-sm-4">
+                                    <div class="checkbox-site">
+                                        <label class="control-label">
+                                            <input type="checkbox" ng-model="articleNew.IsDefaultProcessSet" tabindex="8">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 form-element-ctrl form-horizontal" style="padding-left:0px;">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" title="NetWeight">NW</label>
+                                <div class="col-sm-8">
+                                    <input type="text" ng-model="articleNew.NetWeight" class="form-control" n-decimals="2">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 form-element-ctrl form-horizontal" style="padding-left:0px;">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" title="GrossWeight">GW</label>
+                                <div class="col-sm-8">
+                                    <input type="text" ng-model="articleNew.GrossWeight" class="form-control" n-decimals="2">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 form-element-ctrl form-horizontal" style="padding-left:0px;">
+                        <div class="col-md-3 form-element-ctrl form-horizontal" style="padding-left:0px;">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label" title="Production Grouping">PrO Grouping<sup>*</sup></label>
+                                <div class="col-sm-7">
+                                    <div class="select-style">
+                                        <select name="Production Grouping" class="form-control" ng-model="articleNew.ProductionGroupingId" ng-options="item.Value as item.Text for item in ProductionGroupingCboList" tabindex="6">
+                                            <option value="">--Select--</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 form-element-ctrl form-horizontal" style="padding-left:0px;">
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Process Set<sup>*</sup></label>
                                 <div class="col-sm-8">
@@ -403,37 +476,24 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4 form-element-ctrl form-horizontal" style="padding-left:0px;">
+                        <div class="col-md-3 form-element-ctrl form-horizontal" style="padding-left:0px;">
                             <div class="form-group">
-                                <label class="col-sm-5 control-label">HSN Code</label>
-                                <div class="col-sm-7">
-                                    <input ej-dropdownlist e-enablefiltersearch="true" e-name="$index" e-datasource="hsnCodeList" e-value="articleNew.HSNCodeId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 form-element-ctrl form-horizontal" style="padding-left:0px;">
-                            <div class="form-group">
-                                <label class="col-sm-8 control-label">Is Default Production Grouping</label>
+                                <label class="col-sm-8 control-label">Active</label>
                                 <div class="col-sm-4">
                                     <div class="checkbox-site">
                                         <label class="control-label">
-                                            <input type="checkbox" ng-model="articleNew.IsDefaultProductionGrouping" tabindex="8">
+                                            <input type="checkbox" ng-model="articleNew.Active" tabindex="8">
                                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                         </label>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 form-element-ctrl form-horizontal" style="padding-left:0px;">
+                        <div class="col-md-3 form-element-ctrl form-horizontal" style="padding-left:0px;">
                             <div class="form-group">
-                                <label class="col-sm-8 control-label">Is Default ProcessSet</label>
-                                <div class="col-sm-4">
-                                    <div class="checkbox-site">
-                                        <label class="control-label">
-                                            <input type="checkbox" ng-model="articleNew.IsDefaultProcessSet" tabindex="8">
-                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                        </label>
-                                    </div>
+                                <label class="col-sm-4 control-label" title="Cubic Feet">CFT</label>
+                                <div class="col-sm-8">
+                                    <input type="text" ng-model="articleNew.CFT" class="form-control" n-decimals="2">
                                 </div>
                             </div>
                         </div>

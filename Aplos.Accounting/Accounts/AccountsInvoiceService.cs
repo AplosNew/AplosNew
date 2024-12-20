@@ -2567,23 +2567,22 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
                 else
                 { DatewiseData = "AND IV.ActualDueDate <= '" + FromDate + @"'"; }
                 string strSQL = string.Empty;
-                strSQL = @" SELECT   IV.PartyType,EN.UserName AS EntityName ,V.VoucherNo ,Replace(CONVERT(VARCHAR(11), IV.DocDate, 106), ' ', '-') DocDate
+                strSQL = @" SELECT   IV.Id,IV.PartyType,EN.UserName AS EntityName ,V.VoucherNo ,Replace(CONVERT(VARCHAR(11), IV.DocDate, 106), ' ', '-') DocDate
 									,Replace(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') PostingDate ,IV.DocRefNo ,IV.Narration ,IV.Id AS InvoiceId
 									,EN.Id EntityId ,IV.PlantId ,IV.VoucherId ,Replace(CONVERT(VARCHAR(11),IV.ActualDueDate, 106), ' ', '-') ActualDueDate
 									,Replace(CONVERT(VARCHAR(11),IV.BaseOnDueDate, 106), ' ', '-') BaseOnDueDate
-									,IV.BaseNoOfDays,DATEDIFF(DAY, GETDATE(),IV.ActualDueDate) LackDays,IV.RevisedDueDate, CASE WHEN  IV.SourceType = 'VendorInvoice' THEN 'Inbound Invoice'  
-															WHEN  IV.SourceType = 'InventoryPayable' THEN  'GRN' 
-															WHEN  IV.SourceType = 'PostInvoice' THEN  'Post Invoice' 
-														END SourceType
+									,IV.BaseNoOfDays,DATEDIFF(DAY, GETDATE(),IV.ActualDueDate) DelayDays,Replace(CONVERT(VARCHAR(11),IV.RevisedDueDate, 106), ' ', '-')  RevisedDueDate
+                                    , IV.SourceType ,CheckBoxSelect= CONVERT(bit,0)    
 									,IV.CurrencyId ,C.Code AS CurrencyCode ,IV.PartyId ,V.ExchangeType
 									,IV.PartyPlantId ,PP.UserName AS PartyPlantName
+                                    ,IV.Amount+IV.AdditionalAmount InvoiceAmount,IV.WrittenOffAmount,IV.Amount+IV.AdditionalAmount-IV.WrittenOffAmount Balance
 									 FROM    [TRN].[Invoice] AS IV  
 								LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id = IV.PartyPlantId
 								LEFT JOIN [TRN].[Voucher] AS V ON V.Id = IV.VoucherId
 								LEFT JOIN [SCS].[Currency] AS C ON C.Id = IV.CurrencyId
 								LEFT JOIN [ORG].[Entity] AS EN ON EN.Id = IV.EntityId
 								WHERE IV.Archive = 0 AND V.IsPark = 0
-									AND IV.CompanyGroupId = '"+companyGroupId+"' AND IV.CompanyId = '"+ companyId + @"'
+									AND IV.CompanyGroupId = '" + companyGroupId+"' AND IV.CompanyId = '"+ companyId + @"'
 									AND IV.PartyType='"+ partyType + "' "+ DatewiseData + "";
                 return _sqlRepository.GetDataCollection(strSQL);
             }

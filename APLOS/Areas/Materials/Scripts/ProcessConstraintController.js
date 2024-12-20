@@ -13,7 +13,7 @@ function ProcessConstraintController(cboService, commonMessage, $scope, $rootSco
     $scope.saveValueUrl = $scope.path + 'CreateProcessConstraintValue';
     $scope.deleteUrl = $scope.path + 'DeleteProcessConstraint/';
     $scope.deleteValueUrl = $scope.path + 'DeleteProcessConstraintValue/';
-    $scope.tab = 1;
+    $scope.tab = 2;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
     };
@@ -265,10 +265,33 @@ function ProcessConstraintController(cboService, commonMessage, $scope, $rootSco
         };
     }
 
-    $scope.getArticle = function (obj) {
+    $scope.getSelectedArticle = function (obj) {
         $scope.processConstraintId = obj.data.Id;
+        $scope.getSelectedMaterialMasterWithArticle($scope.processConstraintId);
+        angular.element(document.querySelector('#articlePopUp')).modal('show');
+    };
+
+    $scope.CloseArticel = function () {
+        angular.element(document.querySelector('#articlePopUp')).modal('hide');
+    }
+
+    $scope.getArticle = function () {
         $scope.getMaterialMasterWithArticle(null);
     };
+    $scope.SelectedmaterialArticleList = [];
+    $scope.getSelectedMaterialMasterWithArticle = function (processConstraintId) {
+        $scope.SelectedmaterialArticleList = [];
+        $http({
+            method: 'POST',
+            url: 'Materials/MaterialMasterArticle/GetSavedMaterialMasterWithArticlerProcessConstraintPopUpData?type=' + $scope.materialType + '&processConstraintId=' + processConstraintId,
+            data: { column: $scope.searchByMaterial, value: $scope.search },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.SelectedmaterialArticleList = response.data;
+        });
+
+    };
+
     $scope.materialType = 'ProductDefinition';
     $scope.searchByMaterial = "MaterialMasterName"; $scope.search = "";
     $scope.searchByMaterialList = [{ value: 'MaterialMasterName', name: "Material" }, { value: 'StandardName', name: "Article" }, { value: 'MaterialTypeName', name: "MaterialType" }
@@ -279,7 +302,7 @@ function ProcessConstraintController(cboService, commonMessage, $scope, $rootSco
     $scope.getMaterialMasterWithArticle = function (data) {
         $http({
             method: 'POST',
-            url: 'Materials/MaterialMasterArticle/GetMaterialMasterWithArticlePopUpData?type=' + $scope.materialType,
+            url: 'Materials/MaterialMasterArticle/GetMaterialMasterWithArticleForProcessConstraintPopUpData?type=' + $scope.materialType,
             data: { column: $scope.searchByMaterial, value: $scope.search },
             dataType: 'JSON',
         }).then(function successCallback(response) {
@@ -344,6 +367,7 @@ function ProcessConstraintController(cboService, commonMessage, $scope, $rootSco
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.getSelectedMaterialMasterWithArticle($scope.processConstraintId);
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

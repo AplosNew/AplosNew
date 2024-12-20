@@ -63,6 +63,10 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return View();
         }
+        public ActionResult CuttingBooking()
+        {
+            return View();
+        }
 
 
         public ActionResult Reject()
