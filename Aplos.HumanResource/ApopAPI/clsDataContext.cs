@@ -13037,16 +13037,16 @@ left join hkp.Party PT on PT.Id = MO.PartyId" + strSQLJoin;
             }
         }
 
-        public void GetAddInfoFiled(out List<Default3> DataList, string Category)
+        public void GetAddInfoFiled(out List<AddInfoList> DataList, string Category)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
-            DataList = new List<Default3>();
+            DataList = new List<AddInfoList>();
 
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select AI.StandardName Name ,  '' Value,'' SystemId from hkp.AdditionalInfo  AI
+                strSQL = @"select AI.Id, AI.UserName UserName ,  '' Value,'' Remarks from hkp.AdditionalInfo  AI
                             where AI.Category = '" + Category + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -13054,11 +13054,12 @@ left join hkp.Party PT on PT.Id = MO.PartyId" + strSQLJoin;
                 objCon.CommitTransaction();
                 for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
                 {
-                    DataList.Add(new Default3
+                    DataList.Add(new AddInfoList
                     {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
                         Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
-                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
-                        SystemId = dsRef.Tables[0].Rows[i]["SystemId"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+                        UserName = dsRef.Tables[0].Rows[i]["UserName"].ToString(),
 
                     });
                 }
@@ -14771,4 +14772,14 @@ left join hkp.Party PT on PT.Id = MO.PartyId" + strSQLJoin;
         public string UpdatedFromIP { get; set; }
 
     }
+
+    public class AddInfoList
+    {
+        public string Id { get; set; }
+        public string UserName { get; set; }
+        public string CharecterType { get; set; }
+        public string Value { get; set; }
+        public string Remarks { get; set; }
+    }
+
 }

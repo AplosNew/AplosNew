@@ -1688,10 +1688,10 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetSO(out List<Default2> activelists, PartyId);
             return activelists;
         }
-        public List<Default3> GetAddInfoFiled(string Category)
+        public List<AddInfoList> GetAddInfoFiled(string Category)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetAddInfoFiled(out List<Default3> activelists, Category);
+            clsData.GetAddInfoFiled(out List<AddInfoList> activelists, Category);
             return activelists;
         }
         #endregion Addinfo
