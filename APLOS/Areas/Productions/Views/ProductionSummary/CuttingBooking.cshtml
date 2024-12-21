@@ -117,9 +117,7 @@
             <div class="col-sm-8">
                 <div class="input-group">
                     <input type="text" name="ProductionOrder" ng-model="productionSummaryNew.ProductionOrderId" class="form-control" readonly>
-                    @*<input type="text" name="SalesOrder" ng-show="productionSummaryNew.ProductionBookingLevel=='SalesOrder'" ng-model="productionSummaryNew.SalesOrderId" class="form-control" readonly>
-                        <input type="text" name="MasterOrderItem" ng-show="productionSummaryNew.ProductionBookingLevel==='MasterOrderItem'" ng-model="productionSummaryNew.MasterOrderItemId" class="form-control" readonly>
-                        <input type="text" name="ProductCode" ng-show="productionSummaryNew.ProductionBookingLevel==='ProductCode'" ng-model="productionSummaryNew.ProductCode" class="form-control" readonly>*@
+                   
                     <span class="input-group-btn">
                         <button ng-click="getProductionOrderPopUp();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                         <button ng-click="getSalesOrderByProdOrderList(productionSummaryNew.ProductionOrderId);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
