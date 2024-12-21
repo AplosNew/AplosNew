@@ -119,26 +119,7 @@ namespace Library.SchedulingServices.Setups
                     }
                     else _mailReceiverDetailRepository.Update(item);
                 }
-                //if (dbList != null)
-                //{
-                //    if (mailReceiverDetailList == null)
-                //    {
-                //        foreach (var item in dbList)
-                //        {
-                //            _mailReceiverDetailRepository.Delete(item);
-                //        }
-                //    }
-                //    else
-                //    {
-                //        foreach (var item in dbList)
-                //        {
-                //            if (!receiverDetailList.Any(t => t.Id == item.Id))
-                //            {
-                //                _mailReceiverDetailRepository.Delete(item);
-                //            }
-                //        }
-                //    }
-                //}
+               
                 UpdateGraph(entity);
                 _unitOfWork.SaveChanges();
                 flag = false;
@@ -161,52 +142,7 @@ namespace Library.SchedulingServices.Setups
             }
         }
 
-        //public void DeleteGraph(string masterId)
-        //{
-        //	var flag = false;
-        //	try
-        //	{
-        //		_unitOfWork.BeginTransaction();
-        //		flag = true;
-        //		var parentData = Find(masterId);
-        //		var childData = _mailReceiverDetailRepository.Query(t => t.MailReceiverId == masterId).Select().ToList();
-        //		var childData2 = _mailReceiverMappingRepository.Query(t => t.MailReceiverId == masterId).Select().ToList();
-        //		if (childData.Any())
-        //		{
-        //			foreach (var item in childData)
-        //			{
-        //				_mailReceiverDetailRepository.Delete(item);
-        //			}
-        //		}
-        //		if (childData2.Any())
-        //		{
-        //			foreach (var item in childData2)
-        //			{
-        //				_mailReceiverMappingRepository.Delete(item);
-        //			}
-        //		}
-        //		DeleteGraph(parentData);
-        //		_unitOfWork.SaveChanges();
-        //		flag = false;
-        //		_unitOfWork.Commit();
-        //	}
-        //	catch (CustomException)
-        //	{
-        //		throw;
-        //	}
-        //	catch (Exception ex)
-        //	{
-        //		throw new CustomException(ex.Message, ex,
-        //			Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-        //			ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Setup.ToString()));
-        //	}
-        //	finally
-        //	{
-        //		if (flag)
-        //			_unitOfWork.Rollback();
-        //	}
-        //}
-
+        
         public void DeleteDetail(int Id)
         {
             var flag = false;
