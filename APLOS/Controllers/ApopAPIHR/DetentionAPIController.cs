@@ -1694,6 +1694,19 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetAddInfoFiled(out List<AddInfoList> activelists, Category);
             return activelists;
         }
+        public string PostSalesAddInfo([FromBody] IEnumerable<SalesAddinfo> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostSalesAddInfo(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
         #endregion Addinfo
     }
 }
