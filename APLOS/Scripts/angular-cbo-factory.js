@@ -423,7 +423,7 @@ function cboService($http, $window, $rootScope, baseService) {
         , getPerformanceGroupListCbo: getPerformanceGroupListCbo
         , getbyDesignationMasterCbo: getbyDesignationMasterCbo
         , getUtilityGroupCbo: getUtilityGroupCbo
-
+        , GetEntityCuttingProcessCbo: GetEntityCuttingProcessCbo
     };
 
 
@@ -2331,6 +2331,11 @@ function cboService($http, $window, $rootScope, baseService) {
     function GetEntityProcessCbo(entityId, callback) {
         base('Processes/EntityProcessTag/GetEntityProcessCbo?entityid=' + entityId, callback);
     }
+
+    function GetEntityCuttingProcessCbo(entityId, callback) {
+        base('Processes/EntityProcessTag/GetEntityCuttingProcessCbo?entityid=' + entityId, callback);
+    }
+
     function GetEntityProductionProcessCbo(entityId, callback) {
         base('Productions/RecipeGlobalMaster/GetEntityProductionProcessCbo?entityid=' + entityId, callback);
     }

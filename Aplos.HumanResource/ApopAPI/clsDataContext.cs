@@ -12956,6 +12956,193 @@ where EmpSystemID = '" + EmpSysId + @"' and ComplianceDocumentId = '31'
             }
         }
         #endregion PaySlip
+
+        #region AddInfo
+
+        public void GetSoParty(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Distinct PT.Id Value, PT.UserName Name from trn.MasterOrder MO
+Left join trn.MasterOrderItem MOI on MOI.Masterorderid = MO.Id
+left join trn.salesorder So on SO.MasterOrderItemId = MOI.Id
+left join hkp.Party PT on PT.Id = MO.PartyId";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetSO(out List<Default2> DataList, string PartyId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            string strSQLJoin = "";
+            DataList = new List<Default2>();
+            if (PartyId != null)
+            {
+                strSQLJoin = " where PT.Id = '" + PartyId + "'";
+            }
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Distinct So.Id Value, SO.Id Name from trn.MasterOrder MO
+Left join trn.MasterOrderItem MOI on MOI.Masterorderid = MO.Id
+left join trn.salesorder So on SO.MasterOrderItemId = MOI.Id
+left join hkp.Party PT on PT.Id = MO.PartyId" + strSQLJoin;
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetAddInfoFiled(out List<AddInfoList> DataList, string Category)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<AddInfoList>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select AI.Id, AI.UserName UserName ,  '' Value,'' Remarks from hkp.AdditionalInfo  AI
+                            where AI.Category = '" + Category + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new AddInfoList
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+                        UserName = dsRef.Tables[0].Rows[i]["UserName"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public string PostSalesAddInfo(IEnumerable<SalesAddinfo> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "[dbo].[SalesAdditionalInfo]";
+                string Id = "''";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<SalesAddinfo> items = DataToSave.ToList();
+
+                foreach (SalesAddinfo item in DataToSave)
+                {
+                    Id += ",'" + item.Id + "'";
+                }
+
+                con.OpenDataSetThroughAdapter("select * from [dbo].[SalesAdditionalInfo] where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+
+                foreach (SalesAddinfo item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+                        dr["Id"] = _Id;
+                        dr["SalesId"] = item.SalesId;
+
+                        dr["AdditionalInfoId"] = item.AdditionalInfoId;
+                        dr["Value"] = item.Value;
+                        dr["Remarks"] = item.Remarks;
+                        dr["LineItemId"] = item.LineItemId;
+                        dr["InventoryReceiveId"] = item.InventoryReceiveId;
+                        dr["PartyId"] = item.PartyId;
+                        dr["SalesOrderId"] = item.SalesOrderId;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = "163.47.212.50";
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+                }
+
+
+                OTSBD.clsStaticInfo _info = new OTSBD.clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+        }
+        #endregion AddInfo
     }
 
 
@@ -14652,6 +14839,34 @@ where EmpSystemID = '" + EmpSysId + @"' and ComplianceDocumentId = '31'
         public string UpdatedBy { get; set; }
         public string UpdatedDate { get; set; }
         public string UpdatedFromIP { get; set; }
+
+    }
+
+    public class AddInfoList
+    {
+        public string Id { get; set; }
+        public string UserName { get; set; }
+        public string CharecterType { get; set; }
+        public string Value { get; set; }
+        public string Remarks { get; set; }
+    }
+    public class SalesAddinfo
+    {
+        public string Id { get; set; }
+        public string SalesId { get; set; }
+        public string AdditionalInfoId { get; set; }
+        public string Value { get; set; }
+        public string Remarks { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
+        public string LineItemId { get; set; }
+        public string InventoryReceiveId { get; set; }
+        public string PartyId { get; set; }
+        public string SalesOrderId { get; set; }
 
     }
 }
