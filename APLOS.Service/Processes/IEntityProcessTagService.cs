@@ -22,5 +22,6 @@ namespace Library.Service.Processes
 		void Delete(string id);
 
         GridModel GetEntityProcessCbo(bool cadmin, bool sadmin, string userId, string entityId);
+		GridModel GetEntityCuttingProcessCbo(bool cadmin, bool sadmin, string userId, string entityId);
 	}
 }

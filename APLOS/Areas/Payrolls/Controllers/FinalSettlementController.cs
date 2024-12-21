@@ -2711,14 +2711,14 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
 
 
             string sql = null;
-            sql = @"SELECT x.OtherName,X.TrnType,X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAmount) CrAmount,SUM(X.Amount) Amount,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
+            sql = @"SELECT x.OtherName,X.TrnType,X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAmount) CrAmount,SUM(X.Amount) Amount,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId,X.Active
                 FROM
                 ( SELECT  'NetPay' AS OtherName, 'Dr' AS TrnType
                 , CAST(EI.Value AS decimal(18,2)) DrAmount 
                 , 0 CrAmount 
                 , CAST(EI.Value AS decimal(18,2)) Amount
                 ,vd.GLGeneralInfoId  ,vd.BudgetMasterId,vd.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
-                , B.UserName BudgetName,A.UserName ActivityName 
+                , B.UserName BudgetName,A.UserName ActivityName ,BMA.Active
 				FROM EmployeeFullAndFinalSettlement  E
 				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='NetPay'
 				LEFT JOIN [dbo].[EmployeeSeperationItem] ESI ON  ESI.Id=EI.EmployeeSeperationItemId
@@ -2728,6 +2728,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
 				LEFT JOIN[MST].[BudgetMaster] AS BM ON vd.BudgetMasterId= BM.Id
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON vd.ActivityId= A.Id
+                LEFT JOIN[MST].[BudgetMasterActivity] AS BMA ON BMA.BudgetMasterId= BM.Id AND BMA.ActivityId= A.Id
 				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
 
                 Union All
@@ -2736,7 +2737,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
                 , 0 CrAmount 
                 , CAST(EI.Value AS decimal(18,2)) Amount
                 ,vd.GLGeneralInfoId  ,vd.BudgetMasterId,vd.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
-                , B.UserName BudgetName,A.UserName ActivityName 
+                , B.UserName BudgetName,A.UserName ActivityName ,BMA.Active
 				FROM EmployeeFullAndFinalSettlement  E
 				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='Bonus'
 				LEFT JOIN [dbo].[EmployeeSeperationItem] ESI ON  ESI.Id=EI.EmployeeSeperationItemId
@@ -2746,6 +2747,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
 				LEFT JOIN[MST].[BudgetMaster] AS BM ON vd.BudgetMasterId= BM.Id
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON vd.ActivityId= A.Id
+                LEFT JOIN[MST].[BudgetMasterActivity] AS BMA ON BMA.BudgetMasterId= BM.Id AND BMA.ActivityId= A.Id
 				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @") )A
 
                 Union All
@@ -2754,7 +2756,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
                 , 0 CrAmount 
                 , CAST(EI.Value AS decimal(18,2)) Amount
                 ,BM.GLGeneralInfoId ,BMA.BudgetMasterId,BMA.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
-                , B.UserName BudgetName,A.UserName ActivityName 
+                , B.UserName BudgetName,A.UserName ActivityName ,BMA.Active
 				FROM EmployeeFullAndFinalSettlement  E
 				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='LeaveEncashment'
 				LEFT JOIN [dbo].[EmployeeSeperationItem] ESI ON  ESI.Id=EI.EmployeeSeperationItemId
@@ -2771,7 +2773,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
                 , 0 CrAmount 
                 , CAST(EI.Value AS decimal(18,2)) Amount
                 ,BM.GLGeneralInfoId ,EP.BudgetMasterId,EP.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
-                , B.UserName BudgetName,A.UserName ActivityName 
+                , B.UserName BudgetName,A.UserName ActivityName ,BMA.Active
 				FROM EmployeeFullAndFinalSettlement  E
 				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='ExpensesPayable'
 				LEFT JOIN (SELECT EP.EmployeeId,EPD.GLGeneralInfoId, EPD.BudgetMasterId,EPD.ActivityId FROM trn.EmployeePayable AS EP 
@@ -2782,6 +2784,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
 				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON EP.ActivityId= A.Id
+                LEFT JOIN[MST].[BudgetMasterActivity] AS BMA ON BMA.BudgetMasterId= BM.Id AND BMA.ActivityId= A.Id
 				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND EI.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
 
                 Union All
@@ -2790,7 +2793,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
                 , 0  CrAmount 
                 , ABS(CAST(EI.Value AS decimal(18,2))) Amount
                 ,BM.GLGeneralInfoId  ,BMA.BudgetMasterId,BMA.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
-                , B.UserName BudgetName,A.UserName ActivityName 
+                , B.UserName BudgetName,A.UserName ActivityName ,BMA.Active
 				FROM EmployeeFullAndFinalSettlement  E
 				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='GoodWork'
 				LEFT JOIN [dbo].[EmployeeSeperationItem] ESI ON  ESI.Id=EI.EmployeeSeperationItemId
@@ -2807,7 +2810,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
                 , 0  CrAmount 
                 , ABS(CAST(EI.Value AS decimal(18,2))) Amount
                 ,BM.GLGeneralInfoId  ,BMA.BudgetMasterId,BMA.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
-                , B.UserName BudgetName,A.UserName ActivityName 
+                , B.UserName BudgetName,A.UserName ActivityName ,BMA.Active
 				FROM EmployeeFullAndFinalSettlement  E
 				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='OverTime'
 				LEFT JOIN [dbo].[EmployeeSeperationItem] ESI ON  ESI.Id=EI.EmployeeSeperationItemId
@@ -2823,7 +2826,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
                 , CAST(EP.Amount AS decimal(18,2)) CrAmount 
                 , CAST(EP.Amount AS decimal(18,2)) Amount
                 ,BM.GLGeneralInfoId ,EP.BudgetMasterId,EP.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
-                , B.UserName BudgetName,A.UserName ActivityName 
+                , B.UserName BudgetName,A.UserName ActivityName ,BMA.Active
 				FROM EmployeeFullAndFinalSettlement  E
 				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='AdvanceLoan'
 				LEFT JOIN (SELECT EP.EmployeeId,EPD.GLGeneralInfoId, EPD.BudgetMasterId,EPD.ActivityId,(SUM(EP.Amount)-SUM(EP.WrittenOffAmount))Amount FROM trn.Advance AS EP 
@@ -2834,6 +2837,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
 				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON EP.ActivityId= A.Id
+                LEFT JOIN[MST].[BudgetMasterActivity] AS BMA ON BMA.BudgetMasterId= BM.Id AND BMA.ActivityId= A.Id
 				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND EI.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
 
 				Union All
@@ -2842,7 +2846,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
                 , CAST(EI.Value AS decimal(18,2)) CrAmount 
                 , CAST(EI.Value AS decimal(18,2)) Amount
                 ,BM.GLGeneralInfoId ,EP.BudgetMasterId,EP.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
-                , B.UserName BudgetName,A.UserName ActivityName 
+                , B.UserName BudgetName,A.UserName ActivityName ,BMA.Active
 				FROM EmployeeFullAndFinalSettlement  E
 				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='AdvanceSalary'
 				LEFT JOIN (SELECT EP.EmployeeId,EPD.GLGeneralInfoId, EPD.BudgetMasterId,EPD.ActivityId FROM trn.EmployeeSubsequentTransaction AS EP 
@@ -2853,6 +2857,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
 				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON EP.ActivityId= A.Id
+                LEFT JOIN[MST].[BudgetMasterActivity] AS BMA ON BMA.BudgetMasterId= BM.Id AND BMA.ActivityId= A.Id
 				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND EI.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
 
                 Union All
@@ -2861,7 +2866,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
                 , ABS(CAST(EI.Value AS decimal(18,2)))  CrAmount 
                 , ABS(CAST(EI.Value AS decimal(18,2))) Amount
                 ,BM.GLGeneralInfoId  ,BMA.BudgetMasterId,BMA.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
-                , B.UserName BudgetName,A.UserName ActivityName 
+                , B.UserName BudgetName,A.UserName ActivityName ,BMA.Active
 				FROM EmployeeFullAndFinalSettlement  E
 				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='NetPay'
 				LEFT JOIN [dbo].[EmployeeSeperationItem] ESI ON  ESI.Id=EI.EmployeeSeperationItemId
@@ -2878,7 +2883,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
                 , ABS(CAST(EI.Value AS decimal(18,2)))  CrAmount 
                 , ABS(CAST(EI.Value AS decimal(18,2))) Amount
                 ,BM.GLGeneralInfoId  ,BMA.BudgetMasterId,BMA.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
-                , B.UserName BudgetName,A.UserName ActivityName 
+                , B.UserName BudgetName,A.UserName ActivityName ,BMA.Active
 				FROM EmployeeFullAndFinalSettlement  E
 				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='ShortNoticePeriodDeduction'
 				LEFT JOIN [dbo].[EmployeeSeperationItem] ESI ON  ESI.Id=EI.EmployeeSeperationItemId
@@ -2895,7 +2900,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
                 , ABS(CAST(EI.Value AS decimal(18,2)))  CrAmount 
                 , ABS(CAST(EI.Value AS decimal(18,2))) Amount
                 ,'" + voucherVM.GLGeneralInfoId + @"' GLGeneralInfoId ,'" + voucherVM.BudgetMasterId + @"' BudgetMasterId,'" + voucherVM.ActivityId + @"' ActivityId
-                , '" + voucherVM.GLGeneralInfoName + @"' GLName , '" + voucherVM.BudgetName + @"' BudgetName,'" + voucherVM.ActivityName + @"' ActivityName  
+                , '" + voucherVM.GLGeneralInfoName + @"' GLName , '" + voucherVM.BudgetName + @"' BudgetName,'" + voucherVM.ActivityName + @"' ActivityName , Convert(bit, 'True') Active 
 				FROM EmployeeFullAndFinalSettlement  E
 				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='NetPayable'
 				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
@@ -2903,7 +2908,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
                 )X
                 GROUP BY
 
-                X.OtherName,X.TrnType,X.GLName,X.BudgetName,X.ActivityName,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
+                X.OtherName,X.TrnType,X.GLName,X.BudgetName,X.ActivityName,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId,X.Active
                 ORDER BY X.TrnType DESC";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
