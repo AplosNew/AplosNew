@@ -2567,12 +2567,12 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
                 else
                 { DatewiseData = "AND IV.ActualDueDate <= '" + FromDate + @"'"; }
                 string strSQL = string.Empty;
-                strSQL = @" SELECT   IV.PartyType,EN.UserName AS EntityName ,V.VoucherNo ,Replace(CONVERT(VARCHAR(11), IV.DocDate, 106), ' ', '-') DocDate
+                strSQL = @" SELECT   IV.Id,IV.PartyType,EN.UserName AS EntityName ,V.VoucherNo ,Replace(CONVERT(VARCHAR(11), IV.DocDate, 106), ' ', '-') DocDate
 									,Replace(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') PostingDate ,IV.DocRefNo ,IV.Narration ,IV.Id AS InvoiceId
 									,EN.Id EntityId ,IV.PlantId ,IV.VoucherId ,Replace(CONVERT(VARCHAR(11),IV.ActualDueDate, 106), ' ', '-') ActualDueDate
 									,Replace(CONVERT(VARCHAR(11),IV.BaseOnDueDate, 106), ' ', '-') BaseOnDueDate
 									,IV.BaseNoOfDays,DATEDIFF(DAY, GETDATE(),IV.ActualDueDate) DelayDays,Replace(CONVERT(VARCHAR(11),IV.RevisedDueDate, 106), ' ', '-')  RevisedDueDate
-                                    , IV.SourceType  
+                                    , IV.SourceType ,CheckBoxSelect= CONVERT(bit,0)    
 									,IV.CurrencyId ,C.Code AS CurrencyCode ,IV.PartyId ,V.ExchangeType
 									,IV.PartyPlantId ,PP.UserName AS PartyPlantName
                                     ,IV.Amount+IV.AdditionalAmount InvoiceAmount,IV.WrittenOffAmount,IV.Amount+IV.AdditionalAmount-IV.WrittenOffAmount Balance
