@@ -143,7 +143,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
                         --left outer join mst.Destination DE ON DE.Id=so.DestinationId
-						LEFT JOIN [dbo].[Contract] C ON C.Id=SO.ContractId
+						 JOIN [dbo].[Contract] C ON C.Id=SO.ContractId
 						LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
 						LEFT JOIN org.Plant AS POUT ON POUT.Id=EOUT.PlantId
 						LEFT JOIN hkp.Party AS TOUT ON tout.Id=moi.PartyId
