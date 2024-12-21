@@ -136,7 +136,7 @@ function ProductionCuttingBookingController(cboService, commonMessage, $scope, $
     $scope.IsSKU3 = false;
     $scope.IsFirst = false;
     $scope.IsParameterBased = false;
-   // $scope.ToCloseAllowed = false;
+    $scope.ToCloseAllowed = false;
 
     $scope.getProdLevel = function () {
         try {
