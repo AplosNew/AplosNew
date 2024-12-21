@@ -217,14 +217,8 @@ namespace Library.Service.Invoices
                     if (receiveData.Status == "Posting")
                         throw new CustomException("The GRN no '" + receiveData.Id + "' already Posted!");
 
-                    //var companyParty = _companyPartyRepository.Query(r => r.PartyId == receiveData.PartyId).Select().FirstOrDefault();
-
-                    // var inventoryReceive=_inventoryReceiveRepository.Find();
-
                     _unitOfWork.BeginTransaction();
                     flag = true;
-                    // INSERT INTO Invoice TABLE
-
                     var invoice = new Invoice
                     {
                         Amount = voucherVM.Amount,
@@ -562,57 +556,7 @@ namespace Library.Service.Invoices
 
                     if (totalAmountDr != totalAmountCr)
                         throw new CustomException("Dr and Cr amount is not equal.");
-                    //if (null != additionalTaxList && additionalTaxList.Count() > 0)
-                    //{
-
-                    //    var additionalTax = new AdditionalTax
-                    //    {
-
-                    //        TaxYearId = voucher.TaxYearId,
-                    //        TaxYearPeriodId = voucher.TaxYearPeriodId,
-                    //        TaxAmount = additionalTaxList.Sum(r => r.TaxAmount),
-                    //        TaxAutoAmount = additionalTaxList.Sum(r => r.TaxAutoAmount),
-                    //        InventoryReceiveId = receiveId,
-                    //        InvoiceId = invoice.Id,
-                    //        Id = base.GetAutoNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now),
-                    //        AddedBy = invoice.AddedBy,
-                    //        AddedDate = invoice.AddedDate,
-                    //        AddedFromIP = invoice.AddedFromIP
-                    //    };
-                    //    accountCommonExtensionService.InsertAdditionalTax(additionalTax, out  _adtaxdataset);
-
-                    //    int addtionalTaxDetailId = 0;
-                    //    foreach (var invoiceTaxVM in additionalTaxList)
-                    //    {
-
-                    //        if (null == invoiceTaxVM.TaxCodeId)
-                    //            throw new CustomException("Tax code not found!");
-
-                    //        var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == invoiceTaxVM.TaxCodeId).Select().FirstOrDefault();
-                    //        if (null == taxCodeGL)
-                    //            throw new CustomException("Tax code GL not found!");
-
-
-                    //        addtionalTaxDetailId++;
-                    //        var invoiceTaxDetail = new AdditionalTaxDetail
-                    //        {
-                    //            GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                    //            BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                    //            ActivityId = taxCodeGL.WithholdCreditableActivityId,
-                    //            Amount = invoiceTaxVM.TaxAmount,
-                    //            AdditionalTaxId = additionalTax.Id,
-                    //            TaxCodeId = invoiceTaxVM.TaxCodeId,
-                    //            TaxCategoryId = invoiceTaxVM.TaxCategoryId,
-                    //            AType = "Cr",
-                    //            Id = MakePK(additionalTax.Id, addtionalTaxDetailId, 3),
-                    //            AddedBy = invoice.AddedBy,
-                    //            AddedDate = invoice.AddedDate,
-                    //            AddedFromIP = invoice.AddedFromIP
-                    //        };
-                    //        accountCommonExtensionService.InsertAdditionalTaxDetail(invoiceTaxDetail, ref _adtaxDetaildataset);
-                    //    }
-
-                    //}
+                    
                     if (null != additionalTaxList && additionalTaxList.Count() > 0)
                     {
                         var tdsTax = new AdditionalTax
@@ -670,8 +614,6 @@ namespace Library.Service.Invoices
                         InsertOtherVendorChargesPayable(receiveId,receiveData,voucherVM, otherVendorChargesList);
                     }
                     _unitOfWork.SaveChanges();
-                    //clsStaticInfo objApp = new clsStaticInfo();
-                    //objApp.SaveDataSets(_adgrnAccMapset);
                     flag = false;
                     _unitOfWork.Commit();
                     voucherNo = voucher.VoucherNo;
