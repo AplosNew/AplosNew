@@ -410,5 +410,9 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/SalesPurchaseTransactionType/Aplos',
             controller: 'SalesPurchaseTransactionTypeController'
         })
+        .when('/cutting-booking', {
+            templateUrl: 'Productions/ProductionSummary/CuttingBooking',
+            controller: 'ProductionCuttingBookingController'
+        })
         ;
 }

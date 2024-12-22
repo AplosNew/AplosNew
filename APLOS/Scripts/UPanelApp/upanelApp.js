@@ -1297,6 +1297,7 @@ upanelApp.controller("SpecialDutyController", SpecialDutyController)
 upanelApp.controller("SpecialDutyReportController", SpecialDutyReportController)
 upanelApp.controller("ProcessConstraintController", ProcessConstraintController)
 upanelApp.controller("invoiceReviseMaturedateController", invoiceReviseMaturedateController)
+upanelApp.controller("ProductionCuttingBookingController", ProductionCuttingBookingController)
 
 
 

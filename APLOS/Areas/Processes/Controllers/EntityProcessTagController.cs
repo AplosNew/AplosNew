@@ -54,7 +54,14 @@ namespace Aplos.Areas.Processes.Controllers
 			return Json(_entityProcessTagService.GetEntityProcessCbo(identity.IsControlAdmin,identity.IsSysAdmin,identity.UserId, entityId).Rows, JsonRequestBehavior.AllowGet);
 		}
 
-        [HttpPost, Authorize]
+		[Authorize, HttpGet]
+		public JsonResult GetEntityCuttingProcessCbo(string entityId)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			return Json(_entityProcessTagService.GetEntityCuttingProcessCbo(identity.IsControlAdmin, identity.IsSysAdmin, identity.UserId, entityId).Rows, JsonRequestBehavior.AllowGet);
+		}
+
+		[HttpPost, Authorize]
         public JsonResult GetEntity(string plantId)
         {
             try

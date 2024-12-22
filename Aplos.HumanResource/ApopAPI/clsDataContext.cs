@@ -13073,6 +13073,75 @@ left join hkp.Party PT on PT.Id = MO.PartyId" + strSQLJoin;
                 objCon = null;
             }
         }
+
+        public string PostSalesAddInfo(IEnumerable<SalesAddinfo> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "[dbo].[SalesAdditionalInfo]";
+                string Id = "''";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<SalesAddinfo> items = DataToSave.ToList();
+
+                foreach (SalesAddinfo item in DataToSave)
+                {
+                    Id += ",'" + item.Id + "'";
+                }
+
+                con.OpenDataSetThroughAdapter("select * from [dbo].[SalesAdditionalInfo] where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+
+                foreach (SalesAddinfo item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+                        dr["Id"] = _Id;
+                        dr["SalesId"] = item.SalesId;
+
+                        dr["AdditionalInfoId"] = item.AdditionalInfoId;
+                        dr["Value"] = item.Value;
+                        dr["Remarks"] = item.Remarks;
+                        dr["LineItemId"] = item.LineItemId;
+                        dr["InventoryReceiveId"] = item.InventoryReceiveId;
+                        dr["PartyId"] = item.PartyId;
+                        dr["SalesOrderId"] = item.SalesOrderId;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = "163.47.212.50";
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+                }
+
+
+                OTSBD.clsStaticInfo _info = new OTSBD.clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+        }
         #endregion AddInfo
     }
 
@@ -14781,5 +14850,23 @@ left join hkp.Party PT on PT.Id = MO.PartyId" + strSQLJoin;
         public string Value { get; set; }
         public string Remarks { get; set; }
     }
+    public class SalesAddinfo
+    {
+        public string Id { get; set; }
+        public string SalesId { get; set; }
+        public string AdditionalInfoId { get; set; }
+        public string Value { get; set; }
+        public string Remarks { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
+        public string LineItemId { get; set; }
+        public string InventoryReceiveId { get; set; }
+        public string PartyId { get; set; }
+        public string SalesOrderId { get; set; }
 
+    }
 }
