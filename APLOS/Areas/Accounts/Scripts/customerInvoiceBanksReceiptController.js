@@ -1292,6 +1292,7 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
                     $scope.bankDetail.FinancingId = bank.FinancingId;
                     $scope.bankDetail.FinancingDetailId = bank.FinancingDetailId;
                     $scope.bankDetail.FinancingTypeId = bank.FinancingTypeId;
+                    $scope.bankDetail.DocRefNo = bank.DocRefNo;
                     $scope.bankDetail.CompanyCurrencyRate = bank.CompanyCurrencyRate;
                     $scope.bankDetail.Balance = bank.Balance;
                     $scope.bankDetail.Amount = null;
