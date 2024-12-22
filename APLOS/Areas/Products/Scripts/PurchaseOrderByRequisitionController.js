@@ -176,6 +176,7 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 		, CompanyId: null
 		, PlantId: $window.plantId
 		, PartyId: null
+		, EntityId: null
 		, InvoicingPartyPlantId: null
 		, InvoicingByAddress: null
 		, InvoicingState: null
@@ -236,6 +237,10 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 
 	addressService.getCountryCbo(function (result) {
 		$scope.countryList = result;
+	});
+	$scope.entityList = [];
+	cboService.getCboEntityByPlant(null, null, "", function (result) {
+		$scope.entityList = result;
 	});
 	$scope.countryList1 = [];
 	$scope.CountryLoad = function () {
@@ -357,27 +362,7 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 		if (!$rootScope.isCollapsed) $rootScope.toggle();
 	};
 
-	function GetMasterData() {
-		var aa = $("#masterId").text();
-		$http.get('Products/PurchaseOrder/GetPOMasterById?id=' + aa).then(function (response) {
-			$scope.productNew = response.data;
-		});
-
-		getPartyPlantList();
-		getInventoryMaterialList($scope.productNew.Id);
-		getServiceChargeList($scope.productNew.Id);
-		//$scope.getToCurrencyRate();
-		if (!baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
-			var paymentTerm = $.grep($scope.paymentTermList, function (item) { return item.Value === $scope.productNew.PaymentTermId; })[0];
-			if (paymentTerm.BaseLineDate !== null)
-				if (paymentTerm.BaseLineDate === 'documentdate')
-					$scope.IsBaseOnDueDateEnable = true;
-				else
-					$scope.IsBaseOnDueDateEnable = false;
-		}
-		//$scope.Action = 'Update';
-		if (!$rootScope.isCollapsed) $rootScope.toggle();
-	};
+	
 
 	$scope.Save = function () {
 
@@ -1063,10 +1048,6 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 
 			$scope.processgroupList($scope.GetListForMasterOrdernew, $scope.groupList);
 
-			// $scope.materialValidation();
-
-
-
 			if ($scope.Action1 === 'Save') {
 				$scope.materialValidation();
 				if ($scope.invalid) {
@@ -1322,24 +1303,8 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 
 			});
 	}
-	function checkSameValueInColumnList(list, fieldName) {
-		for (var i = 0; i < baseService.arrayLength(list); i++) {
-			if (list[i][fieldName] === (i > 0 ? list[i - 1][fieldName] : list[i][fieldName]))
-				$scope.sumORnot = true;
-			else return $scope.sumORnot = false;
-		}
-	}
-
-	function getTaxCategoryListt(hsnCodeId) {
 	
-		$scope.taxCategoryList = [];
-		$http({
-			method: 'GET'
-			, url: $scope.path + 'GetTaxCategoryList?receiveId=' + $scope.productNew.Id + '&hsnCodeId=' + hsnCodeId
-		}).then(function (response) {
-			$scope.taxCategoryList = response.data;
-		});
-	}
+	
 	function getTaxCategoryList(hsnCodeId) {
 		
 		$scope.taxCategoryList = [];
@@ -1905,11 +1870,6 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 		$scope.enable = true;
 		$scope.MSAction = "Edit";
 
-		//}
-		//else {
-
-		//}
-
 		$scope.serviceModel = {
 			Id: null
 			, ServiceMasterId: null
@@ -2043,7 +2003,7 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 		$scope.Currency = $("#currency option:selected").text();
 		$scope.productNew = x.data;
 		$scope.Id = $scope.productNew.Id;
-		$scope.LoadAllReq();
+		//$scope.LoadAllReq();
 		$scope.GetTerms($scope.productNew.Id);
 		getPartyPlantEditList($scope.productNew.InvoicingPartyPlantId, $scope.productNew.InvoicingByAddress, $scope.productNew.DeliveryPartyPlantId, $scope.productNew.DeliveryByAddress, $scope.productNew.DeliveryState, $scope.productNew.DeliveryGSTIN);
 
@@ -2108,11 +2068,6 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 	};
 
 	function getTaxCategoryList(hsnCodeId) {
-		//debugger
-		//var x = $event;
-		//var Id = x.data.Id;
-		//var hsnCodeId = x.data.hsnCodeId;
-
 		$scope.taxCategoryList = [];
 		$http({
 			method: 'GET'
@@ -2157,7 +2112,6 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 			data.TrnAmount = 0;
 		data.TaxAmount = 0;
 		$scope.id = data.InventoryReceiveId;
-		// $scope.GetSalesTaxDataa();
 		angular.forEach($scope.TaxList, function (item) {
 			if (item.PODetailId === data.InventoryReceiveDetailId) {
 				item.TaxAmount = data.TrnAmount * item.Percentage / 100;
@@ -2172,17 +2126,12 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 				data.BaseTaxAmount = '0.00';
 			}
 			data.BaseAmount = parseFloat(parseFloat(data.TrnAmount) + parseFloat(data.BaseTaxAmount)).toFixed(2);
-			//$scope.detailPopUpEdit();
 		}
 		else {
 			data.BaseAmount = parseFloat(data.TrnAmount).toFixed(2);
-			//$scope.detailPopUpEdit();
 		}
-
-
 	};
 	$scope.calculateRate = function (data, event) {
-
 		data.TransactionRate = (data.TrnAmount / data.TransactionQty).toFixed(2);
 		if (data.TransactionRate === 'NaN')
 			data.TransactionRate = 0;
@@ -2192,16 +2141,12 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 
 			data.BaseTaxAmount += item.TaxAmount;
 		});
-		// data.BaseAmount = $scope.productNew.ToCurrencyRate * data.TrnAmount;
 		if ($scope.productNew.IsNonCreditable == 1) {
-			//data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
 			data.BaseAmount = data.TrnAmount + data.BaseTaxAmount;
 		}
 		else {
-			// data.BaseAmount = $scope.productNew.ToCurrencyRate * data.TrnAmount;
 			data.BaseAmount = data.TrnAmount;
 		}
-
 	};
 	$scope.calculateAmountForServiceCharge = function (data) {
 		data.TotalTaxAmount = 0;
@@ -2218,9 +2163,7 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 		var getRow = $filter("filter")($scope.receiveTaxList, { "TaxCategoryId": id });
 		if (getRow.length === 2) {
 			ShowResult("You can't add Same Tax two times", 'failure', 'ServiceChargeTaxPopUp');
-
 		}
-
 	}
 	$scope.onchangeFunction1 = function (id) {
 		$scope.TaxCategoryId = id;
@@ -2228,21 +2171,13 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 		var getRow = $filter("filter")($scope.receiveTaxList, { "TaxCategoryId": id });
 		if (getRow.length === 2) {
 			ShowResult("You can't add Same Tax two times", 'failure', 'receiveTaxPopUp');
-
 		}
-
 	};
 
-	//#region Purchase-Order-By-Requisition ----All Print Function
 	$scope.onClick = function (args) {
-
 		var gridObj = $("#Grid").data("ejGrid");
-		//getting corresponding record             
 		var data = gridObj.getSelectedRecords()[0];
-		//alert('jj' + data.Id);
-		// $scope.valuePassInDelModal(data); 
 		location.href = "Products/PurchaseOrder/GePurchaseOrderReportByReq?purchaseOrderId=" + data.Id;
-
 	};
 	$scope.command = [{
 		type: "details", buttonOptions: {
@@ -2254,103 +2189,70 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 		}
 	}];
 
-
 	$scope.onClickCheckedHR = function (args) {
-
 		var gridObj = $("#GridCheckedHR").data("ejGrid");
-		//getting corresponding record             
 		var data = gridObj.getSelectedRecords()[0];
-		//alert('jj' + data.Id);
-		// $scope.valuePassInDelModal(data); 
 		location.href = "Products/PurchaseOrder/GePurchaseOrderReportByReq?purchaseOrderId=" + data.Id;
-
 	};
 	$scope.commandCheckedHRPrint = [{
 		type: "details", buttonOptions: {
 			text: "Print",
 			width: "50",
 			height: "20",
-
 			click: $scope.onClickCheckedHR
 		}
 	}];
 
 
-
 	$scope.onClickChecked = function (args) {
-
 		var gridObj = $("#GridChecked").data("ejGrid");
-		//getting corresponding record             
 		var data = gridObj.getSelectedRecords()[0];
-		//alert('jj' + data.Id);
-		// $scope.valuePassInDelModal(data); 
 		location.href = "Products/PurchaseOrder/GePurchaseOrderReportByReq?purchaseOrderId=" + data.Id;
-
 	};
+
 	$scope.commandCheckedPrint = [{
 		type: "details", buttonOptions: {
 			text: "Print",
 			width: "50",
 			height: "20",
-
 			click: $scope.onClickChecked
 		}
 	}];
 
 
-
 	$scope.onClickApprovedHR = function (args) {
-
 		var gridObj = $("#GridApprovedHR").data("ejGrid");
-		//getting corresponding record             
 		var data = gridObj.getSelectedRecords()[0];
-		//alert('jj' + data.Id);
-		// $scope.valuePassInDelModal(data); 
 		location.href = "Products/PurchaseOrder/GePurchaseOrderReportByReq?purchaseOrderId=" + data.Id;
-
 	};
 	$scope.commandApprovedHR = [{
 		type: "details", buttonOptions: {
 			text: "Print",
 			width: "50",
 			height: "20",
-
 			click: $scope.onClickApprovedHR
 		}
 	}];
 
-
-
 	$scope.onClickApp = function (args) {
-
 		var gridObj = $("#GridApp").data("ejGrid");
-		//getting corresponding record             
 		var data = gridObj.getSelectedRecords()[0];
-		//alert('jj' + data.Id);
-		// $scope.valuePassInDelModal(data); 
 		location.href = "Products/PurchaseOrder/GePurchaseOrderReportByReq?purchaseOrderId=" + data.Id;
-
 	};
 	$scope.commandApp = [{
 		type: "details", buttonOptions: {
 			text: "Print",
 			width: "50",
 			height: "20",
-
 			click: $scope.onClickApp
 		}
 	}];
 
 	$scope.onClickpoApprovalprint = function (args) {
-
 		var gridObj = $("#GridPO1").data("ejGrid");
 		var data = gridObj.getSelectedRecords()[0];
 		location.href = "Products/PurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
-
 	};
-
-
-
 
 
 	$scope.commandprint = [{
@@ -2358,7 +2260,6 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 			text: "Print",
 			width: "50",
 			height: "20",
-
 			click: $scope.onClickpoApprovalprint
 		}
 	}];
@@ -2366,25 +2267,18 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 	$scope.invalidDocDate = false;
 	$scope.checkDocDate = function () {
 		var msg = "";
-
 		if (new Date($scope.productNew.DocDate) > new Date($scope.productNew.PODate)) {
 			msg = "Doc date must be grater or equal to Vendor Doc. RefNo!";
 			$scope.invalidDocDate = true;
 		}
-		
 		else $scope.invalidDocDate = false;
 		return manualValidation("div_DocDate", $scope.invalidDocDate, msg);
 	};
-	//#region Shahazahan Code for PO Approval
 	$scope.Griddata1 = [];
 	$scope.onClickPO = function (args) {
-
 		var gridObj = $("#Grid").data("ejGrid");
-		//getting corresponding record 
 		$scope.data = gridObj.getSelectedRecords()[0];
-		//alert('POClose' + data.Id);
 		$scope.approveAlert();
-
 	};
 	cboService.getEnumCbo("enum/GetExpensesBookingApprovalStatusCbo", function (result) {
 		$scope.approvalStatusList = result;
@@ -2393,11 +2287,9 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 		$http({
 			method: "GET",
 			dataType: 'JSON',
-			//url: $scope.getSearchListUrl,
 			url: 'Products/PurchaseOrder/getPendingList',
 		}).then(function successCallback(response) {
 			$scope.Griddata1 = response.data;
-			//entrydata = copy(searchdata);
 		});
 	};
 	$scope.Status = null;
@@ -2405,9 +2297,6 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 	$scope.poApp = function () {
 		var str = $('#combo-default1').val();
 		var Id = str.substring(0, str.indexOf('-'));
-		//var d1 = $('#combo-default1 option:selected').text();
-
-
 		$http({
 			method: 'POST',
 			url: 'Products/PurchaseOrder/PoApproved',
@@ -2416,7 +2305,6 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 				'PoValue': $scope.podata.TotalQty,
 				'CheckedStataus': $('#combo-default').val(),
 				'AuthorizedBy': Id
-
 			},
 
 			dataType: 'JSON'
@@ -2441,8 +2329,6 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 				'PoId': $scope.podata.Id,
 				'PoValue': $scope.podata.TotalQty,
 				'CheckedStataus': $('#combo-default12').val()
-
-
 			},
 
 			dataType: 'JSON'
@@ -2487,12 +2373,8 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 
 
 	$scope.onClickPOA = function (args) {
-
 		var gridObj = $("#GridPO").data("ejGrid");
-		//getting corresponding record 
 		$scope.podata = gridObj.getSelectedRecords()[0];
-
-		//alert('Approve=' + data.Id);
 		$scope.approvalAlert();
 	};
 	$scope.commandpo = [{
@@ -2504,12 +2386,8 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 		}
 	}];
 	$scope.onClickPOAUTH = function (args) {
-
 		var gridObj = $("#GridPOAPp").data("ejGrid");
-		//getting corresponding record 
 		$scope.podata = gridObj.getSelectedRecords()[0];
-
-		//alert('Approve=' + data.Id);
 		$scope.approvalAlert();
 	};
 	$scope.commandpoAuth = [{
@@ -2524,31 +2402,23 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 		$scope.message = 'Are you sure want to Approve?';
 		angular.element(document.querySelector('#poapprovealert')).modal('show');
 	};
-	//#endregion
-	//#region Towfik PO Closed
 	$scope.GriddataPOClose = [];
 	$scope.getalldataPOClose = function () {
 		$http({
 			method: "GET",
 			dataType: 'JSON',
-			//url: $scope.getSearchListUrl,
 			url: 'Products/PurchaseOrder/GetListForPOClose',
 		}).then(function successCallback(response) { //datagatefun
 			$scope.GriddataPOClose = response.data;
-			//entrydata = copy(searchdata);
 		});
 	};
 	$scope.getalldataPOClose();
 
 
 	$scope.onClickPOlock = function (args) {
-
 		var gridObj = $("#Grid").data("ejGrid");
-		//getting corresponding record 
 		$scope.data = gridObj.getSelectedRecords()[0];
-		//alert('POClose' + data.Id);
 		$scope.approvalAlertlock();
-
 	};
 	$scope.approvalAlertlock = function () {
 		$scope.message = 'Are you sure want to Approve?';
@@ -2561,8 +2431,6 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 			text: "Po Unlock",
 			width: "120",
 			height: "20",
-
-
 			click: $scope.onClickPOlock
 		}
 	}];
@@ -2586,7 +2454,6 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 		}, function errorCallBack(response) {
 			ShowResult(response.data.Message, 'failure');
 		});
-
 	}
 	
 	$scope.tab = 1;
@@ -2602,34 +2469,27 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 		$http({
 			method: "GET",
 			dataType: 'JSON',
-			//url: $scope.getSearchListUrl,
 			url: 'Products/PurchaseOrder/getCheckedList',
 		}).then(function successCallback(response) {
 			$scope.Griddataapprovpo = response.data;
-			//entrydata = copy(searchdata);
 		});
 	};
 	$scope.Griddataapprovpo1();
-
-
 
 	$scope.ListForPOApproval1UnApproved = [];
 	$scope.GetListForPOApproval1UnApproved = function () {
 		$http({
 			method: "GET",
 			dataType: 'JSON',
-			//url: $scope.getSearchListUrl,
 			url: 'Products/PurchaseOrder/GetListForPOApproval1UnApproved',
 		}).then(function successCallback(response) {
 			$scope.ListForPOApproval1UnApproved = response.data;
-			//entrydata = copy(searchdata);
 		});
 	};
 	$scope.GetListForPOApproval1UnApproved();
 
 
 	$scope.onClickPOA1 = function (args) {
-
 		var gridObj = $("#GridPO1").data("ejGrid");
 		$scope.podata1 = gridObj.getSelectedRecords()[0];
 		$scope.approveAlert1();
@@ -2640,7 +2500,6 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 			text: "Un Approve",
 			width: "100",
 			height: "30",
-
 			click: $scope.onClickPOA1
 		}
 	}];
@@ -2657,7 +2516,6 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 			data: {
 				'PoId': $scope.podata1.Id,
 				'PoValue': $scope.podata1.TotalQty
-
 			},
 
 			dataType: 'JSON'
@@ -2676,7 +2534,6 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 	}
 
 	$scope.ClosedPOPUp = function (args) {
-
 		angular.element(document.querySelector('#poapprovalalert1')).modal('hide');
 	};
 	$scope.GriddataPOlock = [];
@@ -2693,11 +2550,9 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 	$scope.getalldataPOUnlock();
 
 	$scope.onClickPOlock = function (args) {
-
 		var gridObj = $("#GridUc").data("ejGrid");
 		$scope.data = gridObj.getSelectedRecords()[0];
 		$scope.approvalAlertUnlock();
-
 	};
 	$scope.approvalAlertUnlock = function () {
 		$scope.message = 'Are you sure want to Approve?';
@@ -2728,13 +2583,10 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 	}
 
 	$scope.commandPoUnlock = [{
-
 		type: "details", buttonOptions: {
 			text: "Po lock",
 			width: "120",
 			height: "20",
-
-
 			click: $scope.onClickPOlock
 		}
 	}];
@@ -2746,32 +2598,23 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 	$scope.isSet = function (tabNum) {
 		return $scope.tab === tabNum;
 	};
-	// #endregion
-
-	//#region Toufik PO List for Po closed ui 
 	$scope.GriddataPOListforPoclosedui = [];
 	$scope.getalldataPOListforPoclosedui = function () {
 		$http({
 			method: "GET",
 			dataType: 'JSON',
-			//url: $scope.getSearchListUrl,
 			url: 'Products/PurchaseOrder/GetListForAllPOList',
 		}).then(function successCallback(response) { //datagatefun
 			$scope.GriddataPOListforPoclosedui = response.data;
-			//entrydata = copy(searchdata);
 		});
 	};
 
 	$scope.getalldataPOListforPoclosedui();
 
 	$scope.onClickPoList = function (args) {
-
 		var gridObj = $("#GridPOListforPoclosedui").data("ejGrid");
-		//getting corresponding record 
 		$scope.data = gridObj.getSelectedRecords()[0];
-		//alert('POClose' + data.Id);
 		$scope.approvalAlertPoList();
-
 	};
 	$scope.approvalAlertPoList = function () {
 		$scope.message = 'Are you sure want to Approve?';
@@ -2802,13 +2645,10 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 	}
 
 	$scope.commandAllPoList = [{
-
 		type: "details", buttonOptions: {
 			text: "Po lock",
 			width: "120",
 			height: "20",
-
-
 			click: $scope.onClickPoList
 		}
 	}];
@@ -2840,9 +2680,6 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 	$scope.isSetpou14 = function (tabNum) {
 		return $scope.tab === tabNum;
 	};
-
-
-
 	//$scope.tab = 1;
 	$scope.setTabpoa = function (newTab) {
 		$scope.tab = newTab;
@@ -2898,7 +2735,6 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 		$scope.groupList = [];
 		$scope.Action1 = 'Save';
 		$scope.getalldataListForRequisitionList();
-
 	};
 
 	$scope.RequisitionListHide = function () {
@@ -2916,9 +2752,6 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 		angular.element(document.querySelector('#ListOfRequisition1')).modal('hide');
 	};
 
-
-
-
 	$scope.GetListForMasterOrder = [];
 	$scope.getalldataListForRequisitionList = function () {
 		$scope.GetListForMasterOrder = [];
@@ -2930,12 +2763,10 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 			$scope.GetListForMasterOrder = [];
 			$scope.GetListForMasterOrder = response.data.NewData;
 		});
-
 		$scope.processgroupList1();
 	};
 	$scope.groupList = [];
 	$scope.processgroupList1 = function () {
-
 		if ($scope.inventoryMaterialList.length > 0) {
 			$scope.newlistitems = [];
 			$scope.newlistitems = $scope.GetListForMasterOrder;
@@ -2948,22 +2779,17 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 			}
 		}
 		angular.element(document.querySelector('#ListOfRequisition')).modal('show');
-
 	}
 	$scope.GetListForMasterOrder1 = [];
 	$scope.getalldataListForReqList1 = function () {
 		$http({
 			method: "GET",
 			dataType: 'JSON',
-			//url: $scope.getSearchListUrl,
 			url: 'Products/PurchaseOrder/GetListForRequisition1',
 		}).then(function successCallback(response) { //datagatefun
 			$scope.GetListForMasterOrder1 = response.data;
-			//entrydata = copy(searchdata);
 		});
 	};
-
-
 
 
 	$scope.Getrecorddoubleclick = function ($event, index) {
@@ -2972,15 +2798,12 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 		$scope.MONo = Id;
 		getMasterItemList();
 		angular.element(document.querySelector('#ListOfMasterOrder')).modal('hide');
-
 	};
 
 	function getMasterItemList() {
-
 		$scope.inventoryMaterialList = [];
 		$http.get($scope.path + 'GetMasterItemList?masterOrderId=' + $scope.MONo)
 			.then(function (response) {
-
 				$scope.inventoryMaterialList = response.data;
 				$scope.GetSalesTaxData();
 			});
@@ -3012,52 +2835,37 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 		$http({
 			method: 'GET'
 			, url: $scope.path + 'GetTaxCategoryListForFGService?partyPlantId=' + $scope.productNew.InvoicingPartyPlantId + '&hsnCodeId=' + hsnCodeId
-			//url: $scope.path + 'GetTaxCategoryListForFGService?hsnCodeId=' + hsnCodeId 
 		}).then(function (response) {
 			$scope.taxCategoryList = response.data;
 		});
 	}
 
 	$scope.ServiceListFGAdd = function () {
-
-
 		var TempList = [];
 		TempList.Id = $scope.serviceModel.ServiceMasterId;
-
 		TempList.ServiceMasterName = angular.element("#ServiceMasterId :selected").text();
 		TempList.Amount = $scope.serviceModel.TransactionAmount;
 		TempList.TotalTaxAmount = 0;
 		TempList.TotalTaxAmount = $filter('sumByKey')($filter('filter')($scope.taxCategoryList), 'TaxAmount');
-
 		$scope.chargesList.push(TempList);
 		for (var i = 0; i < $scope.taxCategoryList.length; i++) {
 			$scope.taxCategoryList[i].ServiceMasterId = $scope.serviceModel.ServiceMasterId;
 			$scope.ChargeTaxList.push($scope.taxCategoryList[i]);
 		}
-
 		angular.element(document.querySelector('#serviceChargePopUp')).modal('hide');
-
 	}
 
 	$scope.getServiceTaxFGList = function (data, flag, ServiceId, index) {
-
-		//debugger;
 		$scope.LoadTaxButtonClick();
 		$scope.Currency = $("#currency option:selected").text();
 		$scope.ServiceId = ServiceId;
 		$scope.taxAbleAmnt = data.Amount;//+ data.TotalTaxAmount;
 		$scope.percentageColumn = flag;
-
 		$scope.currentMaterialRow = index;
-		//$scope.taxAbleAmnt = data.TransactionAmount;
-		//$scope.taxAmnt = data.TaxAmount;
-
 		$scope.receiveTaxList = [];
 		if ($scope.ChargeTaxList.length > 0) {
 			$scope.HSNCode = $scope.ChargeTaxList[0].HSNCode;
 			$scope.receiveTaxList = $filter('filter')($scope.ChargeTaxList, { 'InventoryServiceId': ServiceId });
-
-			//$scope.receiveTaxList = $scope.ChargeTaxList;
 		}
 		$scope.total = 0;
 		for (var j = 0; j < $scope.receiveTaxList.length; j++) {
@@ -3068,18 +2876,12 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 	}
 
 	$scope.AddReceiveTaxPopUpFG = function (Id, index) { //hossain
-
 		$scope.detailModel = {};
-		//$scope.receiveTaxList = [];
-		//$scope.receiveTaxList1 = [];
 		var TotalServiceTaxAmount = $filter('sumByKey')($filter('filter')($scope.receiveTaxList), 'TaxAmount');
 		for (var j = 0; j < $scope.inventoryMaterialList.length; j++) {
-
 			if ($scope.inventoryMaterialList[j].Id === $scope.PODetailid) {
 				$scope.inventoryMaterialList[j].BaseTaxAmount = TotalServiceTaxAmount;
 			}
-
-
 		}
 
 
@@ -3143,8 +2945,6 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 		}
 		
 		angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
-		//});
-		// $Scope.TAction = "OK";
 	}
 	$scope.addTaxFG = function () {
 		var data = {
@@ -3166,7 +2966,6 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 	};
 
 	$scope.SaveFG = function () {
-		//
 		try {
 			$scope.dbval = $scope.StateData;
 			$scope.UIval = $scope.productNew.InvoicingState;
@@ -3182,34 +2981,24 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 			}
 			else {
 				ShowResult('You can not change Invoicing party.Line is available', 'failure', 'invoicingPartyPopUp');
-
 			}
 
 			if (baseService.isUndefinedOrNull($scope.productNew.InvoicingPartyPlantId)) return ShowResult('Invoicing by is required', 'failure');
 			if (baseService.isUndefinedOrNull($scope.productNew.DeliveryPartyPlantId)) return ShowResult('Delivery by is required', 'failure');
 			$scope.modelValidation('div_docNo', 'productNew', 'DocRefNo');
 			$scope.modelValidation('div_docDate', 'productNew', 'DocDate');
-			//$scope.modelValidation('div_entryNo', 'productNew', 'GateEntryNo');
 			$scope.modelValidation('div_PODate', 'productNew', 'PODate', 'PO Entry Date');
-			//if ($scope.Action === 'Update')
-			//    $scope.modelValidation('div_grnNo', 'productNew', 'Id');
-			//$scope.modelValidation('div_grnDate', 'productNew', 'GRNDate');
-
 			$scope.manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');
-
 			if ($scope.productNew.CurrencyId !== $scope.productNew.BaseCurrencyId)
 				$scope.manualValidationAddRemove('div_rate  ', 'productNew', 'ToCurrencyRate');
 			else
 				manualValidation('div_rate', false);
-
 			$scope.$broadcast('show-errors-check-validity');
 			if ($scope.productNewForm.$valid) {
-				
 				if (new Date($scope.productNew.PODate) < new Date($scope.productNew.DocDate))
 					return manualValidation('div_PODate', true, "PO date can't be less than Doc entry date");
 				else
 					manualValidation('div_PODate', false);
-
 				$scope.productNew.BaseCurrencyId = $scope.baseCurrencyId;
 				$scope.product = Object.assign({}, $scope.productNew);
 				if ($scope.Action === "Save") {
@@ -3227,7 +3016,6 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 							$scope.productNew.Id = response.data.entity.Id;
 							$scope.productNew.PartyName = $scope.product.PartyName;
 							$scope.Action = "Update";
-							//$scope.getDataList();
 							$scope.getalldata();
 						}
 					}), function (response) {
@@ -3247,9 +3035,7 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 						}
 						else {
 							ShowResult(response.data.Message, 'success');
-							//$scope.getDataList();
 							$scope.getalldata();
-
 						}
 					}, function errorCallBack(response) {
 						ShowResult(response.data.Message, 'failure');
@@ -3262,13 +3048,8 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 	};
 
 	$scope.closeServiceChargeTaxPopUpwindowFG = function () {
-		//getServiceChargeList($scope.productNew.Id);
 		angular.element(document.querySelector('#ServiceChargeTaxPopUp')).modal('hide');
 	}
-
-
-	//#endregion
-
 
 	$scope.checkedByList = [];
 	$scope.GetSupervisorCboList = function () {
@@ -3306,15 +3087,12 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 			e.row.css("background-color", '#D3D3D3');
 		else
 			e.row.css("background-color", '#ffffff');
-
-
 	}
 
 	$scope.calculateRequisitionData = function ($event) {
 		//debugger;
 		var x = $event;
 		var Id = x.data.Id;
-
 		for (var i = 0; i < $scope.GetListForMasterOrder.length; i++) {
 
 			if ($scope.GetListForMasterOrder[i].RequisitionDetailId === x.data.RequisitionDetailId) {
@@ -3324,66 +3102,49 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 		}
 
 		if ($scope.Action1 === 'Save') {
-
 			x.data.TransactionAmount = (parseFloat(x.data.TransactionQty) * parseFloat(x.data.TransactionRate)).toFixed(2);
 			x.data.BalanceQty = (parseFloat(x.data.ReqQty) - (parseFloat(x.data.PORaisedQty) + parseFloat(x.data.TransactionQty))).toFixed(2);
-			//x.data.BalanceQty = (parseFloat(x.data.ReqQty) - parseFloat(x.data.TransactionQty)).toFixed(2);
 			if (x.data.TransactionQty > x.data.ReqQty) {
 				x.data.BalanceQty = '0';
 			}
-			else {
-
-			}
 			if (x.data.TransactionAmount === 'NaN')
 				x.data.TransactionAmount = 0;
-			// x.data.TransactionAmount = 0;
 			var TransactionAmount1 = $filter('sumByKey')($filter('filter')($scope.GetListForMasterOrder), 'TransactionAmount');
 			angular.forEach($scope.taxCategoryList, function (item) {
 				item.TaxAmount = TransactionAmount1 * item.Percentage / 100;
 				x.data.BaseTaxAmount += item.TaxAmount;
 			});
 			if ($scope.productNew.IsNonCreditable == 1) {
-				//data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
 				if (x.data.BaseTaxAmount === null) {
 					x.data.BaseTaxAmount = '0.00';
 				}
 				x.data.BaseAmount = parseFloat(x.data.TransactionAmount + x.data.BaseTaxAmount);
 			}
 			else {
-				// data.BaseAmount = $scope.productNew.ToCurrencyRate * data.TrnAmount;
 				x.data.BaseAmount = x.data.TransactionAmount;
 			}
-
-
 		}
 		else if ($scope.Action1 === 'Update') {
 
 			x.data.TransactionAmount = (parseFloat(x.data.TransactionQty) * parseFloat(x.data.TransactionRate)).toFixed(2);
 			x.data.BalanceQty = (parseFloat(x.data.ReqQty) - parseFloat(x.data.TransactionQty)).toFixed(2);
-			//x.data.BalanceQty = (parseFloat(x.data.ReqQty) - parseFloat(x.data.TransactionQty)).toFixed(2);
 			if (x.data.TransactionQty > x.data.ReqQty) {
 				x.data.BalanceQty = '0';
 			}
-			else {
-
-			}
 			if (x.data.TransactionAmount === 'NaN')
 				x.data.TransactionAmount = 0;
-			// x.data.TransactionAmount = 0;
 			var TransactionAmount1 = $filter('sumByKey')($filter('filter')($scope.GetListForMasterOrder), 'TransactionAmount');
 			angular.forEach($scope.taxCategoryList, function (item) {
 				item.TaxAmount = TransactionAmount1 * item.Percentage / 100;
 				x.data.BaseTaxAmount += item.TaxAmount;
 			});
 			if ($scope.productNew.IsNonCreditable == 1) {
-				//data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
 				if (x.data.BaseTaxAmount === null) {
 					x.data.BaseTaxAmount = '0.00';
 				}
 				x.data.BaseAmount = parseFloat(x.data.TransactionAmount + x.data.BaseTaxAmount);
 			}
 			else {
-				// data.BaseAmount = $scope.productNew.ToCurrencyRate * data.TrnAmount;
 				x.data.BaseAmount = x.data.TransactionAmount;
 			}
 		}
@@ -3403,10 +3164,8 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 					allowSorting: true,
 					allowFiltering: true,
 					isResponsive: true,
-					//minWidth: 600,
 					allowResizeToFit: true,
 					canResize: true,
-					//allowTextWrap: true,
 					allowTextWrap: true,
 					textWrapSettings: { wrapMode: "header" },
 					enableResponsiveRow: true,
@@ -3416,8 +3175,6 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 					cssClass: "filtered",
 					pageSize: 10,
 					allowScrolling: true,
-					// scrollSettings: { wisth: "1250", height: "300" },
-					// editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true},
 					editSettings: { allowEditing: true },
 
 					columns: [
@@ -3428,20 +3185,15 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 						{ headerText: "Article", field: "StandardName", width: 120 },
 						{ headerText: "SKU1", field: "FirstCharacteristicsValue", width: 80 },
 						{ headerText: "SKU2", field: "SecondCharacteristicsValue", width: 80 },
-						{ headerText: "SKU3", field: "ThirdCharacteristicsValue", width: 80 },
+						{ headerText: "Entity", field: "EntityName", width: 80 },
 						{ headerText: "ReqQty", field: "ReqQty", width: 100, textAlign: ej.TextAlign.Right },
 						{ headerText: "PORaisedQty", field: "PORaisedQty", width: 100, textAlign: ej.TextAlign.Right },
 						{ headerText: "CurrentQty", field: "TransactionQty", editType: ej.Grid.EditingType.InputTextBox, width: 100, textAlign: ej.TextAlign.Right },
 						{ type: "textbox", width: 50 },
-						
 						{ headerText: "BalanceQty", field: "BalanceQty", width: 100, textAlign: ej.TextAlign.Right },
 						{ headerText: "Rate", field: "TransactionRate", width: 100, textAlign: ej.TextAlign.Right },
 						{ headerText: "Amount", field: "TransactionAmount", width: 100, textAlign: ej.TextAlign.Right }
-
-
 					],
-
-
 				});
 
 

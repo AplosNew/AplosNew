@@ -7998,7 +7998,6 @@ ORDER BY IR.ID DESC";
         {
             try
             {
-
                 var sql = @"select    * from  (SELECT  IR.Id As RequisitionId 
 								, IM.Id  AS RequisitionDetailId  
 								, ISNULL(MGM.UserName,'') AS MaterialGroupMasterName
@@ -8013,36 +8012,18 @@ ORDER BY IR.ID DESC";
 								, ROUND(IM.TransactionQty,2) ReqQty
 								,ISNULL(PORaisedQty,0) AS PORaisedQty
 								,(ROUND(IM.TransactionQty,2)-ISNULL(PORaisedQty,0)) TransactionQty
-                          
-								, IM.TransactionUoMId
-								, TUoM.UserName AS TransactionUoM
-								, '' TransactionRate 
-								, CU.Code AS CurrencyName
-
+								, IM.TransactionUoMId , TUoM.UserName AS TransactionUoM
+								, '' TransactionRate  , CU.Code AS CurrencyName
 								, ROUND((IM.TransactionQty * IM.EstimatedRate),2) AS TrnAmount   
 								,IM.MaterialDetail
 								,Replace(CONVERT(VARCHAR(11), IM.DeliveryDate, 106), ' ', '-') DeliveryDate
-
-								,Act.Id As Activity
-								,Act.UserName As ActivityName
-								,IM.BudgetType
-								,IM.Reason
-								,IM.Remarks
-								,IM.FutureReqApp
-								--,BudgetMasterId
-								--,GLGeneralInfoId
-								,null CheckedStatus   
-								,null TaxList
-							--,(ISNULL(IM.TransactionQty + ISNULL(PORaisedQty,0),0)-ROUND(IM.TransactionQty,2)) AS BalanceQty
+								,Act.Id As Activity ,Act.UserName As ActivityName
+								,IM.BudgetType ,IM.Reason ,IM.Remarks ,IM.FutureReqApp
+								,NULL CheckedStatus   ,NULL TaxList
 								,(ROUND(IM.TransactionQty,2)-ISNULL(PORaisedQty,0)) AS BalanceQty
-							,MM.HSNCodeId	
-							--,IM.DeliveryDate
-							,EI.EmployeeName PreparedBy
-							,IM.POQtyStatus
-							,convert(bit,0) WantToClose
-							,IR.InActive
-							,IR.CheckedByStatus
-							,IR.AuthorizedByStatus,MM.IsOriginApplicable
+							,MM.HSNCodeId	 ,EI.EmployeeName PreparedBy ,IM.POQtyStatus
+							,CONVERT(bit,0) WantToClose ,IR.InActive ,IR.CheckedByStatus
+							,IR.AuthorizedByStatus,MM.IsOriginApplicable,IR.EntityId,EN.UserName EntityName
 							FROM TRN.MaterialRequsitionDetails AS IM
 							left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
 							LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
@@ -8053,9 +8034,9 @@ ORDER BY IR.ID DESC";
 							LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
 							LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
 							LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
-
 							JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IM.TransactionUoMId=TUoM.Id
 							JOIN [TRN].[MaterialRequsitionMaster] AS IR ON IM.MaterialReqqusitionMasterId=IR.Id
+                            LEFT JOIN [ORG].[Entity] EN ON EN.Id=IR.EntityId
 							JOIN [SCS].[Currency] AS CU ON IM.CurrencyId=CU.Id 
 							JOIN [HKP].[Activity] As Act On ACT.Id=IM.ActivityId
 							LEFT JOIN (select PORD.RequisitionDetailId,  Sum(PORD.TransactionQty) as PORaisedQty 
@@ -8071,7 +8052,7 @@ ORDER BY IR.ID DESC";
 
 							SELECT IR.Id As RequisitionId 
 								, IM.Id  AS RequisitionDetailId  
-									, ISNULL(MGM.UserName,'') AS MaterialGroupMasterName
+							   , ISNULL(MGM.UserName,'') AS MaterialGroupMasterName
 								, IM.MaterialMasterId, MM.UserName
 								, IM.ArticleId, ART.StandardName
 								, IM.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics
@@ -8083,36 +8064,18 @@ ORDER BY IR.ID DESC";
 								, ROUND(IM.TransactionQty,2) ReqQty
 								,ISNULL(PORaisedQty,0) AS PORaisedQty
 								,(ROUND(IM.TransactionQty,2)-ISNULL(PORaisedQty,0)) TransactionQty
-                          
-								, IM.TransactionUoMId
-								, TUoM.UserName AS TransactionUoM
-								, '' TransactionRate 
-								, CU.Code AS CurrencyName
-
+								, IM.TransactionUoMId , TUoM.UserName AS TransactionUoM
+								, '' TransactionRate  , CU.Code AS CurrencyName
 								, ROUND((IM.TransactionQty * IM.EstimatedRate),2) AS TrnAmount   
 								,IM.MaterialDetail
 								,Replace(CONVERT(VARCHAR(11), IM.DeliveryDate, 106), ' ', '-') DeliveryDate
-
-								,Act.Id As Activity
-								,Act.UserName As ActivityName
-								,IM.BudgetType
-								,IM.Reason
-								,IM.Remarks
-								,IM.FutureReqApp
-								--,BudgetMasterId
-								--,GLGeneralInfoId
-								,null CheckedStatus   
-								,null TaxList
-							--,(ISNULL(IM.TransactionQty + ISNULL(PORaisedQty,0),0)-ROUND(IM.TransactionQty,2)) AS BalanceQty
+								,Act.Id As Activity ,Act.UserName As ActivityName ,IM.BudgetType
+								,IM.Reason ,IM.Remarks ,IM.FutureReqApp
+								,NULL CheckedStatus    ,NULL TaxList
 								,(ROUND(IM.TransactionQty,2)-ISNULL(PORaisedQty,0)) AS BalanceQty
-							,MM.HSNCodeId	
-							--,IM.DeliveryDate
-							,EI.EmployeeName PreparedBy
-							,IM.POQtyStatus
-							,convert(bit,0) WantToClose
-							,IR.InActive
-							,IR.CheckedByStatus
-							,IR.AuthorizedByStatus,MM.IsOriginApplicable
+							,MM.HSNCodeId ,EI.EmployeeName PreparedBy ,IM.POQtyStatus
+							,CONVERT(bit,0) WantToClose ,IR.InActive ,IR.CheckedByStatus
+							,IR.AuthorizedByStatus,MM.IsOriginApplicable,IR.EntityId,EN.UserName EntityName
 							FROM TRN.MaterialRequsitionDetails AS IM
 							left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
 							LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
@@ -8123,9 +8086,9 @@ ORDER BY IR.ID DESC";
 							LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
 							LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
 							LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
-
 							LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IM.TransactionUoMId=TUoM.Id
 							LEFT JOIN [TRN].[MaterialRequsitionMaster] AS IR ON IM.MaterialReqqusitionMasterId=IR.Id
+                            LEFT JOIN [ORG].[Entity] EN ON EN.Id=IR.EntityId
 							LEFT JOIN [SCS].[Currency] AS CU ON IM.CurrencyId=CU.Id 
 							JOIN [HKP].[Activity] As Act On ACT.Id=IM.ActivityId
 							LEFT JOIN (select PORD.RequisitionDetailId,  Sum(PORD.TransactionQty) as PORaisedQty 
@@ -8141,7 +8104,7 @@ ORDER BY IR.ID DESC";
 
 							SELECT IR.Id As RequisitionId 
 								, IM.Id  AS RequisitionDetailId  
-									, ISNULL(MGM.UserName,'') AS MaterialGroupMasterName
+								, ISNULL(MGM.UserName,'') AS MaterialGroupMasterName
 								, IM.MaterialMasterId, MM.UserName
 								, IM.ArticleId, ART.StandardName
 								, IM.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics
@@ -8153,36 +8116,17 @@ ORDER BY IR.ID DESC";
 								, ROUND(IM.TransactionQty,2) ReqQty
 								,ISNULL(PORaisedQty,0) AS PORaisedQty
 								,(ROUND(IM.TransactionQty,2)-ISNULL(PORaisedQty,0)) TransactionQty
-                          
-								, IM.TransactionUoMId
-								, TUoM.UserName AS TransactionUoM
-								, '' TransactionRate 
-								, CU.Code AS CurrencyName
-
+								, IM.TransactionUoMId , TUoM.UserName AS TransactionUoM
+								, '' TransactionRate  , CU.Code AS CurrencyName
 								, ROUND((IM.TransactionQty * IM.EstimatedRate),2) AS TrnAmount   
-								,IM.MaterialDetail
-								,Replace(CONVERT(VARCHAR(11), IM.DeliveryDate, 106), ' ', '-') DeliveryDate
-
-								,Act.Id As Activity
-								,Act.UserName As ActivityName
-								,IM.BudgetType
-								,IM.Reason
-								,IM.Remarks
-								,IM.FutureReqApp
-								--,BudgetMasterId
-								--,GLGeneralInfoId
-								,null CheckedStatus   
-								,null TaxList
-							--,(ISNULL(IM.TransactionQty + ISNULL(PORaisedQty,0),0)-ROUND(IM.TransactionQty,2)) AS BalanceQty
-								,(ROUND(IM.TransactionQty,2)-ISNULL(PORaisedQty,0)) AS BalanceQty
-							,MM.HSNCodeId	
-							--,IM.DeliveryDate
-							,EI.EmployeeName PreparedBy
-							,IM.POQtyStatus
-							,convert(bit,0) WantToClose
-							,IR.InActive
-							,IR.CheckedByStatus
-							,IR.AuthorizedByStatus,MM.IsOriginApplicable
+								, IM.MaterialDetail
+								, Replace(CONVERT(VARCHAR(11), IM.DeliveryDate, 106), ' ', '-') DeliveryDate
+								, Act.Id As Activity , Act.UserName As ActivityName , IM.BudgetType ,IM.Reason
+								, IM.Remarks ,IM.FutureReqApp ,NULL CheckedStatus   ,NULL TaxList
+								, (ROUND(IM.TransactionQty,2)-ISNULL(PORaisedQty,0)) AS BalanceQty
+							,MM.HSNCodeId ,EI.EmployeeName PreparedBy
+							,IM.POQtyStatus ,CONVERT(bit,0) WantToClose ,IR.InActive
+							,IR.CheckedByStatus ,IR.AuthorizedByStatus,MM.IsOriginApplicable,IR.EntityId,EN.UserName EntityName
 							FROM TRN.MaterialRequsitionDetails AS IM
 							left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
 							LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
@@ -8193,9 +8137,9 @@ ORDER BY IR.ID DESC";
 							LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
 							LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
 							LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
-
 							JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IM.TransactionUoMId=TUoM.Id
 							JOIN [TRN].[MaterialRequsitionMaster] AS IR ON IM.MaterialReqqusitionMasterId=IR.Id
+                            LEFT JOIN [ORG].[Entity] EN ON EN.Id=IR.EntityId
 							JOIN [SCS].[Currency] AS CU ON IM.CurrencyId=CU.Id 
 							JOIN [HKP].[Activity] As Act On ACT.Id=IM.ActivityId
 							LEFT JOIN (select PORD.RequisitionDetailId,  Sum(PORD.TransactionQty) as PORaisedQty 

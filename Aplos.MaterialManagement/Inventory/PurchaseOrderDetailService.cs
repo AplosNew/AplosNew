@@ -883,33 +883,26 @@ namespace Library.MaterialManagement.Inventory
         #region     POByRequisition
         public void InsertOrUpdateGraphPoByReq(IEnumerable<InventoryMaterialViewModel> entity, IEnumerable<InventoryMaterialViewModel> groupList, IEnumerable<PurchaseOrderTax> taxCategoryList, string PoId)
         {
-
-
             var flag = false;
-
             try
             {
-                //if (CheckItemExist(entity))
-                //    throw new CustomException(entity.MaterialMasterName + " already received");
-
-                //ResetCurrencyRate(entity);
+                var poData = _inventoryReceiveService.Find(PoId);
+                 string entityId = entity.FirstOrDefault().EntityId;
+               
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 var NewId = "";
                 var NewId1 = "";
-                //var currentId = _receiveDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 1) AS INT)), 0) Id FROM [TRN].[PurchaseOrderDetail] WHERE  InventoryReceiveId = '{PoId}'").First();
                 var currentId = _receiveDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(substring(Id, CHARINDEX('-',id)+1,len(Id))    AS INT)), 0) Id FROM[TRN].[PurchaseOrderDetail] WHERE  InventoryReceiveId = '{PoId}'").First();
-
                 decimal TransactionQtyGroupSum = 0;
-
                 var groupListentity = groupList;
+                //_inventoryReceiveService.Update(poData);
                 foreach (var itemDetail in groupListentity)
                 {
                     if (entity.IsNotNull())
                     {
                         var materialData = _inventoryMaterialMasterService.GetInventoryMaterialByUpToSku(itemDetail);
                         if (materialData.IsNotNull()) itemDetail.InventoryMaterialId = materialData.Id;
-                        ///TODO : Get total qyt and amount by country and issue qty
                         itemDetail.TotalQty = Query(t => t.InventoryMaterialId == itemDetail.InventoryMaterialId && t.Id != itemDetail.Id).Select(t => t.BaseQty).Sum();
                         var totalAmount = Query(t => t.InventoryMaterialId == itemDetail.InventoryMaterialId && t.Id != itemDetail.Id).Select(t => t.BaseAmount).Sum();
 
@@ -931,52 +924,27 @@ namespace Library.MaterialManagement.Inventory
                              && (baseUoMFactorList != null && baseUoMFactorList.Count() > 0))
                         {
                             itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
-
                             itemDetail.BaseQty = Convert.ToDecimal(TransactionQtyGroupSum * itemDetail.BaseUoMFactor);
                             itemDetail.BaseAmount = itemDetail.TransactionAmount * itemDetail.ToCurrencyRate;
-
-                            //entity.TotalQty = Convert.ToDecimal(entity.TotalQty + entity.BaseQty);
-                            //entity.AvgRate = Convert.ToDecimal((totalAmount + entity.BaseAmount) / entity.TotalQty);
                         }
                         else if (itemDetail.BaseUOMId == itemDetail.TransactionUoMId && itemDetail.CurrencyId != itemDetail.BaseCurrencyId)
                         {
-                            //var TransactionQty = entity.Where(r => r.MaterialMasterId == itemDetail.MaterialMasterId && r.ArticleId == itemDetail.ArticleId && r.FirstCharacteristicsValueId == itemDetail.FirstCharacteristicsValueId && r.SecondCharacteristicsValueId == itemDetail.SecondCharacteristicsValueId && r.ThirdCharacteristicsValueId == r.ThirdCharacteristicsValueId).Sum(r => r.TransactionQty);
                             itemDetail.BaseQty = TransactionQtyGroupSum;
-                            //itemDetail.BaseQty = itemDetail.TransactionQty;
-
                             itemDetail.BaseUoMFactor = TransactionQtyGroupSum;
-                            //entity.BaseAmount = entity.TransactionAmount * entity.ToCurrencyRate;
                             itemDetail.BaseAmount = itemDetail.TransactionAmount;
-
-                            //entity.TotalQty = Convert.ToDecimal(entity.TotalQty + entity.BaseQty);
-                            //entity.AvgRate = Convert.ToDecimal((totalAmount + entity.BaseAmount) / entity.TotalQty);
                         }
                         else if (itemDetail.BaseUOMId != itemDetail.TransactionUoMId && itemDetail.CurrencyId == itemDetail.BaseCurrencyId && (baseUoMFactorList != null && baseUoMFactorList.Count() > 0))
                         {
-                            //var TransactionQty = entity.Where(r => r.MaterialMasterId == itemDetail.MaterialMasterId && r.ArticleId == itemDetail.ArticleId && r.FirstCharacteristicsValueId == itemDetail.FirstCharacteristicsValueId && r.SecondCharacteristicsValueId == itemDetail.SecondCharacteristicsValueId && r.ThirdCharacteristicsValueId == r.ThirdCharacteristicsValueId).Sum(r => r.TransactionQty);
-                            //Command Date 26/12/2019
-                            //itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
-                            //itemDetail.BaseQty = Convert.ToDecimal(TransactionQtyGroupSum * itemDetail.BaseUoMFactor);
-                            //End Command Date 26/12/2019
                             itemDetail.BaseQty = Convert.ToDecimal(TransactionQtyGroupSum);
-
-                            //itemDetail.BaseQty = Convert.ToDecimal(itemDetail.TransactionQty * itemDetail.BaseUoMFactor);
                             itemDetail.BaseAmount = itemDetail.TransactionAmount;
-
-                            //entity.TotalQty = Convert.ToDecimal(entity.TotalQty + entity.BaseQty);
-                            //entity.AvgRate = Convert.ToDecimal((totalAmount + entity.BaseAmount) / entity.TotalQty);
                         }
                         else
                         {
-                            //var TransactionQty = entity.Where(r => r.MaterialMasterId == itemDetail.MaterialMasterId && r.ArticleId == itemDetail.ArticleId && r.FirstCharacteristicsValueId == itemDetail.FirstCharacteristicsValueId && r.SecondCharacteristicsValueId == itemDetail.SecondCharacteristicsValueId && r.ThirdCharacteristicsValueId == r.ThirdCharacteristicsValueId).Sum(r => r.TransactionQty);
-                            //itemDetail.BaseUoMFactor = itemDetail.TransactionQty;
-                            //itemDetail.BaseQty = itemDetail.TransactionQty;
                             itemDetail.BaseUoMFactor = TransactionQtyGroupSum;
                             itemDetail.BaseQty = TransactionQtyGroupSum;
                             itemDetail.BaseAmount = itemDetail.TransactionAmount;
                         }
 
-                        //End Update Req Table
 
                         itemDetail.Id = "";
                         if (string.IsNullOrEmpty(itemDetail.MaterialStorageId))
@@ -1297,7 +1265,14 @@ namespace Library.MaterialManagement.Inventory
                         }
                     }
                 }
-
+                if (entityId != null)
+                {
+                    var rdBuilder = new System.Text.StringBuilder();
+                    var poSql = @"UPDATE [TRN].PurchaseOrder SET EntityId='" + entityId + "' WHERE Id='" + PoId + "'";
+                    rdBuilder.Append(poSql);
+                    _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                }
+                
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
