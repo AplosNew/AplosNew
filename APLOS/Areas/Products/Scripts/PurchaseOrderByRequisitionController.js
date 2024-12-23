@@ -177,6 +177,7 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 		, PlantId: $window.plantId
 		, PartyId: null
 		, EntityId: null
+		, EntityName: null
 		, InvoicingPartyPlantId: null
 		, InvoicingByAddress: null
 		, InvoicingState: null
@@ -238,10 +239,7 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 	addressService.getCountryCbo(function (result) {
 		$scope.countryList = result;
 	});
-	$scope.entityList = [];
-	cboService.getCboEntityByPlant(null, null, "", function (result) {
-		$scope.entityList = result;
-	});
+	
 	$scope.countryList1 = [];
 	$scope.CountryLoad = function () {
 		addressService.getCountryCbo(function (result) {

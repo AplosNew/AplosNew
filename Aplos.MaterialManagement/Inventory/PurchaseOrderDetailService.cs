@@ -886,7 +886,6 @@ namespace Library.MaterialManagement.Inventory
             var flag = false;
             try
             {
-                var poData = _inventoryReceiveService.Find(PoId);
                  string entityId = entity.FirstOrDefault().EntityId;
                
                 _unitOfWork.BeginTransaction();
