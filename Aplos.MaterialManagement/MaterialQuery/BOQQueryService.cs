@@ -268,7 +268,7 @@ FROM (SELECT  distinct IM.MaterialMasterId ,MT.UserName MaterialType,MMG.UserNam
 									LEFT JOIN TRN.POBOQMAP pomap on pomap.BOQDetailId=boq.Id
 									LEFT JOIN TRN.PurchaseOrderDetail xPOD ON xPOD.Id=pomap.PODetailId
 								where xPOD.Id=POD.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-								,moi.OwnReferenceNo
+								,moi.OwnReferenceNo,POClose=case when PO.Isclosed=1 then 'Yes' Else 'No' end
 							FROM BOQ  boq 
 							LEFT JOIN MST.MaterialMaster mm on mm.Id=boq.MaterialMasterId
 							LEFT JOIN MST.MaterialMasterArticle mma on mma.Id=boq.ArticleId
