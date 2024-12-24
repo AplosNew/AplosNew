@@ -124,6 +124,8 @@ namespace Aplos.Areas.Banks.Controllers
         [HttpPost]
         public JsonResult PostBankJournal(string id, string entityId, string voucherId)
         {
+            _bankJournalService.PostBankJournal(id);
+
             var inDirect = new System.Text.StringBuilder();
             var inDirectsql = "";
 
@@ -132,7 +134,6 @@ namespace Aplos.Areas.Banks.Controllers
                             update [TRN].[BankJournal]  set EntityId='" + entityId + @"' where VoucherId='" + voucherId + @"' ";
             inDirect.Append(inDirectsql);
             _sqlRepository.ExecuteSqlCommand(inDirect.ToString());
-            _bankJournalService.PostBankJournal(id);
             return Json(new { Message = AplosMessage.Posted });
         }
 
