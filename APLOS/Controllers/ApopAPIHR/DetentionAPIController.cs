@@ -1682,16 +1682,16 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetSoParty(out List<Default2> activelists);
             return activelists;
         }
-        public List<Default2> GetSO(string PartyId)
+        public List<Default2> GetSO(string Category, string PartyId)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetSO(out List<Default2> activelists, PartyId);
+            clsData.GetSO(out List<Default2> activelists, Category, PartyId);
             return activelists;
         }
-        public List<AddInfoList> GetAddInfoFiled(string Category)
+        public List<AddInfoList> GetAddInfoFiled(string Ids, string Category)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetAddInfoFiled(out List<AddInfoList> activelists, Category);
+            clsData.GetAddInfoFiled(out List<AddInfoList> activelists, Ids, Category);
             return activelists;
         }
         public string PostSalesAddInfo([FromBody] IEnumerable<SalesAddinfo> DataToSave)

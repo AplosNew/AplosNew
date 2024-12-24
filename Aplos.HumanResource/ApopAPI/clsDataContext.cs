@@ -12968,10 +12968,7 @@ where EmpSystemID = '" + EmpSysId + @"' and ComplianceDocumentId = '31'
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select Distinct PT.Id Value, PT.UserName Name from trn.MasterOrder MO
-Left join trn.MasterOrderItem MOI on MOI.Masterorderid = MO.Id
-left join trn.salesorder So on SO.MasterOrderItemId = MOI.Id
-left join hkp.Party PT on PT.Id = MO.PartyId";
+                strSQL = @"select Distinct PT.Id Value, PT.UserName Name from HKP.Party PT where Active = 1";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -12996,23 +12993,48 @@ left join hkp.Party PT on PT.Id = MO.PartyId";
             }
         }
 
-        public void GetSO(out List<Default2> DataList, string PartyId)
+        public void GetSO(out List<Default2> DataList, string Category, string PartyId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
+            string strNew = "";
             string strSQLJoin = "";
             DataList = new List<Default2>();
             if (PartyId != null)
             {
                 strSQLJoin = " where PT.Id = '" + PartyId + "'";
             }
+            if (Category == "SalesInvoice")
+            {
+                strNew = @"select SS.Id Value , SS.Id Name from trn.Sales SS
+                            left join hkp.party PT on PT.Id = SS.PartyId " + strSQLJoin;
+            }
+            if (Category == "SalesOrder")
+            {
+                strNew = @"select Distinct SO.Id Value , SO.Id Name from trn.SalesOrder So
+                            left join trn.MasterorderItem MOI on MOI.Id = So.MasterOrderItemId
+                            left join trn.MasterOrder MO on MO.Id = MOI.MasterorderId
+                            left join hkp.Party PT on PT.Id = MO.PartyId " + strSQLJoin;
+            }
+            if (Category == "LineItem")
+            {
+                strNew = @"select Distinct MOI.Id Value , MOI.Id Name from  trn.MasterorderItem MOI 
+                            left join trn.MasterOrder MO on MO.Id = MOI.MasterorderId
+                            left join hkp.Party PT on PT.Id = MO.PartyId " + strSQLJoin;
+            }
+            if (Category == "GRN")
+            {
+                strNew = @"select Distinct IR.Id Value , IR.Id Name from trn.InventoryReceive IR 
+                            left join hkp.party PT on PT.Id = IR.PartyId " + strSQLJoin;
+            }
+            if (Category == "Party")
+            {
+                strNew = @"select Id Value , UserName Name from hkp.Party ";
+            }
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select Distinct So.Id Value, SO.Id Name from trn.MasterOrder MO
-Left join trn.MasterOrderItem MOI on MOI.Masterorderid = MO.Id
-left join trn.salesorder So on SO.MasterOrderItemId = MOI.Id
-left join hkp.Party PT on PT.Id = MO.PartyId" + strSQLJoin;
+                strSQL = strNew;
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -13037,17 +13059,51 @@ left join hkp.Party PT on PT.Id = MO.PartyId" + strSQLJoin;
             }
         }
 
-        public void GetAddInfoFiled(out List<AddInfoList> DataList, string Category)
+        public void GetAddInfoFiled(out List<AddInfoList> DataList, string Ids,string Category)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
+            string strNew = "";
             DataList = new List<AddInfoList>();
-
+            if (Category == "SalesInvoice")
+            {
+                strNew = @"SELECT Flag=CAST(CASE WHEN SA.Id IS NULL THEN 0 ELSE 1 END AS bit),A.UserName,SA.Id, SA.SalesOrderId , SA.SalesId , SA.LineItemId, SA.InventoryReceiveId , SA.PartyId 
+,A.Id AdditionalInfoId,SA.Value,SA.Remarks,A.CharecterType,'' CharType,''datepic,A.Mandatory
+FROM [HKP].[AdditionalInfo] A
+OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.Id AND SalesId='" + Ids + @"') SA  Where A.Category='SalesInvoice' Order By A.sequence";
+            }
+            if (Category == "SalesOrder")
+            {
+                strNew = @"SELECT Flag=CAST(CASE WHEN SA.Id IS NULL THEN 0 ELSE 1 END AS bit),A.UserName,SA.Id,SA.SalesOrderId , SA.SalesId , SA.LineItemId, SA.InventoryReceiveId , SA.PartyId 
+,A.Id AdditionalInfoId,SA.Value,SA.Remarks,A.CharecterType,'' CharType,''datepic,A.Mandatory
+FROM [HKP].[AdditionalInfo] A
+OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.Id AND SalesOrderId='" + Ids + @"') SA  Where A.Category='SalesOrder' Order By A.sequence";
+            }
+            if (Category == "LineItem")
+            {
+                strNew = @"SELECT Flag=CAST(CASE WHEN SA.Id IS NULL THEN 0 ELSE 1 END AS bit),A.UserName,SA.Id, SA.SalesOrderId , SA.SalesId ,SA.LineItemId, SA.InventoryReceiveId , SA.PartyId 
+,A.Id AdditionalInfoId,SA.Value,SA.Remarks,A.CharecterType,'' CharType,''datepic,A.Mandatory
+FROM [HKP].[AdditionalInfo] A
+OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.Id AND LineItemId='" + Ids + @"') SA  Where A.Category='LineItem' Order By A.sequence";
+            }
+            if (Category == "GRN")
+            {
+                strNew = @"SELECT Flag=CAST(CASE WHEN SA.Id IS NULL THEN 0 ELSE 1 END AS bit),A.UserName,SA.Id, SA.SalesOrderId , SA.SalesId , SA.LineItemId, SA.InventoryReceiveId , SA.PartyId 
+,A.Id AdditionalInfoId,SA.Value,SA.Remarks,A.CharecterType,'' CharType,''datepic,A.Mandatory
+FROM [HKP].[AdditionalInfo] A
+OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.Id AND InventoryReceiveId='" + Ids + @"') SA  Where A.Category='GRN' Order By A.sequence";
+            }
+            if (Category == "Party")
+            {
+                strNew = @"SELECT Flag=CAST(CASE WHEN SA.Id IS NULL THEN 0 ELSE 1 END AS bit),A.UserName,SA.Id,  SA.SalesOrderId , SA.SalesId , SA.LineItemId, SA.InventoryReceiveId , SA.PartyId
+,A.Id AdditionalInfoId,SA.Value,SA.Remarks,A.CharecterType,'' CharType,''datepic,A.Mandatory
+FROM [HKP].[AdditionalInfo] A
+OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.Id AND PartyId='" + Ids + @"') SA  Where A.Category='Party' Order By A.sequence ";
+            }
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select AI.Id, AI.UserName UserName ,  '' Value,'' Remarks from hkp.AdditionalInfo  AI
-                            where AI.Category = '" + Category + "'";
+                strSQL = strNew;
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -13056,11 +13112,22 @@ left join hkp.Party PT on PT.Id = MO.PartyId" + strSQLJoin;
                 {
                     DataList.Add(new AddInfoList
                     {
+                        Flag = dsRef.Tables[0].Rows[i]["Flag"].ToString(),
                         Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
                         Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
                         Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
                         UserName = dsRef.Tables[0].Rows[i]["UserName"].ToString(),
-
+                        CharecterType = dsRef.Tables[0].Rows[i]["CharecterType"].ToString(),
+                        CharType = dsRef.Tables[0].Rows[i]["CharType"].ToString(),
+                        datepic = dsRef.Tables[0].Rows[i]["datepic"].ToString(),
+                        Mandatory = dsRef.Tables[0].Rows[i]["Mandatory"].ToString(),
+                        LineItemId = dsRef.Tables[0].Rows[i]["LineItemId"].ToString(),
+                        InventoryReceiveId = dsRef.Tables[0].Rows[i]["InventoryReceiveId"].ToString(),
+                        PartyId = dsRef.Tables[0].Rows[i]["PartyId"].ToString(),
+                        SalesOrderId = dsRef.Tables[0].Rows[i]["SalesOrderId"].ToString(),
+                        SalesId = dsRef.Tables[0].Rows[i]["SalesId"].ToString(),
+                        AdditionalInfoId = dsRef.Tables[0].Rows[i]["AdditionalInfoId"].ToString(),
+                        
                     });
                 }
             }
@@ -13124,6 +13191,32 @@ left join hkp.Party PT on PT.Id = MO.PartyId" + strSQLJoin;
 
                         dsMaster.Tables[0].Rows.Add(dr);
 
+                    }
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+                        dr["SalesId"] = item.SalesId;
+
+                        dr["AdditionalInfoId"] = item.AdditionalInfoId;
+                        dr["Value"] = item.Value;
+                        dr["Remarks"] = item.Remarks;
+                        dr["LineItemId"] = item.LineItemId;
+                        dr["InventoryReceiveId"] = item.InventoryReceiveId;
+                        dr["PartyId"] = item.PartyId;
+                        dr["SalesOrderId"] = item.SalesOrderId;
+
+                        dr["UpdatedBy"] = item.AddedBy;
+                        dr["UpdatedFromIP"] = "163.47.212.50";
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
                     }
 
                 }
@@ -14844,11 +14937,21 @@ left join hkp.Party PT on PT.Id = MO.PartyId" + strSQLJoin;
 
     public class AddInfoList
     {
+        public string Flag { get; set; }
         public string Id { get; set; }
         public string UserName { get; set; }
         public string CharecterType { get; set; }
         public string Value { get; set; }
         public string Remarks { get; set; }
+        public string LineItemId { get; set; }
+        public string InventoryReceiveId { get; set; }
+        public string PartyId { get; set; }
+        public string SalesOrderId { get; set; }
+        public string SalesId { get; set; }
+        public string AdditionalInfoId { get; set; }
+        public string CharType { get; set; }
+        public string datepic { get; set; }
+        public string Mandatory { get; set; }
     }
     public class SalesAddinfo
     {
