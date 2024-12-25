@@ -40,6 +40,10 @@ function bankJournalController(bankService, accountService, cboService, commonMe
             "value": "PostingDate"
         },
         {
+            "name": "Entity",
+            "value": "EntityName"
+        },
+        {
             "name": "Doc Date",
             "value": "DocDate"
         },
@@ -442,6 +446,18 @@ function bankJournalController(bankService, accountService, cboService, commonMe
         return true;
     };
 
+    $scope.voucher_Post = {
+        Id: null,
+        EntityId: null,
+        CurrencyId: null,
+        CurrencyCode: null,
+        VoucherNo: null,
+        PostingDate: null,
+        DocDate: null,
+        DocRefNo: null, 
+        Narration: null, 
+        Amount: null
+    };
     $scope.advanceId = null;
     $scope.EntityId_Post = null;
     $scope.voucherId = null;
@@ -453,6 +469,7 @@ function bankJournalController(bankService, accountService, cboService, commonMe
         $scope.ApprovedByStatus = data.ApprovedByStatus;
         $scope.EntityId_Post = data.EntityId;
         $scope.voucherId = data.VoucherId;
+        $scope.voucher_Post = data;
         angular.element(document.querySelector('#PostPopUp')).modal('show');
         //$scope.message_confirmation = "Are you sure to Post?";
         //angular.element(document.querySelector("#confirmPostPopUp")).modal("show");

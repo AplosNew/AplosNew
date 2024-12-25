@@ -39,7 +39,7 @@
       <HintPath>..\APLOS\Library\ConnectionManager.dll</HintPath>
     </Reference>
     <Reference Include="Library.Core">
-      <HintPath>..\..\..\..\Downloads\Library.Core.dll</HintPath>
+      <HintPath>..\APLOS\Library\Library.Core.dll</HintPath>
     </Reference>
     <Reference Include="Library.Crosscutting">
       <HintPath>..\APLOS\Library\Library.Crosscutting.dll</HintPath>

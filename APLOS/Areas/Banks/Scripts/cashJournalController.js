@@ -84,6 +84,10 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
             "value": "PostingDate"
         },
         {
+            "name": "Entity",
+            "value": "EntityName"
+        },
+        {
             "name": "Doc Date",
             "value": "DocDate"
         },

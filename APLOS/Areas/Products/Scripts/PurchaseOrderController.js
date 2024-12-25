@@ -255,6 +255,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
         , CompanyId: null
         , PlantId: $window.plantId
         , PartyId: null
+        , EntityId: null
         , InvoicingPartyPlantId: null
         , InvoicingByAddress: null
         , InvoicingState: null
@@ -533,38 +534,18 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
             ShowResult(response.data.Message, 'failure');
         });
 
-
-
-
-
     }
     //#endregion
-
+    $scope.entityList = [];
+    cboService.getCboEntityByPlant(null, null, "", function (result) {
+        $scope.entityList = result;
+    });
 
     $scope.invoicingPartyPopUp = function () {
         // getPartyPlantEditList();
         angular.element(document.querySelector('#invoicingPartyPopUp')).modal('show');
     };
     $scope.closeInvoicingPartyPopUp = function () {
-
-        //$scope.dbval = $scope.StateData;
-        //$scope.UIval = $scope.productNew.InvoicingState;      
-
-        //if ($scope.inventoryMaterialList.length == 0) {
-        //    angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
-        //}
-        //else if ($scope.dbval.length == 0)
-        //{
-        //    angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
-        //}
-        //else if ($scope.dbval == $scope.UIval ) {            
-        //    angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
-        //}
-        //else {
-        //    ShowResult('You can not change Invoicing party.Line is available', 'failure', 'invoicingPartyPopUp');
-
-        //}
-
         if ($scope.inventoryMaterialList.length || $scope.chargesList.length) {
             if (!baseService.isUndefinedOrNull($scope.productNew.ChangeInvoicingStateId)) {
                 if ($scope.productNew.PlantStateId === $scope.productNew.InvoicingStateId == $scope.productNew.ChangeInvoicingStateId)
@@ -581,12 +562,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
         }
         else
             angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
-
-
-
-
-
-
     };
     //#endregion
 
@@ -627,21 +602,13 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
                     else {
                         ShowResult('You can not change Invoicing party.Line is available', 'failure', 'invoicingPartyPopUp');
                     }
-
-
-
             if (baseService.isUndefinedOrNull($scope.productNew.InvoicingPartyPlantId)) return ShowResult('Invoicing by is required', 'failure');
             if (baseService.isUndefinedOrNull($scope.productNew.DeliveryPartyPlantId)) return ShowResult('Delivery by is required', 'failure');
             $scope.modelValidation('div_docNo', 'productNew', 'DocRefNo');
             $scope.modelValidation('div_docDate', 'productNew', 'DocDate');
             //$scope.modelValidation('div_entryNo', 'productNew', 'GateEntryNo');
             $scope.modelValidation('div_PODate', 'productNew', 'PODate', 'PO Entry Date');
-            //if ($scope.Action === 'Update')
-            //    $scope.modelValidation('div_grnNo', 'productNew', 'Id');
-            //$scope.modelValidation('div_grnDate', 'productNew', 'GRNDate');
-
             $scope.manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');
-
             if ($scope.productNew.CurrencyId !== $scope.productNew.BaseCurrencyId)
                 $scope.manualValidationAddRemove('div_rate  ', 'productNew', 'ToCurrencyRate');
             else
@@ -649,14 +616,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
             $scope.$broadcast('show-errors-check-validity');
             if ($scope.productNewForm.$valid) {
-                //if (new Date($scope.productNew.EntryDate) < new Date($scope.productNew.DocDate))
-                //    return manualValidation('div_entryDate', true, "Gate entry date can't be less than Doc Date");
-                //else
-                //    manualValidation('div_entryDate', false);
-                //if (new Date($scope.productNew.GRNDate) < new Date($scope.productNew.EntryDate))
-                //    return manualValidation('div_grnDate', true, "PO date can't be less than gate entry date");
-                //else
-                //    manualValidation('div_grnDate', false);
                 if ($scope.productNew.OrderSpecific == 'No') {
                     $scope.productNew.ContractId = null;
                 }
@@ -765,36 +724,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
         return true;
 
     };
-    //#endregion
-
-    //#region Clear Function
-    //#endregion
-
-    //#region Print Function
-    //$scope.AllTabPrint = function (z) {
-    //	var x = "#" + z;
-    //	var gridObj = $(x).data("ejGrid");
-    //	var data = gridObj.getSelectedRecords()[0];
-    //	location.href = "Products/PurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
-    //	//location.href = "Products/PurchaseOrder/GePurchaseOrderReportByReq?purchaseOrderId=" + data.Id;
-    //};
-    //#endregion
-
-    //#region Scroll Function
-    //#endregion
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     //#region Otheres Code 
 
@@ -837,11 +766,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
         $scope.countryList = result;
     });
 
-
-
-
-
-
     $http({
         method: 'GET',
         url: 'currencies/CompanyParallelCurrency/CboParallelCurrency'
@@ -850,10 +774,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
         $scope.productNew.BaseCurrencyId = response.data[0].Value;
         //factoryService.getCurrencyPrecision($scope.baseCurrencyId);
     });
-
-
-
-
 
     cboService.getCboTransactionCurrencyByCompany('', function (result) {
         $scope.currencyList = result;
@@ -868,17 +788,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
             else
                 ShowResult('Cut Off date not found!', 'failure');
         });
-
-
-    //$http.get('Products/InventoryReceive/GetACCCutOffDate')
-    //	.then(function (response) {
-    //		if (response.data !== null && !baseService.isUndefinedOrNull(response.data.CutOffDate)) {
-    //			$scope.productNew.CutOffDate = response.data.CutOffDate;
-    //			$('#cutOffDate').datepicker('setStartDate', new Date($scope.productNew.CutOffDate));
-    //		}
-    //		else
-    //			ShowResult('Cut Off date not found!', 'failure');
-    //	});
 
     $scope.searchByList = [
         {
@@ -1021,13 +930,9 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
     $scope.checkRowValidationService = function (x) {
         ;
         for (var i = 0; i < $scope.taxCategoryList.length; i++) {
-            //if (baseService.isUndefinedOrNull($scope.detailModel.TransactionAmount) || $scope.detailModel.TransactionAmount === 0) {
-            //	ShowResult("Taxable Amount can not null or zero", 'failure', 'detailPopUp');
-            //}
             if ($scope.taxCategoryList[i].Id === x.Id) {
                 $scope.taxCategoryList[i].Percentage = (parseFloat(x.TaxAmount / $scope.serviceModel.TransactionAmount).toFixed(4) * 100);
             }
-
         }
     }
 
@@ -1049,60 +954,11 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
     }
 
     $scope.receiveTaxList = [];
-    //$scope.closeReceiveTaxPopUp = function () {
-
-    //    //var materialData = $scope.salesMaterialList[$scope.currentMaterialRow];
-    //    $scope.inventoryMaterialList[$scope.currentMaterialRow].TaxAmount = null;
-    //    angular.forEach($scope.receiveTaxList, function (item) {
-    //        $scope.inventoryMaterialList[$scope.currentMaterialRow].BaseTaxAmount += item.TotalAmount;
-    //    });     
-
-    //    $scope.inventoryMaterialList[$scope.currentMaterialRow].BaseAmount = parseFloat($scope.inventoryMaterialList[$scope.currentMaterialRow].TrnAmount) + parseFloat($scope.inventoryMaterialList[$scope.currentMaterialRow].BaseTaxAmount);
-    //    $scope.materialMaster = {};
-    //    //$scope.receiveTaxList = [];
-    //    $scope.isService = false;
-    //    //Extra Tax Will add here  shakawat
-
-    //   // $scope.detailModel = $scope.currentInventoryReceiveDetailIdRow;
-    //   // $scope.detailModel[0].InventoryReceiveDetailId = $scope.currentInventoryReceiveDetailIdRow;
-
-
-    //   // //if ($scope.TAction === "OK") {
-    //   //     $http({
-    //   //         method: 'POST',
-    //   //         //url: $scope.saveUrl,
-    //   //         url: '/Products/PurchaseOrder/InsertExtraTax',
-    //   //         //data: $scope.receiveTaxList,
-    //   //         data: {
-    //   //               entity: $scope.detailModel
-    //   //             , taxCategoryList: $scope.receiveTaxList
-    //   //         },
-    //   //         dataType: 'JSON'
-    //   //     }).then(function (response) {
-    //   //         if (response.data.Error === true) {
-    //   //             ShowResult(response.data.Message, 'failure');
-    //   //         }
-    //   //         else {
-    //   //             ShowResult(response.data.Message, 'success');
-    //   //             //$scope.productNew.Id = response.data.entity.Id;
-    //   //            // $scope.productNew.PartyName = $scope.product.PartyName;
-    //   //            // $scope.Action = "Update";
-    //   //             //$scope.getDataList();
-    //   //         }
-    //   //     }), function (response) {
-    //   //         ShowResult(response.data.Message, 'failure');
-    //   //     };
-    //   //// }
-
-
-
-    //   //angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
-    //};
+   
     $scope.taxCategoryListcbo = [];
     $scope.LoadTaxButtonClick = function () {
         accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
             $scope.taxCategoryListcbo = result;
-            //$scope.taxCategoryList = result;
         });
     }
     accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
@@ -1118,7 +974,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
             TaxCategoryId: null
         };
         $scope.receiveTaxList.push(data);
-
     };
 
     // #endregion 
@@ -1226,12 +1081,9 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
         //}
     };
     $scope.GetCurrencyExchangeRateList = function () {
-
-        //if (!baseService.isUndefinedOrNull($scope.voucher.PostingDate) && !baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
         if (!baseService.isUndefinedOrNull(!baseService.isUndefinedOrNull($scope.productNew.CurrencyId))) {
             $http({
                 method: "GET",
-                //url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $scope.voucher.PostingDate + "&currencyId=" + $scope.voucher.CurrencyId
                 url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?currencyId=" + $scope.productNew.CurrencyId
             }).then(function successCallback(response) {
                 $scope.currencyExchangeRate = response.data;
@@ -1383,37 +1235,16 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                //$scope.productNew.Id = response.data.entity.Id;
-                //$scope.productNew.PartyName = $scope.product.PartyName;
-                //$scope.Action = "Update";
-                //getInventoryMaterialList($scope.detailModel.Id);
-
             }
         }), function (response) {
             ShowResult(response.data.Message, 'failure');
         };
-
-
-
-
-        //$scope.detailModel.MaterialStorageId = data.MaterialStorageId
-
-
-
-        // data.TransactionQty=
-        // $scope.clearCharNames();
-        // angular.element(document.querySelector('#detailPopUpEdit')).modal('show');
     };
     $scope.MaterilaUpdate = function () {
 
 
         try {
             $scope.$broadcast('show-errors-check-validity');
-            //if (baseService.isUndefinedOrNull($scope.productNew.MaterialStorageId)) {
-            //    throw 'Please select Location';
-            //}
-            //else {
-            //if ($scope.Action === "Save") {
             if ($scope.detailPopUpEditForm.$valid) {
                 $http({
                     method: 'POST',
@@ -1426,19 +1257,11 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
                     }
                     else {
                         ShowResult(response.data.Message, 'success', 'detailPopUpEdit');
-                        //$scope.productNew.Id = response.data.entity.Id;
-                        //$scope.productNew.PartyName = $scope.product.PartyName;
-                        //$scope.Action = "Update";
-                        //getInventoryMaterialList($scope.detailModel.Id);
-
                     }
                 }), function (response) {
                     ShowResult(response.data.Message, 'failure', 'detailPopUpEdit');
                 };
             }
-            //}
-            //}
-
 
         } catch (e) {
             throw e;
@@ -1517,10 +1340,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
         angular.element(document.querySelector('#searchcharactervaluepopup')).modal('hide');
     };
     $scope.materialValidation = function () {
-        //var getRow = $filter("filter")($scope.inventoryMaterialList, { "MaterialMasterId": $scope.detailModel.MaterialMasterId });
-        //var getRow2 = $filter("filter")($scope.inventoryMaterialList, { "MaterialMasterId": $scope.detailModel.MaterialMasterId, "ArticleId": $scope.detailModel.ArticleId });
         var getRow3 = $filter("filter")($scope.inventoryMaterialList, { "InventoryMaterialId": $scope.detailModel.MaterialMasterId, "ArticleId": $scope.detailModel.ArticleId, "FirstCharacteristicsValueId": $scope.detailModel.FirstCharacteristicsValueId, "SecondCharacteristicsValueId": $scope.detailModel.SecondCharacteristicsValueId, "ThirdCharacteristicsValueId": $scope.detailModel.ThirdCharacteristicsValueId });
-        //getRow == 0 || getRow2 == 0 ||
         if (getRow3 == 0) {
             $scope.invalid = true;
         }
@@ -1556,20 +1376,16 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
             }
             else if ($scope.char1.CharacteristicsValueId === undefined) {
                 $scope.char1.CharacteristicsValueId = null;
-
             }
             else if ($scope.char2.CharacteristicsId === undefined) {
                 $scope.char2.CharacteristicsId = null;
-
             }
             else if ($scope.char2.CharacteristicsValueId === undefined) {
                 $scope.char2.CharacteristicsValueId = null;
-
             }
             else if ($scope.char3.CharacteristicsId === undefined) {
                 $scope.char3.CharacteristicsId = null;
                 $scope.char3.CharacteristicsValueId = null;
-
             }
 
 
@@ -1584,8 +1400,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
 
             $scope.detailModel.CountryId = $scope.detailModel.CountryId;
-            // $scope.detailModel.CountryId = $("#Country option:selected").value();
-            // $("#AvgUom option:selected").text();
             for (var i = 0; i < baseService.arrayLength($scope.inventoryMaterialList); i++) {
                 if ($scope.detailModel.MaterialMasterId === $scope.inventoryMaterialList[i].InventoryMaterialId &&
                     $scope.detailModel.ArticleId === $scope.inventoryMaterialList[i].ArticleId &&
@@ -1731,11 +1545,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
                 var linepk = $scope.inventoryMaterialList[i].InventoryReceiveDetailId;
                 var list = gettaxlist(linepk);
                 $scope.inventoryMaterialList[i].TaxList = list;
-
-                //$scope.inventoryMaterialList[i].TransactionRate = $scope.TransactionRate;
-                //$scope.inventoryMaterialList[i].TrnAmount = ($scope.TransactionRate * $scope.TransactionRate).toFixed(2);
-                // $scope.inventoryMaterialList[i].TotalAmount = list;
-                // $scope.inventoryMaterialList[i].TaxList = list;
             }
         });
     };
@@ -1836,11 +1645,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
         $scope.currentMaterialRow = index;
         $scope.currentInventoryReceiveDetailIdRow = Id;
         $scope.taxAbleAmnt = data.TrnAmount;
-
-        //$scope.TransactionRate = data.TransactionRate;
-        //$scope.BaseTaxAmount = data.BaseTaxAmounts;
-        //$scope.BaseAmount = data.BaseAmount;
-
 
         $scope.percentageColumn = flag;
         $scope.currentMaterialRow = index;
@@ -2274,21 +2078,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
         if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
         $window.open('Products/InventoryReceive/Report?reportFormat=' + reportFormat + '&inventoryReceiveId=' + id + '&plantId=' + $scope.productNew.PlantId, '_blank');
     };
-    // $scope.getalldataPoApp();
-    //$scope.Griddata = [];
-    //$scope.getApprovaldata = function () {
-    //	$http({
-    //		method: "GET",
-    //		dataType: 'JSON',
-    //		//url: $scope.getSearchListUrl,
-    //		url: 'Products/PurchaseOrder/GetListForPOApproval',
-    //	}).then(function successCallback(response) {
-    //		$scope.Griddata = response.data;
-    //		//entrydata = copy(searchdata);
-    //	});
-    //};
-    //$scope.getApprovaldata();
-
+    
     $scope.GriddataVendor = [];
     $scope.getalldataVendor = function () {
         $http({
@@ -2353,15 +2143,10 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
         $scope.productNew = x.data;
         $scope.Id = $scope.productNew.Id;
         $scope.productNew.PODate = x.data.PODate1;
-        //getPartyPlantList();
         $scope.GetTerms($scope.productNew.Id);
         getPartyPlantEditList($scope.productNew.InvoicingPartyPlantId, $scope.productNew.InvoicingByAddress, $scope.productNew.DeliveryPartyPlantId, $scope.productNew.DeliveryByAddress, $scope.productNew.DeliveryState, $scope.productNew.DeliveryGSTIN);
-        // getPartyPlantEditList();
         getInventoryMaterialList($scope.productNew.Id);
-        //getInventoryMaterialList(Id);
         getServiceChargeList($scope.productNew.Id);
-        //getServiceChargeList(Id);
-        //$scope.getToCurrencyRate();
 
         if (!baseService.isUndefinedOrNull(x.data.ContractId)) {
             $scope.productNew.OrderSpecific = 'Yes';
@@ -2395,14 +2180,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
         }
         $scope.LoadTermsAndConditionGrid($scope.productNew.TermsAndConditionsId, $scope.productNew.Id)
         $scope.Action = 'Update';
-        //if (!baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
-        //	var paymentTerm = $.grep($scope.paymentTermList, function (item) { return item.Value === $scope.productNew.PaymentTermId; })[0];
-        //	if (paymentTerm.BaseLineDate !== null)
-        //		if (paymentTerm.BaseLineDate === 'documentdate')
-        //			$scope.IsBaseOnDueDateEnable = true;
-        //		else
-        //			$scope.IsBaseOnDueDateEnable = false;
-        //}
         if (!$rootScope.isCollapsed) $rootScope.toggle();
 
 
@@ -2801,17 +2578,14 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
     };
     // #endregion
 
-    //#region Toufik PO List for Po closed ui 
     $scope.GriddataPOListforPoclosedui = [];
     $scope.getalldataPOListforPoclosedui = function () {
         $http({
             method: "GET",
             dataType: 'JSON',
-            //url: $scope.getSearchListUrl,
             url: 'Products/PurchaseOrder/GetListForAllPOList',
         }).then(function successCallback(response) { //datagatefun
             $scope.GriddataPOListforPoclosedui = response.data;
-            //entrydata = copy(searchdata);
         });
     };
 
@@ -2819,9 +2593,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
     $scope.onClickPoList = function (args) {
 
         var gridObj = $("#GridPOListforPoclosedui").data("ejGrid");
-        //getting corresponding record 
         $scope.data = gridObj.getSelectedRecords()[0];
-        //alert('POClose' + data.Id);
         $scope.approvalAlertPoList();
     };
     $scope.approvalAlertPoList = function () {
@@ -2861,8 +2633,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
         }
     }];
 
-    //#region FGForMasterOrder(Finishing Goods For Master Order) 22-Jun-2019
-
     $scope.MasterOrderList = function () {
         $scope.getalldataListForMasterOrder();
         angular.element(document.querySelector('#ListOfMasterOrder')).modal('show');
@@ -2884,7 +2654,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
     };
 
     $scope.Getrecorddoubleclick = function ($event, index) {
-        // alert('Do you want to see Material Details');
         var x = $event;
         var Id = x.data.Id;
         $scope.MONo = Id;
@@ -3126,7 +2895,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
     };
 
     $scope.closeServiceChargeTaxPopUpwindowFG = function () {
-        //getServiceChargeList($scope.productNew.Id);
         angular.element(document.querySelector('#ServiceChargeTaxPopUp')).modal('hide');
     }
     //#endregion
@@ -3140,7 +2908,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
             $scope.checkedByList = response.data;
         });
     }
-    //$scope.GetSupervisorCboList();
     $window.onresize = function (event) {
         $scope.actionCompleteSelected();
     };
@@ -3149,13 +2916,10 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
             if (args.requestType === "refresh") {
                 var gridObj = $("#Griddata1").ejGrid("instance");
                 var scrollerwidth = $("#gridscroll").width();//Obtain the width of the container
-
-                //   $("#GridReq").children('.e-grid.e-headercell').css('height', '100px');              
                 gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 20, height: 400 } });//pass the obtainer width and height to gridmodel options
                 gridObj.windowonresize();
             }
         } catch (e) {
-            //$scope.ShowResultCustom(e, 'failure');
         }
     };
     $window.onresize = function (event) {
@@ -3166,13 +2930,10 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
             if (args.requestType === "refresh") {
                 var gridObj = $("#GriddataAUth").ejGrid("instance");
                 var scrollerwidth = $("#gridscroll1").width();//Obtain the width of the container
-
-                //   $("#GridReq").children('.e-grid.e-headercell').css('height', '100px');              
                 gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 20, height: 400 } });//pass the obtainer width and height to gridmodel options
                 gridObj.windowonresize();
             }
         } catch (e) {
-            //$scope.ShowResultCustom(e, 'failure');
         }
     };
     $scope.onClickPOHR = function (z) {
@@ -3822,17 +3583,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
             }
 
         }
-        //if ($scope.invalid = true) {
-        //	$scope.invalid = true;
-        //}
-        //else {
-        //	ShowResult('Have you selected Same UOM?', 'failure', 'ListOfPOMaterial');
-        //	$scope.invalid = false;
-        //	return;
-
-        //}
-
-        //$scope.MatDescriptionValidation();
         return false;
     }
     $scope.ActionPOBOQ = 'Save';
@@ -4028,10 +3778,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
                         method: 'POST',
                         url: 'Products/PurchaseOrder/detailPOUpdateForBOQ',
                         data: {
-                            //entity: $scope.GetListForMasterOrdernew
-                            //, taxCategoryList: $scope.taxCategoryList
-                            //, PoId: $scope.productNew.Id
-                            //, groupList: $scope.groupList
                             entity: JSON.stringify($scope.GetListForMasterOrdernew)
                             , taxCategoryList: $scope.taxCategoryList
                             , PoId: $scope.productNew.Id
@@ -4179,13 +3925,9 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
     $scope.checkRowValidation = function (x) {
         ;
         for (var i = 0; i < $scope.receiveTaxList.length; i++) {
-            //if (baseService.isUndefinedOrNull($scope.HSNCode)) {
-            //if ($scope.receiveTaxList[i].Percentage === 0) {
             if ($scope.receiveTaxList[i].Id === x.Id) {
                 $scope.receiveTaxList[i].Percentage = (parseFloat(x.TaxAmount / $scope.taxAbleAmnt).toFixed(4) * 100);
             }
-            //}
-            //}
         }
     }
 
@@ -4526,17 +4268,11 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
         var filteredData = e.data["Id"];
 
         var data = ej.DataManager($scope.TermsAndConditionDetailGridList).executeLocal(ej.Query().where("TermsAndConditionPOChildId", "equal", parseInt(filteredData), true).take(100));
-        //for (var i = 0; i < $scope.TermsAndConditionDetailGridList.length; i++) {
-        //	if ($scope.TermsAndConditionDetailGridList[i].TermsAndConditionPOChildId == filteredData) {
-        //		data.push($scope.TermsAndConditionDetailGridList[i]);
-        //	}
-        //}
         e.detailsElement.find("#detailGridTitle").ejGrid({
             dataSource: data,
             columns: ["HeaderCaption", "Description"]
         });
         e.detailsElement.find(".tabcontrol").ejTab();
-        //var filteredData1 = e.data["Id"];
     }
 
     $scope.showTermsAndConditionDetailPopUp = function (args) {

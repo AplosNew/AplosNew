@@ -264,6 +264,7 @@
                             <tr>
                                 <th>Account Title</th>
                                 <th>Bank Name</th>
+                                <th>DocRefNo</th>
                                 <th class="text-right">Amount</th>
                                 <th>Bank Currency</th>
                                 <th>Rate</th>
@@ -276,6 +277,7 @@
                             <tr ng-repeat="x in bankDetailList">
                                 <td>{{x.AccountTitle}}</td>
                                 <td>{{x.BankName}}</td>
+                                <td>{{x.DocRefNo}}</td>
                                 <td>
                                     <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Amount" autocomplete="off" ng-model="x.Amount" ng-keyup="calbankAmount(x)">
                                 </td>
@@ -296,7 +298,7 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="2" class="text-right">Total</td>
+                                <td colspan="3" class="text-right">Total</td>
                                 <td class="text-right"><b>{{ (bankDetailList) | sumByKey:'Amount' }}</b></td>
                                 <td></td>
                                 <td class="text-right"><b>{{ (bankDetailList) | sumByKey:'BankAmount' }}</b></td>

@@ -496,7 +496,7 @@ namespace Library.Accounting.Accounts
 						,FAG.AssetUnderConstructionActivityId,AF.Code,AF.UserName,IRD.Id,BM.Active,BMA.Active,BMF.Active,BMAF.Active
                     ) AS T
 					
-                   UNION
+                   UNION ALL
 				   
 					SELECT 'Tax' AS OtherName, 'Dr' AS TrnType, NULL MaterialGroupMasterId, IRT.TaxCategoryId, NULL AS TaxCodeId
 						, TCGL.GLGeneralInfoId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
@@ -521,7 +521,7 @@ namespace Library.Accounting.Accounts
 					LEFT JOIN [MST].[BudgetMasterActivity] BMA ON BMA.BudgetMasterId=BM.Id AND A.Id=BMA.ActivityId
 					WHERE IRD.InventoryReceiveId=@receiveId AND TCGL.InputTaxOutPutTax='Input' AND ISNULL(TCGL.TaxType,'')<>'RCM' AND IRT.InventoryReceiveDetailId<>'' AND IR.PurchaseDocumentAcceptanceId IS NULL
 					GROUP BY  IRT.TaxCategoryId, TCGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, TCGL.BudgetMasterId, B.Code, B.UserName, TCGL.ActivityId, A.Code, A.UserName,BM.Active ,BMA.Active 
-					UNION
+					UNION ALL
 					SELECT 'TCS' AS OtherName, 'Dr' AS TrnType, NULL MaterialGroupMasterId, TC.TaxCategoryId,IRT.TaxCodeId
 						, TCGL.CreditableGLId  GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
 						, TCGL.CreditableGLBudgetMasterId BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
@@ -541,7 +541,7 @@ namespace Library.Accounting.Accounts
 					WHERE IR.Id=@receiveId  AND IR.PurchaseDocumentAcceptanceId IS NULL
 					GROUP BY  TC.TaxCategoryId, TCGL.CreditableGLId, GL.AccountCode, GL.UserName, TCGL.CreditableGLBudgetMasterId
 					, B.Code, B.UserName, TCGL.CreditableGLActivityId, A.Code, A.UserName,IRT.TaxCodeId,BM.Active ,BMA.Active 
-					UNION
+					UNION ALL
 					SELECT 'Tax' AS OtherName, 'Dr' AS TrnType, NULL AS MaterialGroupMasterId, IRTS.TaxCategoryId, NULL AS TaxCodeId
 						, TCGL.GLGeneralInfoId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
 						, TCGL.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
@@ -564,7 +564,7 @@ namespace Library.Accounting.Accounts
 					WHERE INS.InventoryReceiveId=@receiveId --AND IR.IsNonCreditable=0 
 					AND IRTS.InventoryServiceId<>'' and INS.IsOtherVendor=0 AND TCGL.InputTaxOutPutTax='Input' AND ISNULL(TCGL.TaxType,'')<>'RCM' AND IR.PurchaseDocumentAcceptanceId IS NULL
 					GROUP BY IRTS.TaxCategoryId, TCGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, TCGL.BudgetMasterId, B.Code, B.UserName, TCGL.ActivityId, A.Code, A.UserName,BM.Active ,BMA.Active 
-					UNION
+					UNION ALL
 					SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId, NULL AS TaxCodeId
 						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
 						, T.BudgetMasterId, T.BudgetCode, T.BudgetName
@@ -629,7 +629,7 @@ namespace Library.Accounting.Accounts
 					GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName
 					, T.ActivityId, T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId, T.IsAsset,T.BudgetActive,T.BudgetMasterActivityActive
 					
-					UNION
+					UNION ALL
 					SELECT T.OtherName, T.TrnType, NULL MaterialGroupMasterId, NULL TaxCategoryId, NULL AS TaxCodeId
 						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
 						, T.BudgetMasterId, T.BudgetCode, T.BudgetName
@@ -667,7 +667,7 @@ namespace Library.Accounting.Accounts
 						GROUP BY  IR.Id, PDAD.GLGeneralInfoId, GL.AccountCode, GL.UserName, PDAD.BudgetMasterId, B.Code, B.UserName, PDAD.ActivityId, A.Code, A.UserName,BM2.Active ,BMA.Active 
 					) AS T
 					GROUP BY  T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId, T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,t.BudgetActive,T.BudgetMasterActivityActive--,T.TaxCategoryId, T.IsAsset
-					UNION
+					UNION ALL
 					SELECT T.OtherName, T.TrnType, NULL MaterialGroupMasterId, NULL TaxCategoryId, NULL AS TaxCodeId
 						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
 						, T.BudgetMasterId, T.BudgetCode, T.BudgetName
