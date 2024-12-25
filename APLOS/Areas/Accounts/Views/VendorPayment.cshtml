@@ -744,7 +744,7 @@
     </div>
     <div class="common-btn">
         <ul class="list-inline text-right">
-            <li><button ng-click="confirmSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li><button ng-click="confirmSave();" ng-disabled="actionIsDisable" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
             <li ng-hide="voucher.Id==null"><button ng-click="confirmPost(voucher.Id);" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>
             <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
