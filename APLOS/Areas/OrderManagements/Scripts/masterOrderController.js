@@ -1959,6 +1959,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 , CommitmentDate: null
                 , DestinationId: null
                 , ShipmentModeId: null
+                , ReviseDate:null
                 , CustomerPOId: null
                 , PONumber: null
                 , OrderStatusId: null
@@ -2422,6 +2423,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , CommitmentDate: null
             , DestinationId: null
             , ShipmentModeId: null
+            , ReviseDate: null
             , CustomerPOId: null
             , PONumber: null
             , OrderStatusId: $scope.fileNew.OrderStatusId
@@ -2490,6 +2492,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         , CommitmentDate: null
         , DestinationId: null
         , ShipmentModeId: null
+        , ReviseDate: null
         , CustomerPOId: null
         , PONumber: null
         , UpCharge: null
@@ -2534,6 +2537,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.soSplitModel.DestinationId = data.DestinationId;
         $scope.soSplitModel.CommitmentDate = data.CommitmentDate;
         $scope.soSplitModel.ShipmentModeId = data.ShipmentModeId;
+        $scope.soSplitModel.ReviseDate = data.ReviseDate;
         $scope.soSplitModel.CustomerPOId = data.CustomerPOId;
         $scope.soSplitModel.UpCharge = data.UpCharge;
         $scope.soSplitModel.OrderStatusId = data.OrderStatusId

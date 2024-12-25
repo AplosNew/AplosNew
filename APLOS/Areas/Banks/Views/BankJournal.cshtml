@@ -330,6 +330,7 @@
                     <th>VoucherNo</th>
                     <th>AccountTitle</th>
                     <th>Posting Date</th>
+                    <th>Entity</th>
                     <th>Currency</th>
                     <th>Amount</th>
                     <th>Status</th>
@@ -341,6 +342,7 @@
                     <td>{{x.VoucherNo}}</td>
                     <td>{{x.AccountTitle}}</td>
                     <td>{{x.PostingDate | dateFiltering}}</td>
+                    <td>{{x.EntityName}}</td>
                     <td>{{x.CurrencyCode}}</td>
                     <td class="text-right">{{x.Amount | number:2}}</td>
                     <td>{{x.Status}}</td>

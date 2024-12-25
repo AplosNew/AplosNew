@@ -15,6 +15,7 @@ namespace Library.Model.OrderManagements
         public decimal CM { get; set; }
         public decimal Discount { get; set; }
         public DateTime? CommitmentDate { get; set; }
+        public DateTime? ReviseDate { get; set; }
         public decimal Rate { get; set; }
         public string SOType { get; set; }
         public decimal Qty { get; set; } = 0;
