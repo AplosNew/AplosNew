@@ -83,6 +83,14 @@ namespace Aplos.Areas.Productions.Controllers
         #region -- Operations
 
         [Authorize, HttpGet]
+        public ActionResult getCutFilters(string processId)
+        {
+            JsonResult json = Json(_productionSummaryData.getCutFilters(processId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetProcessReasonList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

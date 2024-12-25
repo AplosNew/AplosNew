@@ -31,6 +31,45 @@ function ProductionCuttingBookingController(cboService, commonMessage, $scope, $
         }
     ];
 
+    $scope.filters = [];
+    $scope.SalesOrderStatusloadfilters = function () {
+        $http({
+            method: 'GET',
+            url: 'Productions/productionSummary/getCutFilters?processId=' + $scope.productionSummaryNew.ProcessId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.filters = response.data;
+            var columnList = [
+                { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
+                { field: 'ProductionOrderId', width: 20, headerText: "ProductionOrderId", type: "string" },
+                { field: 'PONumber', width: 20, headerText: "PONumber", type: "string" },
+                { field: 'LotNumber', width: 20, headerText: "LotNumber", type: "string" },
+                { field: 'ProductionGrouping', width: 20, headerText: "ProductionGrouping", type: "string" },
+                { field: 'OwnReferenceNo', width: 20, headerText: "OwnReferenceNo", type: "string" },
+                { field: 'ProductionStatus', width: 20, headerText: "ProductionStatus", type: "string" },
+                { field: 'OrderStatusName', width: 20, headerText: "OrderStatusName", type: "string" },
+                { field: 'ArticleName', width: 20, headerText: "ArticleName", type: "string" },
+                { field: 'SalesOrderId', width: 20, headerText: "SalesOrderId", type: "string" }
+
+            ];
+            $("#filters").ejGrid({
+                dataSource: $scope.filters,
+                minWidth: 450, minHeight: 400,
+                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
+                filterSettings: { filterType: "excel" },
+                columns: columnList
+            });
+
+            var gridObj = $("#filters").data("ejGrid");
+            gridObj.refreshContent(true);
+            gridObj.refreshTemplate();
+            $("#filters").children('.e-pager.e-js.e-pager').hide();
+            $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
+            $("#filters").children('.e-gridcontent').hide();
+        });
+    }
+  
+
     $scope.productionSummary = {
         Id: null,
         PlantId: null,
