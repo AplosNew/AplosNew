@@ -2099,7 +2099,7 @@ namespace Aplos.Areas.Accounts.Controllers
             {
                 AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var jsondata = Json(_accountsInvoiceService.InvoiceReviseMatureDateList(identity.CompanyGroupId, identity.CompanyId, partyType, FromDate, ToDate, DateRange), JsonRequestBehavior.AllowGet);
+                var jsondata = Json(_accountsInvoiceService.GetInvoiceReviseMatureDateList(identity.CompanyGroupId, identity.CompanyId, partyType, FromDate, ToDate, DateRange), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
                 return jsondata;
             }

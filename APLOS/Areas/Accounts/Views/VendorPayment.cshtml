@@ -356,12 +356,14 @@
                     <tr>
                         <td colspan="6" class="text-right">Total</td>
                         <td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'Receivable' | number:2}}</b></td>
+                        <td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'AdditionalAmount' | number:2}}</b></td>
                         <td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'Received' | number:2}}</b></td>
                         <td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'Balance'| number:2 }}</b></td>
                         <td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'Amount' | number:3}}</b></td>
                         <td></td>
                         <td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'ExchangeAmount'| number:3 }}</b></td>
                         <td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'BaseDrAmount'| number:3 }}</b></td>
+                        <td></td>
                         <td></td>
                     </tr>
                 </tfoot>
