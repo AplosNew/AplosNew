@@ -91,6 +91,12 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [Authorize, HttpGet]
+        public ActionResult GetCutPlantCbo()
+        {
+            return Json(_productionSummaryData.GetCutPlantCbo(), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetProcessReasonList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

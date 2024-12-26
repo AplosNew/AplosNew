@@ -3381,6 +3381,7 @@ namespace Library.Accounting.Accounts
                 sheet[xlsRow, xlsCol].Text = "IsLinear"; sheet[xlsRow, xlsCol].ColumnWidth = 15; int colIL = xlsCol; xlsCol++;
                 sheet[xlsRow, xlsCol].Text = "Current Value"; sheet[xlsRow, xlsCol].ColumnWidth = 15; int colCV = xlsCol; xlsCol++;
                 sheet[xlsRow, xlsCol].Text = "Last Value"; sheet[xlsRow, xlsCol].ColumnWidth = 15; int colLV = xlsCol; xlsCol++;
+                sheet[xlsRow, xlsCol].Text = "Last Value Days"; sheet[xlsRow, xlsCol].ColumnWidth = 15; int colLVD = xlsCol; xlsCol++;
                 sheet[xlsRow, xlsCol].Text = "UoMId"; sheet[xlsRow, xlsCol].ColumnWidth = 15; int colUOM = xlsCol; xlsCol++;
                 sheet[xlsRow, xlsCol].Text = "ResponsiblePersonId"; sheet[xlsRow, xlsCol].ColumnWidth = 21; int colRP = xlsCol; xlsCol++;
                 sheet[xlsRow, xlsCol].Text = "ActionById"; sheet[xlsRow, xlsCol].ColumnWidth = 15; int colAC = xlsCol; xlsCol++;
@@ -3469,6 +3470,9 @@ namespace Library.Accounting.Accounts
                     sheet[xlsRow, colLV].Text = dtData.Rows[i]["LastValue"].ToString();
                     sheet.Range[xlsRow, colLV].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet.Range[xlsRow, colLV].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet[xlsRow, colLVD].Text = dtData.Rows[i]["LastValueDays"].ToString();
+                    sheet.Range[xlsRow, colLVD].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[xlsRow, colLVD].VerticalAlignment = ExcelVAlign.VAlignTop;
                     sheet[xlsRow, colUOM].Text = dtData.Rows[i]["UoMId"].ToString();
                     sheet.Range[xlsRow, colUOM].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet.Range[xlsRow, colUOM].VerticalAlignment = ExcelVAlign.VAlignTop;
@@ -3524,7 +3528,7 @@ namespace Library.Accounting.Accounts
         {
             var cmdText = @"Select X.Id,X.BudgetGroupSequence,X.BudgetGroup,X.BudgetCategorySequence,X.BudgetCategory,X.BudgetSubCategorySequence,X.BudgetSubCategory
 ,X.BudgetSequence,X.Budget,X.BudgetMasterId,X.ActivityId,X.BudgetMasterActivityId,X.UserGroup,X.UserCategory,X.UserSubCategory,X.UserItem
-,X.UserReport,ISNULL(BCC.IsLinear,0)IsLinear,ISNULL(BCC.CurrentValue,0)CurrentValue,ISNULL(BCC.LastValue,0)LastValue,ISNULL(BCC.UoMId,NULL)UoMId
+,X.UserReport,ISNULL(BCC.IsLinear,0)IsLinear,ISNULL(BCC.CurrentValue,0)CurrentValue,ISNULL(BCC.LastValue,0)LastValue,ISNULL(BCH.BudgetedDays,0) LastValueDays,ISNULL(BCC.UoMId,NULL)UoMId
 ,ISNULL(BCC.ResponsiblePersonId,NULL)ResponsiblePersonId,ISNULL(BCC.ActionById,NULL)ActionById,ISNULL(BCC.Remarks,NULL)Remarks,E.Id EntityId,E.UserName EntityName 
 From(Select NULL Id,BG.Sequence BudgetGroupSequence,BG.UserName BudgetGroup,BC.Sequence BudgetCategorySequence
 ,BC.UserName BudgetCategory,BSC.Sequence BudgetSubCategorySequence,BSC.UserName BudgetSubCategory

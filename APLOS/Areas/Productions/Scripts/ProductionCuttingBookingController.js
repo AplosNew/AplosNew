@@ -68,7 +68,18 @@ function ProductionCuttingBookingController(cboService, commonMessage, $scope, $
             $("#filters").children('.e-gridcontent').hide();
         });
     }
-  
+    $scope.CutPlantList = [];
+    $scope.GetCutPlantCbo = function () {
+        try {
+            $http.get('Productions/Productionsummary/GetCutPlantCbo')
+                .then(function (response) {
+                    $scope.CutPlantList = response.data;
+                });
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+    $scope.GetCutPlantCbo();
 
     $scope.productionSummary = {
         Id: null,

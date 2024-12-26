@@ -7963,9 +7963,21 @@ where PPS.ProcessId = '" + processId + @"'
 and PO.ProductionStatusId in (select Id from HKP.ProductionStatus where MasterPlanApplicable=1)
 and SO.OrderStatusId in (select Id from HKP.OrderStatus OS where OS. MasterPlanApplicable=1) AND (select Id from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id)<>''
 AND (select PlanStatus from MST.MasterPlan where id=(select MasterPlanId from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id))='Active'
-ORDER BY MOI.ProductionGrouping,MOI.OwnReferenceNo
-";
+ORDER BY MOI.ProductionGrouping,MOI.OwnReferenceNo";
                 return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetCutPlantCbo()
+        {
+            try
+            {
+                string sql = @"Select * from MST.AllotedHeader Order By UserName";
+                return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
             {
