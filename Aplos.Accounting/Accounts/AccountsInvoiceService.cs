@@ -2557,7 +2557,7 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
 
         }
 
-        public IEnumerable<object> InvoiceReviseMatureDateList(string companyGroupId, string companyId,string partyType, string FromDate, string ToDate, bool DateRange)
+        public IEnumerable<object> GetInvoiceReviseMatureDateList(string companyGroupId, string companyId,string partyType, string FromDate, string ToDate, bool DateRange)
         {
             try
             {
@@ -2584,6 +2584,26 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
 								WHERE IV.Archive = 0 AND V.IsPark = 0
 									AND IV.CompanyGroupId = '" + companyGroupId+"' AND IV.CompanyId = '"+ companyId + @"'
 									AND IV.PartyType='"+ partyType + "' "+ DatewiseData + "";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }//End Function
+        public IEnumerable<object> GetSalesOrderReviseDateList(string companyGroupId, string companyId, string FromDate, string ToDate, bool DateRange)
+        {
+            try
+            {
+                string DatewiseData = "";
+                if (DateRange)
+                { DatewiseData = "AND DeliveryDate between '" + FromDate + @"' And '" + ToDate + @"'"; }
+                else
+                { DatewiseData = "AND DeliveryDate <= '" + FromDate + @"'"; }
+                string strSQL = string.Empty;
+                strSQL = @" Select Id,Id SONo,DeliveryDate,OrderStatusId,Qty,Rate,ReviseDate,[Description],CM 
+                            From TRN.SalesOrder Where CAST(DeliveryDate AS DATE)   " + DatewiseData + @"";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)

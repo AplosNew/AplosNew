@@ -29,6 +29,7 @@ using Library.Service.Enums;
 using Aplos.Helpers;
 using System.Web;
 using Library.OrderManagement.OrderControl;
+using Library.Accounting.Accounts;
 #endregion
 
 namespace Aplos.Areas.OrderManagements.Controllers
@@ -131,6 +132,59 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
         #endregion
 
+        #region InvoiceReviseMatureDate
+        public ActionResult SalesOrderReviseDate()
+        {
+            return View();
+        }
 
+        [HttpPost, Authorize]
+        public ActionResult GetSalesOrderReviseDateList( string FromDate, string ToDate, bool DateRange)
+        {
+            try
+            {
+                AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var jsondata = Json(_accountsInvoiceService.GetSalesOrderReviseDateList(identity.CompanyGroupId, identity.CompanyId, FromDate, ToDate, DateRange), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        [HttpPost]
+        public void UpdateSOReviseDate(string reviseDate, List<SalesOrderMaster> soList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                string IdLoop = "";
+                foreach (var item in soList)
+                {
+                    if (IdLoop == "")
+                    {
+                        IdLoop = "'" + item.Id + "'"; ;
+                    }
+                    else
+                    {
+                        IdLoop += ",'" + item.Id + "'";
+                    }
+                }
+
+                var vendorAdWr = new System.Text.StringBuilder();
+                var vendorAdWrsql = "";
+                vendorAdWrsql = @"update TRN.SalesOrder set ReviseDate ='" + reviseDate + "', UpdatedBy='" + identity.Name + "', UpdatedDate='" + DateTime.Now + "', UpdatedFromIP='" + identity.IPAddress + "' where Id IN (" + IdLoop + @") ";
+                vendorAdWr.Append(vendorAdWrsql);
+                _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
     }
 }

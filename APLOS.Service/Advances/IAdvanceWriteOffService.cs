@@ -23,7 +23,7 @@ namespace Library.Service.Advances
 
         string InsertEmployeeAdvanceWriteOff(VoucherViewModel advanceVM, VoucherDetailViewModel VoucherDetailVM, IEnumerable<VoucherDetailViewModel> advanceDetailVMList, IEnumerable<VoucherDetailViewModel> voucherDetailGLList);
         string InsertVendorPaymentEmployeeAdvanceWriteOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-               , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<VoucherViewModel> advanceVMList);
+               , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<VoucherViewModel> advanceVMList,VoucherDetailViewModel VoucherDetailVM);
         string InsertEmployeeTotalAdvanceWriteOff(VoucherViewModel advanceVM, IEnumerable<VoucherDetailViewModel> advanceDetailVMList);
 
         string UpdateEmployeeAdvanceWriteOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList);
