@@ -2869,7 +2869,16 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             $scope.poModel.PONumber = $scope.soModel.PONumber;
             $scope.poModel.PODate = $scope.soModel.PODate;
         } else {
-            $scope.soModel.Id = null;
+            $scope.poModel = {
+                Id: null
+                , PONumber: null
+                , CustomerId: $scope.fileNew.PartyId
+                , CompanyGroupId: $window.companyGroupId
+                , CompanyId: $window.companyId
+                , MasterOrderId: $scope.fileNew.Id
+                , PODate: null
+                , Active: true
+            };
         }
         angular.element(document.querySelector('#poEntryPopup')).modal('show');
     };

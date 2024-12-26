@@ -81,6 +81,8 @@ function ProductionCuttingBookingController(cboService, commonMessage, $scope, $
     };
     $scope.GetCutPlantCbo();
 
+    $scope.cutMasterPlanList = [];
+
     $scope.productionSummary = {
         Id: null,
         PlantId: null,
