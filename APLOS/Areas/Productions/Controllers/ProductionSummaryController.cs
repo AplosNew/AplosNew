@@ -91,6 +91,20 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [Authorize, HttpGet]
+        public ActionResult GetCutPlanData(string processId,string masterPlanId)
+        {
+            JsonResult json = Json(_productionSummaryData.GetCutPlanData(processId, masterPlanId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult GetCutPlantCbo()
+        {
+            return Json(_productionSummaryData.GetCutPlantCbo(), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetProcessReasonList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

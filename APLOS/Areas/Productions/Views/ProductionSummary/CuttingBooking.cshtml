@@ -58,11 +58,64 @@
             <div id="filters">
             </div>
         </div>
-        
+
+    </div>
+    <div class="col-xs-12">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors ng-show="IsGo===true">
+                <label class="col-sm-4 control-label">Cut Plan<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="productionSummaryNew.CutPlanId" name="Cut Plan" ng-options="item.Id as item.UserName for item in CutPlantList" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+        </div>
+    </div>
+    <div class="col-xs-12">
+        <div id="GridCP" ej-grid e-datasource="cutMasterPlanList"
+             e-allowscrolling="true" e-summaryrows="summaryRows"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-showsummary="true"
+             e-allowselection="true" e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-field="MasterOrderNo" e-headertext="M. Order No" e-width="120"></div>
+                <div e-column e-field="SONo" e-headertext="SO. ID" e-width="120"></div>
+                <div e-column e-field="Customer" e-headertext="Customer" e-width="180"></div>
+                <div e-column e-field="Buyer" e-headertext="Buyer" e-width="180"></div>
+                <div e-column e-field="BuyerOrderNo" e-headertext="Buyer Order#" e-width="100"></div>
+                <div e-column e-field="OwnOrderNo" e-headertext="Own Order#" e-width="100"></div>
+                <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="180" e></div>
+                <div e-column e-field="ArticleName" e-headertext="Article" e-width="180"></div>
+
+                <div e-column e-field="BuyerReferenceNo" e-headertext="Buyer Item#" e-width="100"></div>
+                <div e-column e-field="OwnReferenceNo" e-headertext="Own Item#" e-width="100"></div>
+
+                <div e-column e-field="ProductName" e-headertext="Product" e-width="180" e></div>
+                <div e-column e-field="ProductionGrouping" e-headertext="Product Grouping" e-width="120" e></div>
+
+
+                <div e-column e-field="DeliveryDate" e-headertext="Del. Date" e-width="80"></div>
+                <div e-column e-field="CommitmentDate" e-headertext="Commi.Date" e-width="80"></div>
+                <div e-column e-field="DestinationName" e-headertext="Dest." e-width="80"></div>
+                <div e-column e-field="ShipmentModeName" e-headertext="Ship.Mode" e-width="80"></div>
+                <div e-column e-field="PONumber" e-headertext="PO No" e-width="80"></div>
+
+                <div e-column e-field="OrderStatusName" e-headertext="Ord. Status" e-width="80"></div>
+                <div e-column e-field="OrderCategoryName" e-headertext="Ord. Cat." e-width="80"></div>
+                <div e-column e-field="Qty" e-headertext="Qty" e-width="80" e-textalign="right"></div>
+                <div e-column e-field="Rate" e-headertext="Rate" e-width="80" e-textalign="right"></div>
+                <div e-column e-field="Description" e-headertext="Description" e-width="80" e-textalign="right"></div>
+
+            </div>
+        </div>
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6">
-
-        <h3 class="site-heading" style="cursor:unset;height:25px;"></h3>
 
         <div class="form-group" show-errors ng-show="IsGo===true">
             <label class="col-sm-4 control-label">Work Center<sup>*</sup></label>
@@ -75,20 +128,10 @@
             </div>
         </div>
 
-        <div class="form-group" ng-show="IsGo===true">
-            <label class="col-sm-4 control-label">Production Order<sup>*</sup></label>
-            <div class="col-sm-8">
-                <div class="input-group">
-                    <input type="text" name="ProductionOrder" ng-model="productionSummaryNew.ProductionOrderId" class="form-control" readonly>
-                </div>
-            </div>
-        </div>
-        
-
         <div class="form-group" show-errors ng-show="IsGo===true">
-            
-            <label class="col-sm-2 control-label">Grade<sup>*</sup></label>
-            <div class="col-sm-3 show-message" style="padding-right:-1px;">
+
+            <label class="col-sm-4 control-label">Grade<sup>*</sup></label>
+            <div class="col-sm-8 show-message" style="padding-right:-1px;">
                 <div class="select-style">
                     <select class="form-control" ng-model="productionSummaryNew.ProductionGrade" placeholder="Grade" name="ProductionGrade" ng-options="item.Value as item.Text for item in gradeList" required>
                         <option value=""></option>
@@ -97,16 +140,14 @@
             </div>
         </div>
         <div class="form-group" ng-show="IsGo===true">
-            <label class="col-sm-3 control-label">Remarks</label>
-            <div class="col-sm-9">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8">
                 <textarea class="form-control" rows="1" ng-model="productionSummaryNew.Remarks" name="Remarks" maxlength="250" tabindex="6"></textarea>
             </div>
         </div>
     </div>
 
     <div class="col-xs-12 col-sm-6 col-md-6">
-
-\
 
         <div class="form-group" ng-show="IsGo===true">
             <label class="col-sm-4 control-label">Mentor</label>
@@ -148,12 +189,11 @@
             <div class="common-btn" ng-show="IsGo===true">
                 <ul class="list-inline text-right">
                     <li><button ng-click="GenerateBundleTicket();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>Standard Bindle Size</button></li>
-                    <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                 </ul>
             </div>
         </div>
     </div>
-   
+
 </div>
 
 <div class="clearfix"></div>
@@ -400,9 +440,6 @@
 <ej-dialog id="dialogSOItemsFromProductionOrder" title=" Sales Order Detail" e-enablemodal="true" e-position-y="0" e-showoninit="false"
            e-target="#mainform" e-minheight="200" e-width="900" e-open="enableBtn">
     <div class="row" style="width:890px!important;">
-        @*<div class="col-sm-12">*@
-
-
         <div id="GridSOItemsForProductionOrder" ng-init="chkinit()" ej-grid e-datasource="SalesOrderListForProductionOrderId"
              e-allowscrolling="true" e-summaryrows="summaryRows"
              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
@@ -411,12 +448,10 @@
             <div e-columns>
                 <div e-column e-field="MasterOrderNo" e-headertext="M. Order No" e-width="120"></div>
                 <div e-column e-field="SONo" e-headertext="SO. ID" e-width="120"></div>
-
                 <div e-column e-field="Customer" e-headertext="Customer" e-width="180"></div>
                 <div e-column e-field="Buyer" e-headertext="Buyer" e-width="180"></div>
                 <div e-column e-field="BuyerOrderNo" e-headertext="Buyer Order#" e-width="100"></div>
                 <div e-column e-field="OwnOrderNo" e-headertext="Own Order#" e-width="100"></div>
-
                 <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="180" e></div>
                 <div e-column e-field="ArticleName" e-headertext="Article" e-width="180"></div>
 
@@ -441,7 +476,6 @@
 
             </div>
         </div>
-        @*</div>*@
         <ul class="common-btn list-inline text-right">
             <li><button ng-click="closePopup('dialogSOItemsFromProductionOrder')" class="btn"><i> Close</i></button></li>
         </ul>

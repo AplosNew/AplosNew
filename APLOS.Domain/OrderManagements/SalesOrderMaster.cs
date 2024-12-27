@@ -34,6 +34,7 @@ namespace Library.Model.OrderManagements
         public string DestinationDescription { get; set; }
         public string SalesOrderYear { get; set; }
         public int WeekNo { get; set; }
+        public int BillDiscountingDays { get; set; }
         public string OrderStatusId { get; set; }
         public string ProductionBookingLevel { get; set; }
         public decimal ProductionBookedQty { get; set; }
