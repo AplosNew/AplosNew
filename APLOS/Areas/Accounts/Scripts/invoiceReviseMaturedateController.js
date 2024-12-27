@@ -26,7 +26,8 @@ function invoiceReviseMaturedateController(commonMessage, $scope, $rootScope, ba
         Remarks: null,
         PaymentMode: null,
         FromDate: $filter("dateFiltering")(Date.now()),
-        ToDate: $filter("dateFiltering")(Date.now())
+        ToDate: $filter("dateFiltering")(Date.now()),
+        UpdatedReviseDate: $filter("dateFiltering")(Date.now())
     };
 
     $scope.selectedPaymentMode = $("#paymentMode option:selected").text();

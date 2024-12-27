@@ -26,7 +26,8 @@ function salesOrderRevisedateController(commonMessage, $scope, $rootScope, baseS
         Remarks: null,
         PaymentMode: null,
         FromDate: $filter("dateFiltering")(Date.now()),
-        ToDate: $filter("dateFiltering")(Date.now())
+        ToDate: $filter("dateFiltering")(Date.now()),
+        UpdatedReviseDate: $filter("dateFiltering")(Date.now())
     };
 
     $scope.selectedPaymentMode = $("#paymentMode option:selected").text();
@@ -58,9 +59,6 @@ function salesOrderRevisedateController(commonMessage, $scope, $rootScope, baseS
     $scope.UpdateInvoiceReviseDate = function () {
         try {
             $scope.InvoiceCheckedDataList = [];
-            if ($scope.invoice.PartyType == null) {
-                throw "Please Select PartyType.";
-            }
 
             for (var i = 0; i < $scope.InvoiceDataList.length; i++) {
                 if ($scope.InvoiceDataList[i].CheckBoxSelect == true) { $scope.InvoiceCheckedDataList.push($scope.InvoiceDataList[i]); }
@@ -71,7 +69,7 @@ function salesOrderRevisedateController(commonMessage, $scope, $rootScope, baseS
             $http({
                 method: 'POST',
                 url: 'OrderManagements/SalesOrderUpdate/UpdateSOReviseDate',
-                data: { 'reviseDate': $scope.invoice.UpdatedReviseDate, 'invoiceList': $scope.InvoiceCheckedDataList },
+                data: { 'reviseDate': $scope.invoice.UpdatedReviseDate, 'soList': $scope.InvoiceCheckedDataList },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -98,7 +96,7 @@ function salesOrderRevisedateController(commonMessage, $scope, $rootScope, baseS
     $scope.InvoiceDataList = [];
     $scope.GetInvoiceData = function () {
         $scope.InvoiceDataList = [];
-       
+        $scope.saveBtnDisable = false;
          if (baseService.isUndefinedOrNull($scope.invoice.FromDate)) {
             manualValidation("div_FromDate", true, "From Date is required.");
         }

@@ -465,6 +465,15 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                 ShowResult("Please check in PORowId " + $scope.inventoryMaterialListPO[i].InventoryReceiveDetailId, 'failure');
                 return true;
             }
+            $scope.poLotNumberList = $filter("filter")($scope.inventoryMaterialListPO, { 'PODetailsID': $scope.inventoryMaterialListPO[i].PODetailsID, 'LotNumber': $scope.inventoryMaterialListPO[i].LotNumber });
+            if ($scope.poLotNumberList.length > 1) {
+                ShowResult("LotNumber Cannot Same!");
+                return true;
+            }
+            if ($scope.inventoryMaterialListPO[i].TransactionQty > 0 && $scope.inventoryMaterialListPO[i].check == null) {
+                ShowResult("Please check in PORowId " + $scope.inventoryMaterialListPO[i].InventoryReceiveDetailId, 'failure');
+                return true;
+            }
             if ($scope.inventoryMaterialListPO[i].IsAlternativeQty == true && ($scope.inventoryMaterialListPO[i].AlternativeQty == 0 || $scope.inventoryMaterialListPO[i].AlternativeQty == 'NaN')) {
                 ShowResult("Please input AlternativeQty", 'failure');
                 return true;
@@ -549,7 +558,6 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
     GetTrancastionTypeCboList();
 
     $scope.Save = function () {
-        //$scope.detailModel.BaseUOMId = $filter("filter")($scope.inventoryMaterialListPO, { check: 1 })[0].Value;
         $scope.product = {};
         if ($scope.Action === 'Save') {
             if (!$scope.checkValidation()) {
@@ -1793,6 +1801,75 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 
 
     }
+
+    $scope.CopyRow = function (index, data) {
+        var copydetail = {};
+        copydetail.QualityStatus = data.QualityStatus;
+        copydetail.POID = data.POID;
+        copydetail.ArticleId = data.ArticleId;
+        copydetail.PODetailsID = data.PODetailsID;
+        copydetail.InventoryReceiveDetailId = data.InventoryReceiveDetailId;
+        copydetail.MaterialGroupMasterName = data.MaterialGroupMasterName;
+        copydetail.UserName = data.UserName;
+        copydetail.MaterialMasterId = data.MaterialMasterId;
+        copydetail.StandardName = data.StandardName;
+        copydetail.FirstCharacteristicsValue = data.FirstCharacteristicsValue;
+        copydetail.FirstCharacteristicsId = data.FirstCharacteristicsId;
+        copydetail.SecondCharacteristicsValue = data.SecondCharacteristicsValue;
+        copydetail.FirstCharacteristicsValueId = data.FirstCharacteristicsValueId;
+        copydetail.OriginalPOQty = data.OriginalPOQty;
+        copydetail.TransactionUoM = data.TransactionUoM;
+        copydetail.TransactionUoMId = data.TransactionUoMId;
+        copydetail.BaseUOMId = data.BaseUOMId;
+        copydetail.POUoMId = data.POUoMId;
+        copydetail.AlternativeUOM = data.AlternativeUOM;
+        copydetail.POQty = data.POQty;
+        copydetail.ToleranceQty = data.ToleranceQty;
+        copydetail.GRNRcvQty = data.GRNRcvQty;
+        copydetail.TransactionQty = data.TransactionQty;
+        copydetail.Balance = data.Balance;
+        copydetail.POClosStatus = data.POClosStatus;
+        copydetail.AlternativeQty = data.AlternativeQty;
+        copydetail.IsAlternativeQty = data.IsAlternativeQty;
+        copydetail.IsAsset = data.IsAsset;
+        copydetail.ShortageQty = data.ShortageQty;
+        copydetail.RejectionQty = data.RejectionQty;
+        copydetail.ApprovedQty = data.ApprovedQty;
+        copydetail.NetQty = data.NetQty;
+        copydetail.TransactionRate = data.TransactionRate;
+        copydetail.TrnAmount = data.TrnAmount;
+        copydetail.DiscountAmount = data.DiscountAmount;
+        copydetail.BaseTaxAmount = data.BaseTaxAmount;
+        copydetail.POMaterialTaxList = data.POMaterialTaxList;
+        copydetail.RequisitionDetailId = data.RequisitionDetailId;
+        copydetail.RequisitionId = data.RequisitionId;
+        copydetail.ServiceCharge = data.ServiceCharge;
+        copydetail.ServiceTax = data.ServiceTax;
+        copydetail.BaseAmount = data.BaseAmount;
+        copydetail.TotalMaterialTranAmount = data.TotalMaterialTranAmount;
+        copydetail.TotalMaterialBaseAmount = data.TotalMaterialBaseAmount;
+        copydetail.ShortageRate = data.ShortageRate;
+        copydetail.ShortageValue = data.ShortageValue;
+        copydetail.RejectionRate = data.RejectionRate;
+        copydetail.RejectionValue = data.RejectionValue;
+        copydetail.RejectionClamRate = data.RejectionClamRate;
+        copydetail.CountryName = data.CountryName;
+        copydetail.RefferenceNo = data.RefferenceNo;
+        copydetail.MaterialDetail = data.MaterialDetail;
+        copydetail.LotNumber = data.LotNumber;
+        copydetail.Diameter = data.Diameter;
+        copydetail.Type = data.Type;
+        copydetail.ToCurrencyRate = data.ToCurrencyRate;
+        copydetail.Tolerance = data.Tolerance;
+        copydetail.ToleranceQty = data.ToleranceQty;
+        copydetail.ToleranceQTransactionUoMIdty = data.TransactionUoMId;
+        $scope.inventoryMaterialListPO.push(copydetail);
+        copydetail = {};
+        
+    }
+    $scope.removeCopyRow = function (index) {
+            $scope.inventoryMaterialListPO.splice(index, 1);
+    };
     $scope.recorddoubleclickforAcceptance = function ($event) {
         $scope.Clear();
         if ($event.data.AcceptanceId != null || $event.data.AcceptanceId != undefined) {

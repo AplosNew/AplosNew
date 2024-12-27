@@ -1299,6 +1299,7 @@ upanelApp.controller("ProcessConstraintController", ProcessConstraintController)
 upanelApp.controller("invoiceReviseMaturedateController", invoiceReviseMaturedateController)
 upanelApp.controller("ProductionCuttingBookingController", ProductionCuttingBookingController)
 upanelApp.controller("salesOrderRevisedateController", salesOrderRevisedateController)
+upanelApp.controller("atAGlanceController", atAGlanceController)
 
 
 
@@ -1341,6 +1342,7 @@ upanelApp.config(JobWorkConfig);
 upanelApp.config(OutsourcingConfig);
 upanelApp.config(PerformanceManagementConfig);
 upanelApp.config(MeetingManagementConfig);
+upanelApp.config(misConfig);
 
 upanelApp.config(["$routeProvider", "$locationProvider", "$httpProvider", function apanelConfig($routeProvider, $locationProvider, $httpProvider) {
     $httpProvider.interceptors.push("errorInterceptor");
