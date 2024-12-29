@@ -7976,7 +7976,7 @@ ORDER BY MOI.ProductionGrouping,MOI.OwnReferenceNo";
         {
             try
             {
-                var str = @"Select M.* From (select Flag=CAST(0 as bit),PO.Id ProductionOrderId,P.UserName Customer,PLC.LotNo LotNumber,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping,MOI.OwnReferenceNo,
+                var str = @"Select M.* From (select Flag=CAST(0 as bit),PO.Id POId,P.UserName Customer,PLC.LotNo,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping,MOI.OwnReferenceNo,
 PS.UserName ProductionStatus,OS.UserName AS OrderStatusName,SO.Id SONo,SO.Qty,isnull((select PlanPercentage from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id),
 MO.ExtraOrderPercentage) SOPlanPercentage,isnull((select SOPlanQty from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id),SO.Qty + (MO.ExtraOrderPercentage*SO.Qty / 100)) as SOPlanQty,
 (select PlanStatus from MST.MasterPlan where id=(select MasterPlanId from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id)) as MasterPlanStatus,

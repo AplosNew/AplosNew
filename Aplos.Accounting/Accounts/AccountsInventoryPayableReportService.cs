@@ -3545,6 +3545,7 @@ Where BMA.Active=1
 )X
 OUTER APPLY (SELECT * FROM ORG.Entity Where Id " + entityids + @") E 
 LEFT JOIN dbo.BudgetControlChild BCC ON BCC.BudgetMasterActivityId=X.BudgetMasterActivityId AND E.Id=BCC.EntityId
+LEFT JOIN dbo.BudgetControlHeader BCH ON BCH.Id=BCC.BudgetControlId
 ORDER BY X.ActivityId,E.Id";
             return _sqlRepository.GetDataTable(cmdText);
 
