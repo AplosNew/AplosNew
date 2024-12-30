@@ -2598,12 +2598,12 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
             {
                 string DatewiseData = "";
                 if (DateRange)
-                { DatewiseData = "AND DeliveryDate between '" + FromDate + @"' And '" + ToDate + @"'"; }
+                { DatewiseData = "  CAST(DeliveryDate AS DATE) between '" + FromDate + @"' And '" + ToDate + @"'"; }
                 else
-                { DatewiseData = "AND DeliveryDate <= '" + FromDate + @"'"; }
+                { DatewiseData = "  CAST(DeliveryDate AS DATE) <= '" + FromDate + @"'"; }
                 string strSQL = string.Empty;
-                strSQL = @" Select Id,Id SONo,DeliveryDate,OrderStatusId,Qty,Rate,ReviseDate,[Description],CM 
-                            From TRN.SalesOrder Where CAST(DeliveryDate AS DATE)   " + DatewiseData + @"";
+                strSQL = @" Select Id,Id SONo,DeliveryDate,OrderStatusId,Qty,Rate,ReviseDate,[Description],CM ,CheckBoxSelect= CONVERT(bit,0)  
+                            From TRN.SalesOrder Where    " + DatewiseData + @"";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)

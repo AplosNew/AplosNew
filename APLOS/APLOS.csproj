@@ -564,6 +564,8 @@
     <Compile Include="Areas\Materials\Controllers\LOTCreationController.cs" />
     <Compile Include="Areas\Materials\Controllers\QRCodeGeneratorController.cs" />
     <Compile Include="Areas\Materials\Controllers\WeighingScaleMasterController.cs" />
+    <Compile Include="Areas\MIS\Controllers\ManagementInformationSystemController.cs" />
+    <Compile Include="Areas\MIS\MISAreaRegistration.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\DocumentationController.cs" />
     <Compile Include="Areas\Outsourcing\Controllers\JobWorkEntryController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeSeperationSetupController.cs" />
@@ -1980,6 +1982,8 @@
     <Content Include="Areas\HumanResource\Scripts\otApproveController.js" />
     <Content Include="Areas\Materials\Scripts\BarcodeGeneratorSettingController.js" />
     <Content Include="Areas\Materials\Scripts\ProcessConstraintController.js" />
+    <Content Include="Areas\MIS\Scripts\atAGlanceController.js" />
+    <Content Include="Areas\MIS\Scripts\misConfig.js" />
     <Content Include="Areas\OrderManagements\Scripts\salesOrderRevisedateController.js" />
     <Content Include="Areas\OrderManagements\Scripts\masterOrderApproveByController.js" />
     <Content Include="Areas\OrderManagements\Scripts\masterOrderCheckByController.js" />
@@ -5025,6 +5029,8 @@
     <Content Include="Areas\Accounts\Views\InvoiceReviseMatureDate.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionSummary\CuttingBooking.cshtml" />
     <Content Include="Areas\OrderManagements\Views\SalesOrderUpdate\SalesOrderReviseDate.cshtml" />
+    <Content Include="Areas\MIS\Views\Aplos.cshtml" />
+    <Content Include="Areas\MIS\Views\web.config" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

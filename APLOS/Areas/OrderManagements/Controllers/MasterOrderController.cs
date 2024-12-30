@@ -68,7 +68,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         #region -- Pages
 
         public ActionResult Aplos()
-        { 
+        {
             return View();
         }
         public ActionResult CheckBy()
@@ -982,6 +982,55 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             return Json(new { tuple = _customerPOService.InsertGraphPo(entity), Message = AplosMessage.Insert });
         }
+
+
+        [HttpPost, Authorize]
+        public JsonResult UpdatePO(Dictionary<string, object> data)
+        {
+            try
+            {
+                if (data != null)
+                {
+
+                    DataSet dsMaster;
+                        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[CustomerPO] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                    #region data update
+                    DataView dv = new DataView(dsMaster.Tables[0]);
+                    dv.RowFilter = "Id='" + data["Id"] + "'";
+
+                    if (dv.Count > 0)
+                    {
+                        DataRow dr = dv[0].Row;
+                        dr.BeginEdit();
+                                                
+                        dr["PONumber"] = data["PONumber"];
+                        dr["PODate"] = data["PODate"];
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dr.EndEdit();
+
+                    }
+                    #endregion data update
+
+                    clsStaticInfo _info = new clsStaticInfo();
+                    _info.SaveDataSets(dsMaster);
+
+
+                }
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
         #endregion -- Customer Po
 
         #region Report

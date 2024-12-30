@@ -283,14 +283,14 @@
                                     <div class="input-group">
                                         <input type="text" name="Responsible Person" ng-model="RemarksControlmodel.RemarksControl" class="form-control" readonly>
                                         <span class="input-group-btn">
-                                            <button ng-click="GetRemarksControlList();"ng-disabled="fileNew.IsPaymentTermChangeable==false"  class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                                            <button ng-click="GetRemarksControlList();" ng-disabled="fileNew.IsPaymentTermChangeable==false" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
                                         </span>
                                     </div>
                                     @*<div class="select-style">
-                                        <select tabindex="10" id="RemarksControlId" ng-disabled="fileNew.IsPaymentTermChangeable==false" class="form-control" name="Remarks Control" ng-model="fileNew.RemarksControlId">
-                                            <option ng-repeat="option in RemarksControlList" value="{{option.Value}}">{{option.Text}}</option>
-                                        </select>
-                                    </div>*@
+                    <select tabindex="10" id="RemarksControlId" ng-disabled="fileNew.IsPaymentTermChangeable==false" class="form-control" name="Remarks Control" ng-model="fileNew.RemarksControlId">
+                        <option ng-repeat="option in RemarksControlList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>*@
                                 </div>
                             </div>
                             <div class="form-group" ng-show="isBuyerApplicable">
@@ -366,12 +366,7 @@
                                     <input type="text" n-decimals="2" name="Order Wastage Percentage" ng-model="fileNew.OrderWastagePercentage" class="form-control text-right" tabindex="18">
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">No. of Line Item<sup>*</sup></label>
-                                <div class="col-sm-8">
-                                    <input type="text" only-numbers name="No of Line Item" ng-model="fileNew.NoOfLineItem" class="form-control text-right" tabindex="20">
-                                </div>
-                            </div>
+
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Exceptional SubProcess</label>
                                 <div class="col-sm-8">
@@ -382,7 +377,12 @@
                                     </div>
                                 </div>
                             </div>
-
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">No. of Line Item<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="text" only-numbers name="No of Line Item" ng-model="fileNew.NoOfLineItem" class="form-control text-right" tabindex="20">
+                                </div>
+                            </div>
                         </div>
                         <div class="common-btn">
                             <ul class="list-inline text-left">
@@ -1454,11 +1454,17 @@
                                 </div>
                             </div>
                         </div>
-                       
+
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Revise Date<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Revise Date</label>
                             <div class="col-sm-8">
                                 <input type="text" datepicker name="Revise Date" ng-model="soModel.ReviseDate" class="form-control" tabindex="106">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Bill Discounting Days</label>
+                            <div class="col-sm-8">
+                                <input type="text" only-numbers name="BillDiscountingDays" ng-disabled="IsBillDiscountingDays==false"  ng-model="soModel.BillDiscountingDays" class="form-control" tabindex="106">
                             </div>
                         </div>
                         <div class="form-group" show-errors>
@@ -2300,6 +2306,12 @@
                             <label class="col-sm-4 control-label">Revise Date</label>
                             <div class="col-sm-8">
                                 <input type="text" datepicker name="Revise Date" ng-model="soSplitModel.ReviseDate" class="form-control" tabindex="106">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Bill Discounting Days</label>
+                            <div class="col-sm-8">
+                                <input type="text" only-numbers name="BillDiscountingDays" ng-disabled="IsBillDiscountingDays==false" ng-model="soSplitModel.BillDiscountingDays" class="form-control" tabindex="106">
                             </div>
                         </div>
                         <div class="form-group">

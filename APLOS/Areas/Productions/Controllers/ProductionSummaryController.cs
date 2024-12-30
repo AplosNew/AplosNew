@@ -91,6 +91,20 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [Authorize, HttpGet]
+        public ActionResult GetCutPlanData(string processId, string masterPlanId)
+        {
+            JsonResult json = Json(_productionSummaryData.GetCutPlanData(processId, masterPlanId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult GetCutPlantCbo()
+        {
+            return Json(_productionSummaryData.GetCutPlantCbo(), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetProcessReasonList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -3609,7 +3623,81 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             }
         }
 
-      
+        [HttpPost, Authorize]
+        public JsonResult CreateCuttingBooking(Dictionary<string, object> data)
+        {
+            try
+            {
+                if (data != null)
+                {
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                    DataSet dsMaster, dsCutMaster;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                    con.OpenDataSetThroughAdapter("Select * from TRN.ProductionSummary WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                    string _Id = "";
+                    string _CId = "";
+
+                    #region data update
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("ProductionSummary", out _Id);
+
+                        data["Id"] =_Id;
+                        data["PlantId"] =identity.PlantId;
+                        data["Quantity"] = data["Qty"];
+                        AddNewRow(dsMaster.Tables[0], data);
+                    }
+                    else
+                    {
+                        _Id = data["Id"].ToString();
+                        EditRow(dsMaster.Tables[0].Rows[0], data);
+                    }
+                    #endregion data update
+
+                    con.OpenDataSetThroughAdapter("Select * from TRN.CutPlanProductionBooking WHERE ProductionSummaryId='" + data["Id"] + "'", out dsCutMaster, false, "1");
+
+                    #region data update
+                    if (dsCutMaster.Tables[0].Rows.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("CutPlanProductionBooking", out _CId);
+
+                        data["Id"] = _CId;
+                        data["ProductionSummaryId"] = data["Id"];
+                        data["Qty"] = data["Qty"];
+                        data["NoOfBundle"] = data["NoOfBundle"];
+                        data["PlanBundle"] = data["PlanBundle"];
+                        data["StartPcsNo"] = data["StartPcsNo"];
+                        data["Remark"] = data["CuttingRemark"];
+                        AddNewRow(dsCutMaster.Tables[0], data);
+                    }
+
+                    #endregion data update
+
+                    con.OpenDataSetThroughAdapter("Select * from TRN.CutPlanProductionBookingChild WHERE CutPlanBookingId='" + _CId + "'", out dsCutMaster, false, "1");
+
+                    for (int i = 0; i < Convert.ToInt32(data["NoOfBundle"].ToString()); i++)
+                    {
+
+                    }
+
+                    clsStaticInfo _info = new clsStaticInfo();
+                    _info.SaveDataSets(dsMaster, dsCutMaster);
+
+                }
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
 
 
         #endregion
