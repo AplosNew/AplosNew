@@ -62,6 +62,11 @@ namespace Aplos.Areas.Materials.Controllers
             return View();
         }
 
+        public ActionResult FabricGrouping()
+        {
+            return View();
+        }
+
         #endregion Pages
 
         #region -- Operations

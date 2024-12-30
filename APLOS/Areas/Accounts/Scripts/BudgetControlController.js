@@ -226,9 +226,11 @@ function BudgetControlController(commonMessage, $scope, $rootScope, baseService,
                 throw "Select From Date by selected month.";
             }
             if ($scope.ModelNew.BudgetedDays > $scope.ModelNew.WorkingDays) {
-                throw "Budgeted Days cann't greater than Working Days";
+                throw "Budgeted Days can't greater than Working Days";
             }
-
+            if (baseService.isUndefinedOrNull($scope.ModelNew.ApproveById)) {
+                throw "Select ApproveBy.";
+            }
             $scope.$broadcast('show-errors-check-validity');
             if ($scope.ModelNewForm.$valid) {
                 $http({
