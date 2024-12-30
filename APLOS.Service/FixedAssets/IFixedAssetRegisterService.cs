@@ -3,6 +3,7 @@ using Library.Model.FixedAsset;
 using Library.Model.FixedAssets;
 using Library.Model.Materials;
 using Library.Service.Core;
+using Library.ViewModel.Accounts;
 using Syncfusion.XlsIO;
 using System.Collections.Generic;
 using System.Data;
@@ -119,7 +120,7 @@ namespace Library.Service.FixedAssets
         string EditFixedAssetSales(string status, FixedAssetRegisterDisposed disposeVM, IEnumerable<FixedAssetRegisterDisposedDetail> fixedAssetRegister);
         string EditFixedAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegisterDisposedDetail> fixedAssetRegister);
 
-        string InsertCapitalizeAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, List<Dictionary<string, object>> assetRegisterList);
+        string InsertCapitalizeAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegisterDisposedDetailViewModel> assetRegisterList, IEnumerable<FixedAssetRegisterDisposedTaxViewModel> disposedTaxList);
         IEnumerable<object> GetCapitalizeAssetRegisterApproveByCbo();
     }
 }

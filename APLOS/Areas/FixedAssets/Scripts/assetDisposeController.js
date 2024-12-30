@@ -1,6 +1,6 @@
 ﻿"use strict";
-assetDisposeController.$inject = ["commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller"];
-function assetDisposeController(commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller) {
+assetDisposeController.$inject = ["commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller", "accountService"];
+function assetDisposeController(commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller, accountService) {
     $rootScope.title = "Fixed Asset Dispose";
     $scope.Action = "Save";
     $scope.index = -1;
@@ -275,7 +275,8 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
                     url: "fixedassets/fixedassetregister/CreateCapitalizeAssetLost",
                     data: {
                         "fixedAssetDisposed": $scope.voucher,
-                        "assetRegisterList": $scope.voucherDetailList
+                        "assetRegisterList": $scope.voucherDetailList,
+                        "disposedTaxList": $scope.receiveTaxList
                         
                     },
                     dataType: "JSON"
@@ -687,6 +688,85 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
         }
     }
 
+    accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
+        $scope.taxCategoryList = result;
+    });
 
+    $scope.receiveTaxList = [];
+    $scope.currentMaterialRow = 0;
+    $scope.AssetRegisterId = "";
+    $scope.getMaterialTaxList = function (data, flag, index) {
+        $scope.percentageColumn = flag;
+        $scope.currentMaterialRow = index;
+        $scope.taxAbleAmnt = data.NegotiationValue;
+        $scope.AssetRegisterId = data.AssetRegisterId;
+
+        $scope.totalTaxAmount = 0;
+        for (var j = 0; j < $scope.receiveTaxList.length; j++) {
+            $scope.totalTaxAmount = $scope.totalTaxAmount + $scope.receiveTaxList[j].Amount;
+        }
+        $scope.voucherDetailList[$scope.currentMaterialRow].TaxAmount = parseFloat($scope.totalTaxAmount);
+        angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
+    };
+    $scope.closeReceiveTaxPopUp = function () {
+        try {
+            $scope.totalTaxAmount = 0;
+            for (var j = 0; j < $scope.receiveTaxList.length; j++) {
+                $scope.totalTaxAmount = $scope.totalTaxAmount + $scope.receiveTaxList[j].Amount;
+            }
+            $scope.voucherDetailList[$scope.currentMaterialRow].TaxAmount = parseFloat($scope.totalTaxAmount);
+            angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
+        } catch (e) {
+            ShowResult(e, 'failure', 'receiveTaxPopUp');
+        }
+    };
+
+    $scope.closeReceiveTaxPopUpwindow = function () {
+        $scope.totalTaxAmount = 0;
+        for (var j = 0; j < $scope.receiveTaxList.length; j++) {
+            $scope.totalTaxAmount = $scope.totalTaxAmount + $scope.receiveTaxList[j].Amount;
+        }
+        $scope.voucherDetailList[$scope.currentMaterialRow].TaxAmount = parseFloat($scope.totalTaxAmount);
+        angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
+    }
+    $scope.addTax = function () {
+        var data = {
+            Amount: 0,
+            Id: null,
+            AssetRegisterId: $scope.AssetRegisterId,
+            Percentage: null,
+            UserName: null,
+            TaxCategoryId: null
+        };
+        $scope.receiveTaxList.push(data);
+    };
+    $scope.taxDel = function (Id, index) {
+        if (Id === null) {
+            $(this).remove();
+            $scope.receiveTaxList.splice(index);
+            return false;
+        }
+    };
+    $scope.calculateTaxAmount = function (data) {
+
+        data.Amount = parseFloat($scope.taxAbleAmnt * data.Percentage / 100).toFixed(2);
+    };
+    $scope.checkRowValidation = function (x) {
+        for (var i = 0; i < $scope.receiveTaxList.length; i++) {
+
+            if ($scope.receiveTaxList[i].Id === x.Id) {
+                $scope.receiveTaxList[i].Percentage = (parseFloat(x.Amount / $scope.taxAbleAmnt).toFixed(2) * 100);
+            }
+
+        }
+    }
+    $scope.onchangeFunction1 = function (id) {
+        $scope.TaxCategoryId = id;
+
+        var getRow = $filter("filter")($scope.receiveTaxList, { "TaxCategoryId": id });
+        if (getRow.length === 2) {
+            ShowResult("You can't add Same Tax two times", 'failure', 'receiveTaxPopUp');
+        }
+    };
 
 }
