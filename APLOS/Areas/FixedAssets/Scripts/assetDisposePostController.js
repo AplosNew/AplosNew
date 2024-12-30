@@ -61,6 +61,7 @@ function assetDisposePostController(accountService, cboService, commonMessage, $
     $scope.voucher = {
         Id: null,
         VoucherDate: $filter("dateFiltering")(Date.now()),
+        PostingDate: $filter("dateFiltering")(Date.now()),
         DocDate: null,
         DocRefNo: null,
         Amount: 0,
@@ -241,7 +242,7 @@ function assetDisposePostController(accountService, cboService, commonMessage, $
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
-                $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
+                //$scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
                 //$scope.voucher.DocDate = $scope.voucher.PostingDate;
                 $scope.GetCurrencyExchangeRateList();
             }

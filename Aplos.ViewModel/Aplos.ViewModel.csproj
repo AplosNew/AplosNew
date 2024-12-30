@@ -60,6 +60,8 @@
     <Compile Include="Accounts\BalanceSheetSchedulingUploadedDataViewModel.cs" />
     <Compile Include="Accounts\BankReconciliationUploadedDataViewModel.cs" />
     <Compile Include="Accounts\FixedAssetDepreciationProcessVM.cs" />
+    <Compile Include="Accounts\FixedAssetRegisterDisposedTaxViewModel.cs" />
+    <Compile Include="Accounts\FixedAssetRegisterDisposedDetailViewModel.cs" />
     <Compile Include="HR\Attendance\JobcardVM.cs" />
     <Compile Include="HR\LeaveTransactionVM.cs" />
     <Compile Include="HR\SalaryFixationVM.cs" />
