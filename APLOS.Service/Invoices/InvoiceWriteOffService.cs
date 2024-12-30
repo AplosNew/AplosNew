@@ -184,7 +184,7 @@ namespace Library.Service.Invoices
         }
         private void Check(InvoiceWriteOff entity)
         {
-            CheckUniqueColumn(UniqueColumnName.DocRefNo, entity.DocRefNo, r => r.Id != entity.Id && r.PartyId == entity.PartyId && r.DocRefNo == entity.DocRefNo);
+            CheckUniqueColumn(UniqueColumnName.DocRefNo, entity.DocRefNo, r => r.Id != entity.Id && r.PartyId == entity.PartyId && r.DocRefNo == entity.DocRefNo && r.FiscalYearId == entity.FiscalYearId && r.PartyType == entity.PartyType);
         }
         public IQueryFluent<InvoiceWriteOff> QueryInvoiceWriteOff(string voucherId)
         {
@@ -8793,6 +8793,7 @@ namespace Library.Service.Invoices
                 var invoiceWriteOff = _invoiceWriteOffRepository.Find(invoiceWriteOffId);
                 var invoiceWriteOffDetail = _invoiceWriteOffDetailRepository.Query(r => r.InvoiceWriteOffId == invoiceWriteOffId).Select().ToList();
                 var invoiceTax = _invoiceTaxRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var additionalTax = _additionalTaxRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
                 var advanceWriteOff = _advanceWriteOffRepository.Query(r => r.VoucherId == voucherId).Select().FirstOrDefault();
 
 
@@ -8825,6 +8826,18 @@ namespace Library.Service.Invoices
                             _invoiceTaxDetailRepository.Delete(item1.Id);
                         }
                         _invoiceTaxRepository.Delete(item.Id);
+                    }
+                }
+                if (additionalTax != null)
+                {
+                    foreach (var item in additionalTax)
+                    {
+                        var invoicetaxDdetail = _additionalTaxDetailRepository.Query(r => r.AdditionalTaxId == item.Id).Select().ToList();
+                        foreach (var item1 in invoicetaxDdetail)
+                        {
+                            _additionalTaxDetailRepository.Delete(item1.Id);
+                        }
+                        _additionalTaxRepository.Delete(item.Id);
                     }
                 }
                 foreach (var item in invoiceWriteOffDetail)
