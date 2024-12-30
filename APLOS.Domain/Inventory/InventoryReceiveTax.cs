@@ -72,6 +72,9 @@ namespace Library.Model.Inventory
         public VoucherDetail CrVoucherDetail { get; set; }
 
         public string CrVoucherDetailId { get; set; }
+
+        public string PODetailsID { get; set; }
+        public int RowIdentityNo { get; set; }
         #endregion Navigation Properties
     }
 }

@@ -6120,7 +6120,7 @@ namespace Aplos.MaterialManagement
                            ,IRD.RequisitionId
 						   ,IRD.RequisitionDetailId
                            ,0 ShortageQty
-						   ,0 RejectionQty
+						   ,0 RejectionQty,0 RowIdentityNo
                            --,MRD.MaterialDetail
                            ,null AS [check] ,IRD.Description MaterialDetail,'null' PurchaseDocAcceptanceDetailId,0 POClosStatus,C.UserName CountryName
                         ,C.Id CountryId ,MM.IsAsset,IRD.TotalTaxAmount,0 GrossAmount,0 DiscountAmount,'Approved' QualityStatus
@@ -6192,7 +6192,7 @@ namespace Aplos.MaterialManagement
                            ,IRD.RequisitionId
 						   ,IRD.RequisitionDetailId
                             ,0 ShortageQty
-						   ,0 RejectionQty
+						   ,0 RejectionQty,0 RowIdentityNo
                            --,MRD.MaterialDetail
                            ,null AS [check] ,IRD.Description MaterialDetail,'null' PurchaseDocAcceptanceDetailId,0 POClosStatus,C.UserName CountryName,C.Id CountryId ,MM.IsAsset,IRD.TotalTaxAmount,0 GrossAmount,0 DiscountAmount,'' QualityStatus
 							,IRD.TransactionUoMId POUoMId,IRD.Tolerance,IRD.RefferenceNo,ART.MinimumValue,ART.MaximumValue,MM.IsAlternativeQty,0 AlternativeQty
@@ -6284,7 +6284,7 @@ namespace Aplos.MaterialManagement
                            ,IRD.RequisitionId
 						   ,IRD.RequisitionDetailId
                             ,0 ShortageQty
-						   ,0 RejectionQty
+						   ,0 RejectionQty,0 RowIdentityNo
                            --,MRD.MaterialDetail
                            ,null AS [check] ,IRD.Description MaterialDetail
                            ,IsNonCreditable= CASE WHEN PDA.IsNonCreditable=1 then 1 Else 0 END ,MM.IsAsset ,CU.Id CurrencyId
