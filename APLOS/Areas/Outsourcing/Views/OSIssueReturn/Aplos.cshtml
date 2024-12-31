@@ -429,56 +429,7 @@
 
 
 
-                                @*<div style="color:black;overflow:scroll" id="GridIssueChildTab" ej-grid e-datasource="IssueChildList"
-                                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="GetIssueChildData"
-                                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowscrolling="true">
-                                        <div e-columns>
-                                            <div e-column e-template="#checkedPBSChildTabItem" e-width="20"></div>
-                                            <div e-column e-type="string" e-field="JobWorkActivity" e-headertext="Job Work Activity" e-width="100"></div>
-                                            <div e-column e-type="string" e-field="JobWorkItem" e-headertext="Job Work Item" e-width="100"></div>
-                                            <div e-column e-type="string" e-field="OutputMaterial" e-headertext="Output Material" e-width="100"></div>
-                                            <div e-column e-type="string" e-field="OutputArticle" e-headertext="Output Article" e-width="100"></div>
-                                            <div e-column e-type="string" e-field="MaterialType" e-headertext="Material Type" e-width="100"></div>
-
-                                            <div e-column e-type="string" e-field="OutputUnit" e-headertext="Output Unit" e-width="100"></div>
-                                            <div e-column e-type="string" e-field="VCCQuantity" e-headertext="Quantity" e-width="100"></div>
-                                            <div e-column e-type="string" e-field="OrderSpecific" e-headertext="Order Specific" e-width="100"></div>
-                                            <div e-column e-type="string" e-field="OWRQuantity" e-headertext="Order Wise Quantity" e-width="100"></div>
-                                            <div e-column e-type="string" e-field="PlanQuantity" e-headertext="Plan Quantity" e-width="100"></div>
-                                            <div e-column e-type="string" e-field="MasterOrderNo" e-headertext="Master Order No" e-width="100"></div>
-                                            <div e-column e-type="string" e-field="MaterialOrderItem" e-headertext="Material Order Item" e-width="100"></div>
-                                            <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="100"></div>
-                                            <div e-column e-type="string" e-field="IssueQuantity" e-headertext="Upto Date Issue Quantity" e-width="100"></div>
-
-                                            <div e-column e-template="#BalToIssue" e-headertext="Balance To Issue" e-width="100"></div>
-                                            <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="100" style="height: 20px;"></div>
-                                            <div e-column e-template="#IssueActive" e-headertext="Active" e-width="100"></div>
-
-                                        </div>
-                                    </div>
-                                    <script type="text/template" id="checkedPBSChildTabItem">
-                                        <input type="checkbox" ej-checkbox class="nodetext" e-value="data.isSelected" e-checked="data.isSelected" />
-                                    </script>
-                                    <script type="text/ng-template" id="BalToIssue">
-
-                                        <input type="text" ng-model="data.BalToIssue" class="form-control" maxlength="15" e-width="100" ng-change="$parent.ValidateQuantity(data)" onkeypress="return OnlyNumber(event)">
-                                    </script>
-                                    <script type="text/template" id="Remarks">
-                                        <div class="col-sm-10" style="padding:0px; width:600px;height:20px;">
-                                            <input type="text" ng-model="data.Remarks" ng-maxlength="250" style="color:black;" tabindex="16" class="form-control" />
-                                        </div>
-                                    </script>
-                                    <script type="text/template" id="IssueActive">
-                                        <div class="col-sm-10" style="padding:0px; width:600px;height:20px;">
-                                            <div class="select-style">
-                                                <select class="form-control" e-value="data.IssueActive" tabindex="3">
-                                                    <option value="">--Select--</option>
-                                                    <option value="Active" selected>Active</option>
-                                                    <option value="Closed">Closed</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </script>*@
+                             
                             </div>
 
                             <div class="common-btn" style="padding-right: 15px;">
@@ -684,7 +635,8 @@
 
                             <div class="col-xs-12 content-container-fluid" style="color:black;">
                                 <div style="color:black;" id="GridIssueTransformationChildTab" ej-grid e-datasource="IssueTransformationChildList"
-                                     e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="GetIssueTransformationChildData"
+                                     e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                     e-recorddoubleclick="GetIssueTransformationChildData"
                                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowscrolling="true">
                                     <div e-columns>
                                         <div e-column e-template="#checkedPBSChildTabItem" e-width="15"></div>
@@ -692,8 +644,9 @@
                                         <div e-column e-type="string" e-field="JobWorkItem" e-headertext="OS Output Item" e-width="50"></div>
                                         <div e-column e-type="string" e-field="JobWorkActivity" e-headertext="Job Work Activity" e-width="50"></div>
                                         <div e-column e-type="string" e-field="MaterialType" e-headertext="Material Type" e-width="50"></div>
-                                        <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="50"></div>
-                                        <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="50"></div>
+                                        @*<div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="50"></div>*@
+                                        <div e-column e-template="#InputMaterialTem"  e-headertext="Material" e-width="100"></div>
+                                        <div e-column e-template="#InputArticle" e-headertext="Input Article" e-width="200" style="height: 200px;"></div>
                                         <div e-column e-type="string" e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="50"></div>
                                         <div e-column e-type="string" e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="50"></div>
                                         <div e-column e-type="string" e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="50"></div>
@@ -707,6 +660,28 @@
                                 <script type="text/template" id="checkedPBSChildTabItem">
                                     <input type="checkbox" ej-checkbox class="nodetext" e-value="data.isSelected" e-checked="data.isSelected" />
                                 </script>
+                                <script type="text/template" id="InputMaterialTem">
+                                    <div class="col-sm-10" >
+                                        <div class="input-group">
+                                            <input type="text" ng-model="data.Material" name="Material Master" required class="form-control" readonly>
+                                            <input type="hidden" ng-model="data.MaterialMasterId" />
+                                        </div>
+                                    </div>
+                                </script>
+                                <script type="text/template" id="InputArticle">
+                                    <div class="col-sm-11">
+                                        <div class="input-group">
+                                            @*<span class="input-group-addon">{{data.InputArticleCode}}</span>*@
+                                            <input type="text" ng-model="data.Article" name="Article" required class="form-control" readonly>
+                                            <input type="hidden" ng-model="data.ArticleId" />
+                                            <span class="input-group-btn">
+                                                <button ng-click="$parent.getMaterialMasterWithArticle(data)" tabindex="48" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                <button ng-click="$parent.getMaterialMasterWithArticle(data)" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </script>
+
                             </div>
 
                             <div class="common-btn" style="padding-right: 15px;">
@@ -853,150 +828,6 @@
                                         </tbody>
                                     </table>
                                 </div>
-
-
-
-
-                                @*<div style="color:black;overflow:scroll" id="GridMaterialInputTab" ej-grid e-datasource="MaterialInputList"
-                                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="GetMaterialInputData"
-                                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowscrolling="true">
-                                        <div e-columns>
-                                            <div e-column e-template="#checkedMaterialInputItem" e-width="15"></div>
-                                            <div e-column e-template="#CostCenter" e-headertext="Cost Center" e-width="80" style="height: 20px;"></div>
-                                            <div e-column e-template="#Budget" e-headertext="Budget" e-width="200" style="height: 20px;"></div>
-                                            <div e-column e-template="#ExpenseActivityCode" e-headertext="Expense Activity Code" e-width="200" style="height: 20px;"></div>
-                                            <div e-column e-type="string" e-field="JWOutputItem" e-headertext="JW Output item" e-width="50"></div>
-                                            <div e-column e-type="string" e-field="JWInputItem" e-headertext="JW Input item" e-width="50"></div>
-                                            <div e-column e-template="#InputMaterial" e-headertext="Input Material" e-width="200" style="height: 20px;"></div>
-                                            <div e-column e-template="#Art" e-headertext="Input Article" e-width="200" style="height: 20px;"></div>
-                                            <div e-column e-type="string" e-field="SKU1" e-headertext="SKU1" e-width="80"></div>
-                                            <div e-column e-type="string" e-field="SKU2" e-headertext="SKU2" e-width="80"></div>
-                                            <div e-column e-type="string" e-field="SKU3" e-headertext="SKU3" e-width="80"></div>
-                                            <div e-column e-type="string" e-field="Country" e-headertext="Country" e-width="80"></div>
-                                            <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="80"></div>
-                                            <div e-column e-type="string" e-field="ApprovedQuantity" e-headertext="Approved Quantity" e-width="80"></div>
-                                            <div e-column e-type="string" e-field="UnApprovedQuantity" e-headertext="Un-Approved Quantity" e-width="80"></div>
-                                            <div e-column e-type="string" e-field="TotalQuantity" e-headertext="Total Quantity" e-width="80"></div>
-                                            <div e-column e-type="string" e-field="ReadyforIssue" e-headertext="Ready for Issue" e-width="80"></div>
-                                            <div e-column e-type="string" e-field="RequiredQuantity" e-headertext="Required Quantity" e-width="80"></div>
-                                            <div e-column e-type="string" e-field="BalanceToIssue" e-headertext="Balance To Issue" e-width="80"></div>
-                                            <div e-column e-template="#LotNumber" e-headertext="Lot Number" e-width="80" style="height: 20px;"></div>
-                                            <div e-column e-template="#Rate" e-headertext="Rate" e-width="30"></div>
-                                            <div e-column e-template="#Quantity" e-headertext="To Issue" e-width="50"></div>
-                                            <div e-column e-template="#Value" e-headertext="Value" e-width="50" style="height: 20px;"></div>
-
-                                            <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="50" style="height: 20px;"></div>
-
-                                        </div>
-                                    </div>
-                                    <script type="text/template" id="checkedMaterialInputItem">
-                                        <input type="checkbox" ej-checkbox class="nodetext" e-value="data.isSelected" e-checked="data.isSelected" />
-                                    </script>
-                                    <script type="text/ng-template" id="Quantity">
-                                        <input type="text" ng-model="data.Quantity" class="form-control" maxlength="15" e-width="100" ng-change="$parent.GetMaterialValue(data)" onkeypress="return OnlyNumber(event)">
-                                    </script>
-                                    <script type="text/ng-template" id="Rate">
-                                        <input type="text" ng-model="data.Rate" class="form-control" maxlength="15" e-width="100">
-                                    </script>
-                                    <script type="text/template" id="InputMaterial">
-
-                                        <div class="col-sm-10" style="padding:0px; width:200px;height:20px;">
-
-                                            <div class="input-group">
-                                                <span class="input-group-addon">{{data.InputMaterialCode}}</span>
-                                                <input type="text" ng-model="data.InputMaterial" name="Material Master" required class="form-control" readonly>
-                                                <input type="hidden" ng-model="data.InputMaterialId" />
-                                                <span class="input-group-btn">
-                                                    <button ng-click="$parent.MaterialMstPopUp(data)" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                                    <button ng-click="$parent.MaterialMstClear(data)" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                    </script>
-
-                                    <script type="text/template" id="Art">
-
-                                        <div class="col-sm-10" style="padding:0px; width:200px;height:20px;">
-
-                                            <div class="input-group">
-                                                <span class="input-group-addon">{{data.ArticleCode}}</span>
-                                                <input type="text" ng-model="data.ArticleName" name="Material Master" required class="form-control" readonly>
-                                                <input type="hidden" ng-model="data.MaterialMasterArticleId" />
-                                                <span class="input-group-btn">
-                                                    <button ng-click="$parent.MaterialMstArticlePopUp(data)" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                                    <button ng-click="$parent.MaterialMstArticleClear(data)" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                    </script>
-
-                                    <script type="text/template" id="LotNumber">
-
-                                        <div class="col-sm-10" style="padding:0px; width:600px;height:20px;">
-
-                                            <div class="select-style">
-                                                <select class="form-control" ng-model="data.LotNumber" name="Lot Number" required ng-change="$parent.GetLotNoRate(data)"
-                                                        ng-options="item.Value as item.Text for item in data.LotNumberList" tabindex="3">
-                                                    <option value="">--Select--</option>
-                                                </select>
-
-                                            </div>
-                                        </div>
-
-                                    </script>
-                                    <script type="text/template" id="Value">
-                                        <div class="col-sm-10" style="padding:0px; width:600px;height:20px;">
-                                            <input type="text" ng-model="data.Value" ng-maxlength="15" style="color:black;" readonly tabindex="16" class="form-control" />
-                                        </div>
-                                    </script>
-                                    <script type="text/template" id="Remarks">
-                                        <div class="col-sm-10" style="padding:0px; width:600px;height:20px;">
-                                            <input type="text" ng-model="data.Remarks" ng-maxlength="250" style="color:black;" tabindex="16" class="form-control" />
-                                        </div>
-                                    </script>
-                                    <script type="text/template" id="CostCenter">
-                                        <div class="col-sm-10" style="padding:0px; width:600px;height:20px;">
-
-                                            <div class="select-style">
-                                                <select class="form-control" ng-model="data.CostCenterId" name="Cost Center" required ng-change="$parent.GetLotNoRate(data)"
-                                                        ng-options="item.Value as item.Text for item in data.CostCenterList" tabindex="3">
-                                                    <option value="">--Select--</option>
-                                                </select>
-
-                                            </div>
-                                        </div>
-                                    </script>
-                                    <script type="text/template" id="Budget">
-                                        <div class="col-sm-10" style="padding:0px; width:200px;height:20px;">
-                                            <div class="input-group">
-                                                <span class="input-group-addon">{{data.BudgetCode}}</span>
-                                                <input type="text" ng-model="data.BudgetName" name="Budget" required class="form-control" readonly>
-                                                <input type="hidden" ng-model="data.BudgetId" />
-                                                <span class="input-group-btn">
-                                                    <button ng-click="$parent.BudgetPopUp(data)" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                                    <button ng-click="$parent.BudgetClear(data)" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                    </script>
-
-                                    <script type="text/template" id="ExpenseActivityCode">
-                                        <div class="col-sm-10" style="padding:0px; width:200px;height:20px;">
-                                            <div class="input-group">
-                                                <span class="input-group-addon">{{data.ExpenseActivityCode}}</span>
-                                                <input type="text" ng-model="data.ExpenseActivityName" name="Expense Activity Code" required class="form-control" readonly>
-                                                <input type="hidden" ng-model="data.ExpenseActivityId" />
-                                                <span class="input-group-btn">
-                                                    <button ng-click="$parent.ExpenseActivityPopUp(data)" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                                    <button ng-click="$parent.ExpenseActivityClear(data)" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                    </script>*@
                             </div>
 
                             <div class="common-btn" style="padding-right: 15px;">
@@ -1062,27 +893,6 @@
     </div>
 </div>
 
-@*<div class="table-responsive aplos-grid-toggle">
-        <div class="content-container-fluid" style="color:black;overflow:scroll">
-            <div style="color:black;" id="Grid" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get"
-                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" ng-show="ShowHomeList"
-                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-                <div e-columns>
-                    <div e-column e-field="Id" e-headertext="Id" e-width="20"></div>
-                    <div e-column e-field="TabType" e-headertext="Type" e-width="20"></div>
-                    <div e-column e-field="ValueAddedDate" e-headertext="Date" e-width="30"></div>
-                    <div e-column e-field="VACTime" e-headertext="Time" e-width="30"></div>
-                    <div e-column e-field="Entity" e-headertext="Entity" e-width="30"></div>
-                    <div e-column e-field="PartyName" e-headertext="Party" e-width="40"></div>
-                    <div e-column e-field="VAProcessStartDate" e-headertext="Process Start Date" e-width="30"></div>
-                    <div e-column e-field="VAProcessEndDate" e-headertext="Process End Date" e-width="30"></div>
-                    <div e-column e-field="VAContractClosingDate" e-headertext="Contract Closing Date" e-width="30"></div>
-
-                </div>
-            </div>
-        </div>
-    </div>*@
-
 <div class="table-responsive aplos-grid-toggle">
     <div class="content-container-fluid" style="color:black;">
         <div style="color:black;" id="Grid" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get"
@@ -1131,31 +941,7 @@
     </div>
 </div>
 
-@*<div class="table-responsive aplos-grid-toggle">
-        <div class="content-container-fluid" style="color:black;">
-            <div style="color:black;" id="GridIndividualReport" ej-grid e-datasource="IndividualReportList"
-                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" ng-show="ShowReport"
-                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-                <div e-columns>
-                    <div e-column e-field="ContractId" e-headertext="Contract Id" e-width="20"></div>
-            <div e-column e-field="Id" e-headertext="Issue Id" e-width="20"></div>
-            <div e-column e-field="IssueDate" e-headertext="Issue Date" e-width="20"></div>
-            <div e-column e-field="EmployeeCode" e-headertext="By Whom Code" e-width="30"></div>
-            <div e-column e-field="EmployeeName" e-headertext="By Whom" e-width="30"></div>
-            <div e-column e-field="IssueReturn" e-headertext="Issue/ Return" e-width="30"></div>
-            <div e-column e-field="LocationName" e-headertext="Job Work Location" e-width="40"></div>
 
-                </div>
-            </div>
-            <script type="text/template" id="PrintFileTab">
-                <div class="common-btn">
-                    <ul class="list-inline text-left">
-                        <li><button ng-click="$parent.ConfirmPrintTab(data);" class="btn" tabindex="9"><i class="fa fa-file-excel-o" style="top: 1px;"></i></button></li>
-                    </ul>
-                </div>
-            </script>
-        </div>
-    </div>*@
 
 <div>
     <div class="tab-design table-responsive aplos-grid-toggle" id="tab_show1" ng-show="ShowReport">
@@ -1962,6 +1748,7 @@
         </div>
     </div>
 </div>
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialArticleNewPopUp.cshtml")
 
 
 <div class="modal fade site-modal in" id="EmployeePopUpResPerson" role="dialog" data-backdrop="static">

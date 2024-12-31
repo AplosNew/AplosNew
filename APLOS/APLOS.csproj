@@ -1981,8 +1981,12 @@
     <Content Include="Areas\HumanResource\Scripts\LeaveTransectionController.js" />
     <Content Include="Areas\HumanResource\Scripts\otApproveController.js" />
     <Content Include="Areas\Materials\Scripts\BarcodeGeneratorSettingController.js" />
+    <Content Include="Areas\Materials\Scripts\FabricGroupingController.js" />
     <Content Include="Areas\Materials\Scripts\ProcessConstraintController.js" />
-    <Content Include="Areas\MIS\Scripts\atAGlanceController.js" />
+    <Content Include="Areas\MIS\Scripts\manpowerStatusBIController.js" />
+    <Content Include="Areas\MIS\Scripts\accountStatusBIController.js" />
+    <Content Include="Areas\MIS\Scripts\orderStatusBIController.js" />
+    <Content Include="Areas\MIS\Scripts\atAGlanceBIController.js" />
     <Content Include="Areas\MIS\Scripts\misConfig.js" />
     <Content Include="Areas\OrderManagements\Scripts\salesOrderRevisedateController.js" />
     <Content Include="Areas\OrderManagements\Scripts\masterOrderApproveByController.js" />
@@ -5031,6 +5035,10 @@
     <Content Include="Areas\OrderManagements\Views\SalesOrderUpdate\SalesOrderReviseDate.cshtml" />
     <Content Include="Areas\MIS\Views\Aplos.cshtml" />
     <Content Include="Areas\MIS\Views\web.config" />
+    <Content Include="Areas\Materials\Views\FabricRoll\FabricGrouping.cshtml" />
+    <Content Include="Areas\MIS\Views\OrderStatusBI.cshtml" />
+    <Content Include="Areas\MIS\Views\AccountStatusBI.cshtml" />
+    <Content Include="Areas\MIS\Views\ManpowerStatusBI.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

@@ -16,5 +16,17 @@ namespace Aplos.Areas.MIS.Controllers
         {
             return View("~/Areas/MIS/Views/Aplos.cshtml");
         }
+        public ActionResult AccountStatusBI()
+        {
+            return View("~/Areas/MIS/Views/AccountStatusBI.cshtml");
+        }
+        public ActionResult ManpowerStatusBI()
+        {
+            return View("~/Areas/MIS/Views/ManpowerStatusBI.cshtml");
+        }
+        public ActionResult OrderStatusBI()
+        {
+            return View("~/Areas/MIS/Views/OrderStatusBI.cshtml");
+        }
     }
 }

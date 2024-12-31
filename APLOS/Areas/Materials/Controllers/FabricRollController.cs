@@ -74,7 +74,7 @@ namespace Aplos.Areas.Materials.Controllers
         [HttpGet, Authorize]
         public JsonResult GetFromToDate()
         {
-            string sql = @"SELECT FORMAT(MIN(A.AddedDate),'dd-MMM-yyyy') FromDate,FORMAT(MAX(A.AddedDate),'dd-MMM-yyyy') ToDate FROM TRN.InventoryReceive A WHERE A.GRNType in('GRNBYPO','GRN' ,'EMPGRN','GRNBYBOQ')";
+            string sql = @"SELECT FORMAT(MIN(A.AddedDate),'dd-MMM-yyyy') FromDate,FORMAT(MAX(A.AddedDate),'dd-MMM-yyyy') ToDate FROM TRN.InventoryReceive A WHERE A.GRNType in('GRNBYPO','GRN' ,'EMPGRN','GRNBYBOQ') AND A.Id Not IN(SELECT GRNId FROM [BPDT].[FabricRollManagementMaster])";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -484,11 +484,11 @@ namespace Aplos.Areas.Materials.Controllers
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GSMVariation"); colGSMVariation = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GSMVariationPer",16); colGSMVariationPer = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shade"); colShade = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShrinkageLengthWise",16); colShrinkageLength = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShrinkageWidthWise"); colShrinkagewidth = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShrinkageLengthWise",20); colShrinkageLength = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShrinkageWidthWise",20); colShrinkagewidth = xlsCol; xlsCol += 1;
                 //ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShrinkageGroup"); colShrinkageGroup = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Dia"); colDia = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SupplierQualityGrade",14); colSupplierQualityGrade = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Dia",10); colDia = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SupplierQualityGrade",20); colSupplierQualityGrade = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "QualityStatus"); colQualityStatus = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FTPReportNo"); colFTPReportNo = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FTPReceiveDate"); colFTPReceiveDate = xlsCol; xlsCol += 1;
@@ -777,6 +777,16 @@ namespace Aplos.Areas.Materials.Controllers
         {
             return Json(clsFabric.GetFabricRollChildList(FabricRollManagementMasterId), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet, Authorize]
+        public ActionResult GetFabricRollMaster()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            JsonResult json = Json(clsFabric.GetFabricRollChildPendingDataList(identity.PlantId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
 
         [HttpPost, Authorize]
         public JsonResult ImportData()

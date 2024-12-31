@@ -1299,7 +1299,12 @@ upanelApp.controller("ProcessConstraintController", ProcessConstraintController)
 upanelApp.controller("invoiceReviseMaturedateController", invoiceReviseMaturedateController)
 upanelApp.controller("ProductionCuttingBookingController", ProductionCuttingBookingController)
 upanelApp.controller("salesOrderRevisedateController", salesOrderRevisedateController)
+upanelApp.controller("atAGlanceBIController", atAGlanceBIController)
+upanelApp.controller("manpowerStatusBIController", manpowerStatusBIController)
+upanelApp.controller("orderStatusBIController", orderStatusBIController)
+upanelApp.controller("accountStatusBIController", accountStatusBIController)
 upanelApp.controller("atAGlanceController", atAGlanceController)
+upanelApp.controller("FabricGroupingController", FabricGroupingController)
 
 
 

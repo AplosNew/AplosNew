@@ -327,30 +327,6 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         }
     }
 
-
-    //$scope.Get = function (index) {
-
-    //    $scope.index = index;
-    //    $scope.product = $scope.products[$scope.index];
-    //    $scope.productNew = Object.assign({}, $scope.product);
-    //    // $scope.productNew.GRNDate = data.GRNDate;
-    //    getPartyPlantList();
-    //    getInventoryMaterialList($scope.productNew.Id);
-    //    getServiceChargeList($scope.productNew.Id);
-    //    getServiceOtherVendorChargeList($scope.productNew.Id)
-    //    $scope.productId = $scope.productNew.Id;
-    //    //$scope.getToCurrencyRate();
-    //    if (!baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
-    //        var paymentTerm = $.grep($scope.paymentTermList, function (item) { return item.Value === $scope.productNew.PaymentTermId; })[0];
-    //        if (paymentTerm.BaseLineDate !== null)
-    //            if (paymentTerm.BaseLineDate === 'documentdate')
-    //                $scope.IsBaseOnDueDateEnable = true;
-    //            else
-    //                $scope.IsBaseOnDueDateEnable = false;
-    //    }
-    //    $scope.Action = 'Save';
-    //    if (!$rootScope.isCollapsed) $rootScope.toggle();
-    //};
     $scope.ReqAllocation = function (podetail) {
         $scope.RowLength = $filter("filter")($scope.requisitionListByPo, { 'PODetailId': podetail.PODetailsID });
 

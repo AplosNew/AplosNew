@@ -1,6 +1,6 @@
 ﻿'use strict';
-OSIssueReturnController.$inject = ['$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function OSIssueReturnController($window, cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+OSIssueReturnController.$inject = [  'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService'  , '$http', '$filter', '$controller'];
+function OSIssueReturnController(  cboService, commonMessage, $scope, $rootScope, baseService  , $http, $filter, $controller) {
 	$scope.ToDoFilePath = virtualPath.JobWorkValueAddedContract;
 	$scope.ToDownloadFilePath = virtualPath.JobWorkTransformationContract;
 	$rootScope.title = 'Out Source Issue/ Return';
@@ -13,6 +13,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 	$scope.EntityList = [];
 	$scope.MaterialLocationList = [];
 	$scope.path = 'Outsourcing/OSIssueReturn/';
+	$controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
 	$scope.getListUrl = $scope.path + 'getlist';
 	$scope.saveUrl = $scope.path + 'create';
 	$scope.deleteUrl = $scope.path + 'delete/';
@@ -1082,6 +1083,18 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 		$scope.GetIssuedDetailList($scope.a);
 		getMaterialStock(b);
 		angular.element(document.querySelector('#MaterialArticlePopUp')).modal('hide');
+	};
+
+	$scope.setInputeMaterialArticleData = function (obj) {
+		var data = obj.data;
+		$scope.InputMaterialArticlelistData.ArticleId = data.Id;
+		$scope.InputMaterialArticlelistData.InputArticleCode = data.Code;
+		$scope.InputMaterialArticlelistData.Article = data.StandardName;
+		$scope.InputMaterialArticlelistData.Material = data.MaterialMasterName;
+		$scope.InputMaterialArticlelistData.MaterialMasterId = data.MaterialMasterId;
+		var gridObj = $("#GridIssueTransformationChildTab").data("ejGrid");
+		gridObj.refreshTemplate(true);
+		angular.element(document.querySelector('#materialarticleNewPopUp')).modal('hide');
 	};
 
 	$scope.ByDefRate = [];
