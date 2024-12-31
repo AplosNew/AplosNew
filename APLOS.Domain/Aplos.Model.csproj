@@ -215,6 +215,7 @@
     <Compile Include="Configurations\External\EmployeeProfileFromExcelConfiguration.cs" />
     <Compile Include="Configurations\External\KPIConfiguration.cs" />
     <Compile Include="Configurations\Accounts\AdditionalTaxConfiguration.cs" />
+    <Compile Include="Configurations\FixedAssets\FixedAssetRegisterDisposedTaxConfiguration.cs" />
     <Compile Include="Configurations\FixedAssets\FixedAssetRegisterDetailConfiguration.cs" />
     <Compile Include="Configurations\HumanResources\CompliedShiftActualShiftTagConfiguration.cs" />
     <Compile Include="Configurations\HumanResources\CompliedEmployeeRosterConfiguration.cs" />
@@ -641,6 +642,7 @@
     <Compile Include="Employees\EmployeeBudgetCodeHistory.cs" />
     <Compile Include="Employees\HolidayAbsentismAssignment.cs" />
     <Compile Include="Accounts\AdditionalTax.cs" />
+    <Compile Include="FixedAsset\FixedAssetRegisterDisposedTax.cs" />
     <Compile Include="FixedAsset\FixedAssetRegisterDetail.cs" />
     <Compile Include="Employees\WeeklyAbsentismAssignment.cs" />
     <Compile Include="HumanResource\AttendanceRest.cs" />

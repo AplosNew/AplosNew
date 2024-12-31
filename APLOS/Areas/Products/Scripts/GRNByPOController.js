@@ -33,7 +33,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
     $scope.detailModelSave = [];
     $scope.inventoryMaterialListPOnew = [];
     $scope.chargesListPOnew = [];
-
+    $scope.rowIdentityNo = 0;
     $controller('partyBaseController', { $scope: $scope, $http: $http });
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
     $scope.productId = null;
@@ -327,30 +327,6 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         }
     }
 
-
-    //$scope.Get = function (index) {
-
-    //    $scope.index = index;
-    //    $scope.product = $scope.products[$scope.index];
-    //    $scope.productNew = Object.assign({}, $scope.product);
-    //    // $scope.productNew.GRNDate = data.GRNDate;
-    //    getPartyPlantList();
-    //    getInventoryMaterialList($scope.productNew.Id);
-    //    getServiceChargeList($scope.productNew.Id);
-    //    getServiceOtherVendorChargeList($scope.productNew.Id)
-    //    $scope.productId = $scope.productNew.Id;
-    //    //$scope.getToCurrencyRate();
-    //    if (!baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
-    //        var paymentTerm = $.grep($scope.paymentTermList, function (item) { return item.Value === $scope.productNew.PaymentTermId; })[0];
-    //        if (paymentTerm.BaseLineDate !== null)
-    //            if (paymentTerm.BaseLineDate === 'documentdate')
-    //                $scope.IsBaseOnDueDateEnable = true;
-    //            else
-    //                $scope.IsBaseOnDueDateEnable = false;
-    //    }
-    //    $scope.Action = 'Save';
-    //    if (!$rootScope.isCollapsed) $rootScope.toggle();
-    //};
     $scope.ReqAllocation = function (podetail) {
         $scope.RowLength = $filter("filter")($scope.requisitionListByPo, { 'PODetailId': podetail.PODetailsID });
 
@@ -1840,7 +1816,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         copydetail.TrnAmount = data.TrnAmount;
         copydetail.DiscountAmount = data.DiscountAmount;
         copydetail.BaseTaxAmount = data.BaseTaxAmount;
-        copydetail.POMaterialTaxList = data.POMaterialTaxList;
+      
         copydetail.RequisitionDetailId = data.RequisitionDetailId;
         copydetail.RequisitionId = data.RequisitionId;
         copydetail.ServiceCharge = data.ServiceCharge;
@@ -1863,9 +1839,43 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         copydetail.Tolerance = data.Tolerance;
         copydetail.ToleranceQty = data.ToleranceQty;
         copydetail.ToleranceQTransactionUoMIdty = data.TransactionUoMId;
+        copydetail.POMaterialTaxList = [];
+        $scope.rowIdentityNo++;
+        copydetail.RowIdentityNo = $scope.rowIdentityNo;
+        var list = getPOMaterialtaxlistNew(data.InventoryReceiveDetailId).slice();
+        var newList = list.map(item => item);
+        for (var j = 0; j < newList.length; j++) {
+            var newtax = {};
+            newtax.Id = newList[j].Id;
+            newtax.InventoryReceiveDetailId = newList[j].InventoryReceiveDetailId;
+            newtax.PODetailsID = newList[j].PODetailsID;
+            newtax.InventoryReceiveId = newList[j].InventoryReceiveId;
+            newtax.TaxCategoryId = newList[j].TaxCategoryId;
+            newtax.TaxCategory = newList[j].TaxCategory;
+            newtax.HSNCodeId = newList[j].HSNCodeId;
+            newtax.HSNCode = newList[j].HSNCode;
+            newtax.Percentage = newList[j].Percentage;
+            newtax.TaxAmount = newList[j].TaxAmount;
+            newtax.PODetailId = newList[j].PODetailId;
+            newtax.RowIdentityNo = $scope.rowIdentityNo;
+            $scope.POMaterialTaxList.push(newtax);
+            copydetail.POMaterialTaxList.push(newtax);
+            newtax = {};
+        }
+        
         $scope.inventoryMaterialListPO.push(copydetail);
+        
         copydetail = {};
         
+    }
+    function getPOMaterialtaxlistNew(linepk) {
+        var result = [];
+        for (var i = 0; i < $scope.POMaterialTaxList.length; i++) {
+            if ($scope.POMaterialTaxList[i].PODetailId === linepk) {
+                result.push($scope.POMaterialTaxList[i]);
+            }
+        }
+        return result;
     }
     $scope.removeCopyRow = function (index) {
             $scope.inventoryMaterialListPO.splice(index, 1);
@@ -2335,7 +2345,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
             angular.element(document.querySelector('#binAllocationPopUp')).modal('hide');
         }
     }
-
+    
     $scope.GetPOMaterialTaxData = function () {
         $scope.POMaterialTaxList = [];
         $http({
@@ -2343,18 +2353,22 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
             url: $scope.path + 'GetReceiveTaxListPO?receiveDetailId=' + $scope.masterId
         }).then(function (response) {
             $scope.POMaterialTaxList = response.data;
+            
 
             for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
+                $scope.rowIdentityNo++;
+                $scope.inventoryMaterialListPO[i].RowIdentityNo = $scope.rowIdentityNo;
                 var linepk = $scope.inventoryMaterialListPO[i].InventoryReceiveDetailId;
-                var list = getPOMaterialtaxlist(linepk);
+                var list = getPOMaterialtaxlist(linepk, $scope.rowIdentityNo);
                 $scope.inventoryMaterialListPO[i].POMaterialTaxList = list;
             }
         });
     };
-    function getPOMaterialtaxlist(linepk) {
+    function getPOMaterialtaxlist(linepk, rowIdentityNo) {
         var result = [];
         for (var i = 0; i < $scope.POMaterialTaxList.length; i++) {
             if ($scope.POMaterialTaxList[i].PODetailId === linepk) {
+                $scope.POMaterialTaxList[i].RowIdentityNo = rowIdentityNo;
                 result.push($scope.POMaterialTaxList[i]);
             }
         }
@@ -2635,13 +2649,13 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                     }
                     else {
 
-                        if ($scope.inventoryMaterialListPO[i].PODetailsID == data.PODetailsID) {
+                        if ($scope.inventoryMaterialListPO[i].PODetailsID == data.PODetailsID && $scope.inventoryMaterialListPO[i].RowIdentityNo == data.RowIdentityNo) {
                             $scope.inventoryMaterialListPO[i].TrnAmount = Math.round(data.TrnAmount * 100 + Number.EPSILON) / 100;
                             angular.forEach(data.POMaterialTaxList, function (item) {
                                 item.TaxAmount = Math.round(((data.TrnAmount * item.Percentage) / 100) * 100 + Number.EPSILON) / 100;
                             });
 
-                            $scope.inventoryMaterialListPO[i].BaseTaxAmount = Math.round($filter('sumByKey')($filter('filter')(data.POMaterialTaxList, { "PODetailId": data.PODetailsID }), 'TaxAmount') * 100 + Number.EPSILON) / 100;
+                            $scope.inventoryMaterialListPO[i].BaseTaxAmount = Math.round($filter('sumByKey')($filter('filter')(data.POMaterialTaxList, { "PODetailId": data.PODetailsID, "RowIdentityNo": data.RowIdentityNo }), 'TaxAmount') * 100 + Number.EPSILON) / 100;
 
                             if (TotalServiceAmount > 0) {
                                 //$scope.inventoryMaterialListPO[i].BaseTaxAmount = (($scope.inventoryMaterialListPO[i].TotalTaxAmount / $scope.inventoryMaterialListPO[i].POQty) * $scope.inventoryMaterialListPO[i].TransactionQty).toFixed(2);
@@ -2776,8 +2790,8 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
             });
 
             for (var i1 = 0; i1 < $scope.inventoryMaterialListPO.length; i1++) {
-                if ($scope.inventoryMaterialListPO[i1].PODetailsID == data.PODetailsID) {
-                    $scope.inventoryMaterialListPO[i1].BaseTaxAmount = Math.round($filter('sumByKey')($filter('filter')(data.POMaterialTaxList, { "PODetailId": data.PODetailsID }), 'TaxAmount') * 100 + Number.EPSILON) / 100;
+                if ($scope.inventoryMaterialListPO[i1].PODetailsID == data.PODetailsID && $scope.inventoryMaterialListPO[i1].RowIdentityNo == data.RowIdentityNo) {
+                    $scope.inventoryMaterialListPO[i1].BaseTaxAmount = Math.round($filter('sumByKey')($filter('filter')(data.POMaterialTaxList, { "PODetailId": data.PODetailsID, "RowIdentityNo": data.RowIdentityNo }), 'TaxAmount') * 100 + Number.EPSILON) / 100;
                 }
             }
         }

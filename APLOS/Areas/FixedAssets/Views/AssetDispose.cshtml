@@ -139,12 +139,13 @@
                             <th>Old Reference</th>
                             <th>User Group</th>
                             <th>Remarks</th>
-                           
+
                             <th style="width:100px">Asset Amount</th>
                             <th class="text-center">Depreciation Amount</th>
                             <th class="text-center">NetAmount</th>
                             <th class="text-center">Adjustment Depreciation Amount</th>
                             <th class="text-center" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'">Negotiation Amount</th>
+                            <th class="text-center">Tax Amount</th>
                             <th class="text-right">Action</th>
                         </tr>
                     </thead>
@@ -165,11 +166,16 @@
                             <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="NetAmount" ng-model="x.NetAmount " n-decimals="2"></td>
                             <td><input type="text" style="width:100px" class="form-control text-right" id="AdjustmentDepreciationAmount" ng-model="x.AdjustmentDepreciationAmount" ng-keyup="calBooksAdjustmentDepreciation(x)" n-decimals="2" autocomplete="off"></td>
                             <td ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><input type="text" style="width:100px" class="form-control text-right" id="NegotiationValue" ng-model="x.NegotiationValue" ng-keyup="calBooksNegotiationValue(x,$index)" n-decimals="2" autocomplete="off"></td>
-                            
+                            <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="TaxAmount" ng-model="x.TaxAmount " n-decimals="2"></td>
                             <td class="text-right">
-                                <button ng-click="removeRow($index)" ng-disabled="Action == 'Update'" data-toggle="modal" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
-                                    <i class="glyphicon glyphicon-remove"></i>
-                                </button>
+                                <ul class="list-inline action-list">
+                                    <li>
+                                        <button ng-click="getMaterialTaxList(x, false,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button>
+                                    </li>
+                                    <li>
+                                        <button ng-click="removeRow($index)" ng-disabled="Action == 'Update'" data-toggle="modal" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                    </li>
+                                </ul>
                             </td>
                         </tr>
                     </tbody>
@@ -359,6 +365,80 @@
         </div>
     </div>
 </div>
+<div class="modal fade site-modal in" id="receiveTaxPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Tax Information <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <p>Taxable amount : <b>{{taxAbleAmnt| number| setDecimal:currencyPrecision}}</b>&nbsp;<b>{{Currency}}</b></p>
+                </div>
+                <div class="clearfix"></div>
+                <br />
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="addTax();" class="btn"><i class="glyphicon glyphicon-folder-close"></i>&nbsp;Add Tax</button></li>
+                    </ul>
+                </div>
+                <br />
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped" border="1" id="AddTax">
+                        <thead>
+                            <tr>
+                                <th ng-hide="true">id</th>
+                                <th>Tax Category</th>
+                                <th>Percentage</th>
+                                <th>Tax Amount</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in receiveTaxList">
+                                <td ng-hide="true">
+                                    <div class="show-message">
+                                        <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.Id" readonly>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="x.TaxCategoryId" ng-options="item.Value as item.Text for item in taxCategoryList" ng-change="onchangeFunction1(x.TaxCategoryId)"></select>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="show-message">
+                                        <input type="text" n-decimals="4" class="form-control text-right" ng-model="x.Percentage" ng-keyup="calculateTaxAmount(x);">
+                                    </div>
+                                </td>
+                                <td class="text-right">
+                                    <div class="show-message">
+                                        <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.Amount" ng-keyup="checkRowValidation(x, $index)">
+                                    </div>
+                                </td>
+                                <td class="text-right">
+                                    <ul class="list-inline action-list">
+                                        <li><button ng-click="taxDel(x.Id,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-right"><strong>{{receiveTaxList | sumByKey : 'Amount'| setDecimal:2| number:2 }}</strong></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <br />
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="closeReceiveTaxPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i>&nbsp;Add</button></li>
+                        <li><button ng-click="closeReceiveTaxPopUpwindow();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")
 @Html.Partial("~/Areas/FixedAssets/Views/_FixedAssetMasterAccDepGLPopUp.cshtml")
 @Html.Partial("~/Areas/FixedAssets/Views/_FixedAssetMasterAUCGLPopUp.cshtml")

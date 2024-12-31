@@ -1,18 +1,20 @@
 ﻿using Library.Core;
-using Library.Model.Vouchers;
 using System;
-using System.Xml.Serialization;
 
-namespace Library.Model.Inventory
+namespace Library.Model.FixedAsset
 {
-    public class InventoryReceiveTax : BaseModel
+    public class FixedAssetRegisterDisposedTax : BaseModel
     {
+
         #region Scalar Properties
-
         public string Id { get; set; }
+        public string AssetRegisterId { get; set; }
+        public string FixedAssetRegisterDisposedId { get; set; }
+        public string FixedAssetRegisterDisposedDetailId { get; set; }
+        public string TaxCategoryId { get; set; }
         public decimal Percentage { get; set; }
-        public decimal TaxAmount { get; set; }
-
+        public decimal Amount { get; set; }
+       
         #endregion Scalar Properties
 
         #region Audit Properties
@@ -52,29 +54,6 @@ namespace Library.Model.Inventory
 
         #endregion Audit Properties
 
-        #region Navigation Properties
-
-        public string InventoryReceiveId { get; set; }
-
-        [XmlIgnore]
-        public InventoryReceiveDetail InventoryReceiveDetail { get; set; }
-
-        public string InventoryReceiveDetailId { get; set; }
-        public string TaxCategoryId { get; set; }
-        public string HSNCodeId { get; set; }
-        [XmlIgnore]
-        public InventoryService InventoryService { get; set; }
-        public string InventoryServiceId { get; set; }
-
-        public VoucherDetail DrVoucherDetail { get; set; }
-
-        public string DrVoucherDetailId { get; set; }
-        public VoucherDetail CrVoucherDetail { get; set; }
-
-        public string CrVoucherDetailId { get; set; }
-
-        public string PODetailsID { get; set; }
-        public int RowIdentityNo { get; set; }
-        #endregion Navigation Properties
+       
     }
 }

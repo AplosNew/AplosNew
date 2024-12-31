@@ -13,6 +13,8 @@ namespace Library.Model.Configurations.Inventory
             Property(t => t.TaxAmount).HasPrecision(18, 2);
             ToTable(nameof(InventoryReceiveTax), DbSchema.Transaction);
             Ignore(r => r.ModelState);
+            Ignore(r => r.PODetailsID);
+            Ignore(r => r.RowIdentityNo);
         }
     }
 }
