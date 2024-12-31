@@ -231,7 +231,7 @@
                                     <div e-column e-field="GRNRowId" e-headertext="GRNRowId" e-width="80"></div>
                                     <div e-column e-field="Color" e-headertext="Color" e-width="80"></div>
                                     <div e-column e-field="LotNo" e-headertext="LotNo" e-width="80"></div>
-                                    <div e-column e-field="ShadeGroup" e-headertext="ShadeGroup" e-width="80"></div>
+                                    @*<div e-column e-field="ShadeGroup" e-headertext="ShadeGroup" e-width="80"></div>*@
                                     <div e-column e-field="FabricType" e-headertext="FabricType" e-width="80"></div>
                                     <div e-column e-field="FabricQuality" e-headertext="FabricQuality" e-width="80"></div>
                                     <div e-column e-field="SupplierRollNo" e-headertext="SupplierRollNo" e-width="80"></div>
@@ -247,28 +247,28 @@
                                     <div e-column e-field="Shade" e-headertext="Shade" e-width="80"></div>
                                     <div e-column e-field="ShrinkageLengthWise" e-headertext="ShrinkageLengthWise" e-width="80"></div>
                                     <div e-column e-field="ShrinkageWidthWise" e-headertext="ShrinkageWidthWise" e-width="80"></div>
-                                    <div e-column e-field="ShrinkageGroup" e-headertext="ShrinkageGroup" e-width="80"></div>
+                                    @*<div e-column e-field="ShrinkageGroup" e-headertext="ShrinkageGroup" e-width="80"></div>*@
                                     <div e-column e-field="Dia" e-headertext="Dia" e-width="80"></div>
                                     <div e-column e-field="SupplierQualityGrade" e-headertext="SupplierQualityGrade" e-width="80"></div>
                                     <div e-column e-field="QualityStatus" e-headertext="QualityStatus" e-width="80"></div>
                                     <div e-column e-field="FTPReportNo" e-headertext="FTPReportNo" e-width="80"></div>
                                     <div e-column e-field="FTPReceiveDate" e-headertext="FTPReceiveDate" e-width="80"></div>
                                     <div e-column e-field="FTPStatus" e-headertext="FTPStatus" e-width="80"></div>
-                                    <div e-column e-field="DimensionalChange3rdWash" e-headertext="DimensionalChange3rdWash" e-width="80"></div>
+                                    @*<div e-column e-field="DimensionalChange3rdWash" e-headertext="DimensionalChange3rdWash" e-width="80"></div>
                                     <div e-column e-field="Spirality3rdWash" e-headertext="Spirality3rdWash" e-width="80"></div>
                                     <div e-column e-field="PillingResistance" e-headertext="PillingResistance" e-width="80"></div>
                                     <div e-column e-field="BurstingStrength" e-headertext="BurstingStrength" e-width="80"></div>
                                     <div e-column e-field="Absorbency" e-headertext="Absorbency" e-width="80"></div>
                                     <div e-column e-field="pHValue" e-headertext="pHValue" e-width="80"></div>
                                     <div e-column e-field="Sewablity" e-headertext="Sewablity" e-width="80"></div>
-                                    <div e-column e-field="Handfeel" e-headertext="Handfeel" e-width="80"></div>
+                                    <div e-column e-field="Handfeel" e-headertext="Handfeel" e-width="80"></div>*@
                                 </div>
                             </div>
                         </div>
                         <div class="col-xs-12 col-sm-12 col-md-12 ">
                             <div class="common-btn">
                                 <ul class="list-inline text-right">
-                                    <li> <button ng-click="SaveRollData();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+                                    <li> <button ng-show="grnDetailList.length>0" ng-click="SaveRollData();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
                                     <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                                 </ul>
                                 <ul class="list-inline text-left bold" style="color:green;font-size:larger;font-weight:bolder;">

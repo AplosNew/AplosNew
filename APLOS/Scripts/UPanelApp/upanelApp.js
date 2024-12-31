@@ -1300,6 +1300,7 @@ upanelApp.controller("invoiceReviseMaturedateController", invoiceReviseMaturedat
 upanelApp.controller("ProductionCuttingBookingController", ProductionCuttingBookingController)
 upanelApp.controller("salesOrderRevisedateController", salesOrderRevisedateController)
 upanelApp.controller("atAGlanceController", atAGlanceController)
+upanelApp.controller("FabricGroupingController", FabricGroupingController)
 
 
 
