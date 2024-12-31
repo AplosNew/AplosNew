@@ -1089,10 +1089,10 @@ function OSIssueReturnController(  cboService, commonMessage, $scope, $rootScope
 		var data = obj.data;
 		$scope.InputMaterialArticlelistData.ArticleId = data.Id;
 		$scope.InputMaterialArticlelistData.InputArticleCode = data.Code;
-		$scope.InputMaterialArticlelistData.InputArticleName = data.StandardName;
-		$scope.InputMaterialArticlelistData.InputMaterial = data.MaterialMasterName;
-		$scope.InputMaterialArticlelistData.InputMaterialId = data.MaterialMasterId;
-		var gridObj = $("#GridMatInput").data("ejGrid");
+		$scope.InputMaterialArticlelistData.Article = data.StandardName;
+		$scope.InputMaterialArticlelistData.Material = data.MaterialMasterName;
+		$scope.InputMaterialArticlelistData.MaterialMasterId = data.MaterialMasterId;
+		var gridObj = $("#GridIssueTransformationChildTab").data("ejGrid");
 		gridObj.refreshTemplate(true);
 		angular.element(document.querySelector('#materialarticleNewPopUp')).modal('hide');
 	};
