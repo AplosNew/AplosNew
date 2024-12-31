@@ -368,4 +368,8 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'materials/MaterialMasterArticle/ProcessConstraint',
             controller: 'ProcessConstraintController'
         })
+        .when('/fabric-grouping', {
+            templateUrl: 'materials/FabricRoll/FabricGrouping',
+            controller: 'FabricGroupingController'
+        })
 };
