@@ -114,6 +114,12 @@
                     </div>
                 </div>
             </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Narration<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <textarea rows="1" type="text" name="Narration" tabindex="8" class="form-control" ng-model="voucher.Narration" maxlength="500" required capitalize></textarea>
+                </div>
+            </div>
         </div>
     </fieldset>
     <fieldset class="scheduler-border" ng-show="voucher.Status=='CompensateByEmployee'">
@@ -190,7 +196,7 @@
         </div>
     </fieldset>
     <div class="clearfix"></div>
-    <fieldset class="scheduler-border" ng-show="fixedAssetDisposeJVList.length">
+    <fieldset class="scheduler-border">
         <legend class="scheduler-border">JV</legend>
         <div class="table-responsive modal-table">
             <table class="table table-striped">
@@ -221,7 +227,7 @@
         </div>
     </fieldset>
 
-    <fieldset class="scheduler-border" ng-show="fixedAssetDisposeJV2List.length">
+    @*<fieldset class="scheduler-border" ng-show="fixedAssetDisposeJV2List.length">
         <legend class="scheduler-border">Sales</legend>
         <div class="table-responsive modal-table">
             <table class="table table-striped">
@@ -250,7 +256,7 @@
                 </tbody>
             </table>
         </div>
-    </fieldset>
+    </fieldset>*@
 
     @*<div class="col-md-12 col-sm-12 col-xs-12">
         <fieldset class="scheduler-border" ng-show="voucher.Status=='@Library.Service.Enums.FixedAssetDisposeStatusEnum.CompensateByEmployee.ToString()'">
