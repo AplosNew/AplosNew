@@ -5287,11 +5287,8 @@ namespace Library.MaterialManagement.Inventory
                 var dsInventoryReceiveAdditionalTax = loadInventoryReceiveAdditionalTax(grnId);
                 var InventoryReceiveAdditionalTax = 0.00;
                 if (dsInventoryReceiveAdditionalTax.Rows.Count > 0)
-
                 {
                     InventoryReceiveAdditionalTax = makeInventoryReceiveAdditionalTaxTable(document, dsInventoryReceiveAdditionalTax, grnId);//Service Details 
-                                                                                                                                             //document.Replace("{ServiceDetails}", "Service Details", true, true);
-
                     //{TotalInWords}
                 }
                 loadGRNShortageTable(document, grnId);

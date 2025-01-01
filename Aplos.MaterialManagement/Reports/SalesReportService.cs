@@ -10484,20 +10484,20 @@ Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage,SM.UserName";
                 var MaterialTotal = makeLocalSalesReturnService(companyGroupId, companyId, plantId, salesReturnId, document, dsOrderMaster);   // {materialItems}
                                                                                                                                                //var SalesTotal = makeSalerReturnOrderServiceTable(companyGroupId, companyId, plantId, salesReturnId, document, dsOrderMaster);   // {{ServiceItems}}
                                                                                                                                                //var dsInventoryReceiveAdditionalTax = loadSalesReturnAdditionalTax(salesReturnId);
+                var dsInventoryReceiveAdditionalTax = LoadSalesReturnAdditionalTax(salesReturnId);
 
-
-                //var InventoryReceiveAdditionalTax = 0.00;
-                //if (dsInventoryReceiveAdditionalTax.Rows.Count > 0)
-
-                //{
-                //    InventoryReceiveAdditionalTax = makeSalesReturnTaxTable(document, dsInventoryReceiveAdditionalTax, salesReturnId);//Service Details 
+                var InventoryReceiveAdditionalTax = 0.00;
+                if (dsInventoryReceiveAdditionalTax.Rows.Count > 0)
+                {
+                    InventoryReceiveAdditionalTax = makeSalesReturnTaxTable(document, dsInventoryReceiveAdditionalTax, salesReturnId);//Service Details 
+                }
                 //    //document.Replace("{ServiceDetails}", "Service Details", true, true);
 
                 //{TotalInWords}
                 //}
-                document.Replace("{GrandTotal}", (MaterialTotal).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["BaseCurrencyName"].ToString(), true, true);
+                document.Replace("{GrandTotal}", (MaterialTotal+ InventoryReceiveAdditionalTax).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["BaseCurrencyName"].ToString(), true, true);
                 //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("F2"), true, true);
-                document.Replace("{TotalInWords}", ru.InWord((MaterialTotal), dsOrderMaster.Rows[0]["BaseCurrencyId"].ToString()), true, true);
+                document.Replace("{TotalInWords}", ru.InWord((MaterialTotal)+ InventoryReceiveAdditionalTax, dsOrderMaster.Rows[0]["BaseCurrencyId"].ToString()), true, true);
 
 
                 Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
@@ -10577,7 +10577,27 @@ Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage,SM.UserName";
 
             document.Close();
         }
+        public DataTable LoadSalesReturnAdditionalTax(string salesReturnId)
+        {
+            string strSQL;
+            try
+            {
+                strSQL = @"Select TxC.UserName Taxname  ,IRAT.ID ,IRAT.TaxCategoryId TaxCode,IRAT.Amount TaxAmount
+                        ,IRAT.Percentage,IRAT.BooksCurrencyTransactionAmount BooksCurrencyTaxAmount   from TRN.SalesReturnTax IRAT
+						LEFT JOIN TRN.SalesReturn IR ON IR.ID= IRAT.SalesReturnId
+						LEFT JOIN [MST].[TaxCategory] TxC ON TxC.Id= IRAT.TaxCategoryId
+                        where IR.Id = '" + salesReturnId + "'  AND IRAT.SalesReturnDetailId IS NULL";
+                return _sqlRepository.GetDataTable(strSQL);
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
 
+            }
+        }
         public DataTable GetloadLocalSalesReturnMaster(string salesReturnId)
         {
             string strSQL;
@@ -11448,14 +11468,11 @@ AND PSI.Id=(SELECT TOP 1 Id FROM dbo.PostSalesInvoice MR WHERE MR.SalesId=PSI.Sa
 
             try
             {
-                strSQL = @"select TxC.UserName Taxname,SA.Id,SA.TaxCodeId as TaxCode,SA.BooksCurrencyTaxAmount,SA.Percentage
-						from TRN.SalesAdditionalTax SA
-						left join TRN.Sales as S on S.Id=SA.SalesId
-						left join MST.TaxCode as TxC on TxC.id = SA.TaxCodeId
-                        where S.Id='" + salesReturnId + "'";
-
+                strSQL = @"Select TxC.UserName Taxname, IRAT.ID ,IRAT.TaxCategoryId TaxCode, IRAT.Amount TaxAmount, IRAT.BooksCurrencyTransactionAmount BooksCurrencyTaxAmount, IRAT.Percentage from TRN.SalesReturnTax IRAT
+                        LEFT JOIN TRN.SalesReturn IR ON IR.ID = IRAT.SalesReturnId
+                        LEFT JOIN[MST].[TaxCategory] TxC ON TxC.Id = IRAT.TaxCategoryId
+                        where IR.Id ='" + salesReturnId + @"' AND IRAT.SalesReturnDetailId IS NULL ";
                 return _sqlRepository.GetDataTable(strSQL);
-
             }
             catch (System.Exception ex)
             {
@@ -11616,6 +11633,7 @@ AND PSI.Id=(SELECT TOP 1 Id FROM dbo.PostSalesInvoice MR WHERE MR.SalesId=PSI.Sa
             return total;
         }
 
+      
         #endregion Sales Return
     }
 }
