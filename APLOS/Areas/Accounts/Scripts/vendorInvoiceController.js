@@ -922,7 +922,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
                 else
                     $scope.voucherDetailList[i].TotalAmount = Math.round(($scope.voucherDetailList[i].Amount + $scope.voucherDetailList[i].TotalTax) * 10000 + Number.EPSILON) / 10000
             }
-            $scope.recalculationAdditionaltax();
+            //$scope.recalculationAdditionaltax();
         }
     };
 
@@ -951,7 +951,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
                 
                 $scope.voucher.Amount = Math.round(($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") + $filter("sumByKey")($filter("filter")($scope.voucherDetailList), "TotalTax")) * 10000 + Number.EPSILON) / 10000;
             }
-            $scope.recalculationAdditionaltax();
+            //$scope.recalculationAdditionaltax();
         }
         else {
             $scope.voucherDetailList[index].TotalAmount = Math.round(($scope.voucherDetailList[index].Amount) * 10000 + Number.EPSILON) / 10000;
