@@ -1801,7 +1801,7 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                 string _sql = @"SELECT M.*,PE.EmployeeName PreparedBy,CE.EmployeeName CheckedBy FROM [BPDT].[FabricRollManagementMaster] M
 LEFT JOIN dbo.EmployeeInformation PE on PE.SystemId=M.PreparedById
 LEFT JOIN dbo.EmployeeInformation CE on CE.SystemId=M.CheckedById
- Where M.PlantId='" + PlantId + "' AND ISNULL(M.IsChecked,0)=0 Order By M.GRNId";
+ Where M.PlantId='" + PlantId + "' AND ISNULL(M.IsChecked,0)=0 Order By M.GRNId, M.AddedDate desc";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
             catch (Exception ex)

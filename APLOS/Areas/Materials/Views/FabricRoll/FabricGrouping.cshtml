@@ -11,9 +11,9 @@
             <togglable name="Pending"></togglable>
             <div class="common-btn">
                 <ul class="list-inline text-left">
-                    <li> <button ng-show="fabricPendingDetailList.length>0" ng-click="ShowModal();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+                    <li> <button ng-show="fabricPendingDetailList.length>0" ng-click="ShowModal();" class="btn"><i class="glyphicon glyphicon-check"></i> Set Data</button></li>
                 </ul>
-                
+
             </div>
             <div class="col-sm-12" ng-show="fabricPendingChildListList.length>0">
                 <div id="GridPF" ej-grid e-datasource="fabricPendingChildListList" e-allowfiltering="true"
@@ -65,20 +65,13 @@
                         <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.AllotedManpower" e-width="80" />
                     </div>
                 </script>
-                <script type="text/template" id="LotNo">
-                    <div class="col-sm-10" style="padding:0px; width:70px;">
-                        <input type="text" e-value="data.LotNo" e-width="80" />
-                    </div>
-                </script>
+
             </div>
             <div class="col-xs-12 col-sm-12 col-md-12 ">
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li> <button ng-show="fabricPendingDetailList.length>0" ng-click="SaveRollData();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
                         <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                    </ul>
-                    <ul class="list-inline text-left bold" style="color:green;font-size:larger;font-weight:bolder;">
-                        <li>    <i>{{msg}}</i> </li>
                     </ul>
                 </div>
             </div>
@@ -130,232 +123,165 @@
 <div class="modal fade site-modal in" id="entryPopUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
-            <div class="modal-header">Entry 
+            <div class="modal-header">
+                Update Data
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body form-elements form-horizontal">
                 <div ng-form="soSplitForm">
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Sales Order No</label>
+                            <label class="col-sm-4 control-label">Color</label>
                             <div class="col-sm-8">
-                                <input type="text" name="Sales Order No" style="text-align:left" ng-model="soSplitModel.ParentId" disabled class="form-control text-right" tabindex="101">
+                                <input type="text" name="Color" ng-model="Model.Color" class="form-control text-right" tabindex="101">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">PO Number</label>
+                            <label class="col-sm-4 control-label">Lot No</label>
                             <div class="col-sm-8">
-                                <div class="input-group">
-                                    <input type="text" ng-model="soSplitModel.PONumber" name="PO Number" class="form-control" readonly tabindex="103">
-                                    <span class="input-group-btn">
-                                        <button ng-click="" type="submit" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                        <button ng-click="" class="btn single-small-btn"><i class="glyphicon glyphicon-plus"></i></button>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Order Status<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select name="Order Status" class="form-control" ng-model="soSplitModel.OrderStatusId" ng-options="item.Value as item.Text for item in orderStatusList" required tabindex="105">
-                                        <option value="">--Select--</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Commitment Date</label>
-                            <div class="col-sm-8">
-                                <input type="text" datepicker name="Commitment Date" ng-model="soSplitModel.CommitmentDate" class="form-control" tabindex="107">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Revise Date</label>
-                            <div class="col-sm-8">
-                                <input type="text" datepicker name="Revise Date" ng-model="soSplitModel.ReviseDate" class="form-control" tabindex="106">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Bill Discounting Days</label>
-                            <div class="col-sm-8">
-                                <input type="text" only-numbers name="BillDiscountingDays" ng-disabled="IsBillDiscountingDays==false" ng-model="soSplitModel.BillDiscountingDays" class="form-control" tabindex="106">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Destination<sup>*</sup></label>
-                            <div class="col-sm-8">
-                                <div class="select-style">
-                                    <select name="Destination" class="form-control" ng-model="soSplitModel.DestinationId" ng-options="item.Value as item.Text for item in destinationList" tabindex="109">
-                                        <option value="">--Select--</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Quantity<sup>*</sup></label>
-                            <div class="col-sm-8">
-                                <input type="text" n-decimals="2" name="Qty" ng-model="soSplitModel.Qty" class="form-control text-right" tabindex="111">
-                            </div>
-                        </div>
+                                <input type="text" ng-model="Model.LotNo" name="LotNo" class="form-control" tabindex="103">
 
-
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Up Charge</label>
-                            <div class="col-sm-8">
-                                <input type="text" n-decimals="2" name="UpCharge" ng-model="soSplitModel.UpCharge" class="form-control text-right" tabindex="113">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Responsible Person</label>
+                            <label class="col-sm-4 control-label">Fabric Type</label>
                             <div class="col-sm-8">
-                                <div class="input-group">
-                                    <input type="text" name="Responsible Person" ng-model="soSplitModel.ResponsiblePersonName" class="form-control" readonly tabindex="115">
-                                    <span class="input-group-btn">
-                                        <button ng-click="showEmployeeListPopUp('Splitso');" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
-                                    </span>
-                                </div>
+                                <input type="text" ng-model="Model.FabricType" name="FabricType" class="form-control" tabindex="103">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Fabric Quality</label>
+                            <div class="col-sm-8">
+                                <input type="text" ng-model="Model.FabricQuality" name="FabricQuality" class="form-control" tabindex="103">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Supplier Roll No</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="SupplierRollNo" ng-model="Model.SupplierRollNo" class="form-control" tabindex="106">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Own Roll No</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="OwnRollNo" ng-model="Model.OwnRollNo" class="form-control" tabindex="106">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">QtyUoM</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="QtyUoM" ng-model="Model.QtyUoM" class="form-control" tabindex="106">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Supplier Qty</label>
+                            <div class="col-sm-8">
+                                <input type="text" n-decimals="2" name="SupplierQty" ng-model="Model.SupplierQty" class="form-control text-right" tabindex="111">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Actual Qty</label>
+                            <div class="col-sm-8">
+                                <input type="text" n-decimals="2" name="ActualQty" ng-model="Model.ActualQty" class="form-control text-right" tabindex="113">
                             </div>
                         </div>
                         <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Main RM Inhouse Date<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Cutable Width<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" datepicker name="Main RM Inhouse Date" ng-model="soSplitModel.MainRawMaterialInhouseDate" class="form-control" required tabindex="117">
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Production Type<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select name="Production Type" class="form-control" ng-model="soSplitModel.ProductionType" tabindex="102">
-                                        <option value="">--Select--</option>
-                                        <option value="Order">Order</option>
-                                        <option value="Stock">Stock</option>
-                                    </select>
-                                </div>
+                                <input type="text" name="CutableWidth" ng-model="Model.CutableWidth" class="form-control" required tabindex="117">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Description</label>
+                            <label class="col-sm-4 control-label">Own GSM</label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" name="Description" ng-model="soSplitModel.Description" rows="2" maxlength="250" tabindex="119"></textarea>
+                                <input type="text" name="OwnGSM" ng-model="Model.OwnGSM" class="form-control" tabindex="117">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Std GSM</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="StdGSM" ng-model="Model.StdGSM" class="form-control" tabindex="117">
                             </div>
                         </div>
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-6">
-
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">SO Type</label>
+                            <label class="col-sm-4 control-label">GS MVariation</label>
                             <div class="col-sm-8">
-                                <div class="select-style">
-                                    <select name="SO Type" class="form-control" ng-model="soSplitModel.SOType" tabindex="102">
-                                        <option value="">--Select--</option>
-                                        <option value="Critical">Critical</option>
-                                        <option value="Important">Important</option>
-                                        <option value="Normal">Normal</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Order Category<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select name="Order Category" class="form-control" ng-model="soSplitModel.OrderCategoryId" ng-options="item.Value as item.Text for item in orderCategoryList" required tabindex="104">
-                                        <option value="">--Select--</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Delivery Date<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" datepicker name="Delivery Date" ng-model="soSplitModel.DeliveryDate" class="form-control" required tabindex="106">
+                                <input type="text" name="GSMVariation" ng-model="Model.GSMVariation" class="form-control" tabindex="117">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Delivery Group</label>
+                            <label class="col-sm-4 control-label">GSM Variation Per</label>
                             <div class="col-sm-8">
-                                <input type="text" name="DeliveryGroup" style="text-align:left" ng-model="soSplitModel.DeliveryGroup" class="form-control text-right" tabindex="107">
+                                <input type="text" name="GSMVariationPer" ng-model="Model.GSMVariationPer" class="form-control" tabindex="117">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Shade<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Shade" ng-model="Model.Shade" class="form-control" required tabindex="117">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Shrinkage Length Wise<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="ShrinkageLengthWise" ng-model="Model.ShrinkageLengthWise" required class="form-control" tabindex="117">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Shrinkage Width Wise<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="ShrinkageWidthWise" ng-model="Model.ShrinkageWidthWise" required class="form-control" tabindex="117">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Plan Ex-Factory Date</label>
+                            <label class="col-sm-4 control-label">Dia</label>
                             <div class="col-sm-8">
-                                <input type="text" datepicker name="Plan Ex-Factory Date" ng-model="soSplitModel.PlanExFactoryDate" class="form-control" tabindex="108">
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Shipment Mode<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select name="Shipment Mode" class="form-control" ng-model="soSplitModel.ShipmentModeId" ng-options="item.Value as item.Text for item in shipmentModeList" required tabindex="110">
-                                        <option value="">--Select--</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Packing Type<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select name="PackingType" class="form-control" ng-model="soSplitModel.PackingTypeId" ng-options="item.Value as item.Text for item in packingTypeList" required tabindex="105" ng-change="GetSOBookedQtyAndLevel(soModel.Id);">
-                                        <option value="">--Select--</option>
-                                    </select>
-                                </div>
+                                <input type="text" name="Dia" ng-model="Model.Dia" class="form-control" tabindex="117">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label" title="Destination Description">Destination Description</label>
+                            <label class="col-sm-4 control-label">Supplier Quality Grade</label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" name="DestinationDescription" ng-model="soSplitModel.DestinationDescription" rows="1" maxlength="250" tabindex="119"></textarea>
-                            </div>
-                        </div>
-
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">LSD<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" datepicker name="LSD" ng-model="soSplitModel.LSD" class="form-control" required tabindex="114">
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Other RM Inhouse Date<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" datepicker name="Other RM Inhouse Date" ng-model="soSplitModel.OtherRawMaterialInhouseDate" class="form-control" required tabindex="116">
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Shipment From Stock<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select name="Shipment From Stock" class="form-control" ng-model="soSplitModel.ShipmentFromStock" tabindex="102">
-                                        <option value="">--Select--</option>
-                                        <option value="1">Yes</option>
-                                        <option value="0">No</option>
-                                    </select>
-                                </div>
+                                <input type="text" name="SupplierQualityGrade" ng-model="Model.SupplierQualityGrade" class="form-control" tabindex="117">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Reason</label>
+                            <label class="col-sm-4 control-label">Quality Status</label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" ng-model="soSplitModel.Reason" rows="2" maxlength="250" tabindex="118"></textarea>
+                                <input type="text" name="QualityStatus" ng-model="Model.QualityStatus" class="form-control" tabindex="117">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">FTP Report No</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="FTPReportNo" ng-model="Model.FTPReportNo" class="form-control" tabindex="117">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">FTP Receive Date<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" datepicker name="FTPReceiveDate" ng-model="Model.FTPReceiveDate" class="form-control" tabindex="117">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">FTP Status</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="FTPStatus" ng-model="Model.FTPStatus" class="form-control" tabindex="117">
                             </div>
                         </div>
                     </div>
-                    <div class="common-btn" style="padding-right: 15px;">
-                        <ul class="list-inline text-right">
-                            <li>
-                                <button ng-click="saveSplitSalesOrder();" class="btn"><i class=""></i> {{soSplitModel.Id==null?'Save':'Update'}}</button>
-                            </li>
-                            <li>
-                                <button ng-click="closeSplitSOPopUp();" class="btn">Close</button>
-                            </li>
-                            <li>
-                                <button ng-click="genericDelete(null, 'so');" class="btn hide"><i class="glyphicon glyphicon-trash"></i> Delete</button>
-                            </li>
-                        </ul>
-                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="SetDataEntry();" class="btn"><i class=""></i> Set Data</button>
+                        </li>
+                        <li>
+                            <button ng-click="CloseModal();" class="btn">Close</button>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
