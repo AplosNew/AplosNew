@@ -47,6 +47,14 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
         }
     };
 
+    $scope.ShowModal = function () {
+        angular.element(document.querySelector('#entryPopUp')).modal('show');
+    }
+
+    $scope.CloseModal = function () {
+        angular.element(document.querySelector('#entryPopUp')).modal('hide');
+    }
+
 
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');

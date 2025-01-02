@@ -1303,7 +1303,7 @@ upanelApp.controller("atAGlanceBIController", atAGlanceBIController)
 upanelApp.controller("manpowerStatusBIController", manpowerStatusBIController)
 upanelApp.controller("orderStatusBIController", orderStatusBIController)
 upanelApp.controller("accountStatusBIController", accountStatusBIController)
-upanelApp.controller("atAGlanceController", atAGlanceController)
+//upanelApp.controller("atAGlanceController", atAGlanceController)
 upanelApp.controller("FabricGroupingController", FabricGroupingController)
 
 
