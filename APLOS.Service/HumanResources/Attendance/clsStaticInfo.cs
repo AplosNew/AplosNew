@@ -1100,7 +1100,7 @@ namespace OTSBD
 
             try
             {
-                strSQl = @"Select LegalSalaryGradeId from [MST].[LegalSalaryGradeDesignation] where LegalDesignationId='"+ LegalDesignationId + "'";
+                strSQl = @"Select top(1) LegalSalaryGradeId from [MST].[LegalSalaryGradeDesignation] where LegalDesignationId='" + LegalDesignationId + "' order by ISNULL(UpdatedDate,AddedDate) DESC";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQl, out dsRef, false, false, "", "1");
