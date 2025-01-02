@@ -212,15 +212,16 @@ namespace Library.Service.Invoices
         {
             CheckUniqueColumn(UniqueColumnName.DocRefNo, entity.DocRefNo, r => r.Id != entity.Id && r.PartyId == entity.PartyId && r.DocRefNo == entity.DocRefNo && r.FiscalYearId==entity.FiscalYearId && r.PartyType==entity.PartyType);
         }
-        public bool CheckInvoiceDetailActivity(string InvoiceDetailId, string ActivityId)
+        public bool CheckInvoiceDetailActivity(string InvoiceDetailId, string ActivityId, string SourceType)
         {
             try
             {
                 var sql = "IF EXISTS(SELECT * FROM(" +
-                        "SELECT I.InvoiceDetailId InvoiceDetailId, VD.ActivityId ActivityId  " +
+                        "SELECT I.InvoiceDetailId InvoiceDetailId, VD.ActivityId ActivityId, V.SourceType " +
                          "FROM trn.InvoiceDetailCHarges I  " +
                          "LEFT JOIN TRN.VoucherDetail VD ON VD.Id = I.VoucherDetailId  " +
-                         ") A WHERE InvoiceDetailId = '" + InvoiceDetailId + "' AND ActivityId = '" + ActivityId + @"') SELECT 1 ELSE SELECT 0 RETURN ";
+                         "LEFT JOIN TRN.Voucher V ON V.Id = VD.VoucherId  " +
+                         ") A WHERE InvoiceDetailId = '" + InvoiceDetailId + "' AND ActivityId = '" + ActivityId + @"' AND SourceType = '" + SourceType + @"') SELECT 1 ELSE SELECT 0 RETURN ";
                 return Convert.ToBoolean(_invoiceDetailRepository.SqlQuery<int>(sql).Single());
             }
             catch (Exception)
@@ -2361,7 +2362,7 @@ namespace Library.Service.Invoices
                                     foreach (var item in invoiceDetailChargesList.Where(r => r.GLGeneralInfoId == voucherDetailVM.GLGeneralInfoId && r.BudgetMasterId== voucherDetailVM.BudgetMasterId && r.ActivityId== voucherDetailVM.ActivityId))
                                     {
 
-                                    if (CheckInvoiceDetailActivity(item.InvoiceDetailId, item.ActivityId) == true)
+                                    if (CheckInvoiceDetailActivity(item.InvoiceDetailId, item.ActivityId,voucher.SourceType) == true)
                                         throw new CustomException("InvoiceDetailId " + item.InvoiceDetailId + " and Activity " + voucherDetailVM.ActivityName + " already distributed!");
 
                                     var invoiceDetailChargesId = base.GetAutoNumber(nameof(InvoiceDetailCharges), PKGeneratorEnum.Yearly, null, DateTime.Now);
