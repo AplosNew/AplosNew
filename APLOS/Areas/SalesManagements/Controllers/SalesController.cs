@@ -1058,7 +1058,9 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 DataSet _iTaxDrdataset = null;
                 DataSet _iTaxCrdataset = null; DataSet _aTaxCrdataset = null;
                 DataSet dsitemscanChild;
-                
+                var direct = new System.Text.StringBuilder();
+                var directsql = "";
+
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 voucherVM.PartyType = PartyType.Vendor.ToString();
                 voucherVM.NoteType = NoteType.CustomerCreditNote.ToString();
@@ -1496,6 +1498,10 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             AddedFromIP = invoiceTax.AddedFromIP
                         };
                         _accountsCommonService.InsertInvoiceTaxDetail(invoiceTax, invoiceTaxDetail, ref _invTaxDetailCrData);
+
+                        directsql = @"update [TRN].[VoucherDetail] set InvoiceTaxDetailId='" + invoiceTaxDetail.Id + @"' where Id='" + voucherDetailDrTax.Id + @"' 
+                                      ";
+                        direct.Append(directsql);
                     }
                 }
                 if (null != additionalTaxList && additionalTaxList.Count() > 0)
@@ -1562,8 +1568,11 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 {
                     objApp.SaveDataSets(_vdataset, _ANdataset, _ajNDetailData, _iTaxDrdataset, _invTaxDetailData, _crvDetailData, _crvDetailCurrencyData, _iTaxCrdataset, _invTaxDetailCrData, _salesReturnData, dsitemscanChild, _aTaxCrdataset, _adTaxDetailCrData);
                 }
-                    
-                
+
+                if (direct.ToString() != "")
+                {
+                  _sqlRepository.ExecuteSqlCommand(direct.ToString());
+                }
                 return voucher.VoucherNo;
             }
             catch (CustomException)
