@@ -441,7 +441,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                 ShowResult("Please check in PORowId " + $scope.inventoryMaterialListPO[i].InventoryReceiveDetailId, 'failure');
                 return true;
             }
-            $scope.poLotNumberList = $filter("filter")($scope.inventoryMaterialListPO, { 'PODetailsID': $scope.inventoryMaterialListPO[i].PODetailsID, 'LotNumber': $scope.inventoryMaterialListPO[i].LotNumber });
+            $scope.poLotNumberList = $filter("filter")($scope.inventoryMaterialListPO, { 'PODetailsID': $scope.inventoryMaterialListPO[i].PODetailsID, 'ArticleId': $scope.inventoryMaterialListPO[i].ArticleId, 'LotNumber': $scope.inventoryMaterialListPO[i].LotNumber });
             if ($scope.poLotNumberList.length > 1) {
                 ShowResult("LotNumber Cannot Same!");
                 return true;
