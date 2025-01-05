@@ -443,6 +443,7 @@ namespace Library.Service.Invoices
                                             GLGeneralInfoId = invoiceTaxDetail.GLGeneralInfoId,
                                             BudgetMasterId = invoiceTaxDetail.BudgetMasterId,
                                             ActivityId = invoiceTaxDetail.ActivityId,
+                                            InvoiceTaxDetailId = invoiceTaxDetail.Id,
                                             Narration = voucherCr.Narration,
                                             FiscalYearId = voucher.FiscalYearId,
                                             FiscalYearPeriodId = voucher.FiscalYearPeriodId,
@@ -914,6 +915,7 @@ namespace Library.Service.Invoices
                                         GLGeneralInfoId = invoiceTaxDetail.GLGeneralInfoId,
                                         BudgetMasterId = invoiceTaxDetail.BudgetMasterId,
                                         ActivityId = invoiceTaxDetail.ActivityId,
+                                        InvoiceTaxDetailId = invoiceTaxDetail.Id,
                                         Narration = voucherCr.Narration,
                                         FiscalYearId = voucher.FiscalYearId,
                                         FiscalYearPeriodId = voucher.FiscalYearPeriodId,
@@ -975,6 +977,7 @@ namespace Library.Service.Invoices
                                         GLGeneralInfoId = invoiceTaxDetail.GLGeneralInfoId,
                                         BudgetMasterId = invoiceTaxDetail.BudgetMasterId,
                                         ActivityId = invoiceTaxDetail.ActivityId,
+                                        InvoiceTaxDetailId = invoiceTaxDetail.Id,
                                         Narration = voucherCr.Narration,
                                         FiscalYearId = voucher.FiscalYearId,
                                         FiscalYearPeriodId = voucher.FiscalYearPeriodId,
@@ -1033,6 +1036,7 @@ namespace Library.Service.Invoices
                                         GLGeneralInfoId = invoiceTaxDetail.GLGeneralInfoId,
                                         BudgetMasterId = invoiceTaxDetail.BudgetMasterId,
                                         ActivityId = invoiceTaxDetail.ActivityId,
+                                        InvoiceTaxDetailId = invoiceTaxDetail.Id,
                                         Narration = voucherCr.Narration,
                                         FiscalYearId = voucher.FiscalYearId,
                                         FiscalYearPeriodId = voucher.FiscalYearPeriodId,
@@ -1937,6 +1941,7 @@ namespace Library.Service.Invoices
                                 GLGeneralInfoId = invoiceTaxDetail.GLGeneralInfoId,
                                 BudgetMasterId = invoiceTaxDetail.BudgetMasterId,
                                 ActivityId = invoiceTaxDetail.ActivityId,
+                                InvoiceTaxDetailId = invoiceTaxDetail.Id,
                                 DrAmount = invoiceTaxDetail.Amount
                             };
                             currentVoucherDetailId++;
@@ -2315,6 +2320,7 @@ namespace Library.Service.Invoices
                                             GLGeneralInfoId = invoiceTaxDetail.GLGeneralInfoId,
                                             BudgetMasterId = invoiceTaxDetail.BudgetMasterId,
                                             ActivityId = invoiceTaxDetail.ActivityId,
+                                            InvoiceTaxDetailId = invoiceTaxDetail.Id,
                                             CurrencyId = voucherDetailDr.CurrencyId,
                                             DrAmount = invoiceTaxDetail.Amount,
                                             PostingWithoutTaxAllow = voucherDetailDr.PostingWithoutTaxAllow
@@ -2869,6 +2875,7 @@ namespace Library.Service.Invoices
                                     GLGeneralInfoId = invoiceTaxDetail.GLGeneralInfoId,
                                     BudgetMasterId = invoiceTaxDetail.BudgetMasterId,
                                     ActivityId = invoiceTaxDetail.ActivityId,
+                                    InvoiceTaxDetailId = invoiceTaxDetail.Id,
                                     DrAmount = invoiceTaxDetail.Amount
                                 };
                                 currentVoucherDetailId++;
@@ -3242,6 +3249,7 @@ namespace Library.Service.Invoices
                                         GLGeneralInfoId = invoiceTaxDetail.GLGeneralInfoId,
                                         BudgetMasterId = invoiceTaxDetail.BudgetMasterId,
                                         ActivityId = invoiceTaxDetail.ActivityId,
+                                        InvoiceTaxDetailId = invoiceTaxDetail.Id,
                                         CurrencyId = voucherDetailDr.CurrencyId,
                                         DrAmount = invoiceTaxDetail.Amount,
                                         PostingWithoutTaxAllow = voucherDetailDr.PostingWithoutTaxAllow
@@ -3408,6 +3416,7 @@ namespace Library.Service.Invoices
                                 GLGeneralInfoId = invoiceTaxDetail.GLGeneralInfoId,
                                 BudgetMasterId = invoiceTaxDetail.BudgetMasterId,
                                 ActivityId = invoiceTaxDetail.ActivityId,
+                                InvoiceTaxDetailId = invoiceTaxDetail.Id,
                                 DrAmount = invoiceTaxDetail.Amount
                             };
                             currentVoucherDetailId++;

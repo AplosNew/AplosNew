@@ -7,7 +7,9 @@ function debitNoteCreditNoteTaxReportController(addressService, cboService, $sco
 
     $scope.report = {
         BankMasterId: null,
-        ReportFormat: "Excel",      
+        ReportFormat: "Excel",
+        PartyType: 'Party',
+        NoteType: 'Both',
         FromDate: $filter("dateFiltering")(firstDay),
         ToDate: $filter("dateFiltering")(Date.now())
     };
@@ -26,8 +28,14 @@ function debitNoteCreditNoteTaxReportController(addressService, cboService, $sco
         else if (new Date($scope.report.ToDate) < new Date($scope.report.FromDate)) {
             manualValidation("div_ToDate", true, "To date must be above or equal to From Date.");
         }
+        else if (baseService.isUndefinedOrNull($scope.report.PartyType)) {
+            manualValidation('div_PartyType', true, "Party Type is required.");
+        }
+        else if (baseService.isUndefinedOrNull($scope.report.NoteType)) {
+            manualValidation('div_NoteType', true, "Note Type is required.");
+        }
         else {
-            var url = "Accounts/TaxReport/GetDebitNoteCreditNoteTaxReport?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate;
+            var url = "Accounts/TaxReport/GetDebitNoteCreditNoteTaxReport?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + '&partyType=' + $scope.report.PartyType + '&noteType=' + $scope.report.NoteType;
             $rootScope.report(url);
 
         }
