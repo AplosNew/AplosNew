@@ -1743,7 +1743,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                                 }
                                                                 else//DOJ DOS
                                                                 {
-                                                                    decimal ProportionateStructureValue = (DefCur / DaysInMonth) * TotalWorkingDays;
+                                                                    //decimal ProportionateStructureValue = (DefCur / DaysInMonth) * TotalWorkingDays;
+                                                                    decimal ProportionateStructureValue = (DefCur / DaysInMonth) * TotalActualWorkingDays;
 
                                                                     if (TotalActualWorkingDays > 0)
                                                                         SalaryPerDay = ProportionateStructureValue / (TotalActualWorkingDays);

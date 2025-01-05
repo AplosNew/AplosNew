@@ -1,21 +1,60 @@
 ﻿<div class="site-tab">
     <ul class="nav nav-tabs" role="tablist">
         <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">Pending</a></li>
-        <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Confirm</a></li>
+        <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);getConfirmData()" href="" aria-controls="doc" role="tab" data-toggle="tab">Confirm</a></li>
         <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Grouping</a></li>
+        <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="doc" role="tab" data-toggle="tab">Fabric Allocation</a></li>
     </ul>
 </div>
 <div class="tab-content">
     <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
         <div class="form-elements form-horizontal" id="bulletin">
             <togglable name="Pending"></togglable>
-            <div class="common-btn">
-                <ul class="list-inline text-left">
-                    <li> <button ng-show="fabricPendingDetailList.length>0" ng-click="ShowModal();" class="btn"><i class="glyphicon glyphicon-check"></i> Show Entry PopUp</button></li>
-                    <li><button ng-click="SetDataEntry();" class="btn"><i class=""></i> Set Data</button></li>
-                </ul>
+            <div class="col-sm-12">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">GRN No</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="GRN No" readonly ng-model="fabricRollMaster.GRNId" class="form-control text-right" tabindex="101">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">No Of Roll</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="RollNo" readonly ng-model="fabricRollMaster.RollNo" class="form-control text-right" tabindex="101">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">GRN Date</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="GRN Date" readonly ng-model="fabricRollMaster.GDate" class="form-control text-right" tabindex="101">
+                        </div>
+                    </div>
+                </div>
 
             </div>
+            <div class="col-md-12">
+                <div class="col-md-6">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li> <button ng-show="fabricPendingDetailList.length>0" ng-click="ShowModal();" class="btn"><i class="glyphicon glyphicon-check"></i> Show Entry PopUp</button></li>
+                            <li><button ng-click="SetDataEntry();" class="btn"><i class=""></i> Set Data</button></li>
+                            <li> <button ng-click="GetReport();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="inputBtnSection common-btn">
+                        <label class="fileUpload col-sm-4 ">
+                            <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                        </label>
+                        <input type="button" value="Import Data" class="btn btn-success" ng-click="ImportData()" />
+                    </div>
+                </div>
+            </div>
+
             <div class="col-sm-12" ng-show="fabricPendingChildListList.length>0">
                 <div id="GridPF" ej-grid e-datasource="fabricPendingChildListList" e-allowfiltering="true"
                      e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
@@ -76,8 +115,6 @@
                     </ul>
                 </div>
             </div>
-
-
         </div>
         <div class="row">
             <div class="aplos-grid-toggle">
@@ -87,6 +124,8 @@
                     <div e-columns>
                         <div e-column e-field="Id" e-headertext="Id" e-headertext-color="black" e-textalign="left" e-width="40"></div>
                         <div e-column e-field="GRNId" e-headertext="GRNId" e-width="80"></div>
+                        <div e-column e-field="GDate" e-headertext="GRN Date" e-width="80"></div>
+                        <div e-column e-field="RollNo" e-headertext="NoOfRoll" e-width="80"></div>
                         <div e-column e-field="UserName" e-type="string" e-headertext="User Reference" e-width="80"></div>
                         <div e-column e-field="PreparedBy" e-headertext="PreparedBy" e-width="80"></div>
                         <div e-column e-field="CheckedBy" e-headertext="CheckedBy" e-width="80"></div>
@@ -96,10 +135,96 @@
 
             </div>
         </div>
-
     </div>
     <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-        
+        <div class="form-elements form-horizontal" id="Confirm">
+            <togglable name="Confirm"></togglable>
+            <div class="col-sm-12">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">GRN No</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="GRN No" readonly ng-model="fabricRollMaster.GRNId" class="form-control text-right" tabindex="101">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">No Of Roll</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="RollNo" readonly ng-model="fabricRollMaster.RollNo" class="form-control text-right" tabindex="101">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">GRN Date</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="GRN Date"readonly ng-model="fabricRollMaster.GDate" class="form-control text-right" tabindex="101">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-sm-12" ng-show="fabricConfirmChildListList.length>0">
+                <div id="GridPCF" ej-grid e-datasource="fabricConfirmChildListList" e-allowfiltering="true"
+                     e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-pagesettings-pagesize="25" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="Sequence" e-headertext="Sequence" e-width="30" e-primarykey="true"></div>
+                        <div e-column e-field="GRNRowId" e-headertext="GRNRowId" e-width="80"></div>
+                        <div e-column e-field="Color" e-headertext="Color" e-width="80"></div>
+                        <div e-column e-field="LotNo" e-headertext="LotNo" e-width="80" style="height: 20px;"></div>
+                        <div e-column e-field="FabricType" e-headertext="FabricType" e-width="80"></div>
+                        <div e-column e-field="FabricQuality" e-headertext="FabricQuality" e-width="80"></div>
+                        <div e-column e-field="SupplierRollNo" e-headertext="SupplierRollNo" e-width="80"></div>
+                        <div e-column e-field="OwnRollNo" e-headertext="OwnRollNo" e-width="80"></div>
+                        <div e-column e-field="QtyUoM" e-headertext="Qty UoM" e-width="80"></div>
+                        <div e-column e-field="SupplierQty" e-headertext="SupplierQty" e-width="80"></div>
+                        <div e-column e-field="ActualQty" e-headertext="Actual Qty" e-width="80"></div>
+                        <div e-column e-field="CutableWidth" e-headertext="CutableWidth" e-width="80"></div>
+                        <div e-column e-field="OwnGSM" e-headertext="OwnGSM" e-width="80"></div>
+                        <div e-column e-field="StdGSM" e-headertext="StdGSM" e-width="80"></div>
+                        <div e-column e-field="GSMVariation" e-headertext="GSMVariation" e-width="80"></div>
+                        <div e-column e-field="GSMVariationPer" e-headertext="GSMVariationPer" e-width="80"></div>
+                        <div e-column e-field="Shade" e-headertext="Shade" e-width="80"></div>
+                        <div e-column e-field="ShrinkageLengthWise" e-headertext="ShrinkageLengthWise" e-width="80"></div>
+                        <div e-column e-field="ShrinkageWidthWise" e-headertext="ShrinkageWidthWise" e-width="80"></div>
+                        <div e-column e-field="Dia" e-headertext="Dia" e-width="80"></div>
+                        <div e-column e-field="SupplierQualityGrade" e-headertext="SupplierQualityGrade" e-width="80"></div>
+                        <div e-column e-field="QualityStatus" e-headertext="QualityStatus" e-width="80"></div>
+                        <div e-column e-field="FTPReportNo" e-headertext="FTPReportNo" e-width="80"></div>
+                        <div e-column e-field="FTPReceiveDate" e-headertext="FTPReceiveDate" e-width="80"></div>
+                        <div e-column e-field="FTPStatus" e-headertext="FTPStatus" e-width="80"></div>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 ">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-show="fabricConfirmChildListList.length>0" ng-click="SaveConfirmData();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+                    </ul>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="row">
+            <div class="aplos-grid-toggle">
+
+                <div style="color:black;" id="GridCF" ej-grid e-datasource="fabricConfirmDetailList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                     e-allowResizing="true" e-recorddoubleclick="GetConfirmData" e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Id" e-headertext-color="black" e-textalign="left" e-width="40"></div>
+                        <div e-column e-field="GRNId" e-headertext="GRNId" e-width="80"></div>
+                        <div e-column e-field="GDate" e-headertext="GRN Date" e-width="80"></div>
+                        <div e-column e-field="RollNo" e-headertext="NoOfRoll" e-width="80"></div>
+                        <div e-column e-field="UserName" e-type="string" e-headertext="User Reference" e-width="80"></div>
+                        <div e-column e-field="PreparedBy" e-headertext="PreparedBy" e-width="80"></div>
+                        <div e-column e-field="CheckedBy" e-headertext="CheckedBy" e-width="80"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
     </div>

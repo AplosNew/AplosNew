@@ -1,6 +1,6 @@
 ﻿'use strict';
-FabricGroupingController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function FabricGroupingController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+FabricGroupingController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$window'];
+function FabricGroupingController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'Fabric Grouping';
     $scope.Action = 'Save';
     $scope.fabricPendingDetailList = [];
@@ -26,14 +26,37 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
     }
     $scope.getPendingData();
 
+    $scope.fabricConfirmDetailList = [];
+    $scope.getConfirmData = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetFabricRollMasterConfirmDataList",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.fabricConfirmDetailList = response.data;
+        });
+    }
+    
+
     $scope.fabricPendingChildListList = [];
     $scope.GetFabricRollChildList = function () {
         $http({
             method: 'GET',
-            url: $scope.path + "GetFabricRollChildList?FabricRollManagementMasterId=" + $scope.masterId,
+            url: $scope.path + "GetFabricRollChildPendingList?FabricRollManagementMasterId=" + $scope.masterId,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.fabricPendingChildListList = response.data;
+        });
+    }
+
+    $scope.fabricConfirmChildListList = [];
+    $scope.GetFabricRollConfirmChildList = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetFabricRollChildConfirmList?FabricRollManagementMasterId=" + $scope.masterId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.fabricConfirmChildListList = response.data;
         });
     }
 
@@ -42,6 +65,17 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
         $scope.masterId = args.data.Id;
 
         $scope.GetFabricRollChildList();
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.GetConfirmData = function (args) {
+        $scope.fabricRollMaster = Object.assign({}, args.data);
+        $scope.masterId = args.data.Id;
+
+        $scope.GetFabricRollConfirmChildList();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -116,9 +150,6 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
 
     $scope.SaveRollData = function () {
         try {
-
-            
-
             $http({
                 method: "POST",
                 url: 'Materials/FabricRoll/CreateFabricRollManage',
@@ -133,8 +164,14 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
                 }
                 else {
                     ShowResult(response.data.Message, "success");
+                    if (!$rootScope.isCollapsed) {
+                        $rootScope.toggle();
+                    }
+                    $scope.fabricRollMaster = {};
+                    $scope.fabricPendingChildListList = [];
                     $scope.getPendingData();
                     $scope.GetFabricRollChildList();
+                    $scope.getConfirmData();
                 }
             }, function errorCallback(response) {
                 ShowResult(response.status.Message, "failure");
@@ -144,5 +181,118 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
             ShowResult(e, "failure");
         }
     };
+
+    $scope.SaveConfirmData = function () {
+        try {
+            $scope.fabricRollMaster.IsConfirm = true;
+            $http({
+                method: "POST",
+                url: 'Materials/FabricRoll/CreateFabricRollManage',
+                data: {
+                    "data": $scope.fabricRollMaster
+                    , "grnDetailList": $scope.fabricConfirmChildListList
+                },
+                dataType: "JSON"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    if (!$rootScope.isCollapsed) {
+                        $rootScope.toggle();
+                    }
+                    $scope.fabricRollMaster = {};
+                    $scope.fabricConfirmChildListList = [];
+                    $scope.getPendingData();
+                    $scope.GetFabricRollChildList();
+                    $scope.getConfirmData();
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, "failure");
+            });
+            return true;
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+    $scope.GetReport = function () {
+        try {
+            
+            $scope.fileName = "FabricRollReport.xlsx";
+
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetFabricRollReport",
+                data: { 'reportFileName': $scope.fileName, 'data': $scope.fabricPendingChildListList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.picdata = null;
+    $scope.ShowSaveBtn = false;
+    $("#uploadImage").change(function () {
+        $scope.picdata = this.files[0];
+    });
+    $scope.grnDetailList = [];
+    $scope.ImportData = function () {
+        try {
+            $scope.msg = "";
+
+            var picData = new FormData();
+            if (!baseService.isUndefinedOrNull($scope.picdata)) {
+                $scope.ModelNew.FileName = $scope.picdata.name;
+            }
+
+            $http({
+                method: 'POST',
+                url: 'Materials/FabricRoll/ImportData',
+                headers: { 'Content-Type': undefined },
+                transformRequest: function (data) {
+                    picData.append("modelNew", angular.toJson(data.modelNew));
+                    if (baseService.isUndefinedOrNull($scope.picdata) === false) {
+                        picData.append('file', data.file);
+                    }
+                    return picData;
+                },
+                data: { 'modelNew': $scope.ModelNew, 'file': $scope.picdata }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+
+                }
+                else {
+                    var x = GetShortList(response.data);
+                    for (var i = 0; i < x.length; i++) {
+                        x[i].Id = null;
+                        $scope.grnDetailList.push(x[i]);
+                    }
+                }
+            }, function errorCallback(response) {
+
+            });
+            return true;
+
+
+        } catch (e) {
+
+            ShowResult(e, "failure");
+        }
+    };
+
 
 }
