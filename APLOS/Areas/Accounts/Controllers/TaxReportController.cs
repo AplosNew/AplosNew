@@ -2,6 +2,7 @@
 using Library.Accounting.Accounts;
 using Library.Crosscutting.Security;
 using Library.Model.Enums;
+using Library.Model.Parties;
 using System;
 using System.Threading;
 using System.Web.Mvc;
@@ -216,10 +217,10 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetDebitNoteCreditNoteTaxReport(ReportFormat reportFormat, string fromDate, string toDate)
+        public ActionResult GetDebitNoteCreditNoteTaxReport(ReportFormat reportFormat, string fromDate, string toDate, PartyType partyType, string noteType)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var workbook = _taxReportServiceService.GetDebitNoteCreditNoteTaxReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, identity.Name);
+            var workbook = _taxReportServiceService.GetDebitNoteCreditNoteTaxReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, partyType, noteType, identity.Name);
             var reportFileName = DateTime.Now.ToString("yyMMdd") + "DebitNoteCreditNoteStatusReport";
             switch (reportFormat)
             {

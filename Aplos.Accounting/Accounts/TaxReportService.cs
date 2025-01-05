@@ -2,6 +2,7 @@
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
+using Library.Model.Parties;
 using Library.Service.Enums;
 using Library.Service.Helpers;
 using Library.Service.Logs;
@@ -5852,7 +5853,7 @@ SELECT
 
         #endregion GST Payable
 
-        public IWorkbook GetDebitNoteCreditNoteTaxReport(string companyGroupId, string companyId, string plantId, string plantName, string fromDate, string toDate, string name)
+        public IWorkbook GetDebitNoteCreditNoteTaxReport(string companyGroupId, string companyId, string plantId, string plantName, string fromDate, string toDate, PartyType partyType, string noteType, string name)
         {
             clsReport objRpt = null;
             clsReport objRptSR = null;
@@ -5889,7 +5890,7 @@ SELECT
 
                 DataTable dtGStReceivableF3 = null;
                 string taxyearId = GetTaxYearId(fromDate, toDate, companyId);
-                dtGStReceivableF3 = GetDebitNoteCreditNoteTaxSQL(companyGroupId, companyId, plantId, plantName, fromDate, toDate, taxyearId);
+                dtGStReceivableF3 = GetDebitNoteCreditNoteTaxSQL(companyGroupId, companyId, plantId, plantName, fromDate, toDate, taxyearId,  partyType.ToString(), noteType);
                 if (dtGStReceivableF3.Rows.Count == 0)
                 {
                     throw new Exception("No Data Found....");
@@ -5963,12 +5964,6 @@ SELECT
                 sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 xlsCol++;
 
-                int iTotalAmount = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Total Amount";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                xlsCol++;
-
                 int iIGSTAmount = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "IGST Amount";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
@@ -5983,6 +5978,12 @@ SELECT
 
                 int iSGSTAmount = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "SGST Amount";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                xlsCol++;
+
+                int iTotalAmount = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Total Amount";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
                 sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 xlsCol++;
@@ -6079,10 +6080,10 @@ SELECT
                             sheet1[perStartRow, iGRNNo, xlsRow - 1, iGRNNo].BorderAround(ExcelLineStyle.Hair);
                             sheet1[perStartRow, iPartyPlantName, xlsRow - 1, iPartyPlantName].BorderAround(ExcelLineStyle.Hair);
                             sheet1[perStartRow, iTaxableAmount, xlsRow - 1, iTaxableAmount].BorderAround(ExcelLineStyle.Hair);
-                            sheet1[perStartRow, iTotalAmount, xlsRow - 1, iTotalAmount].BorderAround(ExcelLineStyle.Hair);
                             sheet1[perStartRow, iIGSTAmount, xlsRow - 1, iIGSTAmount].BorderAround(ExcelLineStyle.Hair);
                             sheet1[perStartRow, iCGSTAmount, xlsRow - 1, iCGSTAmount].BorderAround(ExcelLineStyle.Hair);
                             sheet1[perStartRow, iSGSTAmount, xlsRow - 1, iSGSTAmount].BorderAround(ExcelLineStyle.Hair);
+                            sheet1[perStartRow, iTotalAmount, xlsRow - 1, iTotalAmount].BorderAround(ExcelLineStyle.Hair);
                             sheet1[perStartRow, iVoucherDate, xlsRow - 1, iVoucherDate].BorderAround(ExcelLineStyle.Hair);
                             sheet1[perStartRow, iIsRCM, xlsRow - 1, iIsRCM].BorderAround(ExcelLineStyle.Hair);
                             sheet1[perStartRow, iIsTaxApplicable, xlsRow - 1, iIsTaxApplicable].BorderAround(ExcelLineStyle.Hair);
@@ -6123,17 +6124,17 @@ SELECT
                         sheet1.Range[xlsRow, iGSTIN].Text = dtGStReceivableF3.Rows[i]["GSTIN"].ToString();
                         sheet1.Range[xlsRow, iGRNNo].Text = dtGStReceivableF3.Rows[i]["GRNNo"].ToString();
                         sheet1.Range[xlsRow, iPartyPlantName].Text = dtGStReceivableF3.Rows[i]["PartyPlantName"].ToString();
+
                         sheet1.Range[xlsRow, iTaxableAmount].Number = clsStaticInfo.dbl(dtGStReceivableF3.Rows[i]["TaxableAmount"].ToString());
                         sheet1.Range[xlsRow, iTaxableAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                        sheet1.Range[xlsRow, iTotalAmount].Number = clsStaticInfo.dbl(dtGStReceivableF3.Rows[i]["TotalAmount"].ToString());
-                        sheet1.Range[xlsRow, iTotalAmount].NumberFormat = "#,##0.00;(#,##0.00)";
                         sheet1.Range[xlsRow, iIGSTAmount].Number = clsStaticInfo.dbl(dtGStReceivableF3.Rows[i]["IGSTAmount"].ToString());
                         sheet1.Range[xlsRow, iIGSTAmount].NumberFormat = "#,##0.00;(#,##0.00)";
                         sheet1.Range[xlsRow, iCGSTAmount].Number = clsStaticInfo.dbl(dtGStReceivableF3.Rows[i]["CGSTAmount"].ToString());
                         sheet1.Range[xlsRow, iCGSTAmount].NumberFormat = "#,##0.00;(#,##0.00)";
                         sheet1.Range[xlsRow, iSGSTAmount].Number = clsStaticInfo.dbl(dtGStReceivableF3.Rows[i]["SGSTAmount"].ToString());
                         sheet1.Range[xlsRow, iSGSTAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                        sheet1.Range[xlsRow, iTotalAmount].Number = clsStaticInfo.dbl(dtGStReceivableF3.Rows[i]["TotalAmount"].ToString());
+                        sheet1.Range[xlsRow, iTotalAmount].NumberFormat = "#,##0.00;(#,##0.00)";
 
                         sheet1.Range[xlsRow, iVoucherDate].Text = dtGStReceivableF3.Rows[i]["VoucherDate"].ToString();
                         sheet1.Range[xlsRow, iIsRCM].Text = dtGStReceivableF3.Rows[i]["IsRCM"].ToString();
@@ -6164,10 +6165,10 @@ SELECT
                 sheet1[perStartRow, iGRNNo, xlsRow - 1, iGRNNo].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iPartyPlantName, xlsRow - 1, iPartyPlantName].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iTaxableAmount, xlsRow - 1, iTaxableAmount].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iTotalAmount, xlsRow - 1, iTotalAmount].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iIGSTAmount, xlsRow - 1, iIGSTAmount].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iCGSTAmount, xlsRow - 1, iCGSTAmount].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iSGSTAmount, xlsRow - 1, iSGSTAmount].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iTotalAmount, xlsRow - 1, iTotalAmount].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iVoucherDate, xlsRow - 1, iVoucherDate].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iIsRCM, xlsRow - 1, iIsRCM].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iIsTaxApplicable, xlsRow - 1, iIsTaxApplicable].BorderAround(ExcelLineStyle.Hair);
@@ -10894,8 +10895,26 @@ UNION ALL
 
         }
 
-        private DataTable GetDebitNoteCreditNoteTaxSQL(string companyGroupId, string companyId, string plantId, string plantName, string fromDate, string toDate, string taxyearId)
+        private DataTable GetDebitNoteCreditNoteTaxSQL(string companyGroupId, string companyId, string plantId, string plantName, string fromDate, string toDate, string taxyearId, string partyType, string noteType)
         {
+            string tempPartyType = null;
+            if (partyType == "Vendor" || partyType == "Customer")
+            {
+                tempPartyType = partyType;
+            }
+            if (partyType == null || partyType == "null" || partyType == "Party")
+            {
+                tempPartyType = "Vendor" + "','" + "Customer" ;
+            }
+            string tempNoteType = null; 
+            if (noteType == "DebitNote" || noteType == "CreditNote")
+            {
+                tempNoteType = noteType;
+            }
+            if (noteType == null || noteType == "null" || noteType == "Both")
+            {
+                tempNoteType = "DebitNote" + "','" + "CreditNote" + "','" + "InventoryReturnPayable" + "','" + "VendorPayment";
+            }
             string strSql = "";
             strSql = @"SELECT  V.SourceType ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate
 							,P.UserName PartyName,PP.GSTIN,NULL GRNNo,pp.UserName PartyPlantName
@@ -10966,7 +10985,8 @@ UNION ALL
 							
                             where V.PlantId='" + plantId + @"'
 							and V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"'
-                            AND v.SourceType IN ('DebitNote','CreditNote','InventoryReturnPayable','VendorPayment') ";
+                            AND ADT.PartyType IN ('" + tempPartyType + @"')
+                            AND v.SourceType IN ('" + tempNoteType + @"') ";
             return _sqlRepository.GetDataTable(strSql);
         }
         private DataTable GetAdvancePaymentPendingforSetOffReportSQL(string companyGroupId, string companyId, string plantId)
