@@ -23,10 +23,17 @@ function employeeRegisterController(fileReader, commonMessage, $scope, $rootScop
         EmployeeId: null,
         EmployeeName: null
     };
-
+    $scope.EmployeeInFoReport = {
+        EmployeeCatagory: 'Active',
+        ReportFormat: 'Excel',
+        CheckBox: false,
+        LONGABSENTEEISM: false,
+        TBS: false,
+        EmployeeCurrentStatus: null
+    };
     $scope.EmpRegisterPrint = function () {
         try {
-            location.href = 'employees/EmployeeInformation/EmpRegisterInfo';
+            location.href = 'employees/EmployeeInformation/EmpRegisterInfo?radioValue=' + $scope.EmployeeInFoReport.EmployeeCatagory;
 
             $scope.Clear();
 

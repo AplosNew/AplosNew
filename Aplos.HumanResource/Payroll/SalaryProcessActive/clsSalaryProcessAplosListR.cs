@@ -1746,9 +1746,9 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                                 {
                                                                     //decimal ProportionateStructureValue = (DefCur / DaysInMonth) * TotalWorkingDays;
                                                                     decimal ProportionateStructureValue = (DefCur / ExcludeWKOFFWorkingDay) * TotalPayDays;
-
-                                                                    if (TotalActualWorkingDays > 0)
-                                                                        SalaryPerDay = ProportionateStructureValue / (TotalActualWorkingDays);
+                                                                    SalaryPerDay = DefCur / ExcludeWKOFFWorkingDay;
+                                                                    //if (TotalActualWorkingDays > 0)
+                                                                    //    SalaryPerDay = ProportionateStructureValue / (TotalActualWorkingDays);
                                                                 }
 
                                                                 if (dicLocal_Sub[i].RuleType == "Gen")
@@ -2108,7 +2108,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                                     abdtype.LateDay = LateDay;
                                                                     abdtype.LvDay = LvDay;
                                                                     abdtype.LvwpDay = LWPDays;
-                                                                  //  abdtype.IsRouteAvailed = IsRouteAvailed;
+                                                                    //  abdtype.IsRouteAvailed = IsRouteAvailed;
                                                                     //abdtype.LateInDay = dvLATEIN.Count;
                                                                     if (dvLATEIN.Count > 0)
                                                                     {
