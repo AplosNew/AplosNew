@@ -1457,6 +1457,89 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public JsonResult ImportFabricData()
+        {
+            string path;
+            clsTemplateReadProfile objR = null;
+            try
+            {
+                objR = new clsTemplateReadProfile();
+                var file = Request.Files["file"];
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                SaveFiles(out path);
+                var data = ReadFabricData(identity.PlantId, path);
+                JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        public List<FabricRollGroupTemplate> ReadFabricData(string plantid, string path)
+        {
+            List<FabricRollGroupTemplate> data = null;
+            //string path = "";
+            DataSet dsExcel = null;
+            try
+            {
+                data = new List<FabricRollGroupTemplate>();
+                //SaveFile(out path);
+                ReadFabricFile(path, out dsExcel);
+                Validation(dsExcel, plantid);
+                data = dsExcel.Tables[0].ToList<FabricRollGroupTemplate>();
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void ReadFabricFile(string path, out DataSet dsExcel)
+        {
+            FileInfo docFile;
+            dsExcel = null;
+            try
+            {
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = excelEngine.Excel.Workbooks.Open(path);
+                //DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
+                DataTable dt = workbook.Worksheets[0].ExportDataTable(5, 1, 5000, 27, ExcelExportDataTableOptions.ColumnNames);
+                dt.DefaultView.RowFilter = "isnull(Sequence,'')<>''";
+                dt = dt.DefaultView.ToTable();
+               
+                dsExcel = new DataSet();
+                dsExcel.Tables.Add(dt);
+                docFile = new FileInfo(path);
+                if (docFile.Exists)
+                {
+                    //exception += "\r\nTrying to delete";
+                    docFile.Delete();
+                }
+            }
+            catch (Exception ex)
+            {
+                docFile = new FileInfo(path);
+                if (docFile.Exists)
+                {
+                    docFile.Delete();
+                }
+                throw (ex);
+            }
+        }
+
+
+
+
+
     }
 
 

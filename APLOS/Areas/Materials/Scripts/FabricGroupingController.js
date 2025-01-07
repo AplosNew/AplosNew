@@ -217,38 +217,84 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
         }
     };
 
-    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
-    $scope.GetReport = function () {
-        try {
-            
-            $scope.fileName = "FabricRollReport.xlsx";
+    $scope.exportgriddataUrlUpdate2 = 'GridReports/ExcelExportUpdate2';
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
 
-            $http({
-                method: 'POST',
-                url: $scope.path + "GetFabricRollReport",
-                data: { 'reportFileName': $scope.fileName, 'data': $scope.fabricPendingChildListList },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error == true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
-                }
-            }, function errorCallback(response) {
-                ShowResult(response.data.Message, 'failure');
-            });
-        } catch (e) {
-            ShowResult(e, 'failure');
+    $scope.GetReport = function () {
+        var dataList = [];
+        var g = $("#GridPF").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.fabricPendingChildListList;
         }
-    }
+        var ob = {};
+        var tempList = [];
+        for (var i = 0; i < dataList.length; i++) {
+            ob.Id = dataList[i].Id;
+            ob.FabricRollManagementMasterId = dataList[i].FabricRollManagementMasterId;
+            ob.Sequence = dataList[i].Sequence;
+            ob.GRNRowId = dataList[i].GRNRowId;
+            ob.Color = dataList[i].Color;
+            ob.LotNo = dataList[i].LotNo;
+            ob.FabricType = dataList[i].FabricType;
+            ob.FabricQuality = dataList[i].FabricQuality;
+            ob.SupplierRollNo = dataList[i].SupplierRollNo;
+            ob.OwnRollNo = dataList[i].OwnRollNo;
+            ob.QtyUoM = dataList[i].QtyUoM;
+            ob.SupplierQty = dataList[i].SupplierQty;
+            ob.ActualQty = dataList[i].ActualQty;
+            ob.CutableWidth = dataList[i].CutableWidth;
+            ob.OwnGSM = dataList[i].OwnGSM;
+            ob.StdGSM = dataList[i].StdGSM;
+            ob.GSMVariation = dataList[i].GSMVariation;
+            ob.GSMVariationPer = dataList[i].GSMVariationPer;
+            ob.Shade = dataList[i].Shade;
+            ob.ShrinkageLengthWise = dataList[i].ShrinkageLengthWise;
+            ob.ShrinkageWidthWise = dataList[i].ShrinkageWidthWise;
+            ob.Dia = dataList[i].Dia;
+            ob.SupplierQualityGrade = dataList[i].SupplierQualityGrade;
+            ob.QualityStatus = dataList[i].QualityStatus;
+            ob.FTPReportNo = dataList[i].FTPReportNo;
+            ob.FTPReceiveDate = dataList[i].FTPReceiveDate;
+            ob.FTPStatus = dataList[i].FTPStatus;
+
+            tempList.push(ob);
+            ob = {};
+        }
+
+
+        $scope.fileName = $scope.fabricRollMaster.GRNNo + '-' +"FabricRollReport";
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrl,
+            data: {
+                'reportFileName': $scope.fileName,
+                'data': tempList
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
 
     $scope.picdata = null;
     $scope.ShowSaveBtn = false;
     $("#uploadImage").change(function () {
         $scope.picdata = this.files[0];
     });
-    $scope.grnDetailList = [];
+
+    $scope.ModelNew = { FileName: null };
     $scope.ImportData = function () {
         try {
             $scope.msg = "";
@@ -260,7 +306,7 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
 
             $http({
                 method: 'POST',
-                url: 'Materials/FabricRoll/ImportData',
+                url: 'Materials/FabricRoll/ImportFabricData',
                 headers: { 'Content-Type': undefined },
                 transformRequest: function (data) {
                     picData.append("modelNew", angular.toJson(data.modelNew));
@@ -276,11 +322,13 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
 
                 }
                 else {
-                    var x = GetShortList(response.data);
-                    for (var i = 0; i < x.length; i++) {
-                        x[i].Id = null;
-                        $scope.grnDetailList.push(x[i]);
+                    $scope.fabricPendingChildListList=[];
+                    for (var i = 0; i < response.data.length; i++) {
+                        $scope.fabricPendingChildListList.push(response.data[i]);
                     }
+                    var gridObj = $("#GridPF").data("ejGrid");
+                    gridObj.refreshContent();
+                    gridObj.refreshTemplate();
                 }
             }, function errorCallback(response) {
 
