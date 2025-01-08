@@ -1050,6 +1050,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                     dicCmpWeekOffDay = dsCmpWeekOffDay.Tables[0].ToList<dicCmpWeekOffDay>();
 
                                 decimal TotWorkingDay = DaysInMonth - dsCmpOffDay.Tables[0].Rows.Count;
+                                decimal ExcludeWKOFFWorkingDay = DaysInMonth - dsCmpOffDay.Tables[0].Rows.Count;
                                 decimal TotWorkingDayWithHoli = DaysInMonth - dsCmpWeekOffDay.Tables[0].Rows.Count;
                                 decimal tempTotWorkingDay = TotWorkingDay;
                                 decimal tempTotWorkingDayWithHoli = TotWorkingDayWithHoli;
@@ -1743,10 +1744,11 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                                 }
                                                                 else//DOJ DOS
                                                                 {
-                                                                    decimal ProportionateStructureValue = (DefCur / DaysInMonth) * TotalWorkingDays;
-
-                                                                    if (TotalActualWorkingDays > 0)
-                                                                        SalaryPerDay = ProportionateStructureValue / (TotalActualWorkingDays);
+                                                                    //decimal ProportionateStructureValue = (DefCur / DaysInMonth) * TotalWorkingDays;
+                                                                    decimal ProportionateStructureValue = (DefCur / ExcludeWKOFFWorkingDay) * TotalPayDays;
+                                                                    SalaryPerDay = DefCur / ExcludeWKOFFWorkingDay;
+                                                                    //if (TotalActualWorkingDays > 0)
+                                                                    //    SalaryPerDay = ProportionateStructureValue / (TotalActualWorkingDays);
                                                                 }
 
                                                                 if (dicLocal_Sub[i].RuleType == "Gen")
@@ -2106,7 +2108,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                                     abdtype.LateDay = LateDay;
                                                                     abdtype.LvDay = LvDay;
                                                                     abdtype.LvwpDay = LWPDays;
-                                                                  //  abdtype.IsRouteAvailed = IsRouteAvailed;
+                                                                    //  abdtype.IsRouteAvailed = IsRouteAvailed;
                                                                     //abdtype.LateInDay = dvLATEIN.Count;
                                                                     if (dvLATEIN.Count > 0)
                                                                     {

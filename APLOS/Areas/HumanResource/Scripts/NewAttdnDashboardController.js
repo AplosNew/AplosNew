@@ -1,6 +1,6 @@
 ﻿'use strict';
-NewAttdnDashboardController.$inject = ['cboService', '$scope', '$rootScope', '$routeParams', 'baseService', '$http', '$filter'];
-function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParams, baseService, $http, $filter) {
+NewAttdnDashboardController.$inject = ['cboService', '$scope', '$rootScope', '$routeParams', 'baseService', '$http', '$filter','$window'];
+function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParams, baseService, $http, $filter, $window) {
 
     $scope.Title = "Daily In Status";
     $scope.chartList = [];
@@ -23,7 +23,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
         $scope.docEmployeeCategoryList = result;
     });
 
-    $scope.EmpStatsList = [{ 'Value': 'All', 'Text': 'Select All' },{ 'Value': 'Active', 'Text': 'Active' }, { 'Value': 'TBS', 'Text': 'To Be Separated' }, { 'Value': 'LA', 'Text': 'LONG ABSENTEEISM' }];
+    $scope.EmpStatsList = [{ 'Value': 'All', 'Text': 'Select All' }, { 'Value': 'Active', 'Text': 'Active' }, { 'Value': 'TBS', 'Text': 'To Be Separated' }, { 'Value': 'LA', 'Text': 'LONG ABSENTEEISM' }];
     $scope.EmpStat = 'All';
     $scope.ManPowerBudget = function () {
         $scope.chartList = [];
@@ -381,17 +381,16 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
                 angular.element(document.querySelector('#TableDetailModalBB')).modal('show');
 
             }
-            if ($scope.RptColumn == "LateIn") {
+            else if ($scope.RptColumn == "LateIn") {
                 angular.element(document.querySelector('#TableDetailModalLateIn')).modal('show');
 
             }
-            if ($scope.RptColumn == "InMissing") {
+            else if ($scope.RptColumn == "InMissing") {
                 angular.element(document.querySelector('#TableDetailModalInMissing')).modal('show');
 
             }
             else {
                 angular.element(document.querySelector('#TableDetailModal')).modal('show');
-
             }
             var gridObj = $("#getClickDetail").data("ejGrid");
             gridObj.refreshContent(true);
@@ -472,5 +471,41 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
             ShowResult(response.data.Message, 'failure');
         });
     }
+
+    $scope.exportgriddataUrlUpdate2 = 'GridReports/ExcelExportUpdate2';
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+
+    $scope.DownLoadEmpData = function () {
+        var dataList = [];
+        var g = $("#getClickDetails").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.ClickDetail;
+        }
+        $scope.fileName = $filter("dateFiltering")(Date.now()) + "-Budget";
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrl,
+            data: {
+                'reportFileName': $scope.fileName,
+                'data': dataList
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
+
 
 }

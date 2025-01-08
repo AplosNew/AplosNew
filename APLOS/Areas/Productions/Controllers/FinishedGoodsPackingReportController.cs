@@ -98,11 +98,15 @@ namespace Aplos.Areas.Productions.Controllers
                 DataTable dtOrder;
                 det.GetFinishedGoodsPackingReportData(fromDate, toDate, PurposeId, out dtOrder);
 
-                if (dtOrder.Rows.Count > 0)
-                {
-                    det.SaveScandataToBooking(fromDate, toDate, PurposeId, para);
-                }
-                else
+                //if (dtOrder.Rows.Count > 0)
+                //{
+                //    det.SaveScandataToBooking(fromDate, toDate, PurposeId, para);
+                //}
+                //else
+                //{
+                //    throw new CustomException("No Data found.");
+                //}
+                if (dtOrder.Rows.Count == 0)
                 {
                     throw new CustomException("No Data found.");
                 }

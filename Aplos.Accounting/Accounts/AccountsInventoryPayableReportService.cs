@@ -218,6 +218,22 @@ namespace Library.Accounting.Accounts
             }
         }
 
+        private DataTable GetBankReconciliationUploadedDataForMail(string companyId, string plantId)
+        {
+            try
+            {
+                var sql = @"SELECT Id,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  BankStatementDate, BankRefNo, BankParticulars, DrAmount, CrAmount, Remarks, OwnRefNo
+                            ,CASE WHEN (select count(BankReconciliationUploadedDataId) from TRN.BankReconciliationMap where BankReconciliationUploadedDataId= BRUD.Id)>0 THEN 'Yes' ELSE 'No' END ReconciliationedStatus
+                            FROM TRN.BankReconciliationUploadedData BRUD
+                            where   (select count(BankReconciliationUploadedDataId) from TRN.BankReconciliationMap where BankReconciliationUploadedDataId= BRUD.Id)=0";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+        }
+
         private static void AssignSvcInTax(IEnumerable<InventoryReportViewModel> dataList, InventoryReportViewModel item, string trnType)
         {
             for (var i = 0; i < dataList.Count(); i++)
@@ -2786,6 +2802,24 @@ namespace Library.Accounting.Accounts
                 throw ex;
             }
         }
+
+        public IWorkbook GetBankReconciliationUploadedDataForMailReport(string companyId, string plantId, string sheetHeader)
+        {
+            try
+            {
+                var excelEngine = new ExcelEngine();
+                var report = new ReportUtility();
+                var workbook = report.GetWorkbook(ref excelEngine, 1);
+                var sheet1 = workbook.Worksheets[0];
+                GetBankReconciliationUploadedDataForMailReportSheet(ref sheet1, report, sheetHeader, sheetHeader, companyId, plantId );
+                workbook.Version = ExcelVersion.Excel2013;
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         private void GetBankReconciliationUploadedDataReportSheet(ref IWorksheet sheet, ReportUtility reportUtility, string sheetHeader, string sheetName, string companyId, string plantId, string bankReconciliationUploadId)
         {
             //IEnumerable<BankReconciliationUploadedDataViewModel> dataList;
@@ -2871,6 +2905,90 @@ namespace Library.Accounting.Accounts
 
 
             #endregion
+
+            #region Table
+
+            var headreColIndex = 1;
+
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Id", 24); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Date", 24); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Bank RefNo", 24); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Bank Particulars", 24); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Dr Amount", 24, ExcelHAlign.HAlignRight); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Cr Amount", 24, ExcelHAlign.HAlignRight); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Remarks", 24); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Own RefNo", 24); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Reconciliationed Status", 24); headreColIndex++;
+
+
+
+            shet2EndxlsCol = headreColIndex;
+            var Row_Total_Start = _rowL + 1;
+            double trnCurrencyAmount = 0;
+            double baseCurrencyAmount = 0;
+
+            for (int i = 0; i < dataList.Rows.Count; i++)
+            {
+                _rowL++;
+                reportUtility.SetText(ref sheet, _rowL, 1, dataList.Rows[i]["Id"].ToString());
+                reportUtility.SetText(ref sheet, _rowL, 2, dataList.Rows[i]["BankStatementDate"].ToString());
+                reportUtility.SetText(ref sheet, _rowL, 3, dataList.Rows[i]["BankRefNo"].ToString());
+                reportUtility.SetText(ref sheet, _rowL, 4, dataList.Rows[i]["BankParticulars"].ToString());
+                reportUtility.SetText(ref sheet, _rowL, 5, Convert.ToDouble(dataList.Rows[i]["DrAmount"].ToString()));
+                reportUtility.SetText(ref sheet, _rowL, 6, Convert.ToDouble(dataList.Rows[i]["CrAmount"].ToString()));
+                reportUtility.SetText(ref sheet, _rowL, 7, dataList.Rows[i]["Remarks"].ToString());
+                reportUtility.SetText(ref sheet, _rowL, 8, dataList.Rows[i]["OwnRefNo"].ToString());
+                reportUtility.SetText(ref sheet, _rowL, 9, dataList.Rows[i]["ReconciliationedStatus"].ToString());
+
+            }
+
+            _rowL++;
+            sheet.Range[_rowL, 1, _rowL, 4].Merge();
+            reportUtility.SetText(ref sheet, _rowL, 1, null, false);
+
+
+            sheet.Range[_rowL, 5].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(5) + Row_Total_Start + ":" + reportUtility.GetColumnNameForXls(5) + (_rowL - 1) + ")";
+            sheet.Range[_rowL, 5].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+            sheet.Range[_rowL, 5].CellStyle.Font.Bold = true;
+            sheet.Range[_rowL, 5].BorderAround(ExcelLineStyle.Hair);
+
+            sheet.Range[_rowL, 6].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(6) + Row_Total_Start + ":" + reportUtility.GetColumnNameForXls(6) + (_rowL - 1) + ")";
+            sheet.Range[_rowL, 6].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+            sheet.Range[_rowL, 6].CellStyle.Font.Bold = true;
+            sheet.Range[_rowL, 6].BorderAround(ExcelLineStyle.Hair);
+
+
+            #endregion
+
+            sheet.Range[(row), 1, _rowL, shet2EndxlsCol - 1].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[(row), 1, _rowL, shet2EndxlsCol - 1].BorderAround(ExcelLineStyle.Hair);
+
+            _rowL++;
+
+
+            sheet.Name = sheetName;
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+            reportUtility.CompanyPlantHeader(ref sheet, shet2EndxlsCol, sheetHeader, companyId, plantId, plantName, null);
+            reportUtility.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+
+        }
+
+        private void GetBankReconciliationUploadedDataForMailReportSheet(ref IWorksheet sheet, ReportUtility reportUtility, string sheetHeader, string sheetName, string companyId, string plantId )
+        {
+            //IEnumerable<BankReconciliationUploadedDataViewModel> dataList;
+            DataTable dataList = GetBankReconciliationUploadedDataForMail(companyId, plantId );
+
+
+            if (dataList.Rows.Count == 0) throw new Exception("No Data Found!");
+
+            var plantName = new DataView(_sqlRepository.GetDataTable(@"SELECT UserName from org.Plant WHERE Id='" + plantId + "'")).ToTable(true, "UserName").Rows[0]["UserName"].ToString();
+
+
+            var shet2EndxlsCol = 1;
+            var _row = 5;
+            var _rowL = _row;
+            var row = _row + 1;
 
             #region Table
 

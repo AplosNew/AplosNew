@@ -1959,9 +1959,9 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                 var sqly = @"select * from LeaveEncashmentHistory where
                     LeaveYearId='" + CurrentLvYearId + "' and PlantId='" + PlantId + "'and LeaveTypeId in(" + LTypeId + ")";
                 objCon.OpenDataSetThroughAdapter(sqly, out DataSet dsSave, false, false, "", "1");
+                decimal Balance = 0;
 
-
-                List<Dictionary<string, object>> _objects = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(Data);
+                List <Dictionary<string, object>> _objects = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(Data);
                 DataTable Table = ToDataTable(_objects);
                 if (Table.Rows.Count > 0)
                 {
@@ -1974,18 +1974,28 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                         decimal Availed = Convert.ToDecimal(Table.Rows[i][@"Availed"].ToString());
                         decimal Adjustment = Convert.ToDecimal(Table.Rows[i][@"Adjustment"].ToString());
                         decimal RegularEncashment = Convert.ToDecimal(Table.Rows[i][@"RegularEncashment"].ToString());
-                        decimal Closing = Convert.ToDecimal(Table.Rows[i][@"Closing"].ToString());
+                        //decimal Closing = Convert.ToDecimal(Table.Rows[i][@"Closing"].ToString());
+                        decimal Closing = Opening+ Earned- Availed;
                         decimal Carryforward = 0;
-                        if (Closing > MaxCarryForward)
+                        decimal bl = Earned - Availed;
+                        if (bl> MaxCarryForward)
                         {
-                            Carryforward = MaxCarryForward;
+                            Carryforward = bl-(bl - MaxCarryForward);
                         }
                         else
                         {
-                            Carryforward = Closing;
+                            Carryforward = bl;
                         }
+                        //if (Closing > MaxCarryForward)
+                        //{
+                        //    Carryforward = MaxCarryForward;
+                        //}
+                        //else
+                        //{
+                        //    Carryforward = Closing;
+                        //}
 
-                        decimal Balance = Closing - Carryforward;
+                         Balance = Opening + Carryforward;
                         decimal AnnualEncash = 0;
                         if (Balance > MaxEncash)
                         {

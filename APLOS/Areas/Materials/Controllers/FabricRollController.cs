@@ -777,12 +777,31 @@ namespace Aplos.Areas.Materials.Controllers
         {
             return Json(clsFabric.GetFabricRollChildList(FabricRollManagementMasterId), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public ActionResult GetFabricRollChildPendingList(string FabricRollManagementMasterId)
+        {
+            return Json(clsFabric.GetFabricRollChildPendingList(FabricRollManagementMasterId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetFabricRollChildConfirmList(string FabricRollManagementMasterId)
+        {
+            return Json(clsFabric.GetFabricRollChildConfirmList(FabricRollManagementMasterId), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public ActionResult GetFabricRollMaster()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             JsonResult json = Json(clsFabric.GetFabricRollChildPendingDataList(identity.PlantId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetFabricRollMasterConfirmDataList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            JsonResult json = Json(clsFabric.GetFabricRollMasterConfirmDataList(identity.PlantId), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
@@ -1230,12 +1249,302 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         #endregion upload product picture
+
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetFabricRollReport(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                DataTable dt = new DataTable("DD");
+                foreach (string item in data[0].Keys)
+                {
+                    if (item.ToUpper().Contains("EJVALUE"))
+                        continue;
+
+                    dt.Columns.Add(item);
+                }
+
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    foreach (string item in data[i].Keys)
+                    {
+                        if (item.ToUpper().Contains("EJVALUE"))
+                            continue;
+
+                        dr[item] = data[i][item];
+                    }
+
+                    dt.Rows.Add(dr);
+                }
+
+                string fileName = "";
+                fileName = GetFabricRollReportXL(dt, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public string GetFabricRollReportXL(DataTable data, string ReportHeader, string reportFileName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet1 = null;
+            var filePath = "";
+            try
+            {
+
+                ReportUtility ru = new ReportUtility();
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "FabricRollData";
+                sheet1 = workbook.Worksheets[0];
+
+                int xlsRow = 6; int xlsCol = 1;
+                int endXlsCol = 1;
+                #region ------------------Column Header------------------
+
+                int colSeq = 0; int colGRNRowId = 0; int colLotNo, colColor, colFabricType, colFabricQuality = 0; int colShade = 0; int  colOwnGSM, colStdGSM, colGSMVariation, colGSMVariationPer,  colDia, colQualityStatus, colFTPReportNo, colFTPReceiveDate, colFTPStatus = 0;
+                int colCutableWidth = 0; int colShrinkagewidth, colShrinkageLength = 0; int colQtyUoM = 0; int colActualQty = 0; int colSupplier = 0;
+                int colSupplierRollNo, colSupplierQualityGrade = 0; int colOwnRollNo = 0;
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Id");int colId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FabricRollManagementMasterId");int colFabricRollManagementMasterId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sequence"); colSeq = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GRNRowId"); colGRNRowId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Color"); colColor = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LotNo"); colLotNo = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FabricType"); colFabricType = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FabricQuality"); colFabricQuality = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SupplierRollNo"); colSupplierRollNo = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OwnRollNo"); colOwnRollNo = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "QtyUoM"); colQtyUoM = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SupplierQty"); colSupplier = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ActualQty"); colActualQty = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "CutableWidth"); colCutableWidth = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OwnGSM"); colOwnGSM = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "StdGSM"); colStdGSM = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GSMVariation"); colGSMVariation = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GSMVariationPer", 16); colGSMVariationPer = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shade"); colShade = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShrinkageLengthWise", 20); colShrinkageLength = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShrinkageWidthWise", 20); colShrinkagewidth = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Dia", 10); colDia = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SupplierQualityGrade", 20); colSupplierQualityGrade = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "QualityStatus"); colQualityStatus = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FTPReportNo"); colFTPReportNo = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FTPReceiveDate"); colFTPReceiveDate = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FTPStatus"); colFTPStatus = xlsCol;
+                
+                endXlsCol = xlsCol;
+
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
+
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.LightYellow;
+
+                xlsRow++;
+
+                #endregion ------------------Column Header------------------
+
+                int endCol = xlsCol;
+                sheet1.Range[xlsRow, 1, xlsRow, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet1.Range[xlsRow, 1, xlsRow, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet1.Range[xlsRow, 1, xlsRow, endCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endCol].CellStyle.Font.Size = 9f;
+                sheet1.Range[xlsRow, 1, xlsRow, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                xlsRow++;
+
+                int startRow = xlsRow;
+                int LastRow = xlsRow + (data.Rows.Count - 1);
+
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet1[xlsRow, colId].Text = data.Rows[i]["Id"].ToString();
+                    sheet1[xlsRow, colFabricRollManagementMasterId].Text = data.Rows[i]["FabricRollManagementMasterId"].ToString();
+                    sheet1[xlsRow, colSeq].Text = data.Rows[i]["Sequence"].ToString();
+                    sheet1[xlsRow, colColor].Text = data.Rows[i]["Color"].ToString();
+                    sheet1[xlsRow, colLotNo].Text = data.Rows[i]["LotNo"].ToString();
+                    sheet1[xlsRow, colFabricType].Text = data.Rows[i]["FabricType"].ToString();
+                    sheet1[xlsRow, colFabricQuality].Text = data.Rows[i]["FabricQuality"].ToString();
+                    sheet1[xlsRow, colSupplierRollNo].Text = data.Rows[i]["SupplierRollNo"].ToString();
+                    sheet1[xlsRow, colOwnRollNo].Text = data.Rows[i]["OwnRollNo"].ToString();
+                    sheet1[xlsRow, colQtyUoM].Text = data.Rows[i]["QtyUoM"].ToString();
+                    sheet1[xlsRow, colSupplier].Number = clsStaticInfo.dbl(data.Rows[i]["SupplierQty"].ToString());
+
+                    sheet1[xlsRow, colActualQty].Number = clsStaticInfo.dbl(data.Rows[i]["ActualQty"].ToString());
+                    sheet1[xlsRow, colCutableWidth].Number = clsStaticInfo.dbl(data.Rows[i]["CutableWidth"].ToString());
+                    sheet1[xlsRow, colOwnGSM].Text = data.Rows[i]["OwnGSM"].ToString();
+                    sheet1[xlsRow, colStdGSM].Text = data.Rows[i]["StdGSM"].ToString();
+                    sheet1[xlsRow, colGSMVariation].Text = data.Rows[i]["GSMVariation"].ToString();
+                    sheet1[xlsRow, colGSMVariationPer].Text = data.Rows[i]["GSMVariationPer"].ToString();
+                    sheet1[xlsRow, colShade].Text = data.Rows[i]["Shade"].ToString();
+                    sheet1[xlsRow, colShrinkageLength].Number = clsStaticInfo.dbl(data.Rows[i]["ShrinkageLengthWise"].ToString());
+                    sheet1[xlsRow, colShrinkagewidth].Number = clsStaticInfo.dbl(data.Rows[i]["ShrinkageWidthWise"].ToString());
+                    sheet1[xlsRow, colActualQty].Number = clsStaticInfo.dbl(data.Rows[i]["ActualQty"].ToString());
+                    sheet1[xlsRow, colDia].Text = data.Rows[i]["Dia"].ToString();
+                    sheet1[xlsRow, colSupplierQualityGrade].Text = data.Rows[i]["SupplierQualityGrade"].ToString();
+                    sheet1[xlsRow, colQualityStatus].Text = data.Rows[i]["QualityStatus"].ToString();
+                    sheet1[xlsRow, colFTPReportNo].Text = data.Rows[i]["FTPReportNo"].ToString();
+                    sheet1[xlsRow, colFTPReceiveDate].Text = data.Rows[i]["FTPReceiveDate"].ToString();
+                    sheet1[xlsRow, colFTPStatus].Text = data.Rows[i]["FTPStatus"].ToString();
+
+                    sheet1.Range[xlsRow, 1, xlsRow, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, 1, xlsRow, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, 1, xlsRow, endCol].CellStyle.Font.Size = 8f;
+                    xlsRow++;
+
+                }
+
+               // sheet1.AutoFilters.FilterRange = sheet1.Range[startRow - 1, 1, xlsRow, endCol];
+                sheet1.UsedRange.WrapText = true;
+                sheet1.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet1.Range[startRow, 1, xlsRow, endCol].CellStyle.Font.Size = 8f;
+                sheet1["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet1, endCol, "Fabric Roll Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet1, 6, ExcelPageOrientation.Landscape);
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet1.UsedRange.WrapText = true;
+                sheet1.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet1.IsGridLinesVisible = false;
+
+                //sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+
+                //#endregion ******************Report Header******************
+
+                sheet1.PageSetup.TopMargin = 0.2;
+                sheet1.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet1.PageSetup.LeftMargin = 0.2;
+                sheet1.PageSetup.RightMargin = 0.2;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet1.PageSetup.FitToPagesTall = 0;
+                sheet1.PageSetup.FitToPagesWide = 1;
+                sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet1.PageSetup.CenterHorizontally = true;
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult ImportFabricData()
+        {
+            string path;
+            clsTemplateReadProfile objR = null;
+            try
+            {
+                objR = new clsTemplateReadProfile();
+                var file = Request.Files["file"];
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                SaveFiles(out path);
+                var data = ReadFabricData(identity.PlantId, path);
+                JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        public List<FabricRollGroupTemplate> ReadFabricData(string plantid, string path)
+        {
+            List<FabricRollGroupTemplate> data = null;
+            //string path = "";
+            DataSet dsExcel = null;
+            try
+            {
+                data = new List<FabricRollGroupTemplate>();
+                //SaveFile(out path);
+                ReadFabricFile(path, out dsExcel);
+                Validation(dsExcel, plantid);
+                data = dsExcel.Tables[0].ToList<FabricRollGroupTemplate>();
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void ReadFabricFile(string path, out DataSet dsExcel)
+        {
+            FileInfo docFile;
+            dsExcel = null;
+            try
+            {
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = excelEngine.Excel.Workbooks.Open(path);
+                //DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
+                DataTable dt = workbook.Worksheets[0].ExportDataTable(5, 1, 5000, 27, ExcelExportDataTableOptions.ColumnNames);
+                dt.DefaultView.RowFilter = "isnull(Sequence,'')<>''";
+                dt = dt.DefaultView.ToTable();
+               
+                dsExcel = new DataSet();
+                dsExcel.Tables.Add(dt);
+                docFile = new FileInfo(path);
+                if (docFile.Exists)
+                {
+                    //exception += "\r\nTrying to delete";
+                    docFile.Delete();
+                }
+            }
+            catch (Exception ex)
+            {
+                docFile = new FileInfo(path);
+                if (docFile.Exists)
+                {
+                    docFile.Delete();
+                }
+                throw (ex);
+            }
+        }
+
+
+
+
+
     }
 
 
     public class FabricRollTemplate
     {
-
         public string Sequence { get; set; }
         public string GRNRowId { get; set; }
         public string LotNo { get; set; }
@@ -1257,6 +1566,47 @@ namespace Aplos.Areas.Materials.Controllers
         public string ShrinkageLengthWise { get; set; }
         public string ShrinkageWidthWise { get; set; }
         //public string ShrinkageGroup { get; set; }
+        public string Dia { get; set; }
+        public string SupplierQualityGrade { get; set; }
+        public string QualityStatus { get; set; }
+        public string FTPReportNo { get; set; }
+        public string FTPReceiveDate { get; set; }
+        public string FTPStatus { get; set; }
+        //public string DimensionalChange3rdWash { get; set; }
+        //public string Spirality3rdWash { get; set; }
+        //public string PillingResistance { get; set; }
+        //public string BurstingStrength { get; set; }
+        //public string Absorbency { get; set; }
+        //public string pHValue { get; set; }
+        //public string Sewablity { get; set; }
+        //public string Handfeel { get; set; }
+
+    }
+
+    public class FabricRollGroupTemplate
+    {
+
+        public string Id { get; set; }
+        public string FabricRollManagementMasterId { get; set; }
+        public string Sequence { get; set; }
+        public string GRNRowId { get; set; }
+        public string LotNo { get; set; }
+        public string Color { get; set; }
+        public string FabricType { get; set; }
+        public string FabricQuality { get; set; }
+        public string SupplierRollNo { get; set; }
+        public string OwnRollNo { get; set; }
+        public string QtyUoM { get; set; }
+        public string SupplierQty { get; set; }
+        public string ActualQty { get; set; }
+        public string CutableWidth { get; set; }
+        public string OwnGSM { get; set; }
+        public string StdGSM { get; set; }
+        public string GSMVariation { get; set; }
+        public string GSMVariationPer { get; set; }
+        public string Shade { get; set; }
+        public string ShrinkageLengthWise { get; set; }
+        public string ShrinkageWidthWise { get; set; }
         public string Dia { get; set; }
         public string SupplierQualityGrade { get; set; }
         public string QualityStatus { get; set; }
