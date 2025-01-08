@@ -1,5 +1,6 @@
 ﻿using Library.Core;
 using Library.Crosscutting;
+using Library.Data;
 using Library.Data.Repositories;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
@@ -16095,6 +16096,357 @@ AND (E.EmployeeStatus='Active' OR Year(DOS) >= '" + objm.AYear + @"' AND MONTH(D
                 Errorlog.Remarks = ex.Message;
                 _mailLogRepository.Insert(Errorlog);
                 _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+
+        public void SendPendingBankReconciliationCreatedMail(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-PendingBankReconciliation",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.PendingBankReconciliation.ToString();
+                ExcelEngine excelEngine = null;
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+                    List<MailReceiverServiceMapping> mailServiceList = _sqlRepository.GetModelCollection<MailReceiverServiceMapping>("select * from scs.MailReceiverServiceMapping where CompanyGroupId='" + companyGroup.Id + @"' AND ServiceName='" + serviceName + @"'");
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+                                fileName += item.PlantId;
+                                string filePath = "";
+                                var errorMsg = "";
+                                excelEngine = new ExcelEngine();
+                                try
+                                {
+                                    ReportUtility ru = new ReportUtility();
+
+                                    IWorkbook workbook = GetBankReconciliationUploadedDataForMailReport(item.CompanyGroupId, item.CompanyId, item.PlantId,item.ServiceName);
+                                    workbook.Version = ExcelVersion.Excel2016;
+                                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, serviceName + DateTime.Now.ToString("dd-MMM-yyyy") + ".xlsx");
+                                    workbook.SaveAs(filePath);
+                                    workbook.Close();
+                                    excelEngine.Dispose();
+                                }
+                                catch (Exception ex)
+                                {
+                                    errorMsg = ex.Message;
+
+
+                                }
+
+
+                                var path = filePath;// _attendanceManagementService.GetIndividualDailyOT("",item.CompanyGroupId, item.PlantId,"","",DateTime.Now.ToString("dd-MMM-yyyy"),DateTime.Now.ToString(),"0","");
+
+
+                                if (!string.IsNullOrEmpty(path.ToString()))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path.ToString()));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                    finally
+                                    {
+                                        try
+                                        {
+                                            if (!string.IsNullOrEmpty(path.ToString()))
+                                                File.Delete(path);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            log.Remarks = serviceName + " - " + ex.Message;
+                                            //continue;
+
+                                        }
+                                        finally
+                                        {
+
+                                        }
+
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        public IWorkbook GetBankReconciliationUploadedDataForMailReport(string companyGroupId,string companyId, string plantId, string sheetHeader)
+        {
+            try
+            {
+                var excelEngine = new ExcelEngine();
+                var report = new ReportUtility();
+                var workbook = report.GetWorkbook(ref excelEngine, 1);
+                var sheet1 = workbook.Worksheets[0];
+                GetBankReconciliationUploadedDataForMailReportSheet(ref sheet1, report, sheetHeader, sheetHeader, companyId, plantId);
+                workbook.Version = ExcelVersion.Excel2013;
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        private void GetBankReconciliationUploadedDataForMailReportSheet(ref IWorksheet sheet, ReportUtility reportUtility, string sheetHeader, string sheetName, string companyId, string plantId)
+        {
+            //IEnumerable<BankReconciliationUploadedDataViewModel> dataList;
+            DataTable dataList = GetBankReconciliationUploadedDataForMail(companyId, plantId);
+
+
+            if (dataList.Rows.Count == 0) throw new Exception("No Data Found!");
+
+            var plantName = new DataView(_sqlRepository.GetDataTable(@"SELECT UserName from org.Plant WHERE Id='" + plantId + "'")).ToTable(true, "UserName").Rows[0]["UserName"].ToString();
+
+
+            var shet2EndxlsCol = 1;
+            var _row = 5;
+            var _rowL = _row;
+            var row = _row + 1;
+
+            #region Table
+
+            var headreColIndex = 1;
+
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Id", 24); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Date", 24); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Bank RefNo", 24); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Bank Particulars", 24); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Dr Amount", 24, ExcelHAlign.HAlignRight); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Cr Amount", 24, ExcelHAlign.HAlignRight); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Remarks", 24); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Own RefNo", 24); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Reconciliationed Status", 24); headreColIndex++;
+
+
+
+            shet2EndxlsCol = headreColIndex;
+            var Row_Total_Start = _rowL + 1;
+            double trnCurrencyAmount = 0;
+            double baseCurrencyAmount = 0;
+
+            for (int i = 0; i < dataList.Rows.Count; i++)
+            {
+                _rowL++;
+                reportUtility.SetText(ref sheet, _rowL, 1, dataList.Rows[i]["Id"].ToString());
+                reportUtility.SetText(ref sheet, _rowL, 2, dataList.Rows[i]["BankStatementDate"].ToString());
+                reportUtility.SetText(ref sheet, _rowL, 3, dataList.Rows[i]["BankRefNo"].ToString());
+                reportUtility.SetText(ref sheet, _rowL, 4, dataList.Rows[i]["BankParticulars"].ToString());
+                reportUtility.SetText(ref sheet, _rowL, 5, Convert.ToDouble(dataList.Rows[i]["DrAmount"].ToString()));
+                reportUtility.SetText(ref sheet, _rowL, 6, Convert.ToDouble(dataList.Rows[i]["CrAmount"].ToString()));
+                reportUtility.SetText(ref sheet, _rowL, 7, dataList.Rows[i]["Remarks"].ToString());
+                reportUtility.SetText(ref sheet, _rowL, 8, dataList.Rows[i]["OwnRefNo"].ToString());
+                reportUtility.SetText(ref sheet, _rowL, 9, dataList.Rows[i]["ReconciliationedStatus"].ToString());
+
+            }
+
+            _rowL++;
+            sheet.Range[_rowL, 1, _rowL, 4].Merge();
+            reportUtility.SetText(ref sheet, _rowL, 1, null, false);
+
+
+            sheet.Range[_rowL, 5].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(5) + Row_Total_Start + ":" + reportUtility.GetColumnNameForXls(5) + (_rowL - 1) + ")";
+            sheet.Range[_rowL, 5].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+            sheet.Range[_rowL, 5].CellStyle.Font.Bold = true;
+            sheet.Range[_rowL, 5].BorderAround(ExcelLineStyle.Hair);
+
+            sheet.Range[_rowL, 6].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(6) + Row_Total_Start + ":" + reportUtility.GetColumnNameForXls(6) + (_rowL - 1) + ")";
+            sheet.Range[_rowL, 6].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+            sheet.Range[_rowL, 6].CellStyle.Font.Bold = true;
+            sheet.Range[_rowL, 6].BorderAround(ExcelLineStyle.Hair);
+
+
+            #endregion
+
+            sheet.Range[(row), 1, _rowL, shet2EndxlsCol - 1].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[(row), 1, _rowL, shet2EndxlsCol - 1].BorderAround(ExcelLineStyle.Hair);
+
+            _rowL++;
+
+
+            sheet.Name = sheetName;
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+            reportUtility.CompanyPlantHeader(ref sheet, shet2EndxlsCol, sheetHeader, companyId, plantId, plantName, null);
+            reportUtility.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+
+        }
+        private DataTable GetBankReconciliationUploadedDataForMail(string companyId, string plantId)
+        {
+            try
+            {
+                var sql = @"SELECT Id,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  BankStatementDate, BankRefNo, BankParticulars, DrAmount, CrAmount, Remarks, OwnRefNo
+                            ,CASE WHEN (select count(BankReconciliationUploadedDataId) from TRN.BankReconciliationMap where BankReconciliationUploadedDataId= BRUD.Id)>0 THEN 'Yes' ELSE 'No' END ReconciliationedStatus
+                            FROM TRN.BankReconciliationUploadedData BRUD
+                            where   (select count(BankReconciliationUploadedDataId) from TRN.BankReconciliationMap where BankReconciliationUploadedDataId= BRUD.Id)=0";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (CustomException)
+            {
                 throw;
             }
         }

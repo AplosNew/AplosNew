@@ -698,7 +698,7 @@ namespace Library.MaterialManagement.Inventory
                                             _GRNBinAllocationMapRepository.Insert(grnbinAlloObj);
                                         }
                                     }
-
+                                   
 
                                     int rejectDetailId = 1;
                                     var RejectionDetails = new GRNRejectionDetails
@@ -727,11 +727,11 @@ namespace Library.MaterialManagement.Inventory
                                 }
                                 catch (DivideByZeroException )
                                 {
-
+                                    
                                 }
                             }
                         }
-
+                        
                         // insert in receive tax
                         if (itemDetail.PurchaseDocumentAcceptanceId == null && itemDetail.PurchaseDocumentAcceptanceDetailId == null)
                         {
