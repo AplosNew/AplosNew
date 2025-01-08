@@ -80,9 +80,9 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult PostCreditNote(string adjustmentNoteId)
+        public JsonResult PostCreditNote(string adjustmentNoteId, string entityId, string voucherId)
         {
-            _adjustmentNoteService.Post(adjustmentNoteId);
+            _adjustmentNoteService.Post(adjustmentNoteId, entityId, voucherId);
             return Json(new { Message = AplosMessage.Posted });
         }
 
@@ -149,9 +149,9 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult PostDebitNote(string adjustmentNoteId)
+        public JsonResult PostDebitNote(string adjustmentNoteId, string entityId, string voucherId)
         {
-            _adjustmentNoteService.Post(adjustmentNoteId);
+            _adjustmentNoteService.Post(adjustmentNoteId, entityId, voucherId);
             return Json(new { Message = AplosMessage.Posted });
         }
 
