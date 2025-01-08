@@ -361,6 +361,7 @@ namespace Library.Service.Invoices
                                     GLGeneralInfoId = invoiceTaxDetail.GLGeneralInfoId,
                                     BudgetMasterId = invoiceTaxDetail.BudgetMasterId,
                                     ActivityId = invoiceTaxDetail.ActivityId,
+                                    InvoiceTaxDetailId = invoiceTaxDetail.Id,
                                     CurrencyId = voucherDetaiSales.CurrencyId,
                                     DrAmount = invoiceTaxDetail.Amount,
                                     PostingWithoutTaxAllow = voucherDetaiSales.PostingWithoutTaxAllow
@@ -530,6 +531,7 @@ namespace Library.Service.Invoices
                                     GLGeneralInfoId = invoiceTaxDetail.GLGeneralInfoId,
                                     BudgetMasterId = invoiceTaxDetail.BudgetMasterId,
                                     ActivityId = invoiceTaxDetail.ActivityId,
+                                    InvoiceTaxDetailId = invoiceTaxDetail.Id,
                                     CurrencyId = voucherDetaiSales.CurrencyId,
                                     CrAmount = invoiceTaxDetail.Amount,
                                     PostingWithoutTaxAllow = voucherDetaiSales.PostingWithoutTaxAllow
@@ -1155,6 +1157,7 @@ namespace Library.Service.Invoices
                                     GLGeneralInfoId = invoiceTaxDetail.GLGeneralInfoId,
                                     BudgetMasterId = invoiceTaxDetail.BudgetMasterId,
                                     ActivityId = invoiceTaxDetail.ActivityId,
+                                    InvoiceTaxDetailId = invoiceTaxDetail.Id,
                                     CurrencyId = voucher.CurrencyId,
                                     CrAmount = invoiceTaxDetail.Amount,
                                     PostingWithoutTaxAllow = voucherDetaiSales.PostingWithoutTaxAllow
@@ -1325,6 +1328,7 @@ namespace Library.Service.Invoices
                                     GLGeneralInfoId = invoiceTaxDetail.GLGeneralInfoId,
                                     BudgetMasterId = invoiceTaxDetail.BudgetMasterId,
                                     ActivityId = invoiceTaxDetail.ActivityId,
+                                    InvoiceTaxDetailId = invoiceTaxDetail.Id,
                                     CurrencyId = voucherDetaiSales.CurrencyId,
                                     DrAmount = invoiceTaxDetail.Amount,
                                     PostingWithoutTaxAllow = voucherDetaiSales.PostingWithoutTaxAllow

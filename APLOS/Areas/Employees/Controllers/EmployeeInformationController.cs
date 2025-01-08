@@ -1481,11 +1481,11 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         [HttpGet]
-        public ActionResult EmpRegisterInfo()
+        public ActionResult EmpRegisterInfo(string radioValue)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var fileName = "Employee Register Information" + DateTime.Now.ToString("ddMMMyyyy") + "";
-            var workbook = _employeeProfileService.EmpRegisterReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+            var workbook = _employeeProfileService.EmpRegisterReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, radioValue);
             workbook.SaveAs(fileName + ".xlsx", HttpContext.ApplicationInstance.Response, ExcelDownloadType.PromptDialog);
             return null;
         }

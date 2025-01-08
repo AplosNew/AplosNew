@@ -13,6 +13,32 @@
                 <input type="text" name="To Date" ng-model="report.ToDate" datepicker class="form-control" required tabindex="6">
             </div>
         </div>
+        <div class="form-group" show-errors id="div_PartyType">
+            <label class="col-sm-3 control-label">Party Type<sup>*</sup></label>
+            <div class="col-sm-9 show-message">
+                <div class="select-style">
+                    <select name="Party Type" class="form-control" submit-required="true" ng-model="report.PartyType" required>
+                        <option label="Both" value="Party" selected="selected">Both</option>
+                        <option label="Customer" value="Customer">Customer</option>
+                        <option label="Vendor" value="Vendor">Vendor</option>
+
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors id="div_NoteType">
+            <label class="col-sm-3 control-label">Note Type<sup>*</sup></label>
+            <div class="col-sm-9 show-message">
+                <div class="select-style">
+                    <select name="Note Type" class="form-control" submit-required="true" ng-model="report.NoteType" required>
+                        <option label="Both" value="Both" selected="selected">Both</option>
+                        <option label="DebitNote" value="DebitNote">DebitNote</option>
+                        <option label="CreditNote" value="CreditNote">CreditNote</option>
+
+                    </select>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="common-btn">
         <ul class="list-inline text-left">

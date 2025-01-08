@@ -1785,7 +1785,35 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
         {
             try
             {
-                string _sql = @"Select * from [BPDT].[FabricRollManagementChild] Where FabricRollManagementMasterId='" + FabricRollManagementMasterId + "' Order By Sequence";
+                string _sql = @"Select * from [BPDT].[FabricRollManagementChild] Where FabricRollManagementMasterId='" + FabricRollManagementMasterId + @"' Order By Sequence";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetFabricRollChildPendingList(string FabricRollManagementMasterId)
+        {
+            try
+            {
+                string _sql = @"Select * from [BPDT].[FabricRollManagementChild] Where FabricRollManagementMasterId='" + FabricRollManagementMasterId + @"' AND ISNULL(CutableWidth,0)=0 AND ISNULL(Shade,'')=''
+ AND ISNULL(ShrinkageLengthWise,0)= 0 AND ISNULL(ShrinkageWidthWise,0)= 0 Order By Sequence";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetFabricRollChildConfirmList(string FabricRollManagementMasterId)
+        {
+            try
+            {
+                string _sql = @"Select * from [BPDT].[FabricRollManagementChild] Where FabricRollManagementMasterId='" + FabricRollManagementMasterId + @"' AND ISNULL(CutableWidth,0)<>0 AND ISNULL(Shade,'')<>''
+ AND ISNULL(ShrinkageLengthWise,0)<>0 AND ISNULL(ShrinkageWidthWise,0)<>0 Order By Sequence";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
             catch (Exception ex)
@@ -1798,10 +1826,28 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
         {
             try
             {
-                string _sql = @"SELECT M.*,PE.EmployeeName PreparedBy,CE.EmployeeName CheckedBy FROM [BPDT].[FabricRollManagementMaster] M
+                string _sql = @"SELECT M.*,PE.EmployeeName PreparedBy,CE.EmployeeName CheckedBy,FORMAT(m.GRNDate,'dd-MMM-yyyy') GDate,RollNo=(SELECT Count(Id) FROM BPDT.FabricRollManagementChild Where FabricRollManagementMasterId=M.Id Group By FabricRollManagementMasterId) FROM [BPDT].[FabricRollManagementMaster] M
 LEFT JOIN dbo.EmployeeInformation PE on PE.SystemId=M.PreparedById
 LEFT JOIN dbo.EmployeeInformation CE on CE.SystemId=M.CheckedById
- Where M.PlantId='" + PlantId + "' AND ISNULL(M.IsChecked,0)=0 Order By M.GRNId, M.AddedDate desc";
+ Where M.PlantId='" + PlantId + @"' AND M.Id IN(Select FabricRollManagementMasterId From BPDT.FabricRollManagementChild Where ISNULL(CutableWidth,0)=0 AND ISNULL(Shade,'')=''
+ AND ISNULL(ShrinkageLengthWise,0)= 0 AND ISNULL(ShrinkageWidthWise,0)= 0) Order By M.GRNId, M.AddedDate desc";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetFabricRollMasterConfirmDataList(string PlantId)
+        {
+            try
+            {
+                string _sql = @"SELECT M.*,PE.EmployeeName PreparedBy,CE.EmployeeName CheckedBy,FORMAT(m.GRNDate,'dd-MMM-yyyy') GDate,RollNo=(SELECT Count(Id) FROM BPDT.FabricRollManagementChild Where FabricRollManagementMasterId=M.Id Group By FabricRollManagementMasterId) FROM [BPDT].[FabricRollManagementMaster] M
+LEFT JOIN dbo.EmployeeInformation PE on PE.SystemId=M.PreparedById
+LEFT JOIN dbo.EmployeeInformation CE on CE.SystemId=M.CheckedById
+ Where M.PlantId='" + PlantId + @"' AND M.Id IN(Select FabricRollManagementMasterId From BPDT.FabricRollManagementChild Where ISNULL(CutableWidth,0)<>0 AND ISNULL(Shade,'')<>''
+ AND ISNULL(ShrinkageLengthWise,0)<>0 AND ISNULL(ShrinkageWidthWise,0)<>0) AND ISNULL(M.IsConfirm,0)=0 Order By M.GRNId, M.AddedDate desc";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
             catch (Exception ex)
