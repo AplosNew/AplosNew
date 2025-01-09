@@ -258,6 +258,7 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
 
     $scope.Clear = function () {
         $scope.Action = "Save";
+        $scope.actionIsDisable = false;
         $scope.voucher.VoucherId = null;
         $scope.voucher.Active = true;
         $scope.voucher.Narration = null;
@@ -280,11 +281,13 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
         }
         return false;
     }
+    $scope.actionIsDisable = false;
     $scope.save = function () {
         $scope.$broadcast("show-errors-check-validity");
         $scope.checkDocDate();
         $scope.checkPostingDate();
-        if ($scope.form0.$valid && !$scope.invalidDocDate && !$scope.invalidPostingDate && !$scope.validation() ) {
+        if ($scope.form0.$valid && !$scope.invalidDocDate && !$scope.invalidPostingDate && !$scope.validation()) {
+            $scope.actionIsDisable = true;
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",
@@ -296,14 +299,17 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
                     dataType: "JSON"
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
+                        $scope.actionIsDisable = false;
                         ShowResult(response.data.Message, "failure");
                     }
                     else {
+                        $scope.actionIsDisable = false;
                         ShowResult(response.data.Message, "success");
                         $scope.getData();
                         $scope.Clear();
                     }
                 }, function errorCallback(response) {
+                    $scope.actionIsDisable = false;
                     ShowResult(response.status.Message, "failure");
                 });
                 return true;
@@ -334,28 +340,55 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
         }
     };
 
+    $scope.voucher_Post = {
+        Id: null,
+        EntityId: null,
+        CurrencyId: null,
+        CurrencyCode: null,
+        VoucherNo: null,
+        PostingDate: null,
+        DocDate: null,
+        DocRefNo: null,
+        Narration: null,
+        Amount: null
+    };
+
     $scope.advanceId = null;
+    $scope.EntityId_Post = null;
+    $scope.voucherId = null;
     $scope.confirmPost = function (advanceId,data) {
         if (data.ApprovedByStatus == 'ToBeApproved' || data.ApprovedByStatus == 'Hold' || data.ApprovedByStatus == 'Reject') {
             ShowResult("Before Post, Please Approve First. Mr." + data.ApprovedBy + " is responsible for Approve", "failure");
         }
         $scope.advanceId = advanceId;
         $scope.ApprovedByStatus = data.ApprovedByStatus;
+        $scope.EntityId_Post = data.EntityId;
+        $scope.voucherId = data.VoucherId;
+        $scope.voucher_Post = data;
+        angular.element(document.querySelector('#PostPopUp')).modal('show');
 
-        $scope.message_confirmation = "Are you sure to Post?";
-        angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
+        //$scope.message_confirmation = "Are you sure to Post?";
+        //angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
     };
 
-    $scope.post = function (id) {
+    $scope.closePostPopUp = function () {
+        angular.element(document.querySelector("#PostPopUp")).modal("hide");
+    };
+
+    $scope.post = function () {
         if ($scope.ApprovedByStatus == 'ToBeApproved' || $scope.ApprovedByStatus == 'Hold' || $scope.ApprovedByStatus == 'Reject') {
             ShowResult("Before Post, Please Approve First!!", "failure");
+        } else if ($scope.EntityId_Post == null || $scope.EntityId_Post == "" || $scope.EntityId_Post == undefined) {
+            ShowResult("Please select Entity First!!", "failure");
         }
         else {
             $http({
                 method: "POST",
                 url: $scope.postUrl,
                 data: {
-                    "id": id
+                    "id": $scope.advanceId,
+                    "entityId": $scope.EntityId_Post,
+                    "voucherId": $scope.voucherId
                 },
                 dataType: "JSON"
             }).then(function successCallback(response) {
@@ -363,9 +396,11 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
                     ShowResult(response.data.Message, "failure");
                 }
                 else {
+                    $scope.closePostPopUp();
                     ShowResult(response.data.Message, "success");
                     $scope.getData();
                     $scope.clear();
+                    
                 }
             }, function errorCallback(response) {
                 ShowResult(response.status.Message, "failure");

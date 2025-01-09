@@ -350,6 +350,7 @@
                 <th>Posting Date</th>
                 <th>Doc Ref No</th>
                 <th>Party Type</th>
+                <th>Entity</th>
                 <th>Currency</th>
                 <th>Amount</th>
                 <th>Status</th>
@@ -363,12 +364,13 @@
                 <td>{{x.PostingDate| dateFiltering}}</td>
                 <td>{{x.DocRefNo}}</td>
                 <td>{{x.PartyType}}</td>
+                <td>{{x.EntityName}}</td>
                 <td>{{x.CurrencyCode}}</td>
                 <td class="text-right">{{x.Amount | number:2}}</td>
                 <td>{{x.IsPark?'Parked':'Posted'}}</td>
                 <td class="text-right">
                     <ul class="list-inline action-list">
-                        <li ng-show="x.IsPark"><a ng-click="confirmPost(x.Id);" href="" class="btn btn-action tooltip-here">Post</a></li>
+                        <li ng-show="x.IsPark"><a ng-click="confirmPost(x.Id,x);" href="" class="btn btn-action tooltip-here">Post</a></li>
                         <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
                         <li><a class="btn btn-action" href="Accounts/AdjustmentNote/GetDebitNoteReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
                         <li><a class="btn btn-action" href="Accounts/AdjustmentNote/GetDebitNoteReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
@@ -390,10 +392,11 @@
 @Html.Partial("~/Areas/Accounts/Views/_OutBoundInvoicePopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_MasterOrderPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_ContractPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_PostPopUp.cshtml")
 
 <toaster-container toaster-options="{'close-button':true, 'animation-class': 'toast-top-center'}"></toaster-container>
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(adjustmentNoteId,voucherId)"></confirm-archive-generic>
-<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(adjustmentNoteId)"></confirm-archive-generic>
+@*<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(adjustmentNoteId)"></confirm-archive-generic>*@
 <confirm-archive-generic modalid="confirmTaxCodeDelPopUp" title="Confirmation" message={{Taxmessage_confirmation}} data-ng-click-right-button="removeTaxCodeRow()"></confirm-archive-generic>
 <confirm-archive-generic modalid="DeleteConfirmationPopUp" title="Confirmation" message={{message_conf}} data-ng-click-right-button="RemoveInvoice()"></confirm-archive-generic>
 <confirm-archive-generic modalid="DeleteOutBoundConfirmationPopUp" title="Confirmation" message={{message_conf}} data-ng-click-right-button="RemoveOutBoundInvoice()"></confirm-archive-generic>

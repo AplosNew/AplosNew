@@ -232,5 +232,12 @@ namespace Aplos.Areas.Setups.Controllers
             _mailSenderService.SendControlChart("TS", "TS", "10215");
             return Json(new { Message = AplosMessage.Success });
         }//SaveScandataToBookingforPacking 
+
+        [HttpPost, Authorize]
+        public JsonResult SavePendingBankReconciliation()
+        {
+            _mailSenderService.SendPendingBankReconciliationCreatedMail("TS", "TS", "10215");
+            return Json(new { Message = AplosMessage.Success });
+        }//SaveScandataToBookingforPacking 
     }
 }

@@ -3,6 +3,7 @@ using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
+using Library.Data.Sql;
 using Library.Model.Banks;
 using Library.Model.Enums;
 using Library.Model.Expenses;
@@ -23,17 +24,20 @@ namespace Aplos.Areas.Banks.Controllers
         private readonly IBankJournalService _bankJournalService;
         private readonly IVoucherReportService _voucherReportService;
         private readonly IExpenseBookingService _expenseBookingService;
+        private readonly ISqlRepository _sqlRepository;
 
         public CashJournalController(
             ICashJournalService cashJournalService
             , IVoucherReportService voucherReportService
-            , IExpenseBookingService expenseBookingService,
-            IBankJournalService bankJournalService)
+            , IExpenseBookingService expenseBookingService
+            , ISqlRepository sqlRepository
+            ,IBankJournalService bankJournalService)
         {
             _cashJournalService = cashJournalService;
             _voucherReportService = voucherReportService;
             _expenseBookingService = expenseBookingService;
             _bankJournalService = bankJournalService;
+            _sqlRepository = sqlRepository;
         }
 
         [HttpGet]
@@ -114,11 +118,19 @@ namespace Aplos.Areas.Banks.Controllers
         }
 
         [HttpPost]
-        public JsonResult PostCashJournal(string id)
+        public JsonResult PostCashJournal(string id, string entityId, string voucherId)
         {
             if (string.IsNullOrEmpty(id))
                 throw new CustomException(Resources.IdNotFound);
             _cashJournalService.PostCashJournal(id);
+            var inDirect = new System.Text.StringBuilder();
+            var inDirectsql = "";
+
+            inDirectsql = @"update [TRN].[Voucher] set EntityId='" + entityId + @"' where Id='" + voucherId + @"'
+                            update [TRN].[VoucherDetail]  set EntityId='" + entityId + @"' where VoucherId='" + voucherId + @"' 
+                            update [TRN].[BankJournal]  set EntityId='" + entityId + @"' where VoucherId='" + voucherId + @"' ";
+            inDirect.Append(inDirectsql);
+            _sqlRepository.ExecuteSqlCommand(inDirect.ToString());
             return Json(new { Message = AplosMessage.Posted });
         }
 
