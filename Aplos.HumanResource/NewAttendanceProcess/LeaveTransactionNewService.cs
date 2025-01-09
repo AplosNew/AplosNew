@@ -542,11 +542,11 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                                          --ltd.IsProrataPreviousyear,
                                          ltd.IsProratacurrentyear
                                        ,DaysCanBeSanctioned=ISNULL(case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
-																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.CurrentYearAllocation,0))/100
-																   else Isnull(els.CurrentYearAllocation,0) END,0)
+																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
+																   else Isnull(els.DaysCanBeSanctioned,0) END,0)
 ,CurrentAllocationDCBS= case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
-																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.CurrentYearAllocation,0))/100
-																   else Isnull(els.CurrentYearAllocation,0) END
+																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
+																   else Isnull(els.DaysCanBeSanctioned,0) END
 
                                         ,els.EncashedInbetween
                                         ,ltd.IsAvailExceptionAllowedOnSpecialAppeal,
@@ -556,7 +556,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                                          --ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) BroughtForward,
                                          BroughtForward=CASE WHEN els.IsEncashed =1 THEN ISNULL(els.CarryForward, 0)+ISNULL(els.EncashedInbetween, 0) ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END,                                        
 
-                                         LeaveDays=ISNULL(els.CurrentYearAllocation, 0),
+                                         LeaveDays=ISNULL(els.DaysCanBeSanctioned, 0),
 										 --applied +applied ob
                                          ISNULL(ltrn.ldays, 0)+isnull(CurrentYearAvailedOpeningBalance,0) Applied,
 										 --(ISNULL(tav.av, 0)+ ISNULL(acApl.ldays,0)) Applied,
@@ -589,8 +589,8 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                                             ELSE CONVERT(BIT,0) END  ---No
                                             ,Earned=CAST (0 AS decimal(18,2))
 ,Balance=(case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
-																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.CurrentYearAllocation,0))/100
-																   else Isnull(els.CurrentYearAllocation,0) END)-ISNULL(tav.av, 0)+isnull(CurrentYearAvailedOpeningBalance,0)
+																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
+																   else Isnull(els.DaysCanBeSanctioned,0) END)-ISNULL(tav.av, 0)+isnull(CurrentYearAvailedOpeningBalance,0)
                                             ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -779,11 +779,11 @@ Where A.EmployeeId='" + EmpSystemID + "'"
                                          ltd.SystemID LvPolDetailsSystemID
                                          ,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear
                                      ,DaysCanBeSanctioned= ISNULL(case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
-																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.CurrentYearAllocation,0))/100
-																   else Isnull(els.CurrentYearAllocation,0) END,0)
+																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
+																   else Isnull(els.DaysCanBeSanctioned,0) END,0)
 ,CurrentAllocationDCBS=case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
-																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.CurrentYearAllocation,0))/100
-																   else Isnull(els.CurrentYearAllocation,0) END
+																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
+																   else Isnull(els.DaysCanBeSanctioned,0) END
 										,els.EncashedInbetween
                                          ,CAST (ISNULL(ltd.IsAvailExceptionAllowedOnSpecialAppeal,0) AS BIT)IsAvailExceptionAllowedOnSpecialAppeal,
                                         CurrentAllocation=ISNULL(els.CurrentYearAllocation, 0),
@@ -798,7 +798,7 @@ Where A.EmployeeId='" + EmpSystemID + "'"
 										  --ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END,
 
 
-                                         ISNULL(els.CurrentYearAllocation, 0) LeaveDays,
+                                         ISNULL(els.DaysCanBeSanctioned, 0) LeaveDays,
 -- LeaveDays=ISNULL(CASE WHEN LT.LeaveType='Earn' THEN ALD.Opening ELSE ISNULL(els.DaysCanBeSanctioned, 0) END,0),
 										 --applied +applied ob
                                          ISNULL(ltrn.ldays, 0)+isnull(CurrentYearAvailedOpeningBalance,0) Applied,
@@ -833,8 +833,8 @@ Where A.EmployeeId='" + EmpSystemID + "'"
 ELSE CONVERT(BIT,0) END  ---No
 ,Earned=CAST (0 AS decimal(18,2))
 ,Balance=(case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
-																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.CurrentYearAllocation,0))/100
-																   else Isnull(els.CurrentYearAllocation,0) END)-ISNULL(tav.av, 0)+isnull(CurrentYearAvailedOpeningBalance,0)
+																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
+																   else Isnull(els.DaysCanBeSanctioned,0) END)-ISNULL(tav.av, 0)+isnull(CurrentYearAvailedOpeningBalance,0)
 ----------------------------------------------------------------------------------------------------------------------
                                           FROM (    select S.* from trn.EmployeeLeaveSummary S
                                                         LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=s.EmployeeId
