@@ -791,6 +791,8 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
 
+
+
         #region VCehicle
         public string PostVehicleRequisition([FromBody] IEnumerable<Vehicle> DataToSave)
         {
@@ -1708,5 +1710,21 @@ namespace Aplos.Controllers.ApopAPIHR
         }
 
         #endregion Addinfo
+
+        #region Auburn
+        public string PostPacketScanData([FromBody] IEnumerable<PacketScanData> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostPacketScanData(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+        #endregion Auburn
     }
 }
