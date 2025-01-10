@@ -179,7 +179,7 @@ namespace Aplos.Areas.Banks.Controllers
             return Json(new { Message = AplosMessage.Insert });
         }
         [HttpGet, Authorize]
-        public ActionResult CRReconcileReport(string BankMasterID,string fromDate,string toDate)
+        public ActionResult CRReconcileReport(string BankMasterID, string fromDate, string toDate)
         {
             try
             {
@@ -193,7 +193,7 @@ namespace Aplos.Areas.Banks.Controllers
             }
         }
         [HttpGet, Authorize]
-        public ActionResult DRReconcileReport(string BankMasterID, string fromDate, string toDate,string cutOffDate)
+        public ActionResult DRReconcileReport(string BankMasterID, string fromDate, string toDate, string cutOffDate)
         {
             try
             {
@@ -330,7 +330,7 @@ namespace Aplos.Areas.Banks.Controllers
                                 vm.Remarks = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
                                 vm.OwnRefNo = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
                                 data.Add(vm);
-                                
+
                             }
                         }
                         else
@@ -442,7 +442,7 @@ namespace Aplos.Areas.Banks.Controllers
         {
             AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(accountsBankReconcilliationService.GetAvailableBankReconciliationUploadedDataList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId,bankMasterId,fromDate,toDate), JsonRequestBehavior.AllowGet);
+            return Json(accountsBankReconcilliationService.GetAvailableBankReconciliationUploadedDataList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, bankMasterId, fromDate, toDate), JsonRequestBehavior.AllowGet);
         }
         [HttpPost, Authorize]
         public ActionResult GetAvailableBankReconciliationUploadedDrDataList(string bankMasterId, DateTime fromDate, DateTime toDate)
@@ -510,6 +510,29 @@ namespace Aplos.Areas.Banks.Controllers
             return jsondata;
 
         }
+
+        [HttpGet, Authorize]
+        public ActionResult GetBankReconciliationUploadedDataForMailReport(ReportFormat reportFormat)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                var reportFileName = "BankReconciliationUploadData";
+                AccountsInventoryPayableReportService accountsInventoryPayableReportService = new AccountsInventoryPayableReportService(_sqlRepository);
+                IWorkbook workbook = accountsInventoryPayableReportService.GetBankReconciliationUploadedDataForMailReport(identity.CompanyId, identity.PlantId, reportFileName);
+
+                string strFileName = "BankReconciliationUploadData.xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+            }
+            catch (CustomException ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+            }
+            return null;
+        }
+
         #endregion Operation
 
         #region Bank Reconciliation Closing
@@ -546,7 +569,7 @@ namespace Aplos.Areas.Banks.Controllers
         [Authorize]
         public ActionResult BankSettlementCustomerAdvance()
         {
-            return View("~/Areas/Banks/Views/BankSettlementReco/BankSettlementCustomerAdvance.cshtml"); 
+            return View("~/Areas/Banks/Views/BankSettlementReco/BankSettlementCustomerAdvance.cshtml");
         }
         [Authorize]
         public ActionResult BankSettlementCustomerReceipt()
@@ -631,12 +654,12 @@ namespace Aplos.Areas.Banks.Controllers
             advanceVM.IsPark = true;
             if (advanceVM.CurrencyId == null)
                 throw new CustomException("Please Select Currency !");
-            if ( (advanceVM.Amount < 0 || advanceVM.Amount == 0))
+            if ((advanceVM.Amount < 0 || advanceVM.Amount == 0))
                 throw new CustomException("Please Input Amount !");
             advanceVM.SourceType = SourceType.CustomerAdvance.ToString();
             advanceVM.PartyType = PartyType.Customer.ToString();
-           
-                return Json(new { Message = string.Format(AplosMessage.VoucherSave, accountsBankReconcilliationService.InsertCustomerAdvance(advanceVM, advanceDetailVMList)) });
+
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, accountsBankReconcilliationService.InsertCustomerAdvance(advanceVM, advanceDetailVMList)) });
         }
         #endregion
     }

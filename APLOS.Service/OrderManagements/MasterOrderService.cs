@@ -282,7 +282,7 @@ namespace Library.Service.OrderManagements
 															INNER JOIN trn.SalesOrder XSO  ON XSO.ContractId=CNT.Id	  
 															INNER JOIN trn.MasterOrderItem XMOI  ON XMOI.Id=XSO.MasterOrderItemId
 															LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CNT.MasterLCId	  
-							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),CP.PaymentTermId DefaultPaymentTermId,RC.Process RemarksControl,URC.RemarkControlId,FORMAT(A.BaseOnDueDate,'dd-MMM-yyyy')BaseOnDueDate,FORMAT(A.MatureDate,'dd-MMM-yyyy')MatureDate
+							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),CP.PaymentTermId DefaultPaymentTermId,RC.Process RemarksControl,URC.RemarkControlId,FORMAT(A.BaseOnDueDate,'dd-MMM-yyyy')BaseOnDueDate,FORMAT(A.MatureDate,'dd-MMM-yyyy')MatureDate,ISNULL(CP.IsBillDiscountingDays,0)IsBillDiscountingDays
                             FROM [TRN].[MasterOrder] AS A
                             JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
                             LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=A.PartyId AND CP.PartyType='Customer' AND CP.PlantId=A.PlantId
@@ -846,7 +846,7 @@ Where SO.CheckByStatus = 'Checked' AND ApprovedStatus = 'To Be Approve' AND SO.A
                             ,(SELECT ISNULL(sum(Qty),0) FROM TRN.FirstCharacteristics AS FCS WHERE SO.Id= FCS.SalesOrderId) SKUQty
                             , isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id)
                             ,ISNULL(POD.ProductionOrderId,'') ProductionOrderId,SO.Reason,SO.Description,SO.CM,SO.SalesOrderYear,SO.WeekNo
-                            ,SO.ProductionBookedQty,SO.ProductionBookingLevel,SO.SalesExpense,SO.CM,SO.DirectMaterialCost,SO.DirectProcessCost,SO.Commission,SO.ValueLoss,SO.Other,SO.StockResponsiblePersonId,SO.ShipmentFromStock,SO.ProductionType,SEMP.EmployeeName StockResponsiblePerson,SO.PackingTypeId,PT.UserName PackingType,SO.ContractId,C.ContractNo,SO.CheckByDate,SO.CheckByStatus,SO.ApproveBy,SO.ApproveByDate,SO.ApprovedStatus,SO.DeliveryGroup
+                            ,SO.ProductionBookedQty,SO.ProductionBookingLevel,SO.SalesExpense,SO.CM,SO.DirectMaterialCost,SO.DirectProcessCost,SO.Commission,SO.ValueLoss,SO.Other,SO.StockResponsiblePersonId,SO.ShipmentFromStock,SO.ProductionType,SEMP.EmployeeName StockResponsiblePerson,SO.PackingTypeId,PT.UserName PackingType,SO.ContractId,C.ContractNo,SO.CheckByDate,SO.CheckByStatus,SO.ApproveBy,SO.ApproveByDate,SO.ApprovedStatus,SO.DeliveryGroup,FORMAT(PO.PODate,'dd-MMM-yyyy')PODate
                     FROM [TRN].[SalesOrder] AS SO
                    -- LEFT JOIN TRN.FirstCharacteristics SKU ON SKU.SalesOrderId=SO.Id
                     JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id

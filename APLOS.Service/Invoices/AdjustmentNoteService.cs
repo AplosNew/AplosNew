@@ -112,11 +112,13 @@ namespace Library.Service.Invoices
                                 ,IsExpenseDistribution=CASE WHEN ISNULL((select COUNT(ID.Id) from TRN.InvoiceDetailCharges ID
 										INNER JOIN TRN.VoucherDetail VD ON VD.Id=ID.VoucherDetailId
 										WHERE VD.VoucherId=A.VoucherId),0)>0 THEN 1 ELSE 0 END
+                                ,E.UserName EntityName,V.EntityId,V.Narration
                                 FROM [TRN].[AdjustmentNote] AS A
                                 LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
                                 LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=A.PartyPlantId
                                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
                                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
+                                LEFT JOIN [ORG].[Entity] AS E ON E.Id=V.EntityId
                                 WHERE A.Archive=0 AND V.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + "' AND A.SourceType='" + sourceType + "'";
             return _sqlRepository.GetGridData(parameters);
         }
@@ -186,7 +188,7 @@ namespace Library.Service.Invoices
                         foreach (var item in invoiceDetailChargesList.Where(r => r.GLGeneralInfoId == voucherDetailVM.GLGeneralInfoId && r.BudgetMasterId == voucherDetailVM.BudgetMasterId && r.ActivityId == voucherDetailVM.ActivityId))
                         {
 
-                            if (CheckInvoiceDetailActivity(item.InvoiceDetailId, item.ActivityId) == true)
+                            if (CheckInvoiceDetailActivity(item.InvoiceDetailId, item.ActivityId,voucher.SourceType) == true)
                                 throw new CustomException("InvoiceDetailId " + item.InvoiceDetailId + " and Activity " + voucherDetailVM.ActivityName + " already distributed!");
 
                             var invoiceDetailChargesId = base.GetAutoNumber(nameof(InvoiceDetailCharges), PKGeneratorEnum.Yearly, null, DateTime.Now);
@@ -361,6 +363,7 @@ namespace Library.Service.Invoices
                                     GLGeneralInfoId = invoiceTaxDetail.GLGeneralInfoId,
                                     BudgetMasterId = invoiceTaxDetail.BudgetMasterId,
                                     ActivityId = invoiceTaxDetail.ActivityId,
+                                    InvoiceTaxDetailId = invoiceTaxDetail.Id,
                                     CurrencyId = voucherDetaiSales.CurrencyId,
                                     DrAmount = invoiceTaxDetail.Amount,
                                     PostingWithoutTaxAllow = voucherDetaiSales.PostingWithoutTaxAllow
@@ -530,6 +533,7 @@ namespace Library.Service.Invoices
                                     GLGeneralInfoId = invoiceTaxDetail.GLGeneralInfoId,
                                     BudgetMasterId = invoiceTaxDetail.BudgetMasterId,
                                     ActivityId = invoiceTaxDetail.ActivityId,
+                                    InvoiceTaxDetailId = invoiceTaxDetail.Id,
                                     CurrencyId = voucherDetaiSales.CurrencyId,
                                     CrAmount = invoiceTaxDetail.Amount,
                                     PostingWithoutTaxAllow = voucherDetaiSales.PostingWithoutTaxAllow
@@ -881,15 +885,16 @@ namespace Library.Service.Invoices
             }
         }
 
-        public bool CheckInvoiceDetailActivity(string InvoiceDetailId, string ActivityId)
+        public bool CheckInvoiceDetailActivity(string InvoiceDetailId, string ActivityId, string SourceType)
         {
             try
             {
                 var sql = "IF EXISTS(SELECT * FROM(" +
-                        "SELECT I.InvoiceDetailId InvoiceDetailId, VD.ActivityId ActivityId  " +
+                        "SELECT I.InvoiceDetailId InvoiceDetailId, VD.ActivityId ActivityId, V.SourceType  " +
                          "FROM trn.InvoiceDetailCHarges I  " +
                          "LEFT JOIN TRN.VoucherDetail VD ON VD.Id = I.VoucherDetailId  " +
-                         ") A WHERE InvoiceDetailId = '" + InvoiceDetailId + "' AND ActivityId = '" + ActivityId + @"') SELECT 1 ELSE SELECT 0 RETURN ";
+                         "LEFT JOIN TRN.Voucher V ON V.Id = VD.VoucherId  " +
+                         ") A WHERE InvoiceDetailId = '" + InvoiceDetailId + "' AND ActivityId = '" + ActivityId + @"' AND SourceType = '" + SourceType + @"') SELECT 1 ELSE SELECT 0 RETURN ";
                 return Convert.ToBoolean(_adjustmentNoteDetailRepository.SqlQuery<int>(sql).Single());
             }
             catch (Exception)
@@ -979,7 +984,7 @@ namespace Library.Service.Invoices
                         foreach (var item in invoiceDetailChargesList.Where(r => r.GLGeneralInfoId == voucherDetailVM.GLGeneralInfoId && r.BudgetMasterId == voucherDetailVM.BudgetMasterId && r.ActivityId == voucherDetailVM.ActivityId))
                         {
 
-                            if (CheckInvoiceDetailActivity(item.InvoiceDetailId, item.ActivityId) == true)
+                            if (CheckInvoiceDetailActivity(item.InvoiceDetailId, item.ActivityId,voucher.SourceType) == true)
                                 throw new CustomException("InvoiceDetailId " + item.InvoiceDetailId + " and Activity " + voucherDetailVM.ActivityName + " already distributed!");
 
                             var invoiceDetailChargesId = base.GetAutoNumber(nameof(InvoiceDetailCharges), PKGeneratorEnum.Yearly, null, DateTime.Now);
@@ -1154,6 +1159,7 @@ namespace Library.Service.Invoices
                                     GLGeneralInfoId = invoiceTaxDetail.GLGeneralInfoId,
                                     BudgetMasterId = invoiceTaxDetail.BudgetMasterId,
                                     ActivityId = invoiceTaxDetail.ActivityId,
+                                    InvoiceTaxDetailId = invoiceTaxDetail.Id,
                                     CurrencyId = voucher.CurrencyId,
                                     CrAmount = invoiceTaxDetail.Amount,
                                     PostingWithoutTaxAllow = voucherDetaiSales.PostingWithoutTaxAllow
@@ -1324,6 +1330,7 @@ namespace Library.Service.Invoices
                                     GLGeneralInfoId = invoiceTaxDetail.GLGeneralInfoId,
                                     BudgetMasterId = invoiceTaxDetail.BudgetMasterId,
                                     ActivityId = invoiceTaxDetail.ActivityId,
+                                    InvoiceTaxDetailId = invoiceTaxDetail.Id,
                                     CurrencyId = voucherDetaiSales.CurrencyId,
                                     DrAmount = invoiceTaxDetail.Amount,
                                     PostingWithoutTaxAllow = voucherDetaiSales.PostingWithoutTaxAllow
@@ -1690,7 +1697,7 @@ namespace Library.Service.Invoices
             return glTemp;
         }
 
-        public void Post(string adjustmentNoteId)
+        public void Post(string adjustmentNoteId, string entityId, string voucherId)
         {
             var flag = false;
             try
@@ -1708,6 +1715,15 @@ namespace Library.Service.Invoices
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
+
+                var inDirect = new System.Text.StringBuilder();
+                var inDirectsql = "";
+
+                inDirectsql = @"update [TRN].[Voucher] set EntityId='" + entityId + @"' where Id='" + voucherId + @"'
+                            update [TRN].[VoucherDetail]  set EntityId='" + entityId + @"' where VoucherId='" + voucherId + @"' 
+                            update [TRN].[AdjustmentNote]  set EntityId='" + entityId + @"' where VoucherId='" + voucherId + @"' ";
+                inDirect.Append(inDirectsql);
+                _sqlRepository.ExecuteSqlCommand(inDirect.ToString());
             }
             catch (CustomException)
             {

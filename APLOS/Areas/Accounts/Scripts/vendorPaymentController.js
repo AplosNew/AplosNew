@@ -1170,7 +1170,8 @@ function vendorPaymentController(bankService, accountService, cboService, common
         $scope.bankCharge = {};
         $scope.TotalAdvanceAmount = 0;
         $scope.TotalDebitNoteAmount = 0;
-       
+        $scope.employeeadvance.EmployeeAdvanceDetailId = null;
+        $scope.actionIsDisable = false;
     };
 
     $scope.clearBankCashTaxPopUp = function () {
@@ -1315,8 +1316,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
     };
 
 
-
-
+    $scope.actionIsDisable = false;
     $scope.Save = function () {
         $scope.$broadcast("show-errors-check-validity");
         $scope.checkDocDate();
@@ -1324,6 +1324,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
         $scope.passBankCashAmount();
         $scope.entityValidation();
         if ($scope.form1.$valid && !$scope.validation() && !$scope.invalidDocDate && !$scope.invalidPostingDate) {
+            $scope.actionIsDisable = true;
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",
@@ -1336,6 +1337,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
                         "taxDetailVMList": $scope.TDSList,
                         "glVMList": $scope.glList,
                         "advanceVMList": $scope.advanceList,
+                        "VoucherDetailVM": $scope.employeeadvance,
                         "existingLoanList": $scope.ExistingLoanList
                     },
                     dataType: "JSON"
@@ -1365,9 +1367,11 @@ function vendorPaymentController(bankService, accountService, cboService, common
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
                         ShowResult(response.data.Message, "failure");
+                        $scope.actionIsDisable = false;
                     }
                     else {
                         ShowResult(response.data.Message, "success");
+                        $scope.actionIsDisable = false;
                         if ($scope.index > -1) {
                             $scope.menuFrames[$scope.index] = $scope.menuFrame;
                         }
@@ -1832,6 +1836,10 @@ function vendorPaymentController(bankService, accountService, cboService, common
         angular.element(document.querySelector('#employeeAdvancePopUp')).modal('show');
     };
 
+    $scope.employeeadvance = {
+        EmployeeAdvanceDetailId: null
+    };
+
     $scope.advanceList = [];
     $scope.closeEmployeeAdvancePopUp = function (obj) {
         var data = obj.data;
@@ -1854,6 +1862,16 @@ function vendorPaymentController(bankService, accountService, cboService, common
         $scope.advance.advanceDocRefNo = data.DocRefNo;
         $scope.advance.CrAmount = null;
         $scope.advance.JournalType = data.JournalType;
+        $scope.advance.BudgetMasterId = data.BudgetMasterId;
+        $scope.advance.BudgetCode = data.BudgetCode;
+        $scope.advance.BudgetName = data.BudgetName;
+        $scope.advance.ActivityId = data.ActivityId;
+        $scope.advance.ActivityCode = data.ActivityCode;
+        $scope.advance.ActivityName = data.ActivityName;
+        $scope.advance.GLGeneralInfoId = data.GLGeneralInfoId;
+        $scope.advance.GLGeneralInfoCode = data.GLGeneralInfoCode;
+        $scope.advance.GLGeneralInfoName = data.GLGeneralInfoName;
+        $scope.employeeadvance.EmployeeAdvanceDetailId = data.EmployeeAdvanceDetailId;
         $scope.advanceList.push($scope.advance);
         //$scope.GetEmployeeTransactionNo($scope.advance.EmployeeId);
         angular.element(document.querySelector("#employeeAdvancePopUp")).modal("hide");

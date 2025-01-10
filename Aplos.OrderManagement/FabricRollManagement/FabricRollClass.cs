@@ -23,7 +23,7 @@ namespace Library.OrderManagement.FabricRollClass
         public FabricRollClass()
         {
             _sqlRepository = new SqlRepository();
-            ConManager = new ConnectionManager.clsConnectionManager();            
+            ConManager = new ConnectionManager.clsConnectionManager();
         }
 
         enum colIndex
@@ -1785,7 +1785,69 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
         {
             try
             {
-                string _sql = @"Select * from [BPDT].[FabricRollManagementChild] Where FabricRollManagementMasterId='" + FabricRollManagementMasterId + "' Order By Sequence";
+                string _sql = @"Select * from [BPDT].[FabricRollManagementChild] Where FabricRollManagementMasterId='" + FabricRollManagementMasterId + @"' Order By Sequence";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetFabricRollChildPendingList(string FabricRollManagementMasterId)
+        {
+            try
+            {
+                string _sql = @"Select * from [BPDT].[FabricRollManagementChild] Where FabricRollManagementMasterId='" + FabricRollManagementMasterId + @"' AND ISNULL(CutableWidth,0)=0 AND ISNULL(Shade,'')=''
+ AND ISNULL(ShrinkageLengthWise,0)= 0 AND ISNULL(ShrinkageWidthWise,0)= 0 Order By Sequence";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetFabricRollChildConfirmList(string FabricRollManagementMasterId)
+        {
+            try
+            {
+                string _sql = @"Select * from [BPDT].[FabricRollManagementChild] Where FabricRollManagementMasterId='" + FabricRollManagementMasterId + @"' AND ISNULL(CutableWidth,0)<>0 AND ISNULL(Shade,'')<>''
+ AND ISNULL(ShrinkageLengthWise,0)<>0 AND ISNULL(ShrinkageWidthWise,0)<>0 Order By Sequence";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetFabricRollChildPendingDataList(string PlantId)
+        {
+            try
+            {
+                string _sql = @"SELECT M.*,PE.EmployeeName PreparedBy,CE.EmployeeName CheckedBy,FORMAT(m.GRNDate,'dd-MMM-yyyy') GDate,RollNo=(SELECT Count(Id) FROM BPDT.FabricRollManagementChild Where FabricRollManagementMasterId=M.Id Group By FabricRollManagementMasterId) FROM [BPDT].[FabricRollManagementMaster] M
+LEFT JOIN dbo.EmployeeInformation PE on PE.SystemId=M.PreparedById
+LEFT JOIN dbo.EmployeeInformation CE on CE.SystemId=M.CheckedById
+ Where M.PlantId='" + PlantId + @"' AND M.Id IN(Select FabricRollManagementMasterId From BPDT.FabricRollManagementChild Where ISNULL(CutableWidth,0)=0 AND ISNULL(Shade,'')=''
+ AND ISNULL(ShrinkageLengthWise,0)= 0 AND ISNULL(ShrinkageWidthWise,0)= 0) Order By M.GRNId, M.AddedDate desc";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetFabricRollMasterConfirmDataList(string PlantId)
+        {
+            try
+            {
+                string _sql = @"SELECT M.*,PE.EmployeeName PreparedBy,CE.EmployeeName CheckedBy,FORMAT(m.GRNDate,'dd-MMM-yyyy') GDate,RollNo=(SELECT Count(Id) FROM BPDT.FabricRollManagementChild Where FabricRollManagementMasterId=M.Id Group By FabricRollManagementMasterId) FROM [BPDT].[FabricRollManagementMaster] M
+LEFT JOIN dbo.EmployeeInformation PE on PE.SystemId=M.PreparedById
+LEFT JOIN dbo.EmployeeInformation CE on CE.SystemId=M.CheckedById
+ Where M.PlantId='" + PlantId + @"' AND M.Id IN(Select FabricRollManagementMasterId From BPDT.FabricRollManagementChild Where ISNULL(CutableWidth,0)<>0 AND ISNULL(Shade,'')<>''
+ AND ISNULL(ShrinkageLengthWise,0)<>0 AND ISNULL(ShrinkageWidthWise,0)<>0) AND ISNULL(M.IsConfirm,0)=0 Order By M.GRNId, M.AddedDate desc";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
             catch (Exception ex)
@@ -1866,10 +1928,10 @@ LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=F.CheckedById
 						, SUM(GRNQty) AS GRNQTY,SUM (GRNTotalAmount) AS GRNValue ,SUM (ShortageQty) AS Shortageqty, SUM(ShortageRatePercent) AS ShortageRatePercent 
 						,Sum(ShortageValue) AS ShortageValue,Sum(RejectionQty) AS RejectionQty,Sum(RejectRatePercent) AS RejectRatePercent ,Sum(RejectValue) AS RejectionValue,Sum(RejectClamPercent) AS RejectClamPercent,Sum(ChargesTranAmount) AS ServiceTranAmount,Sum( ChargesTaxTranAmount) ServiceTaxTranAmount,Sum(TotalTaxAmount) AS MaterialTaxAmount
 						FROM [TRN].[InventoryReceiveDetail] AS A
-		                            JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='" + PlantId+@"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
+		                            JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='" + PlantId + @"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
                         LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId 
 						FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id
-		                            WHERE B.PlantId='"+PlantId+@"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
+		                            WHERE B.PlantId='" + PlantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                         left join trn.GateEntry GE On GE.Id=Ir.GateEntryNo
 						Left join dbo.PlantWiseGate PWG on PWG.id=GE.PlantWiseGateId	
@@ -1981,7 +2043,7 @@ Where F.GRNId='" + GRNId + "'"; ;
                 con.OpenDataSetThroughAdapter("SELECT * FROM [BPDT].[FabricRollManagementMaster] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id, _detailId = "";
-                
+
 
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
@@ -2010,22 +2072,39 @@ Where F.GRNId='" + GRNId + "'"; ;
 
                 con.OpenDataSetThroughAdapter("SELECT * FROM BPDT.FabricRollManagementChild WHERE FabricRollManagementMasterId ='" + masterId + "'", out dsDetail, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT COUNT(Id)Id FROM [BPDT].[FabricRollManagementChild] WHERE FabricRollManagementMasterId ='" + masterId + "'", out dsId, false, "1");
-               
-                int count =Convert.ToInt32(dsId.Tables[0].Rows[0]["Id"].ToString());
 
-             
+                int count = Convert.ToInt32(dsId.Tables[0].Rows[0]["Id"].ToString());
+
+
                 foreach (var item in grnDetailList)
                 {
-                    
+
                     DataView dv = new DataView(dsDetail.Tables[0]);
                     dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (item["CutableWidth"]==null)
+                    {
+                        throw new Exception("Cutable Width is required.");
+                    }
+                    if (item["Shade"]==null)
+                    {
+                        throw new Exception("Shade is required.");
+                    }
+                    if (item["ShrinkageLengthWise"]==null)
+                    {
+                        throw new Exception("Shrinkage Length Wise is required.");
+                    }
+                    if (item["ShrinkageWidthWise"] == null)
+                    {
+                        throw new Exception("Shrinkage Width Wise is required.");
+                    }
 
                     if (dv.Count == 0)
                     {
                         count++;
 
-                        item["Id"] = masterId+"-"+count;
-                        item["Sequence"] =count;
+                        item["Id"] = masterId + "-" + count;
+                        item["Sequence"] = count;
                         item["FabricRollManagementMasterId"] = masterId;
 
                         AddNewRow(dsDetail.Tables[0], item);

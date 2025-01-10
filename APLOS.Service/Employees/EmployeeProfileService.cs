@@ -5652,7 +5652,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
             sheet.Name = "Employee Information ";
             workbook.Version = ExcelVersion.Excel2013;
 
-            var dtLocal = GetEmpdata(companyGroupId, companyId, plantId);
+            var dtLocal = GetEmpdata(companyGroupId, companyId, plantId,"Active");
             if (dtLocal.Rows.Count == 0)
                 throw new Exception("No data found !");
 
@@ -5698,7 +5698,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
             return workbook;
         }
 
-        public IWorkbook EmpRegisterReport(string companyGroupId, string companyId, string plantId)
+        public IWorkbook EmpRegisterReport(string companyGroupId, string companyId, string plantId, string radioValue)
         {
             var excelEngine = new ExcelEngine();
             var oRU = new ReportUtility();
@@ -5707,7 +5707,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
             sheet.Name = "Employee Register Information ";
             workbook.Version = ExcelVersion.Excel2013;
 
-            var dtLocal = GetEmpdata(companyGroupId, companyId, plantId);
+            var dtLocal = GetEmpdata(companyGroupId, companyId, plantId,radioValue);
             if (dtLocal.Rows.Count == 0)
                 throw new Exception("No data found !");
 
@@ -6542,7 +6542,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
             }
         }
 
-        private DataTable GetEmpdata(string companyGroupId, string companyId, string plantId)
+        private DataTable GetEmpdata(string companyGroupId, string companyId, string plantId, string radioValue)
         {
             try
             {
@@ -6651,7 +6651,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
 							  LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage wHERE LabelName='Comment') cmt ON cmt.LanguageId = PL.LanguageId
 							  LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage wHERE LabelName='StaffCategory') stc ON stc.LanguageId = PL.LanguageId
                                  
-                              WHERE E.EmployeeStatus ='Active' and E.CompanyId='" + companyId + @"' and e.PlantId='" + plantId + @"'";
+                              WHERE E.EmployeeStatus ='"+ radioValue + "' and E.CompanyId='" + companyId + @"' and e.PlantId='" + plantId + @"'";
 
                 var list = _sqlRepository.GetDataTable(sql);
                 if (list.IsNull())

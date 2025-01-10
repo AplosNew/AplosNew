@@ -72,7 +72,7 @@ namespace Library.Service.Employees
 
         IWorkbook EmpInfoReport(string companyGroupId, string companyId, string plantId, string employeeId);
 
-        IWorkbook EmpRegisterReport(string companyGroupId, string companyId, string plantId);
+        IWorkbook EmpRegisterReport(string companyGroupId, string companyId, string plantId, string radioValue);
 
         Dictionary<string, object> GetEmployeeById(string employeeId, string employeementType);
 

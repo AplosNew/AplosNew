@@ -698,7 +698,7 @@ namespace Library.MaterialManagement.Inventory
                                             _GRNBinAllocationMapRepository.Insert(grnbinAlloObj);
                                         }
                                     }
-
+                                   
 
                                     int rejectDetailId = 1;
                                     var RejectionDetails = new GRNRejectionDetails
@@ -727,21 +727,21 @@ namespace Library.MaterialManagement.Inventory
                                 }
                                 catch (DivideByZeroException )
                                 {
-
+                                    
                                 }
-                               
                             }
                         }
-
+                        
                         // insert in receive tax
                         if (itemDetail.PurchaseDocumentAcceptanceId == null && itemDetail.PurchaseDocumentAcceptanceDetailId == null)
                         {
                             if (taxCategoryList.IsNotNull())
                             {
                                 var currentId = 0;
-                                foreach (var item in taxCategoryList.Where(r => r.InventoryReceiveDetailId == Temppodetailid))
+                                foreach (var item in taxCategoryList)
                                 {
-                                    
+                                    if (item.PODetailsID == null && item.InventoryReceiveDetailId== Temppodetailid)
+                                    {
                                         currentId++;
                                         item.Id = MakePK(itemDetail.InventoryReceiveDetailId, currentId, 2);
                                         item.InventoryReceiveId = entity.Id;//itemDetail.InventoryReceiveId;
@@ -750,8 +750,21 @@ namespace Library.MaterialManagement.Inventory
                                         item.TaxAmount = Math.Round(item.TaxAmount, 2);
                                         AuditService.AddedLog(item);
                                         _receiveTaxRepository.Insert(item);
+                                    }
+                                   else if(item.PODetailsID != null && item.PODetailsID== Temppodetailid && item.RowIdentityNo==itemDetail.RowIdentityNo)
+                                    {
+                                        currentId++;
+                                        item.Id = MakePK(itemDetail.InventoryReceiveDetailId, currentId, 2);
+                                        item.InventoryReceiveId = entity.Id;//itemDetail.InventoryReceiveId;
+                                        item.InventoryReceiveDetailId = itemDetail.InventoryReceiveDetailId;
+                                        item.InventoryServiceId = null;
+                                        item.TaxAmount = Math.Round(item.TaxAmount, 2);
+                                        AuditService.AddedLog(item);
+                                        _receiveTaxRepository.Insert(item);
+                                    }
                                     
                                 }
+
                             }
                         }
                         else

@@ -161,6 +161,10 @@ function creditNoteController(accountService, cboService, commonMessage, $scope,
             "value": "DocRefNo"
         },
         {
+            "name": "Entity",
+            "value": "EntityName"
+        },
+        {
             "name": "Currency",
             "value": "Currency"
         },
@@ -752,20 +756,44 @@ function creditNoteController(accountService, cboService, commonMessage, $scope,
         $scope.invoiceSalesAvailableList = [];
         $scope.invoiceTaxDetailList = [];
     };
-
-    $scope.adjustmentNoteId = null;
-    $scope.confirmPost = function (adjustmentNoteId) {
-        $scope.adjustmentNoteId = adjustmentNoteId;
-        $scope.message_confirmation = "Are you sure to Post?";
-        angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
+    $scope.voucher_Post = {
+        Id: null,
+        EntityId: null,
+        CurrencyId: null,
+        CurrencyCode: null,
+        VoucherNo: null,
+        PostingDate: null,
+        DocDate: null,
+        DocRefNo: null,
+        Narration: null,
+        Amount: null
     };
-
-    $scope.post = function (adjustmentNoteId) {
+    $scope.adjustmentNoteId = null;
+    $scope.EntityId_Post = null;
+    $scope.voucherId = null;
+    $scope.confirmPost = function (adjustmentNoteId, data) {
+        $scope.adjustmentNoteId = adjustmentNoteId;
+        $scope.EntityId_Post = data.EntityId;
+        $scope.voucherId = data.VoucherId;
+        $scope.voucher_Post = data;
+        angular.element(document.querySelector('#PostPopUp')).modal('show');
+        //$scope.message_confirmation = "Are you sure to Post?";
+        //angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
+    };
+    $scope.closePostPopUp = function () {
+        angular.element(document.querySelector("#PostPopUp")).modal("hide");
+    };
+    $scope.post = function () {
+        if ($scope.EntityId_Post == null || $scope.EntityId_Post == "" || $scope.EntityId_Post == undefined) {
+            ShowResult("Please select Entity First!!", "failure");
+        }
         $http({
             method: "POST",
             url: $scope.postUrl,
             data: {
-                "adjustmentNoteId": adjustmentNoteId
+                "adjustmentNoteId": $scope.adjustmentNoteId,
+                "entityId": $scope.EntityId_Post,
+                "voucherId": $scope.voucherId
             },
             dataType: "JSON"
         }).then(function successCallback(response) {
@@ -773,6 +801,7 @@ function creditNoteController(accountService, cboService, commonMessage, $scope,
                 ShowResult(response.data.Message, "failure");
             }
             else {
+                $scope.closePostPopUp();
                 ShowResult(response.data.Message, "success");
                 $scope.getData();
                 $scope.Clear();

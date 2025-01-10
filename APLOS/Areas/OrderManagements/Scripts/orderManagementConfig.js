@@ -304,6 +304,10 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             templateUrl: 'OrderManagements/ProductionOrderSchedulingParametersType1/Type2',
             controller: 'productionOrderSchedulingParametersType2Controller'
         })
-
+        .when('/so-reviseDate', {
+            templateUrl: 'OrderManagements/SalesOrderUpdate/SalesOrderReviseDate',
+            controller: 'salesOrderRevisedateController'
+        })
+    
         ;
 }

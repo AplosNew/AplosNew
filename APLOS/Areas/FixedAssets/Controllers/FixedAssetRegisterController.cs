@@ -1957,9 +1957,9 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return Json(_fixedAssetQueryService.GetCapitalizeAssetRegisterPopUpList(column, value, companyId), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
         }
         [HttpPost]
-        public JsonResult CreateCapitalizeAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, List<Dictionary<string, object>> assetRegisterList)
+        public JsonResult CreateCapitalizeAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegisterDisposedDetailViewModel> assetRegisterList, IEnumerable<FixedAssetRegisterDisposedTaxViewModel> disposedTaxList)
         {
-            _fixedAssetRegisterService.InsertCapitalizeAssetLost(fixedAssetDisposed,assetRegisterList);
+            _fixedAssetRegisterService.InsertCapitalizeAssetLost(fixedAssetDisposed,assetRegisterList, disposedTaxList);
             return Json(new { Message = AplosMessage.Insert });
         }
         [HttpPost, Authorize]
@@ -1981,6 +1981,14 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return Json(_fixedAssetQueryService.GetCapitalizeAssetLostJVList(fixedAssetDisposeId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
         }
         [HttpPost, Authorize]
+        public ActionResult GetCapitalizeAssetSalesJVList(string fixedAssetDisposeId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+
+            return Json(_fixedAssetQueryService.GetCapitalizeAssetSalesJVList(fixedAssetDisposeId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
+        }
+        [HttpPost, Authorize]
         public ActionResult GetCapitalizeAssetLostByDisposeIdList(string id)
         {
             FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
@@ -1998,7 +2006,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
             voucherVM.PlantId = identity.PlantId;
             if (voucherVM.Status == "Sales")
             {
-                _fixedAssetDisposeService.InsertFixedAssetDisposeSalesPosting(voucherVM, voucherDetailVMList, farDisposeDetailList, advanceSalarySchedulelist);
+                _fixedAssetDisposeService.InsertCapitalizeAssetDisposeSalesPosting(voucherVM, voucherDetailVMList, farDisposeDetailList, advanceSalarySchedulelist);
 
             }
             else

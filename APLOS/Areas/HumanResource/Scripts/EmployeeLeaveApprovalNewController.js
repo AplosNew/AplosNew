@@ -41,7 +41,7 @@ function EmployeeLeaveApprovalNewController(commonMessage, $scope, $rootScope, b
         var data = gridObj.getSelectedRecords()[0];
         $scope.LeaveBalanceList = [];
 
-        const d = new Date();
+        const d = new Date(data.ToDate);
         let year = d.getFullYear();
 
         //$http.get($scope.getlvBalanceUrl + '?EmpsystemId=' + data.EmployeeID)

@@ -61,12 +61,13 @@
         <div class="form-group">
             <label class="col-sm-4 control-label">Approving Authority</label>
             <div class="col-sm-8">
-                <div class="select-style">
+                <input ej-dropdownlist e-enablefiltersearch="true" e-name="$index" e-datasource="empList" e-value="leaveApplicationNew.ApprovalPerson" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                @*<div class="select-style">
                     <select id="ID" class="form-control" ng-model="leaveApplicationNew.ApprovalPerson" name="Approval Person">
                         <option value="">--Select--</option>
                         <option ng-repeat="option in empList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
-                </div>
+                </div>*@
             </div>
         </div>
 

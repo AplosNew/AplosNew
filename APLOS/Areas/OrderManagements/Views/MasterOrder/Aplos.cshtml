@@ -283,14 +283,14 @@
                                     <div class="input-group">
                                         <input type="text" name="Responsible Person" ng-model="RemarksControlmodel.RemarksControl" class="form-control" readonly>
                                         <span class="input-group-btn">
-                                            <button ng-click="GetRemarksControlList();"ng-disabled="fileNew.IsPaymentTermChangeable==false"  class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                                            <button ng-click="GetRemarksControlList();" ng-disabled="fileNew.IsPaymentTermChangeable==false" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
                                         </span>
                                     </div>
                                     @*<div class="select-style">
-                                        <select tabindex="10" id="RemarksControlId" ng-disabled="fileNew.IsPaymentTermChangeable==false" class="form-control" name="Remarks Control" ng-model="fileNew.RemarksControlId">
-                                            <option ng-repeat="option in RemarksControlList" value="{{option.Value}}">{{option.Text}}</option>
-                                        </select>
-                                    </div>*@
+                    <select tabindex="10" id="RemarksControlId" ng-disabled="fileNew.IsPaymentTermChangeable==false" class="form-control" name="Remarks Control" ng-model="fileNew.RemarksControlId">
+                        <option ng-repeat="option in RemarksControlList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>*@
                                 </div>
                             </div>
                             <div class="form-group" ng-show="isBuyerApplicable">
@@ -366,12 +366,7 @@
                                     <input type="text" n-decimals="2" name="Order Wastage Percentage" ng-model="fileNew.OrderWastagePercentage" class="form-control text-right" tabindex="18">
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">No. of Line Item<sup>*</sup></label>
-                                <div class="col-sm-8">
-                                    <input type="text" only-numbers name="No of Line Item" ng-model="fileNew.NoOfLineItem" class="form-control text-right" tabindex="20">
-                                </div>
-                            </div>
+
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Exceptional SubProcess</label>
                                 <div class="col-sm-8">
@@ -382,7 +377,12 @@
                                     </div>
                                 </div>
                             </div>
-
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">No. of Line Item<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="text" only-numbers name="No of Line Item" ng-model="fileNew.NoOfLineItem" class="form-control text-right" tabindex="20">
+                                </div>
+                            </div>
                         </div>
                         <div class="common-btn">
                             <ul class="list-inline text-left">
@@ -1335,6 +1335,12 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="col-sm-4 control-label">Produced Qty<span ng-show="soModel.ProductionBookingLevel!=='SalesOrder'">(Without SO)</span></label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Booked Quantity" ng-model="ProdBookedQty" disabled class="form-control text-right" tabindex="101">
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label class="control-label" style="color:blue;padding-left: 17px;font-size:12px;margin-top: -6px;">Booked <span style="text-transform: lowercase;">as Sales Order. </span>This <span style="text-transform: lowercase;">qty will reduce from Produce qty.</span></label>
                         </div>
                         <div class="form-group">
@@ -1359,26 +1365,6 @@
                                 <input type="text" n-decimals="2" name="Qty" ng-model="soModel.Qty" class="form-control text-right" tabindex="111">
                             </div>
                         </div>
-                        @*<div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Rate<sup>*</sup></label>
-                                <div class="col-sm-6 show-message">
-                                    <input type="text" n-decimals="4" name="Rate" ng-model="soModel.Rate" class="form-control text-right" required tabindex="110">
-                                </div>
-                                <div class="col-sm-2" style="padding-left:0px;padding-right:0px;margin-left:-15px;">
-                                    {{currency}}
-                                    <div class="select-style">
-                                        <select name="Currency" class="form-control" ng-model="fileNew.CurrencyId" disabled ng-options="item.Value as item.Text for item in currencyList" tabindex="16">
-                                            <option value="">--Select--</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>*@
-                        @*<div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Sales Expense<sup>*</sup></label>
-                                <div class="col-sm-8  show-message">
-                                    <input type="text" n-decimals="2" name="Sales Expense" ng-model="soModel.SalesExpense" ng-keyup="SetNetSalesRealization();" class="form-control text-right" tabindex="113" required>
-                                </div>
-                            </div>*@
 
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Responsible Person</label>
@@ -1423,7 +1409,6 @@
                         </div>
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-6">
-
                         <div class="form-group">
                             <label class="col-sm-4 control-label">SO Type</label>
                             <div class="col-sm-8">
@@ -1469,10 +1454,17 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Produced Qty<span ng-show="soModel.ProductionBookingLevel!=='SalesOrder'">(Without SO)</span></label>
+                            <label class="col-sm-4 control-label">Revise Date</label>
                             <div class="col-sm-8">
-                                <input type="text" name="Booked Quantity" ng-model="ProdBookedQty" disabled class="form-control text-right" tabindex="101">
+                                <input type="text" datepicker name="Revise Date" ng-model="soModel.ReviseDate" class="form-control" tabindex="106">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Bill Discounting Days</label>
+                            <div class="col-sm-8">
+                                <input type="text" only-numbers name="BillDiscountingDays" ng-disabled="IsBillDiscountingDays==false"  ng-model="soModel.BillDiscountingDays" class="form-control" tabindex="106">
                             </div>
                         </div>
                         <div class="form-group" show-errors>
@@ -1499,31 +1491,7 @@
                             </div>
                         </div>
 
-                        @*<div class="form-group">
-            <label class="col-sm-4 control-label">Discount</label>
-            <div class="col-sm-8">
-                <input type="text" n-decimals="2" name="Discount" ng-model="soModel.Discount" class="form-control text-right" tabindex="112">
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Net Sales Realization</label>
-            <div class="col-sm-8">
-                <input type="text" n-decimals="2" name="NetSalesRealization" disabled ng-model="soModel.NetSalesRealization" class="form-control text-right" tabindex="113">
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">CM</label>
-            <div class="col-sm-8">
-                <input type="text" n-decimals="4" name="CM" ng-model="soModel.CM" class="form-control text-right" tabindex="113">
-            </div>
-        </div>
 
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Up Charge</label>
-            <div class="col-sm-8">
-                <input type="text" n-decimals="2" name="UpCharge" ng-model="soModel.UpCharge" class="form-control text-right" tabindex="113">
-            </div>
-        </div>*@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">LSD<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
@@ -2335,6 +2303,18 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="col-sm-4 control-label">Revise Date</label>
+                            <div class="col-sm-8">
+                                <input type="text" datepicker name="Revise Date" ng-model="soSplitModel.ReviseDate" class="form-control" tabindex="106">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Bill Discounting Days</label>
+                            <div class="col-sm-8">
+                                <input type="text" only-numbers name="BillDiscountingDays" ng-disabled="IsBillDiscountingDays==false" ng-model="soSplitModel.BillDiscountingDays" class="form-control" tabindex="106">
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">Destination<sup>*</sup></label>
                             <div class="col-sm-8">
                                 <div class="select-style">
@@ -2350,20 +2330,8 @@
                                 <input type="text" n-decimals="2" name="Qty" ng-model="soSplitModel.Qty" class="form-control text-right" tabindex="111">
                             </div>
                         </div>
-                        @*<div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Rate<sup>*</sup></label>
-                                <div class="col-sm-6 show-message">
-                                    <input type="text" n-decimals="4" name="Rate" ng-model="soSplitModel.Rate" class="form-control text-right" required tabindex="110">
-                                </div>
-                                <div class="col-sm-2" style="padding-left:0px;padding-right:0px;margin-left:-15px;">
 
-                                    <div class="select-style">
-                                        <select name="Currency" class="form-control" ng-model="fileNew.CurrencyId" disabled ng-options="item.Value as item.Text for item in currencyList" tabindex="16">
-                                            <option value="">--Select--</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>*@
+
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Up Charge</label>
                             <div class="col-sm-8">
@@ -2475,18 +2443,7 @@
                                 <textarea class="form-control" name="DestinationDescription" ng-model="soSplitModel.DestinationDescription" rows="1" maxlength="250" tabindex="119"></textarea>
                             </div>
                         </div>
-                        @*<div class="form-group">
-            <label class="col-sm-4 control-label">Discount</label>
-            <div class="col-sm-8">
-                <input type="text" n-decimals="2" name="Discount" ng-model="soSplitModel.Discount" class="form-control text-right" tabindex="112">
-            </div>
-        </div>*@
-                        @*<div class="form-group">
-            <label class="col-sm-4 control-label">CM</label>
-            <div class="col-sm-8">
-                <input type="text" n-decimals="4" name="CM" ng-model="soSplitModel.CM" class="form-control text-right" tabindex="113">
-            </div>
-        </div>*@
+                       
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">LSD<sup>*</sup></label>
                             <div class="col-sm-8 show-message">

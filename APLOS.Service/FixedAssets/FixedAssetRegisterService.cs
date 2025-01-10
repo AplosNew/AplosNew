@@ -18,6 +18,7 @@ using Library.Service.Logs;
 using Library.Service.Organizations;
 using Library.Service.Systems;
 using Library.Service.Vouchers;
+using Library.ViewModel.Accounts;
 using OTSBD;
 using Syncfusion.XlsIO;
 using System;
@@ -42,6 +43,7 @@ namespace Library.Service.FixedAssets
         private readonly IRepositoryAsync<FixedAssetRegister> _fixedAssetRegisterRepository;
         private readonly IRepositoryAsync<FixedAssetRegisterDisposed> _fixedAssetRegisterDisposedRepository;
         private readonly IRepositoryAsync<FixedAssetRegisterDisposedDetail> _fixedAssetRegisterDisposedDetailRepository;
+        private readonly IRepositoryAsync<FixedAssetRegisterDisposedTax> _fixedAssetRegisterDisposedTaxRepository;
         private readonly IRepositoryAsync<SubFixedAssetRegister> _subFixedAssetRegisterRepository;
         private readonly IFixedAssetRegisterCharacteristicsValueService _fixedAssetRegisterSkuValueService;
         private readonly IRepositoryAsync<FixedAssetMasterGL> _fixedAssetMasterGLepository;
@@ -59,6 +61,7 @@ namespace Library.Service.FixedAssets
             , IRepositoryAsync<FixedAssetRegisterDetail> fixedAssetRegisterDetailRepository
             , IRepositoryAsync<FixedAssetRegisterDisposed> fixedAssetRegisterDisposedRepository
             , IRepositoryAsync<FixedAssetRegisterDisposedDetail> fixedAssetRegisterDisposedDetailRepository
+            , IRepositoryAsync<FixedAssetRegisterDisposedTax> fixedAssetRegisterDisposedTaxRepository
             , IRepositoryAsync<SubFixedAssetRegister> subFixedAssetRegisterRepository
             , IPKGeneratorService pkGeneratorService
             , IFixedAssetRegisterCharacteristicsValueService fixedAssetRegisterSkuValueService
@@ -91,6 +94,7 @@ namespace Library.Service.FixedAssets
             _voucherService = voucherService;
             _plantService = plantService;
             _fixedAssetRegisterDisposedDetailRepository = fixedAssetRegisterDisposedDetailRepository;
+            _fixedAssetRegisterDisposedTaxRepository = fixedAssetRegisterDisposedTaxRepository;
         }
 
         #endregion Constructor
@@ -4995,7 +4999,7 @@ GROUP BY FAR.FABudgetMasterId
                     _unitOfWork.Rollback();
             }
         }
-        public string InsertCapitalizeAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, List<Dictionary<string, object>> assetRegisterList)
+        public string InsertCapitalizeAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegisterDisposedDetailViewModel> assetRegisterList, IEnumerable<FixedAssetRegisterDisposedTaxViewModel> disposedTaxList)
         {
             var flag = false;
             try
@@ -5017,6 +5021,8 @@ GROUP BY FAR.FABudgetMasterId
                     DeliveryPartyPlantId = fixedAssetDisposed.DeliveryPartyPlantId,
                     InvoicingByAddress = fixedAssetDisposed.InvoicingByAddress,
                     DeliveryByAddress = fixedAssetDisposed.DeliveryByAddress,
+                    CurrencyId = fixedAssetDisposed.CurrencyId,
+                    ToCurrencyRate = fixedAssetDisposed.ToCurrencyRate,
                     Id = "RD" + _id,
                     IsPark = true,
                     DocDate = fixedAssetDisposed.DocDate
@@ -5028,21 +5034,53 @@ GROUP BY FAR.FABudgetMasterId
                 foreach (var item in assetRegisterList)
                 {
                     detailId++;
-                    builderSql = @"UPDATE [TRN].[AssetRegister] SET Status = 'Disposed' ,AdjustmentDepreciationAmount = '" + item["AdjustmentDepreciationAmount"] + "'  WHERE Id='" + item["AssetRegisterId"].ToString() + "'  ";
+                    builderSql = @"UPDATE [TRN].[AssetRegister] SET Status = 'Disposed' ,AdjustmentDepreciationAmount = '" + item.AdjustmentDepreciationAmount + "'  WHERE Id='" + item.AssetRegisterId + "'  ";
                     rdBuilder.Append(builderSql);
 
 
                     var fixedAssetDisposeDetail = new FixedAssetRegisterDisposedDetail
                     {
-                        AssetRegisterId = item["AssetRegisterId"].ToString(),
-                        NegotiationValue = Convert.ToDecimal(item["NegotiationValue"].ToString()) ,
-                        BaseNagotiationValue = Convert.ToDecimal(item["NegotiationValue"].ToString()),
+                        //AssetRegisterId = item["AssetRegisterId"].ToString(),
+                        //NegotiationValue = Convert.ToDecimal(item["NegotiationValue"].ToString()) ,
+                        //BaseNagotiationValue = Convert.ToDecimal(item["NegotiationValue"].ToString()),
+                        AssetRegisterId = item.AssetRegisterId,
+                        NegotiationValue = Convert.ToDecimal(item.NegotiationValue),
+                        BaseNagotiationValue = Convert.ToDecimal(item.NegotiationValue),
 
                         FixedAssetRegisterDisposedId = fixedAssetDispose.Id,
                         Id = "D" + fixedAssetDispose.Id + detailId,
                     };
                     AuditService.AddedLog(fixedAssetDisposeDetail);
                     _fixedAssetRegisterDisposedDetailRepository.Insert(fixedAssetDisposeDetail);
+                    var currentId = 0;
+                    if (disposedTaxList != null && disposedTaxList.Where(x=> x.AssetRegisterId==item.AssetRegisterId).Count() > 0)
+                    {
+                        foreach (var taxVM in disposedTaxList.Where(x => x.AssetRegisterId == item.AssetRegisterId))
+                        {
+                            if (taxVM.TaxCategoryId == null)
+                                throw new CustomException("Please Select Tax Category !");
+
+                            currentId++;
+                            var disposedTax = new FixedAssetRegisterDisposedTax
+                            {
+                                Id = _pkGeneratorService.MakePK(fixedAssetDisposeDetail.Id, currentId, 2),
+                                AssetRegisterId = item.AssetRegisterId,
+                                FixedAssetRegisterDisposedId = fixedAssetDisposeDetail.FixedAssetRegisterDisposedId,
+                                FixedAssetRegisterDisposedDetailId = fixedAssetDisposeDetail.Id,
+                                Percentage = taxVM.Percentage,
+                                TaxCategoryId = taxVM.TaxCategoryId,
+                                Amount = taxVM.Amount,
+                                AddedBy = fixedAssetDisposeDetail.AddedBy,
+                                AddedDate = fixedAssetDisposeDetail.AddedDate,
+                                AddedFromIP = fixedAssetDisposeDetail.AddedFromIP,
+                                ModelState = ModelState.Added,
+                                UpdatedBy = null,
+                                UpdatedDate = null,
+                                UpdatedFromIP = null
+                            };
+                            _fixedAssetRegisterDisposedTaxRepository.Insert(disposedTax);
+                        }
+                    }
                 }
 
                 _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());

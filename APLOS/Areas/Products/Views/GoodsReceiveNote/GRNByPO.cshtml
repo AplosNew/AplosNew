@@ -713,11 +713,7 @@
                                                 <div e-column e-field="allowQty" e-headertext="AlreadyAllocate" e-width="80"></div>
                                                 <div e-column e-field="TransactionQty" e-template="#CurrentQty" e-headertext="GRNQtyAllocation" e-width="80"></div>
                                                 <div e-column e-field="RejectionQty" e-template="#RejectionQty" e-headertext="RejectionQtyAllocation" e-width="80"></div>
-                                                @*<div e-column e-field="BalanceQty" e-headertext="Balance" e-template="#Balance" e-width="60"></div>
-                                                    <div e-column e-field="TransactionRate" e-template="#Rate" e-headertext="Rate" e-width="60"></div>
-                                                    <div e-column e-field="TransactionAmount" e-headertext="Amount" e-template="#Amount" e-width="80"></div>*@
                                                 <div e-column e-field="RequisitionDetailId" e-headertext="ReqRowId" e-width="70"></div>
-                                                @*<div e-column e-template="#DelButton" e-width="20"></div>*@
                                             </div>
 
                                         </div>
@@ -830,19 +826,7 @@
                                 <div style="padding-left: 900px;color:maroon;font-weight:bolder;"><label id="totalGRN" ng-model="totalGRNVal" class="text-right">Total GRN Qty:{{totalGRNVal}}|| RejectionQty:{{RejectionQty}}</label></div>
 
                                 <div class="col-lg-12">
-                                    @*<div class="content-container-fluid" style="color:black;">*@
-                                    @*<div style="color:black;" id="GridReqso" ng-init="chkinit()" ej-grid e-datasource="soList"
-                                        e-allowfiltering="true"
-                                        e-allowpaging="true"
-                                        e-allowsorting="true"
-                                        e-templaterefresh="refreshTemplateemployee"
-                                        e-filtersettings-filterType="excel"
-                                        e-responsive="true"
-                                        e-enabletouch="true"
-                                        e-allowselection="true"
-                                        e-rowdatabound="rowDataBound"
-                                        e-actioncomplete="actionCompleteSelected"
-                                        e-allowscrolling="true">*@
+                                   
                                     <div style="color:black;" id="GridReqso" ej-grid e-datasource="soList" @*e-recorddoubleclick="GetSequence"*@
                                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
                                          e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
@@ -1004,6 +988,7 @@
                                 <th ng-show="GriddataSelected.length===0">Current Acceptance Received</th>
                                 <th ng-hide="false">Balance</th>
                                 <th>IsClosed</th>
+                                <th colspan="2">Alternative Qty</th>
                                 <th>ShortageQty</th>
                                 <th>RejectionQty</th>
                                 <th>ApprovedQty</th>
@@ -1022,12 +1007,13 @@
                                 <th>TotalMaterialAmount(TRN)</th>
                                 <th>TotalMaterialAmount(BC)</th>
                                 @*<th>CountryName</th>*@
-                                <th>Alternative Qty</th>
+
                                 <th>RefferenceNo</th>
                                 <th>MaterialDetail</th>
                                 <th>MaterialLotNumber </th>
                                 <th>MaterialDiameter</th>
                                 <th>MaterialType</th>
+                                <th>Copy</th>
 
                             </tr>
                             <tr ng-show="inventoryMaterialList.length">
@@ -1053,6 +1039,7 @@
                                 <th>OtherGRNReceived</th>
                                 <th>CurrentReceived</th>
                                 <th>Balance</th>
+                                <th colspan="2">Alternative Qty</th>
                                 <th>ShortageQty</th>
                                 <th>RejectionQty</th>
                                 <th>ApprovedQty</th>
@@ -1071,7 +1058,6 @@
                                 <th>TotalMaterialAmount(TRN)</th>
                                 <th>TotalMaterialAmount(BC)</th>
                                 @*<th>CountryName</th>*@
-                                <th>Alternative Qty</th>
                                 <th>RefferenceNo</th>
                                 <th>MaterialDetail</th>
                                 <th>MaterialLotNumber </th>
@@ -1098,10 +1084,6 @@
                                     <ul class="list-inline action-list">
                                         <li><button ng-click="getReceiveTaxListPO(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
                                         <li><button ng-click="GetbinAllocationPopUp(x)" class="btn btn-action tooltip-here" data-placement="top" title="Bin Allocation"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-                                        @*<li><button ng-click="GRNAllowcationForSOInSavingTime(x, MaterialMasterId,x.InventoryReceiveDetailId,x.PODetailsID)" class="btn btn-action tooltip-here" data-placement="top" title="GRN Allocation For SO" ng-hide="x.PurchaseDocumentAcceptanceId===null">Allocation For SO</button></li>*@
-                                        @*<li><button ng-click="GRNAllowcationForRequisition(x,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="GRN Allocation For Requisition" ng-hide="x.PurchaseDocumentAcceptanceId!=null">Allocation For Requisition</button></li>*@
-                                        @*<li><button ng-click="PODetailsUpdatePOPUp(x.PODetailsID,x.MaterialMasterId)" class="btn btn-action tooltip-here" data-placement="top" title="GRN Allocation to Requisition"><i class="glyphicon glyphicon-zoom-out"></i></button></li>*@
-                                        @*<li><button ng-click="valuePassInDelModal(x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>*@
                                         <li><button ng-click="ViewRequisitionDetail(x.InventoryReceiveDetailId,x.TransactionQty,x.MaterialMasterId,x.ArticleId)" class="btn btn-action tooltip-here" ng-disabled="x.TransactionQty==0||x.TransactionQty==''" data-placement="top" id="MEdit" title="View Requisition Detail">View Req.</button></li>
                                     </ul>
                                 </td>
@@ -1147,7 +1129,8 @@
                                     </div>
                                 </td>
 
-
+                                <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.AlternativeQty"></td>
+                                <td class="text-right">{{x.AlternativeUOM}}</td>
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x,$index);" width="200" ng-model="x.ShortageQty" ng-disabled="false"></td>  @*ng-keyup="calculateAmount(x);"*@
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x,$index);" width="500" ng-model="x.RejectionQty" ng-disabled=""></td>  @* x.enableid ng-keyup="calculateAmount(x);"*@
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="500" ng-model="x.ApprovedQty" ng-disabled="true"></td>  @*ng-keyup="calculateAmount(x);"*@
@@ -1155,11 +1138,8 @@
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TransactionRate" ng-disabled="true"></td>
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TrnAmount" ng-disabled="true"></td>
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-keyup="calculateAmountAfterDiscount(x)" ng-model="x.DiscountAmount" ng-disabled="false"></td>
-                                @*<td class="text-right">{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}</td>*@
                                 <td class="text-right" style="width:200px;"><input type="text" n-decimals="{{2}}" class="form-control text-right" width="200" ng-model="x.BaseTaxAmount" ng-disabled="true"></td>
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.ServiceCharge" ng-disabled="true"></td>  @*ng-keyup="calculateAmount(x);"*@
-                                @*<td class="text-right">{{x.ServiceCharge| setDecimal:currencyPrecision| number}}</td>*@
-                                @*<td class="text-right">{{x.ServiceTax| setDecimal:currencyPrecision| number}}</td>*@
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.ServiceTax" ng-disabled="true"></td>  @*ng-keyup="calculateAmount(x);"*@
 
                                 @*<td class="text-right">{{x.BaseAmount| setDecimal:currencyPrecision| number:4}}</td>*@
@@ -1174,15 +1154,21 @@
                                 <td class="text-right" ng-hide="true"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.RejectionClamRate"></td>
 
                                 @*<td>{{x.CountryName}}</td>*@
-                                <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.AlternativeQty"></td>
 
                                 <td>{{x.RefferenceNo}}</td>
                                 <td>{{x.MaterialDetail}}</td>
                                 <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.LotNumber" ng-disabled="false"></td>
                                 <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Diameter" ng-disabled="false"></td>
                                 <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Type" ng-disabled="false"></td>
-
-                                <td></td>
+                                <td>
+                                    <ul class="list-inline action-list">
+                                        <li><button ng-click="CopyRow($index,x)" class="btn btn-action tooltip-here"   data-placement="top" id="MEdit" title="Copy Row">Copy</button></li>
+                                        <li>
+                                            <button ng-click="removeCopyRow($index)" data-toggle="modal"  class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                        </li>
+                                    </ul>
+                                </td>
+                                
                             </tr>
                             <tr ng-show="inventoryMaterialListPO.length">
                                 <td></td>
@@ -1261,6 +1247,8 @@
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount1(x);" width="20" ng-model="x.OtherReceived" ng-disabled="true"></td>
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount1(x);" width="20" ng-model="x.TransactionQty" ng-disabled="GriddataSelected.length===0"></td>  @*ng-keyup="calculateAmount(x);"*@
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount1(x);" width="20" ng-model="x.Balance" ng-disabled="true"></td>
+                                <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.AlternativeQty"></td>
+                                <td class="text-right">{{x.AlternativeUOM}}</td>
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="500" ng-model="x.ShortageQty" ng-disabled="false"></td>  @*ng-keyup="calculateAmount(x);"*@
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount1(x,$index);" width="500" ng-model="x.RejectionQty" ng-disabled=""></td>  @* x.enableid ng-keyup="calculateAmount(x);"*@
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="500" ng-model="x.ApprovedQty" ng-disabled="true"></td>  @*ng-keyup="calculateAmount(x);"*@
@@ -1280,7 +1268,6 @@
                                 <td class="text-right" ng-hide="true"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.RejectionValue"></td>
                                 <td class="text-right" ng-hide="true"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.RejectionClamRate"></td>
 
-                                <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.AlternativeQty"></td>
                                 @*<td>{{x.CountryName}}</td>*@
                                 <td>{{x.RefferenceNo}}</td>
                                 <td>{{x.MaterialDetail}}</td>

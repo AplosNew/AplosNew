@@ -2046,7 +2046,8 @@ namespace Library.MaterialManagement.Inventory
             }
             try
             {
-                var sql = @"SELECT A.Id,A.InventoryReceiveDetailId,A.InventoryReceiveId, A.TaxCategoryId, TC.UserName AS TaxCategory, A.HSNCodeId, HN.Code AS HSNCode, A.[Percentage], 0 TaxAmount,d.id As PODetailId
+                var sql = @"SELECT A.Id,A.InventoryReceiveDetailId,A.InventoryReceiveDetailId PODetailsID,0 RowIdentityNo,A.InventoryReceiveId, A.TaxCategoryId
+                    , TC.UserName AS TaxCategory, A.HSNCodeId, HN.Code AS HSNCode, A.[Percentage], 0 TaxAmount,d.id As PODetailId
                             FROM [TRN].[PurchaseOrderTax] AS A JOIN [MST].[TaxCategory] AS TC ON A.TaxCategoryId=TC.Id
                             LEFT JOIN [HKP].[HSNCode] AS HN ON A.HSNCodeId=HN.Id
 							left join TRN.PurchaseOrderDetail d on d.id= A.InventoryReceiveDetailId
@@ -5286,11 +5287,8 @@ namespace Library.MaterialManagement.Inventory
                 var dsInventoryReceiveAdditionalTax = loadInventoryReceiveAdditionalTax(grnId);
                 var InventoryReceiveAdditionalTax = 0.00;
                 if (dsInventoryReceiveAdditionalTax.Rows.Count > 0)
-
                 {
                     InventoryReceiveAdditionalTax = makeInventoryReceiveAdditionalTaxTable(document, dsInventoryReceiveAdditionalTax, grnId);//Service Details 
-                                                                                                                                             //document.Replace("{ServiceDetails}", "Service Details", true, true);
-
                     //{TotalInWords}
                 }
                 loadGRNShortageTable(document, grnId);

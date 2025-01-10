@@ -198,10 +198,15 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $scope.obj = {};
     $scope.SelectOption = function (args) {
 
-        $("#CreateNewPopUp").data("ejDialog").open();
+       // $("#CreateNewPopUp").data("ejDialog").open();
 
-        $scope.obj = Object.assign({}, args.data);
-        
+        //$scope.obj = Object.assign({}, args.data);
+
+        $scope.fabricRollMaster = Object.assign({}, args.data);
+        $scope.fabricRollMaster.GRNId = $scope.fabricRollMaster.GRNNo;
+        $scope.LoadMaterialSearchList();
+        $scope.getSaveMaster($scope.fabricRollMaster.GRNNo);
+
         angular.element(document.querySelector('#grnListPopUp')).modal('hide');
     };
 
@@ -1166,6 +1171,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $scope.Action = "Save";
     $scope.SaveRollData = function () {
         try {
+
             if (baseService.isUndefinedOrNull($scope.fabricRollMaster.GRNNo)) {
                 throw "Please select GRN No.";
             }
@@ -1175,7 +1181,9 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
             if (baseService.isUndefinedOrNull($scope.fabricRollMaster.CheckedById)) {
                 throw "Checked By is required.";
             }
-
+            if (baseService.isUndefinedOrNull($scope.fabricRollMaster.UserName)) {
+                throw "User Reference is required.";
+            }
             //$scope.modeldata.Id = $scope.fabricRollMaster.Id;
             //$scope.modeldata.GRNId = $scope.fabricRollMaster.GRNNo;
             //$scope.modeldata.GRNDate = $scope.fabricRollMaster.GRNDate;

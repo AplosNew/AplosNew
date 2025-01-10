@@ -807,7 +807,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         [HttpPost]
         public JsonResult InsertVendorPayment(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-            , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<PurchaseLCChargesViewModel> purchaseLCChargesVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<VoucherDetailViewModel> glVMList, IEnumerable<VoucherViewModel> advanceVMList, IEnumerable<VoucherViewModel> existingLoanList)
+            , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<PurchaseLCChargesViewModel> purchaseLCChargesVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<VoucherDetailViewModel> glVMList, IEnumerable<VoucherViewModel> advanceVMList, VoucherDetailViewModel VoucherDetailVM, IEnumerable<VoucherViewModel> existingLoanList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -827,7 +827,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 throw new CustomException("Please select Vendor");
             if ((voucherVM.PaymentSource == "Vendor") && (voucherVM.FinancingTypeId == null))
                 throw new CustomException("Please select transaction type");
-            if ((voucherVM.PaymentSource == "Employee") && (voucherVM.AdvanceId == null))
+            if ((voucherVM.PaymentSource == "Employee") && (voucherVM.AdvanceId == null && VoucherDetailVM.EmployeeAdvanceDetailId==null))
                 throw new CustomException("Please select Employee Advance");
 
             foreach (var advanceDetailVM in voucherDetailVMList)
@@ -839,7 +839,7 @@ namespace Aplos.Areas.Accounts.Controllers
             }
             if (voucherVM.PaymentSource == "Employee")
             {
-                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceWriteOffService.InsertVendorPaymentEmployeeAdvanceWriteOff(voucherVM, voucherDetailVMList, bankChargeDetailVMList, advanceVMList)) });
+                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceWriteOffService.InsertVendorPaymentEmployeeAdvanceWriteOff(voucherVM, voucherDetailVMList, bankChargeDetailVMList, advanceVMList, VoucherDetailVM)) });
             }
             else
             {
@@ -2099,7 +2099,7 @@ namespace Aplos.Areas.Accounts.Controllers
             {
                 AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var jsondata = Json(_accountsInvoiceService.InvoiceReviseMatureDateList(identity.CompanyGroupId, identity.CompanyId, partyType, FromDate, ToDate, DateRange), JsonRequestBehavior.AllowGet);
+                var jsondata = Json(_accountsInvoiceService.GetInvoiceReviseMatureDateList(identity.CompanyGroupId, identity.CompanyId, partyType, FromDate, ToDate, DateRange), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
                 return jsondata;
             }

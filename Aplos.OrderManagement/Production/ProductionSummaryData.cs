@@ -7905,7 +7905,6 @@ left join[TRN].[CustomerQualityReportHeader] CQH on " + CQRHFilter + " " + CustF
 where CustomerParameter=1 and QCD.GradeId is not null" + LotFilter + ")P order by P.Finalreport desc";
             return _sqlRepository.GetDataCollection(sql, null);
         }
-
         
         public IEnumerable<object> GetByWhomList()
         {
@@ -7926,6 +7925,109 @@ where CustomerParameter=1 and QCD.GradeId is not null" + LotFilter + ")P order b
                                 left join hkp.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
                                 where EMP.EmployeeStatus = 'Active'";
             return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public object getCutFilters(string processId)
+        {
+            try
+            {
+                var str = @"select PO.Id ProductionOrderId,P.UserName Customer,PLC.LotNo LotNumber,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping,MOI.OwnReferenceNo,
+PS.UserName ProductionStatus,OS.UserName AS OrderStatusName,SO.Id SONo,SO.Qty,isnull((select PlanPercentage from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id),
+MO.ExtraOrderPercentage) SOPlanPercentage,isnull((select SOPlanQty from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id),SO.Qty + (MO.ExtraOrderPercentage*SO.Qty / 100)) as SOPlanQty,
+(select PlanStatus from MST.MasterPlan where id=(select MasterPlanId from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id)) as MasterPlanStatus,
+(case when (select MasterPlanId from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id) is null then 0 else 1 end) IsMasterPlan,
+(select MasterPlanId from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id) as MasterPlanId,
+(select Id from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id) as Id,
+(select Status from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id) as Status,
+MOI.MaterialMasterId, MM.UserName AS MaterialMasterName, MOI.ArticleId, 
+ART.StandardName AS ArticleName,MOI.BuyerReferenceNo,MOI.Id LineItemNo,SO.Id AS SalesOrderId,MO.MasterOrderNo,
+E.UserName POEntity,PPS.JobWorkApplicable IsJW,PPS.JobWorkType JWType,(Case when PPS.JobWorkType='EntityWithinCompany' then (select UserName from ORG.Entity where Id=PPS.EntityIdWithinCompany) 
+when PPS.JobWorkType='EntityWithinGroup' then (select UserName from ORG.Entity where Id=PPS.EntityIdWithinCompany)
+when PPS.JobWorkType='Party' then (select UserName from hkp.Party where Id=PPS.PartyId) end ) EntityVendor
+from TRN.ProductionOrder PO
+left join TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderId=PO.Id
+LEFT JOIN dbo.ProductionOrderLotControl PLC ON PLC.ProductionOrderId=PO.Id AND PLC.ProcessId='" + processId + @"'
+left join TRN.ProductionOrderDetail POD ON POD.ProductionOrderId=PO.Id
+left join TRN.SalesOrder SO ON SO.Id=POD.SalesOrderId
+left join [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
+left join [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
+left join [HKP].[Party] AS P ON MO.PartyId = P.Id
+left join [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
+left join [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
+left join [HKP].[ProductionStatus] PS ON PS.Id=PO.ProductionStatusId
+left join [TRN].[CustomerPO] AS CP ON SO.CustomerPOId = CP.Id
+left join [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
+left join [ORG].[Entity]  AS E ON E.Id=PO.EntityId
+LEFT JOIN [MST].[MasterPlanSODetails] CPD on CPD.SalesOrderId=SO.Id and CPD.Status=1
+where PPS.ProcessId = '" + processId + @"'
+and PO.ProductionStatusId in (select Id from HKP.ProductionStatus where MasterPlanApplicable=1)
+and SO.OrderStatusId in (select Id from HKP.OrderStatus OS where OS. MasterPlanApplicable=1) AND (select Id from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id)<>''
+AND (select PlanStatus from MST.MasterPlan where id=(select MasterPlanId from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id))='Active'
+ORDER BY MOI.ProductionGrouping,MOI.OwnReferenceNo";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public object GetCutPlanData(string processId,string masterPlanId)
+        {
+            try
+            {
+                var str = @"Select M.* From (select Flag=CAST(0 as bit),PO.Id POId,P.UserName Customer,PLC.LotNo,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping,MOI.OwnReferenceNo,
+PS.UserName ProductionStatus,OS.UserName AS OrderStatusName,SO.Id SONo,SO.Qty,isnull((select PlanPercentage from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id),
+MO.ExtraOrderPercentage) SOPlanPercentage,isnull((select SOPlanQty from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id),SO.Qty + (MO.ExtraOrderPercentage*SO.Qty / 100)) as SOPlanQty,
+(select PlanStatus from MST.MasterPlan where id=(select MasterPlanId from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id)) as MasterPlanStatus,
+(case when (select MasterPlanId from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id) is null then 0 else 1 end) IsMasterPlan,
+(select MasterPlanId from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id) as MasterPlanId,
+(select Id from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id) as Id,
+(select Status from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id) as Status,
+MOI.MaterialMasterId, MM.UserName AS MaterialMasterName, MOI.ArticleId, 
+ART.StandardName AS ArticleName,MOI.BuyerReferenceNo,MOI.Id LineItemNo,SO.Id AS SalesOrderId,MO.MasterOrderNo,
+E.UserName POEntity,PPS.JobWorkApplicable IsJW,PPS.JobWorkType JWType,(Case when PPS.JobWorkType='EntityWithinCompany' then (select UserName from ORG.Entity where Id=PPS.EntityIdWithinCompany) 
+when PPS.JobWorkType='EntityWithinGroup' then (select UserName from ORG.Entity where Id=PPS.EntityIdWithinCompany)
+when PPS.JobWorkType='Party' then (select UserName from hkp.Party where Id=PPS.PartyId) end ) EntityVendor
+from TRN.ProductionOrder PO
+left join TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderId=PO.Id
+LEFT JOIN dbo.ProductionOrderLotControl PLC ON PLC.ProductionOrderId=PO.Id AND PLC.ProcessId='" + processId + @"'
+left join TRN.ProductionOrderDetail POD ON POD.ProductionOrderId=PO.Id
+left join TRN.SalesOrder SO ON SO.Id=POD.SalesOrderId
+left join [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
+left join [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
+left join [HKP].[Party] AS P ON MO.PartyId = P.Id
+left join [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
+left join [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
+left join [HKP].[ProductionStatus] PS ON PS.Id=PO.ProductionStatusId
+left join [TRN].[CustomerPO] AS CP ON SO.CustomerPOId = CP.Id
+left join [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
+left join [ORG].[Entity]  AS E ON E.Id=PO.EntityId
+LEFT JOIN [MST].[MasterPlanSODetails] CPD on CPD.SalesOrderId=SO.Id and CPD.Status=1
+where PPS.ProcessId = '" + processId + @"'
+and PO.ProductionStatusId in (select Id from HKP.ProductionStatus where MasterPlanApplicable=1)
+and SO.OrderStatusId in (select Id from HKP.OrderStatus OS where OS. MasterPlanApplicable=1) AND (select Id from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id)<>''
+AND (select PlanStatus from MST.MasterPlan where id=(select MasterPlanId from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id))='Active'
+) M Where M.MasterPlanId='"+masterPlanId+"'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetCutPlantCbo()
+        {
+            try
+            {
+                string sql = @"Select * from MST.AllotedHeader Order By UserName";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         #endregion

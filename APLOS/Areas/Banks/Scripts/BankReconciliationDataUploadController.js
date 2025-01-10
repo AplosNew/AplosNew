@@ -314,6 +314,13 @@ function bankReconciliationDataUploadController($scope, $http, $location, $rootS
         if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
         $window.open($scope.path + 'GetBankReconciliationUploadedDataReport?reportFormat=' + reportFormat + '&bankReconciliationUploadId=' + data.Id, '_blank');
     };
+
+    $scope.onClickReportDownloadforMailExcel = function (data) {
+        var reportFormat = "Excel";
+        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
+        $window.open($scope.path + 'GetBankReconciliationUploadedDataForMailReport?reportFormat=' + reportFormat, '_blank');
+    };
+
     $scope.onClickDeletePopUp = function (x) {
         var data = x;
         $scope.bankReconciliationUploadId = data.Id;

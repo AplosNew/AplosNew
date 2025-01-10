@@ -70,6 +70,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
     };
 
+    $scope.IsBillDiscountingDays = false;
+
     $scope.file = {
         Id: null
         , CompanyId: null
@@ -478,6 +480,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         angular.copy(index.data, $scope.file);
         $scope.file.IsExtraOrderPercentage = $scope.file.ExtraOrderPercentage > 0;
         angular.copy($scope.file, $scope.fileNew);
+        $scope.IsBillDiscountingDays = $scope.fileNew.IsBillDiscountingDays;
         $scope.fileNew.OrderYear = parseInt($scope.fileNew.OrderYear);
         $scope.RemarksControlmodel.Id = $scope.fileNew.UserRemarksControlId;
         $scope.RemarksControlmodel.MasterOrderId = $scope.fileNew.Id;
@@ -1959,6 +1962,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 , CommitmentDate: null
                 , DestinationId: null
                 , ShipmentModeId: null
+                , ReviseDate: null
+                , BillDiscountingDays: 0
                 , CustomerPOId: null
                 , PONumber: null
                 , OrderStatusId: null
@@ -1995,7 +2000,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 , PackingTypeId: null
                 , ContractId: null
                 , ContractNo: null
-                , CheckByDate: null, CheckByStatus: null, ApproveBy: null, ApproveByDate: null, ApprovedStatus: null, DeliveryGroup:null
+                , CheckByDate: null, CheckByStatus: null, ApproveBy: null, ApproveByDate: null, ApprovedStatus: null, DeliveryGroup: null
             };
             getSalesOrderList();
             $scope.getDestination();
@@ -2422,6 +2427,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , CommitmentDate: null
             , DestinationId: null
             , ShipmentModeId: null
+            , ReviseDate: null
+            , BillDiscountingDays: 0
             , CustomerPOId: null
             , PONumber: null
             , OrderStatusId: $scope.fileNew.OrderStatusId
@@ -2490,6 +2497,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         , CommitmentDate: null
         , DestinationId: null
         , ShipmentModeId: null
+        , ReviseDate: null
         , CustomerPOId: null
         , PONumber: null
         , UpCharge: null
@@ -2524,7 +2532,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         , PackingTypeId: null
         , ContractId: null
         , ContractNo: null
-        , CheckByDate: null, CheckByStatus: null, ApproveBy: null, ApproveByDate: null, ApprovedStatus: null, DeliveryGroup: null
+        , CheckByDate: null, CheckByStatus: null, ApproveBy: null, ApproveByDate: null, ApprovedStatus: null, DeliveryGroup: null, BillDiscountingDays: 0
     };
 
     $scope.SplitSO = function (data) {
@@ -2534,6 +2542,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.soSplitModel.DestinationId = data.DestinationId;
         $scope.soSplitModel.CommitmentDate = data.CommitmentDate;
         $scope.soSplitModel.ShipmentModeId = data.ShipmentModeId;
+        $scope.soSplitModel.ReviseDate = data.ReviseDate;
         $scope.soSplitModel.CustomerPOId = data.CustomerPOId;
         $scope.soSplitModel.UpCharge = data.UpCharge;
         $scope.soSplitModel.OrderStatusId = data.OrderStatusId
@@ -2578,6 +2587,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.soSplitModel.ApproveByDate = data.ApproveByDate;
         $scope.soSplitModel.ApprovedStatus = data.ApprovedStatus;
         $scope.soSplitModel.DeliveryGroup = data.DeliveryGroup;
+        $scope.soSplitModel.BillDiscountingDays = data.BillDiscountingDays;
         angular.element(document.querySelector('#soSplitPoUp')).modal('show');
     }
 
@@ -2837,22 +2847,39 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     };
 
     $scope.getPOData = function (id, poNumber) {
+        $scope.poModel.Id = id;
         $scope.soModel.CustomerPOId = id;
         $scope.soModel.PONumber = poNumber;
         angular.element(document.querySelector('#poSearchPopup')).modal('hide');
     };
 
+    $scope.poModel = {
+        Id: null
+        , PONumber: null
+        , CustomerId: $scope.fileNew.PartyId
+        , CompanyGroupId: $window.companyGroupId
+        , CompanyId: $window.companyId
+        , MasterOrderId: $scope.fileNew.Id
+        , PODate: null
+        , Active: true
+    };
     $scope.poFgEntryPopup = function () {
-        $scope.poModel = {
-            Id: null
-            , PONumber: null
-            , CustomerId: $scope.fileNew.PartyId
-            , CompanyGroupId: $window.companyGroupId
-            , CompanyId: $window.companyId
-            , MasterOrderId: $scope.fileNew.Id
-            , PODate: null
-            , Active: null
-        };
+        if (!baseService.isUndefinedOrNull($scope.soModel.CustomerPOId)) {
+            $scope.poModel.Id = $scope.soModel.CustomerPOId;
+            $scope.poModel.PONumber = $scope.soModel.PONumber;
+            $scope.poModel.PODate = $scope.soModel.PODate;
+        } else {
+            $scope.poModel = {
+                Id: null
+                , PONumber: null
+                , CustomerId: $scope.fileNew.PartyId
+                , CompanyGroupId: $window.companyGroupId
+                , CompanyId: $window.companyId
+                , MasterOrderId: $scope.fileNew.Id
+                , PODate: null
+                , Active: true
+            };
+        }
         angular.element(document.querySelector('#poEntryPopup')).modal('show');
     };
 
@@ -2860,27 +2887,52 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         try {
             if (baseService.isUndefinedOrNull($scope.poModel.PONumber)) throw "[PO No] can not be blank...";
             if (baseService.isUndefinedOrNull($scope.poModel.PODate)) throw "[PO Date] can not be blank...";
-            $http({
-                method: 'POST'
-                , url: $scope.path + 'CreatePO'
-                , data: $scope.poModel
-                , dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure', 'poEntryPopup');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success', 'poEntryPopup');
+            if (baseService.isUndefinedOrNull($scope.poModel.Id)) {
+                $http({
+                    method: 'POST'
+                    , url: $scope.path + 'CreatePO'
+                    , data: $scope.poModel
+                    , dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure', 'poEntryPopup');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success', 'poEntryPopup');
 
-                    $scope.soModel.CustomerPOId = response.data.tuple.Item1;
-                    $scope.soModel.PONumber = response.data.tuple.Item2;
+                        $scope.soModel.CustomerPOId = response.data.tuple.Item1;
+                        $scope.soModel.PONumber = response.data.tuple.Item2;
 
-                    angular.element(document.querySelector('#poEntryPopup')).modal('hide'); //Hide Detail Add/Edit Modal
-                }
-            }, function errorCallback(response) {
-                ShowResult(response.status.Message, 'failure', 'poEntryPopup');
-            });
-            return true;
+                        angular.element(document.querySelector('#poEntryPopup')).modal('hide'); //Hide Detail Add/Edit Modal
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.status.Message, 'failure', 'poEntryPopup');
+                });
+                return true;
+            } else {
+                $http({
+                    method: 'POST'
+                    , url: $scope.path + 'UpdatePO'
+                    //, data: $scope.poModel
+                    , data: { 'data': $scope.poModel }
+                    , dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure', 'poEntryPopup');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success', 'poEntryPopup');
+
+                        $scope.soModel.CustomerPOId = $scope.poModel.Id;
+                        $scope.soModel.PONumber = $scope.poModel.PONumber;
+
+                        angular.element(document.querySelector('#poEntryPopup')).modal('hide'); //Hide Detail Add/Edit Modal
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.status.Message, 'failure', 'poEntryPopup');
+                });
+                return true;
+            }
         } catch (e) {
             ShowResult(e, 'failure', "poEntryPopup");
         }

@@ -7640,6 +7640,8 @@ namespace Library.Service.Invoices
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                var direct = new System.Text.StringBuilder();
+                var directsql = "";
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 voucherVM.PartyType = PartyType.Vendor.ToString();
@@ -7845,6 +7847,9 @@ namespace Library.Service.Invoices
                                 AddedFromIP = invoiceTax.AddedFromIP
                             };
                             _invoiceTaxDetailRepository.Insert(invoiceTaxDetail);
+                            directsql = @"update [TRN].[VoucherDetail] set InvoiceTaxDetailId='" + invoiceTaxDetail.Id + @"' where Id='" + voucherDetailCr.Id + @"' 
+                                      ";
+                            direct.Append(directsql);
                         }
 
                     }
@@ -7907,6 +7912,9 @@ namespace Library.Service.Invoices
                             AddedFromIP = invoiceTax.AddedFromIP
                         };
                         _invoiceTaxDetailRepository.Insert(invoiceTaxDetail);
+                        directsql = @"update [TRN].[VoucherDetail] set InvoiceTaxDetailId='" + invoiceTaxDetail.Id + @"' where Id='" + voucherDetailDrTax.Id + @"' 
+                                      ";
+                        direct.Append(directsql);
                     }
 
 
@@ -7918,6 +7926,10 @@ namespace Library.Service.Invoices
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
+                if (direct.ToString() != "")
+                {
+                    _sqlRepository.ExecuteSqlCommand(direct.ToString());
+                }
                 return voucher.VoucherNo;
             }
             catch (CustomException)

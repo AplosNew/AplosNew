@@ -204,7 +204,7 @@
     </div>
     <div class="common-btn">
         <ul class="list-inline text-right">
-            <li><button ng-click="save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li><button ng-click="save();" ng-disabled="actionIsDisable" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
             <li ng-hide="voucher.Id==null"><button ng-click="confirmPost(voucher.Id);" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>
             <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
@@ -239,6 +239,7 @@
                     <th>VoucherNo</th>
                     <th>Cash</th>
                     <th>Posting Date</th>
+                    <th>Entity</th>
                     <th>Currency</th>
                     <th>Amount</th>
                     <th>Status</th>
@@ -250,6 +251,7 @@
                     <td>{{x.VoucherNo}}</td>
                     <td>{{x.UserName}}</td>
                     <td>{{x.PostingDate | dateFiltering}}</td>
+                    <td>{{x.EntityName}}</td>
                     <td>{{x.CurrencyCode}}</td>
                     <td class="text-right">{{x.Amount | number:2}}</td>
                     <td>{{x.IsPark?'Parked':'Posted'}}</td>
@@ -268,6 +270,7 @@
     </div>
 </div>
 @Html.Partial("~/Areas/Accounts/Views/_GLBudgetActivityPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_PostPopUp.cshtml")
 <confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="detailDelete();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(cashJournalId,voucherId)"></confirm-archive-generic>
-<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceId)"></confirm-archive-generic>
+@*<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceId)"></confirm-archive-generic>*@

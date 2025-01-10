@@ -318,10 +318,10 @@ namespace Aplos.Areas.Products.Controllers
                                 {
                                     dr["BaseUoMFactor"] = 1;
                                 }
-                                if (Convert.ToDecimal(dr["GRNRcvQty"].ToString()) > 0 && isToleranceUpdate == false)
-                                {
-                                    throw new CustomException(@"GRN have been created against this PO.  PO Update is not allow !!!");
-                                }
+                                //if (Convert.ToDecimal(dr["GRNRcvQty"].ToString()) > 0 && isToleranceUpdate == false)
+                                //{
+                                //    throw new CustomException(@"GRN have been created against this PO.  PO Update is not allow !!!");
+                                //}
                             }
                            
                             materialCommonService.EditRowD(dr, item);

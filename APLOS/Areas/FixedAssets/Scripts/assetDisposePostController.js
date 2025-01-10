@@ -61,6 +61,7 @@ function assetDisposePostController(accountService, cboService, commonMessage, $
     $scope.voucher = {
         Id: null,
         VoucherDate: $filter("dateFiltering")(Date.now()),
+        PostingDate: $filter("dateFiltering")(Date.now()),
         DocDate: null,
         DocRefNo: null,
         Amount: 0,
@@ -147,14 +148,14 @@ function assetDisposePostController(accountService, cboService, commonMessage, $
         }), function (response) {
             ShowResult(response.data.Message, 'failure');
             };
-        if ($scope.companyConfig.IsFixedAssetSalesBook && $scope.voucher.PartyId != null) {
-            $scope.getFixedAssetSalesBookAsSalesJV1List(data.Id);
-            $scope.getFixedAssetSalesBookAsSalesJV2List(data.Id);
-        }
-        else {
+        //if ($scope.companyConfig.IsFixedAssetSalesBook && $scope.voucher.PartyId != null) {
+        //    $scope.getFixedAssetSalesBookAsSalesJV1List(data.Id);
+        //    $scope.getFixedAssetSalesBookAsSalesJV2List(data.Id);
+        //}
+        //else {
 
         $scope.getDisposeJV(data.Id);
-        }
+        //}
         angular.element(document.querySelector('#DisposePopUp')).modal('hide');
     };
 
@@ -165,7 +166,7 @@ function assetDisposePostController(accountService, cboService, commonMessage, $
             $scope.jvurl = 'FixedAssets/FixedAssetRegister/GetCapitalizeAssetLostJVList?fixedAssetDisposeId=' + id
         }
         else if ($scope.voucher.Status == 'Sales') {
-            $scope.jvurl = 'FixedAssets/FixedAssetRegister/GetFixedAssetSalesSingleJVList?fixedAssetDisposeId=' + id
+            $scope.jvurl = 'FixedAssets/FixedAssetRegister/GetCapitalizeAssetSalesJVList?fixedAssetDisposeId=' + id
         }
         else if ($scope.voucher.Status == 'Scrap') {
             $scope.jvurl = 'FixedAssets/FixedAssetRegister/GetFixedAssetScrapSingleJVList?fixedAssetDisposeId=' + id
@@ -241,7 +242,7 @@ function assetDisposePostController(accountService, cboService, commonMessage, $
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
-                $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
+                //$scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
                 //$scope.voucher.DocDate = $scope.voucher.PostingDate;
                 $scope.GetCurrencyExchangeRateList();
             }
@@ -255,7 +256,7 @@ function assetDisposePostController(accountService, cboService, commonMessage, $
                 url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $scope.voucher.PostingDate + "&currencyId=" + $scope.voucher.CurrencyId
             }).then(function successCallback(response) {
                 $scope.currencyExchangeRate = response.data;
-                $scope.voucher.CompanyCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
+                //$scope.voucher.CompanyCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
             });
         }
         else {
@@ -339,6 +340,9 @@ function assetDisposePostController(accountService, cboService, commonMessage, $
 
     $scope.Save = function () {
         //$scope.voucher.DocDate = $scope.voucher.PostingDate;
+        if ($scope.fixedAssetDisposeJVList.length == 0) {
+            ShowResult("GL not found!.", 'failure');
+        }
         $scope.$broadcast("show-errors-check-validity");
         if ($scope.form0.$valid) {
             $scope.SaveUrl = "fixedassets/FixedAssetRegister/CreateCapitalizeAssetDisposePost"
@@ -368,29 +372,29 @@ function assetDisposePostController(accountService, cboService, commonMessage, $
                 });
                 return true;
             }
-            else if ($scope.Action === "Update") {
-                $http({
-                    method: "POST",
-                    url: "accounts/OpeningBalance/UpdateOBAdvanceJournal",
-                    data: {
-                        "voucherVM": $scope.voucher,
-                        "voucherDetailVMList": JSON.stringify($scope.voucherDetailList)
-                    },
-                    dataType: 'JSON'
-                    , contentType: "application/json charset=utf-8"
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, "failure");
-                    }
-                    else {
-                        ShowResult(response.data.Message, "success");
-                        $scope.getData();
-                        $scope.Clear();
-                    }
-                }, function errorCallback(response) {
-                    ShowResult(response.status.Message, "failure");
-                });
-            }
+            //else if ($scope.Action === "Update") {
+            //    $http({
+            //        method: "POST",
+            //        url: "accounts/OpeningBalance/UpdateOBAdvanceJournal",
+            //        data: {
+            //            "voucherVM": $scope.voucher,
+            //            "voucherDetailVMList": JSON.stringify($scope.voucherDetailList)
+            //        },
+            //        dataType: 'JSON'
+            //        , contentType: "application/json charset=utf-8"
+            //    }).then(function successCallback(response) {
+            //        if (response.data.Error === true) {
+            //            ShowResult(response.data.Message, "failure");
+            //        }
+            //        else {
+            //            ShowResult(response.data.Message, "success");
+            //            $scope.getData();
+            //            $scope.Clear();
+            //        }
+            //    }, function errorCallback(response) {
+            //        ShowResult(response.status.Message, "failure");
+            //    });
+            //}
             return true;
         }
     };

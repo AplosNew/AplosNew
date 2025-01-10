@@ -7,7 +7,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
     $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
     $scope.downloadgriddataUrl = 'GridReports/Download';
     //$scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
-    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+    
     $scope.ProductionDataSumReportList = [];
     $scope.ProductionDataReportList = [];
     $scope.tab = 1;

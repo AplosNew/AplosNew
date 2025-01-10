@@ -43,6 +43,7 @@ function InputCreditController(cboService, commonMessage, $scope, $rootScope, ba
         StandardName: null,
         UserName: null,
         UserRef: null,
+        YearNo:null,
         MonthNo: null,
         FromDate: null,
         ToDate: null,
@@ -62,6 +63,13 @@ function InputCreditController(cboService, commonMessage, $scope, $rootScope, ba
         UpdatedFromIP: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
+    $scope.leaveYearlist = [];
+    cboService.getCboLeaveYear(function (result) {
+        $scope.leaveYearlist = result;
+        $scope.ModelNew.YearNo = $filter("filter")($scope.leaveYearlist, { Text: new Date().getFullYear() })[0].Value;
+    });
+
 
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {
@@ -136,6 +144,14 @@ function InputCreditController(cboService, commonMessage, $scope, $rootScope, ba
             if (baseService.isUndefinedOrNull($scope.ModelNew.ToDate)) {
                 throw "Select To Date";
             }
+            //$scope._FromDate = (new Date($scope.ModelNew.FromDate).getMonth() + 1).toString();
+            //$scope._ToDate = (new Date($scope.ModelNew.ToDate).getMonth() + 1).toString();
+            //if ($scope.ModelNew.MonthNo != $scope._FromDate) {
+            //    throw "Select From Date by selected month.";
+            //}
+            //if ($scope.ModelNew.MonthNo != $scope._ToDate) {
+            //    throw "Select From Date by selected month.";
+            //}
             $http({
                 method: 'GET',
                 url: 'SalesManagements/Sales/GetSalesMaterialDataList?fromDate=' + $scope.ModelNew.FromDate + '&toDate=' + $scope.ModelNew.ToDate + '&inputCreditId=' + $scope.ModelNew.Id
