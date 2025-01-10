@@ -1712,11 +1712,12 @@ namespace Aplos.Controllers.ApopAPIHR
         #endregion Addinfo
 
         #region Auburn
-        public string PostPacketScanData([FromBody] IEnumerable<PacketScanData> DataToSave)
+        [HttpPost]
+        public string PostScanRawData([FromBody] IEnumerable<PacketScanData> DataToSave)
         {
             try
             {
-                string Id = clsData.PostPacketScanData(DataToSave);
+                string Id = clsData.PostScanRawData(DataToSave);
                 return Id;
             }
             catch (Exception ex)

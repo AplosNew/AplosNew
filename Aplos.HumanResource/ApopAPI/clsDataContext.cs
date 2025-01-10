@@ -13238,7 +13238,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
         #endregion AddInfo
 
         #region Auburn
-       /* public string PostPacketScanData(IEnumerable<PacketScanData> DataToSave)
+        public string PostScanRawData(IEnumerable<PacketScanData> DataToSave)
         {
             try
             {
@@ -13301,9 +13301,9 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                 return ex.ToString();
             }
 
-        }*/
+        }
 
-        public string PostPacketScanData(IEnumerable<PacketScanData> DataToSave)
+        /*public string PostPacketScanData(IEnumerable<PacketScanData> DataToSave)
         {
             try
             {
@@ -13368,7 +13368,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                 return ex.ToString();
             }
 
-        }
+        }*/
         #endregion Auburn
     }
 
