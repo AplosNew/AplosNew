@@ -1829,8 +1829,8 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 
                 #region DataSet Finding
 
-                var sql = @"select xx.*,ROUND((xx.opening+ xx.Earned-xx.Availed-xx.RegularEncashment+xx.PAdjustment),0)as Closing 
-                    
+                var sql = @"select xx.*,ROUND((xx.opening+ xx.Earned-xx.Availed-xx.RegularEncashment),0)as Closing 
+                    --select xx.*,ROUND((xx.opening+ xx.Earned-xx.Availed-xx.RegularEncashment+xx.PAdjustment),0)as Closing 
 			    from (select dd.*,
 				ROUND(case when lpd.EncashWorkingDaysQty >0 then dd.EarningDays/lpd.EncashWorkingDaysQty else 0 END,0) as Earned,ISNULL(ame.PAdjustment,0)PAdjustment		
                 from (select e.SystemId as EmpId,e.EmployeeCode,ld.Id as 
@@ -1978,7 +1978,7 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                         decimal Closing = Opening + Earned - Availed;
                         decimal Carryforward = 0;
                         decimal bl = Earned - Availed;
-
+                        decimal cls = 0;
                         if (bl > MaxCarryForward && bl > 0)
                         {
                             Carryforward = bl - (bl - MaxCarryForward);
@@ -1987,14 +1987,20 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                         {
                             Carryforward = bl + Opening;
                         }
-                        else if (bl > 0 && bl < MaxCarryForward)
+                        else if (bl > 0 && bl > MaxCarryForward)
                         {
                             Carryforward = MaxCarryForward;
                         }
-                        else 
+                        else if (Closing > MaxCarryForward)
+                        {
+                            Carryforward = MaxCarryForward;
+                        }
+                        else
                         {
                             Carryforward = bl;
                         }
+
+
                         //if (Closing > MaxCarryForward)
                         //{
                         //    Carryforward = MaxCarryForward;
@@ -2003,7 +2009,14 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                         //{
                         //    Carryforward = Closing;
                         //}
-
+                        if (Closing > MaxCarryForward)
+                        {
+                            cls = MaxCarryForward;
+                        }
+                        else
+                        {
+                            cls = Closing;
+                        }
                         Balance = Opening + Carryforward;
                         decimal AnnualEncash = 0;
                         if (Balance > MaxEncash)
@@ -2043,7 +2056,15 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                             dr["Availed"] = Availed;
                             dr["RegularEncashment"] = RegularEncashment;
                             dr["Adjustment"] = Adjustment;
-                            dr["Closing"] = Closing;
+                            //if (Closing > MaxCarryForward)
+                            //{
+                            //    dr["Closing"] = MaxCarryForward;
+                            //}
+                            //else
+                            //{
+                            //    dr["Closing"] = Closing;
+                            //}
+                            dr["Closing"] = cls;
                             dr["CarryForward"] = Carryforward;
                             dr["AnnualEncashment"] = AnnualEncash;
                             dr["Lapse"] = ResultingLapse;
@@ -2065,7 +2086,15 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                             dr["Availed"] = Availed;
                             dr["RegularEncashment"] = RegularEncashment;
                             dr["Adjustment"] = Adjustment;
-                            dr["Closing"] = Closing;
+                            //if (Closing > MaxCarryForward)
+                            //{
+                            //    dr["Closing"] = MaxCarryForward;
+                            //}
+                            //else
+                            //{
+                            //    dr["Closing"] = Closing;
+                            //}
+                            dr["Closing"] = cls;
                             dr["CarryForward"] = Carryforward;
                             dr["AnnualEncashment"] = AnnualEncash;
                             dr["Lapse"] = ResultingLapse;
