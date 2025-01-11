@@ -8129,7 +8129,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                             sheet1.Range[xlsRow, cGender].Text = dtEmployees.Rows[i]["Gender"].ToString();
                         sheet1.Range[xlsRow, cGender].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, cGender].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        sheet1.Range[xlsRow, ColDV].Text = dtEmployees.Rows[i]["DisbursementVoucherId"].ToString();
+                        sheet1.Range[xlsRow, ColDV].Text = dtEmployees.Rows[i]["PayableVoucherId"].ToString();
                         sheet1.Range[xlsRow, ColVN].Text = dtEmployees.Rows[i]["VoucherNo"].ToString();
                         //5 "Section", "SubSection", 
 
