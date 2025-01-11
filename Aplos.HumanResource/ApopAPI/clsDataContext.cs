@@ -13255,7 +13255,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                     LotNo += ",'" + item.LotNo + "'";
                 }
 
-                con.OpenDataSetThroughAdapter("select * from dbo.ScanRawData where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from dbo.ScanRawData where 1 = 1", out dsMaster, false, "1");
 
 
                 foreach (PacketScanData item in DataToSave)
