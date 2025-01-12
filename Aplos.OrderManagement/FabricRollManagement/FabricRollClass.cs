@@ -1839,6 +1839,24 @@ LEFT JOIN dbo.EmployeeInformation CE on CE.SystemId=M.CheckedById
             }
         }
 
+        public IEnumerable<object> GetGroupingData(string PlantId)
+        {
+            try
+            {
+                string _sql = @"SELECT COUNT(C.Id)RollNo,SUM(SupplierQty)Qty,C.Shade ShadeGroup,C.CutableWidth CutableWidthGroup,C.ShrinkageWidthWise ShrinkageWidthGroup,C.ShrinkageLengthWise ShrinkageLengthGroup
+FROM BPDT.FabricRollManagementChild C
+LEFT JOIN [BPDT].[FabricRollManagementMaster] M ON M.Id=C.FabricRollManagementMasterId
+Where M.PlantId='" + PlantId + @"' AND ISNULL(M.IsConfirm,0)=1 AND ISNULL(C.IsGrouped,0)=0
+AND ISNULL(C.Shade,'')<>'' AND ISNULL(C.CutableWidth,0)<>0 AND ISNULL(C.ShrinkageWidthWise,0)<>0 AND ISNULL(C.ShrinkageLengthWise,0)<>0
+Group By M.GRNId,C.Shade,C.CutableWidth,C.ShrinkageWidthWise,C.ShrinkageLengthWise";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> GetFabricRollMasterConfirmDataList(string PlantId)
         {
             try
@@ -2082,15 +2100,15 @@ Where F.GRNId='" + GRNId + "'"; ;
                     DataView dv = new DataView(dsDetail.Tables[0]);
                     dv.RowFilter = "Id='" + item["Id"] + "'";
 
-                    if (item["CutableWidth"]==null)
+                    if (item["CutableWidth"] == null)
                     {
                         throw new Exception("Cutable Width is required.");
                     }
-                    if (item["Shade"]==null)
+                    if (item["Shade"] == null)
                     {
                         throw new Exception("Shade is required.");
                     }
-                    if (item["ShrinkageLengthWise"]==null)
+                    if (item["ShrinkageLengthWise"] == null)
                     {
                         throw new Exception("Shrinkage Length Wise is required.");
                     }
@@ -2119,6 +2137,56 @@ Where F.GRNId='" + GRNId + "'"; ;
 
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dsMaster, dsDetail);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public void SaveFabricGrouping( List<Dictionary<string, object>> grnDetailList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            try
+            {
+                DataSet dsDetail;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+               
+
+                foreach (var item in grnDetailList)
+                {
+                    con.OpenDataSetThroughAdapter(@"SELECT C.* FROM BPDT.FabricRollManagementChild C
+Where ISNULL(C.IsGrouped, 0) = 0 AND C.Shade = '"+item["ShadeGroup"] +"' AND C.CutableWidth = "+item["CutableWidthGroup"] + " AND C.ShrinkageWidthWise = " + item["ShrinkageWidthGroup"] + " AND C.ShrinkageLengthWise = " + item["ShrinkageLengthGroup"] + @"
+AND FabricRollManagementMasterId IN(Select Id from[BPDT].[FabricRollManagementMaster] Where ISNULL(IsConfirm, 0) = 1)
+", out dsDetail, false, "1");
+
+
+
+                    DataView dv = new DataView(dsDetail.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count > 0)
+                    {
+                        DataRow drmo = dv[0].Row;
+                        drmo["ShadeGroup"] = item["ShadeGroup"];
+                        drmo["CutableWidthGroup"] = item["CutableWidthGroup"];
+                        drmo["ShrinkageWidthGroup"] = item["ShrinkageWidthGroup"];
+                        drmo["ShrinkageLengthGroup"] = item["ShrinkageLengthGroup"];
+                        drmo["MarkerGroup"] = item["MarkerGroup"];
+                        drmo["Remarks"] = item["Remarks"];
+                        drmo["IsGrouped"] = true;
+                        EditRow(drmo, item);
+                    }
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsDetail);
+                }
+
+
+               
 
             }
             catch (Exception ex)
