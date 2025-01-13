@@ -350,8 +350,11 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
         }).then(function successCallback(response) {
             $scope.GroupingDataList = response.data;
             for (var i = 0; i < $scope.GroupingDataList.length; i++) {
-                $scope.GroupingDataList[i].MarkerGroup = $scope.GroupingDataList[i].CutableWidthGroup + "-" + $scope.GroupingDataList[i].ShrinkageWidthGroup + "-" + $scope.GroupingDataList[i].ShrinkageLengthGroup;
+                $scope.GroupingDataList[i].MarkerGroup = $scope.GroupingDataList[i].CutableWidthGroup + "/" + $scope.GroupingDataList[i].ShrinkageWidthGroup + "/" + $scope.GroupingDataList[i].ShrinkageLengthGroup;
                 $scope.GroupingDataList[i].Remarks = null;
+            }
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
             }
         });
     }
@@ -364,9 +367,7 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
     $scope.CheckSpecialCharecter = function (data) {
         try {
             var objt = data.data;
-            if (objt.ShadeGroup.length > 2) {
-                throw "Maximum two characters is allowed.";
-            }
+          
             if (containsSpecialChars(objt.ShadeGroup)) {
                 objt.ShadeGroup = objt.ShadeGroup.substring(0, objt.ShadeGroup.length - 1);
                 throw "No special characters allowed for Shade Group.";
@@ -374,6 +375,14 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
         } catch (e) {
             ShowResult(e, 'failure');
         }
+    }
+
+    $scope.MakeMarkerGroup = function (data) {
+        var objt = data.data;
+        objt.MarkerGroup = objt.CutableWidthGroup + "/" + objt.ShrinkageWidthGroup + "/" + objt.ShrinkageLengthGroup;
+        //var gridObj = $("#GridGD").data("ejGrid");
+        //gridObj.refreshContent();
+        //gridObj.refreshTemplate();
     }
 
     $scope.SaveGrouingData = function () {
