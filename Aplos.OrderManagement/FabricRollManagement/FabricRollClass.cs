@@ -2145,7 +2145,7 @@ Where F.GRNId='" + GRNId + "'"; ;
             }
         }
 
-        public void SaveFabricGrouping( List<Dictionary<string, object>> grnDetailList)
+        public void SaveFabricGrouping(List<Dictionary<string, object>> grnDetailList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -2154,12 +2154,12 @@ Where F.GRNId='" + GRNId + "'"; ;
                 DataSet dsDetail;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-               
+
 
                 foreach (var item in grnDetailList)
                 {
                     con.OpenDataSetThroughAdapter(@"SELECT C.* FROM BPDT.FabricRollManagementChild C
-Where ISNULL(C.IsGrouped, 0) = 0 AND C.Shade = '"+item["ShadeGroup"] +"' AND C.CutableWidth = "+item["CutableWidthGroup"] + " AND C.ShrinkageWidthWise = " + item["ShrinkageWidthGroup"] + " AND C.ShrinkageLengthWise = " + item["ShrinkageLengthGroup"] + @"
+Where ISNULL(C.IsGrouped, 0) = 0 AND C.Shade = '" + item["ShadeGroup"] + "' AND C.CutableWidth = " + item["CutableWidthGroup"] + " AND C.ShrinkageWidthWise = " + item["ShrinkageWidthGroup"] + " AND C.ShrinkageLengthWise = " + item["ShrinkageLengthGroup"] + @"
 AND FabricRollManagementMasterId IN(Select Id from[BPDT].[FabricRollManagementMaster] Where ISNULL(IsConfirm, 0) = 1)
 ", out dsDetail, false, "1");
 
@@ -2186,7 +2186,7 @@ AND FabricRollManagementMasterId IN(Select Id from[BPDT].[FabricRollManagementMa
                 }
 
 
-               
+
 
             }
             catch (Exception ex)
