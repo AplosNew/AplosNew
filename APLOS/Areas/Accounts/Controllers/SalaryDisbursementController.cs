@@ -434,7 +434,10 @@ namespace Aplos.Areas.Accounts.Controllers
                          and spc.DisbusmentAmount!=0  
                         and spd.PlantId='" + identity.PlantId + @"' 
 						 and ISNULL(sh.SalaryHead, '')  in ('Net Pay')";
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            //return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         [Authorize, HttpGet]
