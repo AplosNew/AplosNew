@@ -1,5 +1,5 @@
 ﻿'use strict';
-FabricGroupingController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$window'];
+FabricGroupingController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
 function FabricGroupingController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'Fabric Grouping';
     $scope.Action = 'Save';
@@ -36,7 +36,7 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
             $scope.fabricConfirmDetailList = response.data;
         });
     }
-    
+
 
     $scope.fabricPendingChildListList = [];
     $scope.GetFabricRollChildList = function () {
@@ -265,7 +265,7 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
         }
 
 
-        $scope.fileName = $scope.fabricRollMaster.GRNNo + '-' +"FabricRollReport";
+        $scope.fileName = $scope.fabricRollMaster.GRNNo + '-' + "FabricRollReport";
         $http({
             method: 'POST',
             url: $scope.exportgriddataUrl,
@@ -286,7 +286,6 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
         });
 
     };
-
 
     $scope.picdata = null;
     $scope.ShowSaveBtn = false;
@@ -322,7 +321,7 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
 
                 }
                 else {
-                    $scope.fabricPendingChildListList=[];
+                    $scope.fabricPendingChildListList = [];
                     for (var i = 0; i < response.data.length; i++) {
                         $scope.fabricPendingChildListList.push(response.data[i]);
                     }
@@ -341,6 +340,69 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
             ShowResult(e, "failure");
         }
     };
+
+    $scope.GroupingDataList = [];
+    $scope.getGroupingData = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "getGroupingData",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.GroupingDataList = response.data;
+            for (var i = 0; i < $scope.GroupingDataList.length; i++) {
+                $scope.GroupingDataList[i].MarkerGroup = $scope.GroupingDataList[i].CutableWidthGroup + "-" + $scope.GroupingDataList[i].ShrinkageWidthGroup + "-" + $scope.GroupingDataList[i].ShrinkageLengthGroup;
+            }
+        });
+    }
+
+    function containsSpecialChars(str) {
+        const specialChars = /[`!@#$%^&*()_+\=\[\]{};':"\\|,.<>\/?~]/;
+        return specialChars.test(str);
+    }
+
+    $scope.CheckSpecialCharecter = function (data) {
+        try {
+            var objt = data.data;
+            if (objt.ShadeGroup.length > 2) {
+                objt.ShadeGroup = objt.ShadeGroup.substring(0, objt.ShadeGroup.length - 1);
+            }
+            if (containsSpecialChars(objt.ShadeGroup)) {
+                objt.ShadeGroup = objt.ShadeGroup.substring(0, objt.ShadeGroup.length - 1);
+                throw "No special characters allowed for Shade Group.";
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.SaveGrouingData = function () {
+        try {
+            $http({
+                method: "POST",
+                url: 'Materials/FabricRoll/CreateFabricGrouping',
+                data: {
+                    "grnDetailList": $scope.GroupingDataList
+                },
+                dataType: "JSON"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    $scope.GroupingDataList = [];
+                    $scope.getGroupingData();
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, "failure");
+            });
+            return true;
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+
 
 
 }

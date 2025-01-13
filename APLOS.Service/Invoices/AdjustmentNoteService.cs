@@ -112,11 +112,13 @@ namespace Library.Service.Invoices
                                 ,IsExpenseDistribution=CASE WHEN ISNULL((select COUNT(ID.Id) from TRN.InvoiceDetailCharges ID
 										INNER JOIN TRN.VoucherDetail VD ON VD.Id=ID.VoucherDetailId
 										WHERE VD.VoucherId=A.VoucherId),0)>0 THEN 1 ELSE 0 END
+                                ,E.UserName EntityName,V.EntityId,V.Narration
                                 FROM [TRN].[AdjustmentNote] AS A
                                 LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
                                 LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=A.PartyPlantId
                                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
                                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
+                                LEFT JOIN [ORG].[Entity] AS E ON E.Id=V.EntityId
                                 WHERE A.Archive=0 AND V.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + "' AND A.SourceType='" + sourceType + "'";
             return _sqlRepository.GetGridData(parameters);
         }
@@ -1695,7 +1697,7 @@ namespace Library.Service.Invoices
             return glTemp;
         }
 
-        public void Post(string adjustmentNoteId)
+        public void Post(string adjustmentNoteId, string entityId, string voucherId)
         {
             var flag = false;
             try
@@ -1713,6 +1715,15 @@ namespace Library.Service.Invoices
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
+
+                var inDirect = new System.Text.StringBuilder();
+                var inDirectsql = "";
+
+                inDirectsql = @"update [TRN].[Voucher] set EntityId='" + entityId + @"' where Id='" + voucherId + @"'
+                            update [TRN].[VoucherDetail]  set EntityId='" + entityId + @"' where VoucherId='" + voucherId + @"' 
+                            update [TRN].[AdjustmentNote]  set EntityId='" + entityId + @"' where VoucherId='" + voucherId + @"' ";
+                inDirect.Append(inDirectsql);
+                _sqlRepository.ExecuteSqlCommand(inDirect.ToString());
             }
             catch (CustomException)
             {

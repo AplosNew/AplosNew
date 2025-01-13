@@ -13236,6 +13236,140 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
 
         }
         #endregion AddInfo
+
+        #region Auburn
+        public string PostScanRawData(IEnumerable<PacketScanData> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "dbo.ScanRawData";
+                string LotNo = "''";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<PacketScanData> items = DataToSave.ToList();
+
+                foreach (PacketScanData item in DataToSave)
+                {
+                    LotNo += ",'" + item.LotNo + "'";
+                }
+
+                con.OpenDataSetThroughAdapter("select * from dbo.ScanRawData where LotNo = '" + items[0].LotNo + "'", out dsMaster, false, "1");
+
+
+                foreach (PacketScanData item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"LotNo='" + item.LotNo + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+                        dr["Id"] = _Id;
+                        dr["Code"] = item.Code;
+                        dr["StyleCode"] = item.StyleCode;
+                        dr["Size"] = item.Size;
+                        dr["Color"] = item.Color;
+                        dr["LotNo"] = item.LotNo;
+                        dr["PO"] = item.PO;
+                        dr["MMYY"] = item.MMYY;
+                        dr["Price"] = item.Price;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+        }
+
+        /*public string PostPacketScanData(IEnumerable<PacketScanData> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "dbo.ScanRawData";
+                string Id = "''";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<PacketScanData> items = DataToSave.ToList();
+
+                foreach (PacketScanData item in DataToSave)
+                {
+                    Id += ",'" + item.Id + "'";
+                }
+
+                con.OpenDataSetThroughAdapter("select * from dbo.ScanRawData where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+
+                foreach (PacketScanData item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+                        string year = DateTime.Now.ToString("yyyy");
+
+                        dr["Id"] = _Id;
+                        dr["Code"] = item.Code;
+                        dr["StyleCode"] = item.StyleCode;
+                        dr["Size"] = item.Size;
+                        dr["Color"] = item.Color;
+                        dr["LotNo"] = item.LotNo;
+                        dr["PO"] = item.PO;
+                        dr["MMYY"] = item.MMYY;
+                        dr["Price"] = item.Price;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+        }*/
+        #endregion Auburn
     }
 
 
@@ -14971,5 +15105,22 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
         public string PartyId { get; set; }
         public string SalesOrderId { get; set; }
 
+    }
+
+    public class PacketScanData
+    {
+        public string Id { get; set; }
+        public string Code { get; set; }
+        public string StyleCode { get; set; }
+        public string Size { get; set; }
+        public string Color { get; set; }
+        public string LotNo { get; set; }
+        public string PO { get; set; }
+        public string MMYY { get; set; }
+        public string Price { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
     }
 }

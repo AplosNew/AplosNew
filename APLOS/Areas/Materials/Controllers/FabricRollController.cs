@@ -798,6 +798,15 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetGroupingData()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            JsonResult json = Json(clsFabric.GetGroupingData(identity.PlantId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetFabricRollMasterConfirmDataList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -1537,7 +1546,12 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
 
-
+        [HttpPost]
+        public JsonResult CreateFabricGrouping(List<Dictionary<string, object>> grnDetailList)
+        {
+            clsFabric.SaveFabricGrouping(grnDetailList);
+            return Json(new { Message = AplosMessage.Insert });
+        }
 
 
     }

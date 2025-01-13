@@ -52,10 +52,10 @@ namespace Library.Service.EmployeeServices
             string sql;
             try
             {
-                if(esic.Tables[0].Rows.Count > 0)
+                if (esic.Tables[0].Rows.Count > 0)
                 {
 
-                 sql = @"SELECT LT.ID Value, LT.UserName Text FROM dbo.ESICPolicyLeaveType AS EPLT
+                    sql = @"SELECT LT.ID Value, LT.UserName Text FROM dbo.ESICPolicyLeaveType AS EPLT
                   LEFT JOIN dbo.LeaveType AS LT ON LT.Id = EPLT.LeaveTypeID
                   WHERE
                   EPLT.LeaveTypeID IN
@@ -966,7 +966,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                     duration = 0.5m;
                     halfDay = true;
                 }
-                else if(items[0].LeaveDayType == "SecondHalfDay")
+                else if (items[0].LeaveDayType == "SecondHalfDay")
                 {
                     duration = 0.5m;
                     halfDay = true;
@@ -1163,7 +1163,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             }
         }
 
-        public string SaveLeaveReject(IEnumerable<LeaveVM> DataToSave,string Reason)
+        public string SaveLeaveReject(IEnumerable<LeaveVM> DataToSave, string Reason)
         {
             try
             {
@@ -1200,7 +1200,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 
                         TimeSpan difference = dtToDate - dtFmDate;
                         var leaveDays = Convert.ToInt32(difference.Days + 1);
-                       
+
                         responsiblePersonName = dtEmpInfo.Rows[0]["EmployeeName"].ToString();
                         responsiblePersonId = dtEmpInfo.Rows[0]["SystemId"].ToString();
                         responsiplePersonEmail = dtEmpInfo.Rows[0]["EmailId"].ToString();
@@ -1219,7 +1219,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                         _mailSenderService.SendFirstLeaveApproveRequestMail(responsiblePersonId, EmpPlant, mailMessage, responsiplePersonEmail, responsiblePersonName, item.EmployeeID, dtEmpInfo.Rows[0]["EmployeeName"].ToString(), dtEmpInfo.Rows[0]["EmployeeCode"].ToString());
                     }
                 }
-                return "true";                
+                return "true";
             }
             catch (Exception ex)
             {
@@ -1254,7 +1254,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                         responsiblePersonId = dtEmpInfo.Rows[0]["SystemId"].ToString();
                         responsiplePersonEmail = dtEmpInfo.Rows[0]["EmailId"].ToString();
                         string EmpPlant = dtEmpInfo.Rows[0]["PlantId"].ToString();
-                   
+
 
                         string dt = "";
                         dt = item.ToDate != null ? item.ToDate : "";
@@ -1343,7 +1343,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         #endregion Navigation
 
     }
-    
+
     public class LeaveYearDefinationService
     {
         ISqlRepository _sqlRepository;
@@ -1351,7 +1351,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         {
             _sqlRepository = new SqlRepository();
         }
-               
+
         public IEnumerable<object> GetCbo()
         {
             try
@@ -1364,7 +1364,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             {
                 throw e;
             }
-        }       
+        }
 
         public IEnumerable<object> GetList(string column, string value)
         {
@@ -1373,7 +1373,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
-              
+
                 string sql = @"select distinct top 100 * from (select ld.Id,c.Id as CompanyId,ld.Sequence,
                 ld.Code,ld.ShortName,ld.StandardName,
                 ld.UserName,Format(ld.FromDate,'dd-MMM-yyyy')FromDate,Format(ld.ToDate,'dd-MMM-yyyy')ToDate,
@@ -1398,9 +1398,9 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 				left join org.Company c on c.Id=p.CompanyId              
 				left join EmployeeInformation e on 
 				e.SystemId=ld.RespersonId
-                ) AS TEMP WHERE " + strkey+ "  order by sequence";
+                ) AS TEMP WHERE " + strkey + "  order by sequence";
                 return _sqlRepository.GetDataCollection(sql, null);
-            }       
+            }
             catch (Exception ex)
             {
                 throw ex;
@@ -1412,7 +1412,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             try
             {
                 var str = @"Select * from EmployeeInformation where
-                EmployeeStatus='Active' and CompanyId='"+CompId+"'";
+                EmployeeStatus='Active' and CompanyId='" + CompId + "'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -1421,7 +1421,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             }
         }
 
-        public string Create(Dictionary<string, object> data,List<string> DataList)
+        public string Create(Dictionary<string, object> data, List<string> DataList)
         {
             try
             {
@@ -1436,7 +1436,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same User Name already exists!!!");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where FromDate='" + data["FromDate"] + "' AND  Id<>'" + data["Id"] + "'AND ToDate='" + data["ToDate"]+"'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where FromDate='" + data["FromDate"] + "' AND  Id<>'" + data["Id"] + "'AND ToDate='" + data["ToDate"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same From & To Date already exists!!!");
 
@@ -1480,7 +1480,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 {
                     DataRow dr = dsChild.Tables[0].NewRow();
                     dr["Id"] = MasterId + i.ToString();
-                    dr["LeaveYearDefinationId"] =MasterId.ToString();
+                    dr["LeaveYearDefinationId"] = MasterId.ToString();
                     dr["PlantId"] = DataList[i].ToString();
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now.ToString();
@@ -1544,7 +1544,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             dr["AddedBy"] = identity.Name;
             dr["AddedDate"] = DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
-         
+
             dt.Rows.Add(dr);
         }
         private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
@@ -1569,7 +1569,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         }
 
     }
-   
+
     public class LeaveOpeningUploadService
     {
         ISqlRepository _sqlRepository;
@@ -1578,7 +1578,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             _sqlRepository = new SqlRepository();
         }
 
-        public DataTable getSampleFile(string PlantId,string LvId)
+        public DataTable getSampleFile(string PlantId, string LvId)
         {
             try
             {
@@ -1590,7 +1590,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 isnull(ad.Availed,'0')Availed,isnull(ad.Adjustment,'0')Adjustment
                 from LeaveYearDefination ld 
                 left join LeaveYearDefinationPlantChild pc on 
-				pc.LeaveYearDefinationId=ld.Id and pc.PlantId='"+PlantId+@"'
+				pc.LeaveYearDefinationId=ld.Id and pc.PlantId='" + PlantId + @"'
                 left join org.Plant p on p.Id=pc.PlantId
 				left join org.Company c on c.Id=p.CompanyId
                 left join org.CompanyGroup cg on cg.Id=c.CompanyGroupId
@@ -1598,8 +1598,8 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 left join EmployeeInformation e on e.PlantId=p.Id
                 left join ManualLeaveData ad on ad.EmployeeId=e.SystemId
 				and ad.LeaveYearId=ld.Id and 
-				ad.LeaveTypeId=lt.Id and ad.PlantId='"+PlantId+@"'
-                where p.Id='"+PlantId+"' and ld.Id='"+LvId+@"' and
+				ad.LeaveTypeId=lt.Id and ad.PlantId='" + PlantId + @"'
+                where p.Id='" + PlantId + "' and ld.Id='" + LvId + @"' and
                 e.EmployeeStatus='Active' order by e.SystemId,lt.Id";
                 return _sqlRepository.GetDataTable(sql);
             }
@@ -1615,7 +1615,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var str = @"Select Username as Text , Id as Value from ORG.Company 
-                where companygroupid='"+identity.CompanyGroupId+"'";
+                where companygroupid='" + identity.CompanyGroupId + "'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
@@ -1643,7 +1643,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 var str = @"select ld.Username as Text ,ld.Id as Value,format(ld.fromdate,'dd-MMM-yyyy')FromDate,format(ld.Todate,'dd-MMM-yyyy')ToDate from 
                 leaveyeardefination ld 
 				left join LeaveYearDefinationPlantChild lpc on lpc.LeaveYearDefinationId=ld.Id
-                where lpc.plantid='" + PlantId+"'";
+                where lpc.plantid='" + PlantId + "'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
@@ -1652,14 +1652,14 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             }
         }
 
-        public IEnumerable<object> getCurrentList(string plantId,string YearId)
+        public IEnumerable<object> getCurrentList(string plantId, string YearId)
         {
             try
             {
                 var str = @"Select a.*,lt.LeaveType from dbo.ManualLeaveData a 
                 left join LeaveYearDefination ld on ld.Id=a.LeaveYearId
                 left join LeaveType lt on lt.Id=a.LeaveTypeId
-                where a.PlantId = '" + plantId+"' and a.LeaveYearId='"+ YearId+"'";
+                where a.PlantId = '" + plantId + "' and a.LeaveYearId='" + YearId + "'";
                 return (_sqlRepository.GetDataCollection(str));
             }
             catch (Exception e)
@@ -1668,7 +1668,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             }
         }
 
-        public void SaveFileList(List<Dictionary<string, object>> data, string PlantId,string YearId)
+        public void SaveFileList(List<Dictionary<string, object>> data, string PlantId, string YearId)
         {
             try
             {
@@ -1688,10 +1688,10 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                     int index = 0;
                     for (int i = 0; i < data.Count; i++)
                     {
-                        Dictionary<string, object> jj = data[i];                        
-                        jj["Id"] = "ML"+_Id + index;
+                        Dictionary<string, object> jj = data[i];
+                        jj["Id"] = "ML" + _Id + index;
                         index++;
-                        AddNewRow(dsMaster.Tables[0], jj, addedname, addeddate,PlantId);
+                        AddNewRow(dsMaster.Tables[0], jj, addedname, addeddate, PlantId);
                     }
                 }
 
@@ -1715,7 +1715,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             }
         }
 
-        public void AddNewRow(DataTable dt, Dictionary<string, object> sourceData, string addedname, string addeddate,string PlantId)
+        public void AddNewRow(DataTable dt, Dictionary<string, object> sourceData, string addedname, string addeddate, string PlantId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             DataRow dr = dt.NewRow();
@@ -1730,7 +1730,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 {
                 }
             }
-           
+
             dr["PlantId"] = PlantId;
             dr["AddedBy"] = addedname;
             dr["AddedDate"] = addeddate;
@@ -1751,7 +1751,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         {
             _sqlRepository = new SqlRepository();
         }
-        
+
         public IEnumerable<object> GetEmpCategory()
         {
             try
@@ -1780,15 +1780,15 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 
             }
         }
-              
-        public IEnumerable<object> GetNewLvYear(string PlantId,string PrevLvYear)
+
+        public IEnumerable<object> GetNewLvYear(string PlantId, string PrevLvYear)
         {
             try
             {
                 var str = @"select ld.Id as Value,ld.UserName AS Text from 
                 LeaveYearDefination ld left join 
                 LeaveYearDefinationPlantChild lc on lc.LeaveYearDefinationId=ld.Id
-                where lc.PlantId='" + PlantId + "' and ld.Id<>'"+PrevLvYear+"'";
+                where lc.PlantId='" + PlantId + "' and ld.Id<>'" + PrevLvYear + "'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -1798,27 +1798,27 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             }
         }
 
-        public IEnumerable<object> LoadData(string PlantId, string LvYearId, List<string> DataList,List<string> EmpCategoryList)
+        public IEnumerable<object> LoadData(string PlantId, string LvYearId, List<string> DataList, List<string> EmpCategoryList)
         {
             try
             {
                 #region Supporting Variables Finding 
 
                 DataTable DateTbl;
-                var str = @"select FromDate,ToDate from LeaveYearDefination where id='"+LvYearId+"'";
-                DateTbl=_sqlRepository.GetDataTable(str);
+                var str = @"select FromDate,ToDate from LeaveYearDefination where id='" + LvYearId + "'";
+                DateTbl = _sqlRepository.GetDataTable(str);
                 string From = "", To = "";
-                if(DateTbl.Rows.Count>0)
+                if (DateTbl.Rows.Count > 0)
                 {
-                   From= DateTbl.Rows[0]["FromDate"].ToString();
-                   To = DateTbl.Rows[0]["ToDate"].ToString();
+                    From = DateTbl.Rows[0]["FromDate"].ToString();
+                    To = DateTbl.Rows[0]["ToDate"].ToString();
                 }
                 string LTypeId = "''", EmpCategoryId = "''";
 
-                for(int i = 0; i < DataList.Count; i++)
+                for (int i = 0; i < DataList.Count; i++)
                 {
                     LTypeId += ",'" + DataList[i].ToString() + "'";
-                }               
+                }
 
                 for (int i = 0; i < EmpCategoryList.Count; i++)
                 {
@@ -1829,8 +1829,8 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 
                 #region DataSet Finding
 
-                var sql = @"select xx.*,ROUND((xx.opening+ xx.Earned-xx.Availed-xx.RegularEncashment+xx.PAdjustment),0)as Closing 
-                    
+                var sql = @"select xx.*,ROUND((xx.opening+ xx.Earned-xx.Availed-xx.RegularEncashment),0)as Closing 
+                    --select xx.*,ROUND((xx.opening+ xx.Earned-xx.Availed-xx.RegularEncashment+xx.PAdjustment),0)as Closing 
 			    from (select dd.*,
 				ROUND(case when lpd.EncashWorkingDaysQty >0 then dd.EarningDays/lpd.EncashWorkingDaysQty else 0 END,0) as Earned,ISNULL(ame.PAdjustment,0)PAdjustment		
                 from (select e.SystemId as EmpId,e.EmployeeCode,ld.Id as 
@@ -1844,7 +1844,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 ISNULL(Info.EmpTypeId,EDM.EmployeeCategoryId)EmpTypeId,ISNULL(Info.LeavePolicyMasterId,edmc.LeavePolicyMasterId)LeavePolicyMasterId
                 from LeaveYearDefination ld 
                 left join LeaveYearDefinationPlantChild pc on 
-				pc.LeaveYearDefinationId=ld.Id and pc.PlantId='" + PlantId+ @"'
+				pc.LeaveYearDefinationId=ld.Id and pc.PlantId='" + PlantId + @"'
                 left join org.Plant p on p.Id=pc.PlantId
 				left join org.Company c on c.Id=p.CompanyId
                 left join org.CompanyGroup cg on cg.Id=c.CompanyGroupId
@@ -1857,7 +1857,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 				--JOIN LeaveType T ON t.Id=d.LeaveTypeId AND t.LeaveType='Earn' Where d.EmployeeId=m.EmployeeId order by d.addeddate desc
 				--)) md on md.EmployeeId=e.SystemId
                 left join AnnualLeaveDataCurrent ac on ac.EmployeeId=e.SystemId
-				and ac.LeaveYearId=ld.Id and ac.LeaveTypeId=lt.Id and ac.PlantId='" + PlantId+ @"'
+				and ac.LeaveYearId=ld.Id and ac.LeaveTypeId=lt.Id and ac.PlantId='" + PlantId + @"'
 								left join
 				(
 select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
@@ -1892,21 +1892,21 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                 left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=pc.HeaderId
                 LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
                 JOIN LeaveType T ON t.Id=L.LeaveTypeId
-                where apd.workdate between '" + From+@"' and '"+To+@"'
-                and EI.PlantID='"+PlantId+ @"' and t.LeaveType='Earn'
+                where apd.workdate between '" + From + @"' and '" + To + @"'
+                and EI.PlantID='" + PlantId + @"' and t.LeaveType='Earn'
                 group by EmpSystemID,t.Id,ei.plantid
                 ) as Masterx on Masterx.EmpSystemID=e.SystemId and e.PlantId=Masterx.PlantId and Masterx.LeaveId=lt.Id       
 				LEFT JOIN mst.DesignationMaster EDM ON EDM.DesignationId=E.GivenDesignationId
 				LEFT JOIN scs.DesignationMasterConfiguration AS edmc ON edmc.DesignationMasterId=EDM.Id AND edmc.PlantId=e.PlantId
-                where p.Id='" + PlantId+@"' and ld.Id='"+LvYearId+@"' and
-				lt.Id in ("+LTypeId+ @") and
+                where p.Id='" + PlantId + @"' and ld.Id='" + LvYearId + @"' and
+				lt.Id in (" + LTypeId + @") and
                 e.EmployeeStatus='Active') as dd
 				left join LeavePolicyDetail lpd on lpd.LPMSystemID=dd.LeavePolicyMasterId and lpd.LTSystemID=dd.LeaveTypeId
                 left join (Select m.EmployeeId,m.Adjustment PAdjustment from ManualLeaveData m Where m.Id =
 				(Select top(1) md.Id from  ManualLeaveData md
 				JOIN LeaveType T ON t.Id=md.LeaveTypeId AND t.LeaveType='Earn' Where md.EmployeeId=m.EmployeeId order by md.addeddate desc
 				)) ame on ame.EmployeeId=dd.EmpId
-			    where dd.EmpTypeId In(" + EmpCategoryId+@")
+			    where dd.EmpTypeId In(" + EmpCategoryId + @")
 				) as xx
 				order by xx.EmpId,xx.LeaveTypeId";
                 return _sqlRepository.GetDataCollection(sql);
@@ -1920,13 +1920,13 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
             }
         }
 
-        public DataTable GetOldData(string PlantId, string LvId,string LeaveTypeId)
+        public DataTable GetOldData(string PlantId, string LvId, string LeaveTypeId)
         {
             try
             {
                 var sql = @"select EmployeeId,LeaveYearId,LeaveTypeId,PlantId,Closing CarryForward
 				  from AnnualLeaveDataPast where
-                  LeaveYearId='" + LvId+"' and PlantId='"+PlantId+"'and LeaveTypeId in("+LeaveTypeId+")";
+                  LeaveYearId='" + LvId + "' and PlantId='" + PlantId + "'and LeaveTypeId in(" + LeaveTypeId + ")";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)
@@ -1935,12 +1935,12 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
             }
         }
 
-        public void ProcessData(string Data, string PlantId, string CurrentLvYearId,decimal MaxCarryForward,
-            decimal MaxEncash,decimal MaxLapse,string NewLeaveYear, List<string> LeaveTypeList)
+        public void ProcessData(string Data, string PlantId, string CurrentLvYearId, decimal MaxCarryForward,
+            decimal MaxEncash, decimal MaxLapse, string NewLeaveYear, List<string> LeaveTypeList)
         {
             try
             {
-                
+
                 #region Annual Leave Data Past Processing
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 clsStaticInfo info = new clsStaticInfo();
@@ -1953,7 +1953,7 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                 }
 
                 ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                var sqlx = @"select * from AnnualLeaveDataPast where PlantId='" + PlantId + "' and LeaveYearId='"+CurrentLvYearId+"'";
+                var sqlx = @"select * from AnnualLeaveDataPast where PlantId='" + PlantId + "' and LeaveYearId='" + CurrentLvYearId + "'";
                 objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
                 var sqly = @"select * from LeaveEncashmentHistory where
@@ -1961,7 +1961,7 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                 objCon.OpenDataSetThroughAdapter(sqly, out DataSet dsSave, false, false, "", "1");
                 decimal Balance = 0;
 
-                List <Dictionary<string, object>> _objects = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(Data);
+                List<Dictionary<string, object>> _objects = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(Data);
                 DataTable Table = ToDataTable(_objects);
                 if (Table.Rows.Count > 0)
                 {
@@ -1975,17 +1975,32 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                         decimal Adjustment = Convert.ToDecimal(Table.Rows[i][@"Adjustment"].ToString());
                         decimal RegularEncashment = Convert.ToDecimal(Table.Rows[i][@"RegularEncashment"].ToString());
                         //decimal Closing = Convert.ToDecimal(Table.Rows[i][@"Closing"].ToString());
-                        decimal Closing = Opening+ Earned- Availed;
+                        decimal Closing = Opening + Earned - Availed;
                         decimal Carryforward = 0;
                         decimal bl = Earned - Availed;
-                        if (bl> MaxCarryForward)
+                        decimal cls = 0;
+                        if (bl > MaxCarryForward && bl > 0)
                         {
-                            Carryforward = bl-(bl - MaxCarryForward);
+                            Carryforward = bl - (bl - MaxCarryForward);
+                        }
+                        else if (bl < 0)
+                        {
+                            Carryforward = bl + Opening;
+                        }
+                        else if (bl > 0 && bl > MaxCarryForward)
+                        {
+                            Carryforward = MaxCarryForward;
+                        }
+                        else if (Closing > MaxCarryForward)
+                        {
+                            Carryforward = MaxCarryForward;
                         }
                         else
                         {
                             Carryforward = bl;
                         }
+
+
                         //if (Closing > MaxCarryForward)
                         //{
                         //    Carryforward = MaxCarryForward;
@@ -1994,8 +2009,15 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                         //{
                         //    Carryforward = Closing;
                         //}
-
-                         Balance = Opening + Carryforward;
+                        if (Closing > MaxCarryForward)
+                        {
+                            cls = MaxCarryForward;
+                        }
+                        else
+                        {
+                            cls = Closing;
+                        }
+                        Balance = Opening + Carryforward;
                         decimal AnnualEncash = 0;
                         if (Balance > MaxEncash)
                         {
@@ -2034,7 +2056,15 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                             dr["Availed"] = Availed;
                             dr["RegularEncashment"] = RegularEncashment;
                             dr["Adjustment"] = Adjustment;
-                            dr["Closing"] = Closing;
+                            //if (Closing > MaxCarryForward)
+                            //{
+                            //    dr["Closing"] = MaxCarryForward;
+                            //}
+                            //else
+                            //{
+                            //    dr["Closing"] = Closing;
+                            //}
+                            dr["Closing"] = cls;
                             dr["CarryForward"] = Carryforward;
                             dr["AnnualEncashment"] = AnnualEncash;
                             dr["Lapse"] = ResultingLapse;
@@ -2056,7 +2086,15 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                             dr["Availed"] = Availed;
                             dr["RegularEncashment"] = RegularEncashment;
                             dr["Adjustment"] = Adjustment;
-                            dr["Closing"] = Closing;
+                            //if (Closing > MaxCarryForward)
+                            //{
+                            //    dr["Closing"] = MaxCarryForward;
+                            //}
+                            //else
+                            //{
+                            //    dr["Closing"] = Closing;
+                            //}
+                            dr["Closing"] = cls;
                             dr["CarryForward"] = Carryforward;
                             dr["AnnualEncashment"] = AnnualEncash;
                             dr["Lapse"] = ResultingLapse;
@@ -2096,23 +2134,23 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                             dry["AddedFromIP"] = identity.IPAddress;
                             dsSave.Tables[0].Rows.Add(dry);
                         }
-                       
+
                         #endregion
                     }
 
-                    info.SaveDataSets(dsRef,dsSave);
+                    info.SaveDataSets(dsRef, dsSave);
                 }
                 #endregion
 
                 #region Current Table Processing  
-                
-               
+
+
                 var sql = @"select * from AnnualLeaveDataCurrent where
-                    LeaveYearId='"+NewLeaveYear+"' and PlantId='"+PlantId+"'and LeaveTypeId in("+LTypeId+")";
-                    objCon.OpenDataSetThroughAdapter(sql, out DataSet dsMaster, false, false, "", "1");
+                    LeaveYearId='" + NewLeaveYear + "' and PlantId='" + PlantId + "'and LeaveTypeId in(" + LTypeId + ")";
+                objCon.OpenDataSetThroughAdapter(sql, out DataSet dsMaster, false, false, "", "1");
 
                 DataTable SourceData = GetOldData(PlantId, CurrentLvYearId, LTypeId);
-                if(SourceData.Rows.Count>0)
+                if (SourceData.Rows.Count > 0)
                 {
                     clsGenID genid = new clsGenID();
                     genid.GenID("AnnualLeaveDataCurrent", out string _Idx);
@@ -2154,7 +2192,7 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                 }
                 #endregion
 
-               
+
             }
             catch (Exception ex)
             {
@@ -2177,7 +2215,7 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
             return result;
         }
 
-        public IEnumerable<object> GetEmpYearEarnAvailData(string fromdate, string todate,string empId)
+        public IEnumerable<object> GetEmpYearEarnAvailData(string fromdate, string todate, string empId)
         {
             try
             {
@@ -2195,7 +2233,7 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                 left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=pc.HeaderId
                 LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
                 JOIN LeaveType T ON t.Id=L.LeaveTypeId AND T.LeaveType='Earn'
-                where apd.workdate between '" + fromdate + @"' and '"+todate+ @"' and APD.EmpSystemID='" + empId + @"' ";
+                where apd.workdate between '" + fromdate + @"' and '" + todate + @"' and APD.EmpSystemID='" + empId + @"' ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -2219,7 +2257,7 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                 left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=pc.HeaderId
                 LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
                 JOIN LeaveType T ON t.Id=L.LeaveTypeId AND T.LeaveType='Earn'
-                where apd.workdate between '" + fromdate + @"' and '" + todate + @"' and EI.PlantID='"+ PlantID + @"' 
+                where apd.workdate between '" + fromdate + @"' and '" + todate + @"' and EI.PlantID='" + PlantID + @"' 
                 group by EmpSystemID,t.Id,ei.plantid,ei.EmployeeCode,ei.EmployeeName,ei.DOJ,EI.DOS,T.LeaveType";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -2350,7 +2388,7 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colOTHr = COL;
                 COL++;
-                        
+
                 sheet[ROW, COL].Text = "Day Status";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colDayStatus = COL;
@@ -2398,7 +2436,7 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                 sheet[ROW, COL].Text = "Availed Value";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colAvailedValue = COL;
-                
+
                 #endregion columns
 
                 int endCol = COL;
@@ -2490,7 +2528,7 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
             }
         }
 
-        public IEnumerable<object> GetEmployeeSummaryData(string fromdate, string todate,string empId)
+        public IEnumerable<object> GetEmployeeSummaryData(string fromdate, string todate, string empId)
         {
             try
             {
@@ -2514,7 +2552,7 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                 LEFT JOIN ORG.Department Dep on Dep.Id=ei.DepartmentId
                 JOIN LeaveType T ON t.Id=L.LeaveTypeId
                 where apd.workdate between '" + fromdate + @"' and '" + todate + @"'
-                and APD.EmpSystemID "+empId+" ";
+                and APD.EmpSystemID " + empId + " ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -2663,7 +2701,7 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                 sheet[ROW, COL].Text = "Availed Value";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colAvailedValue = COL;
-                
+
 
                 #endregion columns
                 int endCol = COL;
@@ -2700,7 +2738,7 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
 
                     sheet[ROW, colEarnValue].Number = clsStaticInfo.dbl(data[i]["EarnValue"].ToString());
                     sheet[ROW, colAvailedValue].Number = clsStaticInfo.dbl(data[i]["AvailedValue"].ToString());
-                   
+
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
@@ -2774,8 +2812,8 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
 
             return result;
         }
-       
-        public IEnumerable<object> GetEmpInfo(string PlantId,string From,string To,string Year)
+
+        public IEnumerable<object> GetEmpInfo(string PlantId, string From, string To, string Year)
         {
             try
             {
@@ -2788,8 +2826,8 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                 left join org.SubSection ss on ss.Id=e.SubSectionId
                 left join LeaveEncashmentHistory leh on leh.EmployeeId=e.SystemId
                 left join LeaveType lt on lt.Id=leh.LeaveTypeId
-                where doj between '"+From+"' and '"+To+@"' and leh.LeaveYearId='"+Year+@"'
-                and e.PlantId='"+PlantId+"'";
+                where doj between '" + From + "' and '" + To + @"' and leh.LeaveYearId='" + Year + @"'
+                and e.PlantId='" + PlantId + "'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -2806,7 +2844,7 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
             {
 
                 #region Reg Encashment Processing
-             
+
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 clsStaticInfo info = new clsStaticInfo();
 
@@ -2818,21 +2856,21 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                 }
 
                 ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-              
+
                 var sqly = @"select * from LeaveEncashmentHistory where
                     LeaveYearId='" + CurrentLvYearId + "' and PlantId='" + PlantId + "'and LeaveTypeId in(" + LTypeId + ")";
                 objCon.OpenDataSetThroughAdapter(sqly, out DataSet dsSave, false, false, "", "1");
 
 
                 List<Dictionary<string, object>> _objects = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(Data);
-                DataTable Table =ToDataTable(_objects);
+                DataTable Table = ToDataTable(_objects);
                 if (Table.Rows.Count > 0)
                 {
                     for (int i = 0; i < Table.Rows.Count; i++)
                     {
                         string EmpId = Table.Rows[i][@"EmpId"].ToString();
                         string LeaveTypeId = Table.Rows[i][@"LeaveTypeId"].ToString();
-                      
+
                         #region For Encashment Table
 
                         dsSave.Tables[0].DefaultView.RowFilter = @"EmployeeId='" + EmpId + "' " +
@@ -2846,7 +2884,7 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                             dry["UpdatedDate"] = Convert.ToDateTime(DateTime.Now);
                             dry["UpdatedFromIP"] = identity.IPAddress;
                             dry.EndEdit();
-                        }                       
+                        }
 
                         #endregion
                     }
@@ -2854,7 +2892,7 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                     info.SaveDataSets(dsSave);
                 }
                 #endregion
-                             
+
             }
             catch (Exception ex)
             {
