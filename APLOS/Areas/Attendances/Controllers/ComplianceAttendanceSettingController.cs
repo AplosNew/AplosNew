@@ -417,7 +417,7 @@ namespace Aplos.Areas.Attendances.Controllers
 			                         END
                                     , AR.IsManualDayStatus, AR.IsManualInTime, AR.IsManualOutTime,
 ar.CountedShortLeave ShortLeave,AR.IsOTEntitled,AR.IsOTComfirm,OT.WorkDate,dt.Category DayCategory
-,CAS.MaxOTPerDay,CAS.IsNoPunchOnHolidayForOTEntitle,CAS.IsNoPunchOnHolidayForOTNotEntitle,CAS.IsNoPunchOnWeekOffForOTEntitle,CAS.IsNoPunchOnWeekOffForOTNotEntitle
+,ISNULL(CAS.MaxOTPerDay,0)MaxOTPerDay,ISNULL(CAS.IsNoPunchOnHolidayForOTEntitle,0)IsNoPunchOnHolidayForOTEntitle,ISNULL(CAS.IsNoPunchOnHolidayForOTNotEntitle,0)IsNoPunchOnHolidayForOTNotEntitle,ISNULL(CAS.IsNoPunchOnWeekOffForOTEntitle,0)IsNoPunchOnWeekOffForOTEntitle,ISNULL(CAS.IsNoPunchOnWeekOffForOTNotEntitle,0)IsNoPunchOnWeekOffForOTNotEntitle
                                 FROM dbo.EmployeeInformation E
 
                                     LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode

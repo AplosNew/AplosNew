@@ -1839,6 +1839,25 @@ LEFT JOIN dbo.EmployeeInformation CE on CE.SystemId=M.CheckedById
             }
         }
 
+        public IEnumerable<object> GetGroupingData(string PlantId)
+        {
+            try
+            {
+                string _sql = @"SELECT COUNT(C.Id)RollNo,SUM(SupplierQty)Qty,C.Shade ShadeGroup,C.CutableWidth CutableWidthGroup,C.ShrinkageWidthWise ShrinkageWidthGroup,C.ShrinkageLengthWise ShrinkageLengthGroup,C.Shade,C.CutableWidth
+,C.ShrinkageWidthWise,C.ShrinkageLengthWise
+FROM BPDT.FabricRollManagementChild C
+LEFT JOIN [BPDT].[FabricRollManagementMaster] M ON M.Id=C.FabricRollManagementMasterId
+Where M.PlantId='" + PlantId + @"' AND ISNULL(M.IsConfirm,0)=1 AND ISNULL(C.IsGrouped,0)=0
+AND ISNULL(C.Shade,'')<>'' AND ISNULL(C.CutableWidth,0)<>0 AND ISNULL(C.ShrinkageWidthWise,0)<>0 AND ISNULL(C.ShrinkageLengthWise,0)<>0
+Group By M.GRNId,C.Shade,C.CutableWidth,C.ShrinkageWidthWise,C.ShrinkageLengthWise";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> GetFabricRollMasterConfirmDataList(string PlantId)
         {
             try
@@ -2082,15 +2101,15 @@ Where F.GRNId='" + GRNId + "'"; ;
                     DataView dv = new DataView(dsDetail.Tables[0]);
                     dv.RowFilter = "Id='" + item["Id"] + "'";
 
-                    if (item["CutableWidth"]==null)
+                    if (item["CutableWidth"] == null)
                     {
                         throw new Exception("Cutable Width is required.");
                     }
-                    if (item["Shade"]==null)
+                    if (item["Shade"] == null)
                     {
                         throw new Exception("Shade is required.");
                     }
-                    if (item["ShrinkageLengthWise"]==null)
+                    if (item["ShrinkageLengthWise"] == null)
                     {
                         throw new Exception("Shrinkage Length Wise is required.");
                     }
@@ -2119,6 +2138,39 @@ Where F.GRNId='" + GRNId + "'"; ;
 
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dsMaster, dsDetail);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public void SaveFabricGrouping(List<Dictionary<string, object>> grnDetailList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            try
+            {
+                DataSet dsDetail;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenConnection("1");
+                con.BeginTransaction();
+
+
+                foreach (var item in grnDetailList)
+                {
+                   
+                    string sql = @"Update BPDT.FabricRollManagementChild Set ShadeGroup='" + item["ShadeGroup"] + @"',CutableWidthGroup=" + item["CutableWidthGroup"] + @",ShrinkageWidthGroup=" + item["ShrinkageWidthGroup"] + @",ShrinkageLengthGroup=" + item["ShrinkageLengthGroup"] + @",MarkerGroup='" + item["MarkerGroup"] + @"',IsGrouped=1,Remarks ='" + item["Remarks"] + @"' Where ISNULL(IsGrouped,0)=0
+AND Shade = '" + item["Shade"] + "' AND CutableWidth = " + item["CutableWidth"] + " AND ShrinkageWidthWise = " + item["ShrinkageWidthWise"] + " AND ShrinkageLengthWise = " + item["ShrinkageLengthWise"] + @"
+AND FabricRollManagementMasterId IN(Select Id from [BPDT].[FabricRollManagementMaster] Where ISNULL(IsConfirm,0)=1)";
+                    con.ExecuteNonQueryWrapper(sql);
+
+                }
+                con.CommitTransaction();
+
+
+
 
             }
             catch (Exception ex)

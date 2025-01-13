@@ -22,8 +22,17 @@
                 </div>
             </div>
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Month<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
+                <label class="col-sm-4 control-label">Year<sup>*</sup></label>
+                <div class="col-sm-2 show-message">
+                    <div class="select-style">
+                        <select id="Year" class="form-control" ng-model="ModelNew.YearNo" name="Year" required tabindex="1">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in leaveYearlist" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+                <label class="col-sm-2 control-label">Month<sup>*</sup></label>
+                <div class="col-sm-4 show-message">
                     <div class="select-style">
                         <select id="MonthId" class="form-control" ng-model="ModelNew.MonthNo" name="MonthId" required tabindex="1">
                             <option value="">--Select--</option>

@@ -250,6 +250,26 @@ function BOQGenerationController(cboService, commonMessage, $scope, $rootScope, 
             ShowResult(response.data.Message, 'failure');
         };
     }
+    $scope.UnProcessedRow = function (data) {
+        $http({
+            method: 'POST',
+            url: $scope.path + "UnProcessedRowItem",
+            data: { costingBOQMasterId: $scope.Model.Id, costingItemId: data.CostingItemId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.Cancel();
+                $scope.GetEditList();
+            }
+
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        };
+    }
     $scope.Cancel = function () {
         $scope.Model = Object.assign({}, $scope.ModelBase);
         $scope.MaterialList = [];
