@@ -351,6 +351,7 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
             $scope.GroupingDataList = response.data;
             for (var i = 0; i < $scope.GroupingDataList.length; i++) {
                 $scope.GroupingDataList[i].MarkerGroup = $scope.GroupingDataList[i].CutableWidthGroup + "-" + $scope.GroupingDataList[i].ShrinkageWidthGroup + "-" + $scope.GroupingDataList[i].ShrinkageLengthGroup;
+                $scope.GroupingDataList[i].Remarks = null;
             }
         });
     }
@@ -364,7 +365,7 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
         try {
             var objt = data.data;
             if (objt.ShadeGroup.length > 2) {
-                objt.ShadeGroup = objt.ShadeGroup.substring(0, objt.ShadeGroup.length - 1);
+                throw "Maximum two characters is allowed.";
             }
             if (containsSpecialChars(objt.ShadeGroup)) {
                 objt.ShadeGroup = objt.ShadeGroup.substring(0, objt.ShadeGroup.length - 1);
