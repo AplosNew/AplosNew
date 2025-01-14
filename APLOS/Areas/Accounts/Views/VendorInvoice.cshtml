@@ -590,6 +590,7 @@
                 <th>Particulars</th>
                 <th>Invoicing @Library.Model.Parties.PartyType.Vendor.ToString()</th>
                 <th>Posting Date</th>
+                <th>Entity</th>
                 <th>Currency</th>
                 <th>Amount</th>
                 <th>Written-off Amount</th>
@@ -608,6 +609,7 @@
                 <td>{{x.Particulars}}</td>
                 <td>{{x.PartyPlantName}}</td>
                 <td>{{x.PostingDate | dateFiltering}}</td>
+                <td>{{x.EntityName}}</td>
                 <td>{{x.CurrencyCode}}</td>
                 <td class="text-right">{{x.Amount | number:3}}</td>
                 <td class="text-right"><ul class="list-inline action-list"><li><a ng-click="getInvoiceSetOffDetailByInvoice(x.Id)" href="">{{x.WrittenOffAmount | number:3}}</a></li></ul></td>
@@ -803,10 +805,21 @@
             </div>
             <div class="modal-body">
                 <div class="form-horizontal col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
+                    <div class="form-group" style="margin-top: 10px;">
                         <label class="col-sm-2 control-label">Narration<sup>*</sup></label>
                         <div class="col-sm-10 show-message">
                             <textarea rows="1" type="text" name="Narration" tabindex="8" class="form-control" ng-model="voucherdb.Narration" maxlength="500" required capitalize></textarea>
+                        </div>
+                    </div>
+                    <div id="div_entity_Post" class="form-group" style="margin-top: 10px; margin-bottom: 20px;">
+                        <label class="col-sm-2 control-label">Entity<sup>*</sup></label>
+                        <div class="col-sm-10 show-message">
+                            <div class="select-style">
+                                <select id="entityId_Post" class="form-control" name="entity_Post" ng-model="voucherdb.EntityId" tabindex="8" required>
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -845,7 +858,7 @@
                         </tbody>
                     </table>
                 </div>
-
+                <br />
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li><button ng-click="postVoucher()" title="Post" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>
