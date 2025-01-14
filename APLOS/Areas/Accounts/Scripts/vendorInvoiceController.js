@@ -179,6 +179,10 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
             "value": "DocDate"
         },
         {
+            "name": "Entity",
+            "value": "EntityName"
+        },
+        {
             "name": "Doc Ref",
             "value": "DocRefNo"
         }
@@ -2744,6 +2748,9 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
     }
 
     $scope.postVoucher = function () {
+        if ($scope.voucherdb.EntityId == null || $scope.voucherdb.EntityId == "" || $scope.voucherdb.EntityId == undefined) {
+            ShowResult("Please select Entity First!!", "failure");
+        }
         $http({
             method: "POST",
             url: $scope.postUrl,
