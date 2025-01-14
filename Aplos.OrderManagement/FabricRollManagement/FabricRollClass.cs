@@ -1843,13 +1843,14 @@ LEFT JOIN dbo.EmployeeInformation CE on CE.SystemId=M.CheckedById
         {
             try
             {
-                string _sql = @"SELECT COUNT(C.Id)RollNo,SUM(SupplierQty)Qty,C.Shade ShadeGroup,C.CutableWidth CutableWidthGroup,C.ShrinkageWidthWise ShrinkageWidthGroup,C.ShrinkageLengthWise ShrinkageLengthGroup,C.Shade,C.CutableWidth
+                string _sql = @"SELECT COUNT(C.Id)RollNo,SUM(SupplierQty)Qty,C.ShadeGroup,C.CutableWidthGroup,C.ShrinkageWidthGroup,C.MarkerGroup,C.ShrinkageLengthGroup,C.Shade,C.CutableWidth
 ,C.ShrinkageWidthWise,C.ShrinkageLengthWise
 FROM BPDT.FabricRollManagementChild C
 LEFT JOIN [BPDT].[FabricRollManagementMaster] M ON M.Id=C.FabricRollManagementMasterId
 Where M.PlantId='" + PlantId + @"' AND ISNULL(M.IsConfirm,0)=1 AND ISNULL(C.IsGrouped,0)=0
 AND ISNULL(C.Shade,'')<>'' AND ISNULL(C.CutableWidth,0)<>0 AND ISNULL(C.ShrinkageWidthWise,0)<>0 AND ISNULL(C.ShrinkageLengthWise,0)<>0
-Group By M.GRNId,C.Shade,C.CutableWidth,C.ShrinkageWidthWise,C.ShrinkageLengthWise";
+Group By M.GRNId,C.Shade,C.CutableWidth,C.ShrinkageWidthWise,C.ShrinkageLengthWise,
+C.ShadeGroup,C.CutableWidthGroup,C.ShrinkageWidthGroup,C.ShrinkageLengthGroup,C.MarkerGroup";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
             catch (Exception ex)
@@ -1858,11 +1859,13 @@ Group By M.GRNId,C.Shade,C.CutableWidth,C.ShrinkageWidthWise,C.ShrinkageLengthWi
             }
         }
 
+        
         public IEnumerable<object> GetFabricRollMasterConfirmDataList(string PlantId)
         {
             try
             {
-                string _sql = @"SELECT M.*,PE.EmployeeName PreparedBy,CE.EmployeeName CheckedBy,FORMAT(m.GRNDate,'dd-MMM-yyyy') GDate,RollNo=(SELECT Count(Id) FROM BPDT.FabricRollManagementChild Where FabricRollManagementMasterId=M.Id Group By FabricRollManagementMasterId) FROM [BPDT].[FabricRollManagementMaster] M
+                string _sql = @"SELECT M.*,PE.EmployeeName PreparedBy,CE.EmployeeName CheckedBy,FORMAT(m.GRNDate,'dd-MMM-yyyy') GDate,RollNo=(SELECT Count(Id) FROM BPDT.FabricRollManagementChild Where FabricRollManagementMasterId=M.Id AND ISNULL(CutableWidth,0)<>0 AND ISNULL(Shade,'')<>''
+ AND ISNULL(ShrinkageLengthWise,0)<>0 AND ISNULL(ShrinkageWidthWise,0)<>0 Group By FabricRollManagementMasterId) FROM [BPDT].[FabricRollManagementMaster] M
 LEFT JOIN dbo.EmployeeInformation PE on PE.SystemId=M.PreparedById
 LEFT JOIN dbo.EmployeeInformation CE on CE.SystemId=M.CheckedById
  Where M.PlantId='" + PlantId + @"' AND M.Id IN(Select FabricRollManagementMasterId From BPDT.FabricRollManagementChild Where ISNULL(CutableWidth,0)<>0 AND ISNULL(Shade,'')<>''
@@ -2101,6 +2104,10 @@ Where F.GRNId='" + GRNId + "'"; ;
                     DataView dv = new DataView(dsDetail.Tables[0]);
                     dv.RowFilter = "Id='" + item["Id"] + "'";
 
+                    if (item["SupplierQty"] == null)
+                    {
+                        throw new Exception("Supplier Qty is required.");
+                    }
                     if (item["CutableWidth"] == null)
                     {
                         throw new Exception("Cutable Width is required.");
