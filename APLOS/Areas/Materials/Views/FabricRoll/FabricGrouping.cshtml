@@ -3,7 +3,7 @@
         <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">Pending</a></li>
         <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);getConfirmData();" href="" aria-controls="doc" role="tab" data-toggle="tab">Confirm</a></li>
         <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);getGroupingData();" href="" aria-controls="doc" role="tab" data-toggle="tab">Grouping</a></li>
-        <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="doc" role="tab" data-toggle="tab">Fabric Allocation</a></li>
+        <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);getFabricAllocationGroupingData();" href="" aria-controls="doc" role="tab" data-toggle="tab">Fabric Allocation</a></li>
     </ul>
 </div>
 <div class="tab-content">
@@ -217,15 +217,20 @@
         </div>
     </div>
     <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
-        <div class="row">
+        <div class="form-elements form-horizontal" id="group">
+            <togglable name="Grouping"></togglable>
 
 
             <div style="color:black;" id="GridGD" ej-grid e-datasource="GroupingDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                  e-allowResizing="true" e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
                 <div e-columns>
-                    <div e-column e-field="RollNo" e-headertext="RollNo" e-headertext-color="black" e-textalign="left" e-width="40"></div>
-                    <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
-                    <div e-column e-template="#ShadeGroup" e-headertext="ShadeGroup" e-width="40" style="height: 20px;"></div>
+                    <div e-column e-field="RollNo" e-headertext="No Of Roll" e-headertext-color="black" e-textalign="left" e-width="40"></div>
+                    <div e-column e-field="Qty" e-headertext="Qty" e-width="50"></div>
+                    <div e-column e-field="Shade" e-headertext="Shade" e-width="50"></div>
+                    <div e-column e-field="CutableWidth" e-headertext="CutableWidth" e-width="50"></div>
+                    <div e-column e-field="ShrinkageWidthWise" e-headertext="ShrinkageWidthWise" e-width="50"></div>
+                    <div e-column e-field="ShrinkageLengthWise" e-headertext="ShrinkageLengthWise" e-width="50"></div>
+                    <div e-column e-template="#ShadeGroup" e-headertext="ShadeGroup" e-width="60" style="height: 20px;"></div>
                     <div e-column e-template="#CutableWidthGroup" e-headertext="CutableWidthGroup" e-width="40" style="height: 20px;"></div>
                     <div e-column e-template="#ShrinkageWidthGroup" e-headertext="ShrinkageWidthGroup" e-width="40" style="height: 20px;"></div>
                     <div e-column e-template="#ShrinkageLengthGroup" e-headertext="ShrinkageLengthGroup" e-width="40" style="height: 20px;"></div>
@@ -236,22 +241,22 @@
             </div>
             <script type="text/template" id="ShadeGroup">
                 <div class="col-sm-10" style="padding:0px; width:70px;">
-                    <input type="text" ng-model="data.ShadeGroup" ng-keyup="$parent.CheckSpecialCharecter(this);" ng-maxlength="2" style="color:black;" class="form-control" />
+                    <input type="text" ng-model="data.ShadeGroup" ng-keyup="$parent.CheckSpecialCharecter(this);" maxlength="2" style="color:black;" class="form-control" />
                 </div>
             </script>
             <script type="text/template" id="CutableWidthGroup">
                 <div class="col-sm-10" style="padding:0px; width:70px;">
-                    <input type="text" ng-model="data.CutableWidthGroup" n-decimals="1" style="color:black;" class="form-control" />
+                    <input type="text" ng-model="data.CutableWidthGroup" ng-blur="$parent.MakeMarkerGroup(this);" n-decimals="1" style="color:black;" class="form-control" />
                 </div>
             </script>
             <script type="text/template" id="ShrinkageWidthGroup">
                 <div class="col-sm-10" style="padding:0px; width:70px;">
-                    <input type="text" ng-model="data.ShrinkageWidthGroup" n-decimals="1" style="color:black;" class="form-control" />
+                    <input type="text" ng-model="data.ShrinkageWidthGroup" ng-blur="$parent.MakeMarkerGroup(this);" n-decimals="1" style="color:black;" class="form-control" />
                 </div>
             </script>
             <script type="text/template" id="ShrinkageLengthGroup">
                 <div class="col-sm-10" style="padding:0px; width:70px;">
-                    <input type="text" ng-model="data.ShrinkageLengthGroup" n-decimals="1" style="color:black;" class="form-control" />
+                    <input type="text" ng-model="data.ShrinkageLengthGroup" ng-blur="$parent.MakeMarkerGroup(this);" n-decimals="1" style="color:black;" class="form-control" />
                 </div>
             </script>
             <script type="text/template" id="Remark">
@@ -267,8 +272,32 @@
 
         </div>
     </div>
-</div>
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+        <div class="form-elements form-horizontal" id="fa">
+            <togglable name=""></togglable>
+            <div style="color:black;" id="GridGG" ej-grid e-datasource="fabricAllocationShadeGroupingDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                 e-allowResizing="true" e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
+                <div e-columns>
+                    <div e-column e-field="Shade" e-headertext="Shade" e-width="40" style="height: 20px;"></div>
+                    <div e-column e-field="MarkerGroup" e-headertext="MarkerGroup" e-width="80"></div>
+                    <div e-column e-field="RollNo" e-headertext="No Of Roll" e-headertext-color="black" e-textalign="left" e-width="40"></div>
+                    <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
+                </div>
 
+            </div>
+            <br />
+            <div style="color:black;" id="GridGGG" ej-grid e-datasource="fabricAllocationShadeandMarkerGroupingDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                 e-allowResizing="true" e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
+                <div e-columns>
+                    <div e-column e-field="MarkerGroup" e-headertext="MarkerGroup" e-width="80"></div>
+                    <div e-column e-field="RollNo" e-headertext="No Of Roll" e-headertext-color="black" e-textalign="left" e-width="40"></div>
+                    <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
 <div class="modal fade site-modal in" id="entryPopUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">

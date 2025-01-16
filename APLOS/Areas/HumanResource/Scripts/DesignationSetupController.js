@@ -15,6 +15,9 @@ function DesignationSetupController(fileReader, cboService, commonMessage, $scop
         // #endregion TAB CHANGE
 
     //  #region Employee Category
+    $scope.searchBy = "UserName"; $scope.search = "";
+    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
+
     $rootScope.titleEC = 'Employee Category';
     $scope.ActionEC = 'Save';
     $scope.index = -1;
@@ -24,16 +27,24 @@ function DesignationSetupController(fileReader, cboService, commonMessage, $scop
     $scope.updateUrlEC = $scope.pathEC + 'edit';
     $scope.deleteUrlEC = $scope.pathEC + 'delete/';
     $scope.getListUrlEC = $scope.pathEC + 'GetList';
-    baseService.init($scope.getListUrlEC, null, null, null, 'Sequence', 'Sequence');
+    //baseService.init($scope.getListUrlEC, null, null, null, 'Sequence', 'Sequence');
 
     $scope.getDataEC = function (pageno) {
-        baseService.pagination(pageno)
-            .then(function (result) {
-                $scope.employeeCategories = result.Rows;
-            }, function () {
-                ShowResult(commonMessage.NetworkError, 'failure');
-            }).finally(function () {
-            });
+        //baseService.pagination(pageno)
+        //    .then(function (result) {
+        //        $scope.employeeCategories = result.Rows;
+        //    }, function () {
+        //        ShowResult(commonMessage.NetworkError, 'failure');
+        //    }).finally(function () {
+        //    });
+        $http({
+            method: 'POST',
+            url: "employees/employeecategory/GetECList",
+            data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.employeeCategories = response.data;
+        });
     };
     $scope.getDataEC();
     $scope.employeeCategory = {
@@ -76,15 +87,16 @@ function DesignationSetupController(fileReader, cboService, commonMessage, $scop
         $scope.WorkingDaysInAMonthList = result;
     });
 
-    $scope.GetEC = function (index) {
-        $scope.index = index;
-        $scope.employeeCategoryNew = $scope.employeeCategories[$scope.index];
-        $scope.employeeCategoryNew = Object.assign({}, $scope.employeeCategoryNew);
+    $scope.GetEC = function (args) {
+
+        $scope.employeeCategoryNew = Object.assign({}, args.data);
         clearLanguage();
         $scope.languageDataListEC = [];
         $scope.languageData();
-        $scope.ActionEC = 'Update';
-        if (!$rootScope.isCollapsed) $rootScope.toggle();
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
     };
 
 
@@ -309,15 +321,24 @@ function DesignationSetupController(fileReader, cboService, commonMessage, $scop
     $scope.saveUrlDG = $scope.pathDG + 'create';
     $scope.updateUrlDG = $scope.pathDG + 'edit';
     $scope.deleteUrlDG = $scope.pathDG + 'delete/';
-    baseService.init($scope.getListUrlDG);
+  //  baseService.init($scope.getListUrlDG);
     $scope.getDataDG = function (pageno) {
-        baseService.pagination(pageno)
-            .then(function (result) {
-                $scope.designationgroups = result.Rows;
-            }, function () {
-                ShowResult(commonMessage.NetworkError, 'failure');
-            }).finally(function () {
-            });
+        //baseService.pagination(pageno)
+        //    .then(function (result) {
+        //        $scope.designationgroups = result.Rows;
+        //    }, function () {
+        //        ShowResult(commonMessage.NetworkError, 'failure');
+        //    }).finally(function () {
+        //    });
+
+        $http({
+            method: 'POST',
+            url: "Organizations/designationgroup/GetDGList",
+            data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.designationgroups = response.data;
+        });
     };
     $scope.getDataDG();
 
@@ -356,15 +377,16 @@ function DesignationSetupController(fileReader, cboService, commonMessage, $scop
     });
 
 
-    $scope.GetDG = function (index) {
-        $scope.index = index;
-        $scope.designationgroup = $scope.designationgroups[$scope.index];
-        $scope.designationgroupNew = angular.copy($scope.designationgroup);
+    $scope.GetDG = function (args) {
+       
+        $scope.designationgroupNew = Object.assign({}, args.data);
         clearLanguageDG();
         $scope.languageDataListDG = [];
         $scope.languageDataDG();
         $scope.ActionDG = 'Update';
         if (!$rootScope.isCollapsed) $rootScope.toggle();
+
+
     };
 
     $scope.SaveDG = function () {
@@ -587,15 +609,17 @@ function DesignationSetupController(fileReader, cboService, commonMessage, $scop
     $scope.saveUrl = $scope.path + 'create';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
-    baseService.init($scope.getListUrl);
-    $scope.getData = function (pageno) {
-        baseService.pagination(pageno)
-            .then(function (result) {
-                $scope.designations = result.Rows;
-            }, function () {
-                ShowResult(commonMessage.NetworkError, 'failure');
-            }).finally(function () {
-            });
+//    baseService.init($scope.getListUrl);
+    $scope.searchd = null;
+    $scope.getData = function () {
+        $http({
+            method: 'POST',
+            url: "Organizations/designation/GetDList",
+            data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.designations = response.data;
+        });
     };
     $scope.getData();
 
@@ -633,10 +657,9 @@ function DesignationSetupController(fileReader, cboService, commonMessage, $scop
         $scope.languageList = data;
     });
 
-    $scope.Get = function (id, index) {
-        $scope.index = index;
-        $scope.designation = $scope.designations[$scope.index];
-        $scope.designationNew = Object.assign({}, $scope.designation);
+    $scope.Get = function (args) {
+        $scope.designationNew = Object.assign({}, args.data);
+
         clearLanguage();
         $scope.languageDataList = [];
         $scope.languageData();

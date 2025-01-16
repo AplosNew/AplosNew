@@ -4598,6 +4598,14 @@ namespace Library.Service.Invoices
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
+                var inDirect = new System.Text.StringBuilder();
+                var inDirectsql = "";
+
+                inDirectsql = @"update [TRN].[Voucher] set EntityId='" + voucher.EntityId + @"' where Id='" + invoice.VoucherId + @"'
+                            update [TRN].[VoucherDetail]  set EntityId='" + voucher.EntityId + @"' where VoucherId='" + invoice.VoucherId + @"' 
+                            update [TRN].[Invoice]  set EntityId='" + voucher.EntityId + @"' where VoucherId='" + invoice.VoucherId + @"' ";
+                inDirect.Append(inDirectsql);
+                _sqlRepository.ExecuteSqlCommand(inDirect.ToString());
             }
             catch (CustomException)
             {

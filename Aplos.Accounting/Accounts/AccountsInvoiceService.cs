@@ -533,6 +533,7 @@ namespace Library.Accounting.Accounts
                                         ,IsAssetDistribution=CASE WHEN ISNULL((select COUNT(AD.Id) from TRN.MachineMasterAssetSeviceDistribution AD
 										        INNER JOIN TRN.VoucherDetail VD ON VD.Id=AD.VoucherDetailId
 										        WHERE VD.VoucherId=I.VoucherId),0)>0 THEN 1 ELSE 0 END
+                                        ,E.UserName EntityName,V.EntityId
                                         FROM TRN.[Invoice] AS I
                                         JOIN [HKP].[Party] AS P ON P.Id=I.PartyId
                                         LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=I.PartyPlantId
@@ -543,6 +544,7 @@ namespace Library.Accounting.Accounts
                                         LEFT JOIN TRN.Voucher AV ON AV.Id=ADT.VoucherId
                                         LEFT JOIN DBO.EmployeeInformation EIA ON EIA.SystemId=V.ApprovedById
                                         LEFT JOIN TRN.OtherInvoice OI ON OI.InvoiceId=I.Id
+                                        LEFT JOIN [ORG].[Entity] AS E ON E.Id=V.EntityId
                                         WHERE I.Archive=0 AND V.Archive=0 AND I.OpeningBalanceId IS NULL AND I.SourceType='" + sourceType + @"' 
                                         AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' 
                                         UNION ALL
@@ -554,7 +556,7 @@ namespace Library.Accounting.Accounts
                                         ,case when AV.ApprovedBystatus is null then 'To Be Checked' else  AV.ApprovedBystatus end CheckStatus
                                         ,AV.VoucherNo TDSVoucherNo,ADT.VoucherId TDSVoucherId,[Status]= case when I.IsPark=1 then 'Parked' else 'Posted' end
                                         ,NULL OtherInvoiceId,NULL OtherIsPark,NULL OtherInvoiceVoucherId,0 IsExpenseDistribution,V.ApprovedByStatus,EIA.EmployeeName ApprovedBy,V.ApprovedById,V.ApprovedDate,V.Narration
-                                        ,0 IsAssetDistribution
+                                        ,0 IsAssetDistribution,E.UserName EntityName,V.EntityId
                                         FROM TRN.[EmployeePayable] AS I
                                        LEFT JOIN [HKP].[Party] AS P ON P.Id=I.PartyId
                                         LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=I.PartyPlantId
@@ -564,6 +566,7 @@ namespace Library.Accounting.Accounts
                                         LEFT JOIN TRN.AdditionalTax ADT ON ADT.EmployeePayableId=I.Id
                                         LEFT JOIN TRN.Voucher AV ON AV.Id=ADT.VoucherId
                                         LEFT JOIN DBO.EmployeeInformation EIA ON EIA.SystemId=V.ApprovedById
+                                        LEFT JOIN [ORG].[Entity] AS E ON E.Id=V.EntityId
                                         WHERE I.Archive=0 AND V.Archive=0 AND I.OpeningBalanceId IS NULL AND I.SourceType='" + sourceType + @"' 
                                         AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"'  ";
                 return _sqlRepository.GetGridData(parameters);
