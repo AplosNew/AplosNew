@@ -1858,6 +1858,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
                             }
                             _itemRepository.Delete(item);
                             DeleteMOIDocumntFromFolder(item.Id);
+                            DeleteArticleAlias(item.Id);
                         }
                     }
                     else
@@ -1916,6 +1917,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
 
                                 _itemRepository.Delete(item);
                                 DeleteMOIDocumntFromFolder(item.Id);
+                                DeleteArticleAlias(item.Id);
                             }
                         }
                     }
@@ -2009,6 +2011,16 @@ WHERE MOI.MasterOrderId='" + id + "'";
 
             if (System.IO.File.Exists(path + id + Path.GetExtension(FN)))
                 System.IO.File.Delete(path + id + Path.GetExtension(FN));
+
+        }
+
+        public void DeleteArticleAlias(string id)
+        {
+            ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
+            string sql = " delete FROM ArticleAlias WHERE MasterOrderItemId='" + id + "'";
+            connection.BeginTransaction();
+            connection.executeQuery(sql);
+            connection.CommitTransaction();
 
         }
 
