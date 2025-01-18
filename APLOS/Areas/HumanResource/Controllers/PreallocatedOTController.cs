@@ -61,17 +61,17 @@ namespace Aplos.Areas.HumanResource.Controllers
             string sql = @"SELECT Active=CASE WHEN POT.EmpSystemID IS NOT NULL AND POT.WorkDate='" + workDate + @"' THEN 1 ELSE 0 END
                                         ,Emp.SystemID EmpSystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,SS.UserName SubSection
-                                        ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line, ATN.DayStatus, POT.PreallocatedOTHr, DT.Category,EMP.SectionId,EMP.DepartmentId
+                                        ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line, ATN.DayStatus, POT.PreallocatedOTHr, DT.Category,PR.SectionId,PR.DepartmentId
                                         FROM EmployeeInformation EMP
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                        LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                                         LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
                                         LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                                         LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
-                                        LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
+                                        LEFT JOIN ORG.Line L ON L.Id=PMB.LineId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
 										LEFT JOIN dbo.EmployeeOTEntitle OT on OT.EmpSystemID=EMP.SystemId
@@ -88,7 +88,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 				                        LEFT JOIN (SELECT* FROM AttdnProcessData Where WorkDate='" + workDate + @"')ATN ON ATN.EmpSystemID=EMP.SystemId
                                         LEFT JOIN DayType DT ON DT.DayType=ATN.DayStatus 
                                         LEFT JOIN [dbo].[PreallocatedOT] POT ON POT.EmpSystemID=EMP.SystemId AND POT.WorkDate='" + workDate + @"'
-                                        WHERE emp.PlantID='" + identity.PlantId + @"'  and EMP.CompanyId='" + identity.CompanyId + @"' and (EMP.EmployeeStatus='Active' OR DOS>'" + workDate + @"') and EMP.SectionId='" + SectionId + @"' 
+                                        WHERE emp.PlantID='" + identity.PlantId + @"'  and EMP.CompanyId='" + identity.CompanyId + @"' and (EMP.EmployeeStatus='Active' OR DOS>'" + workDate + @"') and PR.SectionId='" + SectionId + @"' 
 				                        AND (egdsggso.IsOTEntitled=1 or OT.IsOTEntitle=1) ORDER BY EMP.EmployeeCodeNumeric";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }

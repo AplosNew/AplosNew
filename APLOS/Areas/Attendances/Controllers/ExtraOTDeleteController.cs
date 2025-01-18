@@ -1089,17 +1089,19 @@ namespace Aplos.Areas.Attendances.Controllers
 							inner join HourlyOT HOT ON HOT.EmpSystemId=apd.EmpSystemID and HOT.WorkDate=apd.WorkDate
                             INNER JOIN EmployeeInformation e ON e.SystemId = apd.EmpSystemID
                             LEFT JOIN DayType dt on dt.DayType=apd.DayStatus
-                            LEFT JOIN HKP.EmployeeCategory AS EC ON E.EmployeeCategorySystemID = EC.Id
-                            LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
-                            LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
-                            LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
-                            LEFT JOIN ORG.Section Se ON E.SectionID = Se.Id
-                            LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
-                            LEFT JOIN ORG.Line L ON E.LineID = L.Id
-                            LEFT JOIN HKP.Designation D ON E.DesignationSystemID = D.Id
-                            LEFT JOIN HKP.LegalDesignation AS ld ON E.LegalDesignationId = ld.Id
-                            LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
                             LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+							LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                            LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
+                            LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
+                            LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
+                            LEFT JOIN ORG.Unit U ON EN.UnitID = U.Id
+                            LEFT JOIN ORG.Division Dv ON PR.DivisionID = Dv.Id
+                            LEFT JOIN ORG.Department Dp ON PR.DepartmentID = Dp.Id
+                            LEFT JOIN ORG.Section Se ON PR.SectionID = Se.Id
+                            LEFT JOIN ORG.SubSection SB ON PR.SubSectionID = SB.Id
+                            LEFT JOIN ORG.Line L ON MB.LineID = L.Id
+                            LEFT JOIN HKP.Designation D ON PR.DesignationID = D.Id
+                            LEFT JOIN HKP.LegalDesignation AS ld ON E.LegalDesignationId = ld.Id
                             LEFT JOIN ShiftDefination AS sd ON sd.SystemID=apd.ShiftSystemID                           
                             LEFT JOIN  EmpDateWiseShiftAssign AS edwsa ON edwsa.EmpSystemID = apd.EmpSystemID AND edwsa.WorkDate = apd.WorkDate
                            

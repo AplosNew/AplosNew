@@ -535,14 +535,14 @@ namespace Library.Service.HumanResources
                               LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
 							  LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
 							  LEFT JOIN HKP.Designation DeG on DeG.Id=EI.GivenDesignationId
-				              LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+				              LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
 							  Left join MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
 							  Left Join hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId
                               LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
                               LEFT JOIN HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
                             LEFT JOIN HKP.LegalDesignation LGD on LGD.Id=EI.LegalDesignationId	
-                            LEFT JOIN ORG.Section AS Se ON Se.Id= EI.SectionID 
-                            LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= EI.SubSectionID
+                            LEFT JOIN ORG.Section AS Se ON Se.Id= PR.SectionID 
+                            LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= PR.SubSectionID
                               LEFT JOIN SalaryInfoDefineMaster SM ON SM.EmpInfoSystemID=EI.SystemID AND SM.EmpInfoSystemID=(SELECT TOP 1 EmpInfoSystemID FROM SalaryInfoDefineMaster WHERE EmpInfoSystemID= EI.SystemID  ORDER BY   EffectiveDate DESC) AND isnull(SM.IsApproved,0)=0
 							  LEFT JOIN IncrementHistory IH ON IH.EmpSystemID=EI.SystemID AND IH.IsApproved=0  AND IH.EmpSystemID=(SELECT TOP 1 EmpSystemID FROM IncrementHistory WHERE EmpSystemID= EI.SystemID  ORDER BY FromEffectiveDate DESC)  AND sm.SystemID=IH.ToSalaryId
 							 
@@ -582,14 +582,14 @@ namespace Library.Service.HumanResources
                               LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
 							  LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
 							  LEFT JOIN HKP.Designation DeG on DeG.Id=EI.GivenDesignationId
-				              LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+				              LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
 							  Left join MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
 							  Left Join hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId
                               LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
                               LEFT JOIN HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
                               LEFT JOIN HKP.LegalDesignation LGD on LGD.Id=EI.LegalDesignationId	
-                              LEFT JOIN ORG.Section AS Se ON Se.Id= EI.SectionID 
-                              LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= EI.SubSectionID
+                              LEFT JOIN ORG.Section AS Se ON Se.Id= PR.SectionID 
+                              LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= PR.SubSectionID
                               --LEFT JOIN SalaryInfoDefineMaster SM ON SM.EmpInfoSystemID=EI.SystemID AND SM.EmpInfoSystemID=(SELECT TOP 1 SystemID FROM SalaryInfoDefineMaster WHERE EmpInfoSystemID= EI.SystemID  ORDER BY   EffectiveDate DESC) AND SM.IsApproved=0
 							  LEFT JOIN IncrementHistory IH ON IH.EmpSystemID=EI.SystemID   AND IH.IsApproved=0  AND IH.EmpSystemID=(SELECT TOP 1 EmpSystemID FROM IncrementHistory WHERE EmpSystemID= EI.SystemID  ORDER BY FromEffectiveDate DESC)
                               WHERE EI.EmployeeStatus ='Active' AND EI.PlantId='" + plantId + @"' AND  EI.GroupId='" + companyGroupId + @"' 
@@ -628,14 +628,14 @@ namespace Library.Service.HumanResources
                               LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
 							  LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
 							  LEFT JOIN HKP.Designation DeG on DeG.Id=EI.GivenDesignationId
-				              LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+				              LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
 							  Left join MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
 							  Left Join hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId
                               LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
                               LEFT JOIN HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
                             LEFT JOIN HKP.LegalDesignation LGD on LGD.Id=EI.LegalDesignationId	
-                            LEFT JOIN ORG.Section AS Se ON Se.Id= EI.SectionID 
-                            LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= EI.SubSectionID
+                            LEFT JOIN ORG.Section AS Se ON Se.Id= PR.SectionID 
+                            LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= PR.SubSectionID
 
                               LEFT JOIN SalaryInfoDefineMaster SM ON SM.EmpInfoSystemID=EI.SystemID AND SM.SystemID=(SELECT TOP 1 SystemID FROM SalaryInfoDefineMaster WHERE EmpInfoSystemID= EI.SystemID  ORDER BY   EffectiveDate DESC) AND SM.IsApproved=1
 							  LEFT JOIN IncrementHistory IH ON IH.EmpSystemID=EI.SystemID   AND IH.IsApproved=0  AND IH.EmpSystemID=(SELECT TOP 1 EmpSystemID FROM IncrementHistory WHERE EmpSystemID= EI.SystemID  ORDER BY FromEffectiveDate DESC) AND sm.SystemID=IH.ToSalaryId                               
@@ -1067,7 +1067,7 @@ namespace Library.Service.HumanResources
                               LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
 							  LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
 							  LEFT JOIN HKP.Designation DeG on DeG.Id=EI.GivenDesignationId
-				              LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+				              LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
 							  Left join MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
 							  Left Join hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId
                               LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
@@ -1120,7 +1120,7 @@ namespace Library.Service.HumanResources
 							  LEFT JOIN HKP.Designation DeG on DeG.Id=EI.GivenDesignationId
 							  LEFT JOIN  HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId----
 							  
-				              LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+				              LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
 							  Left join MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
 							  Left Join hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId
 							  
@@ -1182,7 +1182,7 @@ namespace Library.Service.HumanResources
                               LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
 							  LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
 							  LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-				              LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+				              LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
 							  Left join MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
 							  Left Join hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId
                               WHERE EI.EmployeeStatus ='Active' AND EI.PlantId='" + plantId + @"' AND  EI.GroupId='" + companyGroupId + "' AND ( EI.SystemId IN (SELECT EmpInfoSystemID FROM SalaryInfoDefineMaster where  IsApproved=0) or  EI.SystemId Not IN (SELECT EmpInfoSystemID FROM SalaryInfoDefineMaster) ) AND EI.SystemId Not IN (SELECT EmpInfoSystemID FROM SalaryInfoBackMaster)";
@@ -1221,7 +1221,7 @@ namespace Library.Service.HumanResources
 							  LEFT JOIN HKP.Designation DeG on DeG.Id=EI.GivenDesignationId
 							  LEFT JOIN  HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId----
 							  
-				              LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+				              LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
 							  Left join MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
 							  Left Join hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId
 							  
@@ -1356,7 +1356,7 @@ namespace Library.Service.HumanResources
                               LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
 							  LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
 							  LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-				              LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+				              LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
 							  Left join MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
 							  Left Join hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId
 	                          LEFT JOIN TRN.EmployeeProbationalPeriod AS EP ON EP.Id = (SELECT TOP 1 Id FROM TRN.EmployeeProbationalPeriod WHERE EmployeeId = EI.SystemID	ORDER BY AddedDate DESC	) and EI.SystemId=EP.EmployeeId
@@ -1425,7 +1425,7 @@ namespace Library.Service.HumanResources
                               LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
 							  LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
 							  LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-				              LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+				              LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
 							  Left join MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
 							  Left Join hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId
                               WHERE EI.EmployeeStatus ='Active' AND EI.SystemId='" + EmpSystemId + @"' AND EI.PlantId='" + plantId + @"' AND  EI.GroupId='" + companyGroupId + "' AND EI.SystemId IN (SELECT EmpInfoSystemID FROM SalaryInfoDefineMaster where  IsApproved=1)";
@@ -1852,18 +1852,18 @@ namespace Library.Service.HumanResources
 					                            E.PresPostOfficeID, PresPO.StandardName PresPostOfficeName, E.ParmPostOfficeID, ParmPO.StandardName ParmPostOfficeName,
 					                            E.PresZipCode, E.ParmZipCode, E.PresDistrictID, PresD.StandardName PresDistrictName, E.ParmDistrictID,
 					                            ParmD.StandardName ParmDistrictName, E.PresCountryID, PresC.StandardName PresCountry, E.ParmCountryID, ParmC.StandardName ParmCountry,
-					                            E.TelePhnNo, E.CellPhnNo, E.EmailID, E.UnitID, U.StandardName UnitName,
-					                            E.DivisionID, Dv.StandardName DivisionName, E.DepartmentID, De.StandardName DepartmentName, E.SectionID, Se.StandardName SectionName, E.SubSectionID,
-					                            SuS.StandardName SubSectionName, E.LineID, Ln.StandardName LineName, E.BudgetCategoryID, EBC.StandardName BudgetCategoryName, E.EmployeeCategorySystemID,
+					                            E.TelePhnNo, E.CellPhnNo, E.EmailID, EN.UnitID, U.StandardName UnitName,
+					                            PC.DivisionID, Dv.StandardName DivisionName, PC.DepartmentID, De.StandardName DepartmentName, PC.SectionID, Se.StandardName SectionName, PC.SubSectionID,
+					                            SuS.StandardName SubSectionName, PMB.LineID, Ln.StandardName LineName, E.BudgetCategoryID, EBC.StandardName BudgetCategoryName, E.EmployeeCategorySystemID,
                                                 E.SubSecStrucSystemID, SSSM.Description SubSectionStructureDes, SSSM.Code SubSectionStructureCode,
-					                            EC.UserName EmpCategoryName, E.DesignationGroupID, E.DesignationSystemID, DG.StandardName DesignationGroupName, Dsg.StandardName DesignationName,
+					                            EC.UserName EmpCategoryName, DM.DesignationGroupID, DM.DesignationID, DG.StandardName DesignationGroupName, Dsg.StandardName DesignationName,
 					                            E.LVPolicyMasterSystemID, DGM.LeavePolicyMasterId, LPM.PolicyName LeavePolicyName, E.SalaryRuleMasterSystemID, SRM.SalaryRuleName,
 					                            E.BankSystemID, E.BankName, E.BankAccNo, E.RegisterFP, E.RegisterProximate, E.IsSlvDevReg, R.EmployeeStatue ResignStatue,
                                                 E.EmployeeGroupSystemID, E.JobLocationID, ISNULL(E.IsConfirmed,0)IsConfirmed, JbLc.JobLocation, SRM.CurrencyRuleSystemID, SID.SlrRulMstSystemID IncrementSlrRulMstSystemID,
                                                 REPLACE(Convert(varchar(11), SID.EffectiveDate, 106),' ','-') AS IncrementEffectiveDate,EmrCntPer2CellNo
 												,EmrCntPer2Name,EmrCntPer1CellNo2,EmrCntPer1CellNo3,EmrCntPer2CellNo2,EmrCntPer2CellNo3
 												,EmrCntPer1CellNo,pmb.Code BudgetCodeName, E.SalaryPercentage
-												,EmrCntPer1Name,E.BudgetCode,E.SubdivisionID,E.IsDirect,E.PositionId,PC.UserName PositionName
+												,EmrCntPer1Name,E.BudgetCode,PC.SubdivisionID,E.IsDirect,PMB.PositionId,PC.UserName PositionName
                                                 ,E.PresCityID, E.ParmCityID, E.PresAreaID, E.ParmAreaID
 		                                        ,PresCT.UserName PresCity, ParmCT.UserName ParmCity, PresAR.UserName PresArea, ParmAR.UserName ParmaArea
                                                 ,E.GivenDesignationId,E.LegalDesignationId,Dsgg.UserName GivenDesignation
@@ -1878,8 +1878,15 @@ namespace Library.Service.HumanResources
 												E.AnyRelativeWorkedHere,E.RelativeSystemId,E.PresentAddress1Local,E.PresentAddress2Local,E.ParmanentAddress1Local,E.ParmanentAddress2Local
 												,E.RelationShip,E.RelativeCellNo,E.ExitReasonLocal,E.SpouseNameLocal,E.PreviousDesignationLocal,E.EmpSignature,E.PaymentMode,LDSg.UserName LegalDesignation
 				                            FROM EmployeeInformation AS E
-						                            LEFT OUTER JOIN
-									                            [HKP].[EmployeeBudgetCategory] EBC ON E.BudgetCategoryID = EBC.ID
+                                                    LEFT OUTER JOIN
+                                                                [MST].[ManpowerBudget] pmb on e.BudgetCode=pmb.Id
+                                                    LEFT OUTER JOIN
+																[ORG].[Position] AS PC ON PMB.PositionID  = PC.ID
+                                                    LEFT JOIN ORG.Entity EN ON PMB.EntityId=EN.Id
+                                                    LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=E.GivenDesignationID
+                                                    LEFT JOIN HKP.EmployeeCategory EBC ON EBC.Id=DM.EmployeeCategoryId
+LEFT OUTER JOIN
+																[HKP].Designation AS Dsg ON Dsg.ID = DM.DesignationId
 						                            LEFT OUTER JOIN
 									                            [ORG].[CompanyGroup] GC ON E.GroupID = GC.ID
 						                            LEFT OUTER JOIN
@@ -1894,10 +1901,7 @@ namespace Library.Service.HumanResources
 									                            HKP.CivilStatus AS CS ON E.CivilStatusID  = CS.ID
 						                            LEFT OUTER JOIN
 									                            [HKP].[BloodGroup] AS BG ON E.BloodGroupID  = BG.ID
-						                            LEFT OUTER JOIN
-                                                                [MST].[ManpowerBudget] pmb on e.BudgetCode=pmb.Id
-                                                    LEFT OUTER JOIN
-																[ORG].[Position] AS PC ON E.PositionID  = PC.ID
+						                            
 						                            LEFT OUTER JOIN
 									                            [SCS].[PoliceStation] AS PresT ON E.PresThanaID  = PresT.ID
 						                            LEFT OUTER JOIN
@@ -1930,27 +1934,26 @@ namespace Library.Service.HumanResources
 																LEFT JOIN MST.DesignationMaster DM ON ECT.Id=DM.EmployeeCategoryId
 																)EC ON EC.DesignationId=E.GivenDesignationId
 													LEFT OUTER JOIN
-																[ORG].[Unit] AS U ON U.ID = E.UnitID
+																[ORG].[Unit] AS U ON U.ID = EN.UnitID
 													LEFT OUTER JOIN
-																[ORG].Division AS Dv ON Dv.ID = E.DivisionID
+																[ORG].Division AS Dv ON Dv.ID = PC.DivisionID
 													LEFT OUTER JOIN
-																[ORG].Department AS De ON De.ID = E.DepartmentID
-													LEFT OUTER JOIN
-																[HKP].Designation AS Dsg ON Dsg.ID = E.DesignationSystemID
+																[ORG].Department AS De ON De.ID = PC.DepartmentID
                                                     LEFT OUTER JOIN
 																[HKP].Designation AS Dsgg ON Dsgg.ID = E.GivenDesignationID
 													LEFT OUTER JOIN
-																[ORG].Section AS Se ON Se.ID = E.SectionID
+																[ORG].Section AS Se ON Se.ID = PC.SectionID
 													LEFT OUTER JOIN
-																[ORG].SubSection AS SuS ON SuS.ID = E.SubSectionID
+																[ORG].SubSection AS SuS ON SuS.ID = PC.SubSectionID
 									                LEFT OUTER JOIN
-									                            [ORG].Line AS Ln ON Ln.ID = E.LineID
+									                            [ORG].Line AS Ln ON Ln.ID = PMB.LineID
                                                     LEFT OUTER JOIN
-									                            [ORG].SubDivision AS SD ON SD.Id = E.SubdivisionID
+									                            [ORG].SubDivision AS SD ON SD.Id = PC.SubdivisionID
 									                LEFT OUTER JOIN
 									                            [TRN].[SubsectionStructureMaster] AS SSSM ON SSSM.ID = E.SubSecStrucSystemID
+                                                    
 						                            LEFT OUTER JOIN
-									                            [HKP].[DesignationGroup] DG ON E.DesignationGroupID = DG.ID
+									                            [HKP].[DesignationGroup] DG ON DM.DesignationGroupID = DG.ID
                                                     LEFT OUTER JOIN
 									                            (               SELECT DC.SalaryRuleMasterId,dc.PlantId,dm.*,dc.LeavePolicyMasterId
                                                                                 FROM MST.DesignationMaster DM

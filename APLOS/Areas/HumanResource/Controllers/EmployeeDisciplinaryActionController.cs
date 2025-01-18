@@ -167,12 +167,6 @@ namespace Aplos.Areas.HumanResource.Controllers
 		inner join  DisciplinaryActionSettingDetails ds2 on ds2.DisciplinaryActionCategoryId=dadm2.DisciplinaryActionCategoryId and ds2.Sequence=dadm2.Sequence		
 	    inner join  [dbo].[EmployeeDisciplinaryActionDetails] dadm  on 	 dadm.DisciplinaryActionSettingDetailsId=ds2.id and dadm.EmployeeDisciplinaryActionId=dadm2.EmployeeDisciplinaryActionId
 
-
-
-
-
-
-
         LEFT JOIN EmployeeInformation E on E.SystemId = EA.EmpSystemId
         LEFT JOIN MST.ManpowerBudget MB ON MB.Id = E.BudgetCode
         LEFT JOIN ORG.Entity EN ON EN.Id = MB.EntityId
@@ -182,7 +176,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         LEFT JOIN[ORG].[Department] DPT ON DPT.Id = PS.DepartmentId
         LEFT JOIN[ORG].[Section] SEC ON SEC.Id = PS.SectionId
         LEFT JOIN[ORG].[SubSection] SSEC ON SSEC.Id = PS.SubSectionId
-        LEFT JOIN[HKP].[Designation] DEG ON DEG.Id = E.DesignationSystemID
+        LEFT JOIN[HKP].[Designation] DEG ON DEG.Id = PS.DesignationID
         LEFT JOIN[HKP].[Designation] GDEG ON GDEG.Id = E.GivenDesignationId	
         where  ISNULL(ActionType,'') NOT IN ('TBS')  and e.PlantId='" + identity.PlantId + @"' and e.EmployeeStatus='Active' and dadm.NextLetterDueDate is not null
         order by convert(date,dadm.NextLetterDueDate) --desc";
@@ -246,12 +240,6 @@ namespace Aplos.Areas.HumanResource.Controllers
 		inner join  DisciplinaryActionSettingDetails ds2 on ds2.DisciplinaryActionCategoryId=dadm2.DisciplinaryActionCategoryId and ds2.Sequence=dadm2.Sequence		
 	    inner join  [dbo].[EmployeeDisciplinaryActionDetails] dadm  on 	 dadm.DisciplinaryActionSettingDetailsId=ds2.id and dadm.EmployeeDisciplinaryActionId=dadm2.EmployeeDisciplinaryActionId
 
-
-
-
-
-
-
         LEFT JOIN EmployeeInformation E on E.SystemId = EA.EmpSystemId
         LEFT JOIN MST.ManpowerBudget MB ON MB.Id = E.BudgetCode
         LEFT JOIN ORG.Entity EN ON EN.Id = MB.EntityId
@@ -261,7 +249,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         LEFT JOIN[ORG].[Department] DPT ON DPT.Id = PS.DepartmentId
         LEFT JOIN[ORG].[Section] SEC ON SEC.Id = PS.SectionId
         LEFT JOIN[ORG].[SubSection] SSEC ON SSEC.Id = PS.SubSectionId
-        LEFT JOIN[HKP].[Designation] DEG ON DEG.Id = E.DesignationSystemID
+        LEFT JOIN[HKP].[Designation] DEG ON DEG.Id = PS.DesignationID
         LEFT JOIN[HKP].[Designation] GDEG ON GDEG.Id = E.GivenDesignationId	
         where  ISNULL(ActionType,'') NOT IN ('TBS')  and e.PlantId='" + identity.PlantId + @"' and e.EmployeeStatus='Active' and dadm.NextLetterDueDate is null";
             var data = _sqlRepository.GetDataCollection(sql);

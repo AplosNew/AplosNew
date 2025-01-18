@@ -610,8 +610,8 @@ select EmpInfoSystemID from SalaryInfoBackMaster where PlantId='" + sPlantID + @
 	                                            , E.EmployeeStatus
 	                                            , E.EmployeeCategorySystemID
 	                                            , EC.StandardName EmpCategoryName
-	                                            , E.DesignationGroupID
-	                                            , E.DesignationSystemID
+	                                            , DM.DesignationGroupID
+	                                            --, E.DesignationSystemID
 	                                            , DG.StandardName DesignationGroupName
 	                                            , E.LVPolicyMasterSystemID
 	                                            , DGM.LeavePolicyMasterId
@@ -640,8 +640,9 @@ select EmpInfoSystemID from SalaryInfoBackMaster where PlantId='" + sPlantID + @
 						                            LEFT OUTER JOIN   [ORG].[Company] CMP ON E.CompanyID = CMP.ID
 						                            LEFT OUTER JOIN   [ORG].Plant Pt ON E.PlantID = Pt.ID
 						                            LEFT OUTER JOIN    [MST].[ManpowerBudget] pmb on e.BudgetCode=pmb.Id
-						                            LEFT OUTER JOIN [HKP].[EmployeeCategory] AS EC ON E.EmployeeCategorySystemID = EC.ID
-						                            LEFT OUTER JOIN   [HKP].[DesignationGroup] DG ON E.DesignationGroupID = DG.ID
+						                            LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=E.GivenDesignationID
+                                                    LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
+						                            LEFT OUTER JOIN   [HKP].[DesignationGroup] DG ON DM.DesignationGroupID = DG.ID
                                                     LEFT OUTER JOIN  (               SELECT DC.SalaryRuleMasterId,dc.PlantId,dm.*,dc.LeavePolicyMasterId 
                                                                                 FROM MST.DesignationMaster DM
 							                                                    LEFT JOIN SCS.DesignationMasterConfiguration DC 

@@ -674,7 +674,7 @@ namespace Library.HumanResource.Report.Employee
                         sheet1.Range[xlsRow, colRequirement].Number = clsStaticInfo.dbl(dtMPBudgetDesig.Rows[i]["Requirement"].ToString());
 
                         //sheet1.Range[xlsRow, colActivity].Text = dtMPBudgetDesig.Rows[i]["Activity"].ToString();
-                        sheet1.Range[xlsRow, colRemarks].Text = dtMPBudgetDesig.Rows[i]["Remarks"].ToString();
+                        sheet1.Range[xlsRow, colRemarks].Text = "";
                         sheet1.Range[xlsRow, colBudgtedMP].Number = clsStaticInfo.dbl(dtMPBudgetDesig.Rows[i]["BudgetNo"].ToString());
                         sheet1.Range[xlsRow, colTotalMP].Number = clsStaticInfo.dbl(dtMPBudgetDesig.Rows[i]["totalEmp"].ToString());
                         sheet1.Range[xlsRow, colManDaysExSH].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colRequirement) + xlsRow + "-" + clsStaticInfo.GetxlsCol(colActManDays) + (xlsRow) + ")";
@@ -940,9 +940,9 @@ namespace Library.HumanResource.Report.Employee
             //left join ShiftDefination sd on sd.SystemID = mb.ShiftDefinationId";
             string strSql = @"SELECT plant.UserName PlantName, plant.Id PlantId, dd.UserName as Division ,ENt.UserName EntityName,ENt.Id EntityId ,
                                 uu.UserName as Unit, Dept.UserName DepartmentName,Dept.Id DepartmentId, Sec.UserName SectionName, Sec.id Sectionid,
-                                SSec.Id SubSectionId,SSec.UserName SubSectionName, DB.Activity , ec.UserName as EmployeeType,B.GivenDesignationId,ld.UserName GivenDesignation ,
+                                SSec.Id SubSectionId,SSec.UserName SubSectionName, DB.Activity , ec.UserName as EmployeeType,B.GivenDesignationId,ld.UserName GivenDesignation,LDG.UserName LegalDesignation  ,
                                  sd.UserName as Shifts
-                                ,MB.Code BudgetCode, isnull(Sum(Cast (Deployment as numeric)),0) as Deployed
+                                ,B.BudgetCodeId,MB.Code BudgetCode,B.LegalDesignationId, isnull(Sum(Cast (Deployment as numeric)),0) as Deployed
 								 ,SUM(B.BudgetNo) AS BudgetNo,SUM(Actual) AS totalEmp,sum(B.Requirement) Requirement 
                                     FROM  (
 								 --SELECT BudgetCodeId,LegalDesignationId,BudgetNo,0 AS Actual,ISNULL(Activity,'') Activity,ISNULL(Remarks,'') Remarks,ISNULL(Requirement,0) Requirement FROM DesignationBudget
@@ -951,11 +951,12 @@ namespace Library.HumanResource.Report.Employee
          --                            WHERE (DOJ<='" + Date + @"' AND (DOS IS NULL OR DOS >= '" + Date + @"'))
 								 --GROUP BY BudgetCode,LegalDesignationId
 
-								 SELECT BudgetCode as BudgetCodeId,GivenDesignationId,0 AS BudgetNo,COUNT(*) as Actual,'' Activity,'' Remarks,0 Requirement FROM EmployeeInformation 
+								 SELECT BudgetCode as BudgetCodeId,GivenDesignationId,LegalDesignationId,0 AS BudgetNo,COUNT(*) as Actual,'' Activity,'' Remarks,0 Requirement FROM EmployeeInformation 
                                     WHERE (DOJ<='" + Date + @"' AND (DOS IS NULL OR DOS >= '" + Date + @"'))
-								 GROUP BY BudgetCode,GivenDesignationId
+								 GROUP BY BudgetCode,GivenDesignationId,LegalDesignationId
 								 ) B
 								   LEFT JOIN HKP.Designation LD ON LD.Id = B.GivenDesignationId
+LEFT JOIN HKP.LegalDesignation LDG ON LDG.Id = B.LegalDesignationId
                                  LEFT JOIN MST.ManpowerBudget MB ON MB.Id = B.BudgetCodeId
                                  LEFT JOIN DesignationBudget DB ON DB.BudgetCodeId = B.BudgetCodeId
 
@@ -984,8 +985,8 @@ namespace Library.HumanResource.Report.Employee
 
                 strSql += @" WHERE C.Id = '" + companyId + @"' and plant.Id IN (" + plantIds + @")";
             }
-            strSql += @"  GROUP BY  B.BudgetCodeId,B.GivenDesignationId,MB.Code,  DB.Activity, DB.Remarks
-								 ,plant.UserName ,ENt.UserName ,ld.UserName
+            strSql += @"  GROUP BY  B.BudgetCodeId,B.GivenDesignationId,B.LegalDesignationId,MB.Code,  DB.Activity, DB.Remarks
+								 ,plant.UserName ,ENt.UserName ,ld.UserName,LDG.UserName
 								 ,Dept.UserName , Sec.UserName , SSec.UserName 
 								 ,plant.Id ,ENt.Id ,ld.Id
 								 ,Dept.Id , Sec.Id , SSec.Id, dd.UserName , uu.UserName , ec.UserName  , sd.UserName  ";

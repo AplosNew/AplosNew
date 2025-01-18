@@ -101,7 +101,7 @@ namespace Library.Service.Leave
 							 LEFT OUTER JOIN [ORG].[Position] PR ON PMB.PositionId=PR.Id
                              LEFT OUTER JOIN [ORG].[Entity] E ON PMB.EntityId=E.Id
                              LEFT outer JOIN dbo.LeaveType LT ON LvT.LTSystemID = LT.Id
-							 LEFT outer JOIN [HKP].Designation AS Dsg ON Dsg.ID = Emp.DesignationSystemID
+							 LEFT outer JOIN [HKP].Designation AS Dsg ON Dsg.ID = PR.DesignationID
 							 LEFT outer JOIN [HKP].Designation AS Dsgg ON Dsgg.ID = Emp.GivenDesignationID
 							 LEFT JOIN [MST].[MaternityLeavePolicy] MP ON MP.Id=LvT.MaternityLeavePolicyId
                              WHERE  IsNull(Lvt.IsApproved,0) = 0

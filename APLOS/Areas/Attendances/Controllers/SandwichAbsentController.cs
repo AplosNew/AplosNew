@@ -132,7 +132,7 @@ namespace Aplos.Areas.Attendances.Controllers
                      LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
                      LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                      LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                     LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId							
+                     LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId							
                      LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId                                                                                                  
 
 
@@ -468,15 +468,10 @@ namespace Aplos.Areas.Attendances.Controllers
                      LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
                      LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                      LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                     LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId							
+                     LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId							
                      LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId 
 					where apd.PlantID='" + identity.PlantId + @"'
                     ORDER BY APD.WorkingDate DESC,APD.EmpSystemID ";
-
-
-
-
-
 
             return Json(_sqlRepository.GetDataCollection(strSql), JsonRequestBehavior.AllowGet);
 
