@@ -311,13 +311,13 @@ namespace Library.Service.HumanResources
 									 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
 									 LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
 									 LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
-									 LEFT JOIN ORG.Department DEPT ON EMP.DepartmentId=DEPT.Id
+									 LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
 									 LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                      LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EMP.GivenDesignationId
                                      LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
                                      LEFT JOIN EmployeeOTEntitle OT ON OT.EmpSystemID=EMP.SystemId
-                                     LEFT JOIN [ORG].Section AS Se ON Se.ID = EMP.SectionID
-                                     LEFT JOIN [ORG].SubSection AS SuS ON SuS.ID = EMP.SubSectionID
+                                     LEFT JOIN [ORG].Section AS Se ON Se.ID = PR.SectionID
+                                     LEFT JOIN [ORG].SubSection AS SuS ON SuS.ID = PR.SubSectionID
                                      LEFT JOIN [ORG].Plant AS P ON P.Id = EMP.PlantId
 									 WHERE EMP.PlantId='" + plantId + @"' AND  EMP.Employeestatus='Active' AND EMP.SystemId NOT IN (Select EmpSystemId from ExceptionEmployee) AND EMP.GroupID='" + companyGroupId + @"' AND EMP.CompanyId='" + companyId + @"' " + wc + " " + ot + ") A ";
                 return _sqlRepository.GetGridData(parameters);

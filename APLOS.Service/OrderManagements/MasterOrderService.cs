@@ -1225,15 +1225,15 @@ Where SO.CheckByStatus = 'Checked' AND ApprovedStatus = 'To Be Approve' AND SO.A
                 //else
                 //    sql += " AND CD.PartyId='" + partyId + "'";
 
-                parameters.CmdText = @"SELECT EI.SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+                parameters.CmdText = @"SELECT EI.SystemId, PR.Id AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
                                     , EI.EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [Designation], MB.EntityId
-                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode
+                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,PR.Code PCode
                             FROM dbo.EmployeeInformation AS EI
-                            LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.DesignationSystemID
-                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
-							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                            LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.GivenDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=PR.DepartmentId
                             WHERE EI.CompanyId='" + companyId + "' AND EI.PlantId='" + plantId + "' AND EI.EmployeeStatus='Active'";
                 //WHERE EI.SystemId IN(SELECT CDP.OurRespnsiblePersonId FROM [MST].[CustomerDivisionResPerson] AS CDP
                 //     JOIN [MST].[CustomerDivision] AS CD ON CDP.CustomerDivisionId=CD.Id
@@ -1252,14 +1252,14 @@ Where SO.CheckByStatus = 'Checked' AND ApprovedStatus = 'To Be Approve' AND SO.A
         {
             try
             {
-                parameters.CmdText = @"SELECT EI.SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+                parameters.CmdText = @"SELECT EI.SystemId, PR.Id AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
                                     , EI.EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [Designation], MB.EntityId
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode
                             FROM dbo.EmployeeInformation AS EI
-                            LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.DesignationSystemID
-                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
 							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+                            LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.GivenDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=P.DepartmentId
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
                             WHERE EI.SystemId<>'" + employeeId + "' AND EI.PlantId='" + plantId + "' AND EI.EmployeeStatus='Active'";
 

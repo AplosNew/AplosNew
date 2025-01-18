@@ -3817,7 +3817,9 @@ namespace Library.Service.Employees
               ) salaryInfoFrom on IH.EmpSystemID=salaryInfoFrom.EmpInfoSystemID AND IH.FromEffectiveDate=salaryInfoFrom.EffectiveDate --and IH.FromSalaryId=salaryInfoFrom.SystemID
             
             LEFT JOIN EmployeeInformation ei ON EI.SystemId=salaryInfoTo.EmpInfoSystemID
-			left join org.Department dep on dep.Id = ei.DepartmentId     
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+			left join org.Department dep on dep.Id = PR.DepartmentId     
             LEFT JOIN hkp.LegalDesignation LD ON IH.ToLegalDesignationId = LD.Id
             LEFT JOIN hkp.LegalDesignation FLD ON IH.FromLegalDesignationId = FLD.Id
             left join (
@@ -3839,7 +3841,7 @@ namespace Library.Service.Employees
             --left join org.Department dep on dep.Id = p.DepartmentId  
 			select dep.Id as DepartmentId, dep.UserName as Department ,e.BudgetCode Code from EmployeeInformation E 
 			left join mst.ManpowerBudget mpb on mpb.Id = e.BudgetCode
-			left join org.Department dep on dep.Id = e.DepartmentId  
+			left join org.Department dep on dep.Id = PR.DepartmentId  
             ) NEW on NEW.Code=IH.ToBudgetCode  
             left join (
             select LSG.Id as SalaryGradeId, LSG.UserName SalaryGrade,LD.UserName LegalDesignation,LSGD.LegalDesignationId,lsgd.PlantId from [MST].[LegalSalaryGradeDesignation] LSGD
@@ -3860,8 +3862,8 @@ namespace Library.Service.Employees
             LEFT JOIN HKP.LocalLanguage SG ON SG.LegalSalaryGradeId =OLDG.SalaryGradeId AND SG.LanguageId='" + languageId + @"'
             LEFT JOIN HKP.LocalLanguage SGN ON SGN.LegalSalaryGradeId =NEWG.SalaryGradeId AND SGN.LanguageId='" + languageId + @"'
 
-			LEFT JOIN HKP.LocalLanguage LLD ON LLD.DepartmentId=ei.DepartmentId AND LLD.LanguageId='" + languageId + @"'
-			LEFT JOIN ORG.Department as NDept on NDept.Id=ei.DepartmentId
+			LEFT JOIN HKP.LocalLanguage LLD ON LLD.DepartmentId=PR.DepartmentId AND LLD.LanguageId='" + languageId + @"'
+			LEFT JOIN ORG.Department as NDept on NDept.Id=PR.DepartmentId
 
             where IH.EmpSystemID='" + EmpSystemId + @"')A Where A.AppraisalDate<>''";
             return _sqlRepository.GetDataTable(Sql);
@@ -3883,20 +3885,21 @@ E.EmpPicPath EmployeePic
 
 
 ,e.EmploymentType as Agreement from EmployeeInformation as e
-left outer join ORG.Department as d on d.Id=e.DepartmentId
-left outer join HKP.LegalDesignation as LG on LG.Id=e.LegalDesignationId
-left outer join org.Section as S on S.Id=e.SectionId
 left join mst.ManpowerBudget mpb on mpb.Id = e.BudgetCode
+LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+left outer join ORG.Department as d on d.Id=PR.DepartmentId
+left outer join HKP.LegalDesignation as LG on LG.Id=e.LegalDesignationId
+left outer join org.Section as S on S.Id=PR.SectionId
 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId = e.GivenDesignationId
 LEFT JOIN HKP.EmployeeCategory C ON C.Id = DM.EmployeeCategoryId
-left outer join ORG.line as L on L.Id=e.LineId 
+left outer join ORG.line as L on L.Id=MB.LineId 
 LEFT JOIN org.CompanyGroup  CG on e.GroupID=cg.Id and CG.LanguageId='" + languageId + @"'
 --LEFT JOIN HKP.LocalLanguage B ON B.DesignationId=E.GivenDesignationId AND PL.LanguageId='" + languageId + @"'
-LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.LanguageId='" + languageId + @"'
+LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =PR.DepartmentId AND LDP.LanguageId='" + languageId + @"'
  LEFT JOIN HKP.LocalLanguage LD ON LD.LegalDesignationId=E.LegalDesignationId AND LD.LanguageId='" + languageId + @"'
- LEFT JOIN HKP.LocalLanguage LS ON LS.SectionId=e.SectionId  AND LS.LanguageId='" + languageId + @"'
- LEFT JOIN HKP.LocalLanguage LL ON LL.LineId=e.LineId  AND LL.LanguageId='" + languageId + @"'
- LEFT JOIN HKP.LocalLanguage LC ON LC.EmployeeCategoryId=e.EmployeeCategorySystemID  AND LC.LanguageId='" + languageId + @"'
+ LEFT JOIN HKP.LocalLanguage LS ON LS.SectionId=PR.SectionId  AND LS.LanguageId='" + languageId + @"'
+ LEFT JOIN HKP.LocalLanguage LL ON LL.LineId=MB.LineId  AND LL.LanguageId='" + languageId + @"'
+ LEFT JOIN HKP.LocalLanguage LC ON LC.EmployeeCategoryId=DM.EmployeeCategoryId AND LC.LanguageId='" + languageId + @"'
  where e.SystemId ='" + EmpSystemId + @"'";
             return _sqlRepository.GetDataTable(Sql);
         }
@@ -5116,7 +5119,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                                     LEFT JOIN ORG.Unit UN ON UN.Id=E.UnitId
 			                		LEFT JOIN [SCS].[PlantSetting] P ON P.PlantId=E.PlantId AND P.ModuleName='HR'
                                     LEFT JOIN ORG.Department DP ON DP.Id=PS.DepartmentId
-                                    LEFT JOIN org.Section SE ON SE.Id=E.SectionId
+                                    LEFT JOIN org.Section SE ON SE.Id=PS.SectionId
 			                		LEFT JOIN ORG.Plant PL ON PL.Id=E.PlantId
                                     LEFT JOIN EmployeeFingerPrint efp ON efp.EmpSystemID=E.SystemId AND efp.Id=(SELECT TOP 1 Id FROM EmployeeFingerPrint WHERE EmpSystemID=E.SystemId)
                                     left Join MST.PayrollGroupMaster PGM on PGM.EmployeeId = E.EmployeeId
@@ -5178,8 +5181,8 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                                     LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='MobileNo'and LanguageId='" + languageId + @"' ) LMB ON LMB.LanguageId=PL.LanguageId
 									LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='Probationer'and LanguageId='" + languageId + @"') LPRL ON LPRL.LanguageId = PL.LanguageId
 									LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='Permanent' and LanguageId='" + languageId + @"') PTl ON PTl.LanguageId=PL.LanguageId
-									LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = E.SectionId AND PL.LanguageId = SEC.LanguageId  AND PL.LanguageId='" + languageId + @"'
-                                    LEFT JOIN HKP.LocalLanguage CAC ON CAC.DepartmentId =E.DepartmentId AND PL.LanguageId=CAC.LanguageId  AND PL.LanguageId='" + languageId + @"'
+									LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = PR.SectionId AND PL.LanguageId = SEC.LanguageId  AND PL.LanguageId='" + languageId + @"'
+                                    LEFT JOIN HKP.LocalLanguage CAC ON CAC.DepartmentId =PS.DepartmentId AND PL.LanguageId=CAC.LanguageId  AND PL.LanguageId='" + languageId + @"'
                                     WHERE E.SystemID ='" + employeeId + @"') TAB1 LEFT JOIN SCS.Language AS LAN ON LAN.Id=TAB1.LanguageId) TAB2 LEFT JOIN MST.AddressMaster AS AM ON AM.Id=TAB2.AddressMasterId) TAB3 
 									LEFT JOIN  (SELECT * FROM SCS.RptConfigTemplate WHERE Id='" + tempId + @"'  and PlantId='" + plantId + @"') AS RPTM ON TAB3.PlantId=RPTM.PlantId";
                 return _sqlRepository.GetDataTable(sql);
@@ -5326,6 +5329,8 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
 	                                ,FORMAT( DATEADD(DAY, DOCDay, DOJ),'dd-MMM-yyy') as Dateofconfirmation 
 									,FORMAT( DATEADD(DAY, DOCDay+1, DOJ),'dd-MMM-yyy') as NextDayFromconfirmation 
                                     FROM EmployeeInformation E
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                                     LEFT JOIN ORG.Company CM ON CM.Id = E.CompanyId
                                     LEFT JOIN MST.AddressMaster AM ON AM.Id = CM.AddressMasterId
                                     LEFT JOIN HKP.BloodGroup BG ON BG.Id = E.BloodGroupID
@@ -5336,19 +5341,19 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                                     LEFT JOIN ORG.Line L ON L.Id=E.LineId
                                     LEFT JOIN ORG.Unit UN ON UN.Id=E.UnitId
 			                		LEFT JOIN [SCS].[PlantSetting] P ON P.PlantId=E.PlantId
-                                    LEFT JOIN ORG.Department DP ON DP.Id=E.DepartmentId
-                                    LEFT JOIN org.Section SE ON SE.Id=E.SectionId
+                                    LEFT JOIN ORG.Department DP ON DP.Id=PR.DepartmentId
+                                    LEFT JOIN org.Section SE ON SE.Id=PR.SectionId
 			                		LEFT JOIN ORG.Plant PL ON PL.Id=E.PlantId
-                                    LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
-                                    LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = E.SectionId AND PL.LanguageId = SEC.LanguageId AND PL.LanguageId='" + languageId + @"'
+                                    LEFT JOIN ORG.SubSection SB ON PR.SubSectionID = SB.Id
+                                    LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = PR.SectionId AND PL.LanguageId = SEC.LanguageId AND PL.LanguageId='" + languageId + @"'
 									LEFT JOIN EmployeeFingerPrint efp ON efp.EmpSystemID=E.SystemId AND efp.Id=(SELECT TOP 1 Id FROM EmployeeFingerPrint WHERE EmpSystemID=E.SystemId)
 			                		LEFT JOIN HKP.LocalLanguage A ON A.CompanyId=E.CompanyId AND A.LanguageId='" + languageId + @"'
-                                    LEFT JOIN HKP.LocalLanguage SBL ON SBL.SubSectionId=E.SubSectionId AND SBL.LanguageId='" + languageId + @"'
+                                    LEFT JOIN HKP.LocalLanguage SBL ON SBL.SubSectionId=PR.SubSectionId AND SBL.LanguageId='" + languageId + @"'
                                     LEFT JOIN HKP.LocalLanguage LL ON LL.CompanyId=E.CompanyId AND LL.LanguageId='" + languageId + @"'
 			                		LEFT JOIN HKP.LocalLanguage B ON B.DesignationId=E.GivenDesignationId AND PL.LanguageId='" + languageId + @"'
-			                		LEFT JOIN HKP.LocalLanguage C ON C.DepartmentId =E.DepartmentId AND PL.LanguageId='" + languageId + @"'
+			                		LEFT JOIN HKP.LocalLanguage C ON C.DepartmentId =PR.DepartmentId AND PL.LanguageId='" + languageId + @"'
                                     LEFT JOIN HKP.LocalLanguage LD ON LD.LegalDesignationId=E.LegalDesignationId AND PL.LanguageId='" + languageId + @"'
-                                    LEFT JOIN HKP.LocalLanguage LNN ON LNN.LineId=E.LineId AND PL.LanguageId='" + languageId + @"'
+                                    LEFT JOIN HKP.LocalLanguage LNN ON LNN.LineId=MB.LineId AND PL.LanguageId='" + languageId + @"'
                                     LEFT JOIN HKP.LocalLanguage PCN ON PCN.CountryId=E.ParmCountryID AND PL.LanguageId='" + languageId + @"'
 			                		LEFT JOIN HKP.LocalLanguage PRCN ON PRCN.CountryId=E.ParmCountryID AND PL.LanguageId='" + languageId + @"'
 			                		LEFT JOIN HKP.LocalLanguage PD ON PD.DistrictId=E.ParmDistrictID AND PL.LanguageId='" + languageId + @"'
@@ -5443,6 +5448,8 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
 									,FORMAT(DATEADD(DAY,1,DOC),'dd-MMM-yyy')AS NextDayFromconfirmation
                                     ,GenderMrMS=case when E.GenderID='Male' then 'Mr.' else 'Ms.' end
                                     FROM EmployeeInformation E
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                                     LEFT JOIN ORG.Company CM ON CM.Id = E.CompanyId
                                     LEFT JOIN MST.AddressMaster AM ON AM.Id = CM.AddressMasterId
                                     LEFT JOIN HKP.BloodGroup BG ON BG.Id = E.BloodGroupID
@@ -5453,17 +5460,17 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                                     LEFT JOIN ORG.Line L ON L.Id=E.LineId
                                     LEFT JOIN ORG.Unit UN ON UN.Id=E.UnitId
 			                		LEFT JOIN [SCS].[PlantSetting] P ON P.PlantId=E.PlantId
-                                    LEFT JOIN ORG.Department DP ON DP.Id=E.DepartmentId
-                                    LEFT JOIN org.Section SE ON SE.Id=E.SectionId
+                                    LEFT JOIN ORG.Department DP ON DP.Id=PR.DepartmentId
+                                    LEFT JOIN org.Section SE ON SE.Id=PR.SectionId
 			                		LEFT JOIN ORG.Plant PL ON PL.Id=E.PlantId
-                                    LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
-                                    LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = E.SectionId AND PL.LanguageId = SEC.LanguageId AND PL.LanguageId='" + languageId + @"'
+                                    LEFT JOIN ORG.SubSection SB ON PR.SubSectionID = SB.Id
+                                    LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = PR.SectionId AND PL.LanguageId = SEC.LanguageId AND PL.LanguageId='" + languageId + @"'
 									LEFT JOIN EmployeeFingerPrint efp ON efp.EmpSystemID=E.SystemId AND efp.Id=(SELECT TOP 1 Id FROM EmployeeFingerPrint WHERE EmpSystemID=E.SystemId)
 			                		LEFT JOIN HKP.LocalLanguage A ON A.CompanyId=E.CompanyId AND A.LanguageId='" + languageId + @"'
-                                    LEFT JOIN HKP.LocalLanguage SBL ON SBL.SubSectionId=E.SubSectionId AND SBL.LanguageId='" + languageId + @"'
+                                    LEFT JOIN HKP.LocalLanguage SBL ON SBL.SubSectionId=PR.SubSectionId AND SBL.LanguageId='" + languageId + @"'
                                     LEFT JOIN HKP.LocalLanguage LL ON LL.CompanyId=E.CompanyId AND LL.LanguageId='" + languageId + @"'
 			                		LEFT JOIN HKP.LocalLanguage B ON B.DesignationId=E.GivenDesignationId AND PL.LanguageId='" + languageId + @"'
-			                		LEFT JOIN HKP.LocalLanguage C ON C.DepartmentId =E.DepartmentId AND PL.LanguageId='" + languageId + @"'
+			                		LEFT JOIN HKP.LocalLanguage C ON C.DepartmentId =PR.DepartmentId AND PL.LanguageId='" + languageId + @"'
                                     LEFT JOIN HKP.LocalLanguage LD ON LD.LegalDesignationId=E.LegalDesignationId AND PL.LanguageId='" + languageId + @"'
                                     LEFT JOIN HKP.LocalLanguage LNN ON LNN.LineId=E.LineId AND PL.LanguageId='" + languageId + @"'
                                     LEFT JOIN HKP.LocalLanguage PCN ON PCN.CountryId=E.ParmCountryID AND PL.LanguageId='" + languageId + @"'
@@ -6299,15 +6306,16 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
 												group by LogDownLoadNum
 												) LIT on LIT.LogDownLoadNum=E.SystemId
                                             LEFT JOIN AttdnRawData ARD ON ARD.LogDownLoadNum=LIT.LogDownLoadNum  AND ARD.PTime=LIT.ptime
-							                                       LEFT JOIN org.Unit U ON E.UnitID = U.Id
-                                            LEFT JOIN org.Division Dv ON E.DivisionID = Dv.Id
-                                            LEFT JOIN org.SubDivision SubDv ON E.SubdivisionID = SubDv.Id
-                                            LEFT JOIN org.Department Dp ON E.DepartmentID = Dp.Id
-                                            LEFT JOIN org.Section S ON E.SectionID = S.Id
-                                            LEFT JOIN org.SubSection SB ON E.SubSectionID = SB.Id
-                                            LEFT JOIN org.Line L ON E.LineID = L.Id
-                                            LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupID = Dg.Id
-                                            LEFT JOIN hkp.Designation D ON E.DesignationSystemID = D.Id
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
+							                                       LEFT JOIN org.Unit U ON EN.UnitID = U.Id
+                                            LEFT JOIN org.Division Dv ON PR.DivisionID = Dv.Id
+                                            LEFT JOIN org.SubDivision SubDv ON PR.SubdivisionID = SubDv.Id
+                                            LEFT JOIN org.Department Dp ON PR.DepartmentID = Dp.Id
+                                            LEFT JOIN org.Section S ON PR.SectionID = S.Id
+                                            LEFT JOIN org.SubSection SB ON PR.SubSectionID = SB.Id
+                                            LEFT JOIN org.Line L ON MB.LineID = L.Id
                                             LEFT JOIN hkp.Designation GVD ON E.GivenDesignationId = GVD.Id
                                             left join org.Company c on c.id=e.CompanyId
                                             LEFT JOIN
@@ -6563,15 +6571,17 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
 							 --,WD.WeekOff Weakdays
 							 ,stc.Name StaffCateLabel
                               FROM EmployeeInformation E
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                               LEFT JOIN ORG.Company CM ON CM.Id = E.CompanyId
                               LEFT JOIN MST.AddressMaster AM ON AM.Id = CM.AddressMasterId
                               LEFT JOIN HKP.BloodGroup BG ON BG.Id = E.BloodGroupID
                               LEFT JOIN HKP.Designation D ON D.Id = E.GivenDesignationId
                               LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId = e.GivenDesignationId
                               LEFT JOIN HKP.EmployeeCategory EC ON EC.Id = DM.EmployeeCategoryId
-                              LEFT JOIN ORG.Line L ON L.Id=E.LineId
+                              LEFT JOIN ORG.Line L ON L.Id=mb.LineId
 							  LEFT JOIN [SCS].[PlantSetting] P ON P.PlantId=E.PlantId
-                              LEFT JOIN ORG.Department DP ON DP.Id=E.DepartmentId
+                              LEFT JOIN ORG.Department DP ON DP.Id=PR.DepartmentId
 							  LEFT JOIN ORG.Plant PL ON PL.Id=E.PlantId
                            -- LEFT JOIN (SELECT FixSystemID,EmpSystemId,MAX(EffectiveDate) M FROM  EmployeeShiftAssign
 							--  WHERE EffectiveDate<=GETDATE()
@@ -6596,9 +6606,9 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
 							  LEFT JOIN HKP.LocalLanguage A ON A.CompanyId=E.CompanyId AND A.LanguageId=PL.LanguageId
                               LEFT JOIN HKP.LocalLanguage LL ON LL.CompanyId=E.CompanyId AND LL.LanguageId=PL.LanguageId
                 			  LEFT JOIN HKP.LocalLanguage B ON B.LegalDesignationId=E.LegalDesignationId AND PL.LanguageId=B.LanguageId
-							  LEFT JOIN HKP.LocalLanguage C ON C.DepartmentId =E.DepartmentId AND PL.LanguageId=C.LanguageId
-                              LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = E.SectionId AND PL.LanguageId = SEC.LanguageId
-                              LEFT JOIN HKP.LocalLanguage div ON div.DivisionId = E.DivisionId AND PL.LanguageId = div.LanguageId
+							  LEFT JOIN HKP.LocalLanguage C ON C.DepartmentId =PR.DepartmentId AND PL.LanguageId=C.LanguageId
+                              LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = PR.SectionId AND PL.LanguageId = SEC.LanguageId
+                              LEFT JOIN HKP.LocalLanguage div ON div.DivisionId = PR.DivisionId AND PL.LanguageId = div.LanguageId
                                LEFT JOIN HKP.LocalLanguage EQ ON EQ.QualificationLevelId = EQI.EductLevelSystemID AND PL.LanguageId = EQ.LanguageId
                               LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='Name') N ON N.LanguageId=PL.LanguageId
                               LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage wHERE LabelName='Designation') DN ON DN.LanguageId=PL.LanguageId
@@ -6651,7 +6661,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
 							  LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage wHERE LabelName='Comment') cmt ON cmt.LanguageId = PL.LanguageId
 							  LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage wHERE LabelName='StaffCategory') stc ON stc.LanguageId = PL.LanguageId
                                  
-                              WHERE E.EmployeeStatus ='"+ radioValue + "' and E.CompanyId='" + companyId + @"' and e.PlantId='" + plantId + @"'";
+                              WHERE E.EmployeeStatus ='" + radioValue + "' and E.CompanyId='" + companyId + @"' and e.PlantId='" + plantId + @"'";
 
                 var list = _sqlRepository.GetDataTable(sql);
                 if (list.IsNull())
@@ -6814,6 +6824,8 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                               ,E.EmployeeNameLocal,LL.UtilityName,NID.Name NIDLabel, E.ParmanentAddress1Local, (PML.Name+' '+LA.Name) ParmanentAddress,LMB.Name MobileNoLabel,LD.Name LegalDesignationLocal
                               ,Convert(varchar, DATEADD(year, 5, E.IssueDate),105) AS Validity,E.EmrCntPer1CellNo, ISNULL(LNN.Name,SSL.Name) [LineNo], ISNULL(SL.Name,S.UserName) Section
                               ,LDG.UserName LegalDesignation,AM.Phone, CMN.[Name] CompanyMobileNoLabel FROM EmployeeInformation E
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                               LEFT JOIN ORG.Company CM ON CM.Id = E.CompanyId
                               LEFT JOIN MST.AddressMaster AM ON AM.Id = CM.AddressMasterId
                               LEFT JOIN HKP.BloodGroup BG ON BG.Id = E.BloodGroupID
@@ -6822,20 +6834,20 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                               LEFT JOIN HKP.EmployeeCategory EC ON EC.Id = DM.EmployeeCategoryId
                               LEFT JOIN ORG.Line L ON L.Id=E.LineId
 							  LEFT JOIN [SCS].[PlantSetting] P ON P.PlantId=E.PlantId
-                              LEFT JOIN ORG.Department DP ON DP.Id=E.DepartmentId
+                              LEFT JOIN ORG.Department DP ON DP.Id=PR.DepartmentId
 							  LEFT JOIN ORG.Plant PL ON PL.Id=E.PlantId
-                              LEFT JOIN ORG.Section S on S.Id= E.SectionId
-                              LEFT JOIN ORG.SubSection SS on SS.Id= E.SubSectionId
+                              LEFT JOIN ORG.Section S on S.Id= PR.SectionId
+                              LEFT JOIN ORG.SubSection SS on SS.Id= PR.SubSectionId
                               LEFT JOIN HKP.LegalDesignation LDG ON LDG.Id=E.LegalDesignationId
 							  LEFT JOIN HKP.LocalLanguage A ON A.CompanyId=E.CompanyId AND A.LanguageId=PL.LanguageId
                               LEFT JOIN HKP.LocalLanguage LL ON LL.CompanyId=E.CompanyId AND LL.LanguageId=PL.LanguageId
 							  LEFT JOIN HKP.LocalLanguage B ON B.LegalDesignationId=E.LegalDesignationId AND PL.LanguageId=B.LanguageId
 							  --LEFT JOIN HKP.LocalLanguage B ON B.DesignationId=E.GivenDesignationId AND PL.LanguageId=B.LanguageId
-							  LEFT JOIN HKP.LocalLanguage C ON C.DepartmentId =E.DepartmentId AND PL.LanguageId=C.LanguageId
+							  LEFT JOIN HKP.LocalLanguage C ON C.DepartmentId =PR.DepartmentId AND PL.LanguageId=C.LanguageId
                               LEFT JOIN HKP.LocalLanguage LD ON LD.LegalDesignationId=E.LegalDesignationId AND PL.LanguageId=LD.LanguageId
-                              LEFT JOIN HKP.LocalLanguage LNN ON LNN.LineId=E.LineId AND PL.LanguageId=LNN.LanguageId
-                              LEFT JOIN HKP.LocalLanguage SL ON Sl.SectionId=E.SectionId AND PL.LanguageId=SL.LanguageId
-                              LEFT JOIN HKP.LocalLanguage SSL ON SSL.SubSectionId=E.SubSectionId AND PL.LanguageId=SSL.LanguageId
+                              LEFT JOIN HKP.LocalLanguage LNN ON LNN.LineId=MB.LineId AND PL.LanguageId=LNN.LanguageId
+                              LEFT JOIN HKP.LocalLanguage SL ON Sl.SectionId=PR.SectionId AND PL.LanguageId=SL.LanguageId
+                              LEFT JOIN HKP.LocalLanguage SSL ON SSL.SubSectionId=PR.SubSectionId AND PL.LanguageId=SSL.LanguageId
                               LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='Name') N ON N.LanguageId=PL.LanguageId
                               LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage wHERE LabelName='Designation') DN ON DN.LanguageId=PL.LanguageId
                               LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage wHERE LabelName='Department') DPN ON DPN.LanguageId=PL.LanguageId
@@ -6997,7 +7009,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                                         LEFT JOIN MST.DesignationMasterLegalDesignation DML ON DML.LegalDesignationId = EMP.LegalDesignationId
 										Left join  MST.DesignationMaster DeM on DeM.Id = DML.DesignationMasterId
 
-                                        WHERE emp.PlantID='" + plantId + @"'  and EMP.CompanyId='" + companyId + @"' and EMP.EmployeeStatus='Active' and EMP.SectionId='" + SectionId + @"' 
+                                        WHERE emp.PlantID='" + plantId + @"'  and EMP.CompanyId='" + companyId + @"' and EMP.EmployeeStatus='Active' and PR.SectionId='" + SectionId + @"' 
                                         ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
                 return _sqlRepository.GetDataCollection(CmdText);
             }
@@ -7298,19 +7310,19 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
         public IEnumerable<object> GetSuperVisor(string companyid, string plantid)
         {
             var sql = @"SELECT Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
-                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,PR.SectionId,SS.UserName SubSection
                                         ,PL.UserName Plant,DV.UserName Division,EC.UserName EmployeeCategory,EMP.EmployeeStatus
                                         FROM EmployeeInformation EMP
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                        LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                                         LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
                                         LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                                         LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
-                                        LEFT JOIN ORG.Division DV on DV.Id = EMP.DivisionId
+                                        LEFT JOIN ORG.Division DV on DV.Id = PR.DivisionId
                                         LEFT JOIN
 									   (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
 									                ,dg.UserName GivenDesignationGroup
@@ -7995,14 +8007,16 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                                 ld.Name [Department Bangla], EmployeeName Name, EmployeeNameLocal [Name Bangla], CellPhnNo Phone, EmailId Email, 
                                 u.UserName Unit,'0' [FPS Enrollment],
                                 (NoOfChildren+1) [Family Members],'2500' [Credit Limit], case when EmployeeStatus='Active' then 'Y' else 'N' end IsActive,NULL SpouseId From EmployeeInformation e
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                                 left join HKP.EmployeeCategory c on e.EmployeeCategorySystemID = c.Id
                                 left join Hkp.LegalDesignation l on e.LegalDesignationId = l.Id
                                 left join Hkp.Designation d on e.GivenDesignationId = d.Id
-                                left join Org.Department dp on e.DepartmentId = dp.Id
+                                left join Org.Department dp on PR.DepartmentId = dp.Id
                                 left join Org.Unit u on e.UnitId = u.Id
                                 left join hkp.LocalLanguage lc on e.GivenDesignationId = lc.DesignationId
                                 left join hkp.LocalLanguage lk on e.LegalDesignationId = lk.LegalDesignationId
-                                left join hkp.LocalLanguage ld on e.DepartmentId = ld.DepartmentId";
+                                left join hkp.LocalLanguage ld on PR.DepartmentId = ld.DepartmentId";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception)
@@ -8918,12 +8932,12 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                                 LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
                                 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=PR.DesignationId
                                 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
-                                LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
-                                LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
-                                LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+                                LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+                                LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+                                LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
                                 LEFT JOIN HKP.LegalDesignation LD ON E.LegalDesignationId = LD.Id
                                 LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
-                                LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+                                LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                                 LEFT JOIN [EmployeeIdCardIssue] M ON m.EmpSystemId=e.SystemId
                                 AND M.Id=(SELECT TOP 1 ID FROM [EmployeeIdCardIssue] EII WHERE EII.EmpSystemId=e.SystemId ORDER BY EII.Sequence DESC )
                                 LEFT JOIN [dbo].[EmployeeWorkType] WT ON WT.Id=m.EmployeeWorkTypeId

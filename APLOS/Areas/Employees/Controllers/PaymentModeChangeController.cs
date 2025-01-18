@@ -70,7 +70,7 @@ namespace Aplos.Areas.Employees.Controllers
                          LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                          LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id                       
                          LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
-                         LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId				
+                         LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId				
                          WHERE  EI.PlantId='" + identity.PlantId + @"' AND ( EI.DOJ<='"+ToDate+ @"' AND ( EI.dos IS NULL  OR EI.DOS>='" + FromDate + @"' ))
                          ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric ";
 

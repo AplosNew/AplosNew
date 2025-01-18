@@ -227,28 +227,28 @@ namespace Library.Service.Attendances
                                 , ISNULL(OTIntime, 0) OTIntime ,ISNULL(OTOuttime, 0) OTOuttime 
                                 , ExtraOT=CASE WHEN ISNULL(Atd.OTHr,0)/60 > pl.firstSlab THEN 'YES' ELSE 'NO' END
                             FROM EmployeeInformation AS E  
-                                    LEFT OUTER JOIN 
-							                    HKP.EmployeeCategory AS EC ON E.EmployeeCategorySystemID = EC.Id
+                                    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode=PMB.Id
+                                    LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                    LEFT JOIN ORG.Entity EN ON PMB.EntityId=EN.Id
+                                    LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
+                                    LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 				                    LEFT OUTER JOIN 
-							                    ORG.Unit AS U ON U.Id= E.UnitID 
+							                    ORG.Unit AS U ON U.Id= EN.UnitID 
 				                    LEFT OUTER JOIN 
-							                    ORG.Division AS Dv ON Dv.Id= E.DivisionID 
+							                    ORG.Division AS Dv ON Dv.Id= PR.DivisionID 
 				                    LEFT OUTER JOIN 
-							                    ORG.Department AS De ON De.Id = E.DepartmentID 
-				                    LEFT OUTER JOIN 
-							                    HKP.Designation AS Dsg ON Dsg.Id= E.DesignationSystemID 
-							      
+							                    ORG.Department AS De ON De.Id = PR.DepartmentID 
 
 	                                LEFT OUTER JOIN 
-							                    HKP.DesignationGroup AS DsgGr ON E.DesignationGroupID =  DsgGr.ID
+							                    HKP.DesignationGroup AS DsgGr ON DM.DesignationGroupID =  DsgGr.ID
                                     LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
                                     LEFT OUTER JOIN HKP.LegalDesignation ld on ld.Id=e.LegalDesignationId
 				                    LEFT OUTER JOIN 
-							                    ORG.Section AS Se ON Se.Id= E.SectionID 
+							                    ORG.Section AS Se ON Se.Id= PR.SectionID 
 
-                                    LEFT OUTER JOIN ORG.Line eL on eL.id=e.LineId
+                                    LEFT OUTER JOIN ORG.Line eL on eL.id=PMB.LineId
 				                    LEFT OUTER JOIN 
-							                    ORG.SubSection AS SuS ON SuS.Id= E.SubSectionID ";
+							                    ORG.SubSection AS SuS ON SuS.Id= PR.SubSectionID ";
                 if (IsPunchBasedOT == true && IsPreallocationBasedOT == false)
                 {
                     strSql = strSql + @" INNER JOIN 
@@ -616,28 +616,28 @@ namespace Library.Service.Attendances
                                 , ISNULL(OTIntime, 0) OTIntime ,ISNULL(OTOuttime, 0) OTOuttime 
                                 , ExtraOT=CASE WHEN ISNULL(Atd.OTHr,0)/60 > pl.firstSlab THEN 'YES' ELSE 'NO' END,ISNULL(Atd.OTHr, 0) OTHrInMin
                             FROM EmployeeInformation AS E  
-                                    LEFT OUTER JOIN 
-							                    HKP.EmployeeCategory AS EC ON E.EmployeeCategorySystemID = EC.Id
+                                    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode=PMB.Id
+                                    LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                    LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
+                                    LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
+                                    LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 				                    LEFT OUTER JOIN 
-							                    ORG.Unit AS U ON U.Id= E.UnitID 
+							                    ORG.Unit AS U ON U.Id= EN.UnitID 
 				                    LEFT OUTER JOIN 
-							                    ORG.Division AS Dv ON Dv.Id= E.DivisionID 
+							                    ORG.Division AS Dv ON Dv.Id= PR.DivisionID 
 				                    LEFT OUTER JOIN 
-							                    ORG.Department AS De ON De.Id = E.DepartmentID 
-				                    LEFT OUTER JOIN 
-							                    HKP.Designation AS Dsg ON Dsg.Id= E.DesignationSystemID 
-							      
+							                    ORG.Department AS De ON De.Id = PR.DepartmentID 							      
 
 	                                LEFT OUTER JOIN 
-							                    HKP.DesignationGroup AS DsgGr ON E.DesignationGroupID =  DsgGr.ID
+							                    HKP.DesignationGroup AS DsgGr ON DM.DesignationGroupID =  DsgGr.ID
                                     LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
                                     LEFT OUTER JOIN HKP.LegalDesignation ld on ld.Id=e.LegalDesignationId
 				                    LEFT OUTER JOIN 
-							                    ORG.Section AS Se ON Se.Id= E.SectionID 
+							                    ORG.Section AS Se ON Se.Id= PR.SectionID 
 
-                                    LEFT OUTER JOIN ORG.Line eL on eL.id=e.LineId
+                                    LEFT OUTER JOIN ORG.Line eL on eL.id=PMB.LineId
 				                    LEFT OUTER JOIN 
-							                    ORG.SubSection AS SuS ON SuS.Id= E.SubSectionID ";
+							                    ORG.SubSection AS SuS ON SuS.Id= PR.SubSectionID ";
                 if (IsPunchBasedOT == true && IsPreallocationBasedOT == false)
                 {
                     strSql = strSql + @" INNER JOIN 
@@ -996,28 +996,28 @@ namespace Library.Service.Attendances
                                 , ISNULL(OTIntime, 0) OTIntime ,ISNULL(OTOuttime, 0) OTOuttime
                                 , ExtraOT=CASE WHEN ISNULL(Atd.OTHr,0)/60 > pl.firstSlab THEN 'YES' ELSE 'NO' END,ISNULL(Atd.OTHr, 0) OTHrInMin
                             FROM EmployeeInformation AS E  
-                                    LEFT OUTER JOIN 
-							                    HKP.EmployeeCategory AS EC ON E.EmployeeCategorySystemID = EC.Id
+                                    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode=PMB.Id
+                                    LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                    LEFT JOIN ORG.Entity EN ON PMB.EntityId=EN.Id
+                                    LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
+                                    LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 				                    LEFT OUTER JOIN 
-							                    ORG.Unit AS U ON U.Id= E.UnitID 
+							                    ORG.Unit AS U ON U.Id= EN.UnitID 
 				                    LEFT OUTER JOIN 
-							                    ORG.Division AS Dv ON Dv.Id= E.DivisionID 
+							                    ORG.Division AS Dv ON Dv.Id= PR.DivisionID 
 				                    LEFT OUTER JOIN 
-							                    ORG.Department AS De ON De.Id = E.DepartmentID 
-				                    LEFT OUTER JOIN 
-							                    HKP.Designation AS Dsg ON Dsg.Id= E.DesignationSystemID 
-							      
+							                    ORG.Department AS De ON De.Id = PR.DepartmentID 
 
 	                                LEFT OUTER JOIN 
-							                    HKP.DesignationGroup AS DsgGr ON E.DesignationGroupID =  DsgGr.ID
+							                    HKP.DesignationGroup AS DsgGr ON DM.DesignationGroupID =  DsgGr.ID
                                     LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
                                     LEFT OUTER JOIN HKP.LegalDesignation ld on ld.Id=e.LegalDesignationId
 				                    LEFT OUTER JOIN 
-							                    ORG.Section AS Se ON Se.Id= E.SectionID 
+							                    ORG.Section AS Se ON Se.Id= PR.SectionID 
 
-                                    LEFT OUTER JOIN ORG.Line eL on eL.id=e.LineId
+                                    LEFT OUTER JOIN ORG.Line eL on eL.id=PMB.LineId
 				                    LEFT OUTER JOIN 
-							                    ORG.SubSection AS SuS ON SuS.Id= E.SubSectionID ";
+							                    ORG.SubSection AS SuS ON SuS.Id= PR.SubSectionID ";
                 if (IsPunchBasedOT == true && IsPreallocationBasedOT == false)
                 {
                     strSql = strSql + @" INNER JOIN 
@@ -1358,20 +1358,21 @@ namespace Library.Service.Attendances
                                 ,  Atd.IsOTEntitled IsOTEntitle
                                 ,ISNULL(OTIntime, 0) OTIntime ,ISNULL(OTOuttime, 0) OTOuttime 
                             FROM EmployeeInformation AS E  
-                                    LEFT OUTER JOIN 
-							                    HKP.EmployeeCategory AS EC ON E.EmployeeCategorySystemID = EC.Id
+                                    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode=PMB.Id
+                                    LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                    LEFT JOIN ORG.Entity EN ON PMB.EntityId=EN.Id
+                                    LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
+                                    LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 				                    LEFT OUTER JOIN 
-							                    ORG.Unit AS U ON U.Id= E.UnitID 
+							                    ORG.Unit AS U ON U.Id= EN.UnitID 
 				                    LEFT OUTER JOIN 
-							                    ORG.Division AS Dv ON Dv.Id= E.DivisionID 
+							                    ORG.Division AS Dv ON Dv.Id= PR.DivisionID 
 				                    LEFT OUTER JOIN 
-							                    ORG.Department AS De ON De.Id = E.DepartmentID 
-				                    LEFT OUTER JOIN 
-							                    HKP.Designation AS Dsg ON Dsg.Id= E.DesignationSystemID 
+							                    ORG.Department AS De ON De.Id = PR.DepartmentID 
 							        LEFT OUTER JOIN 
-							                    HKP.DesignationGroup AS DsgGr ON E.DesignationGroupID =  DsgGr.ID
+							                    HKP.DesignationGroup AS DsgGr ON DM.DesignationGroupID =  DsgGr.ID
 				                    LEFT OUTER JOIN 
-							                    ORG.Section AS Se ON Se.Id= E.SectionID 
+							                    ORG.Section AS Se ON Se.Id= PR.SectionID 
                                     LEFT OUTER JOIN 
 							                     FinalOT AS FOT ON FOT.EmpSystemId= E.systemid AND FOT.WorkDate='" + strAttnDate + @"'
 				                   
@@ -1379,9 +1380,9 @@ namespace Library.Service.Attendances
                                     LEFT OUTER JOIN HKP.LegalDesignation ld on ld.Id=e.LegalDesignationId
 				                     
 
-                                    LEFT OUTER JOIN ORG.Line eL on eL.id=e.LineId
+                                    LEFT OUTER JOIN ORG.Line eL on eL.id=PMB.LineId
 				                    LEFT OUTER JOIN 
-							                    ORG.SubSection AS SuS ON SuS.Id= E.SubSectionID ";
+							                    ORG.SubSection AS SuS ON SuS.Id= PR.SubSectionID ";
 
 
                 if (IsPunchBasedOT == true && IsPreallocationBasedOT == false)
@@ -1735,30 +1736,31 @@ namespace Library.Service.Attendances
                                 , ISNULL(OTIntime, 0) OTIntime ,ISNULL(OTOuttime, 0) OTOuttime
                                 , ExtraOT=CASE WHEN ISNULL(Atd.OTHr,0)/60 > pl.firstSlab THEN 'YES' ELSE 'NO' END
                             FROM EmployeeInformation AS E  
-                                    LEFT OUTER JOIN 
-							                    HKP.EmployeeCategory AS EC ON E.EmployeeCategorySystemID = EC.Id
+                                    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode=PMB.Id
+                                    LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                    LEFT JOIN ORG.Entity EN ON PMB.EntityId=EN.Id
+                                    LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
+                                    LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 				                    LEFT OUTER JOIN 
-							                    ORG.Unit AS U ON U.Id= E.UnitID 
+							                    ORG.Unit AS U ON U.Id= EN.UnitID 
 				                    LEFT OUTER JOIN 
-							                    ORG.Division AS Dv ON Dv.Id= E.DivisionID 
+							                    ORG.Division AS Dv ON Dv.Id= PR.DivisionID 
 				                    LEFT OUTER JOIN 
-							                    ORG.Department AS De ON De.Id = E.DepartmentID 
-				                    LEFT OUTER JOIN 
-							                    HKP.Designation AS Dsg ON Dsg.Id= E.DesignationSystemID 
+							                    ORG.Department AS De ON De.Id = PR.DepartmentID 
 							        LEFT OUTER JOIN 
-							                    HKP.DesignationGroup AS DsgGr ON E.DesignationGroupID =  DsgGr.ID
+							                    HKP.DesignationGroup AS DsgGr ON DM.DesignationGroupID =  DsgGr.ID
 				                    
   
                                     LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
                                     LEFT OUTER JOIN HKP.LegalDesignation ld on ld.Id=e.LegalDesignationId
 				                    LEFT OUTER JOIN 
-							                    ORG.Section AS Se ON Se.Id= E.SectionID 
+							                    ORG.Section AS Se ON Se.Id= PR.SectionID 
 
-                                    LEFT OUTER JOIN ORG.Line eL on eL.id=e.LineId
+                                    LEFT OUTER JOIN ORG.Line eL on eL.id=PMB.LineId
 				                    
 
                                     LEFT OUTER JOIN 
-							                    ORG.SubSection AS SuS ON SuS.Id= E.SubSectionID ";
+							                    ORG.SubSection AS SuS ON SuS.Id= PR.SubSectionID ";
                 if (IsPunchBasedOT == true && IsPreallocationBasedOT == false)
                 {
                     strSql = strSql + @" INNER JOIN 
@@ -2032,24 +2034,27 @@ namespace Library.Service.Attendances
                                 ,  Atd.IsOTEntitled IsOTEntitle
                                 ,ISNULL(OTIntime, 0) OTIntime ,ISNULL(OTOuttime, 0) OTOuttime 
                             FROM EmployeeInformation AS E  
-                                    LEFT OUTER JOIN 
-							                    HKP.EmployeeCategory AS EC ON E.EmployeeCategorySystemID = EC.Id
+                                    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode=PMB.Id
+                                    LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                    LEFT JOIN ORG.Entity EN ON PMB.EntityId=EN.Id
+                                    LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
+                                    LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 				                    LEFT OUTER JOIN 
-							                    ORG.Unit AS U ON U.Id= E.UnitID 
+							                    ORG.Unit AS U ON U.Id= EN.UnitID 
 				                    LEFT OUTER JOIN 
-							                    ORG.Division AS Dv ON Dv.Id= E.DivisionID 
+							                    ORG.Division AS Dv ON Dv.Id= PR.DivisionID 
 				                    LEFT OUTER JOIN 
-							                    ORG.Department AS De ON De.Id = E.DepartmentID 
+							                    ORG.Department AS De ON De.Id = PR.DepartmentID 
 				                    LEFT OUTER JOIN 
-							                    HKP.Designation AS Dsg ON Dsg.Id= E.DesignationSystemID 
+							                    HKP.Designation AS Dsg ON Dsg.Id= E.GivenDesignationId 
 							        LEFT OUTER JOIN 
-							                    HKP.DesignationGroup AS DsgGr ON E.DesignationGroupID =  DsgGr.ID
+							                    HKP.DesignationGroup AS DsgGr ON DM.DesignationGroupID =  DsgGr.ID
 				                    LEFT OUTER JOIN 
-							                    ORG.Section AS Se ON Se.Id= E.SectionID 
+							                    ORG.Section AS Se ON Se.Id= PR.SectionID 
                                     LEFT OUTER JOIN 
 							                     FinalOT AS FOT ON FOT.EmpSystemId= E.systemid AND FOT.WorkDate='" + strAttnDate + @"'
 				                    LEFT OUTER JOIN 
-							                    ORG.SubSection AS SuS ON SuS.Id= E.SubSectionID ";
+							                    ORG.SubSection AS SuS ON SuS.Id= PR.SubSectionID ";
                 if (IsPunchBasedOT == true && IsPreallocationBasedOT == false)
                 {
                     strSql = strSql + @" INNER JOIN 
@@ -2349,30 +2354,33 @@ namespace Library.Service.Attendances
                                 ,  ISNULL(OTIntime, 0) OTIntime ,ISNULL(OTOuttime, 0) OTOuttime 
                                 , ExtraOT=CASE WHEN ISNULL(Atd.OTHr,0)/60 > pl.firstSlab THEN 'YES' ELSE 'NO' END,ISNULL(Atd.OTHr, 0) OTHrInMin
                             FROM EmployeeInformation AS E  
-                                    LEFT OUTER JOIN 
-							                    HKP.EmployeeCategory AS EC ON E.EmployeeCategorySystemID = EC.Id
+                                   LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode=PMB.Id
+                                    LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                    LEFT JOIN ORG.Entity EN ON PMB.EntityId=EN.Id
+                                    LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
+                                    LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 				                    LEFT OUTER JOIN 
-							                    ORG.Unit AS U ON U.Id= E.UnitID 
+							                    ORG.Unit AS U ON U.Id= EN.UnitID 
 				                    LEFT OUTER JOIN 
-							                    ORG.Division AS Dv ON Dv.Id= E.DivisionID 
+							                    ORG.Division AS Dv ON Dv.Id= PR.DivisionID 
 				                    LEFT OUTER JOIN 
-							                    ORG.Department AS De ON De.Id = E.DepartmentID 
+							                    ORG.Department AS De ON De.Id = PR.DepartmentID 
 				                    LEFT OUTER JOIN 
-							                    HKP.Designation AS Dsg ON Dsg.Id= E.DesignationSystemID 
+							                    HKP.Designation AS Dsg ON Dsg.Id= E.GivenDesignationId 
 							        LEFT OUTER JOIN 
-							                    HKP.DesignationGroup AS DsgGr ON E.DesignationGroupID =  DsgGr.ID
+							                    HKP.DesignationGroup AS DsgGr ON DM.DesignationGroupID =  DsgGr.ID
 				                    
   
                                     LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
                                     LEFT OUTER JOIN HKP.LegalDesignation ld on ld.Id=e.LegalDesignationId
 				                    LEFT OUTER JOIN 
-							                    ORG.Section AS Se ON Se.Id= E.SectionID 
+							                    ORG.Section AS Se ON Se.Id= PR.SectionID 
 
-                                    LEFT OUTER JOIN ORG.Line eL on eL.id=e.LineId
+                                    LEFT OUTER JOIN ORG.Line eL on eL.id=PMB.LineId
 				                    
 
                                     LEFT OUTER JOIN 
-							                    ORG.SubSection AS SuS ON SuS.Id= E.SubSectionID ";
+							                    ORG.SubSection AS SuS ON SuS.Id= PR.SubSectionID ";
                 if (IsPunchBasedOT == true && IsPreallocationBasedOT == false)
                 {
                     strSql = strSql + @" INNER JOIN 
@@ -2711,32 +2719,33 @@ namespace Library.Service.Attendances
                                 , ISNULL(OTIntime, 0) OTIntime ,ISNULL(OTOuttime, 0) OTOuttime 
                                 , ExtraOT=CASE WHEN ISNULL(Atd.OTHr,0)/60 > pl.firstSlab THEN 'YES' ELSE 'NO' END
                             FROM EmployeeInformation AS E  
-                                    LEFT OUTER JOIN 
-							                    HKP.EmployeeCategory AS EC ON E.EmployeeCategorySystemID = EC.Id
+                                    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode=PMB.Id
+                                    LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                    LEFT JOIN ORG.Entity EN ON PMB.EntityId=EN.Id
+                                    LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
+                                    LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 				                    LEFT OUTER JOIN 
-							                    ORG.Unit AS U ON U.Id= E.UnitID 
+							                    ORG.Unit AS U ON U.Id= EN.UnitID 
 				                    LEFT OUTER JOIN 
-							                    ORG.Division AS Dv ON Dv.Id= E.DivisionID 
+							                    ORG.Division AS Dv ON Dv.Id= PR.DivisionID 
 				                    LEFT OUTER JOIN 
-							                    ORG.Department AS De ON De.Id = E.DepartmentID 
-				                    LEFT OUTER JOIN 
-							                    HKP.Designation AS Dsg ON Dsg.Id= E.DesignationSystemID 
+							                    ORG.Department AS De ON De.Id = PR.DepartmentID 
 							        LEFT OUTER JOIN 
-							                    HKP.DesignationGroup AS DsgGr ON E.DesignationGroupID =  DsgGr.ID
+							                    HKP.DesignationGroup AS DsgGr ON DM.DesignationGroupID =  DsgGr.ID
 
  
                                     LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
                                     LEFT OUTER JOIN HKP.LegalDesignation ld on ld.Id=e.LegalDesignationId
 				                    
 
-                                    LEFT OUTER JOIN ORG.Line eL on eL.id=e.LineId
+                                    LEFT OUTER JOIN ORG.Line eL on eL.id=PMB.LineId
 				                     
                                     LEFT OUTER JOIN 
-							                    ORG.Section AS Se ON Se.Id= E.SectionID 
+							                    ORG.Section AS Se ON Se.Id= PR.SectionID 
 
                                    
 				                    LEFT OUTER JOIN 
-							                    ORG.SubSection AS SuS ON SuS.Id= E.SubSectionID ";
+							                    ORG.SubSection AS SuS ON SuS.Id= PR.SubSectionID ";
                 if (IsPunchBasedOT == true && IsPreallocationBasedOT == false)
                 {
                     strSql = strSql + @" INNER JOIN 
@@ -2999,24 +3008,25 @@ namespace Library.Service.Attendances
                                 ,  Atd.IsOTEntitled IsOTEntitle
                                 ,ISNULL(OTIntime, 0) OTIntime ,ISNULL(OTOuttime, 0) OTOuttime 
                             FROM EmployeeInformation AS E  
-                                    LEFT OUTER JOIN 
-							                    HKP.EmployeeCategory AS EC ON E.EmployeeCategorySystemID = EC.Id
+                                    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode=PMB.Id
+                                    LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                    LEFT JOIN ORG.Entity EN ON PMB.EntityId=EN.Id
+                                    LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
+                                    LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 				                    LEFT OUTER JOIN 
-							                    ORG.Unit AS U ON U.Id= E.UnitID 
+							                    ORG.Unit AS U ON U.Id= EN.UnitID 
 				                    LEFT OUTER JOIN 
-							                    ORG.Division AS Dv ON Dv.Id= E.DivisionID 
+							                    ORG.Division AS Dv ON Dv.Id= PR.DivisionID 
 				                    LEFT OUTER JOIN 
-							                    ORG.Department AS De ON De.Id = E.DepartmentID 
-				                    LEFT OUTER JOIN 
-							                    HKP.Designation AS Dsg ON Dsg.Id= E.DesignationSystemID 
+							                    ORG.Department AS De ON De.Id = PR.DepartmentID 
 							        LEFT OUTER JOIN 
-							                    HKP.DesignationGroup AS DsgGr ON E.DesignationGroupID =  DsgGr.ID
+							                    HKP.DesignationGroup AS DsgGr ON DM.DesignationGroupID =  DsgGr.ID
 				                    LEFT OUTER JOIN 
-							                    ORG.Section AS Se ON Se.Id= E.SectionID 
+							                    ORG.Section AS Se ON Se.Id= PR.SectionID 
                                     LEFT OUTER JOIN 
 							                     FinalOT AS FOT ON FOT.EmpSystemId= E.systemid AND FOT.WorkDate='" + strAttnDate + @"'
 				                    LEFT OUTER JOIN 
-							                    ORG.SubSection AS SuS ON SuS.Id= E.SubSectionID ";
+							                    ORG.SubSection AS SuS ON SuS.Id= PR.SubSectionID ";
                 if (IsPunchBasedOT == true && IsPreallocationBasedOT == false)
                 {
                     strSql = strSql + @" INNER JOIN 
@@ -3309,28 +3319,28 @@ namespace Library.Service.Attendances
                                 , ISNULL(OTIntime, 0) OTIntime ,ISNULL(OTOuttime, 0) OTOuttime 
                                 , ExtraOT=CASE WHEN ISNULL(Atd.OTHr,0)/60 > pl.firstSlab THEN 'YES' ELSE 'NO' END
                             FROM EmployeeInformation AS E  
-                                    LEFT OUTER JOIN 
-							                    HKP.EmployeeCategory AS EC ON E.EmployeeCategorySystemID = EC.Id
+                                    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode=PMB.Id
+                                    LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                    LEFT JOIN ORG.Entity EN ON PMB.EntityId=EN.Id
+                                    LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
+                                    LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 				                    LEFT OUTER JOIN 
-							                    ORG.Unit AS U ON U.Id= E.UnitID 
+							                    ORG.Unit AS U ON U.Id= EN.UnitID 
 				                    LEFT OUTER JOIN 
-							                    ORG.Division AS Dv ON Dv.Id= E.DivisionID 
+							                    ORG.Division AS Dv ON Dv.Id= PR.DivisionID 
 				                    LEFT OUTER JOIN 
-							                    ORG.Department AS De ON De.Id = E.DepartmentID 
-				                    LEFT OUTER JOIN 
-							                    HKP.Designation AS Dsg ON Dsg.Id= E.DesignationSystemID 
-							      
+							                    ORG.Department AS De ON De.Id = PR.DepartmentID 							      
 
 	                                LEFT OUTER JOIN 
-							                    HKP.DesignationGroup AS DsgGr ON E.DesignationGroupID =  DsgGr.ID
+							                    HKP.DesignationGroup AS DsgGr ON DM.DesignationGroupID =  DsgGr.ID
                                     LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
                                     LEFT OUTER JOIN HKP.LegalDesignation ld on ld.Id=e.LegalDesignationId
 				                    LEFT OUTER JOIN 
-							                    ORG.Section AS Se ON Se.Id= E.SectionID 
+							                    ORG.Section AS Se ON Se.Id= PR.SectionID 
 
-                                    LEFT OUTER JOIN ORG.Line eL on eL.id=e.LineId
+                                    LEFT OUTER JOIN ORG.Line eL on eL.id=PMB.LineId
 				                    LEFT OUTER JOIN 
-							                    ORG.SubSection AS SuS ON SuS.Id= E.SubSectionID ";
+							                    ORG.SubSection AS SuS ON SuS.Id= PR.SubSectionID ";
                 if (IsPunchBasedOT == true && IsPreallocationBasedOT == false)
                 {
                     strSql = strSql + @" INNER JOIN 
@@ -4095,28 +4105,28 @@ AND EmpSystemID IN (" + sEmpSystemIDColl + @"
                                 , ISNULL(OTIntime, 0) OTIntime ,ISNULL(OTOuttime, 0) OTOuttime 
                                 , ExtraOT=CASE WHEN ISNULL(Atd.OTHr,0)/60 > pl.firstSlab THEN 'YES' ELSE 'NO' END
                             FROM EmployeeInformation AS E  
-                                    LEFT OUTER JOIN 
-							                    HKP.EmployeeCategory AS EC ON E.EmployeeCategorySystemID = EC.Id
+                                    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode=PMB.Id
+                                    LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                    LEFT JOIN ORG.Entity EN ON PMB.EntityId=EN.Id
+                                    LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
+                                    LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 				                    LEFT OUTER JOIN 
-							                    ORG.Unit AS U ON U.Id= E.UnitID 
+							                    ORG.Unit AS U ON U.Id= EN.UnitID 
 				                    LEFT OUTER JOIN 
-							                    ORG.Division AS Dv ON Dv.Id= E.DivisionID 
+							                    ORG.Division AS Dv ON Dv.Id= PR.DivisionID 
 				                    LEFT OUTER JOIN 
-							                    ORG.Department AS De ON De.Id = E.DepartmentID 
-				                    LEFT OUTER JOIN 
-							                    HKP.Designation AS Dsg ON Dsg.Id= E.DesignationSystemID 
-							      
+							                    ORG.Department AS De ON De.Id = PR.DepartmentID 
 
 	                                LEFT OUTER JOIN 
-							                    HKP.DesignationGroup AS DsgGr ON E.DesignationGroupID =  DsgGr.ID
+							                    HKP.DesignationGroup AS DsgGr ON DM.DesignationGroupID =  DsgGr.ID
                                     LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
                                     LEFT OUTER JOIN HKP.LegalDesignation ld on ld.Id=e.LegalDesignationId
 				                    LEFT OUTER JOIN 
-							                    ORG.Section AS Se ON Se.Id= E.SectionID 
+							                    ORG.Section AS Se ON Se.Id= PR.SectionID 
 
-                                    LEFT OUTER JOIN ORG.Line eL on eL.id=e.LineId
+                                    LEFT OUTER JOIN ORG.Line eL on eL.id=PMB.LineId
 				                    LEFT OUTER JOIN 
-							                    ORG.SubSection AS SuS ON SuS.Id= E.SubSectionID ";
+							                    ORG.SubSection AS SuS ON SuS.Id= PR.SubSectionID ";
                 if (IsPunchBasedOT == true && IsPreallocationBasedOT == false)
                 {
                     strSql = strSql + @" INNER JOIN 
@@ -4462,22 +4472,23 @@ AND EmpSystemID IN (" + sEmpSystemIDColl + @"
 								                                  else ISNULL(EmOT.IsOTEntitle, 0) end 
                                 ,ISNULL(OTIntime, 0) OTIntime ,ISNULL(OTOuttime, 0) OTOuttime 
                             FROM EmployeeInformation AS E  
-                                    LEFT OUTER JOIN 
-							                    HKP.EmployeeCategory AS EC ON E.EmployeeCategorySystemID = EC.Id
+                                    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode=PMB.Id
+                                    LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                    LEFT JOIN ORG.Entity EN ON PMB.EntityId=EN.Id
+                                    LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
+                                    LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 				                    LEFT OUTER JOIN 
-							                    ORG.Unit AS U ON U.Id= E.UnitID 
+							                    ORG.Unit AS U ON U.Id= EN.UnitID 
 				                    LEFT OUTER JOIN 
-							                    ORG.Division AS Dv ON Dv.Id= E.DivisionID 
+							                    ORG.Division AS Dv ON Dv.Id= PR.DivisionID 
 				                    LEFT OUTER JOIN 
-							                    ORG.Department AS De ON De.Id = E.DepartmentID 
-				                    LEFT OUTER JOIN 
-							                    HKP.Designation AS Dsg ON Dsg.Id= E.DesignationSystemID 
+							                    ORG.Department AS De ON De.Id = PR.DepartmentID 
 							        LEFT OUTER JOIN 
-							                    HKP.DesignationGroup AS DsgGr ON E.DesignationGroupID =  DsgGr.ID
+							                    HKP.DesignationGroup AS DsgGr ON DM.DesignationGroupID =  DsgGr.ID
 				                    LEFT OUTER JOIN 
-							                    ORG.Section AS Se ON Se.Id= E.SectionID 
+							                    ORG.Section AS Se ON Se.Id= PR.SectionID 
 				                    LEFT OUTER JOIN 
-							                    ORG.SubSection AS SuS ON SuS.Id= E.SubSectionID ";
+							                    ORG.SubSection AS SuS ON SuS.Id= PR.SubSectionID ";
                 if (IsPunchBasedOT == true && IsPreallocationBasedOT == false)
                 {
                     strSql = strSql + @" INNER JOIN 
@@ -4826,8 +4837,8 @@ AND EmpSystemID IN (" + sEmpSystemIDColl + @"
         					 LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
         					 LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                              LEFT JOIN ORG.Plant P ON P.Id=EMP.PlantId
-        					 LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-        					 LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+        					 LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+        					 LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
         					 WHERE EMP.EmployeeStatus='Active' AND EMP.PlantId='" + plantId + "'";
                 return _sqlRepository.GetGridData(parameters);
             }
@@ -4877,11 +4888,13 @@ AND EmpSystemID IN (" + sEmpSystemIDColl + @"
 											FROM [dbo].[AccessControllerEmployeeTag] E
 							  LEFT JOIN MST.AccessControllerList ACL ON ACL.Id=E.DeviceSystemID
 							  LEFT JOIN EmployeeInformation EMP ON EMP.SystemId=E.EmpInfoSystemID
-							  LEFT JOIN ORG.Department DEPT ON DEPT.Id=EMP.DepartmentId
+LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode=PMB.Id
+                                    LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+							  LEFT JOIN ORG.Department DEPT ON DEPT.Id=PR.DepartmentId
         					  LEFT JOIN HKP.Designation DEG ON DEG.Id=EMP.GivenDesignationId
         					  LEFT JOIN ORG.Plant P ON P.Id=EMP.PlantId
-        					  LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-        					  LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+        					  LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+        					  LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
 							  WHERE E.DeviceSystemID='" + deviceId + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }

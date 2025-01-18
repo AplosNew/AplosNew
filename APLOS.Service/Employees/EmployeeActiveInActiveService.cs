@@ -5188,21 +5188,15 @@ namespace Library.Service.Employees
 
 
 
-                var Sql = @"--DECLARE @plantId VARCHAR(10)= '20188';
-                SELECT EI.SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
-                        , EI.EmployeeName, Format(EI.DOB,'dd-MMM-yyyy')DOB, EI.EmployeeStatus,FORMAT(EI.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EI.DOS,'dd-MMM-yyyy')DOS,ld.UserName as LDname,DEG.UserName AS[DesignationName], MB.EntityId,PR.UserName PositionName
-                       , DEG.UserName GivenDesignation, DEPT.UserName Department,EI.EmpPicPath
+                var Sql = @"SELECT EI.SystemId, MB.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName,ei.EmpPicPath
+                        , EI.EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [DesignationName], MB.EntityId,PR.UserName PositionName
+                        , DEG.UserName GivenDesignation,DEPT.UserName Department
                         FROM dbo.EmployeeInformation AS EI
-                        LEFT JOIN HKP.Designation AS DEG ON DEG.Id = EI.DesignationSystemID
-						left join [HKP].[LegalDesignation] as ld on  ld.Id=ei.LegalDesignationId
-                        --LEFT JOIN HKP.Designation AS DEG ON DEG.Id = EI.DesignationSystemID
-                        LEFT JOIN[MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
-                       LEFT OUTER JOIN ORG.Position PR ON MB.PositionId= PR.Id
-
-                       LEFT OUTER JOIN ORG.Entity E ON MB.EntityId= E.Id
-
-                       LEFT OUTER JOIN ORG.Department DEPT ON PR.DepartmentId= DEPT.Id
-
+                        LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.GivenDesignationId
+                        LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
+                        LEFT OUTER JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                        LEFT OUTER JOIN ORG.Entity E ON MB.EntityId=E.Id
+                        LEFT OUTER JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                        WHERE EI.CompanyId= '" + CompanyId + "'AND EI.PlantId= '" + plantId + "' AND EI.EmployeeStatus= 'Separated'  and EI.dos>=DATEADD(month,-6,GETDATE()) order by EI.dos desc ";
                 return _sqlRepository.GetDataCollection(Sql);
             }
@@ -5219,12 +5213,11 @@ namespace Library.Service.Employees
         {
             try
             {
-                var Sql = @"--DECLARE @plantId VARCHAR(10)='" + plantId + @"';
-                        SELECT EI.SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName,ei.EmpPicPath
+                var Sql = @"SELECT EI.SystemId, MB.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName,ei.EmpPicPath
                         , EI.EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [DesignationName], MB.EntityId,PR.UserName PositionName
                         , DEG.UserName GivenDesignation,DEPT.UserName Department
                         FROM dbo.EmployeeInformation AS EI
-                        LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.DesignationSystemID
+                        LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.GivenDesignationId
                         LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
                         LEFT OUTER JOIN ORG.Position PR ON MB.PositionId=PR.Id
                         LEFT OUTER JOIN ORG.Entity E ON MB.EntityId=E.Id

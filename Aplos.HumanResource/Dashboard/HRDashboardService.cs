@@ -4538,13 +4538,10 @@ LEFT OUTER JOIN
                                 LEFT JOIN [ShiftTimeChgChild] c on m.SystemID = c.STCMasterSystemID where CONVERT(DATE,c.ShiftDate) =  CONVERT(DATE,'" + hrDate + @"')
                                          ) CS on cs.ShiftDefinationID = EDWSA.ShiftSystemID and cs.ShiftDate = APD.WorkDate
 								LEFT  JOIN ShiftDefination SDE ON SDE.SystemID = EDWSA.ShiftSystemID
-                                LEFT OUTER JOIN HKP.Designation edsg on edsg.id=e.DesignationSystemID
-                                LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
-								LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
+                                LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
                                 LEFT OUTER JOIN [HKP].LegalDesignation LDes ON LDes.Id = E.LegalDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
-                                    --LEFT JOIN ORG.Line Line ON Line.Id = E.LineId
                                 LEFT JOIN MSt.OperationMaster OM on OM.Id =  E.OperationMasterID
                                 LEFT JOIN HKP.OperationActivity OA on OA.Id = OM.OperationActivityId
 								LEFT OUTER JOIN LeaveType LT ON APD.LTSystemID = LT.Id
@@ -4552,6 +4549,8 @@ LEFT OUTER JOIN
 								LEFT outer join[MST].[ManpowerBudget] AS MB  on MB.Id = E.BudgetCode
 								LEFT OUTER JOIN ORG.Entity AS ENT ON ENT.Id = MB.EntityId
 								LEFT OUTER JOIN ORG.Position AS POS ON POS.Id = MB.PositionId
+								  LEFT OUTER JOIN HKP.Designation edsg on edsg.id=POS.DesignationID
+                                LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=DesM.DesignationGroupId
 								 " + Join + @"
 		                        WHERE E.GroupID  = '" + companyGroupId + @"' " + wc + @"  AND (E.DOS IS NULL OR CONVERT(DATE,E.DOS) >= CONVERT(DATE,'" + hrDate + @"')) " + EmployeeCategory + @"
                                 AND CONVERT(DATE,E.DOJ) <= CONVERT(DATE,'" + hrDate + @"')";

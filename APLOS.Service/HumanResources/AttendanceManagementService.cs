@@ -31133,8 +31133,7 @@ namespace Library.Service.HumanResources
                                     ,jl.JobLocation
                                     ,E.PlantId
                                     FROM EmployeeInformation e
-                                    LEFT OUTER JOIN HKP.Designation edsg on edsg.id=e.DesignationSystemID
-                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
+                                    
 									LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
                                     LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=e.LegalDesignationId
 
@@ -31159,6 +31158,8 @@ namespace Library.Service.HumanResources
                                     " + Apjoin + @"
 
                                     LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
+                                    LEFT OUTER JOIN HKP.Designation edsg on edsg.id=PO.DesignationID
+                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=DesM.DesignationGroupId
                                     LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
 			                         left join JobLocation jl on jl.SystemID=e.JobLocationID              
                                     LEFT OUTER JOIN hkp.Designation dsg on dsg.id=PO.DesignationId
@@ -31200,13 +31201,15 @@ namespace Library.Service.HumanResources
                             , FORMAT(t.ExpectedDelivaryDate,'dd-MMM-yyyy') EDD
                     from [dbo].[MaternityBenefitMaster] mbm
                     inner join dbo.Employeeinformation EI on EI.SystemId=mbm.EmpSystemId
+                    LEFT JOIN MST.ManpowerBudget mb ON mb.Id = EI.BudgetCode
+                    LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                     LEFT JOIN HKP.LegalDesignation DSG ON ei.LegalDesignationId=DSG.Id
                     LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                    LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId							
-                    LEFT JOIN org.Section s ON s.id=EI.SectionId
-                    LEFT JOIN org.SubSection ss ON ss.Id=ei.SubSectionId
-                    left join org.Line ll on ll.id=ei.LineId
-                    left join (select * FROM LeaveTransaction where LTSystemID in (select id from LeaveType where LeaveType='Maternity')) t on t.EmpSystemID=ei.SystemId and t.SystemID=mbm.LeaveTransactionId  and t.PlantID='20181'
+                    LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId							
+                    LEFT JOIN org.Section s ON s.id=PR.SectionId
+                    LEFT JOIN org.SubSection ss ON ss.Id=PR.SubSectionId
+                    left join org.Line ll on ll.id=MB.LineId
+                    left join (select * FROM LeaveTransaction where LTSystemID in (select id from LeaveType where LeaveType='Maternity')) t on t.EmpSystemID=ei.SystemId and t.SystemID=mbm.LeaveTransactionId  and t.PlantID='"+ plantId + @"'
                     left join mst.MaternityLeavePolicy mp on mp.id=t.MaternityLeavePolicyId		
                     WHERE (IsPaidAfter=1 or IsPaidBefore=1) 
 					and mbm.PlantId='" + identity.PlantId + @"'";
@@ -31228,16 +31231,20 @@ namespace Library.Service.HumanResources
                                 from [dbo].[EmployeeFinalSettlement] efs
                                 left join [HKP].[SeparationType] snt on snt.Id =efs.SeparationTypeId
                                 LEFT JOIN EmployeeInformation E ON E.SystemId=efs.EmpSystemID
-                                LEFT OUTER JOIN ORG.Department edept on edept.id=e.DepartmentId
-                                LEFT OUTER JOIN ORG.Line eL on eL.id=e.LineId
-                                LEFT OUTER JOIN ORG.Division ediv on ediv.id=e.DivisionId
-                                LEFT OUTER JOIN ORG.SubDivision esdiv on esdiv.id=e.SubDivisionId
-                                LEFT OUTER JOIN ORG.Section es on es.id=e.SectionId
-                                LEFT OUTER JOIN ORG.SubSection ess on ess.id=e.SubSectionId
+                                LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                                LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                                LEFT JOIN ORG.Entity EN ON En.Id=MB.EEntityId
+                                LEFT OUTER JOIN ORG.Department edept on edept.id=PR.DepartmentId
+                                LEFT OUTER JOIN ORG.Line eL on eL.id=MB.LineId
+                                LEFT OUTER JOIN ORG.Division ediv on ediv.id=PR.DivisionId
+                                LEFT OUTER JOIN ORG.SubDivision esdiv on esdiv.id=PR.SubDivisionId
+                                LEFT OUTER JOIN ORG.Section es on es.id=PR.SectionId
+                                LEFT OUTER JOIN ORG.SubSection ess on ess.id=PR.SubSectionId
                                 LEFT OUTER JOIN ORG.Plant ep on ep.id=e.PlantId
-                                LEFT OUTER JOIN ORG.Unit eu on eu.id=e.UnitId
-                                left outer join [ORG].[PlantDesignationGroupSalaryRule] srs on srs.DesignationGroupId=e.DesignationGroupId
-                                LEFT OUTER JOIN HKP.Designation edsg on edsg.id=e.DesignationSystemID
+                                LEFT OUTER JOIN ORG.Unit eu on eu.id=EN.UnitId
+                                Left join  MST.DesignationMaster DeM on DeM.DesignationId = DEM.GivenDesignationId
+                                left outer join [ORG].[PlantDesignationGroupSalaryRule] srs on srs.DesignationGroupId=DEM.DesignationGroupId
+                                LEFT OUTER JOIN HKP.Designation edsg on edsg.id=PR.DesignationID
                                 LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
                                 left join HKP.DesignationGroup egdsg on egdsg.id=e.GivenDesignationId
                                 LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=e.LegalDesignationId

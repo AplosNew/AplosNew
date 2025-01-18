@@ -217,7 +217,7 @@ namespace Library.HumanResource.Payroll.PayrollManagementDashboard
                         EI.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
                             PR.UserName PositionName,
                             DEPT.UserName Department,S.UserName Section,
-                            EI.SectionId,SS.UserName SubSection,apd.InTime, apd.OutTime, apd.DayStatus, apd.OTHr,
+                            PR.SectionId,SS.UserName SubSection,apd.InTime, apd.OutTime, apd.DayStatus, apd.OTHr,
                             apd.IsOTComfirm, apd.PunchInTime, apd.PunchOutTime,
 
                         AbsentNoPunchTime=CASE WHEN isnull(ei.EmployeeCurrentStatus,'') not in('TBS','LONG ABSENTEEISM') AND ISNULL(apd.PunchInTime,'')='' AND ISNULL(apd.PunchOutTime,'')='' THEN 1 ELSE 0 END 
@@ -240,8 +240,8 @@ namespace Library.HumanResource.Payroll.PayrollManagementDashboard
                             LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                             LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                            LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EI.LegalDesignationId
                             LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                             LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
@@ -639,14 +639,14 @@ namespace Library.HumanResource.Payroll.PayrollManagementDashboard
                         EI.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
                             PR.UserName PositionName,
                             DEPT.UserName Department,S.UserName Section,
-                            EI.SectionId,SS.UserName SubSection
+                            PR.SectionId,SS.UserName SubSection
                         FROM EmployeeInformation EI 
 
                             LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                             LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                            LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EI.LegalDesignationId
                             LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                             LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
@@ -682,14 +682,14 @@ namespace Library.HumanResource.Payroll.PayrollManagementDashboard
                         EI.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
                             PR.UserName PositionName,
                             DEPT.UserName Department,S.UserName Section,
-                            EI.SectionId,SS.UserName SubSection
+                            PR.SectionId,SS.UserName SubSection
                         FROM EmployeeInformation EI
 
                             LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                             LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                            LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EI.LegalDesignationId
                             LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                             LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
@@ -781,15 +781,15 @@ namespace Library.HumanResource.Payroll.PayrollManagementDashboard
                         EI.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
                             PR.UserName PositionName,
                             DEPT.UserName Department,S.UserName Section,
-                            EI.SectionId,SS.UserName SubSection
+                            PR.SectionId,SS.UserName SubSection
 
                         FROM EmployeeInformation EI
 
                             LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                             LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                            LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EI.LegalDesignationId
                             LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                             LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
@@ -826,15 +826,15 @@ namespace Library.HumanResource.Payroll.PayrollManagementDashboard
                         EI.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
                             PR.UserName PositionName,
                             DEPT.UserName Department,S.UserName Section,
-                            EI.SectionId,SS.UserName SubSection
+                            PR.SectionId,SS.UserName SubSection
 
                         FROM EmployeeInformation EI
 
                             LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                             LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                            LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EI.LegalDesignationId
                             LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                             LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
@@ -869,15 +869,15 @@ namespace Library.HumanResource.Payroll.PayrollManagementDashboard
                         EI.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
                             PR.UserName PositionName,
                             DEPT.UserName Department,S.UserName Section,
-                            EI.SectionId,SS.UserName SubSection
+                            PR.SectionId,SS.UserName SubSection
 							
                             from EmployeeInformation EI
                         
                             LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                             LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                            LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EI.LegalDesignationId
                             LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                             LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
@@ -923,7 +923,7 @@ namespace Library.HumanResource.Payroll.PayrollManagementDashboard
                         EI.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
                             PR.UserName PositionName,
                             DEPT.UserName Department,S.UserName Section,
-                            EI.SectionId,SS.UserName SubSection
+                            PR.SectionId,SS.UserName SubSection
                             
                             from (select distinct spc.EmpInfoSystemID,spc.SlrProcMstSystemID,spm.YearNo,spm.MonthNo from SalaryProcChild spc
 							left join SalaryProcMaster spm on spm.SystemID=spc.SlrProcMstSystemID
@@ -934,8 +934,8 @@ namespace Library.HumanResource.Payroll.PayrollManagementDashboard
                             LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                             LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                            LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EI.LegalDesignationId
                             LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                             LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
@@ -981,8 +981,8 @@ namespace Library.HumanResource.Payroll.PayrollManagementDashboard
 								LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
 								LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
 								LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-								LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-								LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+								LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+								LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
 								LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EI.LegalDesignationId
 								LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
 								LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
