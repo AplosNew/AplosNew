@@ -351,6 +351,7 @@
                     <th>@Library.Model.Parties.PartyType.Customer.ToString()</th>
                     <th>Bill To Address</th>
                     <th>Posting Date</th>
+                    <th>Entity</th>
                     <th>Currency</th>
                     <th>Amount</th>
                     <th>Set-off Amount</th>
@@ -366,6 +367,7 @@
                     <td>{{x.PartyCode}} - {{x.PartyName}}</td>
                     <td>{{x.PartyPlantName}}</td>
                     <td>{{x.PostingDate | dateFiltering}}</td>
+                    <td>{{x.EntityName}}</td>
                     <td>{{x.CurrencyCode}}</td>
                     <td class="text-right">{{x.Amount | number:2}}</td>
 

@@ -559,6 +559,7 @@ namespace Library.Service.Advances
                                  , EI.EmployeeName, EIR.EmployeeCode AS ResponsibleCode,EIR.EmployeeName AS ResponsibleName, A.VoucherId, A.PostingDate, A.DocDate, A.DocRefNo
                                  , A.CurrencyId, C.Code AS CurrencyCode, A.Amount, A.IsWrittenOff, A.WrittenOffAmount, A.IsPark, A.IsInterTransaction, A.IsPosted, AD.NetAmount
                                  , Status = case when A.IsPark = 0 then 'Posted' else 'Parked' end,A.AdvanceGroupNo
+                                ,E.UserName EntityName,V.EntityId,V.Narration
                                  FROM [TRN].[Advance] AS A
                                  LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
                                  LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=A.PartyPlantId
@@ -566,6 +567,7 @@ namespace Library.Service.Advances
                                  LEFT JOIN [dbo].[EmployeeInformation] AS EIR ON EIR.SystemId=A.ResponsiblePersonId
                                  LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
                                  LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
+                                 LEFT JOIN [ORG].[Entity] AS E ON E.Id=V.EntityId
                                  --LEFT JOIN [TRN].[BankCharge] AS BC ON BC.AdvanceId=A.Id
                                 LEFT JOIN (SELECT AdvanceId, PartyId, NetAmount FROM [TRN].[AdvanceDetail]
                                 ) AS AD ON AD.AdvanceId=A.Id AND AD.PartyId=A.PartyId
@@ -581,7 +583,7 @@ namespace Library.Service.Advances
                                  , A.CurrencyId, C.Code AS CurrencyCode, SUM(A.Amount) Amount, A.IsWrittenOff, SUM(A.WrittenOffAmount) WrittenOffAmount, A.IsPark
 								 , A.IsInterTransaction, A.IsPosted, SUM(AD.NetAmount) NetAmount
                                  , Status = case when A.IsPark = 0 then 'Posted' else 'Parked' end,A.AdvanceGroupNo
-
+                                ,E.UserName EntityName,V.EntityId,V.Narration
                                  FROM [TRN].[Advance] AS A
                                  LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
                                  LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=A.PartyPlantId
@@ -589,6 +591,7 @@ namespace Library.Service.Advances
                                  LEFT JOIN [dbo].[EmployeeInformation] AS EIR ON EIR.SystemId=A.ResponsiblePersonId
                                  LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
                                  LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
+                                 LEFT JOIN [ORG].[Entity] AS E ON E.Id=V.EntityId
                                 LEFT JOIN (SELECT AdvanceId, PartyId, NetAmount FROM [TRN].[AdvanceDetail]
                                 ) AS AD ON AD.AdvanceId=A.Id AND AD.PartyId=A.PartyId
                                 WHERE A.OpeningBalanceId IS NULL AND A.Archive=0 AND V.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + @"' 
@@ -596,7 +599,7 @@ namespace Library.Service.Advances
 
                                 Group By A.PartyId, P.Code, P.UserName, A.PartyPlantId, PP.UserName, A.EmployeeId, EI.EmployeeCode
                                  , EI.EmployeeName, EIR.EmployeeCode,EIR.EmployeeName, A.PostingDate, A.DocDate, A.DocRefNo
-                                 , A.CurrencyId, C.Code  , A.IsWrittenOff,A.AdvanceGroupNo,A.IsPark , A.IsInterTransaction, A.IsPosted
+                                 , A.CurrencyId, C.Code  , A.IsWrittenOff,A.AdvanceGroupNo,A.IsPark , A.IsInterTransaction, A.IsPosted,E.UserName,V.EntityId,V.Narration
 ";
             parameters.sort = " PostingDate DESC, VoucherNo";
             parameters.order = "DESC";
@@ -4205,7 +4208,7 @@ namespace Library.Service.Advances
             financingSchedule.AddedFromIP = employeeSalaryAdvance.AddedFromIP;
             _advanceReqScheduleRepository.Insert(financingSchedule);
         }
-        public void Post(string advanceId)
+        public void Post(string advanceId, string entityId, string voucherId)
         {
             var flag = false;
             try
@@ -4222,6 +4225,14 @@ namespace Library.Service.Advances
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
+                var inDirect = new System.Text.StringBuilder();
+                var inDirectsql = "";
+
+                inDirectsql = @"update [TRN].[Voucher] set EntityId='" + entityId + @"' where Id='" + voucherId + @"'
+                            update [TRN].[VoucherDetail]  set EntityId='" + entityId + @"' where VoucherId='" + voucherId + @"' 
+                            update [TRN].[Advance]  set EntityId='" + entityId + @"' where VoucherId='" + voucherId + @"' ";
+                inDirect.Append(inDirectsql);
+                _sqlRepository.ExecuteSqlCommand(inDirect.ToString());
             }
             catch (CustomException)
             {

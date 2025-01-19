@@ -149,6 +149,10 @@ function customerInvoiceController(cboService, commonMessage, $scope, $rootScope
             "value": "PostingDate"
         },
         {
+            "name": "Entity",
+            "value": "EntityName"
+        },
+        {
             "name": "Doc Date",
             "value": "DocDate"
         },

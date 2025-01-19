@@ -69,6 +69,10 @@ function interTransactionController(cboService, baseService, factoryService, com
             "value": "PostingDate"
         },
         {
+            "name": "Entity",
+            "value": "EntityName"
+        },
+        {
             "name": "Doc Date",
             "value": "DocDate"
         },
@@ -624,20 +628,44 @@ function interTransactionController(cboService, baseService, factoryService, com
         }
         return true;
     };
-
-    $scope.advanceId = null;
-    $scope.confirmPost = function (advanceId) {
-        $scope.advanceId = advanceId;
-        $scope.message_confirmation = 'Are you sure to Post?';
-        angular.element(document.querySelector('#confirmPostPopUp')).modal('show');
+    $scope.voucher_Post = {
+        Id: null,
+        EntityId: null,
+        CurrencyId: null,
+        CurrencyCode: null,
+        VoucherNo: null,
+        PostingDate: null,
+        DocDate: null,
+        DocRefNo: null,
+        Narration: null,
+        Amount: null
     };
-
+    $scope.advanceId = null;
+    $scope.EntityId_Post = null;
+    $scope.voucherId = null;
+    $scope.confirmPost = function (advanceId, data) {
+        $scope.advanceId = advanceId;
+        $scope.EntityId_Post = data.EntityId;
+        $scope.voucherId = data.VoucherId;
+        $scope.voucher_Post = data;
+        angular.element(document.querySelector('#PostPopUp')).modal('show');
+        //$scope.message_confirmation = 'Are you sure to Post?';
+        //angular.element(document.querySelector('#confirmPostPopUp')).modal('show');
+    };
+    $scope.closePostPopUp = function () {
+        angular.element(document.querySelector("#PostPopUp")).modal("hide");
+    };
     $scope.post = function (advanceId) {
+        if ($scope.EntityId_Post == null || $scope.EntityId_Post == "" || $scope.EntityId_Post == undefined) {
+            ShowResult("Please select Entity First!!", "failure");
+        }
         $http({
             method: "POST",
             url: $scope.postUrl,
             data: {
-                "advanceId": advanceId
+                "advanceId": $scope.advanceId,
+                "entityId": $scope.EntityId_Post,
+                "voucherId": $scope.voucherId
             },
             dataType: "JSON"
         }).then(function successCallback(response) {
@@ -645,6 +673,7 @@ function interTransactionController(cboService, baseService, factoryService, com
                 ShowResult(response.data.Message, "failure");
             }
             else {
+                $scope.closePostPopUp();
                 ShowResult(response.data.Message, "success");
                 $scope.getData();
                 $scope.clear();
