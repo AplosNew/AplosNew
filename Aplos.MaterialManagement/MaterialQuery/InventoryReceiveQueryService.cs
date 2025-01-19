@@ -3582,6 +3582,11 @@ namespace Aplos.MaterialManagement
                     ,ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0),2)+ROUND(Isnull(IRD.ChargesTaxTranAmount,0),2)+ROUND(Isnull(IRD.TotalTaxAmount,0),2) TotalInvoiceAmount
                 ,ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0),2) BaseAmount
                 ,ROUND(Isnull(IRD.TotalTaxAmount,0),2)+ROUND(Isnull(IRD.ChargesTaxTranAmount,0),2) TotalTaxAmount
+                ,round(SUM(isnull(TAxInfo.TaxAmount,0)),2) CGST					
+						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST
+						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST
+						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS
+						,round(isnull(TAxInfo6.TaxAmount,0),2) TCS
                     ,SUM(ROUND(ISNULL(I.WrittenOffAmount*I.CompanyCurrencyRate,0),4)) as Payment
                     ,( ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0)+Isnull(IRD.TotalTaxAmount,0)+Isnull(IRD.ChargesTaxTranAmount,0),2))-(SUM(ROUND(ISNULL(I.WrittenOffAmount*I.CompanyCurrencyRate,0),4))) as Balance
                     ,IR.Id GRNNo,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate, IR.GateEntryNo
@@ -3610,18 +3615,57 @@ namespace Aplos.MaterialManagement
 					left join trn.Voucher V on V.Id=I.VoucherId
                     left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
 					left join trn.Voucher V1 on V1.Id=ep.VoucherId
-						
+						LEFT JOIN (SELECT  A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code   
+						,SUM(A.TaxAmount) TaxAmount 
+						FROM  [TRN].[InventoryReceiveTax] A
+						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+						WHERE B.Code='CGST'   group by A.InventoryReceiveId, B.UserName ,B.Code 
+						) TAxInfo	ON TAxInfo.InventoryReceiveId=IR.Id  
+			LEFT JOIN (SELECT  A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code   ,SUM(A.TaxAmount) TaxAmount 
+			FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+						WHERE B.Code='IGST' and A.InventoryReceiveId IS NOT NULL Group By A.InventoryReceiveId, B.UserName ,B.Code   
+						) TAxInfo1	ON TAxInfo1.InventoryReceiveId=IR.Id
+			LEFT JOIN (SELECT  A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code   ,SUM(A.TaxAmount) TaxAmount 
+			FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+						WHERE B.Code='SGST' and A.InventoryReceiveId IS NOT NULL Group By A.InventoryReceiveId, B.UserName ,B.Code  
+						) TAxInfo2	ON TAxInfo2.InventoryReceiveId=IR.Id 
+			LEFT JOIN (SELECT  A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code   ,SUM(A.TaxAmount) TaxAmount FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+						WHERE B.Code='TDS' and A.InventoryReceiveId IS NOT NULL Group By A.InventoryReceiveId, B.UserName ,B.Code   
+						) TAxInfo3	ON TAxInfo3.InventoryReceiveId=IR.Id 
+			LEFT JOIN (SELECT  A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code  ,SUM(A.TaxAmount) TaxAmount FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+						WHERE B.Code='VAT'  group by A.InventoryReceiveId, B.UserName ,B.Code  
+			) TAxInfo4 ON TAxInfo4.InventoryReceiveId=IR.Id 
+			LEFT JOIN (SELECT  A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code  ,SUM(A.TaxAmount) TaxAmount FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+						WHERE B.Code='AIT'   group by A.InventoryReceiveId, B.UserName ,B.Code  
+			) TAxInfo5 ON TAxInfo5.InventoryReceiveId=IR.Id 
+			LEFT JOIN (SELECT  A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code  ,SUM(A.TaxAmount) TaxAmount 
+			FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+						WHERE B.Code='TCS'   group by A.InventoryReceiveId, B.UserName ,B.Code  
+			) TAxInfo6 ON TAxInfo6.InventoryReceiveId=IR.Id 
+            LEFT JOIN (SELECT  A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code  ,SUM(A.TaxAmount) TaxAmount 
+			FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+						WHERE B.Code='TDS'  
+						group by A.InventoryReceiveId, B.UserName ,B.Code  
+			) TAxInfo7 ON TAxInfo7.InventoryReceiveId=IR.Id  
 					where  IR.PlantId='" + PlantId + @"' AND convert(Date,IR.GRNDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
                     AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
 
 					group by IR.PartyId,IR.GRNDate,IR.Id,IR.GateEntryNo,p.UserName,P.Code,PP.GSTIN,IRD.TotalMaterialTranAmount,IRD.TotalMaterialBooksCurrencyAmount,IRD.TotalTaxAmount,IRD.ChargesTaxTranAmount
 					,MaterialTranAmount,IR.EmployeeId,IR.EmployeeId,V.VoucherNo,V1.VoucherNo,ep.PostingDate,I.PostingDate,IR.DocRefNo,CU.Code,IR.PartyType,PAG.UserName
-					,PC.UserName,PSC.UserName,PG.UserName,IR.ToCurrencyRate,EI.EmployeeName,IR.DocDate,EN.UserName
+					,PC.UserName,PSC.UserName,PG.UserName,IR.ToCurrencyRate,EI.EmployeeName,IR.DocDate,EN.UserName,TAxInfo.TaxAmount,TAxInfo1.TaxAmount,TAxInfo2.TaxAmount,TAxInfo3.TaxAmount,TAxInfo4.TaxAmount,TAxInfo6.TaxAmount
                     UNION ALL
 					SELECT   IR.PartyId,p.UserName AS PartyName,P.Code PartyCode,isnull(PP.GSTIN,'') TaxID,CU.Code Currency
                     ,ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0),2)+ROUND(Isnull(IRD.ChargesTaxTranAmount,0),2)+ROUND(Isnull(IRD.TotalTaxAmount,0),2) TotalInvoiceAmount
 					,ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0),2) BaseAmount
 					,ROUND(Isnull(IRD.TotalTaxAmount,0),2)+ROUND(Isnull(IRD.ChargesTaxTranAmount,0),2) TotalTaxAmount
+                    ,0 CGST	 ,0 SGST ,0 IGST ,0 TDS ,0 TCS
                     ,SUM(ROUND(ISNULL(I.WrittenOffAmount*I.CompanyCurrencyRate,0),4)) as Payment
                     ,( ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0)+Isnull(IRD.TotalTaxAmount,0)+Isnull(IRD.ChargesTaxTranAmount,0),2))-(SUM(ROUND(ISNULL(I.WrittenOffAmount*I.CompanyCurrencyRate,0),4))) as Balance
                     ,IR.Id GRNNo,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate, IR.GateEntryNo
@@ -4662,6 +4706,31 @@ namespace Aplos.MaterialManagement
                 int ColTotalTaxAmount = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "CGST";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColCGST = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "SGST";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColSGST = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "IGST";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColIGST = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "TDS";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColTDS = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "TCS";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColTCS = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Payment";
                 sheet[ROW, COL].ColumnWidth = 9;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -4787,6 +4856,11 @@ namespace Aplos.MaterialManagement
                     sheet[ROW, ColTotalMaterialBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalInvoiceAmount"].ToString());
                     sheet[ROW, ColMaterialTranAmount].Number = clsStaticInfo.dbl(data.Rows[i]["BaseAmount"].ToString());
                     sheet[ROW, ColTotalTaxAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalTaxAmount"].ToString());
+                    sheet[ROW, ColCGST].Number = clsStaticInfo.dbl(data.Rows[i]["CGST"].ToString());
+                    sheet[ROW, ColSGST].Number = clsStaticInfo.dbl(data.Rows[i]["SGST"].ToString());
+                    sheet[ROW, ColIGST].Number = clsStaticInfo.dbl(data.Rows[i]["IGST"].ToString());
+                    sheet[ROW, ColTDS].Number = clsStaticInfo.dbl(data.Rows[i]["TDS"].ToString());
+                    sheet[ROW, ColTCS].Number = clsStaticInfo.dbl(data.Rows[i]["TCS"].ToString());
                     sheet[ROW, ColPayment].Number = clsStaticInfo.dbl(data.Rows[i]["Payment"].ToString());
                     sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(data.Rows[i]["Balance"].ToString());
                     sheet[ROW, ColGRNNo].Text = data.Rows[i]["GRNNo"].ToString();
