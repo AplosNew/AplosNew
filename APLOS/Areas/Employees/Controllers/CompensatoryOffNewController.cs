@@ -563,7 +563,7 @@ namespace Aplos.Areas.Employees.Controllers
                                     EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,
                                         DEPT.UserName Department,S.UserName Section,
-                                        EMP.SectionId,SS.UserName SubSection
+                                        PR.SectionId,SS.UserName SubSection
                                         ,PL.UserName Plant
                                         FROM EmployeeInformation EMP
                                         INNER JOIN [MST].[CompensatoryOffEmpList] O ON EMP.SystemID=o.EmpSystemID 
@@ -571,8 +571,8 @@ namespace Aplos.Areas.Employees.Controllers
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                        LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                                         LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
                                         LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                                         LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
@@ -655,7 +655,7 @@ namespace Aplos.Areas.Employees.Controllers
                                     EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,
                                         DEPT.UserName Department,S.UserName Section, emp.EmployeeCodePreFix,emp.EmployeeCodeNumeric,
-                                        EMP.SectionId,SS.UserName SubSection
+                                        PR.SectionId,SS.UserName SubSection
                                         ,PL.UserName Plant
                                         FROM EmployeeInformation EMP
                                         LEFT OUTER JOIN EmployeeWeekOffByDay WD ON wd.EmpSystemID=emp.SystemId
@@ -667,8 +667,8 @@ namespace Aplos.Areas.Employees.Controllers
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                        LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                                         LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
                                         LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                                         LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId

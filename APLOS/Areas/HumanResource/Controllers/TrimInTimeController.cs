@@ -227,10 +227,12 @@ namespace Aplos.Areas.HumanResource.Controllers
                         LEFT OUTER JOIN ShiftDefination AS sd ON sd.SystemID=kk.ShiftSystemID
                         LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON kk.WorkDate BETWEEN stcm.FromDate AND stcm.ToDate AND sd.SystemID=stcm.ShiftDefinationID
 						    LEFT OUTER JOIN EmployeeInformation EMP ON KK.Id=EMP.SystemID
-                            LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                            LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                            LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                            LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
-                            LEFT JOIN ORG.Department DEPT ON EMP.DepartmentId=DEPT.Id		
+                            LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id		
                         where convert(datetime,kk.InTime)<dateadd(minute," + (minutes * -1).ToString() + @",ShiftInTime)
                         ORDER BY kk.EmployeeCode,CONVERT(DATE, WorkDate) ASC ";
 

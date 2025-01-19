@@ -2000,7 +2000,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 , PackingTypeId: null
                 , ContractId: null
                 , ContractNo: null
-                , CheckByDate: null, CheckByStatus: null, ApproveBy: null, ApproveByDate: null, ApprovedStatus: null, DeliveryGroup: null
+                , CheckByDate: null, CheckByStatus: 'To Be Check', ApproveBy: null, ApproveByDate: null, ApprovedStatus: null, DeliveryGroup: null
             };
             getSalesOrderList();
             $scope.getDestination();
@@ -2467,7 +2467,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , PackingTypeId: null
             , ContractId: null
             , ContractNo: null
-            , CheckByDate: null, CheckByStatus: null, ApproveBy: null, ApproveByDate: null, ApprovedStatus: null, DeliveryGroup: null
+            , CheckByDate: null, CheckByStatus: 'To Be Check', ApproveBy: null, ApproveByDate: null, ApprovedStatus: null, DeliveryGroup: null
         };
     }
 
@@ -2532,7 +2532,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         , PackingTypeId: null
         , ContractId: null
         , ContractNo: null
-        , CheckByDate: null, CheckByStatus: null, ApproveBy: null, ApproveByDate: null, ApprovedStatus: null, DeliveryGroup: null, BillDiscountingDays: 0
+        , CheckByDate: null, CheckByStatus: 'To Be Check', ApproveBy: null, ApproveByDate: null, ApprovedStatus: null, DeliveryGroup: null, BillDiscountingDays: 0
     };
 
     $scope.SplitSO = function (data) {

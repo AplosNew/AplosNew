@@ -158,7 +158,7 @@ namespace Library.Service.HumanResources
                                                                  LEFT JOIN[ORG].[Department] DPT ON DPT.Id=PS.DepartmentId
                                                                  LEFT JOIN[ORG].[Section] SEC ON SEC.Id=PS.SectionId
                                                                  LEFT JOIN[ORG].[SubSection] SSEC ON SSEC.Id=PS.SubSectionId
-                                                                 LEFT JOIN[HKP].[Designation] DEG ON DEG.Id=E.DesignationSystemID
+                                                                 LEFT JOIN[HKP].[Designation] DEG ON DEG.Id=PS.DesignationID
                                                                  LEFT JOIN[HKP].[Designation] GDEG ON GDEG.Id=E.GivenDesignationId 
                                                                 Where EDA.EmpSystemId = '" + EmpId+ @"' AND ISNULL(ActionType,'') NOT IN ('TBS')
                                                                 Order By EDA.EntryDate DESC";
@@ -196,7 +196,7 @@ namespace Library.Service.HumanResources
                                         LEFT JOIN[ORG].[Department] DPT ON DPT.Id = PS.DepartmentId
                                         LEFT JOIN[ORG].[Section] SEC ON SEC.Id = PS.SectionId
                                         LEFT JOIN[ORG].[SubSection] SSEC ON SSEC.Id = PS.SubSectionId
-                                        LEFT JOIN[HKP].[Designation] DEG ON DEG.Id = E.DesignationSystemID
+                                        LEFT JOIN[HKP].[Designation] DEG ON DEG.Id = PS.DesignationID
                                         LEFT JOIN[HKP].[Designation] GDEG ON GDEG.Id = E.GivenDesignationId	
                                         where  ISNULL(ActionType,'') NOT IN ('TBS') AND E.PlantId='"+ plantId + @"'
                                         Group By EA.EmpSystemId,E.EmployeeCode,E.EmployeeName,DPT.UserName 

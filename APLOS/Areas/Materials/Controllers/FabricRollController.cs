@@ -807,6 +807,35 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetFabricAllocationGroupingData()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                string _sql = @"SELECT COUNT(C.Id)RollNo,SUM(SupplierQty)Qty,C.Shade,C.MarkerGroup
+FROM BPDT.FabricRollManagementChild C
+LEFT JOIN [BPDT].[FabricRollManagementMaster] M ON M.Id=C.FabricRollManagementMasterId
+Where M.PlantId='" + identity.PlantId + @"' AND ISNULL(M.IsConfirm,0)=1 AND ISNULL(C.IsGrouped,0)=1
+Group By M.GRNId,C.ShadeGroup,C.CutableWidthGroup,C.ShrinkageWidthGroup,C.ShrinkageLengthGroup,C.Shade,C.MarkerGroup";
+                var shadewisedata = _sqlRepository.GetDataCollection(_sql);
+
+                string _msql = @"SELECT COUNT(C.Id)RollNo,SUM(SupplierQty)Qty,C.MarkerGroup
+FROM BPDT.FabricRollManagementChild C
+LEFT JOIN [BPDT].[FabricRollManagementMaster] M ON M.Id=C.FabricRollManagementMasterId
+Where M.PlantId='" + identity.PlantId + @"' AND ISNULL(M.IsConfirm,0)=1 AND ISNULL(C.IsGrouped,0)=1
+Group By M.GRNId,C.CutableWidthGroup,C.ShrinkageWidthGroup,C.ShrinkageLengthGroup,C.MarkerGroup";
+                var shadeandMarkerwisedata = _sqlRepository.GetDataCollection(_msql);
+
+                return Json(new { shadewisedata, shadeandMarkerwisedata }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        [HttpGet, Authorize]
         public ActionResult GetFabricRollMasterConfirmDataList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

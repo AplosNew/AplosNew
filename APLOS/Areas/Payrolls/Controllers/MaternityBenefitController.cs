@@ -100,12 +100,14 @@ namespace Aplos.Areas.Payrolls.Controllers
                         , FORMAT(t.todate,'dd-MMM-yyyy') LeaveEndDate
                         , FORMAT(t.ExpectedDelivaryDate,'dd-MMM-yyyy') EDD
                         FROM dbo.Employeeinformation EI
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = EI.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                         LEFT JOIN HKP.LegalDesignation DSG ON ei.LegalDesignationId=DSG.Id
                         LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                        LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
-                        LEFT JOIN org.Section s ON s.id=EI.SectionId
-                        LEFT JOIN org.SubSection ss ON ss.Id=ei.SubSectionId
-                        left join org.Line ll on ll.id=ei.LineId
+                        LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
+                        LEFT JOIN org.Section s ON s.id=PR.SectionId
+                        LEFT JOIN org.SubSection ss ON ss.Id=PR.SubSectionId
+                        left join org.Line ll on ll.id=MB.LineId
                         left join (
                         select * FROM LeaveTransaction where LTSystemID in (select id from LeaveType where LeaveType='Maternity')
                         and (
@@ -174,12 +176,14 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 , FORMAT(t.todate,'dd-MMM-yyyy') LeaveEndDate
                                 , FORMAT(t.ExpectedDelivaryDate,'dd-MMM-yyyy') EDD
                                 FROM dbo.Employeeinformation EI
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = EI.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                                 LEFT JOIN HKP.LegalDesignation DSG ON ei.LegalDesignationId=DSG.Id
                                 LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                                LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId							
-                                LEFT JOIN org.Section s ON s.id=EI.SectionId
-                                LEFT JOIN org.SubSection ss ON ss.Id=ei.SubSectionId
-		                        left join org.Line ll on ll.id=ei.LineId
+                                LEFT JOIN ORG.Department DP on DP.Id=pr.DepartmentId							
+                                LEFT JOIN org.Section s ON s.id=PR.SectionId
+                                LEFT JOIN org.SubSection ss ON ss.Id=PR.SubSectionId
+		                        left join org.Line ll on ll.id=MB.LineId
 		                        left join (select * FROM LeaveTransaction where LTSystemID in (select id from LeaveType where LeaveType='Maternity')) t on t.EmpSystemID=ei.SystemId
                                 left join mst.MaternityLeavePolicy mp on mp.id=t.MaternityLeavePolicyId		
 		                        where ei.SystemId in
@@ -228,12 +232,14 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 , FORMAT(t.todate,'dd-MMM-yyyy') LeaveEndDate
                                 , FORMAT(t.ExpectedDelivaryDate,'dd-MMM-yyyy') EDD
                                 FROM dbo.Employeeinformation EI
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = EI.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                                 LEFT JOIN HKP.LegalDesignation DSG ON ei.LegalDesignationId=DSG.Id
                                 LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                                LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId							
-                                LEFT JOIN org.Section s ON s.id=EI.SectionId
-                                LEFT JOIN org.SubSection ss ON ss.Id=ei.SubSectionId
-		                        left join org.Line ll on ll.id=ei.LineId
+                                LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId							
+                                LEFT JOIN org.Section s ON s.id=PR.SectionId
+                                LEFT JOIN org.SubSection ss ON ss.Id=PR.SubSectionId
+		                        left join org.Line ll on ll.id=MB.LineId
 		                        left join (select * FROM LeaveTransaction where LTSystemID in (select id from LeaveType where LeaveType='Maternity')) t on t.EmpSystemID=ei.SystemId
                                 left join mst.MaternityLeavePolicy mp on mp.id=t.MaternityLeavePolicyId		
 		                        where ei.SystemId in
@@ -351,12 +357,14 @@ namespace Aplos.Areas.Payrolls.Controllers
 		                                ,AfterPercentageAmount=((isnull(x.TotalEarn,0)/isnull(x.TotalDays,0))*t.LeaveDays)*mp.AfterPercentage/100
 
                                         FROM dbo.Employeeinformation EI
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = EI.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                                         LEFT JOIN HKP.LegalDesignation DSG ON ei.LegalDesignationId=DSG.Id
                                         LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                                        LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId							
-                                        LEFT JOIN org.Section s ON s.id=EI.SectionId
-                                        LEFT JOIN org.SubSection ss ON ss.Id=ei.SubSectionId
-		                                left join org.Line ll on ll.id=ei.LineId
+                                        LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId							
+                                        LEFT JOIN org.Section s ON s.id=PR.SectionId
+                                        LEFT JOIN org.SubSection ss ON ss.Id=PR.SubSectionId
+		                                left join org.Line ll on ll.id=MB.LineId
 		                                left join (select * FROM LeaveTransaction where LTSystemID in (select id from LeaveType where LeaveType='Maternity')) t on t.EmpSystemID=ei.SystemId
 		                                left join mst.MaternityLeavePolicy mp on mp.id=t.MaternityLeavePolicyId
 		                                left join
@@ -371,7 +379,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 					                                left join [BonusPaymentActualMaster] m on m.SystemID=c.BnsMstSystemID
 					                                )b on b.EmpSystemID=@emp and month(b.EffectiveDate)=m.MonthNo
 					                                where c.SlrProcMstSystemID in (
-					                                select SystemID from SalaryProcMaster "+WC+@"
+					                                select SystemID from SalaryProcMaster " + WC+@"
 					                                )
 					                                and c.EmpInfoSystemID=@emp
 					                                group by c.EmpInfoSystemID
@@ -424,13 +432,15 @@ namespace Aplos.Areas.Payrolls.Controllers
 		                                ,AfterPercentageAmount=((isnull(x.TotalEarn,0)/isnull(x.TotalDays,0))*t.LeaveDays)*mp.AfterPercentage/100
 
                                         FROM dbo.Employeeinformation EI
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = EI.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                                         LEFT JOIN HKP.LegalDesignation DSG ON ei.LegalDesignationId=DSG.Id
                                         LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                                        LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId							
-                                        LEFT JOIN org.Section s ON s.id=EI.SectionId
-                                        LEFT JOIN org.SubSection ss ON ss.Id=ei.SubSectionId
-		                                left join org.Line ll on ll.id=ei.LineId
-		                                left join (select * FROM LeaveTransaction where SystemID ='"+ LeavePK + @"') t on t.EmpSystemID=ei.SystemId
+                                        LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId							
+                                        LEFT JOIN org.Section s ON s.id=PR.SectionId
+                                        LEFT JOIN org.SubSection ss ON ss.Id=PR.SubSectionId
+		                                left join org.Line ll on ll.id=MB.LineId
+		                                left join (select * FROM LeaveTransaction where SystemID ='" + LeavePK + @"') t on t.EmpSystemID=ei.SystemId
 		                                left join mst.MaternityLeavePolicy mp on mp.id=t.MaternityLeavePolicyId		                                
 		                                where ei.SystemId =@emp
 		

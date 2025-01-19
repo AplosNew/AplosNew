@@ -77,6 +77,18 @@ namespace Aplos.Areas.Organizations.Controllers
             return Json(_companyGroupDesignationService.Query(parameters, identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]
+        public ActionResult GetDList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 1000 * from (SELECT * FROM HKP.Designation) AS TEMP WHERE " + strkey + " order by sequence";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet, Authorize]
         public JsonResult GetDesignation(string id)
         {

@@ -584,7 +584,7 @@ namespace Aplos.Areas.Products.Controllers
 				if (ReqStatus == "1")//Created List
 				{
 					sql = @"
-                        SELECT  GPM.[Id]
+                        SELECT top(500)   GPM.[Id]
                               ,GPM.[CompanyGroupId]
                               --,GPM.[CompanyId]
                               ,GPM.[PlantId]
@@ -653,12 +653,12 @@ namespace Aplos.Areas.Products.Controllers
                           LEFT JOIN Employeeinformation EI4 on EI4.SystemId= GPM.ReceiverSecurityEmployeeId
                           LEFT JOIN Employeeinformation EI5 on EI5.SystemId= GPM.CheckedBy
                           LEFT JOIN Employeeinformation EI6 on EI6.SystemId= GPM.ApprovedBy
-                          Where GPM.CheckedByStatus='ForChecked' AND GPM.GateRegisterType='"+ GateRegisterType + @"' Order By GPM.[Id] DESC";
+                          Where GPM.CheckedByStatus='ForChecked' AND GPM.GateRegisterType='" + GateRegisterType + @"'   Order By GPM.[GatePassEntryDate] DESC";
 				}
 				if (ReqStatus == "2")//Checked Hold/Reject
 				{
 					sql = @"
-                        SELECT  GPM.[Id]
+                         SELECT top(500)  GPM.[Id]
                               ,GPM.[CompanyGroupId]
                               --,GPM.[CompanyId]
                               ,GPM.[PlantId]
@@ -732,7 +732,7 @@ namespace Aplos.Areas.Products.Controllers
 				if (ReqStatus == "3")//Checked
 				{
 					sql = @"
-                        SELECT  GPM.[Id]
+                         SELECT top(500)  GPM.[Id]
                               ,GPM.[CompanyGroupId]
                               --,GPM.[CompanyId]
                               ,GPM.[PlantId]

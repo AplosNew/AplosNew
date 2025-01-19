@@ -1976,10 +1976,12 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                     fromDate = "01-Jan-" + newyear;
                     toDate = "31-Dec-" + newyear;
                 }
-                parameters.CmdText = @"SELECT LT.*, e.SectionId , L.UserName  AS leaveTypeName,e.EmployeeName,e.EmployeeCode
+                parameters.CmdText = @"SELECT LT.*, PR.SectionId , L.UserName  AS leaveTypeName,e.EmployeeName,e.EmployeeCode
                                     FROM [dbo].[LeaveTransaction] AS LT
                                     LEFT JOIN [dbo].[LeaveType] AS L ON L.Id=LT.LTSystemID
 									LEFT JOIN EmployeeInformation E ON E.SystemId=LT.EmpSystemID
+                                    LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                                    LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                                     WHERE LT.GroupID='" + companyGroupId + @"' AND E.CompanyId='" + companyId + @"' --AND LT.PlantID='" + plantId + @"' 
                                     AND LT.EmpSystemID='" + employeeId + @"'
                                     AND ((LT.FromDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"'
@@ -2019,10 +2021,12 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                     fromDate = "01-Jan-" + newyear;
                     toDate = "31-Dec-" + newyear;
                 }
-                parameters.CmdText = @"SELECT LT.*, e.SectionId , L.UserName  AS leaveTypeName,e.EmployeeName,e.EmployeeCode,FORMAT(DOJ,'dd-MMM-yyyy')DOJ,format(DOC,'dd-MMM-yyyy')DOC
+                parameters.CmdText = @"SELECT LT.*, PR.SectionId , L.UserName  AS leaveTypeName,e.EmployeeName,e.EmployeeCode,FORMAT(DOJ,'dd-MMM-yyyy')DOJ,format(DOC,'dd-MMM-yyyy')DOC
                                     FROM [dbo].[LeaveTransaction] AS LT
                                     LEFT JOIN [dbo].[LeaveType] AS L ON L.Id=LT.LTSystemID
 									LEFT JOIN EmployeeInformation E ON E.SystemId=LT.EmpSystemID
+                                    LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                                    LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                                     WHERE LT.GroupID='" + companyGroupId + @"' AND E.CompanyId='" + companyId + @"' -- AND LT.PlantID='" + plantId + @"'
                                     AND LT.EmpSystemID='" + employeeId + @"'
                                     AND L.LeaveType<>'Maternity' AND (LT.FromDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"'

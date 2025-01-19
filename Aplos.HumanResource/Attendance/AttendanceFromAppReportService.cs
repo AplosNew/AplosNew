@@ -47,11 +47,14 @@ namespace Library.HumanResource.Attendances {
                     as OutLocation,attnd.AttndType from dbo.AttdnRawDataFromApp attnd left join org.Plant p on attnd.PlantId=p.Id
                     left join org.Company c on c.Id=p.CompanyId
                     join dbo.EmployeeInformation emp on emp.SystemId=attnd.EmployeeId
-                    left join org.Unit u on u.Id=emp.UnitId
-                    left join org.Section s on s.Id=emp.SectionId
-                    left join org.SubSection ss on ss.Id=emp.SubSectionId
-                    left join org.Department dp on dp.Id=emp.DepartmentId
-                    left join hkp.Designation ds on ds.Id=emp.DesignationSystemID
+                    LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                    LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                    LEFT JOIN ORG.Entity EN ON En.Id=MB.EEntityId
+                    left join org.Unit u on u.Id=EN.UnitId
+                    left join org.Section s on s.Id=PR.SectionId
+                    left join org.SubSection ss on ss.Id=PR.SubSectionId
+                    left join org.Department dp on dp.Id=PR.DepartmentId
+                    left join hkp.Designation ds on ds.Id=PR.DesignationID
                     where (attnd.AttndType='OnDuty' OR attnd.AttndType='WorkFromHome') and attnd.PDate between 
                     '" + From + "' and '" + To + "' and c.Id='" + identity.CompanyId + "' order by attnd.AddedDate desc ";
                     }
@@ -68,11 +71,14 @@ namespace Library.HumanResource.Attendances {
                     attnd.AttndType from dbo.AttdnRawDataFromApp attnd left join org.Plant p on attnd.PlantId=p.Id
                     left join org.Company c on c.Id=p.CompanyId
                     join dbo.EmployeeInformation emp on emp.SystemId=attnd.EmployeeId
-                    left join org.Unit u on u.Id=emp.UnitId
-                    left join org.Section s on s.Id=emp.SectionId
-                    left join org.SubSection ss on ss.Id=emp.SubSectionId
-                    left join org.Department dp on dp.Id=emp.DepartmentId
-                    left join hkp.Designation ds on ds.Id=emp.DesignationSystemID
+                    LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                    LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                    LEFT JOIN ORG.Entity EN ON En.Id=MB.EEntityId
+                    left join org.Unit u on u.Id=EN.UnitId
+                    left join org.Section s on s.Id=PR.SectionId
+                    left join org.SubSection ss on ss.Id=PR.SubSectionId
+                    left join org.Department dp on dp.Id=PR.DepartmentId
+                    left join hkp.Designation ds on ds.Id=PR.DesignationID
                     where attnd.AttndType='" + AttndType + "' and attnd.PDate" +
                         " between '" + From + "' and '" + To + "' and c.Id='" + identity.CompanyId + "' order by attnd.AddedDate desc ";
 
@@ -116,11 +122,14 @@ namespace Library.HumanResource.Attendances {
                     as OutLocation,attnd.AttndType,attnd.Remarks as InRemarks,attnd.RemarksOUT as OutRemarks from dbo.AttdnRawDataFromApp attnd left join org.Plant p on attnd.PlantId=p.Id
                     left join org.Company c on c.Id=p.CompanyId
                     join dbo.EmployeeInformation emp on emp.SystemId=attnd.EmployeeId
-                    left join org.Unit u on u.Id=emp.UnitId
-                    left join org.Section s on s.Id=emp.SectionId
-                    left join org.SubSection ss on ss.Id=emp.SubSectionId
-                    left join org.Department dp on dp.Id=emp.DepartmentId
-                    left join hkp.Designation ds on ds.Id=emp.DesignationSystemID
+                    LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                    LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                    LEFT JOIN ORG.Entity EN ON En.Id=MB.EEntityId
+                    left join org.Unit u on u.Id=EN.UnitId
+                    left join org.Section s on s.Id=PR.SectionId
+                    left join org.SubSection ss on ss.Id=PR.SubSectionId
+                    left join org.Department dp on dp.Id=PR.DepartmentId
+                    left join hkp.Designation ds on ds.Id=PR.DesignationID
                     where (attnd.AttndType='OnDuty' OR attnd.AttndType='WorkFromHome') and attnd.PDate between 
                     '" + From + "' and '" + To + "' and c.Id='" + identity.CompanyId + @"'
                           and isnull(p.Id ,'') IN(" + PlantId + @")              
@@ -144,11 +153,14 @@ namespace Library.HumanResource.Attendances {
                     as OutLocation,attnd.AttndType,attnd.Remarks as InRemarks,attnd.RemarksOUT as OutRemarks from dbo.AttdnRawDataFromApp attnd left join org.Plant p on attnd.PlantId=p.Id
                     left join org.Company c on c.Id=p.CompanyId
                     join dbo.EmployeeInformation emp on emp.SystemId=attnd.EmployeeId
-                    left join org.Unit u on u.Id=emp.UnitId
-                    left join org.Section s on s.Id=emp.SectionId
-                    left join org.SubSection ss on ss.Id=emp.SubSectionId
-                    left join org.Department dp on dp.Id=emp.DepartmentId
-                    left join hkp.Designation ds on ds.Id=emp.DesignationSystemID
+                    LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                    LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                    LEFT JOIN ORG.Entity EN ON En.Id=MB.EEntityId
+                    left join org.Unit u on u.Id=EN.UnitId
+                    left join org.Section s on s.Id=PR.SectionId
+                    left join org.SubSection ss on ss.Id=PR.SubSectionId
+                    left join org.Department dp on dp.Id=PR.DepartmentId
+                    left join hkp.Designation ds on ds.Id=PR.DesignationID
                     where attnd.AttndType='" + AttndType+@"' and attnd.PDate between 
                     '" + From + "' and '" + To + "' and c.Id='" + identity.CompanyId + @"'
                           and isnull(p.Id ,'') IN(" + PlantId + @")              
@@ -334,7 +346,7 @@ namespace Library.HumanResource.Attendances {
                                 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                 LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                                 LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                                LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                                LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
                                 
                                 LEFT JOIN HKP.LegalDesignation ld on ld.Id=EI.LegalDesignationId
                                 LEFT JOIN MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
@@ -343,8 +355,8 @@ namespace Library.HumanResource.Attendances {
                                 LEFT JOIN [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LGD.Id
                                 LEFT JOIN [MST].[DesignationMaster] dm on dm.Id=dmld.DesignationMasterId
                                 LEFT JOIN HKP.EmployeeCategory EC ON EC.ID=DM.EmployeeCategoryId
-                                LEFT JOIN ORG.Section AS Se ON Se.Id = EI.SectionID
-                                LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = EI.SubSectionID
+                                LEFT JOIN ORG.Section AS Se ON Se.Id = PR.SectionID
+                                LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
                                 LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId                                        
 								WHERE EI.EmployeeStatus='separated'   AND EI.DOS BETWEEN '" + From + @"' AND '" + To + @"'
                                 AND  EI.PlantId='" + identity.PlantId + @"'

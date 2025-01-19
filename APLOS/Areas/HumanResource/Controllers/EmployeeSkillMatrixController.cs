@@ -344,8 +344,9 @@ namespace Aplos.Areas.HumanResource.Controllers
 					                                                        ),1,1,''),'')
                                     FROM EmployeeInformation EI
                                     LEFT JOIN MST.ManpowerBudget MB ON MB.Id = EI.BudgetCode
-                                    LEFT JOIN ORG.Department D ON D.Id = EI.DepartmentId
-                                    LEFT JOIN ORG.Section S ON S.Id = EI.SectionId
+                                    LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                                    LEFT JOIN ORG.Department D ON D.Id = PR.DepartmentId
+                                    LEFT JOIN ORG.Section S ON S.Id = PR.SectionId
                                     LEFT JOIN ORG.Line L ON L.Id = MB.LineId
                                     LEFT JOIN ORG.Entity E ON E.Id = MB.EntityId
                                     LEFT JOIN MST.OperationVariation OV ON OV.Id = EI.OperationVariationId
@@ -570,8 +571,9 @@ namespace Aplos.Areas.HumanResource.Controllers
 					                                                    ),1,1,''),'')
                                 FROM EmployeeInformation EI
                                 LEFT JOIN MST.ManpowerBudget MB ON MB.Id = EI.BudgetCode
-                                LEFT JOIN ORG.Department D ON D.Id = EI.DepartmentId
-                                LEFT JOIN ORG.Section S ON S.Id = EI.SectionId
+                                LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                                LEFT JOIN ORG.Department D ON D.Id = PR.DepartmentId
+                                LEFT JOIN ORG.Section S ON S.Id = PR.SectionId
                                 LEFT JOIN ORG.Line L ON L.Id = MB.LineId
                                 LEFT JOIN ORG.Entity E ON E.Id = MB.EntityId
                                 LEFT JOIN MST.OperationVariation OV ON OV.Id = EI.OperationVariationId
@@ -801,8 +803,9 @@ namespace Aplos.Areas.HumanResource.Controllers
 					                                                    ),1,1,''),'')
                                 FROM EmployeeInformation EI
                                 LEFT JOIN MST.ManpowerBudget MB ON MB.Id = EI.BudgetCode
-                                LEFT JOIN ORG.Department D ON D.Id = EI.DepartmentId
-                                LEFT JOIN ORG.Section S ON S.Id = EI.SectionId
+LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                                LEFT JOIN ORG.Department D ON D.Id = PR.DepartmentId
+                                LEFT JOIN ORG.Section S ON S.Id = PR.SectionId
                                 LEFT JOIN ORG.Line L ON L.Id = MB.LineId
                                 LEFT JOIN ORG.Entity E ON E.Id = MB.EntityId
                                 LEFT JOIN MST.OperationVariation OV ON OV.Id = EI.OperationVariationId

@@ -66,12 +66,12 @@ LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=PR.DesignationId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
-LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
-LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
-LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
 LEFT JOIN HKP.LegalDesignation LD ON E.LegalDesignationId = LD.Id
 LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
-LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
 Where WorkDate='" + workDate + @"' AND ISNULL(SD.IsApproved,0)=0";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -91,12 +91,12 @@ LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=PR.DesignationId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
-LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
-LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
-LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
 LEFT JOIN HKP.LegalDesignation LD ON E.LegalDesignationId = LD.Id
 LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
-LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
 Where WorkDate='" + workDate + @"' AND ISNULL(SD.IsApproved,0)=1";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -179,12 +179,12 @@ LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=PR.DesignationId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
-LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
-LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
-LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
 LEFT JOIN HKP.LegalDesignation LD ON E.LegalDesignationId = LD.Id
 LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
-LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
 Where SD.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND SD.IsApproved=1 Group By SD.EmpSystemId
 ,E.EmployeeCode,E.EmployeeName,LD.UserName,DEPT.UserName,DV.UserName,SC.UserName
 ,SS.UserName,FORMAT(E.DOJ,'dd-MMM-yyyy'),EC.UserName,E.EmployeeStatus";

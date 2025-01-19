@@ -232,24 +232,16 @@ namespace Aplos.Areas.Attendances.Controllers
 									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
                                     LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
 
-                                    LEFT OUTER JOIN ORG.Department edept on edept.id=e.DepartmentId
+                                    LEFT OUTER JOIN ORG.Department edept on edept.id=PO.DepartmentId
                                     LEFT OUTER JOIN ORG.Line eL on eL.id=mpb.LineId
-                                    LEFT OUTER JOIN ORG.Division ediv on ediv.id=e.DivisionId
-                                    LEFT OUTER JOIN ORG.SubDivision esdiv on esdiv.id=e.SubDivisionId
+                                    LEFT OUTER JOIN ORG.Division ediv on ediv.id=PO.DivisionId
+                                    LEFT OUTER JOIN ORG.SubDivision esdiv on esdiv.id=PO.SubDivisionId
                                     LEFT OUTER JOIN ORG.Section es on es.id=PO.SectionId
                                     LEFT OUTER JOIN ORG.SubSection ess on ess.id=PO.SubSectionId
                                     LEFT OUTER JOIN ORG.Plant ep on ep.id=e.PlantId
-                                    LEFT OUTER JOIN ORG.Unit eu on eu.id=e.UnitId
-                                    LEFT OUTER JOIN HKP.Designation edsg on edsg.id=e.DesignationSystemID
-                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
 									LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
                                     LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=e.LegalDesignationId
-                                    LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
-									,dg.UserName GivenDesignationGroup--,srm.SalaryRuleName
-									FROM mst.DesignationMaster dm
-									LEFT OUTER JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
-									) egdsgg on egdsgg.DesignationId=e.GivenDesignationId
-									AND egdsgg.EmployeeCategoryId=e.EmployeeCategorySystemID
+                                    
                                  
                                     LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
                                     LEFT JOIN [ORG].[Division] ON Division.Id = EN.DivisionId

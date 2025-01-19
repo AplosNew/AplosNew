@@ -69,7 +69,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                         EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
                             PR.UserName PositionName,
                             DEPT.UserName Department,S.UserName Section,
-                            EMP.SectionId,SS.UserName SubSection
+                            PR.SectionId,SS.UserName SubSection
                             ,PL.UserName Plant
                             FROM EmployeeInformation EMP
                             INNER JOIN AttdnProcessData O ON EMP.SystemID=o.EmpSystemID 
@@ -404,10 +404,10 @@ namespace Aplos.Areas.HumanResource.Controllers
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                             LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                            LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                            LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
-                            LEFT JOIN ORG.Department DEPT ON EMP.DepartmentId=DEPT.Id
+                            LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                             left join mst.DesignationMasterLegalDesignation ddm on 
                             ddm.LegalDesignationId = emp.LegalDesignationId
 							left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId

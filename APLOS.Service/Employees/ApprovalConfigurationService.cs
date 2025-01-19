@@ -144,12 +144,12 @@ namespace Library.Service.Employees
 							    	,PR.UserName PositionName
 							    	,E.TelePhnNo
 							    	,E.EmailId
-                                    ,E.DepartmentId
-                                    ,E.DivisionId
-									,E.SectionId
+                                    ,PR.DepartmentId
+                                    ,PR.DivisionId
+									,PR.SectionId
 							    	,E.EmpType
 							    	,E.GivenDesignationId
-									,E.EmployeeCategorySystemID EmployeeCategoryId
+									,EC.ID EmployeeCategoryId
 									,EC.UserName EmployeeCategory
 							    	,EN.UserName EntityName
 							    	,D.UserName Designation
@@ -170,9 +170,9 @@ namespace Library.Service.Employees
 							    FROM EmployeeInformation E
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
-							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
-							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
-							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
 							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
 							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
 							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
@@ -190,7 +190,7 @@ namespace Library.Service.Employees
 								LEFT JOIN LeavePolicyMaster LPM ON DM.LeavePolicyMasterId= LPM.SystemID
 								LEFT JOIN SalaryRuleMaster SRM ON E.SalaryRuleMasterSystemID = SRM.SystemID
                                 LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
-								LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+								LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                                 --AND E.IsApproved=1
                                  where E.PlantId = '" + plantId + "' AND E.EmployeeStatus='Active' ";
                 return _sqlRepository.GetGridData(parameters);
@@ -218,12 +218,11 @@ namespace Library.Service.Employees
 							    	,PR.UserName PositionName
 							    	,E.TelePhnNo
 							    	,E.EmailId
-                                    ,E.DepartmentId
-                                    ,E.DivisionId
-									,E.SectionId
+                                    ,PR.DepartmentId
+                                    ,PR.DivisionId
+									,PR.SectionId
 							    	,E.EmpType
 							    	,E.GivenDesignationId
-									,E.EmployeeCategorySystemID EmployeeCategoryId
 							    	,EN.UserName EntityName
 							    	,D.UserName Designation
 							    	,GD.UserName GivenDesignation
@@ -240,15 +239,15 @@ namespace Library.Service.Employees
 							    FROM EmployeeInformation E
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
-							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
-							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
-							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
 							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
 							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
 							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
                                 LEFT JOIN HKP.LegalDesignation LD ON E.LegalDesignationId = LD.Id
                                 LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
-								LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+								LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                                  where E.EmployeeStatus='Active'";
                 return _sqlRepository.GetGridData(parameters);
             }
@@ -273,9 +272,9 @@ namespace Library.Service.Employees
 							    	,PR.UserName PositionName
 							    	,E.TelePhnNo
 							    	,E.EmailId
-                                    ,E.DepartmentId
-                                    ,E.DivisionId
-									,E.SectionId
+                                    ,PR.DepartmentId
+                                    ,PR.DivisionId
+									,PR.SectionId
 							    	,E.EmpType
 							    	,E.GivenDesignationId
 									,EC.Id EmployeeCategoryId
@@ -295,9 +294,9 @@ namespace Library.Service.Employees
 							    FROM EmployeeInformation E
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
-							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
-							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
-							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
 							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
 							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
 							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
@@ -332,9 +331,9 @@ namespace Library.Service.Employees
 							    	,PR.UserName PositionName
 							    	,E.TelePhnNo
 							    	,E.EmailId
-                                    ,E.DepartmentId
-                                    ,E.DivisionId
-									,E.SectionId
+                                    ,PR.DepartmentId
+                                    ,PR.DivisionId
+									,PR.SectionId
 							    	,E.EmpType
 							    	,E.GivenDesignationId
 									,EC.Id EmployeeCategoryId
@@ -355,9 +354,9 @@ namespace Library.Service.Employees
 							    FROM EmployeeInformation E
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
-							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
-							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
-							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
 							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
 							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
 							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
@@ -393,9 +392,9 @@ namespace Library.Service.Employees
 							    	,PR.UserName PositionName
 							    	,E.TelePhnNo
 							    	,E.EmailId
-                                    ,E.DepartmentId
-                                    ,E.DivisionId
-									,E.SectionId
+                                    ,PR.DepartmentId
+                                    ,PR.DivisionId
+									,PR.SectionId
 							    	,E.EmpType
 							    	,E.GivenDesignationId
 									,EC.Id EmployeeCategoryId
@@ -416,9 +415,9 @@ namespace Library.Service.Employees
 							    FROM EmployeeInformation E
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
-							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
-							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
-							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
 							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
 							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
 							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
@@ -454,9 +453,9 @@ namespace Library.Service.Employees
 							    	,PR.UserName PositionName
 							    	,E.TelePhnNo
 							    	,E.EmailId
-                                    ,E.DepartmentId
-                                    ,E.DivisionId
-									,E.SectionId
+                                    ,PR.DepartmentId
+                                    ,PR.DivisionId
+									,PR.SectionId
 							    	,E.EmpType
 							    	,E.GivenDesignationId
 									,EC.Id EmployeeCategoryId
@@ -476,9 +475,9 @@ namespace Library.Service.Employees
 							    FROM EmployeeInformation E
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
-							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
-							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
-							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
 							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
 							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
 							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
@@ -518,9 +517,9 @@ namespace Library.Service.Employees
 							    FROM EmployeeInformation E
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
-							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
-							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
-							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
 							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
 							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
 							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
@@ -546,15 +545,15 @@ namespace Library.Service.Employees
             try
             {
                 parameters.CmdText = @"SELECT E.SystemId, E.PlantId, E.GroupID, E.CompanyId,E.EmployeeCode, E.EmployeeName, E.BudgetCode, PR.UserName PositionName, E.TelePhnNo
-                                    , E.EmailId, E.DepartmentId, E.DivisionId, E.SectionId, E.EmpType, E.GivenDesignationId, E.EmployeeCategorySystemID EmployeeCategoryId
+                                    , E.EmailId, PR.DepartmentId, PR.DivisionId, PR.SectionId, E.EmpType, E.GivenDesignationId, E.EmployeeCategorySystemID EmployeeCategoryId
                                     , EC.UserName EmployeeCategory, EN.UserName EntityName, D.UserName Designation, GD.UserName GivenDesignation, DEPT.UserName AS Department
                                     , DV.UserName AS Division, SC.UserName AS Section,  E.EmpPicPath, SRM.CurrencyRuleSystemID, SRM.SalaryRuleName, LPM.PolicyName, E.DOJ
 							    FROM EmployeeInformation E
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
-							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
-							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
-							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
 							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
 							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
 							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
@@ -580,9 +579,9 @@ namespace Library.Service.Employees
             {
                 string search = null;
 
-                if (departmentIds != "''") search += "AND E.DepartmentId IN(" + departmentIds + ")";
-                if (divisionIds != "''") search += "AND E.DivisionId IN(" + divisionIds + ")";
-                if (sectionIds != "''") search += "AND E.SectionId IN(" + sectionIds + ")";
+                if (departmentIds != "''") search += "AND PR.DepartmentId IN(" + departmentIds + ")";
+                if (divisionIds != "''") search += "AND PR.DivisionId IN(" + divisionIds + ")";
+                if (sectionIds != "''") search += "AND PR.SectionId IN(" + sectionIds + ")";
                 if (employeeCateogoryIds != "''") search += "AND EC.Id IN(" + employeeCateogoryIds + ")";
                 if (givenDesignationIds != "''") search += "AND E.GivenDesignationId IN(" + givenDesignationIds + ")";
                 if (employeeCode != "") search += "AND E.EmployeeCode LIKE'%" + employeeCode + "%'";
@@ -597,9 +596,9 @@ namespace Library.Service.Employees
 							    	,PR.UserName PositionName
 							    	,E.TelePhnNo
 							    	,E.EmailId
-                                    ,E.DepartmentId
-                                    ,E.DivisionId
-									,E.SectionId
+                                    ,PR.DepartmentId
+                                    ,PR.DivisionId
+									,PR.SectionId
 							    	,E.EmpType
 							    	,E.GivenDesignationId
 									,EC.Id EmployeeCategoryId
@@ -619,9 +618,9 @@ namespace Library.Service.Employees
 							    FROM EmployeeInformation E
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
-							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
-							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
-							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
 							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
 							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
 							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
@@ -650,8 +649,8 @@ namespace Library.Service.Employees
             {
                 string search = null;
 
-                if (lineIds != "") search += "AND E.LineId IN(" + lineIds + ")";
-                if (SubsectionId != "") search += "AND E.SubSectionId IN(" + SubsectionId + ")";
+                if (lineIds != "") search += "AND PMB.LineId IN(" + lineIds + ")";
+                if (SubsectionId != "") search += "AND PR.SubSectionId IN(" + SubsectionId + ")";
                 if (employeeCode != "") search += "AND E.EmployeeCode LIKE'%" + employeeCode + "%'";
                 if (employeeName != "") search += "AND E.EmployeeName LIKE'%" + employeeName + "%'";
 
@@ -664,9 +663,9 @@ namespace Library.Service.Employees
 							    	,PR.UserName PositionName
 							    	,E.TelePhnNo
 							    	,E.EmailId
-                                    ,E.DepartmentId
-                                    ,E.DivisionId
-									,E.SectionId
+                                    ,PR.DepartmentId
+                                    ,PR.DivisionId
+									,PR.SectionId
 							    	,E.EmpType
 							    	,E.GivenDesignationId
 									,EC.Id EmployeeCategoryId
@@ -686,9 +685,9 @@ namespace Library.Service.Employees
 							    FROM EmployeeInformation E
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
-							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
-							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
-							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
 							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
 							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
 							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
@@ -717,9 +716,9 @@ namespace Library.Service.Employees
             {
                 string search = null;
 
-                if (departmentIds != "''") search += "AND E.DepartmentId IN(" + departmentIds + ")";
-                if (divisionIds != "''") search += "AND E.DivisionId IN(" + divisionIds + ")";
-                if (sectionIds != "''") search += "AND E.SectionId IN(" + sectionIds + ")";
+                if (departmentIds != "''") search += "AND PR.DepartmentId IN(" + departmentIds + ")";
+                if (divisionIds != "''") search += "AND PR.DivisionId IN(" + divisionIds + ")";
+                if (sectionIds != "''") search += "AND PR.SectionId IN(" + sectionIds + ")";
                 if (employeeCateogoryIds != "''") search += "AND EC.Id IN(" + employeeCateogoryIds + ")";
                 if (givenDesignationIds != "''") search += "AND E.GivenDesignationId IN(" + givenDesignationIds + ")";
                 if (employeeCode != "") search += "AND E.EmployeeCode LIKE'%" + employeeCode + "%'";
@@ -734,9 +733,9 @@ namespace Library.Service.Employees
 							    	,PR.UserName PositionName
 							    	,E.TelePhnNo
 							    	,E.EmailId
-                                    ,E.DepartmentId
-                                    ,E.DivisionId
-									,E.SectionId
+                                    ,PR.DepartmentId
+                                    ,PR.DivisionId
+									,PR.SectionId
 							    	,E.EmpType
 							    	,E.GivenDesignationId
 									,EC.Id EmployeeCategoryId
@@ -756,9 +755,9 @@ namespace Library.Service.Employees
 							    FROM EmployeeInformation E
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
-							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
-							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
-							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
 							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
 							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
 							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
@@ -787,8 +786,8 @@ namespace Library.Service.Employees
             {
                 string search = null;
 
-                if (SubsectionId != "") search += "AND E.SubSectionId IN(" + SubsectionId + ")";
-                if (lineIds != "") search += "AND E.LineId IN(" + lineIds + ")";
+                if (SubsectionId != "") search += "AND PR.SubSectionId IN(" + SubsectionId + ")";
+                if (lineIds != "") search += "AND PMB.LineId IN(" + lineIds + ")";
                 if (employeeCode != "") search += "AND E.EmployeeCode LIKE'%" + employeeCode + "%'";
                 if (employeeName != "") search += "AND E.EmployeeName LIKE'%" + employeeName + "%'";
 
@@ -801,9 +800,9 @@ namespace Library.Service.Employees
 							    	,PR.UserName PositionName
 							    	,E.TelePhnNo
 							    	,E.EmailId
-                                    ,E.DepartmentId
-                                    ,E.DivisionId
-									,E.SectionId
+                                    ,PR.DepartmentId
+                                    ,PR.DivisionId
+									,PR.SectionId
 							    	,E.EmpType
 							    	,E.GivenDesignationId
 									,EC.Id EmployeeCategoryId
@@ -823,9 +822,9 @@ namespace Library.Service.Employees
 							    FROM EmployeeInformation E
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
-							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
-							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
-							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
 							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
 							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
 							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
@@ -854,9 +853,9 @@ namespace Library.Service.Employees
             {
                 string search = null;
 
-                if (departmentIds != "''") search += "AND E.DepartmentId IN(" + departmentIds + ")";
-                if (divisionIds != "''") search += "AND E.DivisionId IN(" + divisionIds + ")";
-                if (sectionIds != "''") search += "AND E.SectionId IN(" + sectionIds + ")";
+                if (departmentIds != "''") search += "AND PR.DepartmentId IN(" + departmentIds + ")";
+                if (divisionIds != "''") search += "AND PR.DivisionId IN(" + divisionIds + ")";
+                if (sectionIds != "''") search += "AND PR.SectionId IN(" + sectionIds + ")";
                 if (employeeCateogoryIds != "''") search += "AND EC.Id IN(" + employeeCateogoryIds + ")";
                 if (givenDesignationIds != "''") search += "AND E.GivenDesignationId IN(" + givenDesignationIds + ")";
                 if (employeeCode != "") search += "AND E.EmployeeCode LIKE'%" + employeeCode + "%'";
@@ -871,9 +870,9 @@ namespace Library.Service.Employees
 							    	,PR.UserName PositionName
 							    	,E.TelePhnNo
 							    	,E.EmailId
-                                    ,E.DepartmentId
-                                    ,E.DivisionId
-									,E.SectionId
+                                    ,PR.DepartmentId
+                                    ,PR.DivisionId
+									,PR.SectionId
 							    	,E.EmpType
 							    	,E.GivenDesignationId
 									,EC.Id EmployeeCategoryId
@@ -893,9 +892,9 @@ namespace Library.Service.Employees
 							    FROM EmployeeInformation E
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
-							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
-							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
-							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
 							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
 							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
 							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
@@ -923,9 +922,9 @@ namespace Library.Service.Employees
             {
                 string search = null;
 
-                if (departmentIds != "''") search += "AND E.DepartmentId IN(" + departmentIds + ")";
-                if (divisionIds != "''") search += "AND E.DivisionId IN(" + divisionIds + ")";
-                if (sectionIds != "''") search += "AND E.SectionId IN(" + sectionIds + ")";
+                if (departmentIds != "''") search += "AND PR.DepartmentId IN(" + departmentIds + ")";
+                if (divisionIds != "''") search += "AND PR.DivisionId IN(" + divisionIds + ")";
+                if (sectionIds != "''") search += "AND PR.SectionId IN(" + sectionIds + ")";
                 if (employeeCateogoryIds != "''") search += "AND EC.Id IN(" + employeeCateogoryIds + ")";
                 if (givenDesignationIds != "''") search += "AND E.GivenDesignationId IN(" + givenDesignationIds + ")";
                 if (employeeCode != "") search += "AND E.EmployeeCode LIKE'%" + employeeCode + "%'";
@@ -940,9 +939,9 @@ namespace Library.Service.Employees
 							    	,PR.UserName PositionName
 							    	,E.TelePhnNo
 							    	,E.EmailId
-                                    ,E.DepartmentId
-                                    ,E.DivisionId
-									,E.SectionId
+                                    ,PR.DepartmentId
+                                    ,PR.DivisionId
+									,PR.SectionId
 							    	,E.EmpType
 							    	,E.GivenDesignationId
 									,EC.Id EmployeeCategoryId
@@ -962,9 +961,9 @@ namespace Library.Service.Employees
 							    FROM EmployeeInformation E
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
-							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
-							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
-							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
 							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
 							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
 							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id

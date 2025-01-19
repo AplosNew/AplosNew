@@ -16827,15 +16827,18 @@ Where LY.FromDate between'01-JAN-" + year+ @"' AND  '31-DEC-" + year + @"' AND L
                           Where EmpSystemID='" + empId + @"' AND LTSystemID=(SELECT Id FROM LeaveType WHERE LeaveType='Earn') and l.IsApproved = 1
                           GROUP By EmpSystemID,MONTH(ld.WorkDate),Year(ld.WorkDate)
                          ) L ON L.EmpSystemID=E.SystemId and dd = month(p.FromDate) and yy =  Year(p.FromDate)
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                            LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
                             left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=e.LegalDesignationId
                         left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
                         left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
                         left join hkp.LegalDesignation LG on LG.Id = e.LegalDesignationId
-						 LEFT JOIN ORG.Department DPT ON DPT.Id=E.DepartmentId
-						 LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
-                         LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
-						 LEFT JOIN ORG.Section SEC ON E.SectionID = SEC.Id
-						 LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
+						 LEFT JOIN ORG.Department DPT ON DPT.Id=PR.DepartmentId
+						 LEFT JOIN ORG.Unit U ON En.UnitID = U.Id
+                         LEFT JOIN ORG.Division Dv ON PR.DivisionID = Dv.Id
+						 LEFT JOIN ORG.Section SEC ON PR.SectionID = SEC.Id
+						 LEFT JOIN ORG.SubSection SB ON PR.SubSectionID = SB.Id
 		                    LEFT JOIN HKP.Party Party ON Party.Id = E.VendorId
                          WHERE E.SystemId='" + empId + @"' ORDER BY P.FromDate ASC";
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -16994,8 +16997,8 @@ Where LY.FromDate between'01-JAN-" + year+ @"' AND  '31-DEC-" + year + @"' AND L
 	                              REPLACE(Convert(VARCHAR(11), E.DOC, 106), ' ', '-') AS DOC, DG.UserName DesignationGroup, D.UserName Designation,
 								  GVD.UserName GivenDesignation, L.UserName Line, U.UserName Unit, Dv.UserName Division, Dp.UserName Department,
 								  S.UserName Section, SB.UserName SubSection, EC.UserName AS EmpCategory, Cm.UserName CompanyName,Cm.Id CompanyId, CAM.Address1,
-	                              CAM.Address2, E.EmployeeCategorySystemID, E.UnitID, E.DivisionID, E.DepartmentID, E.DesignationSystemID,
-	                              E.SectionID, E.SubSectionID, E.LineID, E.DesignationGroupID, E.SubSecStrucSystemID, E.EmployeeStatus,
+	                              CAM.Address2, E.EmployeeCategorySystemID, EN.UnitID, PE.DivisionID, PE.DepartmentID, DM.DesignationID,
+	                              PR.SectionID, PR.SubSectionID, E.LineID, DM.DesignationGroupID, E.SubSecStrucSystemID, E.EmployeeStatus,
 	                              P.UserName PlantName, (PAM.[Address1] + ', ' + PAM.[Address2] + ', ' + PAMC.UserName + ' - ' + PAM.Postcode) FactoryAddress,
 	                              GC.Id GroupID,GC.UserName GroupName, (CGAM.[Address1] + ', ' + CGAM.[Address2] + ', ' + CT.UserName + ' - ' + CGAM.Postcode + ', Contact: ' + CGAM.Phone) GroupAddress,
 	                              E.PlantID, BK.UserName BankNameShort, E.BankAccNo, 
@@ -17010,15 +17013,17 @@ Where LY.FromDate between'01-JAN-" + year+ @"' AND  '31-DEC-" + year + @"' AND L
                                 ,VPFhead.SalaryRuleMasterSystemID xSalaryRuleMasterSystemID
 	                            ,ISNULL(CRC.IntegerInDisb,1) IntegerInDisb, ISNULL(CRC.DecimalNo,0) DecimalNo, MW.Grade
 				            FROM EmployeeInformation AS E
-
-                                            LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
-                                            LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
-                                            LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
-                                            LEFT JOIN ORG.Section S ON E.SectionID = S.Id
-                                            LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
-                                            LEFT JOIN ORG.Line L ON E.LineID = L.Id
-                                            LEFT JOIN HKP.DesignationGroup DG ON E.DesignationGroupID = Dg.Id
-                                            LEFT JOIN HKP.Designation D ON E.DesignationSystemID = D.Id
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                            LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
+                                            LEFT JOIN ORG.Unit U ON EN.UnitID = U.Id
+                                            LEFT JOIN ORG.Division Dv ON PR.DivisionID = Dv.Id
+                                            LEFT JOIN ORG.Department Dp ON PR.DepartmentID = Dp.Id
+                                            LEFT JOIN ORG.Section S ON PR.SectionID = S.Id
+                                            LEFT JOIN ORG.SubSection SB ON PR.SubSectionID = SB.Id
+                                            LEFT JOIN ORG.Line L ON MB.LineID = L.Id
+                                            LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
+                                            LEFT JOIN HKP.DesignationGroup DG ON DM.DesignationGroupID = Dg.Id
                                             LEFT JOIN HKP.Designation GVD ON E.GivenDesignationId = GVD.Id
 											LEFT JOIN ORG.Plant AS p ON E.PlantId = p.Id
 											LEFT JOIN ORG.Company AS Cm ON E.CompanyID = Cm.Id
@@ -17249,8 +17254,8 @@ Where LY.FromDate between'01-JAN-" + year+ @"' AND  '31-DEC-" + year + @"' AND L
 	                              , REPLACE(Convert(VARCHAR(11), E.DOC, 106), ' ', '-') AS DOC, DG.UserName DesignationGroup, D.UserName Designation,
 								  GVD.UserName GivenDesignation, L.UserName Line, U.UserName Unit, Dv.UserName Division, Dp.UserName Department,
 								  S.UserName Section, SB.UserName SubSection, EC.UserName AS EmpCategory, Cm.UserName CompanyName,Cm.Id CompanyId, CAM.Address1,
-	                              CAM.Address2, E.EmployeeCategorySystemID, E.UnitID, E.DivisionID, E.DepartmentID, E.DesignationSystemID,
-	                              E.SectionID, E.SubSectionID, E.LineID, E.DesignationGroupID, E.SubSecStrucSystemID, E.EmployeeStatus,
+	                              CAM.Address2, E.EmployeeCategorySystemID, EN.UnitID, PR.DivisionID, PR.DepartmentID, DM.DesignationID,
+	                              PR.SectionID, PR.SubSectionID, MB.LineID, DM.DesignationGroupID, E.SubSecStrucSystemID, E.EmployeeStatus,
 	                              P.UserName PlantName, (PAM.[Address1] + ', ' + PAM.[Address2] + ', ' + PAMC.UserName + ' - ' + PAM.Postcode) FactoryAddress,
 	                              GC.Id GroupID,GC.UserName GroupName, (CGAM.[Address1] + ', ' + CGAM.[Address2] + ', ' + CT.UserName + ' - ' + CGAM.Postcode + ', Contact: ' + CGAM.Phone) GroupAddress,
 	                              E.PlantID, BK.UserName BankNameShort, E.BankAccNo, 
@@ -17265,15 +17270,17 @@ Where LY.FromDate between'01-JAN-" + year+ @"' AND  '31-DEC-" + year + @"' AND L
                                 ,VPFhead.SalaryRuleMasterSystemID xSalaryRuleMasterSystemID
 	                            ,CRC.IntegerInDisb, CRC.DecimalNo, MW.Grade
 				            FROM EmployeeInformation AS E
-
-                                            LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
-                                            LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
-                                            LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
-                                            LEFT JOIN ORG.Section S ON E.SectionID = S.Id
-                                            LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                            LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
+                                            LEFT JOIN ORG.Unit U ON EN.UnitID = U.Id
+                                            LEFT JOIN ORG.Division Dv ON PR.DivisionID = Dv.Id
+                                            LEFT JOIN ORG.Department Dp ON PR.DepartmentID = Dp.Id
+                                            LEFT JOIN ORG.Section S ON PR.SectionID = S.Id
+                                            LEFT JOIN ORG.SubSection SB ON PR.SubSectionID = SB.Id
                                             LEFT JOIN ORG.Line L ON E.LineID = L.Id
-                                            LEFT JOIN HKP.DesignationGroup DG ON E.DesignationGroupID = Dg.Id
-                                            LEFT JOIN HKP.Designation D ON E.DesignationSystemID = D.Id
+LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
+                                            LEFT JOIN HKP.DesignationGroup DG ON DM.DesignationGroupID = Dg.Id
                                             LEFT JOIN HKP.Designation GVD ON E.GivenDesignationId = GVD.Id
 											LEFT JOIN ORG.Plant AS p ON E.PlantId = p.Id
 											LEFT JOIN ORG.Company AS Cm ON E.CompanyID = Cm.Id

@@ -4,6 +4,7 @@ using Aplos.Controllers;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
+using Library.Data.Sql;
 using Library.Model.Organizations;
 using Library.Model.Setups;
 using Library.Service.Organizations;
@@ -21,12 +22,15 @@ namespace Aplos.Areas.Organizations.Controllers
 
         private readonly IDesignationGroupService _designationGroupService;
         private readonly ICompanyGroupDesignationGroupService _companyGroupDesignationGroupService;
+        private readonly ISqlRepository _sqlRepository;
 
         public DesignationGroupController(IDesignationGroupService designationGroupService,
-            ICompanyGroupDesignationGroupService companyGroupDesignationGroupService)
+            ICompanyGroupDesignationGroupService companyGroupDesignationGroupService,ISqlRepository R)
         {
             _companyGroupDesignationGroupService = companyGroupDesignationGroupService;
             _designationGroupService = designationGroupService;
+            _sqlRepository = R;
+
         }
 
         #endregion -- Constructor
@@ -63,7 +67,17 @@ namespace Aplos.Areas.Organizations.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_companyGroupDesignationGroupService.Query(parameters, identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
         }
+        [HttpPost]
+        public ActionResult GetDGList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
 
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 1000 * from (SELECT * FROM HKP.DesignationGroup) AS TEMP WHERE " + strkey + " order by sequence";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpPost]
         public JsonResult Create(DesignationGroup designationGroup, IEnumerable<LocalLanguage> localLanguages)

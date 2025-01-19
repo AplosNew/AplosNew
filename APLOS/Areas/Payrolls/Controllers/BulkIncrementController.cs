@@ -254,19 +254,22 @@ namespace Aplos.Areas.Payrolls.Controllers
 							
 		
 							LEFT OUTER JOIN SalaryIncrementNextDueDate ND ON nd.EmpSystemId=sidm.EmpInfoSystemID	AND ND.EffectiveDate = sidm.EffectiveDate	
+                            LEFT JOIN MST.DesignationMaster dm ON Ei.GivenDesignationId = dm.DesignationId
+							LEFT JOIN MST.ManpowerBudget mb ON mb.Id=ei.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                            LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
                             LEFT JOIN mst.DesignationMasterLegalDesignation AS dmld ON dmld.LegalDesignationId=ei.LegalDesignationId
 							LEFT JOIN mst.DesignationMaster AS dmmm ON dmmm.Id=dmld.DesignationMasterId
                             LEFT JOIN HKP.EmployeeCategory AS EC ON dmmm.EmployeeCategoryId = EC.Id
-                            LEFT JOIN ORG.Unit U ON Ei.UnitID = U.Id
-                            LEFT JOIN ORG.Division Dv ON Ei.DivisionID = Dv.Id
-                            LEFT JOIN ORG.Department Dp ON Ei.DepartmentID = Dp.Id
-                            LEFT JOIN ORG.Section S ON Ei.SectionID = S.Id
-                            LEFT JOIN ORG.SubSection SB ON Ei.SubSectionID = SB.Id
-                            LEFT JOIN ORG.Line L ON Ei.LineID = L.Id
-                            LEFT JOIN HKP.Designation D ON Ei.DesignationSystemID = D.Id
+                            LEFT JOIN ORG.Unit U ON EN.UnitID = U.Id
+                            LEFT JOIN ORG.Division Dv ON PR.DivisionID = Dv.Id
+                            LEFT JOIN ORG.Department Dp ON PR.DepartmentID = Dp.Id
+                            LEFT JOIN ORG.Section S ON PR.SectionID = S.Id
+                            LEFT JOIN ORG.SubSection SB ON PR.SubSectionID = SB.Id
+                            LEFT JOIN ORG.Line L ON MB.LineID = L.Id
+                            LEFT JOIN HKP.Designation D ON Ei.GivenDesignationId = D.Id
                             LEFT JOIN HKP.LegalDesignation AS ld  ON Ei.LegalDesignationId = ld.Id
-							LEFT JOIN MST.DesignationMaster dm ON Ei.GivenDesignationId = dm.DesignationId
-							LEFT JOIN MST.ManpowerBudget mb ON mb.Id=ei.BudgetCode
+							
 							WHERE  ei.EmployeeStatus='Active' AND sidm.IsApproved=1  AND ei.PlantId='" + identity.PlantId + @"' 
 							AND  ei.SystemId NOT IN (SELECT EmpSystemId FROM ExceptionEmployee)
 							AND  ei.SystemId NOT IN (SELECT EmpInfoSystemID  FROM SalaryInfoDefineMaster WHERE IsApproved=0)
@@ -444,18 +447,20 @@ namespace Aplos.Areas.Payrolls.Controllers
                             INNER JOIN SalaryHead sidGA ON sidGA.SalaryHeadID=sidGrossA.SalaryHeadID AND  sidGA.HeadCategory='Gross'
 		                    --------------------------------------------
 		
-							LEFT OUTER JOIN SalaryIncrementNextDueDate ND ON nd.EmpSystemId=sidm.EmpInfoSystemID	AND ND.EffectiveDate = sidm.EffectiveDate	
-                            LEFT JOIN HKP.EmployeeCategory AS EC ON EI.EmployeeCategorySystemID = EC.Id
-                            LEFT JOIN ORG.Unit U ON Ei.UnitID = U.Id
-                            LEFT JOIN ORG.Division Dv ON Ei.DivisionID = Dv.Id
-                            LEFT JOIN ORG.Department Dp ON Ei.DepartmentID = Dp.Id
-                            LEFT JOIN ORG.Section S ON Ei.SectionID = S.Id
-                            LEFT JOIN ORG.SubSection SB ON Ei.SubSectionID = SB.Id
-                            LEFT JOIN ORG.Line L ON Ei.LineID = L.Id
-                            LEFT JOIN HKP.Designation D ON Ei.DesignationSystemID = D.Id
+							LEFT OUTER JOIN SalaryIncrementNextDueDate ND ON nd.EmpSystemId=sidm.EmpInfoSystemID	AND ND.EffectiveDate = sidm.EffectiveDate
+                            LEFT JOIN MST.ManpowerBudget mb ON mb.Id = EI.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                            LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
+                            LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationID
+                            LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
+                            LEFT JOIN ORG.Unit U ON EN.UnitID = U.Id
+                            LEFT JOIN ORG.Division Dv ON PR.DivisionID = Dv.Id
+                            LEFT JOIN ORG.Department Dp ON PR.DepartmentID = Dp.Id
+                            LEFT JOIN ORG.Section S ON PR.SectionID = S.Id
+                            LEFT JOIN ORG.SubSection SB ON PR.SubSectionID = SB.Id
+                            LEFT JOIN ORG.Line L ON MB.LineID = L.Id
+                            LEFT JOIN HKP.Designation D ON Ei.GivenDesignationID = D.Id
                             LEFT JOIN HKP.LegalDesignation AS ld  ON Ei.LegalDesignationId = ld.Id
-							LEFT JOIN MST.DesignationMaster dm ON Ei.GivenDesignationId = dm.DesignationId
-							LEFT JOIN MST.ManpowerBudget mb ON mb.Id=ei.BudgetCode
 							WHERE  ei.EmployeeStatus='Active' AND sidm.IsApproved=0  AND ei.PlantId='" + identity.PlantId + @"' 
 							AND  ei.SystemId NOT IN (SELECT EmpSystemId FROM ExceptionEmployee)
 							--AND  ei.SystemId  IN (SELECT EmpInfoSystemID  FROM SalaryInfoDefineMaster WHERE IsApproved=1)
