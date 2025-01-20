@@ -3088,6 +3088,9 @@ and dm.plantid=e.plantid
                                     U.UserName AS Unit, Dv.UserName  AS Division, dp.UserName AS Department, S.UserName AS Section,
                                     sb.UserName SubSection, D.UserName AS Designation, EC.UserName, E.SystemId,EmployeeCodePreFix,EmployeeCodeNumeric
 		                            FROM EmployeeInformation AS E
+LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
+									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
+                                    LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id 
 				                           " + obs.EntityTables() + @"
 							         WHERE E.GroupID = '" + sGroupID + @"' AND E.PlantID = '" + sPlantID + @"' AND (DOS IS NULL OR DOS>'" + _dateStart + @"' OR EmployeeStatus='Active')
                                     " + _wcd + @" " + _wcp + @" AND (DOJ IS NULL OR DOJ<= '" + _dateJoin + @"')
@@ -3149,6 +3152,9 @@ and dm.plantid=e.plantid
                                     U.UserName AS Unit, Dv.UserName  AS Division, dp.UserName AS Department, S.UserName AS Section,
                                     sb.UserName SubSection, D.UserName AS Designation, EC.UserName, E.SystemId,EmployeeCodePreFix,EmployeeCodeNumeric
 		                            FROM EmployeeInformation AS E
+LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
+									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
+                                    LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id 
 				                           " + obs.EntityTables() + @"
 							         WHERE E.GroupID = '" + sGroupID + @"' AND E.PlantID = '" + sPlantID + @"' AND (DOS IS NULL OR DOS>='" + _dateStart.ToString("dd-MMM-yyyy") + @"' OR EmployeeStatus='Active') 
                                     ) A ";
@@ -3224,6 +3230,9 @@ and dm.plantid=e.plantid
                                     U.UserName AS Unit, Dv.UserName  AS Division, dp.UserName AS Department, S.UserName AS Section,
                                     sb.UserName SubSection, D.UserName AS Designation, EC.UserName, E.SystemId,EmployeeCodePreFix,EmployeeCodeNumeric
 		                            FROM EmployeeInformation AS E
+LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
+									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
+                                    LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id 
 				                           " + obs.EntityTables() + @"
 							         WHERE E.GroupID = '" + sGroupID + @"' AND E.PlantID = '" + sPlantID + @"' AND (DOS IS NULL OR DOS>='" + _dateStart.ToString("dd-MMM-yyyy") + @"' OR EmployeeStatus='Active') 
                                     ) A ";
@@ -3265,6 +3274,9 @@ and dm.plantid=e.plantid
                                     U.UserName AS Unit, Dv.UserName  AS Division, dp.UserName AS Department, S.UserName AS Section,
                                     sb.UserName SubSection, D.UserName AS Designation, EC.UserName, E.SystemId
 		                            FROM EmployeeInformation AS E
+LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
+									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
+                                    LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id 
 				                           " + obs.EntityTables() + @"
 							         WHERE E.GroupID = '" + sGroupID + @"' AND E.PlantID = '" + sPlantID + @"' AND (DOS IS NULL OR DOS>'" + fromDate + @"' OR EmployeeStatus='Active')
                                     ) A ";
@@ -9669,6 +9681,9 @@ and dm.plantid=e.plantid
                                     U.UserName AS Unit, Dv.UserName  AS Division, dp.UserName AS Department, S.UserName AS Section,
                                     sb.UserName SubSection, D.UserName AS Designation, EC.UserName, E.SystemId
 		                            FROM EmployeeInformation AS E
+LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
+									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
+                                    LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id 
 				                           " + obs.EntityTables() + @"
 							         WHERE E.GroupID = '" + sGroupID + @"' AND E.PlantID = '" + sPlantID + @"' " + _wcp + @"
                                                     AND
@@ -9725,6 +9740,9 @@ and dm.plantid=e.plantid
                                     U.UserName AS Unit, Dv.UserName  AS Division, dp.UserName AS Department, S.UserName AS Section,
                                     sb.UserName SubSection, D.UserName AS Designation, EC.UserName, E.SystemId
 		                            FROM EmployeeInformation AS E
+LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
+									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
+                                    LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id 
 				                           " + obs.EntityTables() + @"
 							         WHERE E.GroupID = '" + sGroupID + @"' AND E.PlantID = '" + sPlantID + @"'
                                                    AND (DOS IS NULL OR DOS>'" + _dateStart + @"' OR EmployeeStatus='Active')
@@ -9993,6 +10011,9 @@ and dm.plantid=e.plantid
                                     U.UserName AS Unit, Dv.UserName  AS Division, dp.UserName AS Department, S.UserName AS Section,
                                     sb.UserName SubSection, D.UserName AS Designation, EC.UserName, E.SystemId, LD.UserName LegalDesignation
 		                            FROM EmployeeInformation AS E
+LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
+									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
+                                    LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id 
 				                           " + obs.EntityTables() + @"
 							         WHERE E.GroupID = '" + sGroupID + @"' AND E.PlantID = '" + sPlantID + @"' AND (DOS IS NULL OR DOS>'" + _dateStart + @"' OR EmployeeStatus='Active')
                                     " + _wcd + @" " + _wcp + @" AND (DOJ IS NULL OR DOJ<= '" + _dateJoin + @"')

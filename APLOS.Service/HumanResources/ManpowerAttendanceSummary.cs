@@ -7049,11 +7049,13 @@ namespace Library.Service.HumanResources
 	                                    ,COUNT(APDLV.EmpSystemID) AS TotalLV
 	                                    ,COUNT(APDL.EmpSystemID) AS TotalLate
                                         ,COUNT(APDW.EmpSystemId) + Count(AttdnNotProcessedToday.EmpSystemId) + Count(ShiftNotAssigned.EmpSystemId)  as Others
-	                                    ,ISNULL(BudgetedManPower, 0) BudgetedManPower
+	                                    ,ISNULL(MBD.BudgetedManPower, 0) BudgetedManPower
 	                                    ,iSNULL(Group1,'Attendance Group Not Found') Group1,
 										ISNULL(Group2,'Attendance Group Not Found') Group2,ISNULL(Group3,'Attendance Group Not Found') Group3
                                    
                                     FROM EmployeeInformation AS EEI
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = EEI.BudgetCode
+LEFT JOIN(select SUM(TotalNumber)BudgetedManPower,ManpowerBudgetId from MST.ManpowerBudgetDetail Group By ManpowerBudgetId) MBD ON MBD.ManpowerBudgetId=MB.Id
                                     LEFT JOIN EmployeeAttendanceGroup EAG ON EEI.SystemId = EAG.EmployeeId
                                     LEFT JOIN AttendanceGroup AS AG ON AG.Id = EAG.AttendanceGroupId
                                     LEFT JOIN (
@@ -7108,25 +7110,25 @@ namespace Library.Service.HumanResources
 
                 if (sUnitID != "ALL" && sUnitID != null && sUnitID != "null" && sUnitID != "undefined")
                 {
-                    strSql = strSql + @" AND E.UnitId = '" + sUnitID + "'";
+                    strSql = strSql + @" AND EN.UnitId = '" + sUnitID + "'";
                 }
                 if (sDivID != "ALL" && sDivID != null && sDivID != "null" && sDivID != "undefined")
                 {
-                    strSql = strSql + @" AND E.DivisionId = '" + sDivID + "'";
+                    strSql = strSql + @" AND PR.DivisionId = '" + sDivID + "'";
                 }
                 if (sDepID != "ALL" && sDepID != null && sDepID != "null" && sDivID != "undefined")
                 {
-                    strSql = strSql + @" AND E.DepartmentId = '" + sDepID + "'";
+                    strSql = strSql + @" AND PR.DepartmentId = '" + sDepID + "'";
                 }
                 if (sSecID != "ALL" && sSecID != null && sSecID != "null" && sDivID != "undefined")
                 {
-                    strSql = strSql + @" AND E.SectionId = '" + sSecID + "'";
+                    strSql = strSql + @" AND PR.SectionId = '" + sSecID + "'";
                 }
                 if (sSubSecID != "ALL" && sSubSecID != null && sSubSecID != "null" && sDivID != "undefined")
                 {
-                    strSql = strSql + @" AND E.SubSectionId = '" + sSubSecID + "'";
+                    strSql = strSql + @" AND PR.SubSectionId = '" + sSubSecID + "'";
                 }
-                strSql += @"  GROUP BY BudgetedManPower,Group1,Group2,Group3,Sequence
+                strSql += @"  GROUP BY MBD.BudgetedManPower,Group1,Group2,Group3,Sequence
                              ORDER BY Group1,Group2,Sequence,Group3";
                 return _sqlRepository.GetDataTable(strSql);
             }

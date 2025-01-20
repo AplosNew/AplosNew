@@ -133,7 +133,7 @@ namespace Aplos.Areas.Attendances.Controllers
                         left join org.Section sec on sec.id = p.SectionId
                         left join org.SubSection ssec on ssec.Id = p.SubSectionId
                         left join org.Department dep on dep.Id = p.DepartmentId
-						LEFT JOIN  (select distinct LegalDesignationId,BudgetCode,LineId,DOJ,DOS,JobLocationID from  dbo.EmployeeInformation ) ei on ei.BudgetCode = mpb.Id 
+						LEFT JOIN  (select distinct LegalDesignationId,BudgetCode,DOJ,DOS,JobLocationID from  dbo.EmployeeInformation ) ei on ei.BudgetCode = mpb.Id 
 						left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=ei.LegalDesignationId
 						left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
 						left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId

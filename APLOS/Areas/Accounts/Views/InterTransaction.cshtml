@@ -257,7 +257,7 @@
             <label class="col-sm-4 control-label">Employee Transaction Type</label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select  name="Transaction Type" class="form-control" ng-model="advance.EmployeeTransactionTypeId" tabindex="7" >
+                    <select name="Transaction Type" class="form-control" ng-model="advance.EmployeeTransactionTypeId" tabindex="7">
                         <option value="">--Select--</option>
                         <option ng-repeat="option in employeeTransactionTypeList" value="{{option.EmployeeTransactionTypeId}}">{{option.EmployeeTransactionTypeName}}</option>
                     </select>
@@ -654,128 +654,131 @@
                 </tr>
             </tfoot>
         </table>
-        </div>
-
-        <div class="col-xs-12 col-sm-6 col-md-6 " ng-hide="advance.SettlementType=='@Library.Model.Payments.SettlementType.AdvanceToVendor.ToString()' || advance.SettlementType=='@Library.Model.Payments.SettlementType.EmployeePayableSetOff.ToString()'">
-            <fieldset class="scheduler-border">
-                <legend class="scheduler-border">Exchange Type</legend>
-                <div class="form-group">
-                    <div class="col-sm-1">
-                        <div class="checkbox-site">
-                            <label>
-                                <input type="checkbox" ng-model="advance.Exchange" tabindex="8" ng-change="CheckExchange();">
-                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                            </label>
-                        </div>
-                    </div>
-                    <label class="col-sm-2 control-label" style="margin-top: -7px;">Exchange Gain/Loss</label>
-                </div>
-
-                <div class="form-group" ng-show="advance.Exchange===true" style="margin-top: -10px;">
-                    <div class="col-sm-3 radio">
-                        <label>
-                            <input ng-click="changeExhangeType(advance.ExchangeType)" type="radio" name="source1" ng-model="advance.ExchangeType" value="ExchangeLoss">
-                            <span class="cr" tabindex="8"><i class="cr-icon"></i></span>Loss(Dr)
-                        </label><br />
-                        <label>
-                            <input ng-click="changeExhangeType(advance.ExchangeType)" type="radio" name="source1" ng-model="advance.ExchangeType" value="ExchangeGain">
-                            <span class="cr" tabindex="8"><i class="cr-icon"></i></span>Gain(Cr)
-                        </label>
-
-                    </div>
-                    <label class="col-sm-2 control-label">Amount<sup>*</sup></label>
-                    <div class="col-sm-3">
-                        <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ExchangeAmount" ng-model="advance.ExchangeAmount">
-                    </div>
-                </div>
-            </fieldset>
-
-        </div>
-        <div class="common-btn">
-            <ul class="list-inline text-right">
-                <li><button ng-click="save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                <li ng-hide="advance.Id==null"><button ng-click="confirmPost(advance.Id);" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>
-                <li><button ng-click="clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-            </ul>
-        </div>
     </div>
-    <div class="aplos-grid-toggle">
-        <div class="row text-right">
-            <div class="col-xs-12 col-sm-12 col-sm-12">
-                <div class="search-form">
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-3 col-md-3">
-                            <div class="select-style">
-                                <select ng-model="$root.parameters.searchBy">
-                                    <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-                                </select>
-                            </div>
+
+    <div class="col-xs-12 col-sm-6 col-md-6 " ng-hide="advance.SettlementType=='@Library.Model.Payments.SettlementType.AdvanceToVendor.ToString()' || advance.SettlementType=='@Library.Model.Payments.SettlementType.EmployeePayableSetOff.ToString()'">
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">Exchange Type</legend>
+            <div class="form-group">
+                <div class="col-sm-1">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="advance.Exchange" tabindex="8" ng-change="CheckExchange();">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+                <label class="col-sm-2 control-label" style="margin-top: -7px;">Exchange Gain/Loss</label>
+            </div>
+
+            <div class="form-group" ng-show="advance.Exchange===true" style="margin-top: -10px;">
+                <div class="col-sm-3 radio">
+                    <label>
+                        <input ng-click="changeExhangeType(advance.ExchangeType)" type="radio" name="source1" ng-model="advance.ExchangeType" value="ExchangeLoss">
+                        <span class="cr" tabindex="8"><i class="cr-icon"></i></span>Loss(Dr)
+                    </label><br />
+                    <label>
+                        <input ng-click="changeExhangeType(advance.ExchangeType)" type="radio" name="source1" ng-model="advance.ExchangeType" value="ExchangeGain">
+                        <span class="cr" tabindex="8"><i class="cr-icon"></i></span>Gain(Cr)
+                    </label>
+
+                </div>
+                <label class="col-sm-2 control-label">Amount<sup>*</sup></label>
+                <div class="col-sm-3">
+                    <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ExchangeAmount" ng-model="advance.ExchangeAmount">
+                </div>
+            </div>
+        </fieldset>
+
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li ng-hide="advance.Id==null"><button ng-click="confirmPost(advance.Id);" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>
+            <li><button ng-click="clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="aplos-grid-toggle">
+    <div class="row text-right">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="$root.parameters.searchBy">
+                                <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
                         </div>
-                        <div class="col-xs-12 col-sm-7 col-md-7">
-                            <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
-                        </div>
-                        <div class="col-xs-12 col-sm-2 col-md-2">
-                            <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="table-responsive modal-table">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>VoucherNo</th>
-                        <th>Inter Plant</th>
-                        <th>Party</th>
-                        <th>Party Plant</th>
-                        <th>Posting Date</th>
-                        <th>Currency</th>
-                        <th>Amount</th>
-                        <th>Set-off Amount</th>
-                        <th>Balance</th>
-                        <th>Status</th>
-                        <th class="text-right">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr dir-paginate="x in voucherList |itemsPerPage:$root.pageSize" total-items="$root.total_count" @*ng-dblclick="getById($index,x);"*@>
-                        <td>{{x.VoucherNo}}</td>
-                        <td>{{x.PlantName}}</td>
-                        <td>{{x.PartyCode}} - {{x.PartyName}}</td>
-                        <td>{{x.PartyPlantName}}</td>
-                        <td>{{x.PostingDate | dateFiltering}}</td>
-                        <td>{{x.CurrencyCode}}</td>
-                        <td class="text-right">{{x.Amount | number:2}}</td>
-                        <td class="text-right">{{x.WrittenOffAmount | number:2}}</td>
-                        <td class="text-right">{{x.NetAmount-x.WrittenOffAmount | number:2}}</td>
-                        <td>{{x.IsPark?'Parked': 'Posted'}}</td>
-                        <td class="text-right">
-                            <ul class="list-inline action-list">
-                                <li ng-show="x.IsPoste || x.IsPark"><a ng-click="confirmPost(x.Id);" href="" class="btn btn-action tooltip-here">Post</a></li>
-                                <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
-                                <li><a class="btn btn-action" href="Accounts/advance/ReportInterTransaction?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
-                                <li><a class="btn btn-action" href="Accounts/advance/ReportInterTransaction?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
-                            </ul>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
-        </div>
     </div>
-    @Html.Partial("~/Areas/Banks/Views/_CashPopUp.cshtml")
-    @Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
-    @Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")
-    @Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
-    @Html.Partial("~/Areas/Accounts/Views/_AdvanceJournalPopUp.cshtml")
-    @Html.Partial("~/Areas/Accounts/Views/_GLBudgetActivityPopUp.cshtml")
-    @Html.Partial("~/Areas/Accounts/Views/_CustomerInvoicePopUp.cshtml")
-    @Html.Partial("~/Areas/Accounts/Views/_DebitCreditNotePopUp.cshtml")
-    @Html.Partial("~/Areas/Accounts/Views/_VendorInvoicePopUp.cshtml")
-    @Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
-    @Html.Partial("~/Areas/Accounts/Views/_EmployeePayablePopUp.cshtml")
+    <div class="table-responsive modal-table">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>VoucherNo</th>
+                    <th>Inter Plant</th>
+                    <th>Party</th>
+                    <th>Party Plant</th>
+                    <th>Posting Date</th>
+                    <th>Entity</th>
+                    <th>Currency</th>
+                    <th>Amount</th>
+                    <th>Set-off Amount</th>
+                    <th>Balance</th>
+                    <th>Status</th>
+                    <th class="text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr dir-paginate="x in voucherList |itemsPerPage:$root.pageSize" total-items="$root.total_count" @*ng-dblclick="getById($index,x);"*@>
+                    <td>{{x.VoucherNo}}</td>
+                    <td>{{x.PlantName}}</td>
+                    <td>{{x.PartyCode}} - {{x.PartyName}}</td>
+                    <td>{{x.PartyPlantName}}</td>
+                    <td>{{x.PostingDate | dateFiltering}}</td>
+                    <td>{{x.EntityName}}</td>
+                    <td>{{x.CurrencyCode}}</td>
+                    <td class="text-right">{{x.Amount | number:2}}</td>
+                    <td class="text-right">{{x.WrittenOffAmount | number:2}}</td>
+                    <td class="text-right">{{x.NetAmount-x.WrittenOffAmount | number:2}}</td>
+                    <td>{{x.IsPark?'Parked': 'Posted'}}</td>
+                    <td class="text-right">
+                        <ul class="list-inline action-list">
+                            <li ng-show="x.IsPoste || x.IsPark"><a ng-click="confirmPost(x.Id,x);" href="" class="btn btn-action tooltip-here">Post</a></li>
+                            <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
+                            <li><a class="btn btn-action" href="Accounts/advance/ReportInterTransaction?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                            <li><a class="btn btn-action" href="Accounts/advance/ReportInterTransaction?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+    </div>
+</div>
+@Html.Partial("~/Areas/Banks/Views/_CashPopUp.cshtml")
+@Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
+@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")
+@Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_AdvanceJournalPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_GLBudgetActivityPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_CustomerInvoicePopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_DebitCreditNotePopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_VendorInvoicePopUp.cshtml")
+@Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_EmployeePayablePopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_PostPopUp.cshtml")
 
-    <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceId)"></confirm-archive-generic>
-    <confirm-archive-generic modalid="confirmUnPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="unPost(advanceId)"></confirm-archive-generic>
-    <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(advanceId,voucherId)"></confirm-archive-generic>
+@*<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceId)"></confirm-archive-generic>*@
+<confirm-archive-generic modalid="confirmUnPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="unPost(advanceId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(advanceId,voucherId)"></confirm-archive-generic>

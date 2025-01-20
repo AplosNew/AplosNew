@@ -9696,13 +9696,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                         LEFT JOIN ORG.Entity E ON PMB.EntityId = E.Id
                         LEFT JOIN HKP.Designation DSG ON PR.DesignationId = DSG.Id
                         LEFT JOIN HKP.Designation DeG ON DeG.Id = EI.GivenDesignationId
-                        LEFT JOIN ORG.Department DP ON DP.Id = EI.DepartmentId
+                        LEFT JOIN ORG.Department DP ON DP.Id = PR.DepartmentId
                         LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = EI.LegalDesignationId
                         LEFT join  [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LGD.Id
                         left join [MST].[DesignationMaster] dm on dm.Id=dmld.DesignationMasterId
                         left join HKP.EmployeeCategory EC ON EC.ID=DM.EmployeeCategoryId
-                        LEFT JOIN ORG.Section AS Se ON Se.Id = EI.SectionID
-                        LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = EI.SubSectionID
+                        LEFT JOIN ORG.Section AS Se ON Se.Id = PR.SectionID
+                        LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
                         LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId							
 						where kk.Duration < KK.ShiftFullDayDuration
 						      and

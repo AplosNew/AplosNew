@@ -2971,22 +2971,15 @@ namespace OTSBD
 		                                            ,EC.StandardName EmployeeType
                                                     ,E.GroupID,E.CompanyID,E.PlantId
                                                     ,E.EmployeeStatus
-                                                    --,E.UnitId,E.DivisionId,E.DepartmentId,E.SectionId,E.SubSectionId,E.SubdivisionID
-													--,E.LineId
-                                                    --,E.DesignationGroupId
-                                                    --,E.DesignationSystemID
-                                                    --,E.PositionID
-													--,E.GivenDesignationId
-                                                    --,E.LegalDesignationId
 	                                            FROM EmployeeInformation AS E
 	                                            LEFT OUTER JOIN [MST].[ManpowerBudget] PMB ON pmb.Id = e.BudgetCode
 	                                            LEFT OUTER JOIN [ORG].[Position] PR ON PR.Id = PMB.PositionId
                                                 LEFT OUTER JOIN [ORG].[Entity] Ent ON PMB.EntityId=Ent.Id
 	                                            LEFT OUTER JOIN [HKP].[EmployeeCategory] AS EC ON E.EmployeeCategorySystemID = EC.ID
-	                                            LEFT OUTER JOIN [ORG].[Unit] AS U ON U.ID = E.UnitID
-	                                            LEFT OUTER JOIN [ORG].Division AS Dv ON Dv.ID = E.DivisionID
-	                                            LEFT OUTER JOIN [ORG].Department AS De ON De.ID = E.DepartmentID
-	                                            LEFT OUTER JOIN [HKP].Designation AS Dsg ON Dsg.ID = E.DesignationSystemID
+	                                            LEFT OUTER JOIN [ORG].[Unit] AS U ON U.ID = ENT.UnitID
+	                                            LEFT OUTER JOIN [ORG].Division AS Dv ON Dv.ID = PR.DivisionID
+	                                            LEFT OUTER JOIN [ORG].Department AS De ON De.ID = PR.DepartmentID
+	                                            LEFT OUTER JOIN [HKP].Designation AS Dsg ON Dsg.ID = PR.DesignationID
                                                 LEFT OUTER JOIN [HKP].Designation AS DsgGiv ON DsgGiv.ID = E.GivenDesignationId
 	                                            LEFT OUTER JOIN [ORG].Section AS Se ON Se.ID = E.SectionID
 	                                            LEFT OUTER JOIN [ORG].SubSection AS SuS ON SuS.ID = E.SubSectionID) A";
@@ -3332,15 +3325,16 @@ namespace OTSBD
 
         public string EntityTables()
         {
-            return @"                       LEFT JOIN org.Unit U ON E.UnitID = U.Id
-                                            LEFT JOIN org.Division Dv ON E.DivisionID = Dv.Id
-                                            LEFT JOIN org.SubDivision SubDv ON E.SubdivisionID = SubDv.Id
-                                            LEFT JOIN org.Department Dp ON E.DepartmentID = Dp.Id
-                                            LEFT JOIN org.Section S ON E.SectionID = S.Id
-                                            LEFT JOIN org.SubSection SB ON E.SubSectionID = SB.Id
-                                            LEFT JOIN org.Line L ON E.LineID = L.Id
-                                            LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupID = Dg.Id
-                                            LEFT JOIN hkp.Designation D ON E.DesignationSystemID = D.Id
+            return @"                       LEFT JOIN org.Unit U ON EN.UnitID = U.Id
+                                            LEFT JOIN org.Division Dv ON PO.DivisionID = Dv.Id
+                                            LEFT JOIN org.SubDivision SubDv ON PO.SubdivisionID = SubDv.Id
+                                            LEFT JOIN org.Department Dp ON PO.DepartmentID = Dp.Id
+                                            LEFT JOIN org.Section S ON PO.SectionID = S.Id
+                                            LEFT JOIN org.SubSection SB ON PO.SubSectionID = SB.Id
+                                            LEFT JOIN org.Line L ON mpb.LineID = L.Id
+                                            LEFT JOIN [MST].DesignationMaster DM ON DM.Id = E.GivenDesignationId
+                                            LEFT JOIN hkp.DesignationGroup DG ON DM.DesignationGroupID = Dg.Id
+                                            LEFT JOIN hkp.Designation D ON DM.DesignationID = D.Id
                                             LEFT JOIN hkp.Designation GVD ON E.GivenDesignationId = GVD.Id
                                             LEFT JOIN hkp.LegalDesignation LD ON E.LegalDesignationId = LD.Id
                                             LEFT JOIN  HKP.LegalDesignation LDes ON LDes.Id = E.LegalDesignationId
