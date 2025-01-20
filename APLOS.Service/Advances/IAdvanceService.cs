@@ -18,7 +18,7 @@ namespace Library.Service.Advances
     {
         Dictionary<string, object> GetReportHeader(string voucherId);
 
-        void Post(string advanceId);
+        void Post(string advanceId, string entityId, string voucherId);
         void PostEmployeeAdvanceHR(string voucherId,string requisitionId);
         void PostCustomerAdvanceGroupWise(string advanveGroupNo);
         void UnPost(string advanceId);

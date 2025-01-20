@@ -337,10 +337,11 @@
                     <th>VoucherNo</th>
                     <th>@Library.Model.Parties.PartyType.Employee.ToString()</th>
                     <th>Posting Date</th>
+                    <th>Entity</th>
                     <th>Currency</th>
                     <th>Amount</th>
                     @*<th>Set-off Amount</th>
-                    <th>Balance</th>*@
+                        <th>Balance</th>*@
                     <th>Status</th>
                     <th>Action</th>
                 </tr>
@@ -350,14 +351,15 @@
                     <td>{{x.VoucherNo}}</td>
                     <td>{{x.EmployeeCode}} - {{x.EmployeeName}}</td>
                     <td>{{x.PostingDate | dateFiltering}}</td>
+                    <td>{{x.EntityName}}</td>
                     <td>{{x.CurrencyCode}}</td>
                     <td class="text-right">{{x.Amount | number:2}}</td>
                     @*<td class="text-right">{{x.WrittenOffAmount | number:2}}</td>
-                    <td class="text-right">{{x.Amount-x.WrittenOffAmount | number:2}}</td>*@
+                        <td class="text-right">{{x.Amount-x.WrittenOffAmount | number:2}}</td>*@
                     <td>{{x.IsPark?'Parked':'Posted'}}</td>
                     <td class="text-right">
                         <ul class="list-inline action-list">
-                            <li ng-show="x.IsPark"><a ng-click="confirmPost(x.Id);" href="" class="btn btn-action tooltip-here">Post</a></li>
+                            <li ng-show="x.IsPark"><a ng-click="confirmPost(x.Id,x);" href="" class="btn btn-action tooltip-here">Post</a></li>
                             <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
                             <li><a class="btn btn-action" href="Accounts/Advance/GetEmployeeAdvanceReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
                             <li><a class="btn btn-action" href="Accounts/Advance/GetEmployeeAdvanceReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
@@ -374,6 +376,7 @@
 @Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")
 @Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
 @Html.Partial("~/Areas/Employees/Views/Shared/_ResponsiblePersonPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_PostPopUp.cshtml")
 
-<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceId)"></confirm-archive-generic>
+@*<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceId)"></confirm-archive-generic>*@
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(advanceId,voucherId)"></confirm-archive-generic>

@@ -158,10 +158,10 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult PostCustomerAdvance(string advanceId,string advanceGroupNo)
+        public JsonResult PostCustomerAdvance(string advanceId,string advanceGroupNo, string entityId, string voucherId)
         {
             if(!string.IsNullOrEmpty(advanceId))
-            _advanceService.Post(advanceId);
+            _advanceService.Post(advanceId,entityId,voucherId);
             else
                 _advanceService.PostCustomerAdvanceGroupWise(advanceGroupNo);
 
@@ -370,9 +370,9 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult PostCustomerSuspense(string advanceId)
+        public JsonResult PostCustomerSuspense(string advanceId, string entityId, string voucherId)
         {
-            _advanceService.Post(advanceId);
+            _advanceService.Post(advanceId,entityId,voucherId);
             return Json(new { Message = AplosMessage.Success });
         }
 
@@ -529,9 +529,9 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult PostVendorAdvance(string advanceId)
+        public JsonResult PostVendorAdvance(string advanceId, string entityId, string voucherId)
         {
-            _advanceService.Post(advanceId);
+            _advanceService.Post(advanceId,entityId,voucherId);
             return Json(new { Message = AplosMessage.Updated });
         }
         [HttpPost]
@@ -872,9 +872,9 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult PostEmployeeAdvance(string advanceId)
+        public JsonResult PostEmployeeAdvance(string advanceId, string entityId, string voucherId)
         {
-            _advanceService.Post(advanceId);
+            _advanceService.Post(advanceId,entityId,voucherId);
             return Json(new { Message = AplosMessage.Updated });
         }
         [HttpPost]
@@ -2554,9 +2554,9 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult PostInterTransaction(string advanceId)
+        public JsonResult PostInterTransaction(string advanceId, string entityId, string voucherId)
         {
-            _advanceService.Post(advanceId);
+            _advanceService.Post(advanceId,entityId,voucherId);
             return Json(new { Message = AplosMessage.Success });
         }
 
