@@ -630,10 +630,12 @@ where FullName != 'null'  and U.UserId = '" + userid + "' and ARD.ModuleId = '" 
                            --CAST (CASE WHEN DLRP.Id IS NULL THEN 0 ELSE 1 END AS bit) chk, DLRP.isActive
                            from DetentionMasterResponsible DR
                            left join EmployeeInformation AS E ON E.SystemId=DR.ResponsibleMasterId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                             LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=E.LegalDesignationId
-                            LEFT JOIN ORG.Department AS DEP ON DEP.id=E.DepartmentId
-                            LEFT OUTER JOIN ORG.Section S ON S.Id=E.SectionId
-                            LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.id=PR.DepartmentId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=PR.SectionId
+                            LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                             --Left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.ResponsiblePersonId = E.SystemId
                             left join dbo.DetentionMaster DM on DM.Id = DR.DetentionMasterId
                             left join hkp.DetentionType DT on DT.Id = DM.DetentionTypeId

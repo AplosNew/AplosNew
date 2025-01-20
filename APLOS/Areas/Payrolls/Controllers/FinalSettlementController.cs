@@ -2004,10 +2004,10 @@ WHERE E.EmployeeStatus='Active' AND A.ActionStatus='FullAndFinalApproveBy'";
 
 WHEN OL.UserName='AdvanceSalary' THEN CAST((
 			 cast((SELECT SUM(AD.Amount)-ISNULL((select SUM(Amount)WrittenOffAmount 
-from TRN.EmployeeSubsequentTransaction where SourceType in('EmployeeAdvanceWriteOff','SalaryPayable') AND  EmployeeId=AD.EmployeeId AND JournalType='Salary'),0) AS Balance
+from TRN.EmployeeSubsequentTransaction where SourceType in('EmployeeAdvanceWriteOff','SalaryPayable') AND  EmployeeId=AD.EmployeeId AND JournalType in('Salary','General')),0) AS Balance
 FROM TRN.EmployeeSubsequentTransaction AS AD
 LEFT JOIN TRN.Voucher V ON V.Id=AD.VoucherId
-WHERE    AD.EmployeeId<>''  AND AD.JournalType='Salary' AND V.IsPark=0
+WHERE    AD.EmployeeId<>''  AND AD.JournalType in('Salary','General') AND V.IsPark=0
 AND AD.SourceType in ('EmployeeAdvance', 'InterTransaction') AND AD.EmployeeId='" + empId + @"'
 GROUP BY AD.EmployeeId) AS decimal(18,0))) AS varchar(100))
 			

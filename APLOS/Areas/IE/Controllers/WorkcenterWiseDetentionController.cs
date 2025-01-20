@@ -92,10 +92,12 @@ ORDER BY WCM.StandardName";
             string str = @"select distinct E.SystemId as ResponsiblePersonId,E.EmployeeCode,E.EmployeeName as ResponsiblePerson,DEP.UserName AS Department,S.UserName as Section,
   SS.UserName as SubSection,DEG.UserName AS [LegalDesignation],DR.DetentionMasterId from DetentionMasterResponsible DR
 left join EmployeeInformation AS E ON E.SystemId=DR.ResponsibleMasterId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=E.LegalDesignationId
-                            LEFT JOIN ORG.Department AS DEP ON DEP.id=E.DepartmentId
-							LEFT OUTER JOIN ORG.Section S ON S.Id=E.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.id=PR.DepartmentId
+							LEFT OUTER JOIN ORG.Section S ON S.Id=PR.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
 where DetentionMasterId='" + detentionId + "'";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);

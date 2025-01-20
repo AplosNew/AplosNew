@@ -22768,6 +22768,9 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
 	                                ,FORMAT( DATEADD(DAY, DOCDay, DOJ),'dd-MMM-yyy') as Dateofconfirmation 
 									,FORMAT( DATEADD(DAY, DOCDay+1, DOJ),'dd-MMM-yyy') as NextDayFromconfirmation 
                                     FROM EmployeeInformation E
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
                                     LEFT JOIN ORG.Company CM ON CM.Id = E.CompanyId
                                     LEFT JOIN MST.AddressMaster AM ON AM.Id = CM.AddressMasterId
                                     LEFT JOIN HKP.BloodGroup BG ON BG.Id = E.BloodGroupID
@@ -22775,14 +22778,14 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                                     LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId = e.GivenDesignationId
                                     LEFT JOIN  hkp.LegalDesignation LDN ON LDN.Id=E.LegalDesignationId
                                     LEFT JOIN HKP.EmployeeCategory EC ON EC.Id = DM.EmployeeCategoryId
-                                    LEFT JOIN ORG.Line L ON L.Id=E.LineId
-                                    LEFT JOIN ORG.Unit UN ON UN.Id=E.UnitId
+                                    LEFT JOIN ORG.Line L ON L.Id=MB.LineId
+                                    LEFT JOIN ORG.Unit UN ON UN.Id=EN.UnitId
 			                		LEFT JOIN [SCS].[PlantSetting] P ON P.PlantId=E.PlantId
-                                    LEFT JOIN ORG.Department DP ON DP.Id=E.DepartmentId
-                                    LEFT JOIN org.Section SE ON SE.Id=E.SectionId
+                                    LEFT JOIN ORG.Department DP ON DP.Id=PR.DepartmentId
+                                    LEFT JOIN org.Section SE ON SE.Id=PR.SectionId
 			                		LEFT JOIN ORG.Plant PL ON PL.Id=E.PlantId
-                                    LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
-                                    LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = E.SectionId AND PL.LanguageId = SEC.LanguageId AND PL.LanguageId='" + languageId + @"'
+                                    LEFT JOIN ORG.SubSection SB ON PR.SubSectionID = SB.Id
+                                    LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = PR.SectionId AND PL.LanguageId = SEC.LanguageId AND PL.LanguageId='" + languageId + @"'
 									LEFT JOIN EmployeeFingerPrint efp ON efp.EmpSystemID=E.SystemId AND efp.Id=(SELECT TOP 1 Id FROM EmployeeFingerPrint WHERE EmpSystemID=E.SystemId)
 			                		LEFT JOIN HKP.LocalLanguage A ON A.CompanyId=E.CompanyId AND A.LanguageId='" + languageId + @"'
                                     LEFT JOIN HKP.LocalLanguage SBL ON SBL.SubSectionId=E.SubSectionId AND SBL.LanguageId='" + languageId + @"'
