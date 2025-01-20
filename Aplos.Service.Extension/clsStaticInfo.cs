@@ -2840,25 +2840,19 @@ namespace Library.Service.Extension
 		                                            ,EC.StandardName EmployeeType
                                                     ,E.GroupID,E.CompanyID,E.PlantId
                                                     ,E.EmployeeStatus
-                                                    --,E.UnitId,E.DivisionId,E.DepartmentId,E.SectionId,E.SubSectionId,E.SubdivisionID
-													--,E.LineId
-                                                    --,E.DesignationGroupId
-                                                    --,E.DesignationSystemID
-                                                    --,E.PositionID
-													--,E.GivenDesignationId
-                                                    --,E.LegalDesignationId
 	                                            FROM EmployeeInformation AS E
 	                                            LEFT OUTER JOIN [MST].[ManpowerBudget] PMB ON pmb.Id = e.BudgetCode
 	                                            LEFT OUTER JOIN [ORG].[Position] PR ON PR.Id = PMB.PositionId
                                                 LEFT OUTER JOIN [ORG].[Entity] Ent ON PMB.EntityId=Ent.Id
-	                                            LEFT OUTER JOIN [HKP].[EmployeeCategory] AS EC ON E.EmployeeCategorySystemID = EC.ID
-	                                            LEFT OUTER JOIN [ORG].[Unit] AS U ON U.ID = E.UnitID
-	                                            LEFT OUTER JOIN [ORG].Division AS Dv ON Dv.ID = E.DivisionID
-	                                            LEFT OUTER JOIN [ORG].Department AS De ON De.ID = E.DepartmentID
-	                                            LEFT OUTER JOIN [HKP].Designation AS Dsg ON Dsg.ID = E.DesignationSystemID
+	                                            LEFT JOIN [MST].DesignationMaster DesM ON DesM.Id = E.GivenDesignationId
+                                LEFT JOIN [HKP].EmployeeCategory EC ON EC.Id = DesM.EmployeeCategoryId
+	                                            LEFT OUTER JOIN [ORG].[Unit] AS U ON U.ID = EN.UnitID
+	                                            LEFT OUTER JOIN [ORG].Division AS Dv ON Dv.ID = PR.DivisionID
+	                                            LEFT OUTER JOIN [ORG].Department AS De ON De.ID = PR.DepartmentID
+	                                            LEFT OUTER JOIN [HKP].Designation AS Dsg ON Dsg.ID = PR.DesignationID
                                                 LEFT OUTER JOIN [HKP].Designation AS DsgGiv ON DsgGiv.ID = E.GivenDesignationId
-	                                            LEFT OUTER JOIN [ORG].Section AS Se ON Se.ID = E.SectionID
-	                                            LEFT OUTER JOIN [ORG].SubSection AS SuS ON SuS.ID = E.SubSectionID) A";
+	                                            LEFT OUTER JOIN [ORG].Section AS Se ON Se.ID = PR.SectionID
+	                                            LEFT OUTER JOIN [ORG].SubSection AS SuS ON SuS.ID = PR.SubSectionID) A";
 
                 return strSQL;
             }

@@ -67,14 +67,16 @@ namespace Library.MaterialManagement.Material
 						   --CAST (CASE WHEN DLRP.Id IS NULL THEN 0 ELSE 1 END AS bit) chk, DLRP.isActive
 						   from DetentionMasterResponsible DR
                            left join EmployeeInformation AS E ON E.SystemId=DR.ResponsibleMasterId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=E.LegalDesignationId
                             LEFT JOIN ORG.Department AS DEP ON DEP.id=E.DepartmentId
-							LEFT OUTER JOIN ORG.Section S ON S.Id=E.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+							LEFT OUTER JOIN ORG.Section S ON S.Id=PR.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
 							--Left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.ResponsiblePersonId = E.SystemId
 							left join dbo.DetentionMaster DM on DM.Id = DR.DetentionMasterId
 							left join hkp.DetentionType DT on DT.Id = DM.DetentionTypeId
-							where DT.Id = '"+ detentionTypeId + "'";
+							where DT.Id = '" + detentionTypeId + "'";
 
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -91,10 +93,12 @@ namespace Library.MaterialManagement.Material
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string str = @"select E.CellPhnNo from  DetentionMasterResponsible DR
                            left join EmployeeInformation AS E ON E.SystemId=DR.ResponsibleMasterId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=E.LegalDesignationId
                             LEFT JOIN ORG.Department AS DEP ON DEP.id=E.DepartmentId
-							LEFT OUTER JOIN ORG.Section S ON S.Id=E.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+							LEFT OUTER JOIN ORG.Section S ON S.Id=PR.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
 							where E.SystemId = '" + ResponsiblePersonId + "'";
 
                 return _sqlRepository.GetDataCollection(str);
@@ -384,10 +388,12 @@ namespace Library.MaterialManagement.Material
 					 DLRP.isActive
 						   from DetentionMasterResponsible DR
                            left join EmployeeInformation AS E ON E.SystemId=DR.ResponsibleMasterId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=E.LegalDesignationId
-                            LEFT JOIN ORG.Department AS DEP ON DEP.id=E.DepartmentId
-							LEFT OUTER JOIN ORG.Section S ON S.Id=E.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.id=PR.DepartmentId
+							LEFT OUTER JOIN ORG.Section S ON S.Id=PR.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
 							Left join (select * from TRN.DetentionLogResponsiblePerson where Id in ('DLRP-16', 'DLRP-2114')) DLRP on DLRP.ResponsiblePersonId = E.SystemId
                             left join dbo.DetentionMaster DM on DM.Id = DR.DetentionMasterId
 							left join hkp.DetentionType DT on DT.Id = DM.DetentionTypeId

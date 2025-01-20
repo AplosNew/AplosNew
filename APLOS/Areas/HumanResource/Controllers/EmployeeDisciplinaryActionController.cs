@@ -1172,7 +1172,7 @@ FORMAT(dateadd(day,Convert(int,
 
                                     LEFT JOIN[SCS].[PlantSetting] P ON P.PlantId = E.PlantId
                                     LEFT JOIN ORG.Department DP ON DP.Id = PS.DepartmentId
-                                    LEFT JOIN org.Section SE ON SE.Id = E.SectionId
+                                    LEFT JOIN org.Section SE ON SE.Id = PS.SectionId
 
                                     LEFT JOIN ORG.Plant PL ON PL.Id = E.PlantId
                                     left Join MST.PayrollGroupMaster PGM on PGM.EmployeeId = E.EmployeeId
@@ -1214,7 +1214,7 @@ FORMAT(dateadd(day,Convert(int,
                                     LEFT JOIN(SELECT LanguageId, Name FROM HKP.LocalLanguage WHERE LabelName = 'Male'and LanguageId = '" + languageId + @"') LMM ON LMM.LanguageId = PL.LanguageId
                                     LEFT JOIN(SELECT LanguageId, Name FROM HKP.LocalLanguage WHERE LabelName = 'Female'and LanguageId = '" + languageId + @"') LMF ON LMF.LanguageId = PL.LanguageId
 
-                                    LEFT JOIN(SELECT LanguageId, Name FROM HKP.LocalLanguage WHERE LabelName = (SELECT EmploymentType FROM dbo.EmployeeInformation where SystemId = '" + employeeId + @"')and LanguageId = 7) LET ON LET.LanguageId = PL.LanguageId
+                                    LEFT JOIN(SELECT LanguageId, Name FROM HKP.LocalLanguage WHERE LabelName = (SELECT EmploymentType FROM dbo.EmployeeInformation where SystemId = '" + employeeId + @"')and LanguageId = '" + languageId + @"') LET ON LET.LanguageId = PL.LanguageId
                                     LEFT JOIN(SELECT LanguageId, Name FROM HKP.LocalLanguage WHERE LabelName = 'Name' and LanguageId = '" + languageId + @"') N ON N.LanguageId = PL.LanguageId
                                     LEFT JOIN(SELECT LanguageId, Name FROM HKP.LocalLanguage wHERE LabelName = 'Designation'and LanguageId = '" + languageId + @"') DN ON DN.LanguageId = PL.LanguageId
                                     LEFT JOIN(SELECT LanguageId, Name FROM HKP.LocalLanguage wHERE LabelName = 'Department'and LanguageId = '" + languageId + @"') DPN ON DPN.LanguageId = PL.LanguageId
@@ -1241,7 +1241,7 @@ FORMAT(dateadd(day,Convert(int,
 
                                     LEFT JOIN(SELECT LanguageId, Name FROM HKP.LocalLanguage WHERE LabelName = 'Permanent' and LanguageId = '" + languageId + @"') PTl ON PTl.LanguageId = PL.LanguageId
 
-                                    LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = E.SectionId AND PL.LanguageId = SEC.LanguageId  AND PL.LanguageId = '" + languageId + @"'
+                                    LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = PS.SectionId AND PL.LanguageId = SEC.LanguageId  AND PL.LanguageId = '" + languageId + @"'
                                     LEFT JOIN HKP.LocalLanguage CAC ON CAC.DepartmentId = E.DepartmentId AND PL.LanguageId = CAC.LanguageId  AND PL.LanguageId = '" + languageId + @"'
                                     WHERE E.SystemID = '" + employeeId + @"') TAB1 LEFT JOIN SCS.Language AS LAN ON LAN.Id = TAB1.LanguageId) TAB2 LEFT JOIN MST.AddressMaster AS AM ON AM.Id = TAB2.AddressMasterId) TAB3
                                    ---LEFT JOIN(SELECT * FROM SCS.RptConfigTemplate WHERE Id = ''  and PlantId = '" + plantId + @"') AS RPTM ON TAB3.PlantId = RPTM.PlantId";

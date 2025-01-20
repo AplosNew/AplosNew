@@ -8817,9 +8817,9 @@ LEFT OUTER JOIN
 								LEFT JOIN ORG.Entity AS ENT ON ENT.Id = MB.EntityId
 								LEFT JOIN ORG.Position AS POS ON POS.Id = MB.PositionId
 								LEFT JOIN [ORG].[Plant] Plant ON Plant.Id = E.PlantId
-								LEFT JOIN [ORG].[Department] Dept ON Dept.Id = E.DepartmentId
-								LEFT JOIN [ORG].[Section] Sec ON Sec.Id = E.SectionId
-								LEFT JOIN [ORG].[SubSection] SubSec ON SubSec.Id = E.SubSectionId
+								LEFT JOIN [ORG].[Department] Dept ON Dept.Id = POS.DepartmentId
+								LEFT JOIN [ORG].[Section] Sec ON Sec.Id = POS.SectionId
+								LEFT JOIN [ORG].[SubSection] SubSec ON SubSec.Id = POS.SubSectionId
 
 								WHERE 
 								(--DOS

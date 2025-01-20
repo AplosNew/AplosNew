@@ -893,12 +893,15 @@ namespace Library.HumanResource.NewAttendanceProcess
                 o.UserName as Unit,ld.UserName as LegalDesignation,
                 format(pv.WorkDate,'dd-MMM-yyyy')as WorkDate,pv.InTime,pv.OutTime,pv.AddedBy from 
                 PhysicalVerification pv left join EmployeeInformation e on e.SystemId=pv.EmpSystemID
-                left join org.Department d on d.Id=e.DepartmentId
-                left join org.Section s on s.Id=e.SectionId
-                left join org.SubSection ss on ss.Id=e.SubSectionId
-                left join org.Unit o on o.Id=e.UnitId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
+                left join org.Department d on d.Id=pr.DepartmentId
+                left join org.Section s on s.Id=pr.SectionId
+                left join org.SubSection ss on ss.Id=pr.SubSectionId
+                left join org.Unit o on o.Id=en.UnitId
                 left join hkp.LegalDesignation ld on ld.Id=e.LegalDesignationId
-                where WorkDate='"+WkDate+@"'
+                where WorkDate='" + WkDate+@"'
                 and e.PlantId='"+plantId+"'";
 
                 return _sqlRepository.GetDataCollection(sql, null);
@@ -921,10 +924,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                 o.UserName as Unit,ld.UserName as LegalDesignation,
                 format(pv.WorkDate,'dd-MMM-yyyy')as WorkDate,pv.InTime,pv.OutTime,pv.AddedBy from 
                 PhysicalVerification pv left join EmployeeInformation e on e.SystemId=pv.EmpSystemID
-                left join org.Department d on d.Id=e.DepartmentId
-                left join org.Section s on s.Id=e.SectionId
-                left join org.SubSection ss on ss.Id=e.SubSectionId
-                left join org.Unit o on o.Id=e.UnitId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
+                left join org.Department d on d.Id=pr.DepartmentId
+                left join org.Section s on s.Id=pr.SectionId
+                left join org.SubSection ss on ss.Id=pr.SubSectionId
+                left join org.Unit o on o.Id=en.UnitId
                 left join hkp.LegalDesignation ld on ld.Id=e.LegalDesignationId
                 where WorkDate='" + WkDate + @"'
                 and e.PlantId='" + plantId + "' and isnull(e.SystemId, '') IN(" + EmpId + @")"; 

@@ -296,9 +296,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                             
                             from attdnprocessdata a JOIN
                             EmployeeInformation eI on eI.SystemId=a.EmpSystemID
-                                                    LEFT JOIN ORG.Department DP ON DP.Id = EI.DepartmentId
-                                                    LEFT JOIN ORG.Section AS Se ON Se.Id = EI.SectionID
-                                                    LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = EI.SubSectionID 
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = EI.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                                                    LEFT JOIN ORG.Department DP ON DP.Id = PR.DepartmentId
+                                                    LEFT JOIN ORG.Section AS Se ON Se.Id = PR.SectionID
+                                                    LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID 
                                                     left join hkp.LegalDesignation ld on ld.Id=ei.LegalDesignationId
                             where eI.PlantID='" + plantId+@"' and WorkDate between '"+_FromDate+@"' and '"+_ToDate+@"'
                             ";
@@ -410,9 +412,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                             
                             from attdnprocessdata a JOIN
                             EmployeeInformation eI on eI.SystemId=a.EmpSystemID
-                                                    LEFT JOIN ORG.Department DP ON DP.Id = EI.DepartmentId
-                                                    LEFT JOIN ORG.Section AS Se ON Se.Id = EI.SectionID
-                                                    LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = EI.SubSectionID    
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = EI.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                                                    LEFT JOIN ORG.Department DP ON DP.Id = PR.DepartmentId
+                                                    LEFT JOIN ORG.Section AS Se ON Se.Id = PR.SectionID
+                                                    LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID    
                                                     left join hkp.LegalDesignation ld on ld.Id=ei.LegalDesignationId
                             where eI.PlantID='" + plantId + @"' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             AND (ei.EmployeeStatus='Active')

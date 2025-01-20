@@ -2019,7 +2019,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                                 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                 LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                                 LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                                LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                                LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
                                 LEFT JOIN HKP.LegalDesignation ld on ld.Id=EI.LegalDesignationId
                                 LEFT JOIN MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
                                 LEFT JOIN hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId 
@@ -2027,8 +2027,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                                 LEFT JOIN [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LGD.Id
                                 LEFT JOIN [MST].[DesignationMaster] dm on dm.Id=dmld.DesignationMasterId
                                 LEFT JOIN HKP.EmployeeCategory EC ON EC.ID=DM.EmployeeCategoryId
-                                LEFT JOIN ORG.Section AS Se ON Se.Id = EI.SectionID
-                                LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = EI.SubSectionID
+                                LEFT JOIN ORG.Section AS Se ON Se.Id = PR.SectionID
+                                LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
                                 LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId
                                 WHERE AP.OutTime IS NOT NULL AND AP.DayStatus='A' 
 								AND AP.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' 
@@ -2088,7 +2088,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                                 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                 LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                                 LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                                LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                                LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
                                 LEFT JOIN HKP.LegalDesignation ld on ld.Id=EI.LegalDesignationId
                                 LEFT JOIN MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
                                 LEFT JOIN hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId 
@@ -2096,8 +2096,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                                 LEFT JOIN [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LGD.Id
                                 LEFT JOIN [MST].[DesignationMaster] dm on dm.Id=dmld.DesignationMasterId
                                 LEFT JOIN HKP.EmployeeCategory EC ON EC.ID=DM.EmployeeCategoryId
-                                LEFT JOIN ORG.Section AS Se ON Se.Id = EI.SectionID
-                                LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = EI.SubSectionID
+                                LEFT JOIN ORG.Section AS Se ON Se.Id = PR.SectionID
+                                LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
                                 LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId
                                 WHERE AP.OutTime IS NOT NULL AND AP.DayStatus='A' 
 								AND AP.WorkDate IN (" + Dates + @") 

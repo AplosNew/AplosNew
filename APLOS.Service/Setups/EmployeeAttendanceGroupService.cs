@@ -146,15 +146,17 @@ namespace Library.Service.Setups
         {
             try
             {
-                parameters.CmdText = @"SELECT PG.*,E.EmployeeName,E.EmployeeCode,E.GivenDesignationId,E.DepartmentId,E.DivisionId,E.SectionId
-                                           ,E.EmployeeCategorySystemID EmployeeCategoryId,EC.UserName EmployeeCategory
+                parameters.CmdText = @"SELECT PG.*,E.EmployeeName,E.EmployeeCode,E.GivenDesignationId,PR.DepartmentId,PR.DivisionId,PR.SectionId
+                                           ,EC.Id EmployeeCategoryId,EC.UserName EmployeeCategory
                                            ,GD.UserName GivenDesignation,D.UserName Department,DV.UserName Division
                                            ,S.UserName Section FROM 
                                          EmployeeInformation E 
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 										LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
-                                        LEFT JOIN ORG.Department D ON E.DepartmentId=D.Id
-                                        LEFT JOIN ORG.Division DV ON E.DivisionId=DV.Id
-                                        LEFT JOIN ORG.Section S ON E.SectionId= S.Id
+                                        LEFT JOIN ORG.Department D ON PR.DepartmentId=D.Id
+                                        LEFT JOIN ORG.Division DV ON PR.DivisionId=DV.Id
+                                        LEFT JOIN ORG.Section S ON PR.SectionId= S.Id
 										LEFT JOIN MST.DesignationMaster dmt ON dmt.DesignationId=E.GivenDesignationId
 										LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=dmt.EmployeeCategoryId
                                         LEFT JOIN EmployeeAttendanceGroup AG ON AG.EmployeeId=E.SystemId AND AG.AttendanceGroupId='" + attendanceGroupId + @"' 
@@ -173,15 +175,17 @@ namespace Library.Service.Setups
         {
             try
             {
-                string CmdText = @"SELECT AG.*,E.EmployeeName,E.EmployeeCode,E.GivenDesignationId,E.DepartmentId,E.DivisionId,E.SectionId
-                                           ,E.EmployeeCategorySystemID EmployeeCategoryId,EC.UserName EmployeeCategory
+                string CmdText = @"SELECT AG.*,E.EmployeeName,E.EmployeeCode,E.GivenDesignationId,PR.DepartmentId,PR.DivisionId,PR.SectionId
+                                           ,EC.Id EmployeeCategoryId,EC.UserName EmployeeCategory
                                            ,GD.UserName GivenDesignation,D.UserName Department,DV.UserName Division
                                            ,S.UserName Section FROM 
                                          EmployeeInformation E 
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 										LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
-                                        LEFT JOIN ORG.Department D ON E.DepartmentId=D.Id
-                                        LEFT JOIN ORG.Division DV ON E.DivisionId=DV.Id
-                                        LEFT JOIN ORG.Section S ON E.SectionId= S.Id
+                                        LEFT JOIN ORG.Department D ON PR.DepartmentId=D.Id
+                                        LEFT JOIN ORG.Division DV ON PR.DivisionId=DV.Id
+                                        LEFT JOIN ORG.Section S ON PR.SectionId= S.Id
 										LEFT JOIN MST.DesignationMaster dmt ON dmt.DesignationId=E.GivenDesignationId
 										LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=dmt.EmployeeCategoryId
                                         LEFT JOIN [dbo].[EmployeeAttendanceGroup] AG ON AG.EmployeeId=E.SystemId AND AG.AttendanceGroupId='" + attendanceGroupId + @"' 
