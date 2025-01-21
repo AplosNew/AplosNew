@@ -3283,6 +3283,7 @@ ORDER BY T.TrnType DESC";
 								[Park/Post]=CASE WHEN V.IsPark=0 THEN 'Posted' ELSE 'Parked' END,
                                 IID.TransactionQty Qty,II.Narration,II.SalesId,II.AddedDate,ADN.Id AdditionalTaxId,ADN.VoucherId TDSTaxVoucherId
 								,VADN.VoucherNo TDSVoucherNo,IsTDSTaxPost=case when VADN.IsPark=0 then 'TDSPosted'  when VADN.IsPark=1 then 'TDSParked' ELSE '' END
+								,IsCreditNote=case when II.IsCreditNote=1 then 'True'  ELSE '' END
                                 FROM [TRN].[SalesReturn] AS II
                                 JOIN (SELECT SUM(TransactionQty) TransactionQty,SalesReturnId FROM TRN.SalesReturnDetail GROUP BY SalesReturnId) AS IID ON IID.SalesReturnId=II.Id
 								JOIN TRN.Sales S ON S.Id=II.SalesId

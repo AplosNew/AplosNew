@@ -769,4 +769,7 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
         }
     };
 
+    $scope.FixedDisposeTaxInvoice = function (data) {
+        location.href = "FixedAssets/FixedAssetRegister/FixedDisposeTaxInvoice?disposeId=" + data.data.Id;
+    };
 }
