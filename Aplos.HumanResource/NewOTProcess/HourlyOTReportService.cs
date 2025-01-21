@@ -342,11 +342,13 @@ namespace Library.HumanResource.NewOTProcess
 									  hr.OTConsiderOn                                        
                                       From AttdnProcessData ap 
                                       LEFT JOIN EmployeeInformation ei on ei.SystemId=ap.EmpSystemId
-                                      LEFT JOIN [ORG].[Section] s on s.Id=ei.SectionId
-                                      LEFT JOIN [ORG].[SubSection] sb on sb.Id=ei.SubSectionId
+left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+							left join ORG.Position P on P.Id=MPB.PositionID
+                                      LEFT JOIN [ORG].[Section] s on s.Id=p.SectionId
+                                      LEFT JOIN [ORG].[SubSection] sb on sb.Id=p.SubSectionId
                                       LEFT JOIN [HKP].[LegalDesignation] ld on ld.Id=ei.LegalDesignationId
-                                      LEFT JOIN [ORG].[Department] d on d.Id=ei.DepartmentId
-                                      LEFT JOIN [ORG].[Line] l on l.Id=ei.LineId
+                                      LEFT JOIN [ORG].[Department] d on d.Id=p.DepartmentId
+                                      LEFT JOIN [ORG].[Line] l on l.Id=mpb.LineId
                                       LEFT JOIN PlantWiseHRMSSetting hr on hr.PlantID=ap.PlantId     
                                     where ap.WorkDate 
 									between '" + FromDate + "' and '" + ToDate + @"'  

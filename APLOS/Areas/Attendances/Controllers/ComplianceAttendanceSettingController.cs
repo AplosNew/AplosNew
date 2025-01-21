@@ -245,33 +245,20 @@ namespace Aplos.Areas.Attendances.Controllers
                                     ,e.EmployeeCodePreFix,e.EmployeeCodeNumeric
                                     ,E.PlantId
                                     FROM EmployeeInformation e
-                                    LEFT OUTER JOIN ORG.Department edept on edept.id=e.DepartmentId
-                                    LEFT OUTER JOIN ORG.Line eL on eL.id=e.LineId
-                                    LEFT OUTER JOIN ORG.Division ediv on ediv.id=e.DivisionId
-                                    LEFT OUTER JOIN ORG.SubDivision esdiv on esdiv.id=e.SubDivisionId
-                                    LEFT OUTER JOIN ORG.Section es on es.id=e.SectionId
-                                    LEFT OUTER JOIN ORG.SubSection ess on ess.id=e.SubSectionId
-                                    LEFT OUTER JOIN ORG.Plant ep on ep.id=e.PlantId
-                                    LEFT OUTER JOIN ORG.Unit eu on eu.id=e.UnitId
-                                    LEFT OUTER JOIN HKP.Designation edsg on edsg.id=e.DesignationSystemID
-                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
+                                                                       
 									LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
                                     LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=e.LegalDesignationId
-                                    LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
-									,dg.UserName GivenDesignationGroup--,srm.SalaryRuleName
-									FROM mst.DesignationMaster dm
-									LEFT OUTER JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
-									) egdsgg on egdsgg.DesignationId=e.GivenDesignationId
-									AND egdsgg.EmployeeCategoryId=e.EmployeeCategorySystemID
+                                   
                                     LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
 									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
                                     LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
                                     LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
-                                    LEFT JOIN [ORG].[Division] ON Division.Id = EN.DivisionId
+                                    LEFT JOIN [ORG].[Division] ON Division.Id = PO.DivisionId
                                     LEFT JOIN [ORG].[Plant] ON Plant.Id = EN.PlantId
                                     LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
                                     LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
                                     LEFT JOIN [ORG].[Unit] ON Unit.Id = EN.UnitId
+                                    LEFT JOIN ORG.Line EL ON MPB.LineID = EL.Id
                                     " + Apjoin + @"
                                     LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
                                     LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId			                                       

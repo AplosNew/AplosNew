@@ -221,10 +221,12 @@ namespace Library.Service.Employees
             {
                 parameters.CmdText = @"SELECT EI.EmployeeId,EI.EmployeeCode,EI.EmployeeName,D.UserName EmpDesignation,DP.UserName EMPDepartment,S.UserName EMPSection,SS.UserName EMPSubSection, PE.* FROM [BonusPolicyMonthlyRetainEligibleEmployee] PE
                                     LEFT JOIN EmployeeInformation EI ON PE.EmpSystemID=EI.SystemId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 									LEFT JOIN HKP.Designation D ON EI.DesignationSystemID = D.Id
-									LEFT JOIN ORG.Department DP ON EI.DepartmentId = DP.Id
-									LEFT JOIN ORG.Section S ON EI.SectionId=S.Id
-									LEFT JOIN ORG.SubSection SS ON EI.SubSectionId = SS.Id
+									LEFT JOIN ORG.Department DP ON pr.DepartmentId = DP.Id
+									LEFT JOIN ORG.Section S ON pr.SectionId=S.Id
+									LEFT JOIN ORG.SubSection SS ON pr.SubSectionId = SS.Id
                                     WHERE EI.PlantId='" + plantId + "' AND PE.IsMandatory =1  AND PE.IsApproved =1";
                 return _sqlRepository.GetGridData(parameters);
             }
@@ -245,16 +247,18 @@ namespace Library.Service.Employees
                                     SS.UserName EMPSubSection,BPM.IsIndividual,PE.*
                                     FROM [BonusPolicyMonthlyRetainEligibleEmployee] PE
                                     INNER JOIN EmployeeInformation EI ON PE.EmpSystemID=EI.SystemId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                                     INNER JOIN (
                                     SELECT DC.LeavePolicyMasterId,DC.BnsPlcMthRetainID, DC.PFPolicyMasterID, D.DesignationId
                                     FROM MST.DesignationMaster D
                                     LEFT JOIN SCS.DesignationMasterConfiguration DC ON D.Id=DC.DesignationMasterId
                                     WHERE DC.PlantId = '" + plantId + @"'
                                     ) DM ON EI.GivenDesignationId = DM.DesignationId
-                                    LEFT JOIN HKP.Designation D ON EI.DesignationSystemID = D.Id
-                                    LEFT JOIN ORG.Department DP ON EI.DepartmentId = DP.Id
-                                    LEFT JOIN ORG.Section S ON EI.SectionId=S.Id
-                                    LEFT JOIN ORG.SubSection SS ON EI.SubSectionId = SS.Id
+                                    LEFT JOIN HKP.Designation D ON pr.DesignationID = D.Id
+                                    LEFT JOIN ORG.Department DP ON pr.DepartmentId = DP.Id
+                                    LEFT JOIN ORG.Section S ON pr.SectionId=S.Id
+                                    LEFT JOIN ORG.SubSection SS ON pr.SubSectionId = SS.Id
                                     left join [dbo].[BonusPolicyMonthlyRetainMaster] BPM ON DM.BnsPlcMthRetainID=BPM.ID
                                     WHERE EI.PlantId = '" + plantId + "' AND PE.IsApproved =1 AND PE.IsMandatory =0";
                 return _sqlRepository.GetGridData(parameters);

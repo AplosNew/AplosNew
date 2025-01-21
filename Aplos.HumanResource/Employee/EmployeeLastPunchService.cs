@@ -42,10 +42,12 @@ namespace Library.HumanResource.Employee
                 from AttdnProcessData a where (isnull(InTime,'') !='' or isnull(OutTime,'')!='')
                 )as LastPunch where rnk1=1)LastPunch 
                 left join EmployeeInformation e on e.systemid=lastpunch.empsystemid
+ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position P ON MB.PositionId=P.Id
                 left join org.Plant px on px.Id=e.PlantId
-                left join org.Section s on s.Id=e.SectionId
-                left join org.SubSection ss on ss.Id=e.SubSectionId
-                left join org.Department d on d.Id=e.DepartmentId
+                left join org.Section s on s.Id=p.SectionId
+                left join org.SubSection ss on ss.Id=p.SubSectionId
+                left join org.Department d on d.Id=p.DepartmentId
                 left join hkp.LegalDesignation l on l.Id=e.LegalDesignationId
                 where EmpType <> 'Guest' 
                 and e.EmployeeStatus='Active'
@@ -77,10 +79,12 @@ namespace Library.HumanResource.Employee
                 from AttdnProcessData a where (isnull(InTime,'') !='' or isnull(OutTime,'')!='')
                 )as LastPunch where rnk1=1)LastPunch 
                 left join EmployeeInformation e on e.systemid=lastpunch.empsystemid
+ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                 left join org.Plant px on px.Id=e.PlantId              
-                left join org.Section s on s.Id=e.SectionId
-                left join org.SubSection ss on ss.Id=e.SubSectionId
-                left join org.Department d on d.Id=e.DepartmentId
+                left join org.Section s on s.Id=pr.SectionId
+                left join org.SubSection ss on ss.Id=pr.SubSectionId
+                left join org.Department d on d.Id=pr.DepartmentId
                 left join hkp.LegalDesignation l on l.Id=e.LegalDesignationId
                 where EmpType <> 'Guest' 
                 and e.EmployeeStatus='Active'

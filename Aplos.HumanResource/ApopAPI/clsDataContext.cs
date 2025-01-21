@@ -119,13 +119,15 @@ namespace HRService
       
        jl.JobLocation,i.EmpImage, i.ImgType
   FROM EmployeeInformation ei
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 LEFT OUTER JOIN JobLocation jl ON jl.SystemID=ei.JobLocationID
 LEFT OUTER JOIN EmployeeImage I ON i.EmpSystemID=ei.SystemID
 LEFT OUTER JOIN ORG.Plant p ON p.Id=ei.PlantID
-LEFT OUTER JOIN ORG.Division d ON d.Id=ei.DivisionID
-LEFT OUTER JOIN ORG.Department d2 ON d2.Id=ei.DepartmentID
-LEFT OUTER JOIN ORG.Section s ON s.Id=ei.SectionID
-LEFT OUTER JOIN ORG.SubSection ss ON ss.Id=ei.SubSectionID
+LEFT OUTER JOIN ORG.Division d ON d.Id=pr.DivisionID
+LEFT OUTER JOIN ORG.Department d2 ON d2.Id=pr.DepartmentID
+LEFT OUTER JOIN ORG.Section s ON s.Id=pr.SectionID
+LEFT OUTER JOIN ORG.SubSection ss ON ss.Id=pr.SubSectionID
 LEFT OUTER JOIN HKP.DesignationGroup dg ON dg.Id=ei.DesignationGroupID
 LEFT OUTER JOIN HKP.Designation d3 ON d3.Id=ei.DesignationSystemID
 LEFT OUTER JOIN (SELECT C.EmpInfoSystemID,MIN(spm.YearNo) AS MinYear,MIN(spm.MonthNo) AS MinMonth
@@ -2668,13 +2670,15 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
       
        jl.JobLocation,i.EmpImage, i.ImgType
   FROM EmployeeInformation ei
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 LEFT OUTER JOIN JobLocation jl ON jl.SystemID=ei.JobLocationID
 LEFT OUTER JOIN EmployeeImage I ON i.EmpSystemID=ei.SystemID
 LEFT OUTER JOIN ORG.Plant p ON p.Id=ei.PlantID
-LEFT OUTER JOIN ORG.Division d ON d.Id=ei.DivisionID
-LEFT OUTER JOIN ORG.Department d2 ON d2.Id=ei.DepartmentID
-LEFT OUTER JOIN ORG.Section s ON s.Id=ei.SectionID
-LEFT OUTER JOIN ORG.SubSection ss ON ss.Id=ei.SubSectionID
+LEFT OUTER JOIN ORG.Division d ON d.Id=pr.DivisionID
+LEFT OUTER JOIN ORG.Department d2 ON d2.Id=pr.DepartmentID
+LEFT OUTER JOIN ORG.Section s ON s.Id=pr.SectionID
+LEFT OUTER JOIN ORG.SubSection ss ON ss.Id=pr.SubSectionID
 LEFT OUTER JOIN HKP.DesignationGroup dg ON dg.Id=ei.DesignationGroupID
 LEFT OUTER JOIN HKP.Designation d3 ON d3.Id=ei.DesignationSystemID
 LEFT OUTER JOIN (SELECT C.EmpInfoSystemID,MIN(spm.YearNo) AS MinYear,MIN(spm.MonthNo) AS MinMonth
@@ -8523,12 +8527,12 @@ where QII.QMID='" + IssueId + "' and QII.IsActive = 1  order by QII.SNO";
 TRN.QualityIssueControl QIC
 left join dbo.EmployeeInformation EI on EI.SystemId=QIC.QGIEmployeeId
 LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
 							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
-                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=p.DepartmentId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=p.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=p.SubSectionId
 where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QIC.QGIEmployeeId is not null 
 and QIC.QCId is null";
                 objCon = new clsConnectionManager();
@@ -8567,12 +8571,12 @@ and QIC.QCId is null";
 TRN.QualityPlanControl QPC
 left join dbo.EmployeeInformation EI on EI.SystemId=QPC.QPEmployeeId
 LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
 							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
-                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=p.DepartmentId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=p.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=p.SubSectionId
 where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QPC.QPEmployeeId is not null 
 and QPC.QCId is null";
                 objCon = new clsConnectionManager();
@@ -11012,12 +11016,12 @@ from
 TRN.QualityControlDetails QCD
 left join dbo.EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
 LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
 							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
-                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=p.DepartmentId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=p.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=p.SubSectionId
 where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QCD.Status='Inprogress' and QCD.ResponsiblePersonId is not null";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();

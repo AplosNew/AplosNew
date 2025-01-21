@@ -376,11 +376,11 @@ LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=PBC.PersonBudgetCodeId
 LEFT JOIN dbo.EmployeeInformation AS EI ON EI.BudgetCode=PBC.PersonBudgetCodeId
 LEFT JOIN [TRN].[ResponsiblePlannedDetails] RPD ON RPD.ResponsiblePersonId=EI.SystemId and RPD.IsActive=1 and RPD.PlannedId='" + Id + @"'
 LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
-LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+LEFT OUTER JOIN org.Position P ON P.Id=mb.PositionID
 LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
-LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+LEFT JOIN ORG.Department AS DEP ON DEP.Id=p.DepartmentId
+LEFT OUTER JOIN ORG.Section S ON S.Id=p.SectionId
+LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=p.SubSectionId
 WHERE EI.EmployeeStatus='Active' and MS.Id='" + MaintenanceId + @"' 
 union 
 select RPD.IsActive,RPD.Id,RPD.PlanMinutes,RPD.ActualMinutes,
@@ -390,14 +390,14 @@ EI.SystemId as ResponsiblePersonId,EI.SystemId as SystemId, EI.PositionId AS Pos
 from TRN.TeamDefinitionEmployee TDE
 LEFT JOIN TRN.MaintenanceTeamDefinition MTD ON MTD.TeamDefinitionId = TDE.TeamDefinitionId
 LEFT JOIN dbo.EmployeeInformation AS EI ON EI.SystemId = TDE.EmployeeId
-LEFT JOIN [TRN].[ResponsiblePlannedDetails] RPD ON RPD.ResponsiblePersonId = EI.SystemId and RPD.IsActive = 1 and RPD.PlannedId='" + Id + @"'
-LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id = EI.LegalDesignationId
-LEFT JOIN ORG.Department AS DEP ON DEP.Id = EI.DepartmentId
 LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id = EI.BudgetCode
 LEFT JOIN ORG.Entity AS EN ON EN.Id = MB.EntityId
-LEFT OUTER JOIN org.Position P ON P.Id = EI.PositionID
-LEFT OUTER JOIN ORG.Section S ON S.Id = EI.SectionId
-LEFT OUTER JOIN ORG.SubSection SS ON SS.Id = EI.SubSectionId WHERE EI.EmployeeStatus='Active' and MTD.MaintenanceSchedulingId='" + MaintenanceId + @"'";
+LEFT OUTER JOIN org.Position P ON P.Id = mb.PositionID
+LEFT JOIN [TRN].[ResponsiblePlannedDetails] RPD ON RPD.ResponsiblePersonId = EI.SystemId and RPD.IsActive = 1 and RPD.PlannedId='" + Id + @"'
+LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id = EI.LegalDesignationId
+LEFT JOIN ORG.Department AS DEP ON DEP.Id = p.DepartmentId
+LEFT OUTER JOIN ORG.Section S ON S.Id = p.SectionId
+LEFT OUTER JOIN ORG.SubSection SS ON SS.Id = p.SubSectionId WHERE EI.EmployeeStatus='Active' and MTD.MaintenanceSchedulingId='" + MaintenanceId + @"'";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }

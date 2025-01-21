@@ -118,8 +118,8 @@ namespace Aplos.HumanResource
 							                    LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
 												LEFT JOIN ShiftDefination MSD on MSD.SystemID=PMB.ShiftDefinationId 
 							                    LEFT JOIN HKP.Designation DEG ON EI.GivenDesignationId=DEG.Id
-							                    LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-							                    LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+							                    LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+							                    LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
 							                    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
 							                    LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
 							                    left join RouteSchedule RS on RS.Id = ETA.TripId
@@ -159,9 +159,11 @@ LEFT JOIN RouteSchedule RS on RS.Id = ETA.TripId
 LEFT JOIN MST.Route R on R.Id = RS.RouteId
 LEFT JOIN TransportDetail TD on TD.Id = RS.TransportId
 LEFT JOIN EmployeeInformation EI on EI.SystemId = ETA.EmployeeSystemId
-LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-LEFT JOIN ORG.Department DEPT ON EI.DepartmentId=DEPT.Id
+left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+							left join ORG.Position P on P.Id=MPB.PositionID
+LEFT JOIN ORG.Section S ON S.Id=P.SectionId
+LEFT JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
+LEFT JOIN ORG.Department DEPT ON P.DepartmentId=DEPT.Id
 Where ETA.AssignStatus=1 AND BV.WorkDate between '" + fromDate + "' AND '"+toDate+"'";
 
                 return _sqlRepository.GetDataCollection(sql, null);

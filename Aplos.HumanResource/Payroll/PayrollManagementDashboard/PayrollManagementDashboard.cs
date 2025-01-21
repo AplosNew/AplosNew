@@ -730,14 +730,14 @@ namespace Library.HumanResource.Payroll.PayrollManagementDashboard
                         EI.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
                             PR.UserName PositionName,
                             DEPT.UserName Department,S.UserName Section,
-                            EI.SectionId,SS.UserName SubSection
+                            pr.SectionId,SS.UserName SubSection
                         FROM EmployeeInformation EI
 
                             LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                             LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                            LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            LEFT JOIN ORG.Section S ON S.Id=pr.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=pr.SubSectionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EI.LegalDesignationId
                             LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                             LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId

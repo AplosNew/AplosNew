@@ -131,13 +131,8 @@ namespace Aplos.Areas.Attendances.Controllers
                                     LEFT OUTER JOIN ORG.SubDivision esdiv on esdiv.id=PO.SubDivisionId
                                     LEFT OUTER JOIN ORG.Plant ep on ep.id=e.PlantId
                                     LEFT OUTER JOIN ORG.Unit eu on eu.id=EN.UnitId
-                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
 									LEFT OUTER JOIN hkp.Designation dsg on dsg.id=PO.DesignationId
-                                    LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId,dg.UserName GivenDesignationGroup
-									FROM mst.DesignationMaster dm
-									LEFT OUTER JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
-									) egdsgg
-									 on egdsgg.DesignationId=e.GivenDesignationId AND egdsgg.EmployeeCategoryId=e.EmployeeCategorySystemID
+                                    
 
                                     LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId                                

@@ -126,7 +126,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                              LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                              LEFT JOIN HKP.Designation DeG on DeG.Id=EI.GivenDesignationId
                              LEFT JOIN  HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId---- 
-                             LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                             LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
                              Left join MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
                              Left Join hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId 
                              LEFT JOIN mst.DesignationMasterLegalDesignation AS dmld ON dmld.LegalDesignationId=ei.LegalDesignationId---
@@ -138,8 +138,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                              LEFT JOIN HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId  
 
 
-                             LEFT JOIN ORG.Section s on s.id=ei.SectionId
-                             LEFT JOIN ORG.SubSection sb on sb.id=ei.SubSectionId
+                             LEFT JOIN ORG.Section s on s.id=PR.SectionId
+                             LEFT JOIN ORG.SubSection sb on sb.id=PR.SubSectionId
 
                             WHERE EI.PlantId='" + identity.PlantId + @"' 
                             AND ( Ei.EmployeeStatus='ACTIVE' or (EI.dos IS NULL or (month(EI.DOS)=" + MonthNo + @" and year(EI.DOS)=" + YearNo + @"))) 
@@ -265,7 +265,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                              LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                              LEFT JOIN HKP.Designation DeG on DeG.Id=EI.GivenDesignationId
                              LEFT JOIN  HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId---- 
-                             LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                             LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
                              Left join MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
                              Left Join hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId 
                              LEFT JOIN mst.DesignationMasterLegalDesignation AS dmld ON dmld.LegalDesignationId=ei.LegalDesignationId---
@@ -277,8 +277,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                              LEFT JOIN HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId  
 
 
-                             LEFT JOIN ORG.Section s on s.id=ei.SectionId
-                             LEFT JOIN ORG.SubSection sb on sb.id=ei.SubSectionId
+                             LEFT JOIN ORG.Section s on s.id=PR.SectionId
+                             LEFT JOIN ORG.SubSection sb on sb.id=PR.SubSectionId
 
                             WHERE EI.PlantId='" + identity.PlantId + @"' 
                             AND ( Ei.EmployeeStatus='ACTIVE' or (EI.dos IS NULL or (month(EI.DOS)=" + MonthNo + @" and year(EI.DOS)=" + YearNo + @"))) 

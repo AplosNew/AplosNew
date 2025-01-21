@@ -110,13 +110,13 @@ namespace Aplos.Areas.Machines.Controllers
                                     , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
                             FROM dbo.EmployeeInformation AS EI
-                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
-							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+							LEFT OUTER JOIN org.Position P ON P.Id=MB.PositionID
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
-                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=P.DepartmentId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=P.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
                             WHERE EI.EmployeeStatus='Active'";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
@@ -400,12 +400,12 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection from 
 TDE.Remarks,SD.UserName as Shift,S.UserName as Section,SS.UserName as SubSection,DEP.UserName AS Department,format(EI.DOJ,'dd-MMM-yyyy') as DOJ,EI.EmployeeStatus,EI.EmployeeCurrentStatus EmplCurrentStatus,P.Activity EmployeeActivity,EC.UserName EmployeeCategory,EI.BudgetCode as BudgetCodeId
 FROM dbo.EmployeeInformation AS EI
 LEFT JOIN [MST].[ManpowerBudget]  MB ON MB.Id=EI.BudgetCode
-LEFT JOIN ShiftDefination SD ON SD.SystemID=MB.ShiftDefinationId
-LEFT JOIN HKP.Designation DEG ON DEG.Id=EI.DesignationSystemID
-LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
 left join ORG.Position P on P.Id = MB.PositionId
+LEFT JOIN ShiftDefination SD ON SD.SystemID=MB.ShiftDefinationId
+LEFT JOIN HKP.Designation DEG ON DEG.Id=P.DesignationID
+LEFT OUTER JOIN ORG.Section S ON S.Id=p.SectionId
+LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=p.SubSectionId
+LEFT JOIN ORG.Department AS DEP ON DEP.Id=p.DepartmentId
 left join MST.DesignationMaster DM on DM.DesignationId = P.DesignationId
 left join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
 left Join [TRN].[TeamDefinitionEmployee] TDE ON TDE.EmployeeId=EI.SystemId and TDE.TeamDefinitionId='" + TeamId + @"'

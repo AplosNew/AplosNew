@@ -156,54 +156,20 @@ namespace Aplos.Areas.Attendances.Controllers
                               --,LSG.UserName SalaryGrade ,s.UserName  Section,sb.UserName SubSection,IsExceptionOT
                              FROM  AttdnProcessData AS apd
                              INNER JOIN EmployeeInformation EI ON EI.SystemId = apd.EmpSystemID 
-                             --INNER JOIN OTfromApp OTFA  on OTFA.EmpSystemId=apd.EmpSystemID and OTFA.WorkDate=apd.WorkDate 
-							 --LEFT JOIN DayType dt on dt.DayType=apd.DayStatus
-                             --LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
-                             --LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
-                             --LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                             --LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
-                             --LEFT JOIN HKP.Designation DeG on DeG.Id=EI.GivenDesignationId
+                             
                              LEFT JOIN  HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId---- 
-                             --LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
-                             --Left join MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
-                             --Left Join hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId 
-                             --LEFT JOIN mst.DesignationMasterLegalDesignation AS dmld ON dmld.LegalDesignationId=ei.LegalDesignationId---
-                             --LEFT JOIN MST.DesignationMaster DM ON DM.id=dmld.DesignationMasterId----
-                             --LEFT JOIN hkp.EmployeeCategory AS ec ON ec.Id=dm.EmployeeCategoryId----- 
-                             --LEFT join [MST].[LegalSalaryGradeDesignation] LSGD ON LSGD.LegalDesignationId = EI.LegalDesignationId and lsgd.PlantId=ei.PlantId
-                             --LEFT JOIN [SCS].[LegalSalaryGrade] LSG ON LSGD.LegalSalaryGradeId = LSG.Id 
-                             --LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId = DM.Id AND dmc.PlantId=ei.PlantId                              
-                             --LEFT JOIN HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId 
-                             --LEFT JOIN ORG.Section s on s.id=ei.SectionId
-                             --LEFT JOIN ORG.SubSection sb on sb.id=ei.SubSectionId
+                            
                              LEFT JOIN HourlyOT eot  on eot.EmpSystemId=apd.EmpSystemID and eot.WorkDate=apd.WorkDate 
-                             ---LEFT JOIN (select IsExceptionOT=case when id is not null then 1 else 0 end ,EmpSystemId,WorkDate from ExceptionOTProcess) excot  on excot.EmpSystemId=apd.EmpSystemID and excot.WorkDate=apd.WorkDate 
+                            
                              WHERE apd.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'  AND EI.PlantID='" + identity.PlantId + @"'                            
                              AND  apd.IsOTEntitled=1 AND isnull(APD.IsOTComfirm,0)=0 --AND ISNULL(apd.ProcessedOT,0)>0
-                             --AND apd.EmpSystemID IN (select distinct EmpSystemID from OTfromApp where IsConfirmed=0 and WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' )
+                           
 
                             GROUP BY apd.EmpSystemID 
                               ,EI.EmployeeCode
                               ,EI.EmployeeName
-                              ,format(EI.DOJ,'dd-MMM-yyyy')                             
-                              --,DG.UserName 
-                              --,DP.UserName 
-                              --,PMB.Code
-                              --,PR.UserName 
-                              --,E.UserName 
-                              --,DSG.UserName 
-                              --,PR.DesignationId
-                              --,PG.StandardName 
-                              ------,PG.Id 							
-                              ,ld.UserName 
-                              --,excot.IsExceptionOT
-                              --,ec.UserName 
-                              --,LSG.UserName  ,s.UserName  ,sb.UserName --,dt.OriginalDayType
-                            ---HAVING sum( apd.OTHr)>" + OTLimit + @"
-                            --ORDER BY CONVERT(DATE, apd.WorkDate ) ";
-
-
-
+                              ,format(EI.DOJ,'dd-MMM-yyyy')  
+                              ,ld.UserName";
 
             var data = _sqlRepository.GetDataCollection(sql);
 
